@@ -372,19 +372,19 @@ public class KycInvoiceServiceImpl
     @Override
     protected Long handleCountInvoicesByOrganisationId(String organisationId) throws Exception {
         
-        return kycInvoiceRepository.countInvoicesByOrganisationId(UUID.fromString(organisationId));
+        return kycInvoiceRepository.countInvoicesByOrganisationId(UUID.fromString(organisationId)).orElse(0L);
     }
 
     @Override
     protected Long handleCountInvoices(Boolean paid) throws Exception {
         
-        return kycInvoiceRepository.countInvoices(paid);
+        return kycInvoiceRepository.countInvoices(paid).orElse(0L);
     }
 
     @Override
     protected Long handleCountOrganisationInvoices(Boolean paid, String organisationId) throws Exception {
         
-        return kycInvoiceRepository.countOrganisationInvoices(paid, UUID.fromString(organisationId));
+        return kycInvoiceRepository.countOrganisationInvoices(paid, UUID.fromString(organisationId)).orElse(0L);
     }
 
     @Override

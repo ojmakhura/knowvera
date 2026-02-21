@@ -20,6 +20,7 @@ export type AppEnvState = {
     email: string;
     username: string;
   } | null;
+  userOrganisation: any
 };
 
 const initialState: AppEnvState = {
@@ -34,7 +35,8 @@ const initialState: AppEnvState = {
   isLoggedIn: false,
   accountUri: null,
   username: null,
-  profile: null
+  profile: null,
+  userOrganisation: null
 };
 
 export const AppEnvStore = signalStore(

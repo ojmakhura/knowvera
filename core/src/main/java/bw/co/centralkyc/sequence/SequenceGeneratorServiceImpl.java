@@ -178,7 +178,8 @@ public class SequenceGeneratorServiceImpl
     @Override
     protected SequenceGenerator handleFindByName(String name) throws Exception {
         
-        return this.sequenceGeneratorRepository.findByName(name);
+        return this.sequenceGeneratorRepository.findByName(name).orElseThrow(() -> new IllegalArgumentException(
+            String.format("No SequenceGenerator found with name '%s'", name)
+        ));
     }
-
 }

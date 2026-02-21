@@ -33,12 +33,17 @@ export class App {
           this.appEnvState.getEnv();
           this.appEnvState.setIsLoggedIn(typeEventArgs<ReadyArgs>(keycloakEvent.args));
           this.keycloak.loadUserProfile().then((profile) => {
+            console.log(profile);
             this.appEnvState.setProfile({
               firstName: profile.firstName || '',
               lastName: profile.lastName || '',
               email: profile.email || '',
               username: profile.username || ''
             });
+          });
+
+          this.keycloak.loadUserInfo().then((userInfo) => {
+            console.log(userInfo);
           });
         }
       }

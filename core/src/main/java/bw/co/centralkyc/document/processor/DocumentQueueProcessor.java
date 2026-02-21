@@ -2,6 +2,8 @@ package bw.co.centralkyc.document.processor;
 
 import java.io.InputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
@@ -9,17 +11,16 @@ import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
 import bw.co.centralkyc.minio.MinioService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class DocumentQueueProcessor {
+
+    private final static Logger log = LoggerFactory.getLogger(DocumentQueueProcessor.class);
 
     private final DocumentProcessorService documentProcessorService;
     private final DocumentService documentService;
     private final MinioService minioService;
-
     
     @RabbitListener(queues = "${app.rabbitmq.documentQueue}")
     public void handleDocumentProcessing(String documentId) {

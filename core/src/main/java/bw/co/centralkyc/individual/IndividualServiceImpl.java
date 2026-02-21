@@ -86,7 +86,7 @@ public class IndividualServiceImpl
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
         Page<Individual> individuals = individualRepository.findAll(pageRequest);
 
-        return individuals.map(individual -> individualDao.toIndividualListDTO(individual));
+        return individuals.map(individual -> individualMapper.toIndividualListDTO(individual));
     }
 
     /**
@@ -172,7 +172,7 @@ public class IndividualServiceImpl
 
         Specification<Individual> spec = createSpecification(criteria);
 
-        return individualDao.toIndividualListDTOCollection(
+        return individualMapper.toIndividualListDTOCollection(
             spec == null ? 
             individualRepository.findAll(Sort.by(Sort.Direction.ASC, "surname")) :
             individualRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "surname"))
@@ -192,7 +192,7 @@ public class IndividualServiceImpl
         PageRequest pageRequest = PageRequest.of(criteria.getPageNumber(), criteria.getPageSize());
         Page<Individual> individuals = spec == null ? individualRepository.findAll(pageRequest) : individualRepository.findAll(spec, pageRequest);
 
-        return individuals.map(individual -> individualDao.toIndividualListDTO(individual));
+        return individuals.map(individual -> individualMapper.toIndividualListDTO(individual));
     }
 
     @Override
@@ -218,7 +218,7 @@ public class IndividualServiceImpl
     @Override
     protected Long handleCountByPepStatus(PepStatus pepStatus) throws Exception {
         
-        return this.individualRepository.countByPepStatus(pepStatus);
+        return this.individualRepository.countByPepStatus(pepStatus).orElse(0L);
     }
 
     @Override
@@ -230,19 +230,19 @@ public class IndividualServiceImpl
     @Override
     protected Long handleCountByKycStatus(KycComplianceStatus kycStatus) throws Exception {
         
-        return this.individualRepository.countByKycStatus(kycStatus);
+        return this.individualRepository.countByKycStatus(kycStatus).orElse(0L);
     }
 
     @Override
     protected Long handleCountByEmploymentStatus(EmploymentStatus employmentStatus) throws Exception {
         
-        return this.individualRepository.countByEmploymentStatus(employmentStatus);
+        return this.individualRepository.countByEmploymentStatus(employmentStatus).orElse(0L);
     }
 
     @Override
     protected Long handleCountBySex(Sex sex) throws Exception {
         
-        return this.individualRepository.countBySex(sex);
+        return this.individualRepository.countBySex(sex).orElse(0L);
     }
 
     @Override
@@ -260,7 +260,8 @@ public class IndividualServiceImpl
             throw new IndividualServiceException("Invalid confirmation token");
         }
 
-        Individual individual = individualRepository.findByIdentityNo(identityNo);
+        Individual individual = individualRepository.findByIdentityNo(identityNo)
+                .orElseThrow(() -> new Exception("Individual not found for identityNo: " + identityNo));
 
         if (individual == null) {
             throw new IndividualServiceException("Individual not found with identityNo: " + identityNo);
@@ -277,7 +278,8 @@ public class IndividualServiceImpl
     @Override
     protected IndividualDTO handleFindByUserId(String userId) throws Exception {
         
-        Individual individual = individualRepository.findByUserId(userId);
+        Individual individual = individualRepository.findByUserId(userId)
+                    .orElseThrow(() -> new IndividualServiceException("Individual not found for userId: " + userId));
         return individualDao.toIndividualDTO(individual);
     }
 

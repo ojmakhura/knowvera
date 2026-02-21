@@ -161,78 +161,50 @@ public class IndividualDaoImpl
      * {@inheritDoc}
      */
     @Override
-    public void toIndividualListDTO(
-            Individual source,
-            IndividualListDTO target) {
-        // TODO verify behavior of toIndividualListDTO
-        super.toIndividualListDTO(source, target);
+    public IndividualListDTO toIndividualListDTO(final Individual entity)
+    {
 
-        StringBuilder fullName = new StringBuilder();
-        if (source.getFirstName() != null) {
-            fullName.append(source.getFirstName());
+        // No conversion for target.id (can't convert entity.getId():java.lang.Long to String)
+        String id = entity.getId().toString(); 
+        // No matching property found for target.name in entity Individual
+        StringBuilder nameBuilder = new StringBuilder();
+        if (StringUtils.isNotBlank(entity.getFirstName())) {
+            nameBuilder.append(entity.getFirstName());
         }
 
-        if (StringUtils.isNotBlank(source.getMiddleName())) {
-
-            if (fullName.length() > 0) {
-                fullName.append(" ");
+        if(StringUtils.isNotBlank(entity.getMiddleName())) {
+            if (nameBuilder.length() > 0) {
+                nameBuilder.append(" ");
             }
-            fullName.append(source.getMiddleName());
+            nameBuilder.append(entity.getMiddleName());
         }
 
-        if (source.getSurname() != null) {
-            if (fullName.length() > 0) {
-                fullName.append(" ");
+        if (StringUtils.isNotBlank(entity.getSurname())) {
+            if (nameBuilder.length() > 0) {
+                nameBuilder.append(" ");
             }
-            fullName.append(source.getSurname());
+            nameBuilder.append(entity.getSurname());
         }
-        target.setName(fullName.toString());
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public IndividualListDTO toIndividualListDTO(final Individual entity) {
-        // TODO verify behavior of toIndividualListDTO
-        return super.toIndividualListDTO(entity);
-    }
+        String name = nameBuilder.toString();
+        String identityNo = entity.getIdentityNo(); 
+        IndividualIdentityType identityType = entity.getIdentityType(); 
+        String emailAddress = entity.getEmailAddress(); 
+        KycComplianceStatus kycStatus = entity.getKycStatus(); 
+        Sex sex = entity.getSex(); 
+        PepStatus pepStatus = entity.getPepStatus(); 
+        Boolean userCreated = entity.getUserCreated(); 
 
-    /**
-     * Retrieves the entity object that is associated with the specified value
-     * object
-     * from the object store. If no such entity object exists in the object store,
-     * a new, blank entity is created
-     */
-    private Individual loadIndividualFromIndividualListDTO(IndividualListDTO individualListDTO) {
-        if (individualListDTO.getId() == null) {
-            return Individual.Factory.newInstance();
-        } else {
-            return this.individualRepository.findById(UUID.fromString(individualListDTO.getId()))
-                    .orElseThrow(
-                            () -> new EntityNotFoundException("Entity not found for id: " + individualListDTO.getId()));
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Individual individualListDTOToEntity(IndividualListDTO individualListDTO) {
-        // TODO verify behavior of individualListDTOToEntity
-        Individual entity = this.loadIndividualFromIndividualListDTO(individualListDTO);
-        this.individualListDTOToEntity(individualListDTO, entity, true);
-        return entity;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void individualListDTOToEntity(
-            IndividualListDTO source,
-            Individual target,
-            boolean copyIfNull) {
-        // TODO verify behavior of individualListDTOToEntity
-        super.individualListDTOToEntity(source, target, copyIfNull);
+        return new IndividualListDTO(
+            id, 
+            name, 
+            identityNo, 
+            identityType, 
+            emailAddress, 
+            kycStatus, 
+            sex, 
+            pepStatus, 
+            userCreated        
+        );
     }
 }

@@ -4,6 +4,7 @@ import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { KycRecordApi } from '@app/services/bw/co/centralkyc/kyc/kyc-record-api';
 import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
 import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
+import Keycloak from 'keycloak-js';
 
 @Component({
   selector: 'app-kyc-record',
@@ -20,11 +21,14 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
   kycRecordApiStore = inject(KycRecordApiStore);
   kycRecordApi = inject(KycRecordApi);
 
-  kycDocuments = linkedSignal(() => this.settingsApiStore.data().indKycDocuments);
+  indKycDocuments = linkedSignal(() => this.settingsApiStore.data().indKycDocuments);
+  orgKycDocuments = linkedSignal(() => this.settingsApiStore.data().orgKycDocuments);
 
   currentIndividualRecord = linkedSignal(() => this.kycRecordApiStore.currentIndividualRecord());
   currentOrganisationRecord = linkedSignal(() => this.kycRecordApiStore.currentOrganisationRecord());
   myRecords = linkedSignal(() => this.kycRecordApiStore.data());
+
+  private keycloak = inject(Keycloak);
 
   constructor() {}
 
@@ -39,6 +43,10 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
     //     console.log(record)
     //   }
     // })
+
+    this.keycloak.loadUserInfo().then((userInfo) => {
+      console.log(userInfo);
+    });
   }
 
   ngOnDestroy(): void {

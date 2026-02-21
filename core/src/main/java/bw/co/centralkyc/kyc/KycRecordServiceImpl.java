@@ -244,7 +244,8 @@ public class KycRecordServiceImpl
         throws Exception
     {
 
-        Individual individual = this.individualRepository.findByIdentityNo(identityNo);
+        Individual individual = this.individualRepository.findByIdentityNo(identityNo)
+                .orElseThrow(() -> new Exception("Individual not found for identityNo: " + identityNo));
 
         return this.findByIndividual(individual.getId().toString());
     }
@@ -280,7 +281,8 @@ public class KycRecordServiceImpl
     protected Page<KycRecordDTO> handleFindByIdentityNo(String identityNo, Integer pageNumber, Integer pageSize)
             throws Exception {
 
-        Individual individual = this.individualRepository.findByIdentityNo(identityNo);
+        Individual individual = this.individualRepository.findByIdentityNo(identityNo)
+                .orElseThrow(() -> new Exception("Individual not found for identityNo: " + identityNo));
 
         return this.handleFindByIndividual(individual.getId().toString(), pageNumber, pageSize);
     }
@@ -365,7 +367,8 @@ public class KycRecordServiceImpl
     protected KycRecordDTO handleFindLatestValidForOwner(String ownerId, TargetEntity ownerType, LocalDate today)
             throws Exception {
         
-        KycRecord record = kycRecordRepository.findLatestValidForOwner(ownerId, ownerType, today);
+        KycRecord record = kycRecordRepository.findLatestValidForOwner(ownerId, ownerType, today)
+            .orElseThrow(() -> new KycRecordServiceException("No valid KycRecord found for ownerId: " + ownerId + " and ownerType: " + ownerType));
 
         return kycRecordDao.toKycRecordDTO(record);
     }

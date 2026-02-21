@@ -435,7 +435,7 @@ public class ClientRequestServiceImpl
         // Save individual entity
 
         Individual savedIndividual = individualRepository.findByIdentityNoAndIdentityType(
-                individual.getIdentityNo(), individual.getIdentityType());
+                individual.getIdentityNo(), individual.getIdentityType()).orElseThrow(() -> new ClientRequestServiceException("The individual could not be found."));
 
         if (savedIndividual == null) {
             savedIndividual = individual;
@@ -933,14 +933,14 @@ public class ClientRequestServiceImpl
     @Override
     protected Long handleCountByStatus(ClientRequestStatus status) throws Exception {
 
-        return clientRequestRepository.countByStatus(status);
+        return clientRequestRepository.countByStatus(status).orElse(0L);
     }
 
     @Override
     protected Long handleCountByStatusAndOrganisationId(ClientRequestStatus status, String organisationId)
             throws Exception {
 
-        return clientRequestRepository.countByStatusAndOrganisationId(status, organisationId);
+        return clientRequestRepository.countByStatusAndOrganisationId(status, organisationId).orElse(0L);
     }
 
     @Override

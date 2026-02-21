@@ -202,25 +202,25 @@ public class OrganisationServiceImpl
     @Override
     protected Long handleCountByKycStatus(KycComplianceStatus kycStatus) throws Exception {
         
-        return organisationRepository.countByKycStatus(kycStatus);
+        return organisationRepository.countByKycStatus(kycStatus).orElse(0L);
     }
 
     @Override
     protected Long handleCountByStatus(GeneralStatus status) throws Exception {
         
-        return organisationRepository.countByStatus(status);
+        return organisationRepository.countByStatus(status).orElse(0L);
     }
 
     @Override
     protected Long handleCountByIsClientFalse() throws Exception {
         
-        return organisationRepository.countByIsClientFalse();
+        return organisationRepository.countByIsClientFalse().orElse(0L);
     }
 
     @Override
     protected Long handleCountByIsClientTrue() throws Exception {
         
-        return organisationRepository.countByIsClientTrue();
+        return organisationRepository.countByIsClientTrue().orElse(0L);
     }
 
     @Override
