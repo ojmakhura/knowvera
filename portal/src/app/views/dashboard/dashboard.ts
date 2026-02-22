@@ -1,5 +1,6 @@
 import { SettingsApiStore } from './../../store/bw/co/centralkyc/settings/settings-api.store';
 import { AfterViewInit, Component, OnDestroy, OnInit, signal, inject, linkedSignal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
 import { ClientRequestDTO } from '@app/models/bw/co/centralkyc/organisation/client/client-request-dto';
 import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
@@ -31,6 +32,9 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
   currentIndividualRecord = linkedSignal(() => this.kycRecordApiStore.currentIndividualRecord());
   currentOrganisationRecord = linkedSignal(() => this.kycRecordApiStore.currentOrganisationRecord());
   myRecords = linkedSignal(() => this.kycRecordApiStore.dataList());
+
+  route = inject(ActivatedRoute);
+  router = inject(Router);
 
   constructor() { }
 
@@ -101,6 +105,11 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
   createRecord(type: string): void {
     console.log('Creating record of type:', type);
     // Navigate to record creation page
+    this.router.navigate(['/kyc-record', 'edit'], {
+      queryParams: {
+        target: type
+      }
+    })
   }
 
   refreshRecords(): void {

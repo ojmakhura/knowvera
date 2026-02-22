@@ -1,5 +1,6 @@
 import { CommonModule, JsonPipe } from '@angular/common';
 import { AfterViewInit, Component, inject, linkedSignal, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { KycRecordApi } from '@app/services/bw/co/centralkyc/kyc/kyc-record-api';
 import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
@@ -29,6 +30,8 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
   myRecords = linkedSignal(() => this.kycRecordApiStore.data());
 
   private keycloak = inject(Keycloak);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   constructor() {}
 
@@ -46,6 +49,14 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
 
     this.keycloak.loadUserInfo().then((userInfo) => {
       console.log(userInfo);
+    });
+
+    this.route.queryParams.subscribe(params => {
+      const target = params['target'] as TargetEntity;
+      if (target) {
+        // this.navigateToRecordCreation(target);
+        console.log('Navigate to record creation for target:', target);
+      }
     });
   }
 

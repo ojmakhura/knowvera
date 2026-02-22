@@ -25,9 +25,9 @@ import net.sourceforge.tess4j.TesseractException;
 import java.awt.image.BufferedImage;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class DocumentProcessorService {
+    
 
     @Value("${app.tessdata-prefix}")
     private String tessdataPrefix;

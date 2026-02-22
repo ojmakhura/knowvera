@@ -113,7 +113,7 @@ public class IndividualServiceImpl
         Individual entity = individualDao.individualDTOToEntity(individual);
         entity = individualRepository.save(entity);
 
-        return individualDao.toIndividualDTO(entity);
+        return individualMapper.toIndividualDTO(entity);
     }
 
     private Specification<Individual> createSpecification(IndividualSearchCriteria criteria) {
@@ -272,7 +272,7 @@ public class IndividualServiceImpl
             throw new IndividualServiceException("Individual does not match ClientRequest target");
         }
 
-        return individualDao.toIndividualDTO(individual);
+        return individualMapper.toIndividualDTO(individual);
     }
 
     @Override
@@ -280,7 +280,7 @@ public class IndividualServiceImpl
         
         Individual individual = individualRepository.findByUserId(userId)
                     .orElseThrow(() -> new IndividualServiceException("Individual not found for userId: " + userId));
-        return individualDao.toIndividualDTO(individual);
+        return individualMapper.toIndividualDTO(individual);
     }
 
 }

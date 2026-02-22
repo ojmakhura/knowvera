@@ -8,6 +8,7 @@ package bw.co.centralkyc.individual;
 import bw.co.centralkyc.PhoneNumberMapper;
 import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.individual.employment.EmploymentRecordMapper;
+import bw.co.centralkyc.organisation.OrganisationMapper;
 import bw.co.centralkyc.organisation.branch.BranchMapper;
 import java.util.Collection;
 import java.util.List;
@@ -22,7 +23,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         DocumentMapper.class,
         EmploymentRecordMapper.class,
         BranchMapper.class,
-        PhoneNumberMapper.class
+        PhoneNumberMapper.class,
+        OrganisationMapper.class
 })
 public interface IndividualMapper {
 

@@ -51,6 +51,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./views/kyc-record/kyc-record').then((m) => m.KycRecord),
   },
+  {
+    path: 'kyc-record/edit',
+    data: { title: 'Edit KYC Record' },
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./views/kyc-record/edit/edit-kyc-record').then((m) => m.EditKycRecord),
+  },
   // Fallback when no prior route is matched
   {
     path: '**', redirectTo: '', pathMatch: 'full'
