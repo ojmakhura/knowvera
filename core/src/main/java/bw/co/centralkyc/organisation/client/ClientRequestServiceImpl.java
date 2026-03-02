@@ -15,20 +15,22 @@ import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.Document;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentDao;
+import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.document.DocumentRepository;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualDao;
 import bw.co.centralkyc.individual.IndividualIdentityType;
+import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.individual.Sex;
 import bw.co.centralkyc.kyc.KycComplianceStatus;
 import bw.co.centralkyc.messaging.ClientRequestNotification;
 import bw.co.centralkyc.settings.SettingsDao;
+import bw.co.centralkyc.settings.SettingsMapper;
 import bw.co.centralkyc.settings.SettingsRepository;
 import bw.co.roguesystems.comm.ContentType;
 import bw.co.roguesystems.comm.MessagingPlatform;
 import bw.co.roguesystems.comm.message.CommMessageDTO;
-import ch.qos.logback.core.net.server.Client;
 import io.micrometer.common.util.StringUtils;
 
 import java.io.BufferedReader;
@@ -84,13 +86,13 @@ public class ClientRequestServiceImpl
     private final ClientRequestNotification clientRequestNotification;
 
     public ClientRequestServiceImpl(ClientRequestDao clientRequestDao, ClientRequestRepository clientRequestRepository,
-            IndividualDao individualDao, IndividualRepository individualRepository, DocumentDao documentDao,
-            DocumentRepository documentRepository, SettingsDao settingsDao, SettingsRepository settingsRepository,
-            MessageSource messageSource, PasswordEncoder passwordEncoder, ClientRequestNotification clientRequestNotification) {
-        super(clientRequestDao, clientRequestRepository, individualDao, individualRepository, documentDao,
-                documentRepository,
-                settingsDao, settingsRepository, messageSource);
-
+            ClientRequestMapper clientRequestMapper, IndividualDao individualDao, PasswordEncoder passwordEncoder, ClientRequestNotification clientRequestNotification, IndividualRepository individualRepository, IndividualMapper individualMapper, DocumentDao documentDao,
+            DocumentRepository documentRepository, DocumentMapper documentMapper, SettingsDao settingsDao,
+            SettingsRepository settingsRepository, SettingsMapper settingsMapper, MessageSource messageSource) {
+        super(clientRequestDao, clientRequestRepository, clientRequestMapper, individualDao, individualRepository,
+                individualMapper, documentDao, documentRepository, documentMapper, settingsDao, settingsRepository,
+                settingsMapper, messageSource);
+        // TODO Auto-generated constructor stub
         this.passwordEncoder = passwordEncoder;
         this.clientRequestNotification = clientRequestNotification;
     }
@@ -241,7 +243,8 @@ public class ClientRequestServiceImpl
         if (StringUtils.isNotBlank(criteria.getOrganisationId())) {
 
             spec = spec.and(
-                    (root, query, cb) -> cb.equal(root.get("organisation").get("id"), UUID.fromString(criteria.getOrganisationId())));
+                    (root, query, cb) -> cb.equal(root.get("organisation").get("id"),
+                            UUID.fromString(criteria.getOrganisationId())));
         }
 
         if (criteria.getTarget() != null) {
@@ -391,39 +394,42 @@ public class ClientRequestServiceImpl
     }
 
     // @Async
-    // private void queueEmailNotificationsForRequests(List<ClientRequest> clientRequests,
-    //         Map<String, String> tokenMap, String organisation) {
-    //     // TODO: Implementation for queuing email notifications
-    //     List<CommMessageDTO> notifiedRequests = new ArrayList<>();
-    //     String subject = "Client Request Notification from " + organisation;
+    // private void queueEmailNotificationsForRequests(List<ClientRequest>
+    // clientRequests,
+    // Map<String, String> tokenMap, String organisation) {
+    // // TODO: Implementation for queuing email notifications
+    // List<CommMessageDTO> notifiedRequests = new ArrayList<>();
+    // String subject = "Client Request Notification from " + organisation;
 
-    //     String tmp = requestEmailTemplate
-    //             .replace("{{organisationName}}", organisation)
-    //             .replace("{{platformName}}", "Central KYC Platform")
-    //             .replace("{{platformUrl}}", "https://centralkyc.co.bw")
-    //             .replace("{{supportContact}}", "support@centralkyc.co.bw");
+    // String tmp = requestEmailTemplate
+    // .replace("{{organisationName}}", organisation)
+    // .replace("{{platformName}}", "Central KYC Platform")
+    // .replace("{{platformUrl}}", "https://centralkyc.co.bw")
+    // .replace("{{supportContact}}", "support@centralkyc.co.bw");
 
-    //     for (ClientRequest request : clientRequests) {
-    //         String token = tokenMap.get(request.getTargetId());
-    //         // Create and queue email notification with the token
-    //         // For now, just print to console (not recommended for production)
-    //         System.out.println("Queue email notification for Request ID: " + request.getId() + ", Token: " + token);
+    // for (ClientRequest request : clientRequests) {
+    // String token = tokenMap.get(request.getTargetId());
+    // // Create and queue email notification with the token
+    // // For now, just print to console (not recommended for production)
+    // System.out.println("Queue email notification for Request ID: " +
+    // request.getId() + ", Token: " + token);
 
-    //         CommMessageDTO message = new CommMessageDTO();
-    //         message.setPlatform(MessagingPlatform.EMAIL);
-    //         message.setContentType(ContentType.MIME);
-    //         message.setSubject(subject);
+    // CommMessageDTO message = new CommMessageDTO();
+    // message.setPlatform(MessagingPlatform.EMAIL);
+    // message.setContentType(ContentType.MIME);
+    // message.setSubject(subject);
 
-    //         tmp = tmp.replace("{{recipientName}}", request.getTargetId())
-    //                 .replace("{{kycPortalLink}}",
-    //                         String.format("%s/%s?token=%s", registrationUrl, request.getId(), token)); // Placeholder
+    // tmp = tmp.replace("{{recipientName}}", request.getTargetId())
+    // .replace("{{kycPortalLink}}",
+    // String.format("%s/%s?token=%s", registrationUrl, request.getId(), token)); //
+    // Placeholder
 
-    //         System.out.println(tmp);
+    // System.out.println(tmp);
 
-    //         message.setText(tmp);
+    // message.setText(tmp);
 
-    //         notifiedRequests.add(message);
-    //     }
+    // notifiedRequests.add(message);
+    // }
 
     // }
 
@@ -435,7 +441,8 @@ public class ClientRequestServiceImpl
         // Save individual entity
 
         Individual savedIndividual = individualRepository.findByIdentityNoAndIdentityType(
-                individual.getIdentityNo(), individual.getIdentityType()).orElseThrow(() -> new ClientRequestServiceException("The individual could not be found."));
+                individual.getIdentityNo(), individual.getIdentityType())
+                .orElseThrow(() -> new ClientRequestServiceException("The individual could not be found."));
 
         if (savedIndividual == null) {
             savedIndividual = individual;
@@ -888,7 +895,7 @@ public class ClientRequestServiceImpl
         clientRequest.setStatus(status);
         clientRequest = clientRequestRepository.save(clientRequest);
 
-        if(status == ClientRequestStatus.ACCEPTED) {
+        if (status == ClientRequestStatus.ACCEPTED) {
             // Additional actions on approval can be handled here
         }
 
@@ -908,19 +915,19 @@ public class ClientRequestServiceImpl
         }
 
         String confirmationToken = RandomStringUtils
-                    .secure()
-                    .next(requestTokenLength, true, true);
+                .secure()
+                .next(requestTokenLength, true, true);
 
-            // Encode the token
+        // Encode the token
         String encodedToken = passwordEncoder.encode(confirmationToken);
 
         clientRequest.setIdentityConfirmationToken(encodedToken);
 
         String registrationToken = RandomStringUtils
-                    .secure()
-                    .next(requestTokenLength, true, true);
+                .secure()
+                .next(requestTokenLength, true, true);
 
-            // Encode the token
+        // Encode the token
         String encodedRegistrationToken = passwordEncoder.encode(registrationToken);
 
         clientRequest.setRegistrationToken(encodedRegistrationToken);
@@ -961,12 +968,12 @@ public class ClientRequestServiceImpl
             throw new ClientRequestServiceException("Invalid registration token");
         }
 
-        if(request.getStatus() == ClientRequestStatus.ACCEPTED) {
+        if (request.getStatus() == ClientRequestStatus.ACCEPTED) {
 
             throw new ClientRequestServiceException("ClientRequest already confirmed");
         }
 
-        if(confirm) {
+        if (confirm) {
             request.setStatus(ClientRequestStatus.ACCEPTED);
         } else {
             request.setStatus(ClientRequestStatus.REJECTED);

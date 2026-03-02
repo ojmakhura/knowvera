@@ -7,6 +7,7 @@ package bw.co.centralkyc.organisation.client;
 
 import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.organisation.OrganisationMapper;
+import bw.co.centralkyc.utils.MappingUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,7 +22,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
     componentModel = "spring"
     , uses = {
         DocumentMapper.class,
-        OrganisationMapper.class
+        OrganisationMapper.class,
+        MappingUtils.class
     }
 )
 public interface ClientRequestMapper {

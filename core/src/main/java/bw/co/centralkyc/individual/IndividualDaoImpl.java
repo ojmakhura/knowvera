@@ -12,6 +12,7 @@ import bw.co.centralkyc.individual.employment.EmploymentRecordRepository;
 import bw.co.centralkyc.kyc.KycComplianceStatus;
 import bw.co.centralkyc.kyc.KycRecordRepository;
 import bw.co.centralkyc.organisation.OrganisationListDTO;
+import bw.co.centralkyc.organisation.OrganisationMapper;
 import bw.co.centralkyc.organisation.OrganisationRepository;
 import bw.co.centralkyc.organisation.branch.BranchDTO;
 import bw.co.centralkyc.organisation.branch.BranchRepository;
@@ -37,13 +38,15 @@ public class IndividualDaoImpl
         extends IndividualDaoBase {
 
     private final JsonMapper jsonMapper;
+    private final OrganisationMapper organisationMapper;
 
     public IndividualDaoImpl(DocumentRepository documentRepository,
             EmploymentRecordRepository employmentRecordRepository, BranchRepository branchRepository,
             OrganisationRepository organisationRepository, IndividualRepository individualRepository,
-            JsonMapper jsonMapper) {
+            JsonMapper jsonMapper, OrganisationMapper organisationMapper) {
         super(documentRepository, employmentRecordRepository, branchRepository, organisationRepository,
                 individualRepository);
+        this.organisationMapper = organisationMapper;
         // TODO Auto-generated constructor stub
         this.jsonMapper = jsonMapper;
     }
@@ -64,16 +67,14 @@ public class IndividualDaoImpl
             branchDao.toBranchDTO(source.getBranch(), target.getBranch());
             target.getBranch().setId(source.getBranch().getId().toString());
 
-            target.setOrganisation(new OrganisationListDTO());
-            target.getOrganisation().setId(source.getBranch().getOrganisation().getId().toString());
-            target.getOrganisation().setName(source.getBranch().getOrganisation().getName());
+            OrganisationListDTO org = organisationMapper.toOrganisationListDTO(source.getOrganisation());
+            target.setOrganisation(org);
         } else {
 
             if (source.getOrganisation() != null) {
 
-                target.setOrganisation(new OrganisationListDTO());
-                target.getOrganisation().setId(source.getOrganisation().toString());
-
+                OrganisationListDTO org = organisationMapper.toOrganisationListDTO(source.getOrganisation());
+                target.setOrganisation(org);
             }
         }
 
@@ -137,11 +138,11 @@ public class IndividualDaoImpl
                     .orElseThrow(() -> new EntityNotFoundException(
                             "Entity not found for id: " + source.getBranch().getId())));
 
-        } else if (source.getOrganisation() != null && source.getOrganisation().getId() != null) {
+        } else if (source.getOrganisation() != null && source.getOrganisation().id() != null) {
 
-            target.setOrganisation(organisationRepository.findById(UUID.fromString(source.getOrganisation().getId()))
+            target.setOrganisation(organisationRepository.findById(UUID.fromString(source.getOrganisation().id()))
                     .orElseThrow(() -> new EntityNotFoundException(
-                            "Entity not found for id: " + source.getOrganisation().getId())));
+                            "Entity not found for id: " + source.getOrganisation().id())));
         }
 
         if (!CollectionUtils.isEmpty(source.getPhoneNumbers())) {
@@ -161,18 +162,18 @@ public class IndividualDaoImpl
      * {@inheritDoc}
      */
     @Override
-    public IndividualListDTO toIndividualListDTO(final Individual entity)
-    {
+    public IndividualListDTO toIndividualListDTO(final Individual entity) {
 
-        // No conversion for target.id (can't convert entity.getId():java.lang.Long to String)
-        String id = entity.getId().toString(); 
+        // No conversion for target.id (can't convert entity.getId():java.lang.Long to
+        // String)
+        String id = entity.getId().toString();
         // No matching property found for target.name in entity Individual
         StringBuilder nameBuilder = new StringBuilder();
         if (StringUtils.isNotBlank(entity.getFirstName())) {
             nameBuilder.append(entity.getFirstName());
         }
 
-        if(StringUtils.isNotBlank(entity.getMiddleName())) {
+        if (StringUtils.isNotBlank(entity.getMiddleName())) {
             if (nameBuilder.length() > 0) {
                 nameBuilder.append(" ");
             }
@@ -187,24 +188,24 @@ public class IndividualDaoImpl
         }
 
         String name = nameBuilder.toString();
-        String identityNo = entity.getIdentityNo(); 
-        IndividualIdentityType identityType = entity.getIdentityType(); 
-        String emailAddress = entity.getEmailAddress(); 
-        KycComplianceStatus kycStatus = entity.getKycStatus(); 
-        Sex sex = entity.getSex(); 
-        PepStatus pepStatus = entity.getPepStatus(); 
-        Boolean userCreated = entity.getUserCreated(); 
+        String identityNo = entity.getIdentityNo();
+        IndividualIdentityType identityType = entity.getIdentityType();
+        String emailAddress = entity.getEmailAddress();
+        KycComplianceStatus kycStatus = entity.getKycStatus();
+        Sex sex = entity.getSex();
+        PepStatus pepStatus = entity.getPepStatus();
+        Boolean userCreated = entity.getUserCreated();
 
         return new IndividualListDTO(
-            id, 
-            name, 
-            identityNo, 
-            identityType, 
-            emailAddress, 
-            kycStatus, 
-            sex, 
-            pepStatus, 
-            userCreated        
+                id,
+                name,
+                identityNo,
+                identityType,
+                emailAddress,
+                kycStatus,
+                sex,
+                pepStatus,
+                userCreated
         );
     }
 }

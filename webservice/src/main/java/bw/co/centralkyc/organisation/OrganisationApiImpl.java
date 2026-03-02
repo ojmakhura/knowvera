@@ -84,7 +84,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
             Page<OrganisationListDTO> results = organisationService.search(criteria);
 
-            updateOrganisationsDetails(results.getContent());
+            // updateOrganisationsDetails(results.getContent());
 
             return ResponseEntity.ok(results);
 
@@ -106,16 +106,32 @@ public class OrganisationApiImpl implements OrganisationApi {
         }
     }
 
-    private void updateOrganisationsDetails(Collection<OrganisationListDTO> orgs) {
-        for (OrganisationListDTO org : orgs) {
+    private Collection<OrganisationListDTO> updateOrganisationsDetails(Collection<OrganisationListDTO> orgs) {
 
-            OrganisationDTO orgDetails = organisationService.findById(org.getId());
+        return orgs.stream().map(org -> {
+
+            OrganisationDTO orgDetails = organisationService.findById(org.id());
             if (orgDetails != null) {
-                org.contactEmailAddress = orgDetails.getContactEmailAddress();
-                org.registrationNo = orgDetails.getRegistrationNo();
+                OrganisationListDTO updatedOrg = new OrganisationListDTO(
+                    org.id(), 
+                    org.code(), 
+                    org.name(),
+                    orgDetails.getRegistrationNo(), 
+                    org.status(), 
+                    orgDetails.getContactEmailAddress(), 
+                    org.kycStatus(), 
+                    orgDetails.getIsClient(), 
+                    orgDetails.getKeycloakId()
+                );
+
+                // org.contactEmailAddress = orgDetails.getContactEmailAddress();
+                // org.registrationNo = orgDetails.getRegistrationNo();
+
+                return updatedOrg;
             }
 
-        }
+            return null;
+        }).filter(org -> org != null).toList();
     }
 
     @Override

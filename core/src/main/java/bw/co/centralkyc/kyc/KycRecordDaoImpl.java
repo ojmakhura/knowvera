@@ -13,6 +13,7 @@ import bw.co.centralkyc.document.DocumentRepository;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.individual.employment.EmploymentRecordRepository;
+import bw.co.centralkyc.kyc.verification.KycVerificationRepository;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -34,8 +35,10 @@ public class KycRecordDaoImpl
     private final OrganisationRepository organisationRepository;
 
     public KycRecordDaoImpl(DocumentRepository documentRepository, IndividualRepository individualRepository,
-            EmploymentRecordRepository employmentRecordRepository, KycRecordRepository kycRecordRepository, OrganisationRepository organisationRepository) {
-        super(documentRepository, employmentRecordRepository, kycRecordRepository);
+            EmploymentRecordRepository employmentRecordRepository, KycVerificationRepository kycVerificationRepository,
+            KycRecordRepository kycRecordRepository, OrganisationRepository organisationRepository) {
+        super(documentRepository, employmentRecordRepository, kycVerificationRepository, kycRecordRepository);
+        // TODO Auto-generated constructor stub
 
         this.individualRepository = individualRepository;
         this.organisationRepository = organisationRepository;
@@ -70,7 +73,7 @@ public class KycRecordDaoImpl
             target.setIdentityNo(individual.getIdentityNo());
 
             StringBuilder builder = new StringBuilder();
-            
+
             builder.append(individual.getFirstName());
             if (StringUtils.isNotBlank(individual.getMiddleName())) {
                 builder.append(" ").append(individual.getMiddleName());
@@ -134,7 +137,7 @@ public class KycRecordDaoImpl
         // TODO verify behavior of kycRecordDTOToEntity
         super.kycRecordDTOToEntity(source, target, copyIfNull);
 
-        if(source.getDeclaration() != null) {
+        if (source.getDeclaration() != null) {
 
             target.setPepDetails(source.getDeclaration().getPepDetails());
             target.setPepStatus(source.getDeclaration().getPepStatus());

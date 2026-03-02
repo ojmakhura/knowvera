@@ -9,6 +9,8 @@ import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.kyc.KycRecordMapper;
 import bw.co.centralkyc.settings.SalaryRangeMapper;
+import bw.co.centralkyc.utils.MappingUtils;
+
 import java.util.Collection;
 import java.util.List;
 import org.mapstruct.BeanMapping;
@@ -24,7 +26,9 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         DocumentMapper.class,
         KycRecordMapper.class,
         IndividualMapper.class,
-        SalaryRangeMapper.class    }
+        SalaryRangeMapper.class,
+        MappingUtils.class
+    }
 )
 public interface EmploymentRecordMapper {
     

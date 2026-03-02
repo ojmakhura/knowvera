@@ -233,7 +233,7 @@ public class KeycloakUserService {
 
         if (organisation != null && !StringUtils.isNotBlank(organisation.getId())) {
 
-            OrganisationDTO org = organisationService.findById(individual.getOrganisation().getId());
+            OrganisationDTO org = organisationService.findById(individual.getOrganisation().id());
 
             if (org != null) {
 
@@ -637,9 +637,9 @@ public class KeycloakUserService {
         }
 
         if (individual.getOrganisation() != null
-                && StringUtils.isNotBlank(individual.getOrganisation().getId())) {
-            user.setOrganisation(individual.getOrganisation().getName());
-            user.setOrganisationId(individual.getOrganisation().getId());
+                && StringUtils.isNotBlank(individual.getOrganisation().id())) {
+            user.setOrganisation(individual.getOrganisation().name());
+            user.setOrganisationId(individual.getOrganisation().id());
             user.setRoles(Set.of(organisationManagerRole));
         }
 
@@ -674,10 +674,10 @@ public class KeycloakUserService {
         IndividualDTO individual = individualService.findById(individualId);
 
         OrganisationDTO org = new OrganisationDTO();
-        org.setId(individual.getOrganisation().getId());
-        org.setName(individual.getOrganisation().getName());
-        org.setCode(individual.getOrganisation().getCode());
-        org.setRegistrationNo(individual.getOrganisation().getRegistrationNo());
+        org.setId(individual.getOrganisation().id());
+        org.setName(individual.getOrganisation().name());
+        org.setCode(individual.getOrganisation().code());
+        org.setRegistrationNo(individual.getOrganisation().registrationNo());
 
         return registerUser(individual, org);
     }

@@ -23,8 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import bw.co.centralkyc.document.Document;
-
 /**
  * @see bw.co.centralkyc.document.type.DocumentTypeService
  */
@@ -33,20 +31,13 @@ import bw.co.centralkyc.document.Document;
 public class DocumentTypeServiceImpl
         extends DocumentTypeServiceBase {
 
-    private final DocumentTypeMapper documentTypeMapper;
-    
-    public DocumentTypeServiceImpl(
-            DocumentTypeDao documentTypeDao,
-            DocumentTypeRepository documentTypeRepository,
-            MessageSource messageSource,
-            DocumentTypeMapper documentTypeMapper) {
 
-        super(
-                documentTypeDao,
-                documentTypeRepository,
-                messageSource);
-        this.documentTypeMapper = documentTypeMapper;
-    }
+
+    public DocumentTypeServiceImpl(DocumentTypeDao documentTypeDao, DocumentTypeRepository documentTypeRepository,
+            DocumentTypeMapper documentTypeMapper, MessageSource messageSource) {
+        super(documentTypeDao, documentTypeRepository, documentTypeMapper, messageSource);
+        //TODO Auto-generated constructor stub
+        }
 
     /**
      * @see bw.co.centralkyc.document.type.DocumentTypeService#findById(String)

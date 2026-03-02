@@ -14,8 +14,13 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import bw.co.centralkyc.utils.MappingUtils;
+
 @Mapper(
-    componentModel = "spring"
+    componentModel = "spring",
+    uses = {
+        MappingUtils.class
+    }
 )
 public interface DocumentTypeMapper {
     

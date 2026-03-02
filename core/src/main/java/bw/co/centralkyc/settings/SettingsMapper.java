@@ -7,6 +7,8 @@ package bw.co.centralkyc.settings;
 
 import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
+import bw.co.centralkyc.utils.MappingUtils;
+
 import java.util.Collection;
 import java.util.List;
 import org.mapstruct.BeanMapping;
@@ -21,7 +23,9 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
     , uses = {
         DocumentTypeMapper.class,
         DocumentMapper.class,
-        SalaryRangeMapper.class    }
+        SalaryRangeMapper.class,
+        MappingUtils.class    
+    }
 )
 public interface SettingsMapper {
     

@@ -174,7 +174,7 @@ public class KeycloakOrganisationService {
 
             OrganisationDTO existing = findByName(organisation.getRegistrationNo());
 
-            if(existing != null) {
+            if (existing != null) {
                 System.out.println(existing);
                 return existing;
             }
@@ -249,7 +249,7 @@ public class KeycloakOrganisationService {
 
             List<OrganizationRepresentation> t = resource.searchByAttribute("registrationNo:" + registrationNo);
 
-            if(t == null || t.size() == 0) {
+            if (t == null || t.size() == 0) {
                 return null;
             }
 
@@ -295,21 +295,31 @@ public class KeycloakOrganisationService {
 
     // --------------------- DTO Mapping --------------------- //
     private OrganisationListDTO toOrganisationListDTO(OrganizationRepresentation rep) {
-        OrganisationListDTO org = new OrganisationListDTO();
-        org.setId(rep.getId());
-        org.setCode(rep.getAlias());
-        org.setName(rep.getName());
+
+        String id = rep.getId();
+        String code = rep.getAlias();
+        String name = rep.getName();
+        String registrationNo = null;
+        GeneralStatus status = null;
+        String contactEmailAddress = null;
+        KycComplianceStatus kycStatus = null;
+        Boolean isClient = false;
+        String keycloakId = rep.getId();
+
         Map<String, List<String>> attrs = rep.getAttributes();
+
         if (attrs != null) {
-            org.setRegistrationNo(getFirst(attrs, "registrationNo"));
+            registrationNo = getFirst(attrs, "registrationNo");
             if (attrs.containsKey("status"))
-                org.setStatus(GeneralStatus.valueOf(getFirst(attrs, "status")));
-            org.setContactEmailAddress(getFirst(attrs, "contactEmailAddress"));
+                status = GeneralStatus.valueOf(getFirst(attrs, "status"));
+            contactEmailAddress = getFirst(attrs, "contactEmailAddress");
             if (attrs.containsKey("kycStatus"))
-                org.setKycStatus(KycComplianceStatus.valueOf(getFirst(attrs, "kycStatus")));
+                kycStatus = KycComplianceStatus.valueOf(getFirst(attrs, "kycStatus"));
             if (attrs.containsKey("isClient"))
-                org.setIsClient(Boolean.parseBoolean(getFirst(attrs, "isClient")));
+                isClient = Boolean.parseBoolean(getFirst(attrs, "isClient"));
         }
-        return org;
+
+        return new OrganisationListDTO(id, code, name, registrationNo, status, contactEmailAddress, kycStatus, isClient,
+                keycloakId);
     }
 }

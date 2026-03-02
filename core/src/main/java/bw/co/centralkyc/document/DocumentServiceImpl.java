@@ -31,17 +31,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class DocumentServiceImpl
     extends DocumentServiceBase
 {
-    public DocumentServiceImpl(
-        DocumentDao documentDao,
-        DocumentRepository documentRepository,
-        MessageSource messageSource
-    ) {
-        
-        super(
-            documentDao,
-            documentRepository,
-            messageSource
-        );
+    
+
+    public DocumentServiceImpl(DocumentDao documentDao, DocumentRepository documentRepository,
+            DocumentMapper documentMapper, MessageSource messageSource) {
+        super(documentDao, documentRepository, documentMapper, messageSource);
+        //TODO Auto-generated constructor stub
     }
 
     /**

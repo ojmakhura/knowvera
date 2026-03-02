@@ -9,10 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import bw.co.centralkyc.AuditTracker;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.TargetEntity;
+import bw.co.centralkyc.document.DocumentApi;
+import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.individual.IndividualDTO;
 import bw.co.centralkyc.individual.IndividualService;
 import bw.co.centralkyc.keycloak.KeycloakOrganisationService;
@@ -35,16 +38,19 @@ public class KycRecordApiImpl implements KycRecordApi {
     private final KeycloakOrganisationService keycloakOrganisationService;
     private final KeycloakUserService keycloakUserService;
     private final IndividualService individualService;
+    private final DocumentApi documentApi;
 
     public KycRecordApiImpl(KycRecordService kycRecordService,
             KeycloakOrganisationService keycloakOrganisationService,
             KeycloakUserService keycloakUserService,
-            IndividualService individualService) {
+            IndividualService individualService,
+            DocumentApi documentApi) {
 
         this.kycRecordService = kycRecordService;
         this.keycloakOrganisationService = keycloakOrganisationService;
         this.keycloakUserService = keycloakUserService;
         this.individualService = individualService;
+        this.documentApi = documentApi;
     }
 
     private void updateOrganisations(Collection<KycRecordDTO> records) {
@@ -409,6 +415,40 @@ public class KycRecordApiImpl implements KycRecordApi {
 
             e.printStackTrace();
             throw e;
+        }
+    }
+
+    @Override
+    public ResponseEntity<Collection<KycRecordDTO>> createNew(TargetEntity ownerType, String ownerId, List<String> typeIds,
+            List<MultipartFile> files) throws Exception {
+        
+        try {
+
+            if(files.size() != typeIds.size()) {
+
+                throw new KycRecordServiceException("Number of files must match number of typeIds");
+            }
+
+            List<DocumentDTO> documents = new ArrayList<>();
+
+            for (int i = 0; i < files.size(); i++) {
+
+                DocumentDTO doc = documentApi.upload(ownerType, ownerId, typeIds.get(i), files.get(i)).getBody();
+                documents.add(doc);
+            }
+
+            String username = "anonymousUser";
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null) {
+
+                username = authentication.getName();
+            }
+
+            return ResponseEntity.ok(kycRecordService.createNew(ownerType, ownerId, documents, username));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+             throw e;
         }
     }
 }

@@ -631,12 +631,12 @@ public class ClientRequestApiImpl implements ClientRequestApi {
             throw new Exception("No individual associated with user: " + username);
         }
 
-        if(individual.getOrganisation() != null &&StringUtils.isNotBlank(individual.getOrganisation().getId())) {
+        if(individual.getOrganisation() != null &&StringUtils.isNotBlank(individual.getOrganisation().id())) {
 
             return null;
         }
 
-        Collection<ClientRequestDTO> requests = clientRequestService.findByOrganisation(individual.getOrganisation().getId());
+        Collection<ClientRequestDTO> requests = clientRequestService.findByOrganisation(individual.getOrganisation().id());
 
         return ResponseEntity.ok(requests);
     }

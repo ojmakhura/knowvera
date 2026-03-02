@@ -7,11 +7,12 @@ package bw.co.centralkyc.sequence;
 
 import org.mapstruct.Mapper;
 
-@Mapper(
-    componentModel = "spring"
-    , uses = {
-        SequencePartMapper.class    }
+import bw.co.centralkyc.utils.MappingUtils;
+
+@Mapper(componentModel = "spring", uses = {
+        SequencePartMapper.class, MappingUtils.class 
+    }
 )
 public interface SequenceGeneratorMapper {
-    
+
 }

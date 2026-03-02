@@ -8,6 +8,7 @@ package bw.co.centralkyc.organisation.branch;
 import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.organisation.OrganisationMapper;
+import bw.co.centralkyc.utils.MappingUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,7 +24,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
     , uses = {
         DocumentMapper.class,
         IndividualMapper.class,
-        OrganisationMapper.class
+        OrganisationMapper.class,
+        MappingUtils.class
     }
 )
 public interface BranchMapper {

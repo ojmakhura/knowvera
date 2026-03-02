@@ -6,7 +6,12 @@
 package bw.co.centralkyc.kyc;
 
 import bw.co.centralkyc.document.DocumentMapper;
+import bw.co.centralkyc.individual.IndividualMapper;
+import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.individual.employment.EmploymentRecordMapper;
+import bw.co.centralkyc.kyc.verification.KycVerificationMapper;
+import bw.co.centralkyc.utils.MappingUtils;
+
 import java.util.Collection;
 import java.util.List;
 import org.mapstruct.BeanMapping;
@@ -20,7 +25,12 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
     componentModel = "spring"
     , uses = {
         DocumentMapper.class,
-        EmploymentRecordMapper.class    }
+        EmploymentRecordMapper.class,
+        KycVerificationMapper.class,
+        IndividualRepository.class,
+        IndividualMapper.class,
+        MappingUtils.class    
+    }
 )
 public interface KycRecordMapper {
     
@@ -31,6 +41,7 @@ public interface KycRecordMapper {
      */
     @Mapping(source = "documents", target = "documents")
     @Mapping(source = "employmentRecord", target = "employmentRecord")
+    @Mapping(source = "kycVerification", target = "kycVerification")
     KycRecordDTO toKycRecordDTO(KycRecord entity);
 
      /**

@@ -11,8 +11,10 @@ package bw.co.centralkyc.organisation.document;
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.document.DocumentDao;
+import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.document.DocumentRepository;
 import bw.co.centralkyc.individual.IndividualDao;
+import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.individual.IndividualRepository;
 import java.util.Collection;
 import java.util.Set;
@@ -34,25 +36,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrganisationDocumentServiceImpl
     extends OrganisationDocumentServiceBase
 {
-    public OrganisationDocumentServiceImpl(
-        OrganisationDocumentDao organisationDocumentDao,
-        OrganisationDocumentRepository organisationDocumentRepository,
-        IndividualDao individualDao,
-        IndividualRepository individualRepository,
-        DocumentDao documentDao,
-        DocumentRepository documentRepository,
-        MessageSource messageSource
-    ) {
-        
-        super(
-            organisationDocumentDao,
-            organisationDocumentRepository,
-            individualDao,
-            individualRepository,
-            documentDao,
-            documentRepository,
-            messageSource
-        );
+    
+
+    public OrganisationDocumentServiceImpl(OrganisationDocumentDao organisationDocumentDao,
+            OrganisationDocumentRepository organisationDocumentRepository,
+            OrganisationDocumentMapper organisationDocumentMapper, IndividualDao individualDao,
+            IndividualRepository individualRepository, IndividualMapper individualMapper, DocumentDao documentDao,
+            DocumentRepository documentRepository, DocumentMapper documentMapper, MessageSource messageSource) {
+        super(organisationDocumentDao, organisationDocumentRepository, organisationDocumentMapper, individualDao,
+                individualRepository, individualMapper, documentDao, documentRepository, documentMapper, messageSource);
+        //TODO Auto-generated constructor stub
     }
 
     /**

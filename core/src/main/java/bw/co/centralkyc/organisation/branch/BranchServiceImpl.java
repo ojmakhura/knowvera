@@ -30,17 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class BranchServiceImpl
     extends BranchServiceBase
 {
-    public BranchServiceImpl(
-        BranchDao branchDao,
-        BranchRepository branchRepository,
-        MessageSource messageSource
-    ) {
-        
-        super(
-            branchDao,
-            branchRepository,
-            messageSource
-        );
+    
+    public BranchServiceImpl(BranchDao branchDao, BranchRepository branchRepository, BranchMapper branchMapper,
+            MessageSource messageSource) {
+        super(branchDao, branchRepository, branchMapper, messageSource);
+        //TODO Auto-generated constructor stub
     }
 
     /**

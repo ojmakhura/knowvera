@@ -10,8 +10,12 @@ import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.individual.employment.EmploymentRecordMapper;
 import bw.co.centralkyc.organisation.OrganisationMapper;
 import bw.co.centralkyc.organisation.branch.BranchMapper;
+import bw.co.centralkyc.utils.MappingUtils;
+
 import java.util.Collection;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -24,7 +28,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         EmploymentRecordMapper.class,
         BranchMapper.class,
         PhoneNumberMapper.class,
-        OrganisationMapper.class
+        OrganisationMapper.class,
+        MappingUtils.class
 })
 public interface IndividualMapper {
 
@@ -74,8 +79,32 @@ public interface IndividualMapper {
      * @param entity
      * @return IndividualListDTO
      */
-    @Mapping(target = "name", expression = "java(individual.getFirstName() + \" \" + individual.getSurname())")
+    @Mapping(target = "name", expression = "java(getIndividualName(individual))")
     IndividualListDTO toIndividualListDTO(Individual individual);
+
+    default String getIndividualName(Individual individual) {
+
+        StringBuilder nameBuilder = new StringBuilder();
+        if (StringUtils.isNotBlank(individual.getFirstName())) {
+            nameBuilder.append(individual.getFirstName());
+        }
+
+        if(StringUtils.isNotBlank(individual.getMiddleName())) {
+            if (nameBuilder.length() > 0) {
+                nameBuilder.append(" ");
+            }
+            nameBuilder.append(individual.getMiddleName());
+        }
+
+        if (StringUtils.isNotBlank(individual.getSurname())) {
+            if (nameBuilder.length() > 0) {
+                nameBuilder.append(" ");
+            }
+            nameBuilder.append(individual.getSurname());
+        }
+
+        return nameBuilder.toString();
+    }
 
     /**
      * Converts this DAO's entity to a Collection of instances of type

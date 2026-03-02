@@ -6,6 +6,8 @@
 package bw.co.centralkyc.subscription;
 
 import bw.co.centralkyc.invoice.KycInvoiceMapper;
+import bw.co.centralkyc.utils.MappingUtils;
+
 import java.util.Collection;
 import java.util.List;
 import org.mapstruct.BeanMapping;
@@ -17,7 +19,9 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(
     componentModel = "spring"
     , uses = {
-        KycInvoiceMapper.class    }
+        KycInvoiceMapper.class,
+        MappingUtils.class
+    }
 )
 public interface KycSubscriptionMapper {
     

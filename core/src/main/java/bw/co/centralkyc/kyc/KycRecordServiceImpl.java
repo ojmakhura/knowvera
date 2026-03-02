@@ -8,9 +8,12 @@
  */
 package bw.co.centralkyc.kyc;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,8 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.TargetEntity;
+import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
+import bw.co.centralkyc.kyc.verification.KycVerification;
+import bw.co.centralkyc.kyc.verification.VerificationStatus;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
 import bw.co.centralkyc.settings.Settings;
@@ -39,45 +45,37 @@ import bw.co.centralkyc.user.UserDTO;
  * @see bw.co.centralkyc.kyc.KycRecordService
  */
 @Service("kycRecordService")
-@Transactional(propagation = Propagation.REQUIRED, readOnly=false)
+@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 public class KycRecordServiceImpl
-    extends KycRecordServiceBase
-{
+        extends KycRecordServiceBase {
+
     private final IndividualRepository individualRepository;
     private final OrganisationRepository organisationRepository;
     private final SettingsRepository settingsRepository;
 
-    public KycRecordServiceImpl(
-        KycRecordDao kycRecordDao,
-        KycRecordRepository kycRecordRepository,
-        MessageSource messageSource,
-        SettingsRepository settingsRepository,
-        IndividualRepository individualRepository,
-        OrganisationRepository organisationRepository
-    ) {
-        
-        super(
-            kycRecordDao,
-            kycRecordRepository,
-            messageSource
-        );
-
+    public KycRecordServiceImpl(KycRecordDao kycRecordDao, KycRecordRepository kycRecordRepository,
+            KycRecordMapper kycRecordMapper, MessageSource messageSource,
+            SettingsRepository settingsRepository,
+            IndividualRepository individualRepository,
+            OrganisationRepository organisationRepository) {
+        super(kycRecordDao, kycRecordRepository, kycRecordMapper, messageSource);
+        // TODO Auto-generated constructor stub
         this.individualRepository = individualRepository;
         this.settingsRepository = settingsRepository;
         this.organisationRepository = organisationRepository;
     }
+
 
     /**
      * @see bw.co.centralkyc.individual.kyc.KycRecordService#findById(String)
      */
     @Override
     protected KycRecordDTO handleFindById(String id)
-        throws Exception
-    {
+            throws Exception {
 
         KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(id))
-            .orElseThrow(() -> new Exception("KycRecord not found for id: " + id));
-        
+                .orElseThrow(() -> new Exception("KycRecord not found for id: " + id));
+
         return this.kycRecordDao.toKycRecordDTO(kycRecord);
     }
 
@@ -86,25 +84,40 @@ public class KycRecordServiceImpl
      */
     @Override
     protected KycRecordDTO handleSave(KycRecordDTO kycRecord)
-        throws Exception
-    {
+            throws Exception {
         Settings settings = this.settingsRepository.findAll().stream().findFirst()
-            .orElseThrow(() -> new Exception("Settings not found"));
+                .orElseThrow(() -> new Exception("Settings not found"));
 
-        int kycDuration = settings.getKycDuration() != null ? settings.getKycDuration() : 2; // Default to 2 years if not set
+        int kycDuration = settings.getKycDuration() != null ? settings.getKycDuration() : 2; // Default to 2 years if
+                                                                                             // not set
 
         KycRecord kycRecordEntity = this.kycRecordDao.kycRecordDTOToEntity(kycRecord);
 
-        if(kycRecordEntity.getUploadDate() == null) {
+        if (kycRecordEntity.getUploadDate() == null) {
             kycRecordEntity.setUploadDate(LocalDate.now());
         }
 
-        if(kycRecordEntity.getExpiryDate() == null) {
+        if (kycRecordEntity.getExpiryDate() == null) {
 
             kycRecordEntity.setExpiryDate(kycRecordEntity.getUploadDate().plusYears(kycDuration));
         }
 
-            // System.out.println("************************************************************ " + kycRecordEntity.getExpiryDate());
+        if(kycRecordEntity.getId() == null) {
+
+            KycVerification verification = KycVerification.Factory.newInstance();
+            verification.setCreatedAt(kycRecordEntity.getCreatedAt());
+            verification.setCreatedBy(kycRecordEntity.getCreatedBy());
+            verification.setKycRecord(kycRecordEntity);
+            verification.setEmploymentVerification(VerificationStatus.UNVERIFIED);
+            verification.setPepStatusVerification(VerificationStatus.UNVERIFIED);
+            verification.setSanctionsDetailsVerification(VerificationStatus.UNVERIFIED);
+            verification.setSanctionsMatchVerification(VerificationStatus.UNVERIFIED);
+
+            kycRecordEntity.setKycVerification(verification);
+        }
+
+        // System.out.println("************************************************************
+        // " + kycRecordEntity.getExpiryDate());
         kycRecordEntity = this.kycRecordRepository.save(kycRecordEntity);
 
         return this.kycRecordDao.toKycRecordDTO(kycRecordEntity);
@@ -115,10 +128,9 @@ public class KycRecordServiceImpl
      */
     @Override
     protected boolean handleRemove(String id)
-        throws Exception
-    {
+            throws Exception {
 
-        if(!kycRecordRepository.existsById(UUID.fromString(id))) {
+        if (!kycRecordRepository.existsById(UUID.fromString(id))) {
 
             throw new KycRecordServiceException("KycRecord not found for id: " + id);
 
@@ -134,8 +146,7 @@ public class KycRecordServiceImpl
      */
     @Override
     protected Collection<KycRecordDTO> handleGetAll()
-        throws Exception
-    {
+            throws Exception {
 
         Collection<KycRecord> kycRecords = this.kycRecordRepository.findAll();
         return this.kycRecordDao.toKycRecordDTOCollection(kycRecords);
@@ -145,16 +156,15 @@ public class KycRecordServiceImpl
 
         Specification<KycRecord> spec = ((root, query, builder) -> builder.conjunction());
 
-        if(criteria.getTarget() != null) {
+        if (criteria.getTarget() != null) {
 
-            spec = (root, query, cb) -> 
-                cb.equal(root.get("target"), criteria.getTarget());
+            spec = (root, query, cb) -> cb.equal(root.get("target"), criteria.getTarget());
         }
 
-        if(criteria.getTargetIds() != null && criteria.getTargetIds().size() > 0) {
+        if (criteria.getTargetIds() != null && criteria.getTargetIds().size() > 0) {
 
-            Specification<KycRecord> targetIdSpec = (root, query, cb) -> 
-                root.get("targetId").in(criteria.getTargetIds());
+            Specification<KycRecord> targetIdSpec = (root, query, cb) -> root.get("targetId")
+                    .in(criteria.getTargetIds());
 
             spec = spec == null ? targetIdSpec : spec.and(targetIdSpec);
         }
@@ -167,25 +177,23 @@ public class KycRecordServiceImpl
      */
     @Override
     protected Collection<KycRecordDTO> handleSearch(KycRecordSearchCriteria criteria)
-        throws Exception
-    {
+            throws Exception {
         Specification<KycRecord> spec = this.createSpecification(criteria);
 
         Sort sort = Sort.by(Direction.DESC, "createdAt");
 
-        Collection<KycRecord> kycRecords = spec == null ? 
-            this.kycRecordRepository.findAll(sort) :
-            this.kycRecordRepository.findAll(spec, sort);
+        Collection<KycRecord> kycRecords = spec == null ? this.kycRecordRepository.findAll(sort)
+                : this.kycRecordRepository.findAll(spec, sort);
         return this.kycRecordDao.toKycRecordDTOCollection(kycRecords);
     }
 
     /**
-     * @see bw.co.centralkyc.individual.kyc.KycRecordService#getAll(Integer, Integer)
+     * @see bw.co.centralkyc.individual.kyc.KycRecordService#getAll(Integer,
+     *      Integer)
      */
     @Override
     protected Page<KycRecordDTO> handleGetAll(Integer pageNumber, Integer pageSize)
-        throws Exception
-    {
+            throws Exception {
 
         Page<KycRecord> kycRecords = this.kycRecordRepository.findAll(PageRequest.of(pageNumber, pageSize));
         return kycRecords.map(kycRecord -> {
@@ -198,25 +206,23 @@ public class KycRecordServiceImpl
     }
 
     /**
-     * @see bw.co.centralkyc.individual.kyc.KycRecordService#search(String, Integer, Integer)
+     * @see bw.co.centralkyc.individual.kyc.KycRecordService#search(String, Integer,
+     *      Integer)
      */
     @Override
     protected Page<KycRecordDTO> handleSearch(SearchObject<KycRecordSearchCriteria> criteria)
-        throws Exception
-    {
+            throws Exception {
         Sort sort = Sort.by(Direction.DESC, "createdAt");
 
         PageRequest pageRequest = PageRequest.of(
-            criteria.getPageNumber(),
-            criteria.getPageSize(),
-            sort
-        );
+                criteria.getPageNumber(),
+                criteria.getPageSize(),
+                sort);
 
         Specification<KycRecord> specification = this.createSpecification(criteria.getCriteria());
 
-        Page<KycRecord> kycRecords = specification == null ? 
-            this.kycRecordRepository.findAll(pageRequest) :
-            this.kycRecordRepository.findAll(specification, pageRequest);
+        Page<KycRecord> kycRecords = specification == null ? this.kycRecordRepository.findAll(pageRequest)
+                : this.kycRecordRepository.findAll(specification, pageRequest);
 
         return kycRecords.map(kycRecordDao::toKycRecordDTO);
     }
@@ -226,11 +232,10 @@ public class KycRecordServiceImpl
      */
     @Override
     protected Collection<KycRecordDTO> handleFindByIndividual(String individualId)
-        throws Exception
-    {
+            throws Exception {
 
-        Specification<KycRecord> specification = (root, query, cb) -> 
-            cb.and(cb.equal(root.get("target"), "INDIVIDUAL"), cb.equal(root.get("targetId"), individualId));
+        Specification<KycRecord> specification = (root, query, cb) -> cb.and(cb.equal(root.get("target"), "INDIVIDUAL"),
+                cb.equal(root.get("targetId"), individualId));
 
         Collection<KycRecord> kycRecords = this.kycRecordRepository.findAll(specification);
         return this.kycRecordDao.toKycRecordDTOCollection(kycRecords);
@@ -241,8 +246,7 @@ public class KycRecordServiceImpl
      */
     @Override
     protected Collection<KycRecordDTO> handleFindByIdentityNo(String identityNo)
-        throws Exception
-    {
+            throws Exception {
 
         Individual individual = this.individualRepository.findByIdentityNo(identityNo)
                 .orElseThrow(() -> new Exception("Individual not found for identityNo: " + identityNo));
@@ -252,9 +256,9 @@ public class KycRecordServiceImpl
 
     @Override
     protected Collection<KycRecordDTO> handleFindByOrganisation(String organisationId) throws Exception {
-        
-        Specification<KycRecord> specification = (root, query, cb) -> 
-            cb.and(cb.equal(root.get("target"), "ORGANISATION"), cb.equal(root.get("targetId"), organisationId));
+
+        Specification<KycRecord> specification = (root, query, cb) -> cb
+                .and(cb.equal(root.get("target"), "ORGANISATION"), cb.equal(root.get("targetId"), organisationId));
 
         Collection<KycRecord> kycRecords = this.kycRecordRepository.findAll(specification);
         return this.kycRecordDao.toKycRecordDTOCollection(kycRecords);
@@ -263,11 +267,12 @@ public class KycRecordServiceImpl
     @Override
     protected Page<KycRecordDTO> handleFindByIndividual(String individualId, Integer pageNumber, Integer pageSize)
             throws Exception {
-        
-        Specification<KycRecord> specification = (root, query, cb) -> 
-            cb.and(cb.equal(root.get("target"), "INDIVIDUAL"), cb.equal(root.get("targetId"), individualId));   
 
-        Page<KycRecord> kycRecords = this.kycRecordRepository.findAll(specification, PageRequest.of(pageNumber, pageSize));
+        Specification<KycRecord> specification = (root, query, cb) -> cb.and(cb.equal(root.get("target"), "INDIVIDUAL"),
+                cb.equal(root.get("targetId"), individualId));
+
+        Page<KycRecord> kycRecords = this.kycRecordRepository.findAll(specification,
+                PageRequest.of(pageNumber, pageSize));
         return kycRecords.map(kycRecord -> {
             try {
                 return this.kycRecordDao.toKycRecordDTO(kycRecord);
@@ -290,11 +295,12 @@ public class KycRecordServiceImpl
     @Override
     protected Page<KycRecordDTO> handleFindByOrganisation(String organisationId, Integer pageNumber,
             Integer pageSize) throws Exception {
-        
-        Specification<KycRecord> specification = (root, query, cb) -> 
-            cb.and(cb.equal(root.get("target"), "ORGANISATION"), cb.equal(root.get("targetId"), organisationId));
 
-        Page<KycRecord> kycRecords = this.kycRecordRepository.findAll(specification, PageRequest.of(pageNumber, pageSize));
+        Specification<KycRecord> specification = (root, query, cb) -> cb
+                .and(cb.equal(root.get("target"), "ORGANISATION"), cb.equal(root.get("targetId"), organisationId));
+
+        Page<KycRecord> kycRecords = this.kycRecordRepository.findAll(specification,
+                PageRequest.of(pageNumber, pageSize));
         return kycRecords.map(kycRecord -> {
             try {
                 return this.kycRecordDao.toKycRecordDTO(kycRecord);
@@ -309,7 +315,7 @@ public class KycRecordServiceImpl
             throws Exception {
 
         Settings settings = this.settingsRepository.findAll().stream().findFirst()
-            .orElseThrow(() -> new Exception("Settings not found"));
+                .orElseThrow(() -> new Exception("Settings not found"));
 
         KycRecord record = KycRecord.Factory.newInstance();
         record.setTarget(target);
@@ -328,33 +334,33 @@ public class KycRecordServiceImpl
     @Override
     protected boolean handleConfirmOwnership(String kycRecordId, UserDTO user) throws Exception {
 
-        if(StringUtils.isBlank(user.getUserId())) {
+        if (StringUtils.isBlank(user.getUserId())) {
             return false;
         }
 
         KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(kycRecordId))
-            .orElseThrow(() -> new Exception("KycRecord not found for id: " + kycRecordId));    
+                .orElseThrow(() -> new Exception("KycRecord not found for id: " + kycRecordId));
 
-        if(StringUtils.isBlank(kycRecord.getTargetId()) || kycRecord.getTarget() == null) {
+        if (StringUtils.isBlank(kycRecord.getTargetId()) || kycRecord.getTarget() == null) {
             return false;
         }
 
-        if(kycRecord.getTarget() == TargetEntity.INDIVIDUAL) {
+        if (kycRecord.getTarget() == TargetEntity.INDIVIDUAL) {
 
             Individual individual = this.individualRepository.findById(UUID.fromString(kycRecord.getTargetId()))
-                .orElseThrow(() -> new Exception("Individual not found for id: " + kycRecord.getTargetId()));
+                    .orElseThrow(() -> new Exception("Individual not found for id: " + kycRecord.getTargetId()));
 
             return Strings.CS.equals(individual.getUserId(), user.getUserId());
 
-        } else if(kycRecord.getTarget() == TargetEntity.ORGANISATION) {
+        } else if (kycRecord.getTarget() == TargetEntity.ORGANISATION) {
 
-            if(StringUtils.isBlank(user.getOrganisationId())) {
+            if (StringUtils.isBlank(user.getOrganisationId())) {
 
                 return false;
             }
 
             Organisation organisation = this.organisationRepository.findById(UUID.fromString(kycRecord.getTargetId()))
-                .orElseThrow(() -> new Exception("Organisation not found for id: " + kycRecord.getTargetId()));
+                    .orElseThrow(() -> new Exception("Organisation not found for id: " + kycRecord.getTargetId()));
 
             return Strings.CS.equals(organisation.getId().toString(), user.getOrganisationId());
 
@@ -366,11 +372,28 @@ public class KycRecordServiceImpl
     @Override
     protected KycRecordDTO handleFindLatestValidForOwner(String ownerId, TargetEntity ownerType, LocalDate today)
             throws Exception {
-        
+
         KycRecord record = kycRecordRepository.findLatestValidForOwner(ownerId, ownerType, today)
-            .orElseThrow(() -> new KycRecordServiceException("No valid KycRecord found for ownerId: " + ownerId + " and ownerType: " + ownerType));
+                .orElseThrow(() -> new KycRecordServiceException(
+                        "No valid KycRecord found for ownerId: " + ownerId + " and ownerType: " + ownerType));
 
         return kycRecordDao.toKycRecordDTO(record);
+    }
+
+
+    @Override
+    protected Collection<KycRecordDTO> handleCreateNew(TargetEntity ownerType, String ownerId, List<DocumentDTO> files, String user)
+            throws Exception {
+
+        List<KycRecordDTO> createdRecords = files.stream().map(file -> {
+            try {
+                return this.createTargetRecord(ownerId, ownerType, user);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
+
+        return createdRecords;
     }
 
 }

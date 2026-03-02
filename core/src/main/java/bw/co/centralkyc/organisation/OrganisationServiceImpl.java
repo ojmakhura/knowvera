@@ -42,10 +42,10 @@ public class OrganisationServiceImpl
     private final PasswordEncoder passwordEncoder;
 
 
-    public OrganisationServiceImpl(OrganisationDao organisationDao, OrganisationRepository organisationRepository,
+    public OrganisationServiceImpl(OrganisationDao organisationDao, OrganisationRepository organisationRepository, OrganisationMapper organisationMapper,
             ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder,
             MessageSource messageSource) {
-        super(organisationDao, organisationRepository, messageSource);
+        super(organisationDao, organisationRepository, organisationMapper, messageSource);
         this.organisationRepository = organisationRepository;
         // TODO Auto-generated constructor stub
 

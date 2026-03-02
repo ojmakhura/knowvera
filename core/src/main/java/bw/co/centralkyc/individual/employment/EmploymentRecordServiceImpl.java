@@ -27,17 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class EmploymentRecordServiceImpl
     extends EmploymentRecordServiceBase
 {
-    public EmploymentRecordServiceImpl(
-        EmploymentRecordDao employmentRecordDao,
-        EmploymentRecordRepository employmentRecordRepository,
-        MessageSource messageSource
-    ) {
-        
-        super(
-            employmentRecordDao,
-            employmentRecordRepository,
-            messageSource
-        );
+    
+
+    public EmploymentRecordServiceImpl(EmploymentRecordDao employmentRecordDao,
+            EmploymentRecordRepository employmentRecordRepository, EmploymentRecordMapper employmentRecordMapper,
+            MessageSource messageSource) {
+        super(employmentRecordDao, employmentRecordRepository, employmentRecordMapper, messageSource);
+        //TODO Auto-generated constructor stub
     }
 
     /**

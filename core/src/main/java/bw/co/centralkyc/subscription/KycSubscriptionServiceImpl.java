@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import bw.co.centralkyc.invoice.KycInvoiceDTO;
 import bw.co.centralkyc.invoice.KycInvoiceDao;
+import bw.co.centralkyc.invoice.KycInvoiceMapper;
 import bw.co.centralkyc.invoice.KycInvoiceRepository;
 import bw.co.centralkyc.sequence.SequenceGenerator;
 import bw.co.centralkyc.sequence.SequenceGeneratorService;
@@ -42,10 +43,11 @@ public class KycSubscriptionServiceImpl
 
     public KycSubscriptionServiceImpl(KycSubscriptionDao kycSubscriptionDao,
             KycSubscriptionRepository kycSubscriptionRepository, KycInvoiceDao kycInvoiceDao,
-            SequenceGeneratorService sequenceGeneratorService,
-            KycInvoiceRepository kycInvoiceRepository, MessageSource messageSource) {
-        super(kycSubscriptionDao, kycSubscriptionRepository, kycInvoiceDao,
-                kycInvoiceRepository, messageSource);
+            SequenceGeneratorService sequenceGeneratorService, KycSubscriptionMapper kycSubscriptionMapper,
+            KycInvoiceRepository kycInvoiceRepository, KycInvoiceMapper kycInvoiceMapper, MessageSource messageSource) {
+
+        super(kycSubscriptionDao, kycSubscriptionRepository, kycSubscriptionMapper, kycInvoiceDao,
+                kycInvoiceRepository, kycInvoiceMapper, messageSource);
 
         this.sequenceGeneratorService = sequenceGeneratorService;
     }
@@ -198,13 +200,13 @@ public class KycSubscriptionServiceImpl
 
     @Override
     protected Long handleCountByStatus(KycSubsciptionStatus status) throws Exception {
-        
+
         return this.kycSubscriptionRepository.countByStatus(status).orElse(0L);
     }
 
     @Override
     protected Long handleCount() throws Exception {
-        
+
         return this.kycSubscriptionRepository.count();
     }
 

@@ -89,16 +89,20 @@ public class IndividualApiImpl implements IndividualApi {
 
             if (data.getHasUser()) {
 
-                if(data.getOrganisation() != null && StringUtils.isNotBlank(data.getOrganisation().getId())) {
+                if(data.getOrganisation() != null && StringUtils.isNotBlank(data.getOrganisation().id())) {
 
-                    OrganisationDTO org = keycloakOrgService.findById(data.getOrganisation().getId());
-                    OrganisationListDTO o = new OrganisationListDTO();
-                    o.setId(org.getId());
-                    o.setCode(org.getCode());
-                    o.setContactEmailAddress(org.getContactEmailAddress());
-                    o.setName(org.getName());
-                    o.setRegistrationNo(org.getRegistrationNo());
-                    o.setStatus(org.getStatus());
+                    OrganisationDTO org = keycloakOrgService.findById(data.getOrganisation().id());
+                    OrganisationListDTO o = new OrganisationListDTO(
+                        org.getId(), 
+                        org.getCode(), 
+                        org.getName(), 
+                        org.getRegistrationNo(), 
+                        org.getStatus(), 
+                        org.getContactEmailAddress(), 
+                        org.getKycStatus(), 
+                        org.getIsClient(), 
+                        org.getKeycloakId()
+                    );
 
                     data.setOrganisation(o);
                 }
@@ -186,7 +190,7 @@ public class IndividualApiImpl implements IndividualApi {
         message.setText(messageStr);
         message.setPlatform(MessagingPlatform.EMAIL);
 
-        OrganisationDTO org = keycloakOrgService.findById(individual.getOrganisation().getId());
+        OrganisationDTO org = keycloakOrgService.findById(individual.getOrganisation().id());
 
         if(org != null) {
 
@@ -234,11 +238,11 @@ public class IndividualApiImpl implements IndividualApi {
 
                     if(individual.getOrganisation() != null) {
                         org = new OrganisationDTO();
-                        org.setId(individual.getOrganisation().getId());
-                        org.setName(individual.getOrganisation().getName());
-                        org.setContactEmailAddress(individual.getOrganisation().getContactEmailAddress());
-                        org.setRegistrationNo(individual.getOrganisation().getRegistrationNo());
-                        org.setCode(individual.getOrganisation().getCode());
+                        org.setId(individual.getOrganisation().id());
+                        org.setName(individual.getOrganisation().name());
+                        org.setContactEmailAddress(individual.getOrganisation().contactEmailAddress());
+                        org.setRegistrationNo(individual.getOrganisation().registrationNo());
+                        org.setCode(individual.getOrganisation().code());
                     }
 
                     user = keycloakUserService.registerUser(individual, org);

@@ -6,6 +6,8 @@
 package bw.co.centralkyc.document;
 
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
+import bw.co.centralkyc.utils.MappingUtils;
+
 import java.util.Collection;
 import java.util.List;
 import org.mapstruct.BeanMapping;
@@ -18,7 +20,9 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(
     componentModel = "spring"
     , uses = {
-        DocumentTypeMapper.class    }
+        DocumentTypeMapper.class,
+        MappingUtils.class
+    }
 )
 public interface DocumentMapper {
     

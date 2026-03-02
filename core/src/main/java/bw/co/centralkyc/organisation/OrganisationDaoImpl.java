@@ -34,18 +34,6 @@ public class OrganisationDaoImpl
     private final PhoneNumberMapper phoneNumberMapper;
     private final OrganisationDomainMapper organisationDomainMapper;
     
-    // public OrganisationDaoImpl(DocumentRepository documentRepository, DocumentTypeRepository documentTypeRepository,
-    //         BranchRepository branchRepository, KycSubscriptionRepository kycSubscriptionRepository,
-    //         KycInvoiceRepository kycInvoiceRepository, ClientRequestRepository clientRequestRepository,
-    //         OrganisationRepository organisationRepository, PhoneNumberMapper phoneNumberMapper,
-    //         OrganisationDomainMapper organisationDomainMapper) {
-    //     super(documentRepository, documentTypeRepository, branchRepository, kycSubscriptionRepository, kycInvoiceRepository,
-    //             clientRequestRepository, organisationRepository);
-    //     this.phoneNumberMapper = phoneNumberMapper;
-    //     this.organisationDomainMapper = organisationDomainMapper;
-    //     //TODO Auto-generated constructor stub
-    // }
-
     public OrganisationDaoImpl(DocumentRepository documentRepository, DocumentTypeRepository documentTypeRepository,
             BranchRepository branchRepository, KycSubscriptionRepository kycSubscriptionRepository,
             KycInvoiceRepository kycInvoiceRepository, ClientRequestRepository clientRequestRepository,
@@ -133,67 +121,36 @@ public class OrganisationDaoImpl
         // No conversion for target.domains (can't convert source.getDomains():bw.co.centralkyc.organisation.OrganisationDomain to java.util.Map
         target.setDomains(this.organisationDomainMapper.toMapCollection(source.getDomains()));
     }
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void toOrganisationListDTO(
-        Organisation source,
-        OrganisationListDTO target)
-    {
-        // TODO verify behavior of toOrganisationListDTO
-        super.toOrganisationListDTO(source, target);
-    }
-
+    
     /**
      * {@inheritDoc}
      */
     @Override
     public OrganisationListDTO toOrganisationListDTO(final Organisation entity)
     {
-        // TODO verify behavior of toOrganisationListDTO
-        return super.toOrganisationListDTO(entity);
-    }
 
-    /**
-     * Retrieves the entity object that is associated with the specified value object
-     * from the object store. If no such entity object exists in the object store,
-     * a new, blank entity is created
-     */
-    private Organisation loadOrganisationFromOrganisationListDTO(OrganisationListDTO organisationListDTO)
-    {
-        if (organisationListDTO.getId() == null)
-        {
-            return  Organisation.Factory.newInstance();
-        }
-        else
-        {
-            return this.organisationRepository.findById(UUID.fromString(organisationListDTO.getId()))
-                .orElseThrow(() -> new EntityNotFoundException("Entity not found for id: " + organisationListDTO.getId()));
-        }
-    }
+        // No conversion for target.id (can't convert entity.getId():java.lang.Long to String)
+        String id = entity.getId().toString(); 
+        String code = entity.getCode(); 
+        String name = entity.getName(); 
+        String registrationNo = entity.getRegistrationNo(); 
+        GeneralStatus status = entity.getStatus(); 
+        String contactEmailAddress = entity.getContactEmailAddress(); 
+        KycComplianceStatus kycStatus = entity.getKycStatus(); 
+        Boolean isClient = entity.getIsClient(); 
+        // No matching property found for target.keycloakId in entity Organisation
+        String keycloakId = null;
 
-    /**
-     * {@inheritDoc}
-     */
-    public Organisation organisationListDTOToEntity(OrganisationListDTO organisationListDTO)
-    {
-        // TODO verify behavior of organisationListDTOToEntity
-        Organisation entity = this.loadOrganisationFromOrganisationListDTO(organisationListDTO);
-        this.organisationListDTOToEntity(organisationListDTO, entity, true);
-        return entity;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void organisationListDTOToEntity(
-        OrganisationListDTO source,
-        Organisation target,
-        boolean copyIfNull)
-    {
-        // TODO verify behavior of organisationListDTOToEntity
-        super.organisationListDTOToEntity(source, target, copyIfNull);
+        return new OrganisationListDTO(
+            id, 
+            code, 
+            name, 
+            registrationNo, 
+            status, 
+            contactEmailAddress, 
+            kycStatus, 
+            isClient, 
+            keycloakId
+        );
     }
 }

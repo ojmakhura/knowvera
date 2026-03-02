@@ -34,21 +34,14 @@ import bw.co.centralkyc.organisation.client.ClientRequestRepository;
 public class IndividualServiceImpl
         extends IndividualServiceBase {
 
-    private final IndividualMapper individualMapper;
     private final ClientRequestRepository clientRequestRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public IndividualServiceImpl(
-            IndividualDao individualDao, IndividualMapper individualMapper,
-            IndividualRepository individualRepository, ClientRequestRepository clientRequestRepository,
-            PasswordEncoder passwordEncoder, MessageSource messageSource) {
+    public IndividualServiceImpl(IndividualDao individualDao, IndividualRepository individualRepository,
+            IndividualMapper individualMapper, MessageSource messageSource, ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder) {
+        super(individualDao, individualRepository, individualMapper, messageSource);
+        // TODO Auto-generated constructor stub
 
-        super(
-                individualDao,
-                individualRepository,
-                messageSource);
-        
-        this.individualMapper = individualMapper;
         this.clientRequestRepository = clientRequestRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -120,42 +113,42 @@ public class IndividualServiceImpl
 
         Specification<Individual> spec = ((root, query, builder) -> builder.conjunction());
 
-        if(StringUtils.isNotBlank(criteria.getEmailAddress())) {
+        if (StringUtils.isNotBlank(criteria.getEmailAddress())) {
 
-            Specification<Individual>  tmp = ((root, query, builder) ->
-                    builder.like(builder.lower(root.get("email")), "%" + criteria.getEmailAddress().toLowerCase() + "%"));
+            Specification<Individual> tmp = ((root, query, builder) -> builder.like(builder.lower(root.get("email")),
+                    "%" + criteria.getEmailAddress().toLowerCase() + "%"));
             spec = spec == null ? tmp : spec.and(tmp);
 
         }
 
-        if(StringUtils.isNotBlank(criteria.getFirstName())) {
+        if (StringUtils.isNotBlank(criteria.getFirstName())) {
 
-            Specification<Individual>  tmp = ((root, query, builder) ->
-                    builder.like(builder.lower(root.get("firstName")), "%" + criteria.getFirstName().toLowerCase() + "%"));
+            Specification<Individual> tmp = ((root, query, builder) -> builder
+                    .like(builder.lower(root.get("firstName")), "%" + criteria.getFirstName().toLowerCase() + "%"));
             spec = spec == null ? tmp : spec.and(tmp);
 
         }
 
-        if(StringUtils.isNotBlank(criteria.getSurname())) {
+        if (StringUtils.isNotBlank(criteria.getSurname())) {
 
-            Specification<Individual>  tmp = ((root, query, builder) ->
-                    builder.like(builder.lower(root.get("surname")), "%" + criteria.getSurname().toLowerCase() + "%"));
+            Specification<Individual> tmp = ((root, query, builder) -> builder.like(builder.lower(root.get("surname")),
+                    "%" + criteria.getSurname().toLowerCase() + "%"));
             spec = spec == null ? tmp : spec.and(tmp);
 
         }
 
-        if(StringUtils.isNotBlank(criteria.getMiddleName())) {
+        if (StringUtils.isNotBlank(criteria.getMiddleName())) {
 
-            Specification<Individual>  tmp = ((root, query, builder) ->
-                    builder.like(builder.lower(root.get("middleName")), "%" + criteria.getMiddleName().toLowerCase() + "%"));
+            Specification<Individual> tmp = ((root, query, builder) -> builder
+                    .like(builder.lower(root.get("middleName")), "%" + criteria.getMiddleName().toLowerCase() + "%"));
             spec = spec == null ? tmp : spec.and(tmp);
 
         }
 
-        if(StringUtils.isNotBlank(criteria.getIdentityNo())) {
+        if (StringUtils.isNotBlank(criteria.getIdentityNo())) {
 
-            Specification<Individual>  tmp = ((root, query, builder) ->
-                    builder.equal(builder.lower(root.get("identityNo")), criteria.getIdentityNo().toLowerCase()));
+            Specification<Individual> tmp = ((root, query, builder) -> builder
+                    .equal(builder.lower(root.get("identityNo")), criteria.getIdentityNo().toLowerCase()));
             spec = spec == null ? tmp : spec.and(tmp);
 
         }
@@ -167,16 +160,15 @@ public class IndividualServiceImpl
      * @see bw.co.centralkyc.individual.IndividualService#search(String)
      */
     @Override
-    protected Collection<IndividualListDTO> handleSearch(IndividualSearchCriteria criteria, Set<PropertySearchOrder> orderings)
+    protected Collection<IndividualListDTO> handleSearch(IndividualSearchCriteria criteria,
+            Set<PropertySearchOrder> orderings)
             throws Exception {
 
         Specification<Individual> spec = createSpecification(criteria);
 
         return individualMapper.toIndividualListDTOCollection(
-            spec == null ? 
-            individualRepository.findAll(Sort.by(Sort.Direction.ASC, "surname")) :
-            individualRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "surname"))
-        );
+                spec == null ? individualRepository.findAll(Sort.by(Sort.Direction.ASC, "surname"))
+                        : individualRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "surname")));
     }
 
     /**
@@ -190,7 +182,8 @@ public class IndividualServiceImpl
         Specification<Individual> spec = createSpecification(criteria.getCriteria());
 
         PageRequest pageRequest = PageRequest.of(criteria.getPageNumber(), criteria.getPageSize());
-        Page<Individual> individuals = spec == null ? individualRepository.findAll(pageRequest) : individualRepository.findAll(spec, pageRequest);
+        Page<Individual> individuals = spec == null ? individualRepository.findAll(pageRequest)
+                : individualRepository.findAll(spec, pageRequest);
 
         return individuals.map(individual -> individualMapper.toIndividualListDTO(individual));
     }
@@ -209,7 +202,8 @@ public class IndividualServiceImpl
     }
 
     @Override
-    protected IndividualDTO handleFindByIdentityNoAndIdentityType(String identityNo, IndividualIdentityType identityType)
+    protected IndividualDTO handleFindByIdentityNoAndIdentityType(String identityNo,
+            IndividualIdentityType identityType)
             throws Exception {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'handleFindByIdentityNoAndIdentityType'");
@@ -217,7 +211,7 @@ public class IndividualServiceImpl
 
     @Override
     protected Long handleCountByPepStatus(PepStatus pepStatus) throws Exception {
-        
+
         return this.individualRepository.countByPepStatus(pepStatus).orElse(0L);
     }
 
@@ -229,19 +223,19 @@ public class IndividualServiceImpl
 
     @Override
     protected Long handleCountByKycStatus(KycComplianceStatus kycStatus) throws Exception {
-        
+
         return this.individualRepository.countByKycStatus(kycStatus).orElse(0L);
     }
 
     @Override
     protected Long handleCountByEmploymentStatus(EmploymentStatus employmentStatus) throws Exception {
-        
+
         return this.individualRepository.countByEmploymentStatus(employmentStatus).orElse(0L);
     }
 
     @Override
     protected Long handleCountBySex(Sex sex) throws Exception {
-        
+
         return this.individualRepository.countBySex(sex).orElse(0L);
     }
 
@@ -253,7 +247,7 @@ public class IndividualServiceImpl
                 .orElseThrow(() -> new IndividualServiceException("ClientRequest not found"));
 
         String token = clientRequest.getIdentityConfirmationToken();
-        
+
         boolean matches = passwordEncoder.matches(identityConfirmationToken, token);
 
         if (!matches) {
@@ -267,7 +261,7 @@ public class IndividualServiceImpl
             throw new IndividualServiceException("Individual not found with identityNo: " + identityNo);
         }
 
-        if(!individual.getId().equals(UUID.fromString(clientRequest.getTargetId()))) {
+        if (!individual.getId().equals(UUID.fromString(clientRequest.getTargetId()))) {
 
             throw new IndividualServiceException("Individual does not match ClientRequest target");
         }
@@ -277,9 +271,9 @@ public class IndividualServiceImpl
 
     @Override
     protected IndividualDTO handleFindByUserId(String userId) throws Exception {
-        
+
         Individual individual = individualRepository.findByUserId(userId)
-                    .orElseThrow(() -> new IndividualServiceException("Individual not found for userId: " + userId));
+                .orElseThrow(() -> new IndividualServiceException("Individual not found for userId: " + userId));
         return individualMapper.toIndividualDTO(individual);
     }
 
