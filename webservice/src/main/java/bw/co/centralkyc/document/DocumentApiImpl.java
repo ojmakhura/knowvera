@@ -161,7 +161,6 @@ public class DocumentApiImpl implements DocumentApi {
         try (InputStream inputStream = file.getInputStream()) {
 
             String url = minioService.uploadFile(fileName, inputStream, file.getSize(), file.getContentType());
-            System.out.println("File uploaded to MinIO: " + url);
             return url;
 
         } catch (IOException e) {
@@ -193,10 +192,7 @@ public class DocumentApiImpl implements DocumentApi {
         try {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            System.out.println(authentication);
             Jwt jwt = (Jwt) authentication.getPrincipal();
-
-            System.out.println(jwt.getClaims());
 
             String username = jwt.getClaimAsString("preferred_username");
 
@@ -249,7 +245,6 @@ public class DocumentApiImpl implements DocumentApi {
         // Download the file from MinIO
         InputStream inputStream = minioService.downloadFile(url);
         // Process the input stream as needed
-        System.out.println("File downloaded from MinIO: " + url);
         InputStreamResource resource = new InputStreamResource(inputStream);
         return resource;
     }

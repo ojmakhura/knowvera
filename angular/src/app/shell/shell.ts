@@ -64,7 +64,9 @@ export class Shell {
 
   login() {
     try {
-      this.keycloak.login();
+      this.keycloak.login({
+        scope: 'openid profile email organization branch',
+      });
     } catch (e) {
       console.error('Login failed', e);
     }

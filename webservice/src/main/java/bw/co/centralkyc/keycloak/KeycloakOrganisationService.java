@@ -175,7 +175,6 @@ public class KeycloakOrganisationService {
             OrganisationDTO existing = findByName(organisation.getRegistrationNo());
 
             if (existing != null) {
-                System.out.println(existing);
                 return existing;
             }
 

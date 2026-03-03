@@ -34,8 +34,6 @@ public class KeycloakService {
     public Jwt getJwt() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        System.out.println("============================> : " + authentication.getPrincipal());
-
         if(authentication.getPrincipal() instanceof String) {
             return null;
         }

@@ -8,36 +8,39 @@ import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
 import {DeclarationDTO} from '@models/bw/co/centralkyc/kyc/declaration-dto';
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
 import {EmploymentRecordDTO} from '@models/bw/co/centralkyc/individual/employment/employment-record-dto';
+import { KycVerificationDTO } from "./verification/kyc-verification-dto";
 
 export class KycRecordDTO extends AuditableDTO {
     expiryDate: Date | any;
-    
+
     uploadDate: Date | any;
-    
+
     documents: Array<DocumentDTO> | any;
-    
+
     name: string | any;
-    
+
     identityNo: string | any;
-    
+
     kycStatus: KycComplianceStatus | any;
-    
+
     targetId: string | any;
-    
+
 
     employmentRecord: EmploymentRecordDTO | any;
     target: TargetEntity | any;
-    
+
     emailAddress: string | any;
-    
+
     identityType: IndividualIdentityType | any;
-    
+
 
     declaration: DeclarationDTO | any;
     sourceOfFunds: Array<SourceOfFunds> | any;
-    
+
     sourceOfFundsDetails: string | any;
-    
+
+    kycVerification: KycVerificationDTO | any;
+
     constructor() {
         super();
         this.expiryDate = null;
@@ -54,5 +57,6 @@ export class KycRecordDTO extends AuditableDTO {
         this.declaration = null;
         this.sourceOfFunds = [];
         this.sourceOfFundsDetails = null;
+        this.kycVerification = null;
     }
 }

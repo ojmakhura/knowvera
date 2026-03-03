@@ -653,11 +653,6 @@ public class KeycloakUserService {
 
         // Call messaging service to send the email
         // For now, just print to console (not recommended for production)
-        System.out.println("Queue new user notification for Individual ID: " + individual.getId());
-        System.out.println("=====================================================================");
-        System.out.println(user);
-        System.out.println("=====================================================================");
-        System.out.println(message);
 
         return user;
     }

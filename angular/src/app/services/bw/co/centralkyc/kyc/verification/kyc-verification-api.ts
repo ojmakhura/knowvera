@@ -13,55 +13,56 @@ import { TargetEntity } from '@models/bw/co/centralkyc/target-entity';
   providedIn: 'root'
 })
 export class KycVerificationApi {
-    
-    protected path = '/kyc-verification';
 
-    private http = inject(HttpClient);
+  protected path = '/kyc-verification';
 
-    public findById(id: string): Observable<KycVerificationDTO> {
+  private http = inject(HttpClient);
 
-        return this.http.get<KycVerificationDTO>(`${this.path}/${id}`);
-    }
+  public findById(id: string): Observable<KycVerificationDTO> {
 
-    public findByRecord(recordId: string): Observable<KycVerificationDTO> {
+    return this.http.get<KycVerificationDTO>(`${this.path}/${id}`);
+  }
 
-        return this.http.get<KycVerificationDTO>(`${this.path}/record/${recordId}`);
-    }
+  public findByRecord(recordId: string): Observable<KycVerificationDTO> {
 
-    public getAll(): Observable<KycVerificationDTO[]> {
+    return this.http.get<KycVerificationDTO>(`${this.path}/record/${recordId}`);
+  }
 
-        return this.http.get<KycVerificationDTO[]>(`${this.path}`);
-    }
+  public getAll(): Observable<KycVerificationDTO[]> {
 
-    public getAllPaged(pageNumber: number, pageSize: number): Observable<Page<KycVerificationDTO>> {
+    return this.http.get<KycVerificationDTO[]>(`${this.path}`);
+  }
 
-        return this.http.get<Page<KycVerificationDTO>>(`${this.path}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-    }
+  public getAllPaged(pageNumber: number, pageSize: number): Observable<Page<KycVerificationDTO>> {
 
-    public pagedSearch(criteria: SearchObject<KycRecordSearchCriteria>): Observable<Page<KycVerificationDTO>> {
+    return this.http.get<Page<KycVerificationDTO>>(`${this.path}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  }
 
-        return this.http.post<Page<KycVerificationDTO>>(`${this.path}/search/paged`, criteria);
-    }
+  public pagedSearch(criteria: SearchObject<KycRecordSearchCriteria>): Observable<Page<KycVerificationDTO>> {
 
-    public remove(id: string): Observable<boolean> {
+    return this.http.post<Page<KycVerificationDTO>>(`${this.path}/search/paged`, criteria);
+  }
 
-        return this.http.delete<boolean>(`${this.path}/${id}`);
-    }
+  public remove(id: string): Observable<boolean> {
 
-    public save(kycRecord: KycVerificationDTO): Observable<KycVerificationDTO> {
+    return this.http.delete<boolean>(`${this.path}/${id}`);
+  }
 
-        return this.http.post<KycVerificationDTO>(`${this.path}`, kycRecord);
-    }
+  public save(kycRecord: KycVerificationDTO): Observable<KycVerificationDTO> {
 
-    public search(criteria: KycVerificationSearchCriteria): Observable<KycVerificationDTO[]> {
+    return this.http.post<KycVerificationDTO>(`${this.path}`, kycRecord);
+  }
 
-        return this.http.post<KycVerificationDTO[]>(`${this.path}/search?criteria=${criteria}`, criteria);
-    }
+  public search(criteria: KycVerificationSearchCriteria): Observable<KycVerificationDTO[]> {
 
-    public createNew(ownerType: TargetEntity, ownerId: string, typeIds: string[], files: File[]): Observable<KycVerificationDTO[]> {
-        const formData: FormData = new FormData();
-        typeIds.forEach(typeId => formData.append('typeIds', typeId));
-        files.forEach(file => formData.append('files', file));
+    return this.http.post<KycVerificationDTO[]>(`${this.path}/search?criteria=${criteria}`, criteria);
+  }
 
-        return this.http.post<KycVerificationDTO[]>(`${this.path}/new?ownerType=${ownerType}&ownerId=${ownerId}`, formData);
-    }
+  public createNew(ownerType: TargetEntity, ownerId: string, typeIds: string[], files: File[]): Observable<KycVerificationDTO[]> {
+    const formData: FormData = new FormData();
+    typeIds.forEach(typeId => formData.append('typeIds', typeId));
+    files.forEach(file => formData.append('files', file));
+
+    return this.http.post<KycVerificationDTO[]>(`${this.path}/new?ownerType=${ownerType}&ownerId=${ownerId}`, formData);
+  }
+}

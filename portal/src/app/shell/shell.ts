@@ -73,8 +73,9 @@ export class Shell {
     try {
       await this.keycloak.login({
         redirectUri: redirectUri || window.location.origin,
+        scope: 'openid profile email organization branch'
       });
-    } catch (error) { 
+    } catch (error) {
       console.error('Login failed:', error);
       throw error;
     }

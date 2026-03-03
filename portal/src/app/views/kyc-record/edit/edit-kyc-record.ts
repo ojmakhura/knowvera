@@ -24,45 +24,30 @@ import { EmploymentRecordDTO } from '@app/models/bw/co/centralkyc/individual/emp
 import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
 import { DeclarationDTO } from '@app/models/bw/co/centralkyc/kyc/declaration-dto';
 import { SourceOfFunds } from '@app/models/bw/co/centralkyc/source-of-funds';
+import { KycVerificationDTO } from '@app/models/bw/co/centralkyc/kyc/verification/kyc-verification-dto';
 
 class KycRecordForm {
   id: string | any = null;
 
   createdBy: string | any = null;
-
   createdAt: Date | any = null;
-
   modifiedBy: string | any = null;
-
   modifiedAt: Date | any = null;
-
   expiryDate: Date | any = null;
-
   uploadDate: Date | any = null;
-
   documents: Array<DocumentDTO> = [];
-
   name: string | any = null;
-
   identityNo: string | any = null;
-
   kycStatus: KycComplianceStatus | any = null;
-
   targetId: string | any = null;
-
-
   employmentRecord: EmploymentRecordDTO = new EmploymentRecordDTO();
   target: TargetEntity | any = null;
-
   emailAddress: string | any = null;
-
   identityType: IndividualIdentityType | any = null;
-
-
   declaration: DeclarationDTO = new DeclarationDTO();
   sourceOfFunds: Array<SourceOfFunds> = [];
-
   sourceOfFundsDetails: string | any = null;
+  kycVerification: KycVerificationDTO = new KycVerificationDTO();
 }
 
 @Component({

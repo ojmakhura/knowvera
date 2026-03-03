@@ -116,8 +116,6 @@ public class KycRecordServiceImpl
             kycRecordEntity.setKycVerification(verification);
         }
 
-        // System.out.println("************************************************************
-        // " + kycRecordEntity.getExpiryDate());
         kycRecordEntity = this.kycRecordRepository.save(kycRecordEntity);
 
         return this.kycRecordDao.toKycRecordDTO(kycRecordEntity);
@@ -374,26 +372,25 @@ public class KycRecordServiceImpl
             throws Exception {
 
         KycRecord record = kycRecordRepository.findLatestValidForOwner(ownerId, ownerType, today)
-                .orElseThrow(() -> new KycRecordServiceException(
-                        "No valid KycRecord found for ownerId: " + ownerId + " and ownerType: " + ownerType));
+                .orElse(null);
 
-        return kycRecordDao.toKycRecordDTO(record);
+        return record == null ? null : kycRecordDao.toKycRecordDTO(record);
     }
 
 
     @Override
-    protected Collection<KycRecordDTO> handleCreateNew(TargetEntity ownerType, String ownerId, List<DocumentDTO> files, String user)
+    protected KycRecordDTO handleCreateNew(KycRecordDTO record, String user)
             throws Exception {
 
-        List<KycRecordDTO> createdRecords = files.stream().map(file -> {
-            try {
-                return this.createTargetRecord(ownerId, ownerType, user);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }).toList();
+        // List<KycRecordDTO> createdRecords = files.stream().map(file -> {
+        //     try {
+        //         return this.createTargetRecord(ownerId, ownerType, user);
+        //     } catch (Exception e) {
+        //         throw new RuntimeException(e);
+        //     }
+        // }).toList();
 
-        return createdRecords;
+        return null;
     }
 
 }

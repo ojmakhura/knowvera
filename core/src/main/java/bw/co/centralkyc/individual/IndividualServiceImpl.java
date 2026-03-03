@@ -55,7 +55,6 @@ public class IndividualServiceImpl
 
         Individual individual = individualRepository.getReferenceById(UUID.fromString(id));
 
-        System.out.println("Fetched Individual: " + individual);
         return individualMapper.toIndividualDTO(individual);
     }
 

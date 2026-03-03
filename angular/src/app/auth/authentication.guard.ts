@@ -11,7 +11,9 @@ const isAccessAllowed = async (
 
   if(!authenticated) {
 
-    authData.keycloak.login();
+    authData.keycloak.login({
+      scope: 'openid profile email organization branch',
+    });
   }
 
   if (authenticated) {

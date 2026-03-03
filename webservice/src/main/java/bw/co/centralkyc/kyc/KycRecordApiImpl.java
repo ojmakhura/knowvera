@@ -419,23 +419,23 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
-    public ResponseEntity<Collection<KycRecordDTO>> createNew(TargetEntity ownerType, String ownerId, List<String> typeIds,
+    public ResponseEntity<KycRecordDTO> createNew(KycRecordDTO record,
             List<MultipartFile> files) throws Exception {
         
         try {
 
-            if(files.size() != typeIds.size()) {
+            // if(files.size() != typeIds.size()) {
 
-                throw new KycRecordServiceException("Number of files must match number of typeIds");
-            }
+            //     throw new KycRecordServiceException("Number of files must match number of typeIds");
+            // }
 
-            List<DocumentDTO> documents = new ArrayList<>();
+            // List<DocumentDTO> documents = new ArrayList<>();
 
-            for (int i = 0; i < files.size(); i++) {
+            // for (int i = 0; i < files.size(); i++) {
 
-                DocumentDTO doc = documentApi.upload(ownerType, ownerId, typeIds.get(i), files.get(i)).getBody();
-                documents.add(doc);
-            }
+            //     DocumentDTO doc = documentApi.upload(ownerType, ownerId, typeIds.get(i), files.get(i)).getBody();
+            //     documents.add(doc);
+            // }
 
             String username = "anonymousUser";
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -444,7 +444,7 @@ public class KycRecordApiImpl implements KycRecordApi {
                 username = authentication.getName();
             }
 
-            return ResponseEntity.ok(kycRecordService.createNew(ownerType, ownerId, documents, username));
+            return ResponseEntity.ok(kycRecordService.createNew(record, username));
 
         } catch (Exception e) {
             e.printStackTrace();
