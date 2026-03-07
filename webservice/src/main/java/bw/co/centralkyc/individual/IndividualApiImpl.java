@@ -8,6 +8,7 @@ package bw.co.centralkyc.individual;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.SecureRandom;
@@ -333,6 +334,26 @@ public class IndividualApiImpl implements IndividualApi {
                     identityNo);
 
             return ResponseEntity.ok(individual);
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    public ResponseEntity<IndividualDTO> loadMe() throws Exception {
+        
+        try {
+            
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if(!authentication.isAuthenticated()) {
+                throw new IndividualServiceException("Unauthenticated");
+            }
+
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            String userId = jwt.getSubject();
+
+            return ResponseEntity.ok(individualService.findByUserId(userId));
 
         } catch (Exception e) {
             throw e;

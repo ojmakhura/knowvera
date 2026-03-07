@@ -1,6 +1,7 @@
 import { of, switchMap } from 'rxjs';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { IndividualDTO } from '@app/models/bw/co/centralkyc/individual/individual-dto';
 
 export type AppEnvState = {
   env: any;
@@ -20,7 +21,8 @@ export type AppEnvState = {
     email: string;
     username: string;
   } | null;
-  userOrganisation: any
+  userOrganisation: any;
+  individual: IndividualDTO | null;
 };
 
 const initialState: AppEnvState = {
@@ -36,7 +38,8 @@ const initialState: AppEnvState = {
   accountUri: null,
   username: null,
   profile: null,
-  userOrganisation: null
+  userOrganisation: null,
+  individual: null,
 };
 
 export const AppEnvStore = signalStore(
@@ -82,6 +85,18 @@ export const AppEnvStore = signalStore(
         switchMap((profile) => {
           patchState(store, { profile });
           return of(store.profile);
+        }),
+      ),
+      setUserOrganisation: rxMethod<any>(
+        switchMap((userOrganisation) => {
+          patchState(store, { userOrganisation });
+          return of(store.userOrganisation);
+        }),
+      ),
+      setIndividual: rxMethod<IndividualDTO | null>(
+        switchMap((individual) => {
+          patchState(store, { individual });
+          return of(store.individual);
         }),
       ),
     };

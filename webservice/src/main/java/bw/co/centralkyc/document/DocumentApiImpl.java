@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +33,7 @@ import bw.co.centralkyc.AuditTracker;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.processor.DocumentProcessorService;
 import bw.co.centralkyc.minio.MinioService;
+import bw.co.centralkyc.properties.RabbitProperties;
 
 @RestController
 public class DocumentApiImpl implements DocumentApi {
@@ -38,12 +41,17 @@ public class DocumentApiImpl implements DocumentApi {
     private final MinioService minioService;
     private final DocumentService documentService;
     private final DocumentProcessorService documentProcessor;
+    private final RabbitTemplate rabbitTemplate;
+    private final RabbitProperties rabbitProperties;
 
-    public DocumentApiImpl(DocumentService documentService, MinioService minioService, DocumentProcessorService documentProcessor) {
+    public DocumentApiImpl(DocumentService documentService, RabbitTemplate rabbitTemplate, MinioService minioService,
+            DocumentProcessorService documentProcessor, RabbitProperties rabbitProperties) {
 
         this.documentService = documentService;
         this.minioService = minioService;
         this.documentProcessor = documentProcessor;
+        this.rabbitTemplate = rabbitTemplate;
+        this.rabbitProperties = rabbitProperties;
     }
 
     @Override
@@ -149,11 +157,17 @@ public class DocumentApiImpl implements DocumentApi {
 
     }
 
-    private String constructFilePath(TargetEntity target, String targetId, String fileName) {
+    private String constructFilePath(TargetEntity target, String targetId, String purpose, String fileName) {
         StringBuilder filePath = new StringBuilder();
-        filePath.append(target).append(targetId).append("/").append(fileName);
+        filePath.append(target).append("/").append(targetId);
 
-        return fileName;
+        if (StringUtils.isNotBlank(purpose)) {
+            filePath.append("/").append(purpose);
+        }
+
+        filePath.append("/").append(fileName);
+
+        return filePath.toString();
     }
 
     private String uploadToMinio(MultipartFile file, String fileName) throws Exception {
@@ -169,25 +183,9 @@ public class DocumentApiImpl implements DocumentApi {
         }
     }
 
-    // private InputStreamResource downloadFromMinio(String objectName) throws Exception {
-    //     // Download the file from MinIO
-    //     try (InputStream inputStream = minioService.downloadFile(objectName)) {
-    //         // Process the input stream as needed
-    //         System.out.println("File downloaded from MinIO: " + objectName);
-    //         InputStreamResource resource = new InputStreamResource(inputStream);
-    //         // byte[] fileBytes = inputStream.readAllBytes();
-    //         inputStream.close();
-    //         return resource;
-
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //         throw new DocumentServiceException("Error downloading file: " + objectName);
-    //     }
-    // }
-
     @Override
     public ResponseEntity<DocumentDTO> upload(TargetEntity target, String targetId,
-            String documentTypeId, MultipartFile file) {
+            String documentTypeId, String purpose, MultipartFile file) {
 
         try {
 
@@ -203,15 +201,8 @@ public class DocumentApiImpl implements DocumentApi {
             document.setTargetId(targetId);
             document.setFileName(file.getOriginalFilename());
 
-            try {
-
-                String text = documentProcessor.extractText(file.getBytes());
-                document.setFileContent(text);
-            } catch (Exception e) {
-                e.printStackTrace();
-                // Handle the exception as needed
-                throw new DocumentServiceException("Error extracting text from PDF: " + file.getOriginalFilename());
-            }
+            rabbitTemplate.convertAndSend(rabbitProperties.getDocumentQueueExchange(),
+                    rabbitProperties.getDocumentDispatchRoutingKey(), document.getId());
 
             Map<String, Object> metadata = new HashMap<>();
             metadata.put("fileSize", file.getSize());
@@ -220,7 +211,7 @@ public class DocumentApiImpl implements DocumentApi {
 
             document.setMetadata(metadata);
 
-            String filePath = constructFilePath(target, targetId, file.getOriginalFilename());
+            String filePath = constructFilePath(target, targetId, purpose, file.getOriginalFilename());
             try {
                 document.setUrl(uploadToMinio(file, filePath));
             } catch (Exception e) {
@@ -231,7 +222,7 @@ public class DocumentApiImpl implements DocumentApi {
 
             document.setDocumentTypeId(documentTypeId);
 
-            return ResponseEntity.ok(documentService.save(document)); 
+            return ResponseEntity.ok(documentService.save(document));
 
         } catch (Exception e) {
 
@@ -239,7 +230,7 @@ public class DocumentApiImpl implements DocumentApi {
         }
 
     }
-    
+
     private InputStreamResource downloadFromMinio(String url) throws Exception {
 
         // Download the file from MinIO
@@ -277,6 +268,48 @@ public class DocumentApiImpl implements DocumentApi {
                 .body(data);
 
         return response;
+
+    }
+
+    @Override
+    public ResponseEntity<DocumentDTO> updateDocument(String id, MultipartFile file) throws Exception {
+
+        try {
+
+            DocumentDTO document = documentService.findById(id);
+
+            String filePath = null;
+            if (StringUtils.isNotBlank(document.getUrl())) {
+
+                int lastSlash = document.getUrl().lastIndexOf("/");
+                String basePath = document.getUrl().substring(0, lastSlash);
+
+                filePath = basePath + "/" + file.getOriginalFilename();
+            } else {
+
+                filePath = constructFilePath(document.getTarget(), document.getTargetId(), id, file.getOriginalFilename());
+            }
+
+            String url = uploadToMinio(file, filePath);
+            document.setUrl(url);
+            document.setFileName(file.getOriginalFilename());
+
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("fileSize", file.getSize());
+            metadata.put("fileType", file.getContentType());
+            metadata.put("contentType", file.getContentType());
+
+            document.setMetadata(metadata);
+
+            rabbitTemplate.convertAndSend(rabbitProperties.getDocumentQueueExchange(),
+                    rabbitProperties.getDocumentDispatchRoutingKey(), document.getId());
+
+            return ResponseEntity.ok(documentService.save(document));
+
+        } catch (Exception e) {
+
+            throw e;
+        }
 
     }
 }

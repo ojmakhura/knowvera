@@ -283,8 +283,9 @@ public class ClientRequestApiImpl implements ClientRequestApi {
             DocumentDTO doc = documentApi
                     .upload(
                             TargetEntity.CLIENT_REQUEST,
-                            settings.getId(),
+                            organisationId,
                             settings.getClientRequestFileType().getId(),
+                            "requests" ,
                             file)
                     .getBody();
 

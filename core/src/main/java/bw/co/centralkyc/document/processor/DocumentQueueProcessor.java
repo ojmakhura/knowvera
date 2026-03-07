@@ -22,7 +22,7 @@ public class DocumentQueueProcessor {
     private final DocumentService documentService;
     private final MinioService minioService;
     
-    @RabbitListener(queues = "${app.rabbitmq.documentQueue}")
+    // @RabbitListener(queues = "${app.rabbitmq.documentQueue}")
     public void handleDocumentProcessing(String documentId) {
 
         log.info("Received document for processing with id: {}", documentId);

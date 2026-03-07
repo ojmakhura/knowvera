@@ -1,0 +1,210 @@
+<main class="edit-kyc-record" aria-labelledby="edit-kyc-record-title">
+	<header class="edit-kyc-record__header">
+		<h1 id="edit-kyc-record-title">{{ recordSignal().id ? 'Edit KYC Record' : 'Create KYC Record' }}</h1>
+		<p>Capture and review KYC details before submitting.</p>
+	</header>
+
+	@if (loading()) {
+		<p class="edit-kyc-record__loading" aria-live="polite">Loading KYC data...</p>
+	}
+
+	<section class="edit-kyc-record__section" aria-labelledby="record-details-title">
+		<h2 id="record-details-title">Record Details</h2>
+		<div class="edit-kyc-record__grid">
+			<mat-form-field>
+				<mat-label>Name</mat-label>
+				<input matInput [formField]="recordForm.name" placeholder="Enter full name" />
+			</mat-form-field>
+
+			<mat-form-field>
+				<mat-label>Identity Number</mat-label>
+				<input matInput [formField]="recordForm.identityNo" placeholder="Enter identity number" />
+			</mat-form-field>
+
+				<mat-form-field>
+					<mat-label>Target</mat-label>
+					<input matInput [formField]="recordForm.target" placeholder="Enter target" />
+				</mat-form-field>
+
+
+			<mat-form-field>
+				<mat-label>KYC Status</mat-label>
+				<input matInput [formField]="recordForm.kycStatus" placeholder="Enter KYC status" />
+			</mat-form-field>
+
+      @if(selectedTarget === 'INDIVIDUAL') {
+			<mat-form-field>
+				<mat-label>Identity Type</mat-label>
+				<input matInput [formField]="recordForm.identityType" placeholder="Enter identity type" />
+			</mat-form-field>
+      }
+			<mat-form-field>
+				<mat-label>Email Address</mat-label>
+				<input
+					matInput
+					type="email"
+					[formField]="recordForm.emailAddress"
+					placeholder="name@example.com" />
+			</mat-form-field>
+
+			<!-- <mat-form-field>
+				<mat-label>Expiry Date</mat-label>
+				<input
+					matInput
+					type="date"
+					[value]="toDateInputValue(recordSignal().expiryDate)"
+					(input)="updateRecordDateField('expiryDate', $any($event.target).value)" />
+			</mat-form-field> -->
+
+			<!-- <mat-form-field>
+				<mat-label>Upload Date</mat-label>
+				<input
+					matInput
+					type="date"
+					[value]="toDateInputValue(recordSignal().uploadDate)"
+					(input)="updateRecordDateField('uploadDate', $any($event.target).value)" />
+			</mat-form-field> -->
+		</div>
+	</section>
+
+	<section class="edit-kyc-record__section" aria-labelledby="source-of-funds-title">
+		<h2 id="source-of-funds-title">Source of Funds</h2>
+		<div class="edit-kyc-record__grid">
+			<mat-form-field>
+				<mat-label>Source of Funds</mat-label>
+				<mat-select
+					multiple
+					[formField]="recordForm.sourceOfFunds">
+					@for (source of sourceOfFundsOptions; track source) {
+						<mat-option [value]="source">{{ toLabel(source) }}</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
+
+			<mat-form-field class="edit-kyc-record__full-width">
+				<mat-label>Source of Funds Details</mat-label>
+				<textarea
+					matInput
+					rows="3"
+					[formField]="recordForm.sourceOfFundsDetails"></textarea>
+			</mat-form-field>
+		</div>
+	</section>
+
+  @if(selectedTarget === 'INDIVIDUAL') {
+	<section class="edit-kyc-record__section" aria-labelledby="employment-details-title">
+		<h2 id="employment-details-title">Employment Details</h2>
+		<div class="edit-kyc-record__grid">
+			<mat-form-field>
+				<mat-label>Employer Name</mat-label>
+				<input
+					matInput
+					  [formField]="recordForm.employmentRecord.name" />
+			</mat-form-field>
+
+			<mat-form-field>
+				<mat-label>Employer Identity Number</mat-label>
+				<input
+					matInput
+					  [formField]="recordForm.employmentRecord.identityNo" />
+			</mat-form-field>
+
+			<mat-form-field>
+				<mat-label>Positions</mat-label>
+				<input
+					matInput
+					  [formField]="recordForm.employmentRecord.positions"
+					placeholder="Example: Teller, Supervisor" />
+			</mat-form-field>
+
+			<mat-form-field>
+				<mat-label>Employment Start</mat-label>
+				<input
+					matInput
+					type="date"
+					  [formField]="recordForm.employmentRecord.employmentStart" />
+			</mat-form-field>
+
+			<mat-form-field>
+				<mat-label>Employment End</mat-label>
+				<input
+					matInput
+					type="date"
+					  [formField]="recordForm.employmentRecord.employmentEnd" />
+			</mat-form-field>
+		</div>
+	</section>
+  }
+
+	<section class="edit-kyc-record__section" aria-labelledby="declaration-title">
+		<h2 id="declaration-title">Declaration</h2>
+		<div class="edit-kyc-record__grid">
+			<mat-form-field>
+				<mat-label>PEP Status</mat-label>
+				<mat-select
+					  [formField]="recordForm.declaration.pepStatus">
+					@for (pepStatus of pepStatusOptions; track pepStatus) {
+						<mat-option [value]="pepStatus">{{ toLabel(pepStatus) }}</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
+
+			<mat-form-field class="edit-kyc-record__full-width">
+				<mat-label>PEP Details</mat-label>
+				<textarea
+					matInput
+					rows="3"
+					  [formField]="recordForm.declaration.pepDetails"></textarea>
+			</mat-form-field>
+
+			<div class="edit-kyc-record__checkbox-row">
+				<mat-checkbox
+					  [formField]="recordForm.declaration.sanctionsMatch">
+					Sanctions Match
+				</mat-checkbox>
+			</div>
+
+			<mat-form-field class="edit-kyc-record__full-width">
+				<mat-label>Sanctions Details</mat-label>
+				<textarea
+					matInput
+					rows="3"
+					  [formField]="recordForm.declaration.sanctionsDetails"></textarea>
+			</mat-form-field>
+		</div>
+	</section>
+
+	<section class="edit-kyc-record__section" aria-labelledby="documents-title">
+		<h2 id="documents-title">Documents</h2>
+		@if (availableDocumentTypes().length > 0) {
+			<div class="edit-kyc-record__documents">
+				@for (docType of availableDocumentTypes(); track getDocKey(docType)) {
+					<div class="edit-kyc-record__document-row">
+						<mat-checkbox [checked]="isDocumentSelected(docType)" (change)="toggleDocument(docType)">
+							{{ docType.name }}
+						</mat-checkbox>
+
+						<input
+							type="file"
+							[attr.aria-label]="'Upload ' + (docType.name || 'document')"
+							[disabled]="!isDocumentSelected(docType)"
+							(change)="onFileChange($event, docType)" />
+
+						@if (getDocumentFileName(docType)) {
+							<span class="edit-kyc-record__document-file">{{ getDocumentFileName(docType) }}</span>
+						}
+					</div>
+				}
+			</div>
+		} @else {
+			<p class="edit-kyc-record__empty-state">No document types configured for this target.</p>
+		}
+	</section>
+
+	<footer class="edit-kyc-record__actions">
+		<button mat-button type="button" (click)="router.navigate(['/kyc-record'])">Cancel</button>
+		<button mat-raised-button color="primary" type="button" [disabled]="loading()" (click)="submit()">
+			Save KYC Record
+		</button>
+	</footer>
+</main>

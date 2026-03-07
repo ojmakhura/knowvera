@@ -13,43 +13,46 @@ import { OrganisationSearchCriteria } from '@models/bw/co/centralkyc/organisatio
 })
 export class OrganisationApi {
 
-    protected path = '/organisation';
+  protected path = '/organisation';
 
-    private http = inject(HttpClient);
+  private http = inject(HttpClient);
 
-    public findById(id: string | any ): Observable<OrganisationDTO | any> {
+  public findById(id: string | any): Observable<OrganisationDTO | any> {
 
-        return this.http.get<OrganisationDTO | any>(`${this.path}/${id}`);
-    }
+    return this.http.get<OrganisationDTO | any>(`${this.path}/${id}`);
+  }
 
-    public getAll(): Observable<OrganisationListDTO[] | any[]> {
+  public getAll(): Observable<OrganisationListDTO[] | any[]> {
 
-        return this.http.get<OrganisationListDTO[] | any[]>(`${this.path}`);
-    }
+    return this.http.get<OrganisationListDTO[] | any[]>(`${this.path}`);
+  }
 
-    public getAllPaged(pageNumber: number | any , pageSize: number | any ): Observable<Page<OrganisationListDTO> | any> {
+  public getAllPaged(pageNumber: number | any, pageSize: number | any): Observable<Page<OrganisationListDTO> | any> {
 
-        return this.http.get<Page<OrganisationListDTO> | any>(`${this.path}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-    }
+    return this.http.get<Page<OrganisationListDTO> | any>(`${this.path}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  }
 
-    public pagedSearch(criteria: SearchObject<OrganisationSearchCriteria> | any ): Observable<Page<OrganisationListDTO> | any> {
+  public pagedSearch(criteria: SearchObject<OrganisationSearchCriteria> | any): Observable<Page<OrganisationListDTO> | any> {
 
-        return this.http.post<Page<OrganisationListDTO> | any>(`${this.path}/search/paged`, criteria);
-    }
+    return this.http.post<Page<OrganisationListDTO> | any>(`${this.path}/search/paged`, criteria);
+  }
 
-    public remove(id: string | any ): Observable<boolean | any> {
+  public remove(id: string | any): Observable<boolean | any> {
 
-        return this.http.delete<boolean | any>(`${this.path}/${id}`);
-    }
+    return this.http.delete<boolean | any>(`${this.path}/${id}`);
+  }
 
-    public save(organisation: OrganisationDTO | any ): Observable<OrganisationDTO | any> {
+  public save(organisation: OrganisationDTO | any): Observable<OrganisationDTO | any> {
 
-        return this.http.post<OrganisationDTO | any>(`${this.path}`, organisation);
-    }
+    return this.http.post<OrganisationDTO | any>(`${this.path}`, organisation);
+  }
 
-    public search(criteria: SearchObject<OrganisationSearchCriteria> | any ): Observable<OrganisationListDTO[] | any[]> {
+  public search(criteria: SearchObject<OrganisationSearchCriteria> | any): Observable<OrganisationListDTO[] | any[]> {
 
-        return this.http.post<OrganisationListDTO[] | any[]>(`${this.path}/search`, criteria);
-    }
+    return this.http.post<OrganisationListDTO[] | any[]>(`${this.path}/search`, criteria);
+  }
 
+  loadMyOrganisation(): Observable<OrganisationDTO> {
+    return this.http.get<OrganisationDTO>(`${this.path}/mine`);
+  }
 }

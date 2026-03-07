@@ -262,6 +262,40 @@ export const OrganisationApiStore = signalStore(
           );
         }),
       ),
+      loadMyOrganisation: rxMethod<void>(
+        switchMap(() => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return organisationApi.loadMyOrganisation().pipe(
+            tapResponse({
+              next: (response: OrganisationDTO) => {
+                patchState(
+                  store,
+                  {
+                    data: response,
+                    loading: false,
+                    success: true,
+                    messages: [`Loaded my organisation successfully`],
+                    error: false,
+                    registrationOrganisationLoaded: true,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
+                    success: false,
+                    error: true,
+                    messages: [error?.error?.message || 'An error occurred'],
+                    registrationOrganisationLoaded: true,
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
     }
   }),
 );

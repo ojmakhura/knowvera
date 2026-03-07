@@ -3,18 +3,18 @@ import { FormBuilder } from "@angular/forms";
 import {PepStatus} from '@models/bw/co/centralkyc/individual/pep-status';
 
 export class DeclarationDTO {
-    pepStatus: PepStatus | any;
-    
+    pepStatus: PepStatus;
+
     pepDetails: string | any;
-    
+
     sanctionsMatch: boolean | any = false;
-    
+
     sanctionsDetails: string | any;
-    
+
     constructor() {
-        this.pepStatus = null;
+        this.pepStatus = PepStatus.NOT_PEP;
         this.pepDetails = null;
-        this.sanctionsMatch = null;
+        this.sanctionsMatch = false;
         this.sanctionsDetails = null;
     }
 }

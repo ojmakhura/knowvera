@@ -91,6 +91,40 @@
         <router-outlet />
       </div>
     </main>
+
+    @if (appEnvState.isLoggedIn()) {
+    <aside class="shell__requests" role="complementary" aria-label="Client requests">
+      <div class="requests-panel">
+        <div class="requests-panel__header">
+          <h2 class="requests-panel__title">Client Requests</h2>
+          <button type="button" class="requests-panel__refresh" (click)="requestApiStore.findMyRequests()">
+            Refresh
+          </button>
+        </div>
+
+        @if (requestApiStore.loading()) {
+        <p class="requests-panel__state">Loading requests...</p>
+        } @else if (clientRequests().length === 0) {
+        <p class="requests-panel__state">No client requests found.</p>
+        } @else {
+        <ul class="requests-list" role="list">
+          @for (request of clientRequests(); track request.id || $index) {
+          <li class="requests-list__item">
+            <div class="requests-list__row">
+              <h3 class="requests-list__name">{{ request.name || 'Unnamed request' }}</h3>
+              <span class="request-status" [class]="'request-status ' + getRequestStatusClass(request.status)">
+                {{ request.status || 'PENDING' }}
+              </span>
+            </div>
+            <p class="requests-list__meta">{{ request.emailAddress || 'No email provided' }}</p>
+            <p class="requests-list__meta">{{ request.organisation || 'No organisation' }}</p>
+          </li>
+          }
+        </ul>
+        }
+      </div>
+    </aside>
+    }
   </div>
 
   <!-- Footer -->
@@ -100,9 +134,9 @@
         <p class="footer__text">{{ 'home.footer.copyright' | translate }}</p>
         <div class="footer__powered">
           <span class="footer__powered-text">Powered by</span>
-          <img 
-            src="/rogue_systems_v2_1024.png" 
-            alt="Rogue Systems" 
+          <img
+            src="/rogue_systems_v2_1024.png"
+            alt="Rogue Systems"
             class="footer__logo"
             width="24"
             height="24">

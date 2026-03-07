@@ -7,12 +7,15 @@ package bw.co.centralkyc.organisation;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import bw.co.centralkyc.individual.IndividualServiceException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 
 import bw.co.centralkyc.AuditTracker;
@@ -196,13 +199,37 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
-    public ResponseEntity<IndividualDTO> loadRequestOrganisation(String requestId, String identityConfirmationToken,
+    public ResponseEntity<OrganisationDTO> loadRequestOrganisation(String requestId, String identityConfirmationToken,
             String registrationNo) throws Exception {
         
         try {
-            IndividualDTO individual = organisationService.loadRequestOrganisation(requestId, identityConfirmationToken,
+            OrganisationDTO organisation = organisationService.loadRequestOrganisation(requestId, identityConfirmationToken,
                     registrationNo);
-            return ResponseEntity.ok(individual);
+            return ResponseEntity.ok(organisation);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
+    public ResponseEntity<OrganisationDTO> loadMyOrganisation() throws Exception {
+        
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if(!authentication.isAuthenticated()) {
+                throw new IndividualServiceException("Unauthenticated");
+            }
+
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            Map<String, Object> org = jwt.getClaimAsMap("organization");
+            if(org == null) {
+
+                return ResponseEntity.ok(null);
+            }
+
+            String code = org.keySet().iterator().next();
+            return ResponseEntity.ok(organisationService.findByCode(code));
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

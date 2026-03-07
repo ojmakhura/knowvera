@@ -650,6 +650,38 @@ export const KycRecordApiStore = signalStore(
           );
         }),
       ),
+      createNew: rxMethod<{ record: KycRecordDTO, files: File[] }>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return kycRecordApi.createNew(data.record, data.files).pipe(
+            tapResponse({
+              next: (response: KycRecordDTO) => {
+                patchState(
+                  store,
+                  {
+                    data: response,
+                    loading: false,
+                    success: true,
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                  status: (error?.status || 0),
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [error?.error?.message || 'An error occurred'],
+                }
+                );
+              },
+            }),
+          );
+        }),
+      ),
     }
   }),
 );

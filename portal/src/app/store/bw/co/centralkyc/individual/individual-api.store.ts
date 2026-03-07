@@ -362,6 +362,39 @@ export const IndividualApiStore = signalStore(
           );
         }),
       ),
+      loadMe: rxMethod<void>(
+        switchMap(() => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return individualApi.loadMe().pipe(
+            tapResponse({
+              next: (response: IndividualDTO) => {
+                patchState(
+                  store,
+                  {
+                    data: response,
+                    loading: false,
+                    success: true,
+                    messages: ['Client individual successfully loaded!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                    status: (error?.status || 0),
+                    data: new IndividualDTO(),
+                    loading: false,
+                    success: false,
+                    error: true,
+                    messages: [error?.error?.message || 'An error occurred'],
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
     }
   }),
 );

@@ -65,4 +65,8 @@ export class IndividualApi {
   loadRequestIndividual(requestId: string, identityConfirmationToken: string, identityNo: string): Observable<IndividualDTO> {
     return this.http.get<IndividualDTO>(`${this.path}/request/${requestId}?identityConfirmationToken=${identityConfirmationToken}&identityNo=${identityNo}`);
   }
+
+  loadMe(): Observable<IndividualDTO> {
+    return this.http.get<IndividualDTO>(`${this.path}/me`);
+  }
 }

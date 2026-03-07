@@ -141,6 +141,7 @@ public class SettingsApiImpl implements SettingsApi {
                             settings.getId(),
                             target == TargetEntity.INVOICE ? settings.getInvoiceDocumentType().getId()
                                     : settings.getQuotationDocumentType().getId(),
+                            "settings",
                             template)
                     .getBody();
 

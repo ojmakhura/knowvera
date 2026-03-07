@@ -30,7 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.TargetEntity;
+import bw.co.centralkyc.document.Document;
 import bw.co.centralkyc.document.DocumentDTO;
+import bw.co.centralkyc.document.DocumentRepository;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.kyc.verification.KycVerification;
@@ -52,17 +54,21 @@ public class KycRecordServiceImpl
     private final IndividualRepository individualRepository;
     private final OrganisationRepository organisationRepository;
     private final SettingsRepository settingsRepository;
+    private final KycRecordMapper kycRecordMapper;
+    private final DocumentRepository documentRepository;
 
     public KycRecordServiceImpl(KycRecordDao kycRecordDao, KycRecordRepository kycRecordRepository,
             KycRecordMapper kycRecordMapper, MessageSource messageSource,
-            SettingsRepository settingsRepository,
-            IndividualRepository individualRepository,
+            SettingsRepository settingsRepository, KycRecordMapper kycRecordMpper,
+            IndividualRepository individualRepository, DocumentRepository documentRepository,
             OrganisationRepository organisationRepository) {
         super(kycRecordDao, kycRecordRepository, kycRecordMapper, messageSource);
         // TODO Auto-generated constructor stub
         this.individualRepository = individualRepository;
         this.settingsRepository = settingsRepository;
         this.organisationRepository = organisationRepository;
+        this.kycRecordMapper = kycRecordMpper;
+        this.documentRepository = documentRepository;
     }
 
 
@@ -382,15 +388,19 @@ public class KycRecordServiceImpl
     protected KycRecordDTO handleCreateNew(KycRecordDTO record, String user)
             throws Exception {
 
-        // List<KycRecordDTO> createdRecords = files.stream().map(file -> {
-        //     try {
-        //         return this.createTargetRecord(ownerId, ownerType, user);
-        //     } catch (Exception e) {
-        //         throw new RuntimeException(e);
-        //     }
-        // }).toList();
+        if(StringUtils.isBlank(record.getId())) {
+            record.setEmploymentRecord(null);
+        }
 
-        return null;
+        KycRecord kycRecord = this.kycRecordMapper.kycRecordDTOToEntity(record);
+
+        if (kycRecord.getUploadDate() == null) {
+            kycRecord.setUploadDate(LocalDate.now());
+        }
+
+        kycRecord = this.kycRecordRepository.save(kycRecord);
+
+        return this.kycRecordMapper.toKycRecordDTO(kycRecord);
     }
 
 }

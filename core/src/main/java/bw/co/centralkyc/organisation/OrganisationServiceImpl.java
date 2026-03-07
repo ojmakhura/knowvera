@@ -230,10 +230,24 @@ public class OrganisationServiceImpl
     }
 
     @Override
-    protected IndividualDTO handleLoadRequestOrganisation(String requestId, String identityConfirmationToken,
+    protected OrganisationDTO handleLoadRequestOrganisation(String requestId, String identityConfirmationToken,
             String registrationNo) throws Exception {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'handleLoadRequestOrganisation'");
+    }
+
+    @Override
+    protected OrganisationDTO handleFindByCode(String code) throws Exception {
+
+        Organisation org = organisationRepository.findByCode(code).orElse(null);
+
+        return organisationMapper.toOrganisationDTO(org);
+    }
+
+    @Override
+    protected OrganisationDTO handleFindByName(String name) throws Exception {
+        Organisation org = organisationRepository.findByName(name).orElse(null);
+        return organisationMapper.toOrganisationDTO(org);
     }
 
 }

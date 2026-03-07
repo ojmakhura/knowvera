@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.springframework.data.domain.Page;
 
 @RestController
@@ -55,7 +56,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     private void updateOrganisations(Collection<KycRecordDTO> records) {
 
-        if(records == null || records.isEmpty()) {
+        if (records == null || records.isEmpty()) {
             return;
         }
 
@@ -97,8 +98,6 @@ public class KycRecordApiImpl implements KycRecordApi {
             throw e;
         }
     }
-
-
 
     @Override
     public ResponseEntity<Collection<KycRecordDTO>> findByIdentityNo(String identityNo)
@@ -160,7 +159,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
-    public ResponseEntity<Page<KycRecordDTO>> pagedSearch(SearchObject<KycRecordSearchCriteria> criteria) throws Exception {
+    public ResponseEntity<Page<KycRecordDTO>> pagedSearch(SearchObject<KycRecordSearchCriteria> criteria)
+            throws Exception {
 
         try {
             Page<KycRecordDTO> records = kycRecordService.search(criteria);
@@ -205,7 +205,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     public ResponseEntity<Collection<KycRecordDTO>> search(KycRecordSearchCriteria criteria) throws Exception {
         try {
-            
+
             Collection<KycRecordDTO> records = kycRecordService.search(criteria);
             updateOrganisations(records);
 
@@ -327,7 +327,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     public ResponseEntity<KycRecordDTO> createOrganisationRecord(String organisationId) throws Exception {
-        
+
         try {
 
             String username = "anonymousUser";
@@ -337,7 +337,8 @@ public class KycRecordApiImpl implements KycRecordApi {
                 username = authentication.getName();
             }
 
-            KycRecordDTO record = kycRecordService.createTargetRecord(organisationId, TargetEntity.ORGANISATION, username);
+            KycRecordDTO record = kycRecordService.createTargetRecord(organisationId, TargetEntity.ORGANISATION,
+                    username);
             updateOrganisations(List.of(record));
 
             return ResponseEntity.ok(record);
@@ -350,7 +351,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     public ResponseEntity<KycRecordDTO> findMyCurrentRecord(TargetEntity ownerType) throws Exception {
-        
+
         try {
             String username = "anonymousUser";
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -362,13 +363,14 @@ public class KycRecordApiImpl implements KycRecordApi {
             UserDTO user = keycloakUserService.findByUsername(username);
             IndividualDTO individual = individualService.findByUserId(user.getUserId());
 
-            if(individual == null || StringUtils.isBlank(individual.getId())) {
+            if (individual == null || StringUtils.isBlank(individual.getId())) {
 
                 throw new Exception("No individual or organisation associated with user: " + username);
             }
 
-            return ResponseEntity.ok(kycRecordService.findLatestValidForOwner(individual.getId(), ownerType, LocalDate.now()));
-        } catch(Exception e) {
+            return ResponseEntity
+                    .ok(kycRecordService.findLatestValidForOwner(individual.getId(), ownerType, LocalDate.now()));
+        } catch (Exception e) {
 
             e.printStackTrace();
             throw e;
@@ -377,9 +379,9 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     public ResponseEntity<Collection<KycRecordDTO>> findMyRecords() throws Exception {
-        
+
         try {
-            
+
             String username = "anonymousUser";
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication != null) {
@@ -391,14 +393,14 @@ public class KycRecordApiImpl implements KycRecordApi {
 
             List<String> targetIds = new ArrayList<>();
 
-            if(StringUtils.isNotBlank(user.getOrganisationId())) {
+            if (StringUtils.isNotBlank(user.getOrganisationId())) {
 
                 targetIds.add(user.getOrganisationId());
             }
 
             IndividualDTO individual = individualService.findByUserId(user.getUserId());
 
-            if(individual != null && StringUtils.isNotBlank(individual.getId())) {
+            if (individual != null && StringUtils.isNotBlank(individual.getId())) {
 
                 targetIds.add(individual.getId());
             }
@@ -421,21 +423,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     public ResponseEntity<KycRecordDTO> createNew(KycRecordDTO record,
             List<MultipartFile> files) throws Exception {
-        
+
         try {
-
-            // if(files.size() != typeIds.size()) {
-
-            //     throw new KycRecordServiceException("Number of files must match number of typeIds");
-            // }
-
-            // List<DocumentDTO> documents = new ArrayList<>();
-
-            // for (int i = 0; i < files.size(); i++) {
-
-            //     DocumentDTO doc = documentApi.upload(ownerType, ownerId, typeIds.get(i), files.get(i)).getBody();
-            //     documents.add(doc);
-            // }
 
             String username = "anonymousUser";
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -444,11 +433,55 @@ public class KycRecordApiImpl implements KycRecordApi {
                 username = authentication.getName();
             }
 
-            return ResponseEntity.ok(kycRecordService.createNew(record, username));
+            // Keep a record of the incoming documents to preserve sequence
+            List<DocumentDTO> docs = record.getDocuments();
+
+            AuditTracker.auditTrail(record, authentication);
+
+            docs.forEach(d -> AuditTracker.auditTrail(d, authentication));
+            AuditTracker.auditTrail(record.getKycVerification(), authentication);
+
+            // Save the record first to generate IDs for documents, then upload files and update document records with file info
+            KycRecordDTO createdRecord = kycRecordService.createNew(record, username);
+
+            for (int i = 0; i < files.size(); i++) {
+
+                DocumentDTO doc = docs.get(i);
+                DocumentDTO savedDoc = createdRecord.getDocuments().stream()
+                        .filter(d -> Strings.CS.equals(d.getDocumentTypeId(), doc.getDocumentTypeId()))
+                        .findFirst()
+                        .orElseThrow(() -> new Exception("Document not found in created record for file: " + doc.getFileName()));
+                ResponseEntity<DocumentDTO>  uploadResponse = documentApi
+                        .updateDocument(savedDoc.getId(), files.get(i));
+
+                if(uploadResponse == null || uploadResponse.getBody() == null || uploadResponse.getStatusCode().isError()) {
+
+                    throw new Exception("Failed to upload document: " + doc.getFileName());
+                }
+
+                DocumentDTO uploaded = uploadResponse.getBody();
+
+                if (StringUtils.isBlank(doc.getId())) {
+                    doc.setId(uploaded.getId());
+                    doc.setCreatedAt(uploaded.getCreatedAt());
+                    doc.setModifiedAt(uploaded.getModifiedAt());
+                }
+
+                doc.setModifiedAt(uploaded.getModifiedAt());
+                doc.setModifiedBy(uploaded.getModifiedBy());
+                doc.setFileContent(uploaded.getFileContent());
+                doc.setMetadata(uploaded.getMetadata());
+                doc.setUrl(uploaded.getUrl());
+                doc.setFileName(uploaded.getFileName());
+
+            }
+
+            createdRecord.setDocuments(docs);
+            return ResponseEntity.ok(createdRecord);
 
         } catch (Exception e) {
             e.printStackTrace();
-             throw e;
+            throw e;
         }
     }
 }
