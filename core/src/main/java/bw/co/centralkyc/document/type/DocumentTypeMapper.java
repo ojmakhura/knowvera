@@ -29,6 +29,7 @@ public interface DocumentTypeMapper {
      * @param entity
      * @return DocumentTypeDTO
      */
+    // @Mapping(target = "expectedInformation", source = "expectedInformation")
     DocumentTypeDTO toDocumentTypeDTO(DocumentType entity);
 
      /**

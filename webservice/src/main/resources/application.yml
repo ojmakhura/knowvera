@@ -122,11 +122,26 @@ app:
     client: ${REGISTRATION_CLIENT:centralkyc-registration}
     client-secret: ${REGISTRATION_CLIENT_SECRET:secret}
   rabbitmq:
-    # Email queues
+    # Document queues
     documentHandler: ${DOCUMENT_HANDLER:q.document-handler}
-    documentDispatchExchange: ${DOCUMENT_DISPATCH_EXCHANGE:x.document-dispatch}
+    documentDispatchExchange: ${DOCUMENT_DISPATCH_EXCHANGE:x.post-document-dispatch}
     documentDispatchQueue: ${DOCUMENT_DISPATCH_QUEUE:q.document-dispatch}
     documentDispatchRoutingKey: ${DOCUMENT_DISPATCH_ROUTING_KEY:document-dispatch}
+    documentHandlerDeadLetterExchange: ${DOCUMENT_HANDLER_DEAD_LETTER_EXCHANGE:x.document-dispatch-failure}
+    documentHandlerDeadLetterQueue: ${DOCUMENT_HANDLER_DEAD_LETTER_QUEUE:q.fall-back-document-dispatch}
+    documentHandlerDeadLetterRoutingKey: ${DOCUMENT_HANDLER_DEAD_LETTER_ROUTING_KEY:document-fall-back}
     documentQueueExchange: ${DOCUMENT_QUEUE_EXCHANGE:x.document-queue}
     documentQueue: ${DOCUMENT_QUEUE:q.document-queue}
     documentQueueRoutingKey: ${DOCUMENT_QUEUE_ROUTING_KEY:document-queue}
+
+    # Text Processing queues
+    textProcessingHandler: ${TEXT_PROCESSING_HANDLER:q.text-processing-handler}
+    textProcessingDispatchExchange: ${TEXT_PROCESSING_DISPATCH_EXCHANGE:x.text-processing-dispatch}
+    textProcessingDispatchQueue: ${TEXT_PROCESSING_DISPATCH_QUEUE:q.text-processing-dispatch}
+    textProcessingDispatchRoutingKey: ${TEXT_PROCESSING_DISPATCH_ROUTING_KEY:text-processing-dispatch}
+    textProcessingHandlerDeadLetterExchange: ${TEXT_PROCESSING_HANDLER_DEAD_LETTER_EXCHANGE:x.text-processing-dispatch-failure}
+    textProcessingHandlerDeadLetterQueue: ${TEXT_PROCESSING_HANDLER_DEAD_LETTER_QUEUE:q.fall-back-text-processing-dispatch}
+    textProcessingHandlerDeadLetterRoutingKey: ${TEXT_PROCESSING_HANDLER_DEAD_LETTER_ROUTING_KEY:text-processing-fall-back}
+    textProcessingQueueExchange: ${TEXT_PROCESSING_QUEUE_EXCHANGE:x.text-processing-queue}
+    textProcessingQueue: ${TEXT_PROCESSING_QUEUE:q.text-processing-queue}
+    textProcessingQueueRoutingKey: ${TEXT_PROCESSING_QUEUE_ROUTING_KEY:text-processing-queue}

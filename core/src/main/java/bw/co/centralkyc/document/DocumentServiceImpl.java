@@ -47,8 +47,8 @@ public class DocumentServiceImpl
         throws Exception
     {
 
-        Document doc = documentRepository.getReferenceById(UUID.fromString(id));
-        return documentDao.toDocumentDTO(doc);
+        Document doc = documentRepository.findById(UUID.fromString(id)).orElseThrow(() -> new Exception("Document not found"));
+        return documentMapper.toDocumentDTO(doc);
     }
 
     /**
@@ -62,7 +62,7 @@ public class DocumentServiceImpl
         Document entity = documentDao.documentDTOToEntity(document);
         entity = documentRepository.save(entity);
 
-        return documentDao.toDocumentDTO(entity);
+        return documentMapper.toDocumentDTO(entity);
     }
 
     /**
@@ -86,7 +86,7 @@ public class DocumentServiceImpl
         throws Exception
     {
         Collection<Document> all = documentRepository.findAll();
-        return documentDao.toDocumentDTOCollection(all);
+        return documentMapper.toDocumentDTOCollection(all);
     }
 
     /**
@@ -111,7 +111,7 @@ public class DocumentServiceImpl
         PageRequest request = PageRequest.of(pageNumber, pageSize);
         Page<Document> page = documentRepository.findAll(request);
 
-        return page.map(doc -> documentDao.toDocumentDTO(doc));
+        return page.map(doc -> documentMapper.toDocumentDTO(doc));
     }
 
     /**
@@ -128,7 +128,7 @@ public class DocumentServiceImpl
 
         Collection<Document> docs = documentRepository.findAll(spec, Sort.by(Direction.ASC, "fileName"));
 
-        return documentDao.toDocumentDTOCollection(docs);
+        return documentMapper.toDocumentDTOCollection(docs);
 
     }
 

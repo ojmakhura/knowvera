@@ -29,6 +29,7 @@ import { PepStatus } from '@app/models/bw/co/centralkyc/individual/pep-status';
 import { VerificationStatus } from '@app/models/bw/co/centralkyc/kyc/verification/verification-status';
 import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
+import { Loader } from '@app/@shared/loader/loader';
 
 class KycRecordForm {
   id: string | any = null;
@@ -64,6 +65,7 @@ class KycRecordForm {
     MatButtonModule,
     MatCheckboxModule,
     MatSelectModule,
+    Loader
   ],
   templateUrl: './edit-kyc-record.html',
   styleUrl: './edit-kyc-record.scss',
@@ -75,6 +77,11 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
   kycRecordApiStore = inject(KycRecordApiStore);
   kycRecordApi = inject(KycRecordApi);
   documentApiStore = inject(DocumentApiStore);
+
+  loading = linkedSignal(() => this.kycRecordApiStore.loading() || this.settingsApiStore.loading());
+  messages = linkedSignal(() => this.kycRecordApiStore.messages());
+  error = linkedSignal(() => this.kycRecordApiStore.error());
+  success = linkedSignal(() => this.kycRecordApiStore.success());
 
   readonly targetEntityEnum = TargetEntity;
   readonly kycComplianceStatusEnum = KycComplianceStatus;
@@ -119,7 +126,6 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
     readonly(path.target, () => true);
   });
 
-  loading = computed(() => this.kycRecordApiStore.loading() || this.settingsApiStore.loading());
   availableDocumentTypes = computed(() => {
     const selectedTarget = this.selectedTarget ?? this.recordSignal().target;
     return selectedTarget === TargetEntity.INDIVIDUAL ? this.indKycDocuments() : this.orgKycDocuments();
@@ -127,7 +133,7 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
   // pending file uploads keyed by documentTypeId
   pendingUploads: Record<string, File> = {};
   // mark when a save+upload flow is in progress
-  savingInProgress = signal(false);
+  savingInProgress = false;
 
   constructor() {
 
@@ -136,29 +142,11 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       const data = this.kycRecordApiStore.data();
       if (data && data.id) {
         this.recordSignal.set({ ...data });
+
       }
+
     });
 
-    // react to successful save/create and navigate back
-    effect(async () => {
-      if (this.kycRecordApiStore.success() && this.savingInProgress()) {
-        const saved = this.kycRecordApiStore.data();
-        // const uploads = Object.entries(this.pendingUploads).map(([documentTypeId, file]) => {
-        //   return firstValueFrom(this.documentApiStore.upload({ target: saved.target, targetId: saved.id, documentTypeId, file }));
-        // });
-
-        // if (uploads.length > 0) {
-        //   await Promise.allSettled(uploads);
-        // }
-
-        // clear pending uploads and reset saving flag
-        this.pendingUploads = {};
-        this.savingInProgress.set(false);
-
-        this.toastr.success('KYC record saved', 'Success');
-        this.router.navigate(['/kyc-record']);
-      }
-    });
 
     effect(() => {
       let individual = this.individualApiStore.data();
@@ -199,6 +187,14 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
         }));
       }
 
+    });
+
+    effect(() => {
+      let error = this.error();
+      if (error) {
+        this.toastr.error(error, (this.messages() || []).join(', ') || 'Error');
+      }
+      this.savingInProgress = false;
     });
   }
 
@@ -413,7 +409,7 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
     console.log(this.pendingUploads);
 
     // const payload = this.recordSignal();
-    this.savingInProgress.set(true);
+    this.savingInProgress = true;
     // this.kycRecordApiStore.save({ kycRecord: payload });
     this.kycRecordApiStore.createNew({
       record: this.recordSignal(),

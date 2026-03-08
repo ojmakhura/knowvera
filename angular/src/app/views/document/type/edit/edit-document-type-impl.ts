@@ -50,6 +50,7 @@ export class EditDocumentTypeImplComponent extends EditDocumentTypeComponent {
       modifiedAt: documentType.modifiedAt,
       modifiedBy: documentType.modifiedBy,
       name: documentType.name,
+      expectedInformation: documentType.expectedInformation,
     };
   }
 

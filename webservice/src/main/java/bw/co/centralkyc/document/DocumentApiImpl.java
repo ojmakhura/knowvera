@@ -201,9 +201,6 @@ public class DocumentApiImpl implements DocumentApi {
             document.setTargetId(targetId);
             document.setFileName(file.getOriginalFilename());
 
-            rabbitTemplate.convertAndSend(rabbitProperties.getDocumentQueueExchange(),
-                    rabbitProperties.getDocumentDispatchRoutingKey(), document.getId());
-
             Map<String, Object> metadata = new HashMap<>();
             metadata.put("fileSize", file.getSize());
             metadata.put("fileType", file.getContentType());
@@ -222,7 +219,11 @@ public class DocumentApiImpl implements DocumentApi {
 
             document.setDocumentTypeId(documentTypeId);
 
-            return ResponseEntity.ok(documentService.save(document));
+            document = documentService.save(document);
+            rabbitTemplate.convertAndSend(rabbitProperties.getDocumentQueueExchange(),
+                    rabbitProperties.getDocumentDispatchRoutingKey(), document.getId());
+
+            return ResponseEntity.ok(document);
 
         } catch (Exception e) {
 
@@ -274,42 +275,87 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     public ResponseEntity<DocumentDTO> updateDocument(String id, MultipartFile file) throws Exception {
 
-        try {
+        // try {
 
-            DocumentDTO document = documentService.findById(id);
+        // DocumentDTO document = documentService.findById(id);
 
-            String filePath = null;
-            if (StringUtils.isNotBlank(document.getUrl())) {
+        // String filePath = null;
+        // if (StringUtils.isNotBlank(document.getUrl())) {
 
-                int lastSlash = document.getUrl().lastIndexOf("/");
-                String basePath = document.getUrl().substring(0, lastSlash);
+        // int lastSlash = document.getUrl().lastIndexOf("/");
+        // String basePath = document.getUrl().substring(0, lastSlash);
 
-                filePath = basePath + "/" + file.getOriginalFilename();
-            } else {
+        // filePath = basePath + "/" + file.getOriginalFilename();
+        // } else {
 
-                filePath = constructFilePath(document.getTarget(), document.getTargetId(), id, file.getOriginalFilename());
-            }
+        // filePath = constructFilePath(document.getTarget(), document.getTargetId(),
+        // id, file.getOriginalFilename());
+        // }
 
-            String url = uploadToMinio(file, filePath);
-            document.setUrl(url);
-            document.setFileName(file.getOriginalFilename());
+        // String url = uploadToMinio(file, filePath);
+        // document.setUrl(url);
+        // document.setFileName(file.getOriginalFilename());
 
-            Map<String, Object> metadata = new HashMap<>();
-            metadata.put("fileSize", file.getSize());
-            metadata.put("fileType", file.getContentType());
-            metadata.put("contentType", file.getContentType());
+        // Map<String, Object> metadata = new HashMap<>();
+        // metadata.put("fileSize", file.getSize());
+        // metadata.put("fileType", file.getContentType());
+        // metadata.put("contentType", file.getContentType());
 
-            document.setMetadata(metadata);
+        // document.setMetadata(metadata);
 
-            rabbitTemplate.convertAndSend(rabbitProperties.getDocumentQueueExchange(),
-                    rabbitProperties.getDocumentDispatchRoutingKey(), document.getId());
+        // rabbitTemplate.convertAndSend(rabbitProperties.getDocumentQueueExchange(),
+        // rabbitProperties.getDocumentQueueRoutingKey(), document.getId());
 
-            return ResponseEntity.ok(documentService.save(document));
+        // return ResponseEntity.ok(documentService.save(document));
 
-        } catch (Exception e) {
+        // } catch (Exception e) {
 
-            throw e;
+        // throw e;
+        // }
+
+        DocumentDTO document = documentService.findById(id);
+        if (document == null) {
+            throw new IllegalArgumentException("Document not found with id: " + id);
         }
+
+        String fileName = file.getOriginalFilename();
+        if (fileName == null || fileName.isBlank()) {
+            throw new IllegalArgumentException("Uploaded file must have a name");
+        }
+
+        String filePath;
+        if (StringUtils.isNotBlank(document.getUrl())) {
+            int lastSlash = document.getUrl().lastIndexOf("/");
+            String basePath = lastSlash > 0 ? document.getUrl().substring(0, lastSlash) : "";
+            filePath = basePath + "/" + fileName;
+        } else {
+            filePath = constructFilePath(document.getTarget(), document.getTargetId(), id, fileName);
+        }
+
+        if (filePath == null || filePath.isBlank()) {
+            throw new IllegalArgumentException("Computed filePath is null or empty for document: " + id);
+        }
+
+        // Upload to MinIO
+        String url = uploadToMinio(file, filePath);
+        document.setUrl(url);
+        document.setFileName(fileName);
+
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("fileSize", file.getSize());
+        metadata.put("fileType", file.getContentType());
+        metadata.put("contentType", file.getContentType());
+        document.setMetadata(metadata);
+
+        document = documentService.save(document);
+
+        // Send to queue
+        rabbitTemplate.convertAndSend(
+                rabbitProperties.getDocumentQueueExchange(),
+                rabbitProperties.getDocumentQueueRoutingKey(),
+                document.getId());
+
+        return ResponseEntity.ok(document);
 
     }
 }

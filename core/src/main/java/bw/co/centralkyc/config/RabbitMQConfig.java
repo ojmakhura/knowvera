@@ -25,31 +25,34 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Queue createDocumentExchangeQueue() {
-
+    public Queue documentHandlerQueue() {
         return QueueBuilder.durable(rabbitProperties.getDocumentHandler())
-                .withArgument("x-dead-letter-exchange", "x.document-dispatch-failure")
-                .withArgument("x-dead-letter-routing-key", "fall-back")
+                .withArgument("x-dead-letter-exchange", rabbitProperties.getDocumentHandlerDeadLetterExchange())
+                .withArgument("x-dead-letter-routing-key", rabbitProperties.getDocumentHandlerDeadLetterRoutingKey())
                 .build();
     }
 
-
     @Bean
-    public Declarables createPostDispatchSchema() {
+    public Declarables documentDispatchSchema() {
+        FanoutExchange documentDispatchExchange = new FanoutExchange(rabbitProperties.getDocumentDispatchExchange());
+        Queue documentDispatchQueue = QueueBuilder.durable(rabbitProperties.getDocumentDispatchQueue()).build();
+
         return new Declarables(
-                new FanoutExchange("x.post-document-dispatch"),
-                new Queue(rabbitProperties.getDocumentDispatchQueue(), true),
-                new Binding(rabbitProperties.getDocumentDispatchQueue(), Binding.DestinationType.QUEUE,
-                        "x.post-document-dispatch", rabbitProperties.getDocumentDispatchRoutingKey(), null));
+                documentDispatchExchange,
+                documentDispatchQueue,
+                BindingBuilder.bind(documentDispatchQueue).to(documentDispatchExchange));
     }
 
     @Bean
-    public Declarables createDeadLetterSchema() {
+    public Declarables deadLetterSchema() {
+        DirectExchange deadLetterExchange = new DirectExchange(rabbitProperties.getDocumentHandlerDeadLetterExchange());
+        Queue deadLetterQueue = QueueBuilder.durable(rabbitProperties.getDocumentHandlerDeadLetterQueue()).build();
+
         return new Declarables(
-                new DirectExchange("x.document-dispatch-failure"),
-                new Queue("q.fall-back-document-dispatch"),
-                new Binding("q.fall-back-document-dispatch", Binding.DestinationType.QUEUE, "x.document-dispatch-failure",
-                        "document-fall-back", null));
+                deadLetterExchange,
+                deadLetterQueue,
+                BindingBuilder.bind(deadLetterQueue).to(deadLetterExchange)
+                        .with(rabbitProperties.getDocumentHandlerDeadLetterRoutingKey()));
     }
 
     @Bean
@@ -64,43 +67,49 @@ public class RabbitMQConfig {
         return factory;
     }
 
-    /// Queue creation
     @Bean
-    public Queue createDocumentQueue() {
-
-        return QueueBuilder.durable(rabbitProperties.getDocumentQueue())
-                .build();
-    }
-
-    /// Queue schema
-    @Bean
-    public Declarables createDocumentQueueSchema() {
+    public Declarables documentQueueSchema() {
+        DirectExchange documentQueueExchange = new DirectExchange(rabbitProperties.getDocumentQueueExchange());
+        Queue documentQueue = QueueBuilder.durable(rabbitProperties.getDocumentQueue()).build();
 
         return new Declarables(
-                new DirectExchange(rabbitProperties.getDocumentQueueExchange()),
-                documentQueue(),
-                documentQueueBinding());
+                documentQueueExchange,
+                documentQueue,
+                BindingBuilder.bind(documentQueue).to(documentQueueExchange)
+                        .with(rabbitProperties.getDocumentQueueRoutingKey()));
     }
 
+                @Bean
+                public Queue textProcessingHandlerQueue() {
+                return QueueBuilder.durable(rabbitProperties.getTextProcessingHandler())
+                    .withArgument("x-dead-letter-exchange", rabbitProperties.getTextProcessingHandlerDeadLetterExchange())
+                    .withArgument("x-dead-letter-routing-key", rabbitProperties.getTextProcessingHandlerDeadLetterRoutingKey())
+                    .build();
+                }
 
-    /// Queue definitions
-    @Bean
-    Queue documentQueue() {
-        return new Queue(rabbitProperties.getDocumentQueue(), true);
-    }
+                @Bean
+                public Declarables textProcessingDispatchSchema() {
+                FanoutExchange textProcessingDispatchExchange = new FanoutExchange(
+                    rabbitProperties.getTextProcessingDispatchExchange());
+                Queue textProcessingDispatchQueue = QueueBuilder.durable(rabbitProperties.getTextProcessingDispatchQueue()).build();
 
-    /// Queue exchanges
-    @Bean
-    DirectExchange documentQueueExchange() {
-        return new DirectExchange(rabbitProperties.getDocumentQueueExchange());
-    }
+                return new Declarables(
+                    textProcessingDispatchExchange,
+                    textProcessingDispatchQueue,
+                    BindingBuilder.bind(textProcessingDispatchQueue).to(textProcessingDispatchExchange));
+                }
 
-    /// Queue bindings
-    @Bean
-    Binding documentQueueBinding() {
-        return BindingBuilder.bind(documentQueue()).to(documentQueueExchange())
-                .with(rabbitProperties.getDocumentQueueRoutingKey());
-    }
+                @Bean
+                public Declarables textProcessingQueueSchema() {
+                DirectExchange textProcessingQueueExchange = new DirectExchange(rabbitProperties.getTextProcessingQueueExchange());
+                Queue textProcessingQueue = QueueBuilder.durable(rabbitProperties.getTextProcessingQueue()).build();
+
+                return new Declarables(
+                    textProcessingQueueExchange,
+                    textProcessingQueue,
+                    BindingBuilder.bind(textProcessingQueue).to(textProcessingQueueExchange)
+                        .with(rabbitProperties.getTextProcessingQueueRoutingKey()));
+                }
 
     @Bean
     public JacksonJsonMessageConverter converter(JsonMapper mapper) {

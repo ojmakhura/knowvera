@@ -91,7 +91,7 @@
 		</div>
 	</section>
 
-  @if(selectedTarget === 'INDIVIDUAL') {
+  @if(selectedTarget === 'INDIVIDUAL' && recordSignal().employmentRecord) {
 	<section class="edit-kyc-record__section" aria-labelledby="employment-details-title">
 		<h2 id="employment-details-title">Employment Details</h2>
 		<div class="edit-kyc-record__grid">
@@ -208,3 +208,5 @@
 		</button>
 	</footer>
 </main>
+<!-- <app-loader [isLoading]="loading()" [message]="'Saving KYC record...'"></app-loader> -->
+ {{this.loading()}}

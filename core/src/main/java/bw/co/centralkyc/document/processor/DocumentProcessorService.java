@@ -1,21 +1,15 @@
 package bw.co.centralkyc.document.processor;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import bw.co.centralkyc.document.DocumentDTO;
-import bw.co.centralkyc.document.DocumentService;
-import bw.co.centralkyc.minio.MinioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITesseract;
@@ -23,63 +17,70 @@ import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 
 import java.awt.image.BufferedImage;
+import java.util.concurrent.CompletableFuture;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class DocumentProcessorService {
-    
 
     @Value("${app.tessdata-prefix}")
     private String tessdataPrefix;
 
     @Value("${app.tessdata-langs}")
     private String tessdataLangs;
-    
-    private String extractTextFromScannedPdf(byte[] pdfBytes) throws IOException, TesseractException {
-        StringBuilder text = new StringBuilder();
-
-        try (PDDocument document = Loader.loadPDF(pdfBytes)) {
-
-            PDFRenderer renderer = new PDFRenderer(document);
-
-            ITesseract tesseract = new Tesseract();
-            tesseract.setLanguage(tessdataLangs);
-
-            // ⚠️ IMPORTANT: set this correctly
-            tesseract.setDatapath(tessdataPrefix);
-
-            for (int page = 0; page < document.getNumberOfPages(); page++) {
-                BufferedImage image =
-                        renderer.renderImageWithDPI(page, 300);
-
-                String pageText = tesseract.doOCR(image);
-                text.append(pageText).append("\n");
-            }
-        }
-
-        return text.toString();
-    }
-
-    private String extractTextFromPdf(byte[] pdfBytes) throws IOException {
-        StringBuilder text = new StringBuilder();
-
-        try (PDDocument document = Loader.loadPDF(pdfBytes)) {
-            PDFTextStripper stripper = new PDFTextStripper();
-            text.append(stripper.getText(document));
-        }
-
-        return text.toString();
-    }
 
     @Async
-    public String extractText(byte[] pdfBytes) throws IOException, TesseractException {
-        String extractedText = extractTextFromPdf(pdfBytes);
+    public CompletableFuture<String> extractText(byte[] pdfBytes) {
+        return CompletableFuture.supplyAsync(() -> {
+            validatePdfBytes(pdfBytes);
 
-        // If no text found, try OCR
-        if (extractedText.trim().isEmpty()) {
-            extractedText = extractTextFromScannedPdf(pdfBytes);
+            // Use a single try-with-resources for the PDDocument
+            try (PDDocument document = Loader.loadPDF(pdfBytes)) {
+
+                // 1. Try standard extraction
+                PDFTextStripper stripper = new PDFTextStripper();
+                String extractedText = stripper.getText(document);
+
+                // 2. Fallback to OCR if text is empty
+                if (extractedText == null || extractedText.trim().isEmpty()) {
+                    log.info("No text found; starting OCR process.");
+                    return performOcr(document);
+                }
+
+                return extractedText;
+            } catch (IOException e) {
+                log.warn("Invalid or corrupted PDF payload", e);
+                throw new IllegalArgumentException("Invalid PDF payload", e);
+            } catch (Exception e) {
+                log.error("PDF Processing failed", e);
+                throw new RuntimeException("Failed to parse PDF", e);
+            }
+        });
+    }
+
+    private void validatePdfBytes(byte[] pdfBytes) {
+        if (pdfBytes == null || pdfBytes.length < 5) {
+            throw new IllegalArgumentException("PDF payload is empty or too small");
         }
 
-        return extractedText;
+        // Fast signature check to avoid sending non-PDF content into PDFBox.
+        if (!(pdfBytes[0] == '%' && pdfBytes[1] == 'P' && pdfBytes[2] == 'D' && pdfBytes[3] == 'F' && pdfBytes[4] == '-')) {
+            throw new IllegalArgumentException("File is not a valid PDF (missing %PDF- header)");
+        }
+    }
+
+    private String performOcr(PDDocument document) throws IOException, TesseractException {
+        StringBuilder sb = new StringBuilder();
+        PDFRenderer renderer = new PDFRenderer(document);
+        ITesseract tesseract = new Tesseract();
+        tesseract.setDatapath(tessdataPrefix);
+        tesseract.setLanguage(tessdataLangs);
+
+        for (int page = 0; page < document.getNumberOfPages(); page++) {
+            BufferedImage image = renderer.renderImageWithDPI(page, 300);
+            sb.append(tesseract.doOCR(image)).append("\n");
+        }
+        return sb.toString();
     }
 }

@@ -29,22 +29,18 @@ public class SpringSecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
 		http
+				.cors(Customizer.withDefaults())  // Enable CORS with the configured CorsConfigurationSource
 				.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests((authz) -> authz
 						.requestMatchers(
-								"/swagger-ui/*",
-								// "/swagger-ui.html",
-								// "/webjars/**",
+								"/swagger-ui/**",  // Changed from /* to /** to match all paths
 								"/v3/**",
-								// "/swagger-resources/**",
 								"/actuator/**",
-								"/test/**",
 								"/analytics/**",
 								"/client-request/confirm-token/**",
 								"/individual/request/**",
 								"/organisation/request/**",
-								"/client-request/*/confirm",
-								"/public/**")
+								"/client-request/*/confirm")
 						.permitAll()
 						.anyRequest().authenticated())
 				.sessionManagement(management -> management
@@ -66,9 +62,12 @@ public class SpringSecurityConfig {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("*")); // Or "*" for all origins, be careful in production!
-		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Include OPTIONS
+		// WARNING: Allowing all origins (*) is insecure for production!
+		// In production, specify exact origins: Arrays.asList("https://yourdomain.com")
+		configuration.setAllowedOriginPatterns(Arrays.asList("*")); // Use setAllowedOriginPatterns instead of setAllowedOrigins when allowing credentials
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("*"));
+		configuration.setAllowCredentials(true); // Important for JWT tokens in cookies/headers
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;

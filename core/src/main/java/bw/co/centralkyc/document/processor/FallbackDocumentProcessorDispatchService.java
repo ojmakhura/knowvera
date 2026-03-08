@@ -12,7 +12,7 @@ public class FallbackDocumentProcessorDispatchService {
 
     private final static Logger log = LoggerFactory.getLogger(FallbackDocumentProcessorDispatchService.class);
     
-     @RabbitListener(queues = "q.fall-back-document-dispatch")
+     @RabbitListener(queues = "${app.rabbitmq.documentDispatchQueue}")
     public void handleFailedDocumentDispatch(String documentId) {
         log.error("Failed to dispatch document with id: {}", documentId);
     }

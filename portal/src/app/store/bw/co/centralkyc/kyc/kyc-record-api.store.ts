@@ -656,6 +656,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.createNew(data.record, data.files).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
+                console.log('Create new record response:', response);
                 patchState(
                   store,
                   {
@@ -668,6 +669,7 @@ export const KycRecordApiStore = signalStore(
                 );
               },
               error: (error: any) => {
+                console.log('Create new record error:', error);
                 patchState(
                   store, {
                   status: (error?.status || 0),

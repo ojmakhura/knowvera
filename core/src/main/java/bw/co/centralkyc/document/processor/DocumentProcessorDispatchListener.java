@@ -6,6 +6,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import bw.co.centralkyc.properties.RabbitProperties;
+
 @Service
 public class DocumentProcessorDispatchListener {
 
@@ -13,21 +15,27 @@ public class DocumentProcessorDispatchListener {
 
     private final RabbitTemplate rabbitTemplate;
     private final DocumentProcessorService documentProcessorService;
+    private final RabbitProperties rabbitProperties;
 
-    public DocumentProcessorDispatchListener(RabbitTemplate rabbitTemplate, DocumentProcessorService documentProcessorService) {
+    public DocumentProcessorDispatchListener(
+            RabbitTemplate rabbitTemplate,
+            DocumentProcessorService documentProcessorService,
+            RabbitProperties rabbitProperties) {
         this.rabbitTemplate = rabbitTemplate;
         this.documentProcessorService = documentProcessorService;
+        this.rabbitProperties = rabbitProperties;
     }
 
-    @RabbitListener(queues = "${app.rabbitmq.document-dispatch-queue}")
+    @RabbitListener(queues = "${app.rabbitmq.documentDispatchQueue}")
     public void handleDocumentDispatch(String documentId) {
 
         log.info("Received document dispatch message for document ID: {}", documentId);
 
         try {
-            // After processing, you can send the result to another queue or update the document record
-            // For example, you could send a message to a "document-processed" queue with the extracted text
-            rabbitTemplate.convertAndSend("x.post-document-dispatch", "", documentId);
+            rabbitTemplate.convertAndSend(
+                    rabbitProperties.getDocumentQueueExchange(),
+                    rabbitProperties.getDocumentQueueRoutingKey(),
+                    documentId);
 
         } catch (Exception e) {
             log.error("Error processing document with ID {}: {}", documentId, e.getMessage());
