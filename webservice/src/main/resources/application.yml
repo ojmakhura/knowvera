@@ -3,9 +3,9 @@ logging:
     org:
       springframework: INFO
       hibernate: INFO
-      bw:
-        co:
-          roguesystems: DEBUG
+    bw:
+      co:
+        roguesystems: DEBUG
 server:
   port: ${PORT:8085}
   servlet:
@@ -62,6 +62,18 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD}
       timeout: 100
+  ai:
+    openai:
+      # Redirect from official API to LM Studio
+      base-url: http://localhost:1234
+      # LM Studio doesn't require a real key, but the starter expects a value
+      api-key: lm-studio
+      chat:
+        options:
+          # Must match the exact model name/path in LM Studio
+          # model: lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF
+          model: deepseek-r1-distill-qwen-7b
+          temperature: 0.7
 management:
   endpoint:
     health:
@@ -118,6 +130,8 @@ app:
       min-length: ${MIN_PASSWORD_LENGTH:8}
   organisation:
     manager-role: ${ORGANISATION_MANAGER_ROLE:ORG_MANAGER}
+  lmstudio:
+    base-url: ${LMSTUDIO_BASE_URL:http://localhost:1234}
   registration:
     client: ${REGISTRATION_CLIENT:centralkyc-registration}
     client-secret: ${REGISTRATION_CLIENT_SECRET:secret}
