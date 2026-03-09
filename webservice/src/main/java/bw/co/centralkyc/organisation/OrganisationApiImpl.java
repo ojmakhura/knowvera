@@ -45,7 +45,8 @@ public class OrganisationApiImpl implements OrganisationApi {
             if (organisation.getIsClient() != null && organisation.getIsClient()) {
 
                 OrganisationDTO keycloakOrg = orgService.findByRegistrationNo(organisation.getRegistrationNo());
-                organisation.setKeycloakId(keycloakOrg.getId());
+
+                organisation.setKeycloakId(keycloakOrg != null ? keycloakOrg.getId() : null);
             }
 
             return ResponseEntity.ok(organisation);
