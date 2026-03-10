@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import bw.co.centralkyc.QueueObject;
 import bw.co.centralkyc.properties.RabbitProperties;
 import lombok.RequiredArgsConstructor;
 
@@ -19,12 +20,12 @@ public class TextProcessingDispatchListener {
     private final RabbitProperties rabbitProperties;
 
     @RabbitListener(queues = "${app.rabbitmq.textProcessingDispatchQueue}")
-    public void handleTextProcessingDispatch(String documentId) {
-        log.info("Received text-processing dispatch for document ID: {}", documentId);
+    public void handleTextProcessingDispatch(QueueObject queueObject) {
+        log.info("Received text-processing dispatch for document ID: {}", queueObject.documentId());
 
         rabbitTemplate.convertAndSend(
                 rabbitProperties.getTextProcessingQueueExchange(),
                 rabbitProperties.getTextProcessingQueueRoutingKey(),
-                documentId);
+                queueObject);
     }
 }

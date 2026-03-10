@@ -11,6 +11,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import bw.co.centralkyc.QueueObject;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
 import bw.co.centralkyc.minio.MinioService;
@@ -30,12 +31,12 @@ public class DocumentQueueProcessor {
     private final RabbitProperties rabbitProperties;
 
     @RabbitListener(queues = "${app.rabbitmq.documentQueue}")
-    public void handleDocumentProcessing(String documentId) {
+    public void handleDocumentProcessing(QueueObject queueObject) {
         try {
-            DocumentDTO document = documentService.findById(documentId);
+            DocumentDTO document = documentService.findById(queueObject.documentId());
             System.out.println();
             if (document == null) {
-                throw new IllegalArgumentException("Document not found for id: " + documentId);
+                throw new IllegalArgumentException("Document not found for id: " + queueObject.documentId());
             }
 
             String objectName = resolveObjectName(document.getUrl());
@@ -69,16 +70,16 @@ public class DocumentQueueProcessor {
                 rabbitTemplate.convertAndSend(
                         rabbitProperties.getTextProcessingDispatchExchange(),
                         rabbitProperties.getTextProcessingDispatchRoutingKey(),
-                        documentId);
+                        queueObject);
             }).exceptionally(ex -> {
-                log.error("Async extraction failed for id: {}", documentId, ex);
-                sendToDeadLetter(documentId);
+                log.error("Async extraction failed for id: {}", queueObject.documentId(), ex);
+                sendToDeadLetter(queueObject);
                 return null;
             });
 
         } catch (Exception e) {
-            log.error("Failed to process document {}", documentId, e);
-            sendToDeadLetter(documentId);
+            log.error("Failed to process document {}", queueObject.documentId(), e);
+            sendToDeadLetter(queueObject);
         }
     }
 
@@ -109,10 +110,10 @@ public class DocumentQueueProcessor {
         return candidate;
     }
 
-    private void sendToDeadLetter(String documentId) {
+    private void sendToDeadLetter(QueueObject queueObject) {
         rabbitTemplate.convertAndSend(
                 rabbitProperties.getDocumentHandlerDeadLetterExchange(),
                 rabbitProperties.getDocumentHandlerDeadLetterRoutingKey(),
-                documentId);
+                queueObject);
     }
 }

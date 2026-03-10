@@ -393,12 +393,22 @@ public class KycRecordServiceImpl
         }
 
         KycRecord kycRecord = this.kycRecordMapper.kycRecordDTOToEntity(record);
+        Collection<Document> docs = kycRecord.getDocuments();
+        kycRecord.getDocuments().clear(); // Detach documents to avoid persistence issues, we'll handle them after saving the KYC record
 
         if (kycRecord.getUploadDate() == null) {
             kycRecord.setUploadDate(LocalDate.now());
         }
 
         kycRecord = this.kycRecordRepository.save(kycRecord);
+        if (docs != null && docs.size() > 0) {
+           for (Document doc : docs) {
+                
+                doc.setTargetId(kycRecord.getId().toString());
+                doc.setTarget(TargetEntity.KYC_RECORD);
+            }
+            kycRecord.getDocuments().addAll(documentRepository.saveAll(docs));
+        }
 
         return this.kycRecordMapper.toKycRecordDTO(kycRecord);
     }

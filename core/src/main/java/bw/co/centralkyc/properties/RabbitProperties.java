@@ -33,6 +33,16 @@ public class RabbitProperties {
     private final String textProcessingQueueExchange;
     private final String textProcessingQueue;
     private final String textProcessingQueueRoutingKey;
+    private final String extractedInformationHandler;
+    private final String extractedInformationDispatchExchange;
+    private final String extractedInformationDispatchQueue;
+    private final String extractedInformationDispatchRoutingKey;
+    private final String extractedInformationHandlerDeadLetterExchange;
+    private final String extractedInformationHandlerDeadLetterQueue;
+    private final String extractedInformationHandlerDeadLetterRoutingKey;
+    private final String extractedInformationQueueExchange;
+    private final String extractedInformationQueue;
+    private final String extractedInformationQueueRoutingKey;
     
 
     public String getHost() {
@@ -129,5 +139,45 @@ public class RabbitProperties {
 
     public String getTextProcessingQueueRoutingKey() {
         return textProcessingQueueRoutingKey;
+    }
+
+    public String getExtractedInformationHandler() {
+        return extractedInformationHandler;
+    }
+
+    public String getExtractedInformationDispatchExchange() {
+        return extractedInformationDispatchExchange;
+    }
+
+    public String getExtractedInformationDispatchQueue() {
+        return extractedInformationDispatchQueue;
+    }
+
+    public String getExtractedInformationDispatchRoutingKey() {
+        return extractedInformationDispatchRoutingKey;
+    }
+
+    public String getExtractedInformationHandlerDeadLetterExchange() {
+        return extractedInformationHandlerDeadLetterExchange;
+    }
+
+    public String getExtractedInformationHandlerDeadLetterQueue() {
+        return extractedInformationHandlerDeadLetterQueue;
+    }
+
+    public String getExtractedInformationHandlerDeadLetterRoutingKey() {
+        return extractedInformationHandlerDeadLetterRoutingKey;
+    }
+
+    public String getExtractedInformationQueueExchange() {
+        return extractedInformationQueueExchange;
+    }
+
+    public String getExtractedInformationQueue() {
+        return extractedInformationQueue;
+    }
+
+    public String getExtractedInformationQueueRoutingKey() {
+        return extractedInformationQueueRoutingKey;
     }
 }

@@ -438,7 +438,11 @@ public class KycRecordApiImpl implements KycRecordApi {
 
             AuditTracker.auditTrail(record, authentication);
 
-            docs.forEach(d -> AuditTracker.auditTrail(d, authentication));
+            docs.forEach(d -> {
+                AuditTracker.auditTrail(d, authentication);
+                d.setTarget(TargetEntity.KYC_RECORD);
+                d.setTargetId(record.getId());
+            });
             AuditTracker.auditTrail(record.getKycVerification(), authentication);
 
             // Save the record first to generate IDs for documents, then upload files and update document records with file info

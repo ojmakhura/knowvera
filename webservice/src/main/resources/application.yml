@@ -159,3 +159,15 @@ app:
     textProcessingQueueExchange: ${TEXT_PROCESSING_QUEUE_EXCHANGE:x.text-processing-queue}
     textProcessingQueue: ${TEXT_PROCESSING_QUEUE:q.text-processing-queue}
     textProcessingQueueRoutingKey: ${TEXT_PROCESSING_QUEUE_ROUTING_KEY:text-processing-queue}
+
+    # Extracted Information queues
+    extractedInformationHandler: ${EXTRACTED_INFORMATION_HANDLER:q.extracted-information-handler}
+    extractedInformationDispatchExchange: ${EXTRACTED_INFORMATION_DISPATCH_EXCHANGE:x.extracted-information-dispatch}
+    extractedInformationDispatchQueue: ${EXTRACTED_INFORMATION_DISPATCH_QUEUE:q.extracted-information-dispatch}
+    extractedInformationDispatchRoutingKey: ${EXTRACTED_INFORMATION_DISPATCH_ROUTING_KEY:extracted-information-dispatch}
+    extractedInformationHandlerDeadLetterExchange: ${EXTRACTED_INFORMATION_HANDLER_DEAD_LETTER_EXCHANGE:x.extracted-information-dispatch-failure}
+    extractedInformationHandlerDeadLetterQueue: ${EXTRACTED_INFORMATION_HANDLER_DEAD_LETTER_QUEUE:q.fall-back-extracted-information-dispatch}
+    extractedInformationHandlerDeadLetterRoutingKey: ${EXTRACTED_INFORMATION_HANDLER_DEAD_LETTER_ROUTING_KEY:extracted-information-fall-back}
+    extractedInformationQueueExchange: ${EXTRACTED_INFORMATION_QUEUE_EXCHANGE:x.extracted-information-queue}
+    extractedInformationQueue: ${EXTRACTED_INFORMATION_QUEUE:q.extracted-information-queue}
+    extractedInformationQueueRoutingKey: ${EXTRACTED_INFORMATION_QUEUE_ROUTING_KEY:extracted-information-queue}

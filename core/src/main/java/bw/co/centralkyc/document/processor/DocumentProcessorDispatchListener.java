@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import bw.co.centralkyc.QueueObject;
 import bw.co.centralkyc.properties.RabbitProperties;
 
 @Service
@@ -27,18 +28,18 @@ public class DocumentProcessorDispatchListener {
     }
 
     @RabbitListener(queues = "${app.rabbitmq.documentDispatchQueue}")
-    public void handleDocumentDispatch(String documentId) {
+    public void handleDocumentDispatch(QueueObject queueObject) {
 
-        log.info("Received document dispatch message for document ID: {}", documentId);
+        log.info("Received document dispatch message for document ID: {}", queueObject.documentId());
 
         try {
             rabbitTemplate.convertAndSend(
                     rabbitProperties.getDocumentQueueExchange(),
                     rabbitProperties.getDocumentQueueRoutingKey(),
-                    documentId);
+                    queueObject);
 
         } catch (Exception e) {
-            log.error("Error processing document with ID {}: {}", documentId, e.getMessage());
+            log.error("Error processing document with ID {}: {}", queueObject.documentId(), e.getMessage());
             // Handle exceptions (e.g., retry logic, send to a dead-letter queue, etc.)
         }
     }

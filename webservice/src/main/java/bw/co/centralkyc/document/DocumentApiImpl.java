@@ -30,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import bw.co.centralkyc.AuditTracker;
+import bw.co.centralkyc.QueueObject;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.processor.DocumentProcessorService;
 import bw.co.centralkyc.minio.MinioService;
@@ -220,8 +221,13 @@ public class DocumentApiImpl implements DocumentApi {
             document.setDocumentTypeId(documentTypeId);
 
             document = documentService.save(document);
+            QueueObject queueObject = new QueueObject(
+                document.getId(),
+                target,
+                targetId
+            );
             rabbitTemplate.convertAndSend(rabbitProperties.getDocumentQueueExchange(),
-                    rabbitProperties.getDocumentDispatchRoutingKey(), document.getId());
+                    rabbitProperties.getDocumentDispatchRoutingKey(), queueObject);
 
             return ResponseEntity.ok(document);
 
@@ -275,44 +281,6 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     public ResponseEntity<DocumentDTO> updateDocument(String id, MultipartFile file) throws Exception {
 
-        // try {
-
-        // DocumentDTO document = documentService.findById(id);
-
-        // String filePath = null;
-        // if (StringUtils.isNotBlank(document.getUrl())) {
-
-        // int lastSlash = document.getUrl().lastIndexOf("/");
-        // String basePath = document.getUrl().substring(0, lastSlash);
-
-        // filePath = basePath + "/" + file.getOriginalFilename();
-        // } else {
-
-        // filePath = constructFilePath(document.getTarget(), document.getTargetId(),
-        // id, file.getOriginalFilename());
-        // }
-
-        // String url = uploadToMinio(file, filePath);
-        // document.setUrl(url);
-        // document.setFileName(file.getOriginalFilename());
-
-        // Map<String, Object> metadata = new HashMap<>();
-        // metadata.put("fileSize", file.getSize());
-        // metadata.put("fileType", file.getContentType());
-        // metadata.put("contentType", file.getContentType());
-
-        // document.setMetadata(metadata);
-
-        // rabbitTemplate.convertAndSend(rabbitProperties.getDocumentQueueExchange(),
-        // rabbitProperties.getDocumentQueueRoutingKey(), document.getId());
-
-        // return ResponseEntity.ok(documentService.save(document));
-
-        // } catch (Exception e) {
-
-        // throw e;
-        // }
-
         DocumentDTO document = documentService.findById(id);
         if (document == null) {
             throw new IllegalArgumentException("Document not found with id: " + id);
@@ -353,7 +321,7 @@ public class DocumentApiImpl implements DocumentApi {
         rabbitTemplate.convertAndSend(
                 rabbitProperties.getDocumentQueueExchange(),
                 rabbitProperties.getDocumentQueueRoutingKey(),
-                document.getId());
+                new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
 
         return ResponseEntity.ok(document);
 

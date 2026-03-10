@@ -7,10 +7,10 @@ import org.springframework.web.service.annotation.PostExchange;
 import bw.co.centralkyc.lmstudio.CompletionRequest;
 import bw.co.centralkyc.lmstudio.CompletionResponse;
 
-@HttpExchange(url = "${app.lmstudio.base-url}")
+@HttpExchange("/v1")
 public interface LmStudioExtractor {
     
-    @PostExchange("/v1/chat/completions")
+    @PostExchange("/chat/completions")
     CompletionResponse createChatCompletion(@RequestBody CompletionRequest request);
 
     
