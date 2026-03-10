@@ -50,7 +50,7 @@ export class EditDocumentTypeImplComponent extends EditDocumentTypeComponent {
       modifiedAt: documentType.modifiedAt,
       modifiedBy: documentType.modifiedBy,
       name: documentType.name,
-      expectedInformation: documentType.expectedInformation,
+      expectedInformation: JSON.stringify(documentType.expectedInformation),
     };
   }
 
@@ -71,7 +71,19 @@ export class EditDocumentTypeImplComponent extends EditDocumentTypeComponent {
   override beforeEditDocumentTypeSave(form: any): void {
     this.loading.set(true);
 
-    this.documentTypeApi.save(this.editDocumentTypeSignal()).subscribe({
+    let formData: EditDocumentTypeVarsForm = this.editDocumentTypeSignal();
+    let docType = new DocumentTypeDTO();
+    docType.code = formData.code;
+    docType.createdAt = formData.createdAt;
+    docType.createdBy = formData.createdBy;
+    docType.description = formData.description;
+    docType.id = formData.id;
+    docType.modifiedAt = formData.modifiedAt;
+    docType.modifiedBy = formData.modifiedBy;
+    docType.name = formData.name;
+    docType.expectedInformation = formData.expectedInformation ? JSON.parse(formData.expectedInformation) : null;
+
+    this.documentTypeApi.save(docType).subscribe({
       next: (documentType: DocumentTypeDTO) => {
         this.editDocumentTypeSignal.set(this.updateDocumentTypeSignal(documentType));
         this.loading.set(false);
