@@ -12,7 +12,7 @@
     <groupId>bw.co.centralkyc</groupId>
     <artifactId>centralkyc</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.1</version> 
+    <version>0.0.1</version>
     <name>The Centalised KYC Project</name>
     <description>The The Centalised KYC Project Project.</description>
     <inceptionYear></inceptionYear>
@@ -249,8 +249,8 @@
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
                 <artifactId>opentelemetry-logback-appender-1.0</artifactId>
-                <version>2.25.0-alpha</version> 
-            </dependency> 
+                <version>2.25.0-alpha</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
@@ -433,7 +433,7 @@
         <application.id>centralkyc</application.id>
         <application.package>bw.co.centralkyc</application.package>
         <application.name>The Centalised KYC Project</application.name>
-        <application.version>0.0.1</application.version> 
+        <application.version>0.0.1</application.version>
         <dataSource.name>jdbc/${application.id}</dataSource.name>
         <dataSource>java:comp/env/${dataSource.name}</dataSource>
         <!-- Set andromda.xml hibernateVersion=7, sessionFactory and localTransactionManager to
@@ -667,6 +667,10 @@
             <id>sonatype</id>
             <name>Sonatype AndroMDA Repository</name>
             <url>http://oss.sonatype.org/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <url>https://repo.spring.io/milestone</url>
         </repository>
     </repositories>
     <pluginRepositories>

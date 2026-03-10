@@ -5,19 +5,15 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
-import bw.co.centralkyc.extractor.LmStudioExtractor;
 import bw.co.centralkyc.lmstudio.CompletionRequest;
 import bw.co.centralkyc.lmstudio.CompletionRequestMessage;
-import bw.co.centralkyc.lmstudio.CompletionResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.json.JsonMapper;
-import org.springframework.ai.chat.client.ChatClient;
 
 @Service
 @Slf4j
@@ -25,8 +21,7 @@ import org.springframework.ai.chat.client.ChatClient;
 public class TextProcessingService {
 
     private final DocumentService documentService;
-    private final LmStudioExtractor lmStudioExtractor;
-    private final ChatClient chatClient;
+//    private final LmStudioExtractor lmStudioExtractor;
     private final JsonMapper jsonMapper;
 
     @RabbitListener(queues = "${app.rabbitmq.textProcessingQueue}")
@@ -67,26 +62,26 @@ public class TextProcessingService {
             message.setContent(contentBuilder.toString());
             request.setMessages(List.of(message));
 
-            CompletionResponse response = lmStudioExtractor.createChatCompletion(request);
-
-            response.getChoices().forEach(choice -> {
-                log.info("Received response from LmStudioExtractor: {}", choice.getMessage().getContent());
-                // Here you can implement logic to update the document with the extracted information
-                // For example, you could parse the JSON response and update the document in the database
-                if(choice.getMessage() != null && StringUtils.isNotBlank(choice.getMessage().getContent())) {
-                    try {
-                        // Assuming the response content is a JSON string representing the extracted information
-                        Map extractedInfo = jsonMapper.readValue(choice.getMessage().getContent(), Map.class);
-                        document.setExtractedInformation(extractedInfo);
-                        documentService.save(document);
-                    } catch (Exception e) {
-                        log.error("Failed to parse LmStudioExtractor response for document ID: {}", documentId, e);
-                    }
-                } else {
-                    log.warn("LmStudioExtractor response is empty for document ID: {}", documentId);
-
-                }
-            });
+//            CompletionResponse response = lmStudioExtractor.createChatCompletion(request);
+//
+//            response.getChoices().forEach(choice -> {
+//                log.info("Received response from LmStudioExtractor: {}", choice.getMessage().getContent());
+//                // Here you can implement logic to update the document with the extracted information
+//                // For example, you could parse the JSON response and update the document in the database
+//                if(choice.getMessage() != null && StringUtils.isNotBlank(choice.getMessage().getContent())) {
+//                    try {
+//                        // Assuming the response content is a JSON string representing the extracted information
+//                        Map extractedInfo = jsonMapper.readValue(choice.getMessage().getContent(), Map.class);
+//                        document.setExtractedInformation(extractedInfo);
+//                        documentService.save(document);
+//                    } catch (Exception e) {
+//                        log.error("Failed to parse LmStudioExtractor response for document ID: {}", documentId, e);
+//                    }
+//                } else {
+//                    log.warn("LmStudioExtractor response is empty for document ID: {}", documentId);
+//
+//                }
+//            });
 
             log.info("Completed text processing for document ID: {}", documentId);
         } catch (Exception e) {

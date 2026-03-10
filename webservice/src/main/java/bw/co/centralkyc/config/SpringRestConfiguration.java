@@ -8,7 +8,6 @@ import org.springframework.web.client.RestTemplate;
 
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.SerializationFeature;
-import org.springframework.ai.chat.client.ChatClient;
 
 @Configuration
 @EnableAsync
@@ -26,9 +25,4 @@ public class SpringRestConfiguration {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES); // Ignore unknown fields
     }
 
-    @Bean
-    public ChatClient chatClient(ChatClient.Builder builder) {
-
-        return builder.build();
-    }
 }

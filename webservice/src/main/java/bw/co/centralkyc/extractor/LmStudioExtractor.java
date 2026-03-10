@@ -12,4 +12,6 @@ public interface LmStudioExtractor {
     
     @PostExchange("/v1/chat/completions")
     CompletionResponse createChatCompletion(@RequestBody CompletionRequest request);
+
+    
 }

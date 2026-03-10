@@ -72,7 +72,7 @@ spring:
         options:
           # Must match the exact model name/path in LM Studio
           # model: lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF
-          model: deepseek-r1-distill-qwen-7b
+          model: ${LLM_MODEL:deepseek-r1-distill-qwen-32b}
           temperature: 0.7
 management:
   endpoint:
