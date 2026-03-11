@@ -50,7 +50,8 @@ export class EditDocumentTypeImplComponent extends EditDocumentTypeComponent {
       modifiedAt: documentType.modifiedAt,
       modifiedBy: documentType.modifiedBy,
       name: documentType.name,
-      expectedInformation: JSON.stringify(documentType.expectedInformation),
+      // expectedInformation: JSON.stringify(documentType.expectedInformation),
+      expectedFields: documentType.expectedFields || [],
     };
   }
 
@@ -81,7 +82,7 @@ export class EditDocumentTypeImplComponent extends EditDocumentTypeComponent {
     docType.modifiedAt = formData.modifiedAt;
     docType.modifiedBy = formData.modifiedBy;
     docType.name = formData.name;
-    docType.expectedInformation = formData.expectedInformation ? JSON.parse(formData.expectedInformation) : null;
+    docType.expectedFields = formData.expectedFields || [];
 
     this.documentTypeApi.save(docType).subscribe({
       next: (documentType: DocumentTypeDTO) => {
