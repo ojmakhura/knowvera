@@ -11,10 +11,7 @@ package bw.co.centralkyc.kyc;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
@@ -394,7 +391,7 @@ public class KycRecordServiceImpl
 
         KycRecord kycRecord = this.kycRecordMapper.kycRecordDTOToEntity(record);
         Collection<Document> docs = kycRecord.getDocuments();
-        kycRecord.getDocuments().clear(); // Detach documents to avoid persistence issues, we'll handle them after saving the KYC record
+        kycRecord.setDocuments(new ArrayList<>()); // Detach documents to avoid persistence issues, we'll handle them after saving the KYC record
 
         if (kycRecord.getUploadDate() == null) {
             kycRecord.setUploadDate(LocalDate.now());
