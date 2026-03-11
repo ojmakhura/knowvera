@@ -34,7 +34,6 @@ public interface DocumentMapper {
     // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String
     @Mapping(target = "documentTypeId", source = "documentType.id")
     @Mapping(target = "documentType", source = "documentType.name")
-    @Mapping(target = "expectedInformation", source = "documentType.expectedInformation")
     DocumentDTO toDocumentDTO(Document entity);
 
      /**

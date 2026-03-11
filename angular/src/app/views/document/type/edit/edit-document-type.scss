@@ -41,31 +41,32 @@
 }
 
 .expected-fields-list {
-	display: flex;
-	flex-direction: column;
-	gap: 0.75rem;
+	overflow-x: auto;
 }
 
-.field-row {
-	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
-	gap: 0.75rem;
-	align-items: center;
+.expected-fields-table {
+	width: 100%;
+	min-width: 44rem;
 }
 
-.mandatory-checkbox {
+
+.actions-cell {
 	display: flex;
 	align-items: center;
-	min-height: 56px;
+	gap: 0.25rem;
+}
+
+.mandatory-icon {
+	color: #2e7d32;
+}
+
+.not-mandatory-icon {
+	color: #d32f2f;
 }
 
 @media (max-width: 1200px) {
-	.field-row {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-
-	.field-row button {
-		justify-self: start;
+	.expected-fields-table {
+		min-width: 36rem;
 	}
 }
 
@@ -79,7 +80,7 @@
 		width: 100%;
 	}
 
-	.field-row {
-		grid-template-columns: 1fr;
+	.expected-fields-table {
+		min-width: 30rem;
 	}
 }
