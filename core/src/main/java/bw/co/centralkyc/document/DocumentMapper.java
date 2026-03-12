@@ -38,10 +38,10 @@ public interface DocumentMapper {
     // java.lang.String
     @Mapping(target = "documentTypeId", source = "documentType.id")
     @Mapping(target = "documentType", source = "documentType.name")
-    @Mapping(target = "expectedInformation", expression = "java(getExpectedInformation(entity))")
+    @Mapping(target = "expectedFields", expression = "java(getExpectedFields(entity))")
     DocumentDTO toDocumentDTO(Document entity);
 
-    default Map<String, Object> getExpectedInformation(Document entity) {
+    default Map<String, Object> getExpectedFields(Document entity) {
 
         Map<String, Object> expectedInfor = new HashMap<>();
 

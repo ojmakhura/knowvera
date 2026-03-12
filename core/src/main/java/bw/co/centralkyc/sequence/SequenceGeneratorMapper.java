@@ -14,5 +14,6 @@ import bw.co.centralkyc.utils.MappingUtils;
     }
 )
 public interface SequenceGeneratorMapper {
+    
 
 }

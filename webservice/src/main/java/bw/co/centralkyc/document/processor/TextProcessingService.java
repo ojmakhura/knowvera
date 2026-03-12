@@ -14,6 +14,7 @@ import bw.co.centralkyc.QueueObject;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
 import bw.co.centralkyc.extractor.LmStudioExtractor;
+import bw.co.centralkyc.extractor.LmStudioExtractorService;
 import bw.co.centralkyc.lmstudio.CompletionRequest;
 import bw.co.centralkyc.lmstudio.CompletionRequestMessage;
 import bw.co.centralkyc.lmstudio.CompletionResponse;
@@ -28,10 +29,9 @@ import tools.jackson.databind.json.JsonMapper;
 public class TextProcessingService {
 
     private final DocumentService documentService;
-    private final LmStudioExtractor lmStudioExtractor;
-    private final RabbitTemplate rabbitTemplate;
-    private final RabbitProperties rabbitProperties;
+    private final LmStudioExtractorService lmStudioExtractorService;
     private final JsonMapper jsonMapper;
+    private final DocumentProcessorService documentProcessorService;
 
     private final String initialPrompt = """
                 Extract all identity information from the text and return it strictly in JSON format.
@@ -48,6 +48,7 @@ public class TextProcessingService {
 
     @RabbitListener(queues = "${app.rabbitmq.textProcessingQueue}")
     public void processExtractedText(QueueObject queueObject) {
+        Thread currentThread = Thread.currentThread();
         log.info("Processing extracted text for document ID: {}", queueObject.documentId());
         try {
             DocumentDTO document = documentService.findById(queueObject.documentId()); // Replace with actual retrieval logic
@@ -80,7 +81,7 @@ public class TextProcessingService {
             StringBuilder contentBuilder = new StringBuilder();
             contentBuilder.append(initialPrompt)
                     .append('\n')
-                    .append(jsonMapper.writeValueAsString(document.getExpectedInformation()))
+                    .append(jsonMapper.writeValueAsString(document.getExpectedFields()))
                     .append('\n')
                     .append("Text to process: ")
                     .append(extractedText);
@@ -89,63 +90,12 @@ public class TextProcessingService {
             System.out.println(contentBuilder.toString());
             request.setMessages(List.of(system, message));
 
-            CompletionResponse response = lmStudioExtractor.createChatCompletion(request);
-
-            response.getChoices().forEach(choice -> {
-                log.info("Received response from LmStudioExtractor: {}",
-                        choice.getMessage().getContent());
-                // Here you can implement logic to update the document with the extracted
-                if (StringUtils.isNotBlank(choice.getMessage().getContent())) {
-                    try {
-                        // Assuming the response content is a JSON string representing the extracted
-
-                        Map extractedInfo = parseLmStudioResponse(choice.getMessage().getContent());
-                        document.setExtractedInformation(extractedInfo);
-                        documentService.save(document);
-
-                        // Send this to the next queue for further processing
-                        rabbitTemplate.convertAndSend(
-                                rabbitProperties.getExtractedInformationDispatchExchange(),
-                                rabbitProperties.getExtractedInformationDispatchRoutingKey(),
-                                queueObject);
-                    } catch (Exception e) {
-                        log.error("Failed to parse LmStudioExtractor response for document ID: {}",
-                                queueObject.documentId(), e);
-                    }
-                } else {
-                    log.warn("LmStudioExtractor response is empty for document ID: {}",
-                            queueObject.documentId());
-
-                }
-            });
+            lmStudioExtractorService.extractInformation(request)
+                    .thenAccept(response -> documentProcessorService.processLmCompletionResponse(response, document));
 
             log.info("Completed text processing for document ID: {}", queueObject.documentId());
         } catch (Exception e) {
             log.error("Text processing interrupted for document ID: {}", queueObject.documentId(), e);
-        }
-    }
-
-    private Map<String, Object> parseLmStudioResponse(String responseContent) {
-        try {
-            Pattern pattern = Pattern.compile("\\{.*\\}", Pattern.DOTALL);
-            Matcher matcher = pattern.matcher(responseContent);
-
-            if (matcher.find()) {
-                String jsonString = matcher.group();
-                System.out.println("Extracted JSON String:\n" + jsonString);
-
-                // Optional: parse into a Map
-                Map<String, Object> jsonMap = jsonMapper.readValue(jsonString, Map.class);
-                System.out.println("\nParsed JSON Map:\n" + jsonMap);
-
-                return jsonMap;
-            } else {
-                System.out.println("No JSON found in the response.");
-                return Map.of();
-            }
-        } catch (Exception e) {
-            log.error("Failed to parse LmStudio response content", e);
-            return Map.of(); // Return an empty map on parsing failure
         }
     }
 }

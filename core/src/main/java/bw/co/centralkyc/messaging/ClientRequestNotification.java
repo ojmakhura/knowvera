@@ -129,7 +129,7 @@ public class ClientRequestNotification {
             </html>
                 """;
     
-    @Async
+    @Async("virtualThreadExecutor")
     public void queueEmailNotificationsForRequests(List<ClientRequest> clientRequests,
             Map<String, String> tokenMap, String organisation) {
 
@@ -168,7 +168,7 @@ public class ClientRequestNotification {
 
     }
 
-    @Async
+    @Async("virtualThreadExecutor")
     public void queueAccountCreationNotification(List<ClientRequestDTO> clientRequests, Map<String, String> tokenMap, String organisation) {
 
         Settings settings = settingsRepository.findAll().stream().findFirst().orElseThrow();

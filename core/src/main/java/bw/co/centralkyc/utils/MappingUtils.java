@@ -2,6 +2,7 @@ package bw.co.centralkyc.utils;
 
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -10,7 +11,8 @@ public class MappingUtils {
         return value != null ? value.toString() : null;
     }
 
-    public java.util.UUID stringToUuid(String value) {
+    @Nullable
+    public UUID stringToUuid(String value) {
         return (value != null && !value.isEmpty()) ? UUID.fromString(value) : null;
     }
 }

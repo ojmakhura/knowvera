@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 
 import tools.jackson.databind.json.JsonMapper;
 
+import java.util.concurrent.Executors;
+
 @Configuration
 public class RabbitMQConfig {
     private final CachingConnectionFactory cachingConnectionFactory;
@@ -26,6 +28,7 @@ public class RabbitMQConfig {
         factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
         factory.setDefaultRequeueRejected(false);
         factory.setMessageConverter(converter); // important!
+        factory.setTaskExecutor(Executors.newVirtualThreadPerTaskExecutor());
         // factory.setBatchListener(true);
         return factory;
     }

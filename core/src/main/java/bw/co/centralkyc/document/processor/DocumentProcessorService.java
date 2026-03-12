@@ -2,22 +2,33 @@ package bw.co.centralkyc.document.processor;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import bw.co.centralkyc.QueueObject;
+import bw.co.centralkyc.document.DocumentDTO;
+import bw.co.centralkyc.document.DocumentService;
+import bw.co.centralkyc.lmstudio.CompletionResponse;
+import bw.co.centralkyc.properties.RabbitProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.awt.image.BufferedImage;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -30,7 +41,12 @@ public class DocumentProcessorService {
     @Value("${app.tessdata-langs}")
     private String tessdataLangs;
 
-    @Async
+    private final RabbitTemplate rabbitTemplate;
+    private final RabbitProperties rabbitProperties;
+    private final DocumentService documentService;
+    private final JsonMapper jsonMapper;
+
+    @Async("virtualThreadExecutor")
     public CompletableFuture<String> extractText(byte[] pdfBytes) {
         return CompletableFuture.supplyAsync(() -> {
             validatePdfBytes(pdfBytes);
@@ -65,7 +81,8 @@ public class DocumentProcessorService {
         }
 
         // Fast signature check to avoid sending non-PDF content into PDFBox.
-        if (!(pdfBytes[0] == '%' && pdfBytes[1] == 'P' && pdfBytes[2] == 'D' && pdfBytes[3] == 'F' && pdfBytes[4] == '-')) {
+        if (!(pdfBytes[0] == '%' && pdfBytes[1] == 'P' && pdfBytes[2] == 'D' && pdfBytes[3] == 'F'
+                && pdfBytes[4] == '-')) {
             throw new IllegalArgumentException("File is not a valid PDF (missing %PDF- header)");
         }
     }
@@ -83,4 +100,62 @@ public class DocumentProcessorService {
         }
         return sb.toString();
     }
+
+    @Async("virtualThreadExecutor")
+    public void processLmCompletionResponse(CompletionResponse response, DocumentDTO document) {
+
+        // Process the response and extract the JSON data
+        response.getChoices().forEach(choice -> {
+            log.info("Received response from LmStudioExtractor: {}",
+                    choice.getMessage().getContent());
+            // Here you can implement logic to update the document with the extracted
+            if (StringUtils.isNotBlank(choice.getMessage().getContent())) {
+                try {
+                    // Assuming the response content is a JSON string representing the extracted
+
+                    Map<String, Object> extractedInfo = parseLmStudioResponse(choice.getMessage().getContent());
+                    document.setExtractedInformation(extractedInfo);
+                    documentService.save(document);
+
+                    // Send this to the next queue for further processing
+                    rabbitTemplate.convertAndSend(
+                            rabbitProperties.getExtractedInformationQueueExchange(),
+                            rabbitProperties.getExtractedInformationQueueRoutingKey(),
+                            new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
+                } catch (Exception e) {
+                    log.error("Failed to parse LmStudioExtractor response for document ID: {}",
+                            document.getId(), e);
+                }
+            } else {
+                log.warn("LmStudioExtractor response is empty for document ID: {}",
+                        document.getId());
+
+            }
+        });
+    }
+
+    private Map<String, Object> parseLmStudioResponse(String responseContent) {
+        try {
+            Pattern pattern = Pattern.compile("\\{.*\\}", Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(responseContent);
+
+            if (matcher.find()) {
+                String jsonString = matcher.group();
+                System.out.println("Extracted JSON String:\n" + jsonString);
+
+                // Optional: parse into a Map
+                Map<String, Object> jsonMap = jsonMapper.readValue(jsonString, Map.class);
+                System.out.println("\nParsed JSON Map:\n" + jsonMap);
+
+                return jsonMap;
+            } else {
+                System.out.println("No JSON found in the response.");
+                return Map.of();
+            }
+        } catch (Exception e) {
+            log.error("Failed to parse LmStudio response content", e);
+            return Map.of(); // Return an empty map on parsing failure
+        }
+    }
+
 }
