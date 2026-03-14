@@ -222,12 +222,12 @@ public class DocumentApiImpl implements DocumentApi {
 
             document = documentService.save(document);
             QueueObject queueObject = new QueueObject(
-                document.getId(),
-                target,
-                targetId
-            );
-            rabbitTemplate.convertAndSend(rabbitProperties.getDocumentQueueExchange(),
-                    rabbitProperties.getDocumentDispatchRoutingKey(), queueObject);
+                    document.getId(),
+                    target,
+                    targetId);
+
+            rabbitTemplate.convertAndSend(rabbitProperties.getTextExtractionQueueExchange(),
+                    rabbitProperties.getTextExtractionQueueRoutingKey(), queueObject);
 
             return ResponseEntity.ok(document);
 
@@ -319,8 +319,8 @@ public class DocumentApiImpl implements DocumentApi {
 
         // Send to queue
         rabbitTemplate.convertAndSend(
-                rabbitProperties.getDocumentQueueExchange(),
-                rabbitProperties.getDocumentQueueRoutingKey(),
+                rabbitProperties.getTextExtractionQueueExchange(),
+                rabbitProperties.getTextExtractionQueueRoutingKey(),
                 new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
 
         return ResponseEntity.ok(document);

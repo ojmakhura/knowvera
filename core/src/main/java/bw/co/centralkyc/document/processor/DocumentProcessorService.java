@@ -2,6 +2,8 @@ package bw.co.centralkyc.document.processor;
 
 import java.io.IOException;
 
+import bw.co.centralkyc.document.DocumentValidationResults;
+import bw.co.centralkyc.document.DocumentVerificationStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -119,8 +121,8 @@ public class DocumentProcessorService {
 
                     // Send this to the next queue for further processing
                     rabbitTemplate.convertAndSend(
-                            rabbitProperties.getExtractedInformationQueueExchange(),
-                            rabbitProperties.getExtractedInformationQueueRoutingKey(),
+                            rabbitProperties.getDocumentConfirmationQueueExchange(),
+                            rabbitProperties.getDocumentConfirmationQueueRoutingKey(),
                             new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
                 } catch (Exception e) {
                     log.error("Failed to parse LmStudioExtractor response for document ID: {}",
@@ -158,4 +160,40 @@ public class DocumentProcessorService {
         }
     }
 
+    @Async("virtualThreadExecutor")
+    public void processDocumentConfirmation(CompletionResponse response, DocumentDTO document) {
+
+        log.info("Processing document confirmation for document ID: {}", document.getId());
+        // Implement your logic to process the document confirmation here
+        // For example, you could update the document status based on the validation results,
+        // trigger further workflows, or log the results for auditing purposes
+
+        response.getChoices().forEach(choice -> {
+
+            if(choice.getMessage() != null && choice.getMessage().getContent() != null) {
+
+                Map<String, Object> extractedInfo = parseLmStudioResponse(choice.getMessage().getContent());
+                if (!extractedInfo.isEmpty()) {
+                    // Example: Log the extracted information
+                    log.info("Document Confirmation for Document ID {}: {}", document.getId(), extractedInfo);
+                    DocumentValidationResults results = jsonMapper.convertValue(extractedInfo, DocumentValidationResults.class);
+                    document.setValidationResults(results);
+
+                    if(results.getMatch()) {
+                        document.setVerificationStatus(DocumentVerificationStatus.VERIFIED);
+                    } else {
+
+                        if(results.getScore() < 0.3) {
+                            document.setVerificationStatus(DocumentVerificationStatus.REJECTED);
+                        } else {
+                            document.setVerificationStatus(DocumentVerificationStatus.MANUAL_REVIEW);
+                        }
+                    }
+
+                    documentService.save(document);
+                }
+            }
+        });
+
+    }
 }

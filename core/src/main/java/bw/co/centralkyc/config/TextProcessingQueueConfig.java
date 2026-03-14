@@ -17,23 +17,16 @@ public class TextProcessingQueueConfig {
     }
 
     @Bean
-    public Queue textProcessingHandlerQueue() {
-        return QueueBuilder.durable(rabbitProperties.getTextProcessingHandler())
-                .withArgument("x-dead-letter-exchange", rabbitProperties.getTextProcessingHandlerDeadLetterExchange())
-                .withArgument("x-dead-letter-routing-key", rabbitProperties.getTextProcessingHandlerDeadLetterRoutingKey())
-                .build();
-    }
-
-    @Bean
-    public Declarables textProcessingDispatchSchema() {
-        FanoutExchange textProcessingDispatchExchange = new FanoutExchange(
-                rabbitProperties.getTextProcessingDispatchExchange());
-        Queue textProcessingDispatchQueue = QueueBuilder.durable(rabbitProperties.getTextProcessingDispatchQueue()).build();
+    public Declarables documentConfirmationQueueSchema() {
+        DirectExchange documentConfirmationQueueExchange = new DirectExchange(
+                rabbitProperties.getDocumentConfirmationQueueExchange());
+        Queue documentConfirmationQueue = QueueBuilder.durable(rabbitProperties.getDocumentConfirmationQueue()).build();
 
         return new Declarables(
-                textProcessingDispatchExchange,
-                textProcessingDispatchQueue,
-                BindingBuilder.bind(textProcessingDispatchQueue).to(textProcessingDispatchExchange));
+                documentConfirmationQueueExchange,
+                documentConfirmationQueue,
+                BindingBuilder.bind(documentConfirmationQueue).to(documentConfirmationQueueExchange)
+                        .with(rabbitProperties.getDocumentConfirmationQueueRoutingKey()));
     }
 
     @Bean

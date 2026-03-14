@@ -34,7 +34,7 @@ public class TextProcessingService {
     private final DocumentProcessorService documentProcessorService;
 
     private final String initialPrompt = """
-                Extract all identity information from the text and return it strictly in JSON format.
+                Extract all required information from the text and return it strictly in JSON format.
 
                 Instructions:
                 1. Only return a single valid JSON object. Do NOT add any explanations, notes, or extra fields.
@@ -48,7 +48,7 @@ public class TextProcessingService {
 
     @RabbitListener(queues = "${app.rabbitmq.textProcessingQueue}")
     public void processExtractedText(QueueObject queueObject) {
-        Thread currentThread = Thread.currentThread();
+        
         log.info("Processing extracted text for document ID: {}", queueObject.documentId());
         try {
             DocumentDTO document = documentService.findById(queueObject.documentId()); // Replace with actual retrieval logic

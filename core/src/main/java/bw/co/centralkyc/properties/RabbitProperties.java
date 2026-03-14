@@ -12,38 +12,25 @@ public class RabbitProperties {
     private final int port;
     private final String username;
     private final String password;
-    // Document properties
-    private final String documentHandler;
-    private final String documentDispatchExchange;
-    private final String documentDispatchQueue;
-    private final String documentDispatchRoutingKey;
     private final String documentHandlerDeadLetterExchange;
     private final String documentHandlerDeadLetterQueue;
     private final String documentHandlerDeadLetterRoutingKey;
-    private final String documentQueueExchange;
-    private final String documentQueue;
-    private final String documentQueueRoutingKey;
-    private final String textProcessingHandler;
-    private final String textProcessingDispatchExchange;
-    private final String textProcessingDispatchQueue;
-    private final String textProcessingDispatchRoutingKey;
-    private final String textProcessingHandlerDeadLetterExchange;
-    private final String textProcessingHandlerDeadLetterQueue;
-    private final String textProcessingHandlerDeadLetterRoutingKey;
+
+    private final String textExtractionQueueExchange;
+    private final String textExtractionQueue;
+    private final String textExtractionQueueRoutingKey;
+
+    private final String documentConfirmationQueueExchange;
+    private final String documentConfirmationQueue;
+    private final String documentConfirmationQueueRoutingKey;
+
     private final String textProcessingQueueExchange;
     private final String textProcessingQueue;
     private final String textProcessingQueueRoutingKey;
-    private final String extractedInformationHandler;
-    private final String extractedInformationDispatchExchange;
-    private final String extractedInformationDispatchQueue;
-    private final String extractedInformationDispatchRoutingKey;
-    private final String extractedInformationHandlerDeadLetterExchange;
-    private final String extractedInformationHandlerDeadLetterQueue;
-    private final String extractedInformationHandlerDeadLetterRoutingKey;
-    private final String extractedInformationQueueExchange;
-    private final String extractedInformationQueue;
-    private final String extractedInformationQueueRoutingKey;
-    
+
+    private final String informationConfirmationQueueExchange;
+    private final String informationConfirmationQueue;
+    private final String informationConfirmationQueueRoutingKey;
 
     public String getHost() {
         return host;
@@ -61,34 +48,6 @@ public class RabbitProperties {
         return password;
     }
 
-    public String getDocumentDispatchQueue() {
-        return documentDispatchQueue;
-    }
-
-    public String getDocumentDispatchRoutingKey() {
-        return documentDispatchRoutingKey;
-    }
-
-    public String getDocumentQueue() {
-        return documentQueue;
-    }
-
-    public String getDocumentQueueRoutingKey() {
-        return documentQueueRoutingKey;
-    }
-
-    public String getDocumentDispatchExchange() {
-        return documentDispatchExchange;
-    }
-
-    public String getDocumentQueueExchange() {
-        return documentQueueExchange;
-    }
-
-    public String getDocumentHandler() {
-        return documentHandler;
-    }
-
     public String getDocumentHandlerDeadLetterExchange() {
         return documentHandlerDeadLetterExchange;
     }
@@ -101,32 +60,28 @@ public class RabbitProperties {
         return documentHandlerDeadLetterRoutingKey;
     }
 
-    public String getTextProcessingHandler() {
-        return textProcessingHandler;
+    public String getTextExtractionQueueExchange() {
+        return textExtractionQueueExchange;
     }
 
-    public String getTextProcessingDispatchExchange() {
-        return textProcessingDispatchExchange;
+    public String getTextExtractionQueue() {
+        return textExtractionQueue;
     }
 
-    public String getTextProcessingDispatchQueue() {
-        return textProcessingDispatchQueue;
+    public String getTextExtractionQueueRoutingKey() {
+        return textExtractionQueueRoutingKey;
     }
 
-    public String getTextProcessingDispatchRoutingKey() {
-        return textProcessingDispatchRoutingKey;
+    public String getDocumentConfirmationQueueExchange() {
+        return documentConfirmationQueueExchange;
     }
 
-    public String getTextProcessingHandlerDeadLetterExchange() {
-        return textProcessingHandlerDeadLetterExchange;
+    public String getDocumentConfirmationQueue() {
+        return documentConfirmationQueue;
     }
 
-    public String getTextProcessingHandlerDeadLetterQueue() {
-        return textProcessingHandlerDeadLetterQueue;
-    }
-
-    public String getTextProcessingHandlerDeadLetterRoutingKey() {
-        return textProcessingHandlerDeadLetterRoutingKey;
+    public String getDocumentConfirmationQueueRoutingKey() {
+        return documentConfirmationQueueRoutingKey;
     }
 
     public String getTextProcessingQueueExchange() {
@@ -141,43 +96,15 @@ public class RabbitProperties {
         return textProcessingQueueRoutingKey;
     }
 
-    public String getExtractedInformationHandler() {
-        return extractedInformationHandler;
+    public String getInformationConfirmationQueueExchange() {
+        return informationConfirmationQueueExchange;
     }
 
-    public String getExtractedInformationDispatchExchange() {
-        return extractedInformationDispatchExchange;
+    public String getInformationConfirmationQueue() {
+        return informationConfirmationQueue;
     }
 
-    public String getExtractedInformationDispatchQueue() {
-        return extractedInformationDispatchQueue;
-    }
-
-    public String getExtractedInformationDispatchRoutingKey() {
-        return extractedInformationDispatchRoutingKey;
-    }
-
-    public String getExtractedInformationHandlerDeadLetterExchange() {
-        return extractedInformationHandlerDeadLetterExchange;
-    }
-
-    public String getExtractedInformationHandlerDeadLetterQueue() {
-        return extractedInformationHandlerDeadLetterQueue;
-    }
-
-    public String getExtractedInformationHandlerDeadLetterRoutingKey() {
-        return extractedInformationHandlerDeadLetterRoutingKey;
-    }
-
-    public String getExtractedInformationQueueExchange() {
-        return extractedInformationQueueExchange;
-    }
-
-    public String getExtractedInformationQueue() {
-        return extractedInformationQueue;
-    }
-
-    public String getExtractedInformationQueueRoutingKey() {
-        return extractedInformationQueueRoutingKey;
+    public String getInformationConfirmationQueueRoutingKey() {
+        return informationConfirmationQueueRoutingKey;
     }
 }

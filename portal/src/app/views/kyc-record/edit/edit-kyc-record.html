@@ -178,20 +178,34 @@
 		<h2 id="documents-title">Documents</h2>
 		@if (availableDocumentTypes().length > 0) {
 			<div class="edit-kyc-record__documents">
-				@for (docType of availableDocumentTypes(); track getDocKey(docType)) {
-					<div class="edit-kyc-record__document-row">
-						<mat-checkbox [checked]="isDocumentSelected(docType)" (change)="toggleDocument(docType)">
-							{{ docType.name }}
-						</mat-checkbox>
+				<mat-form-field class="edit-kyc-record__full-width">
+					<mat-label>Document Type</mat-label>
+					<mat-select
+						[value]="selectedDocumentTypeKey()"
+						(selectionChange)="onDocumentTypeSelection($event.value)">
+						@for (docType of availableDocumentTypes(); track getDocKey(docType)) {
+							<mat-option [value]="getDocKey(docType)">{{ docType.name }}</mat-option>
+						}
+					</mat-select>
+				</mat-form-field>
 
-						<input
-							type="file"
-							[attr.aria-label]="'Upload ' + (docType.name || 'document')"
-							[disabled]="!isDocumentSelected(docType)"
-							(change)="onFileChange($event, docType)" />
+				<div class="edit-kyc-record__document-upload">
+					<input
+						class="edit-kyc-record__document-input"
+						type="file"
+						[disabled]="!selectedDocumentType()"
+						[attr.aria-label]="selectedDocumentType() ? 'Upload ' + (selectedDocumentType()?.name || 'document') : 'Select a document type first'"
+						(change)="onSelectedDocumentFileChange($event)" />
+				</div>
 
-						@if (getDocumentFileName(docType)) {
-							<span class="edit-kyc-record__document-file">{{ getDocumentFileName(docType) }}</span>
+				@if ((recordSignal().documents || []).length > 0) {
+					<div class="edit-kyc-record__document-list" aria-live="polite">
+						@for (doc of (recordSignal().documents || []); track doc.documentTypeId || doc.documentType || $index) {
+							<div class="edit-kyc-record__document-row">
+								<span class="edit-kyc-record__document-type">{{ doc.documentType || 'Document' }}</span>
+								<span class="edit-kyc-record__document-file">{{ doc.fileName || 'No file selected' }}</span>
+								<button class="edit-kyc-record__document-remove" mat-button type="button" (click)="removeDocument(doc)">Remove</button>
+							</div>
 						}
 					</div>
 				}

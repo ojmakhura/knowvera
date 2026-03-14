@@ -12,12 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ExtractedInformationService {
+public class InformationConfirmationService {
 
     private final DocumentService documentService;
 
-    @RabbitListener(queues = "${app.rabbitmq.extractedInformationQueue}")
-    public void processExtractedInformation(QueueObject queueObject) {
+    @RabbitListener(queues = "${app.rabbitmq.informationConfirmationQueue}")
+    public void handleInformationConfirmation(QueueObject queueObject) {
         // Implement your logic to process the extracted information here
         // For example, you could perform validation, enrichment, or trigger further workflows based on the extracted data
 

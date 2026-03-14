@@ -17,25 +17,6 @@ public class DocumentQueueConfig {
     }
 
     @Bean
-    public Queue documentHandlerQueue() {
-        return QueueBuilder.durable(rabbitProperties.getDocumentHandler())
-                .withArgument("x-dead-letter-exchange", rabbitProperties.getDocumentHandlerDeadLetterExchange())
-                .withArgument("x-dead-letter-routing-key", rabbitProperties.getDocumentHandlerDeadLetterRoutingKey())
-                .build();
-    }
-
-    @Bean
-    public Declarables documentDispatchSchema() {
-        FanoutExchange documentDispatchExchange = new FanoutExchange(rabbitProperties.getDocumentDispatchExchange());
-        Queue documentDispatchQueue = QueueBuilder.durable(rabbitProperties.getDocumentDispatchQueue()).build();
-
-        return new Declarables(
-                documentDispatchExchange,
-                documentDispatchQueue,
-                BindingBuilder.bind(documentDispatchQueue).to(documentDispatchExchange));
-    }
-
-    @Bean
     public Declarables deadLetterSchema() {
         DirectExchange deadLetterExchange = new DirectExchange(rabbitProperties.getDocumentHandlerDeadLetterExchange());
         Queue deadLetterQueue = QueueBuilder.durable(rabbitProperties.getDocumentHandlerDeadLetterQueue()).build();
@@ -48,14 +29,14 @@ public class DocumentQueueConfig {
     }
 
     @Bean
-    public Declarables documentQueueSchema() {
-        DirectExchange documentQueueExchange = new DirectExchange(rabbitProperties.getDocumentQueueExchange());
-        Queue documentQueue = QueueBuilder.durable(rabbitProperties.getDocumentQueue()).build();
+    public Declarables textExtractionQueueSchema() {
+        DirectExchange textExtractionQueueExchange = new DirectExchange(rabbitProperties.getTextExtractionQueueExchange());
+        Queue textExtractionQueue = QueueBuilder.durable(rabbitProperties.getTextExtractionQueue()).build();
 
         return new Declarables(
-                documentQueueExchange,
-                documentQueue,
-                BindingBuilder.bind(documentQueue).to(documentQueueExchange)
-                        .with(rabbitProperties.getDocumentQueueRoutingKey()));
+                textExtractionQueueExchange,
+                textExtractionQueue,
+                BindingBuilder.bind(textExtractionQueue).to(textExtractionQueueExchange)
+                        .with(rabbitProperties.getTextExtractionQueueRoutingKey()));
     }
 }

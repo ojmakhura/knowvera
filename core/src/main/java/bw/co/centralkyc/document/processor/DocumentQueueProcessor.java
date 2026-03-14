@@ -30,7 +30,7 @@ public class DocumentQueueProcessor {
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
 
-    @RabbitListener(queues = "${app.rabbitmq.documentQueue}")
+    @RabbitListener(queues = "${app.rabbitmq.textExtractionQueue}")
     public void handleDocumentProcessing(QueueObject queueObject) {
         try {
             DocumentDTO document = documentService.findById(queueObject.documentId());
@@ -68,8 +68,8 @@ public class DocumentQueueProcessor {
                 documentService.save(document);
 
                 rabbitTemplate.convertAndSend(
-                        rabbitProperties.getTextProcessingDispatchExchange(),
-                        rabbitProperties.getTextProcessingDispatchRoutingKey(),
+                    rabbitProperties.getTextProcessingQueueExchange(),
+                    rabbitProperties.getTextProcessingQueueRoutingKey(),
                         queueObject);
             }).exceptionally(ex -> {
                 log.error("Async extraction failed for id: {}", queueObject.documentId(), ex);

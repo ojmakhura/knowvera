@@ -130,6 +130,15 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
     const selectedTarget = this.selectedTarget ?? this.recordSignal().target;
     return selectedTarget === TargetEntity.INDIVIDUAL ? this.indKycDocuments() : this.orgKycDocuments();
   });
+  selectedDocumentTypeKey = signal<string | null>(null);
+  selectedDocumentType = computed(() => {
+    const key = this.selectedDocumentTypeKey();
+    if (!key) {
+      return null;
+    }
+
+    return this.availableDocumentTypes().find((type: DocumentTypeDTO) => this.getDocKey(type) === key) ?? null;
+  });
   // pending file uploads keyed by documentTypeId
   pendingUploads: Record<string, File> = {};
   // mark when a save+upload flow is in progress
@@ -285,6 +294,42 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
     const docs: DocumentDTO[] = this.recordSignal().documents || [];
     const matched = docs.find(d => d.documentTypeId === key || d.documentType === type.name || d.documentTypeId === type.id || d.documentTypeId === type.code);
     return matched?.fileName || null;
+  }
+
+  onDocumentTypeSelection(value: string | null) {
+    this.selectedDocumentTypeKey.set(value);
+  }
+
+  onSelectedDocumentFileChange(event: Event) {
+    const type = this.selectedDocumentType();
+    if (!type) {
+      return;
+    }
+
+    this.onFileChange(event, type);
+  }
+
+  removeDocument(doc: DocumentDTO) {
+    const docs: DocumentDTO[] = [...(this.recordSignal().documents || [])];
+    const idx = docs.findIndex((current) => {
+      const sameTypeId = (current.documentTypeId || '') === (doc.documentTypeId || '');
+      const sameTypeName = (current.documentType || '') === (doc.documentType || '');
+      return sameTypeId && sameTypeName;
+    });
+
+    if (idx < 0) {
+      return;
+    }
+
+    const [removed] = docs.splice(idx, 1);
+    const keysToClear = [removed.documentTypeId, removed.documentType]
+      .filter((value): value is string => !!value)
+      .map((value) => String(value));
+    for (const key of keysToClear) {
+      delete this.pendingUploads[key];
+    }
+
+    this.recordSignal.update((record: KycRecordForm) => ({ ...record, documents: docs }));
   }
 
   toLabel(value: string | null | undefined): string {
