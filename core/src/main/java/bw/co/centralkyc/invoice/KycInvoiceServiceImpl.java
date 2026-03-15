@@ -31,8 +31,10 @@ import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.SortOrder;
 import bw.co.centralkyc.SortOrderFactory;
+import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.kyc.KycRecordServiceException;
 import bw.co.centralkyc.sequence.SequenceGenerator;
+import bw.co.centralkyc.sequence.SequenceGeneratorRepository;
 import bw.co.centralkyc.sequence.SequenceGeneratorService;
 import bw.co.centralkyc.sequence.SequencePart;
 import bw.co.centralkyc.sequence.SequencePartType;
@@ -52,16 +54,18 @@ public class KycInvoiceServiceImpl
 
     private static final String SEQUENCE_NAME = "KYC_INVOICE_REF";
     private final SequenceGeneratorService sequenceGeneratorService;
+    private final SequenceGeneratorRepository sequenceGeneratorRepository;
 
     public KycInvoiceServiceImpl(KycInvoiceDao kycInvoiceDao, KycInvoiceRepository kycInvoiceRepository,
             KycInvoiceMapper kycInvoiceMapper, KycSubscriptionDao kycSubscriptionDao,
-            SequenceGeneratorService sequenceGeneratorService,
+            SequenceGeneratorService sequenceGeneratorService, SequenceGeneratorRepository sequenceGeneratorRepository,
             KycSubscriptionRepository kycSubscriptionRepository, KycSubscriptionMapper kycSubscriptionMapper,
             MessageSource messageSource) {
         super(kycInvoiceDao, kycInvoiceRepository, kycInvoiceMapper, kycSubscriptionDao, kycSubscriptionRepository,
                 kycSubscriptionMapper, messageSource);
         // TODO Auto-generated constructor stub
         this.sequenceGeneratorService = sequenceGeneratorService;
+        this.sequenceGeneratorRepository = sequenceGeneratorRepository;
     }
 
     /**
@@ -248,12 +252,13 @@ public class KycInvoiceServiceImpl
 
     private String createInvoiceRef() {
 
-        SequenceGenerator sequenceGenerator = sequenceGeneratorService.findByName(SEQUENCE_NAME);
+        SequenceGenerator sequenceGenerator = sequenceGeneratorRepository.findByName(SEQUENCE_NAME).orElse(null);
 
         if (sequenceGenerator == null) {
 
             sequenceGenerator = new SequenceGenerator();
             sequenceGenerator.setName(SEQUENCE_NAME);
+            sequenceGenerator.setTargetEntity(TargetEntity.INVOICE);
 
             Collection<SequencePart> sequenceParts = new HashSet<SequencePart>();
 
@@ -274,7 +279,7 @@ public class KycInvoiceServiceImpl
             sequenceParts.add(counterPart);
 
             sequenceGenerator.setSequenceParts(sequenceParts);
-            sequenceGenerator = sequenceGeneratorService.save(sequenceGenerator);
+            sequenceGenerator = sequenceGeneratorRepository.save(sequenceGenerator);
         }
 
         String nextRef = sequenceGeneratorService.generateNextSequenceValue(SEQUENCE_NAME, true);

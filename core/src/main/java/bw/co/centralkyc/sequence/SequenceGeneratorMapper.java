@@ -5,15 +5,46 @@
 //
 package bw.co.centralkyc.sequence;
 
+import java.util.Collection;
+import java.util.List;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-import bw.co.centralkyc.utils.MappingUtils;
-
-@Mapper(componentModel = "spring", uses = {
-        SequencePartMapper.class, MappingUtils.class 
-    }
+@Mapper(
+    componentModel = "spring"
+    , uses = {
+        SequencePartMapper.class    }
 )
 public interface SequenceGeneratorMapper {
     
+    /**
+     * Converts this entity to an object of type {@link SequenceGeneratorDTO}.
+     * @param entity
+     * @return SequenceGeneratorDTO
+     */
+    @Mapping(source = "sequenceParts", target = "sequenceParts")
+    SequenceGeneratorDTO toSequenceGeneratorDTO(SequenceGenerator entity);
+
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link SequenceGeneratorDTO}.
+     * @param entities
+     * @return Collection<SequenceGeneratorDTO>     */
+    List<SequenceGeneratorDTO> toSequenceGeneratorDTOCollection(Collection<SequenceGenerator> entities);
+
+    /**
+     * Converts an instance of type {@link SequenceGeneratorDTO} to this DAO's entity.
+     * @param sequenceGeneratorDTO
+     * @return SequenceGenerator
+     */
+    @InheritInverseConfiguration
+    SequenceGenerator sequenceGeneratorDTOToEntity(SequenceGeneratorDTO sequenceGeneratorDTO);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @InheritInverseConfiguration
+    void updateSequenceGeneratorFromSequenceGeneratorDTO(SequenceGeneratorDTO sequenceGeneratorDTO, @MappingTarget SequenceGenerator entity);
 
 }

@@ -20,8 +20,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -31,10 +33,12 @@ import org.springframework.http.MediaType;
 
 import bw.co.centralkyc.AuditTracker;
 import bw.co.centralkyc.QueueObject;
+import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.processor.DocumentProcessorService;
 import bw.co.centralkyc.minio.MinioService;
 import bw.co.centralkyc.properties.RabbitProperties;
+import jakarta.validation.Valid;
 
 @RestController
 public class DocumentApiImpl implements DocumentApi {
@@ -146,11 +150,11 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
-    public ResponseEntity<Collection<DocumentDTO>> search(String criteria) {
+    public ResponseEntity<Collection<DocumentDTO>> search(SearchObject<DocumentSearchCriteria> criteria) {
 
         try {
 
-            return ResponseEntity.ok(documentService.search(criteria));
+            return ResponseEntity.ok(documentService.search(criteria.getCriteria(), Set.copyOf(criteria.getSortings())));
         } catch (Exception e) {
 
             throw e;
@@ -325,5 +329,31 @@ public class DocumentApiImpl implements DocumentApi {
 
         return ResponseEntity.ok(document);
 
+    }
+
+    @Override
+    public @Nullable ResponseEntity<Page<DocumentDTO>> searchPaged(
+            @Valid SearchObject<DocumentSearchCriteria> criteria) throws Exception {
+        
+        try {
+            Page<DocumentDTO> results = documentService.search(criteria);
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            throw e;
+        }
+        
+    }
+
+    @Override
+    public ResponseEntity<Page<DocumentDTO>> findByDocumentsPaged(TargetEntity target, @Nullable Integer pageNumber,
+            @Nullable Integer pageSize) throws Exception {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByDocumentsPaged'");
+    }
+
+    @Override
+    public @Nullable ResponseEntity<DocumentDTO> findMyDocuments(TargetEntity target) throws Exception {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findMyDocuments'");
     }
 }

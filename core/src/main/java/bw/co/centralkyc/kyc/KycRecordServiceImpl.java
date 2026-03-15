@@ -8,7 +8,6 @@
  */
 package bw.co.centralkyc.kyc;
 
-import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -25,10 +24,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.Document;
-import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentRepository;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
@@ -36,6 +35,11 @@ import bw.co.centralkyc.kyc.verification.KycVerification;
 import bw.co.centralkyc.kyc.verification.VerificationStatus;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
+import bw.co.centralkyc.sequence.SequenceGenerator;
+import bw.co.centralkyc.sequence.SequenceGeneratorRepository;
+import bw.co.centralkyc.sequence.SequenceGeneratorService;
+import bw.co.centralkyc.sequence.SequencePart;
+import bw.co.centralkyc.sequence.SequencePartType;
 import bw.co.centralkyc.settings.Settings;
 import bw.co.centralkyc.settings.SettingsRepository;
 import bw.co.centralkyc.user.UserDTO;
@@ -48,16 +52,21 @@ import bw.co.centralkyc.user.UserDTO;
 public class KycRecordServiceImpl
         extends KycRecordServiceBase {
 
+    private static final String SEQUENCE_NAME = "KYC_RECORD_REF";
+
     private final IndividualRepository individualRepository;
     private final OrganisationRepository organisationRepository;
     private final SettingsRepository settingsRepository;
     private final KycRecordMapper kycRecordMapper;
     private final DocumentRepository documentRepository;
+    private final SequenceGeneratorRepository sequenceGeneratorRepository;
+    private final SequenceGeneratorService sequenceGeneratorService;
 
     public KycRecordServiceImpl(KycRecordDao kycRecordDao, KycRecordRepository kycRecordRepository,
             KycRecordMapper kycRecordMapper, MessageSource messageSource,
             SettingsRepository settingsRepository, KycRecordMapper kycRecordMpper,
             IndividualRepository individualRepository, DocumentRepository documentRepository,
+            SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorService sequenceGeneratorService,
             OrganisationRepository organisationRepository) {
         super(kycRecordDao, kycRecordRepository, kycRecordMapper, messageSource);
         // TODO Auto-generated constructor stub
@@ -66,8 +75,9 @@ public class KycRecordServiceImpl
         this.organisationRepository = organisationRepository;
         this.kycRecordMapper = kycRecordMpper;
         this.documentRepository = documentRepository;
+        this.sequenceGeneratorRepository = sequenceGeneratorRepository;
+        this.sequenceGeneratorService = sequenceGeneratorService;
     }
-
 
     /**
      * @see bw.co.centralkyc.individual.kyc.KycRecordService#findById(String)
@@ -105,7 +115,7 @@ public class KycRecordServiceImpl
             kycRecordEntity.setExpiryDate(kycRecordEntity.getUploadDate().plusYears(kycDuration));
         }
 
-        if(kycRecordEntity.getId() == null) {
+        if (kycRecordEntity.getId() == null) {
 
             KycVerification verification = KycVerification.Factory.newInstance();
             verification.setCreatedAt(kycRecordEntity.getCreatedAt());
@@ -177,7 +187,8 @@ public class KycRecordServiceImpl
      * @see bw.co.centralkyc.individual.kyc.KycRecordService#search(String)
      */
     @Override
-    protected Collection<KycRecordDTO> handleSearch(KycRecordSearchCriteria criteria)
+    protected Collection<KycRecordDTO> handleSearch(KycRecordSearchCriteria criteria,
+            Set<PropertySearchOrder> searchOrders)
             throws Exception {
         Specification<KycRecord> spec = this.createSpecification(criteria);
 
@@ -380,27 +391,79 @@ public class KycRecordServiceImpl
         return record == null ? null : kycRecordDao.toKycRecordDTO(record);
     }
 
-
     @Override
     protected KycRecordDTO handleCreateNew(KycRecordDTO record, String user)
             throws Exception {
 
-        if(StringUtils.isBlank(record.getId())) {
+        if (StringUtils.isBlank(record.getId())) {
             record.setEmploymentRecord(null);
         }
 
         KycRecord kycRecord = this.kycRecordMapper.kycRecordDTOToEntity(record);
         Collection<Document> docs = kycRecord.getDocuments();
-        kycRecord.setDocuments(new ArrayList<>()); // Detach documents to avoid persistence issues, we'll handle them after saving the KYC record
+        kycRecord.setDocuments(new ArrayList<>()); // Detach documents to avoid persistence issues, we'll handle them
+                                                   // after saving the KYC record
 
         if (kycRecord.getUploadDate() == null) {
             kycRecord.setUploadDate(LocalDate.now());
         }
 
+        if (StringUtils.isBlank(kycRecord.getRef())) {
+
+            SequenceGenerator sequenceGenerator = sequenceGeneratorRepository.findByName(SEQUENCE_NAME).orElse(null);
+
+            if (sequenceGenerator == null) {
+
+                sequenceGenerator = new SequenceGenerator();
+                sequenceGenerator.setName(SEQUENCE_NAME);
+                sequenceGenerator.setTargetEntity(TargetEntity.KYC_RECORD);
+
+                Collection<SequencePart> sequenceParts = new HashSet<SequencePart>();
+
+                SequencePart counterPart = new SequencePart();
+                counterPart.setPosition(0);
+                counterPart.setType(SequencePartType.STATIC);
+                counterPart.setInitialValue("KR-");
+                counterPart.setName(SEQUENCE_NAME + "_PREFIX");
+                counterPart.setSequenceGenerator(sequenceGenerator);
+                sequenceParts.add(counterPart);
+
+                counterPart = new SequencePart();
+                counterPart.setPosition(1);
+                counterPart.setType(SequencePartType.YEAR);
+                counterPart.setName(SEQUENCE_NAME + "_YEAR");
+                counterPart.setInitialValue("");
+                counterPart.setSequenceGenerator(sequenceGenerator);
+                sequenceParts.add(counterPart);
+
+                counterPart = new SequencePart();
+                counterPart.setPosition(2);
+                counterPart.setType(SequencePartType.STATIC);
+                counterPart.setInitialValue("/");
+                counterPart.setName(SEQUENCE_NAME + "_YEAR_SLASH");
+                counterPart.setSequenceGenerator(sequenceGenerator);
+                sequenceParts.add(counterPart);
+
+                counterPart = new SequencePart();
+                counterPart.setPosition(3);
+                counterPart.setType(SequencePartType.COUNTER);
+                counterPart.setName(SEQUENCE_NAME + "_COUNTER");
+                counterPart.setInitialValue("0000000");
+                counterPart.setSequenceGenerator(sequenceGenerator);
+                sequenceParts.add(counterPart);
+
+                sequenceGenerator.setSequenceParts(sequenceParts);
+                sequenceGenerator = sequenceGeneratorRepository.save(sequenceGenerator);
+            }
+
+            String nextRef = sequenceGeneratorService.generateNextSequenceValue(SEQUENCE_NAME, true);
+            kycRecord.setRef(nextRef);
+        }
+
         kycRecord = this.kycRecordRepository.save(kycRecord);
         if (docs != null && docs.size() > 0) {
-           for (Document doc : docs) {
-                
+            for (Document doc : docs) {
+
                 doc.setTargetId(kycRecord.getId().toString());
                 doc.setTarget(TargetEntity.KYC_RECORD);
             }
@@ -409,5 +472,4 @@ public class KycRecordServiceImpl
 
         return this.kycRecordMapper.toKycRecordDTO(kycRecord);
     }
-
 }

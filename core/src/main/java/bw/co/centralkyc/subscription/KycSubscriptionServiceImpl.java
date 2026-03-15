@@ -21,11 +21,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.invoice.KycInvoiceDTO;
 import bw.co.centralkyc.invoice.KycInvoiceDao;
 import bw.co.centralkyc.invoice.KycInvoiceMapper;
 import bw.co.centralkyc.invoice.KycInvoiceRepository;
 import bw.co.centralkyc.sequence.SequenceGenerator;
+import bw.co.centralkyc.sequence.SequenceGeneratorRepository;
 import bw.co.centralkyc.sequence.SequenceGeneratorService;
 import bw.co.centralkyc.sequence.SequencePart;
 import bw.co.centralkyc.sequence.SequencePartType;
@@ -39,17 +41,19 @@ public class KycSubscriptionServiceImpl
         extends KycSubscriptionServiceBase {
 
     private final SequenceGeneratorService sequenceGeneratorService;
+    private final SequenceGeneratorRepository sequenceGeneratorRepository;
     private static final String SEQUENCE_NAME = "KYC_SUBSCRIPTION_REF";
 
     public KycSubscriptionServiceImpl(KycSubscriptionDao kycSubscriptionDao,
             KycSubscriptionRepository kycSubscriptionRepository, KycInvoiceDao kycInvoiceDao,
-            SequenceGeneratorService sequenceGeneratorService, KycSubscriptionMapper kycSubscriptionMapper,
+            SequenceGeneratorService sequenceGeneratorService, SequenceGeneratorRepository sequenceGeneratorRepository, KycSubscriptionMapper kycSubscriptionMapper,
             KycInvoiceRepository kycInvoiceRepository, KycInvoiceMapper kycInvoiceMapper, MessageSource messageSource) {
 
         super(kycSubscriptionDao, kycSubscriptionRepository, kycSubscriptionMapper, kycInvoiceDao,
                 kycInvoiceRepository, kycInvoiceMapper, messageSource);
 
         this.sequenceGeneratorService = sequenceGeneratorService;
+        this.sequenceGeneratorRepository = sequenceGeneratorRepository;
     }
 
     /**
@@ -75,19 +79,20 @@ public class KycSubscriptionServiceImpl
 
         if (StringUtils.isBlank(subscription.getRef())) {
 
-            SequenceGenerator sequenceGenerator = sequenceGeneratorService.findByName(SEQUENCE_NAME);
+            SequenceGenerator sequenceGenerator = sequenceGeneratorRepository.findByName(SEQUENCE_NAME).orElse(null);
 
             if (sequenceGenerator == null) {
 
                 sequenceGenerator = new SequenceGenerator();
                 sequenceGenerator.setName(SEQUENCE_NAME);
+                sequenceGenerator.setTargetEntity(TargetEntity.SUBSCRIPTION);
 
                 Collection<SequencePart> sequenceParts = new HashSet<SequencePart>();
 
                 SequencePart counterPart = new SequencePart();
                 counterPart.setPosition(0);
                 counterPart.setType(SequencePartType.STATIC);
-                counterPart.setInitialValue("KYC-");
+                counterPart.setInitialValue("SUB-");
                 counterPart.setName(SEQUENCE_NAME + "_PREFIX");
                 counterPart.setSequenceGenerator(sequenceGenerator);
                 sequenceParts.add(counterPart);
@@ -101,7 +106,7 @@ public class KycSubscriptionServiceImpl
                 sequenceParts.add(counterPart);
 
                 sequenceGenerator.setSequenceParts(sequenceParts);
-                sequenceGenerator = sequenceGeneratorService.save(sequenceGenerator);
+                sequenceGenerator = sequenceGeneratorRepository.save(sequenceGenerator);
             }
 
             String nextRef = sequenceGeneratorService.generateNextSequenceValue(SEQUENCE_NAME, true);

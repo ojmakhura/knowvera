@@ -10,6 +10,7 @@ import { Page } from '@app/models/page.model';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
+import { DocumentSearchCriteria } from '@app/models/bw/co/centralkyc/document/document-search-criteria';
 
 export type DocumentApiState = AppState<DocumentDTO, DocumentDTO> & {};
 
@@ -321,7 +322,7 @@ export const DocumentApiStore = signalStore(
           );
         }),
       ),
-      search: rxMethod<{criteria: string | any }>(
+      search: rxMethod<{criteria: SearchObject<DocumentSearchCriteria> | string | any }>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return documentApi.search(data.criteria, ).pipe(
@@ -331,6 +332,38 @@ export const DocumentApiStore = signalStore(
                   store,
                   {
                     dataList: response,
+                    loading: false,
+                    success: true,
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
+                    success: false,
+                    error: true,
+                    messages: [error?.error?.message || 'An error occurred'],
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      searchPaged: rxMethod<{criteria: SearchObject<DocumentSearchCriteria> | any }>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return documentApi.searchPaged(data.criteria, ).pipe(
+            tapResponse({
+              next: (response: Page<DocumentDTO> | any) => {
+                patchState(
+                  store,
+                  {
+                    dataPage: response,
                     loading: false,
                     success: true,
                     messages: ['Success!!'],

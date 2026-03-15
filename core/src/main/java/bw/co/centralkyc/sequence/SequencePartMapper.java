@@ -5,7 +5,13 @@
 //
 package bw.co.centralkyc.sequence;
 
+import java.util.Collection;
+import java.util.List;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(
     componentModel = "spring"
@@ -14,4 +20,29 @@ import org.mapstruct.Mapper;
 )
 public interface SequencePartMapper {
     
+    /**
+     * Converts this entity to an object of type {@link SequencePartDTO}.
+     * @param entity
+     * @return SequencePartDTO
+     */
+    SequencePartDTO toSequencePartDTO(SequencePart entity);
+
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link SequencePartDTO}.
+     * @param entities
+     * @return Collection<SequencePartDTO>     */
+    List<SequencePartDTO> toSequencePartDTOCollection(Collection<SequencePart> entities);
+
+    /**
+     * Converts an instance of type {@link SequencePartDTO} to this DAO's entity.
+     * @param sequencePartDTO
+     * @return SequencePart
+     */
+    @InheritInverseConfiguration
+    SequencePart sequencePartDTOToEntity(SequencePartDTO sequencePartDTO);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @InheritInverseConfiguration
+    void updateSequencePartFromSequencePartDTO(SequencePartDTO sequencePartDTO, @MappingTarget SequencePart entity);
+
 }

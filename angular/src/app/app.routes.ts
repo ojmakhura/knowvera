@@ -11,12 +11,14 @@ import { Shell } from './shell';
 import { organisationRoutes } from '@app/views/organisation/organisation.routes';
 import { settingsRoutes } from '@app/views/settings/settings.routes';
 import { documentTypeRoutes } from '@app/views/document/type/document-type.routes';
+import { documentsRoutes } from '@app/views/document/documents.routes';
 import { individualRoutes } from '@app/views/individual/individual.routes';
 import { usersRoutes } from '@app/views/user/user.routes';
 import { kycSubscriptionRoutes } from '@app/views/subscription/subcription.routes';
 import { invoiceRoutes } from '@app/views/invoice/invoice.routes';
 import { kycRecordRoutes } from '@app/views/kyc/kyc-record.routes';
 import { clientRequestRoutes } from '@app/views/client/client-request.routes';
+import { sequenceRoutes } from '@app/views/sequence/sequence.routes';
 
 export const routes: Routes = [
   // Uncomment the following lines to enable login route
@@ -38,12 +40,14 @@ export const routes: Routes = [
     ...organisationRoutes,
     ...settingsRoutes,
     ...documentTypeRoutes,
+    ...documentsRoutes,
     ...individualRoutes,
     ...usersRoutes,
     ...kycSubscriptionRoutes,
     ...invoiceRoutes,
     ...kycRecordRoutes,
     ...clientRequestRoutes,
+    ...sequenceRoutes,
   ]),
   // Fallback when no prior route is matched
   { 

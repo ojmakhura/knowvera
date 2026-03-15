@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import bw.co.centralkyc.AuditTracker;
+import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.DocumentApi;
@@ -27,6 +28,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
@@ -206,7 +208,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     public ResponseEntity<Collection<KycRecordDTO>> search(KycRecordSearchCriteria criteria) throws Exception {
         try {
 
-            Collection<KycRecordDTO> records = kycRecordService.search(criteria);
+            Collection<KycRecordDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
             updateOrganisations(records);
 
             return ResponseEntity.ok(records);
@@ -408,7 +410,7 @@ public class KycRecordApiImpl implements KycRecordApi {
             KycRecordSearchCriteria criteria = new KycRecordSearchCriteria();
             criteria.setTargetIds(targetIds);
 
-            Collection<KycRecordDTO> records = kycRecordService.search(criteria);
+            Collection<KycRecordDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
             updateOrganisations(records);
 
             return ResponseEntity.ok(records);

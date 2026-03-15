@@ -27,4 +27,10 @@ public class SequenceGeneratorDaoImpl
         );
     }
 
+    @Override
+    public SequenceGenerator sequenceGeneratorDTOToEntity(SequenceGeneratorDTO sequenceGeneratorDTO) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'sequenceGeneratorDTOToEntity'");
+    }
+
 }
