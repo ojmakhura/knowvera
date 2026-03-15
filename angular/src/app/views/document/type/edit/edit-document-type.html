@@ -6,111 +6,320 @@
     <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
     <span class="breadcrumb-text">{{ 'document.type.title' | translate }}</span>
     <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
-    <span class="breadcrumb-text active">{{ 'edit.document.type.title' | translate }}</span>
+    <span class="breadcrumb-text active">{{ (editDocumentTypeSignal().id ? 'edit' : 'create') | translate }}</span>
+    @if (editDocumentTypeSignal().id) {
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ editDocumentTypeSignal().name }}</span>
+    }
   </div>
-	<div class="card-body">
-		<div class="document-type-panel">
-			<div class="view-buttons action-toolbar">
-				<button type="button" mat-flat-button color="primary" (click)="editDocumentTypeSave()">
-					<mat-icon fontIcon="save" aria-hidden="false" aria-label="save"></mat-icon>
-					<span translate>save</span>
-				</button>
-				<button type="button" mat-flat-button color="primary" (click)="editDocumentTypeSearch()">
-					<mat-icon fontIcon="search" aria-hidden="false" aria-label="search"></mat-icon>
-					<span translate>search</span>
-				</button>
-				<button type="button" mat-flat-button color="warn" (click)="editDocumentTypeDelete()" *ngIf="deleteUnrestricted()">
-					<mat-icon fontIcon="delete" aria-hidden="false" aria-label="delete"></mat-icon>
-					<span translate>delete</span>
-				</button>
-				<button type="button" mat-flat-button color="primary" (click)="editDocumentTypeFormReset()">
-					<mat-icon fontIcon="restore" aria-hidden="false" aria-label="restore"></mat-icon>
-					<span translate>reset</span>
-				</button>
-			</div>
 
-			@if (loading()) {
-			<div class="loader-wrapper">
-				<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
-			</div>
-			}
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon>description</mat-icon>
+        <span>{{ 'edit.document.type.title' | translate }}</span>
+      </h1>
+      <p class="page-subtitle">Configure the document definition, expected fields, and prompt behaviour.</p>
+    </div>
 
-			<section class="form-section">
-				<mat-form-field class="field-wide">
-					<mat-label id="code_label" for="code"><span translate>code</span></mat-label>
-					<input matInput type="text" id="code" [formField]="editDocumentTypeSignalForm.code" />
-					@for (error of editDocumentTypeSignalForm.code().errors(); track error) {
-					<mat-error translate>{{error.message}}</mat-error>
-					}
-				</mat-form-field>
+    <div class="action-buttons">
+      <button mat-raised-button color="primary" type="button" class="save-btn" (click)="editDocumentTypeSave()"
+        [disabled]="editDocumentTypeSignalForm().invalid() || loading()">
+        <mat-icon>save</mat-icon>
+        <span>{{ 'save' | translate }}</span>
+      </button>
+      <button mat-stroked-button color="primary" type="button" (click)="editDocumentTypeSearch()"
+        [disabled]="loading()">
+        <mat-icon>search</mat-icon>
+        <span>{{ 'search' | translate }}</span>
+      </button>
+      @if (deleteUnrestricted()) {
+      <button mat-stroked-button color="warn" type="button" (click)="editDocumentTypeDelete()" [disabled]="loading()">
+        <mat-icon>delete</mat-icon>
+        <span>{{ 'delete' | translate }}</span>
+      </button>
+      }
+      <button mat-button type="button" (click)="editDocumentTypeFormReset()" [disabled]="loading()">
+        <mat-icon>refresh</mat-icon>
+        <span>{{ 'reset' | translate }}</span>
+      </button>
+    </div>
+  </div>
 
-				<mat-form-field class="field-wide">
-					<mat-label id="name_label" for="name"><span translate>name</span></mat-label>
-					<input matInput type="text" id="name" [formField]="editDocumentTypeSignalForm.name" />
-					@for (error of editDocumentTypeSignalForm.name().errors(); track error) {
-					<mat-error translate>{{error.message}}</mat-error>
-					}
-				</mat-form-field>
+  @if (loading()) {
+  <div class="loading-overlay">
+    <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+  </div>
+  }
 
-				<mat-form-field class="field-wide">
-					<mat-label id="description_label" for="description"><span translate>description</span></mat-label>
-					<textarea matInput id="description" [formField]="editDocumentTypeSignalForm.description"></textarea>
-				</mat-form-field>
-			</section>
+  <div class="form-container">
+    <form class="edit-form">
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            {{ 'basic.information' | translate }}
+          </mat-card-title>
+          <mat-card-subtitle>Define the identity and description used for this document type.</mat-card-subtitle>
+        </mat-card-header>
 
-			<section class="form-section expected-fields-section">
-				<div class="section-header">
-					<h3 translate>expected.fields</h3>
-					<button type="button" mat-flat-button color="primary" (click)="expectedFieldsAdd()">
-						<mat-icon fontIcon="add" aria-hidden="false" aria-label="add"></mat-icon>
-						<span translate>add</span>
-					</button>
-				</div>
+        <mat-card-content>
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'code' | translate }}</mat-label>
+              <input matInput type="text" id="code" [formField]="editDocumentTypeSignalForm.code"
+                placeholder="{{ 'code' | translate }}" />
+              <mat-icon matSuffix>qr_code_2</mat-icon>
+              @for (error of editDocumentTypeSignalForm.code().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
 
-				<div class="expected-fields-list">
-					<table mat-table [dataSource]="expectedFieldsPagedData" class="expected-fields-table">
-						<ng-container matColumnDef="field">
-							<th mat-header-cell *matHeaderCellDef translate>field</th>
-							<td mat-cell *matCellDef="let row">{{ row.field }}</td>
-						</ng-container>
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'name' | translate }}</mat-label>
+              <input matInput type="text" id="name" [formField]="editDocumentTypeSignalForm.name"
+                placeholder="{{ 'name' | translate }}" />
+              <mat-icon matSuffix>badge</mat-icon>
+              @for (error of editDocumentTypeSignalForm.name().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
 
-						<ng-container matColumnDef="keyField">
-							<th mat-header-cell *matHeaderCellDef translate>key.field</th>
-							<td mat-cell *matCellDef="let row">{{ ('key.field.' + row.keyField) | translate }}</td>
-						</ng-container>
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-full-width">
+              <mat-label>{{ 'description' | translate }}</mat-label>
+              <textarea matInput id="description" [formField]="editDocumentTypeSignalForm.description" rows="4"
+                placeholder="{{ 'description' | translate }}"></textarea>
+              <mat-icon matSuffix>description</mat-icon>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
 
-						<ng-container matColumnDef="mandatory">
-							<th mat-header-cell *matHeaderCellDef translate>mandatory</th>
-							<td mat-cell *matCellDef="let row">
-								<mat-icon [fontIcon]="row.mandatory ? 'check_circle' : 'cancel'" [class.mandatory-icon]="row.mandatory" [class.not-mandatory-icon]="!row.mandatory"></mat-icon>
-							</td>
-						</ng-container>
+      <mat-card class="form-section configuration-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>tune</mat-icon>
+            <span>Configuration</span>
+          </mat-card-title>
+          <mat-card-subtitle>Maintain extracted field rules and prompt content for downstream
+            processing.</mat-card-subtitle>
+        </mat-card-header>
 
-						<ng-container matColumnDef="format">
-							<th mat-header-cell *matHeaderCellDef translate>format</th>
-							<td mat-cell *matCellDef="let row">{{ row.format }}</td>
-						</ng-container>
+        <mat-card-content>
+          <div class="configuration-summary">
+            <div class="summary-item">
+              <span class="summary-label" translate>expected.fields</span>
+              <strong>{{ expectedFieldsTableData().length }}</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label" translate>validation.prompts</span>
+              <strong>{{ editDocumentTypeSignalForm.validationPrompts.length }}</strong>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label" translate>text.extraction.prompts</span>
+              <strong>{{ editDocumentTypeSignalForm.textExtractionPrompts.length }}</strong>
+            </div>
+          </div>
 
-						<ng-container matColumnDef="actions">
-							<th mat-header-cell *matHeaderCellDef translate>actions</th>
-							<td mat-cell *matCellDef="let row; let i = index" class="actions-cell">
-								<button type="button" mat-icon-button color="primary" matTooltip="{{ 'edit' | translate }}" (click)="expectedFieldsEdit(expectedFieldsOffset + i, row)">
-									<mat-icon fontIcon="edit" aria-hidden="false" aria-label="edit"></mat-icon>
-								</button>
-								<button type="button" mat-icon-button color="warn" matTooltip="{{ 'action.delete' | translate }}" (click)="expectedFieldsRemove(expectedFieldsOffset + i, row)">
-									<mat-icon fontIcon="delete" aria-hidden="false" aria-label="remove"></mat-icon>
-								</button>
-							</td>
-						</ng-container>
+          <mat-tab-group animationDuration="0ms" class="document-type-tabs">
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">list_alt</mat-icon>
+                <span translate>expected.fields</span>
+              </ng-template>
 
-						<tr mat-header-row *matHeaderRowDef="expectedFieldsDisplayedColumns"></tr>
-						<tr mat-row *matRowDef="let row; columns: expectedFieldsDisplayedColumns;"></tr>
-					</table>
+              <div class="tab-panel-content">
+                <div class="section-header">
+                  <div>
+                    <h3 translate>expected.fields</h3>
+                    <p class="section-description">Manage the list of fields expected to be extracted from the document.
+                    </p>
+                  </div>
+                  <button type="button" mat-mini-fab matTooltip="{{'add' | translate}}" color="primary"
+                    (click)="expectedFieldsAdd()">
+                    <mat-icon fontIcon="add" aria-hidden="false" aria-label="add"></mat-icon>
+                  </button>
+                </div>
 
-					<mat-paginator [length]="editDocumentTypeSignal().expectedFields.length" [pageSize]="expectedFieldsPageSize" [pageIndex]="expectedFieldsPageIndex" [pageSizeOptions]="expectedFieldsPageSizeOptions" (page)="onExpectedFieldsPageChange($event)">
-					</mat-paginator>
-				</div>
-			</section>
-		</div>
-	</div>
+                <div class="expected-fields-list">
+                  <table mat-table [dataSource]="expectedFieldsPagedData()" class="expected-fields-table">
+                    <ng-container matColumnDef="field">
+                      <th mat-header-cell *matHeaderCellDef translate>field</th>
+                      <td mat-cell *matCellDef="let item">{{ item.field }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="keyField">
+                      <th mat-header-cell *matHeaderCellDef translate>key.field</th>
+                      <td mat-cell *matCellDef="let item">{{ ('key.field.' + item.keyField) | translate }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="mandatory">
+                      <th mat-header-cell *matHeaderCellDef translate>mandatory</th>
+                      <td mat-cell *matCellDef="let item">
+                        <mat-icon [class.mandatory-icon]="item.mandatory" [class.not-mandatory-icon]="!item.mandatory">
+                          {{ item.mandatory ? 'check_circle' : 'cancel' }}
+                        </mat-icon>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="format">
+                      <th mat-header-cell *matHeaderCellDef translate>format</th>
+                      <td mat-cell *matCellDef="let item">{{ item.format || '-' }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="actions">
+                      <th mat-header-cell *matHeaderCellDef translate>actions</th>
+                      <td mat-cell *matCellDef="let item; let i = index">
+                        <div class="actions-cell">
+                          <button type="button" mat-icon-button color="primary" matTooltip="{{'edit' | translate}}"
+                            (click)="expectedFieldsEdit(i + (expectedFieldsPageIndex() * expectedFieldsPageSize()), item)">
+                            <mat-icon>edit</mat-icon>
+                          </button>
+                          <button type="button" mat-icon-button color="warn" matTooltip="{{'remove' | translate}}"
+                            (click)="expectedFieldsRemove(i + (expectedFieldsPageIndex() * expectedFieldsPageSize()), item)">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="expectedFieldsTableColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: expectedFieldsTableColumns"></tr>
+                    <tr class="mat-row" *matNoDataRow>
+                      <td class="mat-cell expected-fields-empty" [attr.colspan]="expectedFieldsTableColumns.length">
+                        <span translate>no.data</span>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <mat-paginator class="expected-fields-paginator" [length]="expectedFieldsTableData().length"
+                    [pageIndex]="expectedFieldsPageIndex()" [pageSize]="expectedFieldsPageSize()"
+                    [pageSizeOptions]="expectedFieldsPageSizeOptions" (page)="onExpectedFieldsPageChange($event)">
+                  </mat-paginator>
+                </div>
+              </div>
+            </mat-tab>
+
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">rule</mat-icon>
+                <span translate>validation.prompts</span>
+              </ng-template>
+
+              <div class="tab-panel-content">
+                <div class="section-header">
+                  <div>
+                    <h3 translate>validation.prompts</h3>
+                    <p class="section-description">Define the prompt messages used to validate the document.</p>
+                  </div>
+                  <button type="button" mat-mini-fab matTooltip="{{'add' | translate}}" color="primary"
+                    (click)="validationPromptsAdd()">
+                    <mat-icon fontIcon="add" aria-hidden="false" aria-label="add"></mat-icon>
+                  </button>
+                </div>
+
+                <div class="tab-section-list">
+                  @for(item of editDocumentTypeSignalForm.validationPrompts; track i; let i = $index){
+                  <div class="prompt-card">
+                    <div class="field-row">
+                      <mat-form-field appearance="outline" class="field-half">
+                        <mat-label translate>role</mat-label>
+                        <input matInput type="text" id="validationRole" [formField]="item.role" />
+                        <mat-icon matSuffix>person</mat-icon>
+                      </mat-form-field>
+                      <button type="button" mat-mini-fab matTooltip="{{'remove' | translate}}" color="warn"
+                        class="prompt-remove-button" (click)="validationPromptsRemove(i, item().value())">
+                        <mat-icon fontIcon="delete" aria-hidden="false" aria-label="remove"></mat-icon>
+                      </button>
+                    </div>
+
+                    <div class="field-row">
+                      <mat-form-field appearance="outline" class="field-full-width">
+                        <mat-label translate>content</mat-label>
+                        <textarea matInput id="validationContent" rows="3" [formField]="item.content"></textarea>
+                        <mat-icon matSuffix>notes</mat-icon>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  } @empty {
+                  <div class="empty-state-panel">
+                    <mat-icon>rule</mat-icon>
+                    <p>No validation prompts configured yet.</p>
+                  </div>
+                  }
+                </div>
+              </div>
+            </mat-tab>
+
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">text_snippet</mat-icon>
+                <span translate>text.extraction.prompts</span>
+              </ng-template>
+
+              <div class="tab-panel-content">
+                <div class="section-header">
+                  <div>
+                    <h3 translate>text.extraction.prompts</h3>
+                    <p class="section-description">Capture the prompt messages that guide text extraction workflows.</p>
+                  </div>
+                  <button type="button" mat-mini-fab matTooltip="{{'add' | translate}}" color="primary"
+                    (click)="textExtractionPromptsAdd()">
+                    <mat-icon fontIcon="add" aria-hidden="false" aria-label="add"></mat-icon>
+                  </button>
+                </div>
+
+                <div class="tab-section-list">
+                  @for(item of editDocumentTypeSignalForm.textExtractionPrompts; track i; let i = $index){
+                  <div class="prompt-card">
+                    <div class="field-row">
+                      <mat-form-field appearance="outline" class="field-half">
+                        <mat-label translate>role</mat-label>
+                        <input matInput type="text" id="textExtractionRole" [formField]="item.role" />
+                        <mat-icon matSuffix>smart_toy</mat-icon>
+                      </mat-form-field>
+                      <button type="button" mat-mini-fab matTooltip="{{'remove' | translate}}" color="warn"
+                        class="prompt-remove-button" (click)="textExtractionPromptsRemove(i, item().value())">
+                        <mat-icon fontIcon="delete" aria-hidden="false" aria-label="remove"></mat-icon>
+                      </button>
+                    </div>
+
+                    <div class="field-row">
+                      <mat-form-field appearance="outline" class="field-full-width">
+                        <mat-label translate>content</mat-label>
+                        <textarea matInput id="textExtractionContent" rows="3" [formField]="item.content"></textarea>
+                        <mat-icon matSuffix>text_fields</mat-icon>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  } @empty {
+                  <div class="empty-state-panel">
+                    <mat-icon>text_snippet</mat-icon>
+                    <p>No text extraction prompts configured yet.</p>
+                  </div>
+                  }
+                </div>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </mat-card-content>
+      </mat-card>
+
+      <div class="form-actions">
+        <button mat-raised-button color="primary" type="button" class="action-primary" (click)="editDocumentTypeSave()"
+          [disabled]="editDocumentTypeSignalForm().invalid() || loading()">
+          <mat-icon>save</mat-icon>
+          <span>{{ 'save' | translate }}</span>
+        </button>
+
+        <button mat-button type="button" class="action-secondary" (click)="editDocumentTypeFormReset()"
+          [disabled]="loading()">
+          <mat-icon>refresh</mat-icon>
+          <span>{{ 'reset' | translate }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

@@ -164,9 +164,6 @@ public class DocumentProcessorService {
     public void processDocumentConfirmation(CompletionResponse response, DocumentDTO document) {
 
         log.info("Processing document confirmation for document ID: {}", document.getId());
-        // Implement your logic to process the document confirmation here
-        // For example, you could update the document status based on the validation results,
-        // trigger further workflows, or log the results for auditing purposes
 
         response.getChoices().forEach(choice -> {
 
