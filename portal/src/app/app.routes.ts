@@ -52,18 +52,18 @@ export const routes: Routes = [
       import('./views/kyc-record/kyc-record').then((m) => m.KycRecord),
   },
   {
-    path: 'kyc-record/:id',
-    data: { title: 'KYC Record' },
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./views/kyc-record/kyc-record').then((m) => m.KycRecord),
-  },
-  {
     path: 'kyc-record/edit',
     data: { title: 'Edit KYC Record' },
     canActivate: [authGuard],
     loadComponent: () =>
       import('./views/kyc-record/edit/edit-kyc-record').then((m) => m.EditKycRecord),
+  },
+  {
+    path: 'kyc-record/:id',
+    data: { title: 'KYC Record' },
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./views/kyc-record/kyc-record').then((m) => m.KycRecord),
   },
   // Fallback when no prior route is matched
   {

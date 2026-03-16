@@ -50,7 +50,15 @@ public interface DocumentMapper {
             for(ExpectedField field : fields) {
 
                 StringBuilder builder = new StringBuilder();
-                builder.append("null");
+
+                if(field.getFormat() != null && !field.getFormat().isEmpty()) {
+                    builder.append("Expecting: ")
+                        .append(field.getFormat());
+                } else {
+                    builder.append("null");
+                }
+
+                
 
                 expectedInfor.put(field.getField(), builder.toString());
 

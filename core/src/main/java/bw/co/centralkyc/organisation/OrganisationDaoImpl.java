@@ -7,7 +7,6 @@
 package bw.co.centralkyc.organisation;
 
 import bw.co.centralkyc.GeneralStatus;
-import bw.co.centralkyc.PhoneNumberMapper;
 import bw.co.centralkyc.document.DocumentRepository;
 import bw.co.centralkyc.document.type.DocumentTypeRepository;
 import bw.co.centralkyc.individual.IndividualRepository;
@@ -31,20 +30,15 @@ public class OrganisationDaoImpl
     extends OrganisationDaoBase
 {
 
-    private final PhoneNumberMapper phoneNumberMapper;
-    private final OrganisationDomainMapper organisationDomainMapper;
     
     public OrganisationDaoImpl(DocumentRepository documentRepository, DocumentTypeRepository documentTypeRepository,
             BranchRepository branchRepository, KycSubscriptionRepository kycSubscriptionRepository,
             KycInvoiceRepository kycInvoiceRepository, ClientRequestRepository clientRequestRepository,
-            IndividualRepository individualRepository, OrganisationRepository organisationRepository,
-            PhoneNumberMapper phoneNumberMapper, OrganisationDomainMapper organisationDomainMapper) {
+            IndividualRepository individualRepository, OrganisationRepository organisationRepository) {
         super(documentRepository, documentTypeRepository, branchRepository, kycSubscriptionRepository, kycInvoiceRepository,
                 clientRequestRepository, individualRepository, organisationRepository);
         //TODO Auto-generated constructor stub
 
-        this.phoneNumberMapper = phoneNumberMapper;
-        this.organisationDomainMapper = organisationDomainMapper;
     }
 
     /**
@@ -57,13 +51,7 @@ public class OrganisationDaoImpl
     {
         // TODO verify behavior of toOrganisationDTO
         super.toOrganisationDTO(source, target);
-        // WARNING! No conversion for target.documents (can't convert source.getDocuments():bw.co.centralkyc.document.Document to bw.co.centralkyc.document.DocumentDTO
-        // WARNING! No conversion for target.phoneNumbers (can't convert source.getPhoneNumbers():java.util.Map to bw.co.centralkyc.PhoneNumber
-        target.setPhoneNumbers(this.phoneNumberMapper.toPhoneNumberCollection(source.getPhoneNumbers()));
-        // WARNING! No conversion for target.clientKycDocuments (can't convert source.getClientKycDocuments():bw.co.centralkyc.document.type.DocumentType to bw.co.centralkyc.document.type.DocumentTypeDTO
-        // WARNING! No conversion for target.clientRequestsFiles (can't convert source.getClientRequestsFiles():bw.co.centralkyc.document.Document to bw.co.centralkyc.document.DocumentDTO
-        // WARNING! No conversion for target.domains (can't convert source.getDomains():java.util.Map to bw.co.centralkyc.organisation.OrganisationDomain
-        target.setDomains(this.organisationDomainMapper.toOrganisationDomainCollection(source.getDomains()));
+
     }
 
     /**
@@ -116,10 +104,7 @@ public class OrganisationDaoImpl
     {
         // TODO verify behavior of organisationDTOToEntity
         super.organisationDTOToEntity(source, target, copyIfNull);
-        // No conversion for target.phoneNumbers (can't convert source.getPhoneNumbers():bw.co.centralkyc.PhoneNumber to java.util.Map
-        target.setPhoneNumbers(this.phoneNumberMapper.toMapCollection(source.getPhoneNumbers()));
-        // No conversion for target.domains (can't convert source.getDomains():bw.co.centralkyc.organisation.OrganisationDomain to java.util.Map
-        target.setDomains(this.organisationDomainMapper.toMapCollection(source.getDomains()));
+        
     }
     
     /**

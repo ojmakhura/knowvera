@@ -5,7 +5,6 @@
 //
 package bw.co.centralkyc.organisation;
 
-import bw.co.centralkyc.PhoneNumberMapper;
 import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
 import bw.co.centralkyc.invoice.KycInvoiceMapper;
@@ -27,9 +26,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         DocumentTypeMapper.class,
         BranchMapper.class,
         KycSubscriptionMapper.class,
-        KycInvoiceMapper.class,
-        OrganisationDomainMapper.class,
-        PhoneNumberMapper.class
+        KycInvoiceMapper.class
     }
 )
 public interface OrganisationMapper {
@@ -59,9 +56,7 @@ public interface OrganisationMapper {
      * @return Organisation
      */
     // No conversion for target.phoneNumbers (can't convert source.getPhoneNumbers():bw.co.centralkyc.PhoneNumber to java.util.Map
-    @Mapping(target = "phoneNumbers", expression = "java(phoneNumberMapper.toMapCollection(organisationDTO.getPhoneNumbers()))")
     // No conversion for target.domains (can't convert source.getDomains():bw.co.centralkyc.organisation.OrganisationDomain to java.util.Map
-    @Mapping(target = "domains", expression = "java(organisationDomainMapper.toMapCollection(organisationDTO.getDomains()))")
     @InheritInverseConfiguration
     Organisation organisationDTOToEntity(OrganisationDTO organisationDTO);
 

@@ -145,13 +145,6 @@ public class IndividualDaoImpl
                             "Entity not found for id: " + source.getOrganisation().id())));
         }
 
-        if (!CollectionUtils.isEmpty(source.getPhoneNumbers())) {
-
-            target.setPhoneNumbers(jsonMapper.convertValue(source.getPhoneNumbers(), new TypeReference<List<Map>>() {
-
-            }));
-        }
-
         if (target.getHasUser() == null) {
 
             target.setHasUser(Boolean.FALSE);

@@ -8,6 +8,8 @@
  */
 package bw.co.centralkyc.organisation.client;
 
+import bw.co.centralkyc.PhoneNumber;
+import bw.co.centralkyc.PhoneType;
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.SortOrderFactory;
@@ -575,12 +577,13 @@ public class ClientRequestServiceImpl
             String phoneNumbersStr = readString.apply(6);
             if (phoneNumbersStr != null && !phoneNumbersStr.trim().isEmpty()) {
 
-                Collection<Map> phoneList = Arrays.stream(phoneNumbersStr.split(","))
+                Collection<PhoneNumber> phoneList = Arrays.stream(phoneNumbersStr.split(","))
                         .map(String::trim)
                         .filter(s -> !s.isEmpty())
                         .map(phone -> {
-                            Map<String, String> map = new HashMap<>();
-                            map.put("number", phone);
+                            PhoneNumber map = new PhoneNumber();
+                            map.setType(PhoneType.OTHER);
+                            map.setPhoneNumber(phone);
                             return map;
                         })
                         .collect(Collectors.toList());

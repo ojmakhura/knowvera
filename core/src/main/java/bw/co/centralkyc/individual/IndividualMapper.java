@@ -5,7 +5,6 @@
 //
 package bw.co.centralkyc.individual;
 
-import bw.co.centralkyc.PhoneNumberMapper;
 import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.individual.employment.EmploymentRecordMapper;
 import bw.co.centralkyc.organisation.OrganisationMapper;
@@ -27,7 +26,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         DocumentMapper.class,
         EmploymentRecordMapper.class,
         BranchMapper.class,
-        PhoneNumberMapper.class,
         OrganisationMapper.class,
         MappingUtils.class
 })
@@ -61,7 +59,6 @@ public interface IndividualMapper {
      */
     // source.getPhoneNumbers():bw.co.centralkyc.PhoneNumber to java.util.Map
     @InheritInverseConfiguration
-    @Mapping(target = "phoneNumbers", expression = "java(phoneNumberMapper.toMapCollection(individualDTO.getPhoneNumbers()))")
     @Mapping(target = "branch", ignore = true)
     @Mapping(target = "employmentRecords", ignore = true)
     @Mapping(target = "documents", ignore = true)
@@ -70,7 +67,6 @@ public interface IndividualMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     // No conversion for target.phoneNumbers (can't convert
     // source.getPhoneNumbers():bw.co.centralkyc.PhoneNumber to java.util.Map
-    // @Mapping(target = "phoneNumbers", expression = "java(phoneNumberMapper.toPhoneNumberCollection(individualDTO.getPhoneNumbers()))")
     void updateIndividualFromIndividualDTO(IndividualDTO individualDTO, @MappingTarget Individual individual);
 
     /**

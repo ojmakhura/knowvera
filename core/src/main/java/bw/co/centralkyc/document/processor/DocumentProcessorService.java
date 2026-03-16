@@ -167,20 +167,26 @@ public class DocumentProcessorService {
 
         response.getChoices().forEach(choice -> {
 
-            if(choice.getMessage() != null && choice.getMessage().getContent() != null) {
+            if (choice.getMessage() != null && choice.getMessage().getContent() != null) {
 
                 Map<String, Object> extractedInfo = parseLmStudioResponse(choice.getMessage().getContent());
                 if (!extractedInfo.isEmpty()) {
                     // Example: Log the extracted information
                     log.info("Document Confirmation for Document ID {}: {}", document.getId(), extractedInfo);
-                    DocumentValidationResults results = jsonMapper.convertValue(extractedInfo, DocumentValidationResults.class);
+                    DocumentValidationResults results = jsonMapper.convertValue(extractedInfo,
+                            DocumentValidationResults.class);
                     document.setValidationResults(results);
 
-                    if(results.getMatch()) {
+                    if (results.getMatch()) {
                         document.setVerificationStatus(DocumentVerificationStatus.VERIFIED);
+                        // Send this to the next queue for further processing
+                        rabbitTemplate.convertAndSend(
+                                rabbitProperties.getInformationConfirmationQueueExchange(),
+                                rabbitProperties.getInformationConfirmationQueueRoutingKey(),
+                                new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
                     } else {
 
-                        if(results.getScore() < 0.3) {
+                        if (results.getScore() < 0.3) {
                             document.setVerificationStatus(DocumentVerificationStatus.REJECTED);
                         } else {
                             document.setVerificationStatus(DocumentVerificationStatus.MANUAL_REVIEW);
@@ -188,6 +194,11 @@ public class DocumentProcessorService {
                     }
 
                     documentService.save(document);
+
+                    this.rabbitTemplate.convertAndSend(
+                            rabbitProperties.getInformationConfirmationQueueExchange(),
+                            rabbitProperties.getInformationConfirmationQueueRoutingKey(),
+                            new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
                 }
             }
         });

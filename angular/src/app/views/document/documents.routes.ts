@@ -10,6 +10,7 @@ import { AuthenticationGuard } from '@app/auth/authentication.guard';
 import { DocumentDetailsImplComponent } from '@app/views/document/details/document-details-impl';
 import { DocumentControllerImpl } from '@app/controllers/document/document-controller-impl';
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
+import { EditDocumentComponent } from './edit/edit-document';
 
 export const documentsRoutes: Routes = [
   {
@@ -49,7 +50,7 @@ export const documentsRoutes: Routes = [
   },
   {
       path: 'documents/edit/:id',
-      component: DocumentDetailsImplComponent,
+      component: EditDocumentComponent,
       canActivate: [AuthenticationGuard],
       data: { title: 'Edit Document' },
       providers: [
