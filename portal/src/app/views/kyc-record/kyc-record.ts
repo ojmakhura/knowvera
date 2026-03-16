@@ -6,8 +6,8 @@ import { KycRecordApi } from '@app/services/bw/co/centralkyc/kyc/kyc-record-api'
 import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
 import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
-import Keycloak from 'keycloak-js';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
+import Keycloak from 'keycloak-js';
 import { Loader } from '@app/@shared/loader/loader';
 import { ToastrService } from 'ngx-toastr';
 
@@ -25,6 +25,7 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
 
   settingsApiStore = inject(SettingsApiStore);
   kycRecordApiStore = inject(KycRecordApiStore);
+  documentApi = inject(DocumentApi);
 
   indKycDocuments = linkedSignal(() => this.settingsApiStore.data().indKycDocuments);
   orgKycDocuments = linkedSignal(() => this.settingsApiStore.data().orgKycDocuments);
@@ -116,7 +117,7 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    let doc = new DocumentDTO();
+    const doc = new DocumentDTO();
     doc.target = TargetEntity.KYC_RECORD;
     doc.targetId = record.id;
     doc.documentTypeId = this.selectedDocumentType;
@@ -127,7 +128,32 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
       documents: [doc],
       files: [this.selectedFile]
     });
+  }
 
+  downloadDocument(doc: DocumentDTO): void {
+    if (doc.url) {
+      window.open(doc.url, '_blank');
+      return;
+    }
 
+    if (!doc.id) {
+      alert('Cannot download: document does not have an ID');
+      return;
+    }
+
+    this.documentApi.downloadFile(doc.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = doc.fileName || 'document';
+        anchor.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => {
+        console.error('Download failed:', error);
+        alert('Failed to download document');
+      },
+    });
   }
 }

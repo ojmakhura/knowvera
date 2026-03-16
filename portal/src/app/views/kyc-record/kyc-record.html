@@ -215,11 +215,30 @@
     @if (record.documents?.length) {
     <div class="info-section">
       <h3>Documents</h3>
-      <ul>
-        @for (doc of record.documents; track doc.id) {
-        <li>{{ doc.fileName || 'Unnamed Document' }} ({{ doc.documentType || 'N/A' }})</li>
-        }
-      </ul>
+      <table class="documents-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th class="actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (doc of record.documents; track doc.id) {
+          <tr>
+            <td>{{ doc.fileName || 'Unnamed Document' }}</td>
+            <td>{{ doc.documentType || 'N/A' }}</td>
+            <td class="actions">
+              @if (doc.url) {
+              <button type="button" (click)="downloadDocument(doc)">Download</button>
+              } @else {
+              <button type="button" (click)="downloadDocument(doc)">Download</button>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
     </div>
     }
 
