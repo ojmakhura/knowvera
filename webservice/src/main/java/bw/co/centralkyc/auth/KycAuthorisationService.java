@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import bw.co.centralkyc.keycloak.KeycloakUserService;
@@ -34,7 +35,8 @@ public class KycAuthorisationService {
             return false;
         }
 
-        String userId = auth.getName(); // usually Keycloak userId (sub)
+        Jwt jwt = (Jwt) auth.getPrincipal();
+        String userId = jwt.getSubject(); // usually Keycloak userId (sub)
 
         return kycRecordService.confirmOwnership(kycRecordId, keycloakUserService.findUserById(userId));
     }

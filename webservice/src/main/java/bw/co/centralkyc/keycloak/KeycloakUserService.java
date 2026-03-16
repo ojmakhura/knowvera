@@ -348,8 +348,17 @@ public class KeycloakUserService {
             // Assign roles
             if (CollectionUtils.isNotEmpty(user.getRoles())) {
                 List<RoleRepresentation> roleReps = user.getRoles().stream()
-                        .map(roleName -> realm.roles().get(roleName).toRepresentation())
-                        .filter(r -> StringUtils.isNotBlank(r.getId()))
+                        .map(roleName -> {
+                            RolesResource rs = realm.roles();
+
+                            RoleRepresentation r = rs.get(roleName).toRepresentation();
+
+                            return r;
+                        })
+                        .filter(r -> {
+
+                            return StringUtils.isNotBlank(r.getId());
+                        })
                         .collect(Collectors.toList());
                 if (!roleReps.isEmpty())
                     realm.users().get(userId).roles().realmLevel().add(roleReps);

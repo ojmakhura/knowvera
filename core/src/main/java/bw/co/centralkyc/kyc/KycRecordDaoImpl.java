@@ -9,10 +9,15 @@ package bw.co.centralkyc.kyc;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.Document;
 import bw.co.centralkyc.document.DocumentDTO;
+import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.document.DocumentRepository;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
+import bw.co.centralkyc.individual.employment.EmploymentRecordDTO;
+import bw.co.centralkyc.individual.employment.EmploymentRecordMapper;
 import bw.co.centralkyc.individual.employment.EmploymentRecordRepository;
+import bw.co.centralkyc.kyc.verification.KycVerificationDTO;
+import bw.co.centralkyc.kyc.verification.KycVerificationMapper;
 import bw.co.centralkyc.kyc.verification.KycVerificationRepository;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
@@ -33,8 +38,12 @@ public class KycRecordDaoImpl
 
     private final IndividualRepository individualRepository;
     private final OrganisationRepository organisationRepository;
+    private final EmploymentRecordMapper employmentRecordMapper;
+    private final KycVerificationMapper kycVerificationMapper;
+    private final DocumentMapper documentMapper;
 
     public KycRecordDaoImpl(DocumentRepository documentRepository, IndividualRepository individualRepository,
+            EmploymentRecordMapper employmentRecordMapper, KycVerificationMapper kycVerificationMapper, DocumentMapper documentMapper,
             EmploymentRecordRepository employmentRecordRepository, KycVerificationRepository kycVerificationRepository,
             KycRecordRepository kycRecordRepository, OrganisationRepository organisationRepository) {
         super(documentRepository, employmentRecordRepository, kycVerificationRepository, kycRecordRepository);
@@ -42,6 +51,9 @@ public class KycRecordDaoImpl
 
         this.individualRepository = individualRepository;
         this.organisationRepository = organisationRepository;
+        this.employmentRecordMapper = employmentRecordMapper;
+        this.kycVerificationMapper = kycVerificationMapper;
+        this.documentMapper = documentMapper;
     }
 
     /**
@@ -81,7 +93,10 @@ public class KycRecordDaoImpl
             builder.append(" ").append(individual.getSurname());
 
             target.setName(builder.toString());
-
+            target.setEmailAddress(individual.getEmailAddress());
+            target.setIdentityType(individual.getIdentityType());
+            target.setPhysicalAddress(individual.getPhysicalAddress());
+            target.setPostalAddress(individual.getPostalAddress());
         }
 
         DeclarationDTO declaration = new DeclarationDTO();
@@ -90,6 +105,19 @@ public class KycRecordDaoImpl
         declaration.setSanctionsMatch(source.getSanctionsMatch());
         declaration.setSanctionsDetails(source.getSanctionsDetails());
         target.setDeclaration(declaration);
+        
+        if(source.getEmploymentRecord() != null) {
+
+            EmploymentRecordDTO employmentRecordDTO = this.employmentRecordMapper.toEmploymentRecordDTO(source.getEmploymentRecord());
+            target.setEmploymentRecord(employmentRecordDTO);
+        }
+
+        if(source.getKycVerification() != null) {
+
+            KycVerificationDTO kycVerificationDTO = this.kycVerificationMapper.toKycVerificationDTO(source.getKycVerification());
+            target.setKycVerification(kycVerificationDTO);
+        }
+
     }
 
     /**

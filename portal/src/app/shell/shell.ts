@@ -96,7 +96,7 @@ export class Shell  implements OnInit {
     try {
       await this.keycloak.login({
         redirectUri: redirectUri || window.location.origin,
-        scope: 'openid profile email organization branch'
+        scope: 'openid profile email organization'
       });
     } catch (error) {
       console.error('Login failed:', error);

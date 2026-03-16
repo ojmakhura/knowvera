@@ -315,7 +315,8 @@ export class EditClientRequestComponent implements OnInit, AfterViewInit, OnDest
     let criteria = new SearchObject<OrganisationSearchCriteria>();
     criteria.criteria = {
       registrationNo: this.editClientRequestSignal().organisationFilter,
-      name: this.editClientRequestSignal().organisationFilter
+      name: this.editClientRequestSignal().organisationFilter,
+      isClient: true
     }
     this.organisationApiStore.search({ criteria: criteria });
   }

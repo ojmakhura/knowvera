@@ -32,19 +32,26 @@ public class DocumentValidationService {
     @RabbitListener(queues = "${app.rabbitmq.documentConfirmationQueue}")
     public void handleDocumentConfirmation(QueueObject queueObject) {
         // Implement your logic to process the extracted information here
-        // For example, you could perform validation, enrichment, or trigger further workflows based on the extracted data
+        // For example, you could perform validation, enrichment, or trigger further
+        // workflows based on the extracted data
 
         log.info("Processing extracted information for document ID: {}", queueObject.documentId());
         DocumentDTO document = documentService.findById(queueObject.documentId());
 
-        CompletionRequestMessage systemPrompt = buildSystemPrompt();
+        boolean hasCustomPrompts = document.getValidationPrompts() != null
+                && !document.getValidationPrompts().isEmpty();
 
-        CompletionRequestMessage userPrompt = buildUserPrompt(document);
+        CompletionRequestMessage systemPrompt = hasCustomPrompts ? buildCustomSystemPrompt(document)
+                : buildSystemPrompt();
+
+        CompletionRequestMessage userPrompt = hasCustomPrompts ? buildCustomUserPrompt(document)
+                : buildUserPrompt(document);
 
         if (document != null) {
             // Example: Log the extracted information
-            log.info("Extracted Information for Document ID {}: {}", queueObject.documentId(), document.getExtractedInformation());
-        } 
+            log.info("Extracted Information for Document ID {}: {}", queueObject.documentId(),
+                    document.getExtractedInformation());
+        }
 
         CompletionRequest completionRequest = new CompletionRequest();
         completionRequest.setStream(false);
@@ -54,19 +61,65 @@ public class DocumentValidationService {
                 .thenAccept(response -> documentProcessorService.processDocumentConfirmation(response, document));
     }
 
-    private CompletionRequestMessage buildSystemPrompt() {
-        StringBuilder systemPromptBuilder = new StringBuilder();
-        systemPromptBuilder.append("""
-                You are a strict KYC document verification assistant.
+    private CompletionRequestMessage buildCustomSystemPrompt(DocumentDTO document) {
 
-                Your task is to verify whether the OCR document content matches the expected document type using signal scoring.
-
-                Expected document types and their signals:
-                """);
-
-        
         Collection<DocumentTypeDTO> documentTypes = documentTypeService.getAll();
-        for(DocumentTypeDTO type : documentTypes) {
+        StringBuilder systemPromptBuilder = new StringBuilder();
+
+        for (DocumentTypeDTO type : documentTypes) {
+            systemPromptBuilder.append("\t").append(type.getName()).append('\n');
+
+            type.getExpectedFields().forEach(field -> {
+                systemPromptBuilder.append("\t\t-").append(field.getField()).append('\n');
+            });
+            systemPromptBuilder.append('\n');
+        }
+
+        String validationSystemPrompt = document.getValidationPrompts().stream()
+                .filter(prompt -> prompt.getRole().equals("system"))
+                .findFirst()
+                .map(p -> p.getContent())
+                .orElse("");
+
+        CompletionRequestMessage system = new CompletionRequestMessage();
+        system.setRole("system");
+        system.setContent(String.format(validationSystemPrompt, systemPromptBuilder.toString()));
+
+        return system;
+    }
+
+    private CompletionRequestMessage buildCustomUserPrompt(DocumentDTO document) {
+        String userPromptTemplate = document.getValidationPrompts().stream()
+                .filter(prompt -> prompt.getRole().equals("user"))
+                .findFirst()
+                .map(p -> p.getContent())
+                .orElse("");
+
+        String userPromptContent = String.format(userPromptTemplate, document.getDocumentType(),
+                document.getFileContent());
+
+        CompletionRequestMessage user = new CompletionRequestMessage();
+        user.setRole("user");
+        user.setContent(userPromptContent);
+
+        return user;
+    }
+
+    private CompletionRequestMessage buildSystemPrompt() {
+
+        Collection<DocumentTypeDTO> documentTypes = documentTypeService.getAll();
+
+        StringBuilder systemPromptBuilder = new StringBuilder();
+        systemPromptBuilder
+                .append("""
+                        You are a strict KYC document verification assistant.
+
+                        Your task is to verify whether the OCR document content matches the expected document type using signal scoring.
+
+                        Expected document types and their signals:
+                        """);
+
+        for (DocumentTypeDTO type : documentTypes) {
             systemPromptBuilder.append("\t").append(type.getName()).append('\n');
 
             type.getExpectedFields().forEach(field -> {
@@ -100,8 +153,8 @@ public class DocumentValidationService {
                 """);
 
         CompletionRequestMessage system = new CompletionRequestMessage();
-            system.setRole("system");
-            system.setContent(systemPromptBuilder.toString());
+        system.setRole("system");
+        system.setContent(systemPromptBuilder.toString());
 
         return system;
     }
@@ -109,7 +162,7 @@ public class DocumentValidationService {
     private CompletionRequestMessage buildUserPrompt(DocumentDTO document) {
         String userPrompt = String.format("""
                 Validate the document using signal scoring.
-                
+
                 Expected document type:
                 %s
 

@@ -41,18 +41,18 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.settingsApiStore.getAll();
 
-    // this.kycRecordApiStore.findMyCurrentIndividualRecord();
-    // setTimeout(() => {
-    //     this.kycRecordApiStore.findMyCurrentOrganisationRecord();
-    // }, 1000);
+    this.kycRecordApiStore.findMyCurrentIndividualRecord();
+    setTimeout(() => {
+        this.kycRecordApiStore.findMyCurrentOrganisationRecord();
+    }, 1000);
     // this.kycRecordApiStore.findMyCurrentRecord({ ownerType: TargetEntity.ORGANISATION });
     // this.kycRecordApiStore.findMyRecords();
 
-    this.kycRecordApi.findMyCurrentRecord(TargetEntity.INDIVIDUAL).subscribe({
-      next: record => {
-        console.log(record);
-      }
-    })
+    // this.kycRecordApi.findMyCurrentRecord(TargetEntity.INDIVIDUAL).subscribe({
+    //   next: record => {
+    //     console.log(record);
+    //   }
+    // })
   }
 
   ngOnDestroy(): void {
@@ -95,6 +95,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
   viewRecord(record: KycRecordDTO): void {
     console.log('Viewing record:', record);
     // Navigate to record details page
+    this.router.navigate(['/kyc-record', record.id]);
   }
 
   editRecord(record: KycRecordDTO): void {

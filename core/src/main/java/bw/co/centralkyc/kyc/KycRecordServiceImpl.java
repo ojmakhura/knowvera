@@ -28,6 +28,7 @@ import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.Document;
+import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentRepository;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
@@ -43,6 +44,7 @@ import bw.co.centralkyc.sequence.SequencePartType;
 import bw.co.centralkyc.settings.Settings;
 import bw.co.centralkyc.settings.SettingsRepository;
 import bw.co.centralkyc.user.UserDTO;
+import jakarta.validation.Valid;
 
 /**
  * @see bw.co.centralkyc.kyc.KycRecordService
@@ -408,6 +410,16 @@ public class KycRecordServiceImpl
             kycRecord.setUploadDate(LocalDate.now());
         }
 
+        if(kycRecord.getExpiryDate() == null) {
+            Settings settings = this.settingsRepository.findAll().stream().findFirst()
+                    .orElseThrow(() -> new Exception("Settings not found"));
+
+            int kycDuration = settings.getKycDuration() != null ? settings.getKycDuration() : 2; // Default to 2 years if
+                                                                                                 // not set
+
+            kycRecord.setExpiryDate(kycRecord.getUploadDate().plusYears(kycDuration));
+        }
+
         if (StringUtils.isBlank(kycRecord.getRef())) {
 
             SequenceGenerator sequenceGenerator = sequenceGeneratorRepository.findByName(SEQUENCE_NAME).orElse(null);
@@ -471,5 +483,62 @@ public class KycRecordServiceImpl
         }
 
         return this.kycRecordMapper.toKycRecordDTO(kycRecord);
+    }
+
+    @Override
+    protected KycRecordDTO handleRemoveRecordFile(String id, String documentId) throws Exception {
+
+        Document document = documentRepository.findById(UUID.fromString(documentId))
+                .orElseThrow(() -> new Exception("Document not found for id: " + documentId));
+
+        if (!TargetEntity.KYC_RECORD.equals(document.getTarget())) {
+            throw new KycRecordServiceException("Document with id: " + documentId + " is not associated with a KYC record");
+        }
+
+        KycRecord kycRecord = kycRecordRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + document.getTargetId()));
+
+        if(!kycRecord.getId().toString().equals(document.getTargetId())) {
+            throw new KycRecordServiceException("Document with id: " + documentId + " is not associated with KycRecord with id: " + id);
+        }
+        
+        kycRecord.getDocuments().remove(document);
+
+        return this.kycRecordDao.toKycRecordDTO(kycRecord);
+    }
+
+    @Override
+    protected KycRecordDTO handleUpdateRecordFiles(String id, @Valid List<DocumentDTO> documents) throws Exception {
+
+        KycRecord record = kycRecordRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + id));
+
+        for (DocumentDTO docDto : documents) {
+
+            Document document = documentRepository.findById(UUID.fromString(docDto.getId()))
+                    .orElseThrow(() -> new Exception("Document not found for id: " + docDto.getId()));
+
+            if (!TargetEntity.KYC_RECORD.equals(document.getTarget())) {
+                throw new KycRecordServiceException("Document with id: " + docDto.getId() + " is not associated with a KYC record");
+            }
+
+            if (!record.getId().toString().equals(document.getTargetId())) {
+                throw new KycRecordServiceException("Document with id: " + docDto.getId() + " is not associated with KycRecord with id: " + id);
+            }
+
+            Document exists = record.getDocuments().stream()
+                    .filter(doc -> doc.getId().equals(document.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if(exists == null) {
+
+                record.addDocuments(document);
+            } 
+        }
+
+        record = this.kycRecordRepository.save(record);
+
+        return this.kycRecordDao.toKycRecordDTO(record);
     }
 }

@@ -7,8 +7,8 @@ import { tapResponse } from '@ngrx/operators';
 import { AppState } from '@app/store/app-state';
 import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
-import { SequenceGenerator } from '@app/${import.filePath}';
 import { SequenceGeneratorApi } from '@app/services/bw/co/centralkyc/sequence/sequence-generator-api';
+import { SequenceGeneratorDTO } from '@app/models/bw/co/centralkyc/sequence/sequence-generator-dto';
 
 export type SequenceGeneratorApiState = AppState<any, any> & {};
 
@@ -38,7 +38,7 @@ export const SequenceGeneratorApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return sequenceGeneratorApi.findById(data.id, ).pipe(
             tapResponse({
-              next: (response: SequenceGenerator) => {
+              next: (response: SequenceGeneratorDTO) => {
                 patchState(
                   store, 
                   {
@@ -70,7 +70,7 @@ export const SequenceGeneratorApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return sequenceGeneratorApi.findByName(data.name, ).pipe(
             tapResponse({
-              next: (response: SequenceGenerator) => {
+              next: (response: SequenceGeneratorDTO) => {
                 patchState(
                   store, 
                   {
@@ -102,7 +102,7 @@ export const SequenceGeneratorApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return sequenceGeneratorApi.getAll().pipe(
             tapResponse({
-              next: (response: SequenceGenerator[]) => {
+              next: (response: SequenceGeneratorDTO[]) => {
                 patchState(
                   store, 
                   {
@@ -161,12 +161,12 @@ export const SequenceGeneratorApiStore = signalStore(
           );
         }),
       ),
-      save: rxMethod<{sequenceGenerator: SequenceGenerator}>(
+      save: rxMethod<{SequenceGeneratorDTO: SequenceGeneratorDTO}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return sequenceGeneratorApi.save(data.sequenceGenerator, ).pipe(
+          return sequenceGeneratorApi.save(data.SequenceGeneratorDTO, ).pipe(
             tapResponse({
-              next: (response: SequenceGenerator) => {
+              next: (response: SequenceGeneratorDTO) => {
                 patchState(
                   store, 
                   {
@@ -198,7 +198,7 @@ export const SequenceGeneratorApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return sequenceGeneratorApi.search(data.criteria, ).pipe(
             tapResponse({
-              next: (response: SequenceGenerator[]) => {
+              next: (response: SequenceGeneratorDTO[]) => {
                 patchState(
                   store, 
                   {

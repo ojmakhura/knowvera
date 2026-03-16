@@ -7,6 +7,8 @@ import { HttpClient } from '@angular/common/http';
 import { Page } from '@models/page.model';
 import { SearchObject } from '@models/search-object';
 import { KycRecordSearchCriteria } from '@app/models/bw/co/centralkyc/kyc/kyc-record-search-criteria';
+import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
+import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -103,6 +105,11 @@ export class KycRecordApi {
     return this.http.get<KycRecordDTO[]>(`${this.path}/mine`);
   }
 
+  public findMyRecordsPaged(pageNumber: number, pageSize: number): Observable<Page<KycRecordDTO>> {
+
+    return this.http.get<Page<KycRecordDTO>>(`${this.path}/mine/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  }
+
   public createNew(record: KycRecordDTO, files: File[]): Observable<KycRecordDTO> {
 
     const formData = new FormData();
@@ -113,5 +120,23 @@ export class KycRecordApi {
     });
 
     return this.http.post<KycRecordDTO>(`${this.path}/new`, formData);
+  }
+
+  updateRecordFiles(id: string, documents: DocumentDTO[], files: File[]): Observable<KycRecordDTO> {
+
+    const formData = new FormData();
+    formData.append('documents', new Blob([JSON.stringify(documents)], { type: 'application/json' }));
+
+    files.forEach((file, index) => {
+      formData.append(`files`, file);
+    });
+    
+    return this.http.post<KycRecordDTO>(`${this.path}/${id}/update-files`, formData);
+
+  }
+
+  removeRecordFile(id: string, documentId: string): Observable<KycRecordDTO> {
+
+    return this.http.delete<KycRecordDTO>(`${this.path}/${id}/remove-file/${documentId}`);
   }
 }

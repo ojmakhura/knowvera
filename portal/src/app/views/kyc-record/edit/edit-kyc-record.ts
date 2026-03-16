@@ -53,6 +53,9 @@ class KycRecordForm {
   sourceOfFunds: Array<SourceOfFunds> = [];
   sourceOfFundsDetails: string | any = null;
   kycVerification: KycVerificationDTO = new KycVerificationDTO();
+  physicalAddress: string | any = null;
+  postalAddress: string | any = null;
+  ref: string | any = null;
 }
 
 @Component({
@@ -130,6 +133,7 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
     const selectedTarget = this.selectedTarget ?? this.recordSignal().target;
     return selectedTarget === TargetEntity.INDIVIDUAL ? this.indKycDocuments() : this.orgKycDocuments();
   });
+
   selectedDocumentTypeKey = signal<string | null>(null);
   selectedDocumentType = computed(() => {
     const key = this.selectedDocumentTypeKey();

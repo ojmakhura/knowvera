@@ -124,6 +124,13 @@ public class DocumentApiImpl implements DocumentApi {
 
         try {
 
+            DocumentDTO document = documentService.findById(id);
+            if (document == null) {
+                throw new IllegalArgumentException("Document not found with id: " + id);
+            }
+
+            // minioService.deleteFile(document.getUrl());
+
             return ResponseEntity.ok(documentService.remove(id));
 
         } catch (Exception e) {

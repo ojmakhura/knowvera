@@ -8,12 +8,14 @@ package bw.co.centralkyc.kyc;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import bw.co.centralkyc.AuditTracker;
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
+import bw.co.centralkyc.SortOrder;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.DocumentApi;
 import bw.co.centralkyc.document.DocumentDTO;
@@ -27,11 +29,13 @@ import bw.co.centralkyc.user.UserDTO;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 
 @RestController
@@ -370,8 +374,11 @@ public class KycRecordApiImpl implements KycRecordApi {
                 throw new Exception("No individual or organisation associated with user: " + username);
             }
 
+            KycRecordDTO current = kycRecordService.findLatestValidForOwner(individual.getId(), ownerType,
+                    LocalDate.now());
+
             return ResponseEntity
-                    .ok(kycRecordService.findLatestValidForOwner(individual.getId(), ownerType, LocalDate.now()));
+                    .ok(current);
         } catch (Exception e) {
 
             e.printStackTrace();
@@ -379,36 +386,44 @@ public class KycRecordApiImpl implements KycRecordApi {
         }
     }
 
+    private KycRecordSearchCriteria buildSearchCriteriaForCurrentUser() throws Exception {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+
+            throw new KycRecordServiceException("User is not authenticated");
+        }
+
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+
+        UserDTO user = keycloakUserService.findUserById(jwt.getSubject());
+
+        List<String> targetIds = new ArrayList<>();
+
+        if (StringUtils.isNotBlank(user.getOrganisationId())) {
+
+            targetIds.add(user.getOrganisationId());
+        }
+
+        IndividualDTO individual = individualService.findByUserId(user.getUserId());
+
+        if (individual != null && StringUtils.isNotBlank(individual.getId())) {
+
+            targetIds.add(individual.getId());
+        }
+
+        KycRecordSearchCriteria criteria = new KycRecordSearchCriteria();
+        criteria.setTargetIds(targetIds);
+
+        return criteria;
+    }
+
     @Override
     public ResponseEntity<Collection<KycRecordDTO>> findMyRecords() throws Exception {
 
         try {
 
-            String username = "anonymousUser";
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null) {
-
-                username = authentication.getName();
-            }
-
-            UserDTO user = keycloakUserService.findByUsername(username);
-
-            List<String> targetIds = new ArrayList<>();
-
-            if (StringUtils.isNotBlank(user.getOrganisationId())) {
-
-                targetIds.add(user.getOrganisationId());
-            }
-
-            IndividualDTO individual = individualService.findByUserId(user.getUserId());
-
-            if (individual != null && StringUtils.isNotBlank(individual.getId())) {
-
-                targetIds.add(individual.getId());
-            }
-
-            KycRecordSearchCriteria criteria = new KycRecordSearchCriteria();
-            criteria.setTargetIds(targetIds);
+            KycRecordSearchCriteria criteria = buildSearchCriteriaForCurrentUser();
 
             Collection<KycRecordDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
             updateOrganisations(records);
@@ -425,6 +440,11 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     public ResponseEntity<KycRecordDTO> createNew(KycRecordDTO record,
             List<MultipartFile> files) throws Exception {
+
+        if (record != null && StringUtils.isNotBlank(record.getId())) {
+
+            throw new KycRecordServiceException("This is an existing record.");
+        }
 
         try {
 
@@ -447,39 +467,44 @@ public class KycRecordApiImpl implements KycRecordApi {
             });
             AuditTracker.auditTrail(record.getKycVerification(), authentication);
 
-            // Save the record first to generate IDs for documents, then upload files and update document records with file info
+            // Save the record first to generate IDs for documents, then upload files and
+            // update document records with file info
             KycRecordDTO createdRecord = kycRecordService.createNew(record, username);
 
-            for (int i = 0; i < files.size(); i++) {
+            if (files != null) {
+                for (int i = 0; i < files.size(); i++) {
 
-                DocumentDTO doc = docs.get(i);
-                DocumentDTO savedDoc = createdRecord.getDocuments().stream()
-                        .filter(d -> Strings.CS.equals(d.getDocumentTypeId(), doc.getDocumentTypeId()))
-                        .findFirst()
-                        .orElseThrow(() -> new Exception("Document not found in created record for file: " + doc.getFileName()));
-                ResponseEntity<DocumentDTO>  uploadResponse = documentApi
-                        .updateDocument(savedDoc.getId(), files.get(i));
+                    DocumentDTO doc = docs.get(i);
+                    DocumentDTO savedDoc = createdRecord.getDocuments().stream()
+                            .filter(d -> Strings.CS.equals(d.getDocumentTypeId(), doc.getDocumentTypeId()))
+                            .findFirst()
+                            .orElseThrow(() -> new Exception(
+                                    "Document not found in created record for file: " + doc.getFileName()));
+                    ResponseEntity<DocumentDTO> uploadResponse = documentApi
+                            .updateDocument(savedDoc.getId(), files.get(i));
 
-                if(uploadResponse == null || uploadResponse.getBody() == null || uploadResponse.getStatusCode().isError()) {
+                    if (uploadResponse == null || uploadResponse.getBody() == null
+                            || uploadResponse.getStatusCode().isError()) {
 
-                    throw new Exception("Failed to upload document: " + doc.getFileName());
-                }
+                        throw new Exception("Failed to upload document: " + doc.getFileName());
+                    }
 
-                DocumentDTO uploaded = uploadResponse.getBody();
+                    DocumentDTO uploaded = uploadResponse.getBody();
 
-                if (StringUtils.isBlank(doc.getId())) {
-                    doc.setId(uploaded.getId());
-                    doc.setCreatedAt(uploaded.getCreatedAt());
+                    if (StringUtils.isBlank(doc.getId())) {
+                        doc.setId(uploaded.getId());
+                        doc.setCreatedAt(uploaded.getCreatedAt());
+                        doc.setModifiedAt(uploaded.getModifiedAt());
+                    }
+
                     doc.setModifiedAt(uploaded.getModifiedAt());
+                    doc.setModifiedBy(uploaded.getModifiedBy());
+                    doc.setFileContent(uploaded.getFileContent());
+                    doc.setMetadata(uploaded.getMetadata());
+                    doc.setUrl(uploaded.getUrl());
+                    doc.setFileName(uploaded.getFileName());
+
                 }
-
-                doc.setModifiedAt(uploaded.getModifiedAt());
-                doc.setModifiedBy(uploaded.getModifiedBy());
-                doc.setFileContent(uploaded.getFileContent());
-                doc.setMetadata(uploaded.getMetadata());
-                doc.setUrl(uploaded.getUrl());
-                doc.setFileName(uploaded.getFileName());
-
             }
 
             createdRecord.setDocuments(docs);
@@ -489,5 +514,106 @@ public class KycRecordApiImpl implements KycRecordApi {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    @Override
+    public ResponseEntity<KycRecordDTO> removeRecordFile(String id, @Nullable String documentId) throws Exception {
+        try {
+
+            DocumentDTO doc = documentApi.findById(documentId).getBody();
+            if (doc == null) {
+                throw new Exception("Document not found for id: " + documentId);
+            }
+
+            if (doc.getTarget() != TargetEntity.KYC_RECORD) {
+                throw new Exception("Document with id: " + documentId + " is not associated with a KYC record");
+            }
+
+            KycRecordDTO record = kycRecordService.removeRecordFile(id, documentId);
+
+            documentApi.remove(documentId);
+
+            return ResponseEntity.ok(record);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
+    public ResponseEntity<KycRecordDTO> updateRecordFiles(String id, List<DocumentDTO> documents,
+            List<MultipartFile> files) throws Exception {
+        try {
+
+            // Ensure all documents are associated with the record and have valid targets before proceeding with uploads
+            documents.forEach(doc -> {
+
+                if(doc.getTarget() == null || StringUtils.isBlank(doc.getTargetId())) {
+                    throw new RuntimeException("Document with id: " + doc.getId() + " is not associated with any target");
+                }
+
+                if(doc.getTarget() != TargetEntity.KYC_RECORD) {
+                    throw new RuntimeException("Document with id: " + doc.getId() + " is not associated with a KYC record");
+                }   
+
+                if(!doc.getTargetId().equals(id)) {
+
+                    throw new RuntimeException("Document with id: " + doc.getId() + " is not associated with KYC record with id: " + id);
+                }
+
+            });
+
+            List<DocumentDTO> saved = new ArrayList<>();
+            // KycRecordDTO record = kycRecordService.findById(id);
+
+            if (files != null) {
+                for (int i = 0; i < files.size(); i++) {
+
+                    DocumentDTO doc = documents.get(i);
+
+                    if (StringUtils.isBlank(doc.getId())) {
+
+                        DocumentDTO created = documentApi
+                                .upload(TargetEntity.KYC_RECORD, id, doc.getDocumentTypeId(), id, files.get(i))
+                                .getBody();
+                        saved.add(created);
+                    } else {
+
+                        DocumentDTO updated = documentApi.updateDocument(doc.getId(), files.get(i)).getBody();
+                        saved.add(updated);
+                    }
+                }
+            }
+
+            KycRecordDTO updatedRecord = kycRecordService.updateRecordFiles(id, saved);
+
+            return ResponseEntity.ok(updatedRecord);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Override
+    public @Nullable ResponseEntity<Page<KycRecordDTO>> findMyRecordsPaged(@Nullable Integer pageNumber,
+            @Nullable Integer pageSize) throws Exception {
+
+        KycRecordSearchCriteria criteria = buildSearchCriteriaForCurrentUser();
+
+        SearchObject<KycRecordSearchCriteria> searchObject = new SearchObject<>();
+        searchObject.setCriteria(criteria);
+        searchObject.setPageNumber(pageNumber);
+        searchObject.setPageSize(pageSize);
+
+        Collection<PropertySearchOrder> sortings = new HashSet<>();
+        sortings.add(new PropertySearchOrder("uploadDate", SortOrder.DESC));
+
+        searchObject.setSortings(sortings);
+
+        Page<KycRecordDTO> records = kycRecordService.search(searchObject);
+        updateOrganisations(records.getContent());
+
+        return ResponseEntity.ok(records);
+
     }
 }

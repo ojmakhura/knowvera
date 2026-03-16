@@ -52,6 +52,13 @@ export const routes: Routes = [
       import('./views/kyc-record/kyc-record').then((m) => m.KycRecord),
   },
   {
+    path: 'kyc-record/:id',
+    data: { title: 'KYC Record' },
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./views/kyc-record/kyc-record').then((m) => m.KycRecord),
+  },
+  {
     path: 'kyc-record/edit',
     data: { title: 'Edit KYC Record' },
     canActivate: [authGuard],

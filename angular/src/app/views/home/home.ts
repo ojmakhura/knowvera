@@ -42,28 +42,28 @@ export class Home implements OnInit, AfterViewInit, OnDestroy  {
   statCards: StatCard[] = [
     {
       title: 'Total Individuals',
-      value: computed(() => this.analyticsApiStore.data().individualCount || 0),
+      value: computed(() => this.analyticsApiStore.data()?.individualCount || 0),
       icon: 'people',
       color: '#3f51b5',
       trend: '+12%'
     },
     {
       title: 'Pending Verifications',
-      value: computed(() => this.analyticsApiStore.data().pendingVerificationCount || 0),
+      value: computed(() => this.analyticsApiStore.data()?.pendingVerificationCount || 0),
       icon: 'pending_actions',
       color: '#ff9800',
       trend: '-5%'
     },
     {
       title: 'Organizations',
-      value: computed(() => this.analyticsApiStore.data().organisationCount || 0),
+      value: computed(() => this.analyticsApiStore.data()?.organisationCount || 0),
       icon: 'business',
       color: '#4caf50',
       trend: '+8%'
     },
     {
       title: 'Documents Processed',
-      value: computed(() => this.analyticsApiStore.data().documentCount || 0),
+      value: computed(() => this.analyticsApiStore.data()?.documentCount || 0),
       icon: 'description',
       color: '#9c27b0',
       trend: '+23%'

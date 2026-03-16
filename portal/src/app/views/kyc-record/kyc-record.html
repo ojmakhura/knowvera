@@ -1,4 +1,254 @@
-<p>kyc-record works!</p>
-{{indKycDocuments() | json}}
-<hr>
-{{orgKycDocuments() | json}}
+<div class="kyc-record-container">
+  <h1>KYC Record Details</h1>
+
+  @if (record(); as record) {
+  <div class="record-section">
+    <h2>Individual KYC Record</h2>
+
+    <!-- Personal Information -->
+    @if(record.target === 'INDIVIDUAL') {
+    <div class="info-section">
+      <h3>Personal Information</h3>
+      <div class="detail-row">
+        <label>Name:</label>
+        <span>{{ record.name || 'N/A' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Email Address:</label>
+        <span>{{ record.emailAddress || 'N/A' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Identity Number:</label>
+        <span>{{ record.identityNo || 'N/A' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Identity Type:</label>
+        <span>{{ record.identityType || 'N/A' }}</span>
+      </div>
+      @if (record.kycVerification; as verification) {
+      <div class="verification-row">
+        <label>Identity Verification:</label>
+        <span class="status {{ verification.identityVerification?.toLowerCase() }}">{{ verification.identityVerification
+          || 'UNVERIFIED' }}</span>
+        @if (verification.identityVerificationReport) {
+        <div class="report">{{ verification.identityVerificationReport }}</div>
+        }
+      </div>
+      }
+    </div>
+    } @else {
+
+      <div class="info-section">
+        <h3>Organisation Information</h3>
+        <div class="detail-row">
+          <label>Organisation Name:</label>
+          <span>{{ record.name || 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <label>Registration Number:</label>
+          <span>{{ record.identityNo }}</span>
+        </div>
+        
+        @if (record.kycVerification; as verification) {
+        <div class="verification-row">
+          <label>Organisation Verification:</label>
+          <span class="status {{ verification.organisationVerification?.toLowerCase() }}">{{ verification.organisationVerification
+            || 'UNVERIFIED' }}</span>
+          @if (verification.organisationVerificationReport) {
+          <div class="report">{{ verification.organisationVerificationReport }}</div>
+          }
+        </div>
+        }
+      </div>
+    }
+
+    <!-- Address Information -->
+    <div class="info-section">
+      <h3>Address Information</h3>
+      <div class="detail-row">
+        <label>Physical Address:</label>
+        <span>{{ record.physicalAddress || 'N/A (Not available in record)' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Postal Address:</label>
+        <span>{{ record.postalAddress || 'N/A (Not available in record)' }}</span>
+      </div>
+      @if (record.kycVerification; as verification) {
+      <div class="verification-row">
+        <label>Address Verification:</label>
+        <span class="status {{ verification.addressVerification?.toLowerCase() }}">{{ verification.addressVerification
+          || 'UNVERIFIED' }}</span>
+        @if (verification.addressVerificationReport) {
+        <div class="report">{{ verification.addressVerificationReport }}</div>
+        }
+      </div>
+      }
+    </div>
+
+    <!-- Employment Information -->
+    @if (record.employmentRecord) {
+    <div class="info-section">
+      <h3>Employment Information</h3>
+      <div class="detail-row">
+        <label>Employer:</label>
+        <span>{{ record.employmentRecord.employer?.name || 'N/A' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Positions:</label>
+        <span>{{ record.employmentRecord.positions?.join(', ') || 'N/A' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Employment Start:</label>
+        <span>{{ record.employmentRecord.employmentStart ? (record.employmentRecord.employmentStart | date:'medium') :
+          'N/A' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Employment End:</label>
+        <span>{{ record.employmentRecord.employmentEnd ? (record.employmentRecord.employmentEnd | date:'medium') : 'N/A'
+          }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Salary Range:</label>
+        <span>{{ record.employmentRecord.salaryRange?.description || 'N/A' }}</span>
+      </div>
+      @if (record.kycVerification; as verification) {
+      <div class="verification-row">
+        <label>Employment Verification:</label>
+        <span class="status {{ verification.employmentVerification?.toLowerCase() }}">{{
+          verification.employmentVerification || 'UNVERIFIED' }}</span>
+        @if (verification.employmentVerificationReport) {
+        <div class="report">{{ verification.employmentVerificationReport }}</div>
+        }
+      </div>
+      }
+    </div>
+    }
+
+    <!-- Source of Funds -->
+    <div class="info-section">
+      <h3>Source of Funds</h3>
+      <div class="detail-row">
+        <label>Source of Funds:</label>
+        <span>{{ record.sourceOfFunds?.join(', ') || 'N/A' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Source of Funds Details:</label>
+        <span>{{ record.sourceOfFundsDetails || 'N/A' }}</span>
+      </div>
+      @if (record.kycVerification; as verification) {
+      <div class="verification-row">
+        <label>Source of Funds Verification:</label>
+        <span class="status {{ verification.sourceOfFundsVerification?.toLowerCase() }}">{{
+          verification.sourceOfFundsVerification || 'UNVERIFIED' }}</span>
+        @if (verification.sourceOfFundsVerificationReport) {
+        <div class="report">{{ verification.sourceOfFundsVerificationReport }}</div>
+        }
+      </div>
+      }
+    </div>
+
+    <!-- Compliance -->
+    <div class="info-section">
+      <h3>Compliance</h3>
+      @let verification = record.kycVerification;
+      @if (record.declaration) {
+      <div class="declaration-row">
+        <label>PEP Status:</label>
+        <span>{{ record.declaration.pepStatus || 'N/A' }}</span>
+      </div>
+      <div class="declaration-row">
+        <label>PEP Details:</label>
+        <span>{{ record.declaration.pepDetails || 'N/A' }}</span>
+      </div>
+      <div class="verification-row">
+        <label>Sanctions Match Verification:</label>
+        <span class="status {{ verification.sanctionsMatchVerification?.toLowerCase() }}">{{
+          verification.sanctionsMatchVerification || 'UNVERIFIED' }}</span>
+        @if (verification.sanctionsMatchVerificationReport) {
+        <div class="report">{{ verification.sanctionsMatchVerificationReport }}</div>
+        }
+      </div>
+      <div class="declaration-row">
+        <label>Sanctions Match:</label>
+        <span>{{ record.declaration.sanctionsMatch ? 'Yes' : 'No' }}</span>
+      </div>
+      <div class="verification-row">
+        <label>Sanctions Match Verification:</label>
+        <span class="status {{ verification.sanctionsMatchVerification?.toLowerCase() }}">{{
+          verification.sanctionsMatchVerification || 'UNVERIFIED' }}</span>
+        @if (verification.sanctionsMatchVerificationReport) {
+        <div class="report">{{ verification.sanctionsMatchVerificationReport }}</div>
+        }
+      </div>
+      <div class="declaration-row">
+        <label>Sanctions Details:</label>
+        <span>{{ record.declaration.sanctionsDetails || 'N/A' }}</span>
+      </div>
+      <div class="verification-row">
+        <label>Sanctions Details Verification:</label>
+        <span class="status {{ verification.sanctionsDetailsVerification?.toLowerCase() }}">{{
+          verification.sanctionsDetailsVerification || 'UNVERIFIED' }}</span>
+        @if (verification.sanctionsDetailsVerificationReport) {
+        <div class="report">{{ verification.sanctionsDetailsVerificationReport }}</div>
+        }
+      </div>
+      }
+    </div>
+
+    <!-- General Record Info -->
+    <div class="info-section">
+      <h3>Record Information</h3>
+      <div class="detail-row">
+        <label>KYC Status:</label>
+        <span>{{ record.kycStatus || 'N/A' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Upload Date:</label>
+        <span>{{ record.uploadDate ? (record.uploadDate | date:'medium') : 'N/A' }}</span>
+      </div>
+      <div class="detail-row">
+        <label>Expiry Date:</label>
+        <span>{{ record.expiryDate ? (record.expiryDate | date:'medium') : 'N/A' }}</span>
+      </div>
+    </div>
+
+    @if (record.documents?.length) {
+    <div class="info-section">
+      <h3>Documents</h3>
+      <ul>
+        @for (doc of record.documents; track doc.id) {
+        <li>{{ doc.fileName || 'Unnamed Document' }} ({{ doc.documentType || 'N/A' }})</li>
+        }
+      </ul>
+    </div>
+    }
+
+    <!-- Upload New Document -->
+    <div class="info-section">
+      <h3>Upload New Document</h3>
+      <div class="upload-section">
+        <div class="upload-row">
+          <label for="documentType">Document Type:</label>
+          <select id="documentType" (change)="onDocumentTypeSelected($event)">
+            <option value="">Select Document Type</option>
+            @for (docType of (record.target === 'INDIVIDUAL' ? indKycDocuments() : orgKycDocuments()); track docType.id) {
+              <option [value]="docType.id">{{ docType.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="upload-row">
+          <label for="fileInput">Select File:</label>
+          <input type="file" id="fileInput" (change)="onFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+        </div>
+        <div class="upload-row">
+          <button (click)="uploadDocument()" [disabled]="!selectedFile || !selectedDocumentType">Upload Document</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  } @else {
+  <p>No KYC record found.</p>
+  }
+</div>
+<app-loader [isLoading]="loading()" [message]="loaderMessage()"></app-loader>

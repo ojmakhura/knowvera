@@ -1,5 +1,10 @@
 export const menuItems: any[] = [
     {
+        routerLink: "/sequence",
+        titleKey: "sequence.title",
+        icon: "timeline"
+    },
+    {
         routerLink: "/organisation",
         titleKey: "organisation.title",
         icon: "business"
