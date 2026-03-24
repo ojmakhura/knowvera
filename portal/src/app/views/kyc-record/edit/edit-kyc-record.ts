@@ -8,7 +8,7 @@ import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-ap
 import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
 import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
 import Keycloak from 'keycloak-js';
-import { disabled, form, FormField, readonly, required } from '@angular/forms/signals';
+import { disabled, form, readonly, required, FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -30,6 +30,7 @@ import { VerificationStatus } from '@app/models/bw/co/centralkyc/kyc/verificatio
 import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
 import { Loader } from '@app/@shared/loader/loader';
+import { MatIconModule } from '@angular/material/icon';
 
 class KycRecordForm {
   id: string | any = null;
@@ -62,14 +63,15 @@ class KycRecordForm {
   selector: 'app-edit-kyc-record',
   imports: [
     CommonModule,
-    FormField,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
     MatCheckboxModule,
     MatSelectModule,
-    Loader
-  ],
+    MatIconModule,
+    Loader,
+    FormField
+],
   templateUrl: './edit-kyc-record.html',
   styleUrl: './edit-kyc-record.scss',
   providers: [JsonPipe]
@@ -377,6 +379,23 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       .split(',')
       .map((part) => part.trim())
       .filter((part) => !!part);
+  }
+
+  hasSourceOfFunds(source: SourceOfFunds): boolean {
+    return (this.recordSignal().sourceOfFunds || []).includes(source);
+  }
+
+  toggleSourceOfFunds(source: SourceOfFunds, checked: boolean) {
+    const current = this.recordSignal().sourceOfFunds || [];
+    if (checked) {
+      if (current.includes(source)) {
+        return;
+      }
+      this.updateRecordField('sourceOfFunds', [...current, source]);
+      return;
+    }
+
+    this.updateRecordField('sourceOfFunds', current.filter((item) => item !== source));
   }
 
   onFileChange(event: Event, type: DocumentTypeDTO) {

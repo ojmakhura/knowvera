@@ -1,207 +1,88 @@
-<div class="dashboard-container">
-  <div class="dashboard-header">
-    <h1>Dashboard</h1>
-    <p class="subtitle">Overview of your KYC records and status</p>
-  </div>
-
-  <!-- Current Records Section -->
-  <div class="current-records">
-    <h2>Current Records</h2>
-    <div class="records-grid">
-      <!-- Individual Record Card -->
-      <div class="record-card">
-        <div class="card-header">
-          <h3>Individual Record</h3>
-          <i class="bi bi-person-circle"></i>
-        </div>
-        @if (currentIndividualRecord(); as record) {
-          <div class="card-content">
-            <div class="info-row">
-              <span class="label">Name:</span>
-              <span class="value">{{ record.name || 'N/A' }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Email:</span>
-              <span class="value">{{ record.emailAddress || 'N/A' }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Identity No:</span>
-              <span class="value">{{ record.identityNo || 'N/A' }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">KYC Status:</span>
-              <span class="value" [class]="'status-badge status-' + getStatusClass(record.kycStatus)">
-                {{ record.kycStatus || 'N/A' }}
-              </span>
-            </div>
-            <div class="info-row">
-              <span class="label">Upload Date:</span>
-              <span class="value">{{ formatDate(record.uploadDate) }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Expiry Date:</span>
-              <span class="value">{{ formatDate(record.expiryDate) }}</span>
-            </div>
-            @if (record.documents && record.documents.length > 0) {
-              <div class="info-row">
-                <span class="label">Documents:</span>
-                <span class="value">{{ record.documents.length }} file(s)</span>
-              </div>
-            }
-          </div>
-          <div class="card-actions">
-            <button class="btn btn-primary" (click)="viewRecord(record)">
-              <i class="bi bi-eye"></i> View Details
-            </button>
-          </div>
-        } @else {
-          <div class="card-content empty-state">
-            <i class="bi bi-inbox"></i>
-            <p>No individual record found</p>
-            <button class="btn btn-outline-primary" (click)="createRecord('INDIVIDUAL')">
-              <i class="bi bi-plus-circle"></i> Create Record
-            </button>
-          </div>
-        }
-      </div>
-
-      <!-- Organisation Record Card -->
-      <!-- @if(currentOrganisationRecord()?.id) { -->
-      <div class="record-card">
-        <div class="card-header">
-          <h3>Organisation Record</h3>
-          <i class="bi bi-building"></i>
-        </div>
-        @if (currentOrganisationRecord(); as record) {
-          <div class="card-content">
-            <div class="info-row">
-              <span class="label">Name:</span>
-              <span class="value">{{ record.name || 'N/A' }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Email:</span>
-              <span class="value">{{ record.emailAddress || 'N/A' }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Identity No:</span>
-              <span class="value">{{ record.identityNo || 'N/A' }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">KYC Status:</span>
-              <span class="value" [class]="'status-badge status-' + getStatusClass(record.kycStatus)">
-                {{ record.kycStatus || 'N/A' }}
-              </span>
-            </div>
-            <div class="info-row">
-              <span class="label">Upload Date:</span>
-              <span class="value">{{ formatDate(record.uploadDate) }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Expiry Date:</span>
-              <span class="value">{{ formatDate(record.expiryDate) }}</span>
-            </div>
-            @if (record.documents && record.documents.length > 0) {
-              <div class="info-row">
-                <span class="label">Documents:</span>
-                <span class="value">{{ record.documents.length }} file(s)</span>
-              </div>
-            }
-          </div>
-          <div class="card-actions">
-            <button class="btn btn-primary" (click)="viewRecord(record)">
-              <i class="bi bi-eye"></i> View Details
-            </button>
-          </div>
-        } @else {
-          <div class="card-content empty-state">
-            <i class="bi bi-inbox"></i>
-            <p>No organisation record found</p>
-            <button class="btn btn-outline-primary" (click)="createRecord('ORGANISATION')">
-              <i class="bi bi-plus-circle"></i> Create Record
-            </button>
-          </div>
-        }
-      </div>
-      <!-- } -->
+<section class="page-header">
+  <p class="eyebrow">Application Overview</p>
+  <div class="row">
+    <div>
+      <h1>Verification Dashboard</h1>
+      <p>
+        A consolidated view of verification health, pending controls, and recent activity for this vault profile.
+      </p>
+    </div>
+    <div class="stat">
+      <span>Overall Completion</span>
+      <strong>{{ getCompletionPercent() }}%</strong>
     </div>
   </div>
+</section>
 
-  <!-- All Records Section -->
-  <div class="all-records">
-    <div class="section-header">
-      <h2>My Records</h2>
-      <button class="btn btn-primary" (click)="refreshRecords()">
-        <i class="bi bi-arrow-clockwise"></i> Refresh
-      </button>
-    </div>
+<section class="progress-track" aria-label="Verification progress">
+  <div [class.done]="getCompletionPercent() >= 25" [class.active]="getCompletionPercent() < 25"></div>
+  <div [class.done]="getCompletionPercent() >= 50" [class.active]="getCompletionPercent() >= 25 && getCompletionPercent() < 50"></div>
+  <div [class.done]="getCompletionPercent() >= 75" [class.active]="getCompletionPercent() >= 50 && getCompletionPercent() < 75"></div>
+  <div [class.done]="getCompletionPercent() >= 100" [class.active]="getCompletionPercent() >= 75 && getCompletionPercent() < 100"></div>
+</section>
 
-    @if (myRecords() && myRecords().length > 0) {
-      <div class="table-responsive">
-        <table class="records-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Identity No</th>
-              <th>Email</th>
-              <th>Status</th>
-              <th>Upload Date</th>
-              <th>Expiry Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (record of myRecords(); track record.id) {
-              <tr>
-                <td>{{ record.name || 'N/A' }}</td>
-                <td>
-                  <span class="type-badge">
-                    <i [class]="record.target === 'INDIVIDUAL' ? 'bi bi-person' : 'bi bi-building'"></i>
-                    {{ record.target || 'N/A' }}
-                  </span>
-                </td>
-                <td>{{ record.identityNo || 'N/A' }}</td>
-                <td>{{ record.emailAddress || 'N/A' }}</td>
-                <td>
-                  <span class="status-badge" [class]="'status-' + getStatusClass(record.kycStatus)">
-                    {{ record.kycStatus || 'N/A' }}
-                  </span>
-                </td>
-                <td>{{ formatDate(record.uploadDate) }}</td>
-                <td>{{ formatDate(record.expiryDate) }}</td>
-                <td class="actions">
-                  <button
-                    class="btn btn-sm btn-primary"
-                    (click)="viewRecord(record)"
-                    [attr.aria-label]="'View record for ' + record.name">
-                    <i class="bi bi-eye"></i>
-                  </button>
-                  <button
-                    class="btn btn-sm btn-secondary"
-                    (click)="editRecord(record)"
-                    [attr.aria-label]="'Edit record for ' + record.name">
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+<section class="grid">
+  <article class="card highlight">
+    <p class="tag">Needs Attention</p>
+    @if (getAttentionRecord(); as attentionRecord) {
+      <h2>{{ attentionRecord.name || attentionRecord.ref || 'KYC Record' }}</h2>
+      <p>
+        Status is <strong>{{ attentionRecord.kycStatus || 'INCOMPLETE' }}</strong>.
+        Please review and complete missing verifications for this record.
+      </p>
+      <button type="button" (click)="editRecord(attentionRecord)">Review Record</button>
     } @else {
-      <div class="empty-state-large">
-        <i class="bi bi-folder2-open"></i>
-        <h3>No records found</h3>
-        <p>You don't have any KYC records yet. Create your first record to get started.</p>
-        <div class="empty-state-actions">
-          <button class="btn btn-primary" (click)="createRecord('INDIVIDUAL')">
-            <i class="bi bi-plus-circle"></i> Create Individual Record
-          </button>
-          <button class="btn btn-outline-primary" (click)="createRecord('ORGANISATION')">
-            <i class="bi bi-plus-circle"></i> Create Organisation Record
-          </button>
-        </div>
-      </div>
+      <h2>No high-risk records</h2>
+      <p>Everything currently looks healthy. You can create a new KYC record below.</p>
+      <button type="button" (click)="createRecord(targetEntityEnum.INDIVIDUAL)">Create Individual Record</button>
     }
-  </div>
-</div>
+  </article>
+
+  <article class="card eta">
+    <h2>Estimated Completion</h2>
+    <p>{{ getEstimatedCompletionDate() }}</p>
+    <small>Based on current record status progression</small>
+  </article>
+
+  <article class="card full">
+    <div class="card__header">
+      <h3>My KYC Records</h3>
+      <button type="button" class="ghost" (click)="refreshRecords()">Refresh</button>
+    </div>
+
+    @if (myRecords().length) {
+      <ul>
+        @for (record of myRecords(); track record.id || $index) {
+          <li>
+            <div class="log-main">
+              <span>{{ record.name || record.ref || record.identityNo || 'Unnamed record' }}</span>
+              <small>
+                {{ record.target || 'UNKNOWN' }}
+                @if (record.expiryDate) {
+                  • Expires {{ formatDate(record.expiryDate) }}
+                }
+              </small>
+            </div>
+            <div class="log-actions">
+              <strong [class]="getStatusClass(record.kycStatus || '')">{{ record.kycStatus || 'UNKNOWN' }}</strong>
+              <button type="button" class="ghost" (click)="viewRecord(record)">View</button>
+              <button type="button" class="ghost" (click)="editRecord(record)">Edit</button>
+            </div>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="empty-state">No records found. Create a new KYC record to get started.</p>
+    }
+  </article>
+
+  <article class="card full">
+    <div class="card__header">
+      <h3>Quick Actions</h3>
+    </div>
+    <div class="quick-actions">
+      <button type="button" (click)="createRecord(targetEntityEnum.INDIVIDUAL)">Create Individual Record</button>
+      <button type="button" (click)="createRecord(targetEntityEnum.ORGANISATION)">Create Organisation Record</button>
+    </div>
+  </article>
+</section>

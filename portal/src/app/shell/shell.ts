@@ -7,8 +7,6 @@ import { MatDividerModule } from '@angular/material/divider';
 import { AppEnvStore } from '@app/store/app-env.state';
 import Keycloak from 'keycloak-js';
 import { CommonModule } from '@angular/common';
-import { ClientRequestApiStore } from '@app/store/bw/co/centralkyc/organisation/client/client-request-api.store';
-import { ClientRequestDTO } from '@app/models/bw/co/centralkyc/organisation/client/client-request-dto';
 
 interface NavigationItem {
   label: string;
@@ -37,15 +35,13 @@ export class Shell  implements OnInit {
   protected readonly isMobileMenuOpen = signal(false);
   private keycloak = inject(Keycloak);
   readonly appEnvState = inject(AppEnvStore);
-  readonly requestApiStore = inject(ClientRequestApiStore);
   profile = this.appEnvState.profile;
 
   constructor() {
     console.log('Shell component initialized', this.keycloak.profile);
   }
   ngOnInit(): void {
-
-    this.requestApiStore.findMyRequests();
+    // No-op for now; component keeps OnInit for future shell-level data hooks.
   }
 
   protected readonly sidebarClass = computed(() =>
@@ -54,11 +50,10 @@ export class Shell  implements OnInit {
 
   protected readonly navigationItems = signal<NavigationItem[]>([
     { label: 'Dashboard', route: '/dashboard', icon: 'dashboard' },
-    { label: 'Profile', route: '/profile', icon: 'person' },
-    { label: 'Settings', route: '/settings', icon: 'settings' },
+    { label: 'Identity Documents', route: '/kyc-record', icon: 'badge' },
+    { label: 'Personal Info', route: '/register', icon: 'person' },
+    { label: 'Verification Status', route: '/dashboard', icon: 'fact_check' },
   ]);
-
-  protected readonly clientRequests = computed<ClientRequestDTO[]>(() => this.requestApiStore.dataList() ?? []);
 
   protected toggleSidebar(): void {
     this.isSidebarCollapsed.update((collapsed) => !collapsed);
@@ -70,19 +65,6 @@ export class Shell  implements OnInit {
 
   protected closeMobileMenu(): void {
     this.isMobileMenuOpen.set(false);
-  }
-
-  protected getRequestStatusClass(status: string | null | undefined): string {
-    switch (status) {
-      case 'ACCEPTED':
-        return 'request-status--accepted';
-      case 'REJECTED':
-        return 'request-status--rejected';
-      case 'CONTACTED':
-        return 'request-status--contacted';
-      default:
-        return 'request-status--pending';
-    }
   }
 
   logout() {

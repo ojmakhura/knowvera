@@ -32,6 +32,7 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
   currentIndividualRecord = linkedSignal(() => this.kycRecordApiStore.currentIndividualRecord());
   currentOrganisationRecord = linkedSignal(() => this.kycRecordApiStore.currentOrganisationRecord());
   myRecords = linkedSignal(() => this.kycRecordApiStore.dataList());
+  readonly targetEntityEnum = TargetEntity;
 
   route = inject(ActivatedRoute);
   router = inject(Router);
@@ -114,15 +115,52 @@ export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
   }
 
   refreshRecords(): void {
-    // this.kycRecordApiStore.findMyCurrentIndividualRecord();
-    // this.kycRecordApiStore.findMyCurrentOrganisationRecord();
-    // this.kycRecordApiStore.findMyRecords();
+    this.kycRecordApiStore.findMyCurrentIndividualRecord();
+    this.kycRecordApiStore.findMyCurrentOrganisationRecord();
+    this.kycRecordApiStore.findMyRecords();
 
     // this.kycRecordApi.findMyCurrentRecord(TargetEntity.INDIVIDUAL).subscribe({
     //   next: record => {
     //     console.log(record);
     //   }
     // })
+  }
+
+  getCompletionPercent(): number {
+    const records = this.myRecords() || [];
+    if (!records.length) {
+      return 0;
+    }
+
+    const currentCount = records.filter((record) => record.kycStatus?.toUpperCase() === 'CURRENT').length;
+    return Math.round((currentCount / records.length) * 100);
+  }
+
+  getAttentionRecord(): KycRecordDTO | null {
+    const records = this.myRecords() || [];
+    const highRisk = records.find((record) => {
+      const status = (record.kycStatus || '').toUpperCase();
+      return status === 'EXPIRED' || status === 'INCOMPLETE' || status === 'ABSENT';
+    });
+
+    return highRisk || null;
+  }
+
+  getEstimatedCompletionDate(): string {
+    const records = this.myRecords() || [];
+    if (!records.length) {
+      return 'N/A';
+    }
+
+    const pending = records.filter((record) => {
+      const status = (record.kycStatus || '').toUpperCase();
+      return status !== 'CURRENT';
+    }).length;
+
+    const daysToAdd = Math.max(1, pending * 2);
+    const eta = new Date();
+    eta.setDate(eta.getDate() + daysToAdd);
+    return this.formatDate(eta);
   }
 
 }

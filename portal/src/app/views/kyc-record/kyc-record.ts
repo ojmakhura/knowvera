@@ -11,15 +11,18 @@ import { Loader } from '@app/@shared/loader/loader';
 import { ToastrService } from 'ngx-toastr';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
 import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-kyc-record',
-  imports: [CommonModule, Loader],
+  imports: [CommonModule, Loader, MatIconModule, TranslateModule],
   templateUrl: './kyc-record.html',
   styleUrl: './kyc-record.scss',
   providers: [
     CommonModule,
-    Loader
+    Loader,
+
   ]
 })
 export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
@@ -279,5 +282,22 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
     }
 
     return 'pending'; // default
+  }
+
+  getDocumentIconMaterial(fileName: string): string {
+    const fileType = this.getFileIcon(fileName);
+
+    switch (fileType) {
+      case 'pdf':
+        return 'picture_as_pdf';
+      case 'image':
+        return 'image';
+      case 'word':
+        return 'description';
+      case 'excel':
+        return 'table_chart';
+      default:
+        return 'description';
+    }
   }
 }

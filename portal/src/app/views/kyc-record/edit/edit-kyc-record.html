@@ -1,225 +1,310 @@
-<main class="edit-kyc-record" aria-labelledby="edit-kyc-record-title">
-	<header class="edit-kyc-record__header">
-		<h1 id="edit-kyc-record-title">{{ recordSignal().id ? 'Edit KYC Record' : 'Create KYC Record' }}</h1>
-		<p>Capture and review KYC details before submitting.</p>
-	</header>
+<app-loader [isLoading]="loading() || savingInProgress" [message]="'Loading KYC record...'" [size]="'medium'"></app-loader>
 
-	@if (loading()) {
-		<p class="edit-kyc-record__loading" aria-live="polite">Loading KYC data...</p>
-	}
+@if (recordSignal(); as record) {
+  <div class="bg-surface min-vh-100 py-5">
+    <main class="container-xl px-4 max-w-6xl">
+      <header class="mb-4">
+        <h1 class="h2 fw-bold text-primary mb-1">Edit KYC Record</h1>
+        <p class="text-on-surface-variant small mb-0">Update and submit KYC details for verification.</p>
+      </header>
 
-	<section class="edit-kyc-record__section" aria-labelledby="record-details-title">
-		<h2 id="record-details-title">Record Details</h2>
-		<div class="edit-kyc-record__grid">
-			<mat-form-field>
-				<mat-label>Name</mat-label>
-				<input matInput [formField]="recordForm.name" placeholder="Enter full name" />
-			</mat-form-field>
+      <form class="vstack gap-4" (ngSubmit)="submit()">
+        <section class="bg-surface-container-lowest rounded-xl p-4 p-md-5 ring-1 shadow-sm">
+          <h2 class="h5 fw-bold text-primary mb-4">Record Details</h2>
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-semibold">Name</label>
+              <input
+                type="text"
+                class="form-control"
+                [formField]="recordForm.name"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-semibold">Email Address</label>
+              <input
+                type="email"
+                class="form-control"
+                [formField]="recordForm.emailAddress"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-semibold">Identity Number</label>
+              <input
+                type="text"
+                class="form-control"
+                [formField]="recordForm.identityNo"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-semibold">Identity Type</label>
+              <select
+                class="form-select"
+                [formField]="recordForm.identityType"
+              >
+                <option value="">Select identity type</option>
+                @for (identityType of identityTypeOptions; track identityType) {
+                  <option [value]="identityType">{{ toLabel(identityType) }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-semibold">Target Entity</label>
+              <select
+                class="form-select"
+                [formField]="recordForm.target"
+              >
+                <option value="">Select target entity</option>
+                @for (target of targetEntityOptions; track target) {
+                  <option [value]="target">{{ toLabel(target) }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-semibold">KYC Status</label>
+              <select
+                class="form-select"
+                [formField]="recordForm.kycStatus"
+              >
+                <option value="">Select status</option>
+                @for (status of kycStatusOptions; track status) {
+                  <option [value]="status">{{ toLabel(status) }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </section>
 
-			<mat-form-field>
-				<mat-label>Identity Number</mat-label>
-				<input matInput [formField]="recordForm.identityNo" placeholder="Enter identity number" />
-			</mat-form-field>
+        <section class="bg-surface-container-low rounded-xl p-4 p-md-5">
+          <h2 class="h5 fw-bold text-primary mb-3">Addresses</h2>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label small fw-semibold">Physical Address</label>
+              <textarea
+                rows="2"
+                class="form-control"
+                [formField]="recordForm.physicalAddress"
+              ></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-semibold">Postal Address</label>
+              <textarea
+                rows="2"
+                class="form-control"
+                [formField]="recordForm.postalAddress"
+              ></textarea>
+            </div>
+          </div>
+        </section>
 
-				<mat-form-field>
-					<mat-label>Target</mat-label>
-					<input matInput [formField]="recordForm.target" placeholder="Enter target" />
-				</mat-form-field>
+        <!-- <div class="row g-4">
+          <section class="col-12 col-lg-6">
+            <div class="bg-surface-container-lowest rounded-xl p-4 p-md-5 ring-1 shadow-sm h-100">
+              <h2 class="h5 fw-bold text-primary mb-3">Employment Details</h2>
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">Employer Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [formField]="recordForm.employmentRecord.employer?.name"
+                  />
+                </div>
+                <div class="col-12">
+                  <label class="form-label small fw-semibold">Positions (comma-separated)</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [value]="toPositionsDisplay(record.employmentRecord.positions)"
+                    (input)="updateEmploymentField('positions', parsePositionsInput($any($event.target).value))"
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label small fw-semibold">Salary Min</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    [formField]="recordForm.employmentRecord.salaryRange?.min"
+                    (input)="updateEmploymentField('salaryRange', { ...record.employmentRecord.salaryRange, min: +$any($event.target).value })"
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label small fw-semibold">Salary Max</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    [formField]="recordForm.employmentRecord.salaryRange?.max"
+                    (input)="updateEmploymentField('salaryRange', { ...record.employmentRecord.salaryRange, max: +$any($event.target).value })"
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label small fw-semibold">Employment Start</label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    [value]="toDateInputValue(record.employmentRecord.employmentStart)"
+                    (change)="updateEmploymentDateField('employmentStart', $any($event.target).value)"
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label small fw-semibold">Employment End</label>
+                  <input
+                    type="date"
+                    class="form-control"
+                    [value]="toDateInputValue(record.employmentRecord.employmentEnd)"
+                    (change)="updateEmploymentDateField('employmentEnd', $any($event.target).value)"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
 
+          <section class="col-12 col-lg-6">
+            <div class="bg-surface-container-lowest rounded-xl p-4 p-md-5 ring-1 shadow-sm h-100">
+              <h2 class="h5 fw-bold text-primary mb-3">Declaration</h2>
+              <div class="vstack gap-3">
+                <div>
+                  <label class="form-label small fw-semibold">PEP Status</label>
+                  <select
+                    class="form-select"
+                    [formField]="recordForm.declaration.pepStatus"
+                    (change)="updateDeclarationField('pepStatus', $any($event.target).value || null)"
+                  >
+                    <option value="">Select PEP status</option>
+                    @for (pepStatus of pepStatusOptions; track pepStatus) {
+                      <option [value]="pepStatus">{{ toLabel(pepStatus) }}</option>
+                    }
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label small fw-semibold">PEP Details</label>
+                  <textarea
+                    rows="2"
+                    class="form-control"
+                    [formField]="recordForm.declaration.pepDetails"
+                    (input)="updateDeclarationField('pepDetails', $any($event.target).value)"
+                  ></textarea>
+                </div>
+                <div class="form-check">
+                  <input
+                    id="sanctionsMatch"
+                    class="form-check-input"
+                    type="checkbox"
+                    [checked]="!!record.declaration.sanctionsMatch"
+                    (change)="updateDeclarationField('sanctionsMatch', $any($event.target).checked)"
+                  />
+                  <label class="form-check-label" for="sanctionsMatch">Sanctions Match</label>
+                </div>
+                <div>
+                  <label class="form-label small fw-semibold">Sanctions Details</label>
+                  <textarea
+                    rows="2"
+                    class="form-control"
+                    [formField]="recordForm.declaration.sanctionsDetails"
+                    (input)="updateDeclarationField('sanctionsDetails', $any($event.target).value)"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div> -->
 
-			<mat-form-field>
-				<mat-label>KYC Status</mat-label>
-				<input matInput [formField]="recordForm.kycStatus" placeholder="Enter KYC status" />
-			</mat-form-field>
+        <section class="bg-surface-container-low rounded-xl p-4 p-md-5">
+          <h2 class="h5 fw-bold text-primary mb-3">Source of Funds</h2>
+          <div class="row g-2">
+            @for (source of sourceOfFundsOptions; track source) {
+              <div class="col-12 col-md-6">
+                <label class="form-check-label d-flex align-items-center gap-2 p-2 rounded-2 bg-surface-container-lowest border">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [checked]="hasSourceOfFunds(source)"
+                    (change)="toggleSourceOfFunds(source, $any($event.target).checked)"
+                  />
+                  <span>{{ toLabel(source) }}</span>
+                </label>
+              </div>
+            }
+          </div>
+          <div class="mt-3">
+            <label class="form-label small fw-semibold">Additional Details</label>
+            <textarea
+              rows="3"
+              class="form-control"
+              [formField]="recordForm.sourceOfFundsDetails"
+              (input)="updateRecordField('sourceOfFundsDetails', $any($event.target).value)"
+            ></textarea>
+          </div>
+        </section>
 
-      @if(selectedTarget === 'INDIVIDUAL') {
-			<mat-form-field>
-				<mat-label>Identity Type</mat-label>
-				<input matInput [formField]="recordForm.identityType" placeholder="Enter identity type" />
-			</mat-form-field>
-      }
-			<mat-form-field>
-				<mat-label>Email Address</mat-label>
-				<input
-					matInput
-					type="email"
-					[formField]="recordForm.emailAddress"
-					placeholder="name@example.com" />
-			</mat-form-field>
+        <section class="bg-surface-container-lowest rounded-xl p-4 p-md-5 ring-1 shadow-sm">
+          <h2 class="h5 fw-bold text-primary mb-3">Documents</h2>
 
-			<!-- <mat-form-field>
-				<mat-label>Expiry Date</mat-label>
-				<input
-					matInput
-					type="date"
-					[value]="toDateInputValue(recordSignal().expiryDate)"
-					(input)="updateRecordDateField('expiryDate', $any($event.target).value)" />
-			</mat-form-field> -->
+          <div class="row g-3">
+            @for (type of availableDocumentTypes(); track getDocKey(type)) {
+              <div class="col-12 col-md-6">
+                <div class="d-flex justify-content-between align-items-center p-3 border rounded-3 bg-surface-container-low">
+                  <div>
+                    <p class="small fw-semibold mb-0">{{ type.name }}</p>
+                    <p class="text-10px text-on-surface-variant mb-0">
+                      {{ getDocumentFileName(type) || 'No file selected' }}
+                    </p>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="toggleDocument(type)">
+                      {{ isDocumentSelected(type) ? 'Unselect' : 'Select' }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
 
-			<!-- <mat-form-field>
-				<mat-label>Upload Date</mat-label>
-				<input
-					matInput
-					type="date"
-					[value]="toDateInputValue(recordSignal().uploadDate)"
-					(input)="updateRecordDateField('uploadDate', $any($event.target).value)" />
-			</mat-form-field> -->
-		</div>
-	</section>
+          <div class="row g-3 mt-1">
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-semibold">Document Type</label>
+              <select
+                class="form-select"
+                [value]="selectedDocumentTypeKey()"
+                (change)="onDocumentTypeSelection($any($event.target).value || null)"
+              >
+                <option value="">Select document type</option>
+                @for (type of availableDocumentTypes(); track getDocKey(type)) {
+                  <option [value]="getDocKey(type)">{{ type.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-semibold">Upload File</label>
+              <input
+                class="form-control"
+                type="file"
+                [disabled]="!selectedDocumentType()"
+                (change)="onSelectedDocumentFileChange($event)"
+              />
+            </div>
+          </div>
 
-	<section class="edit-kyc-record__section" aria-labelledby="source-of-funds-title">
-		<h2 id="source-of-funds-title">Source of Funds</h2>
-		<div class="edit-kyc-record__grid">
-			<mat-form-field>
-				<mat-label>Source of Funds</mat-label>
-				<mat-select
-					multiple
-					[formField]="recordForm.sourceOfFunds">
-					@for (source of sourceOfFundsOptions; track source) {
-						<mat-option [value]="source">{{ toLabel(source) }}</mat-option>
-					}
-				</mat-select>
-			</mat-form-field>
+          @if (record.documents.length) {
+            <div class="vstack gap-2 mt-3">
+              @for (doc of record.documents; track doc.documentTypeId + '-' + doc.fileName) {
+                <div class="d-flex justify-content-between align-items-center p-2 rounded-2 bg-surface-container-low border">
+                  <div>
+                    <p class="small fw-semibold mb-0">{{ doc.documentType || 'Unknown type' }}</p>
+                    <p class="text-10px text-on-surface-variant mb-0">{{ doc.fileName || 'No file selected' }}</p>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeDocument(doc)">Remove</button>
+                </div>
+              }
+            </div>
+          }
+        </section>
 
-			<mat-form-field class="edit-kyc-record__full-width">
-				<mat-label>Source of Funds Details</mat-label>
-				<textarea
-					matInput
-					rows="3"
-					[formField]="recordForm.sourceOfFundsDetails"></textarea>
-			</mat-form-field>
-		</div>
-	</section>
-
-  @if(selectedTarget === 'INDIVIDUAL' && recordSignal().employmentRecord) {
-	<section class="edit-kyc-record__section" aria-labelledby="employment-details-title">
-		<h2 id="employment-details-title">Employment Details</h2>
-		<div class="edit-kyc-record__grid">
-			<mat-form-field>
-				<mat-label>Employer Name</mat-label>
-				<input
-					matInput
-					  [formField]="recordForm.employmentRecord.name" />
-			</mat-form-field>
-
-			<mat-form-field>
-				<mat-label>Employer Identity Number</mat-label>
-				<input
-					matInput
-					  [formField]="recordForm.employmentRecord.identityNo" />
-			</mat-form-field>
-
-			<mat-form-field>
-				<mat-label>Positions</mat-label>
-				<input
-					matInput
-					  [formField]="recordForm.employmentRecord.positions"
-					placeholder="Example: Teller, Supervisor" />
-			</mat-form-field>
-
-			<mat-form-field>
-				<mat-label>Employment Start</mat-label>
-				<input
-					matInput
-					type="date"
-					  [formField]="recordForm.employmentRecord.employmentStart" />
-			</mat-form-field>
-
-			<mat-form-field>
-				<mat-label>Employment End</mat-label>
-				<input
-					matInput
-					type="date"
-					  [formField]="recordForm.employmentRecord.employmentEnd" />
-			</mat-form-field>
-		</div>
-	</section>
-  }
-
-	<section class="edit-kyc-record__section" aria-labelledby="declaration-title">
-		<h2 id="declaration-title">Declaration</h2>
-		<div class="edit-kyc-record__grid">
-			<mat-form-field>
-				<mat-label>PEP Status</mat-label>
-				<mat-select
-					  [formField]="recordForm.declaration.pepStatus">
-					@for (pepStatus of pepStatusOptions; track pepStatus) {
-						<mat-option [value]="pepStatus">{{ toLabel(pepStatus) }}</mat-option>
-					}
-				</mat-select>
-			</mat-form-field>
-
-			<mat-form-field class="edit-kyc-record__full-width">
-				<mat-label>PEP Details</mat-label>
-				<textarea
-					matInput
-					rows="3"
-					  [formField]="recordForm.declaration.pepDetails"></textarea>
-			</mat-form-field>
-
-			<div class="edit-kyc-record__checkbox-row">
-				<mat-checkbox
-					  [formField]="recordForm.declaration.sanctionsMatch">
-					Sanctions Match
-				</mat-checkbox>
-			</div>
-
-			<mat-form-field class="edit-kyc-record__full-width">
-				<mat-label>Sanctions Details</mat-label>
-				<textarea
-					matInput
-					rows="3"
-					  [formField]="recordForm.declaration.sanctionsDetails"></textarea>
-			</mat-form-field>
-		</div>
-	</section>
-
-	<section class="edit-kyc-record__section" aria-labelledby="documents-title">
-		<h2 id="documents-title">Documents</h2>
-		@if (availableDocumentTypes().length > 0) {
-			<div class="edit-kyc-record__documents">
-				<mat-form-field class="edit-kyc-record__full-width">
-					<mat-label>Document Type</mat-label>
-					<mat-select
-						[value]="selectedDocumentTypeKey()"
-						(selectionChange)="onDocumentTypeSelection($event.value)">
-						@for (docType of availableDocumentTypes(); track getDocKey(docType)) {
-							<mat-option [value]="getDocKey(docType)">{{ docType.name }}</mat-option>
-						}
-					</mat-select>
-				</mat-form-field>
-
-				<div class="edit-kyc-record__document-upload">
-					<input
-						class="edit-kyc-record__document-input"
-						type="file"
-						[disabled]="!selectedDocumentType()"
-						[attr.aria-label]="selectedDocumentType() ? 'Upload ' + (selectedDocumentType()?.name || 'document') : 'Select a document type first'"
-						(change)="onSelectedDocumentFileChange($event)" />
-				</div>
-
-				@if ((recordSignal().documents || []).length > 0) {
-					<div class="edit-kyc-record__document-list" aria-live="polite">
-						@for (doc of (recordSignal().documents || []); track doc.documentTypeId || doc.documentType || $index) {
-							<div class="edit-kyc-record__document-row">
-								<span class="edit-kyc-record__document-type">{{ doc.documentType || 'Document' }}</span>
-								<span class="edit-kyc-record__document-file">{{ doc.fileName || 'No file selected' }}</span>
-								<button class="edit-kyc-record__document-remove" mat-button type="button" (click)="removeDocument(doc)">Remove</button>
-							</div>
-						}
-					</div>
-				}
-			</div>
-		} @else {
-			<p class="edit-kyc-record__empty-state">No document types configured for this target.</p>
-		}
-	</section>
-
-	<footer class="edit-kyc-record__actions">
-		<button mat-button type="button" (click)="router.navigate(['/kyc-record'])">Cancel</button>
-		<button mat-raised-button color="primary" type="button" [disabled]="loading()" (click)="submit()">
-			Save KYC Record
-		</button>
-	</footer>
-</main>
-<app-loader [isLoading]="loading()" [message]="'Saving KYC record...'"></app-loader>
+        <div class="d-flex justify-content-end gap-3">
+          <button type="button" class="btn btn-outline-secondary" (click)="router.navigate(['/kyc-record'])">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading() || savingInProgress">Save KYC Record</button>
+        </div>
+      </form>
+    </main>
+  </div>
+}
