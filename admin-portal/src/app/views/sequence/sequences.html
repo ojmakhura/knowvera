@@ -1,0 +1,95 @@
+<section class="sequences-page" aria-label="Sequence search">
+    <header class="page-head">
+        <div>
+            <h1>Sequences</h1>
+            <p>Manage cryptographic identifiers and automated numbering patterns for cross-protocol entity validation.
+            </p>
+        </div>
+
+        <button type="button" class="new-btn">
+            <span class="material-symbols-outlined" aria-hidden="true">add</span>
+            New Sequence
+        </button>
+    </header>
+
+    <section class="search-card" aria-label="Search parameters">
+        <div class="search-title">
+            <span class="material-symbols-outlined" aria-hidden="true">search</span>
+            <h2>Search Parameters</h2>
+        </div>
+
+        <form class="search-grid">
+            <label class="field-block"><span>Sequence Name</span><input type="text"
+                    placeholder="e.g. KYC-AUTH-MASTER" /></label>
+            <label class="field-block"><span>Target Entity</span><input type="text" placeholder="UserAccount" /></label>
+            <label class="field-block"><span>Pattern</span><input type="text"
+                    placeholder="VER-{YYYY}-{0000X}" /></label>
+            <label class="field-block">
+                <span>Scope</span>
+                <select>
+                    <option>All Scopes</option>
+                    <option>Identity</option>
+                    <option>Compliance</option>
+                    <option>Ledger</option>
+                </select>
+            </label>
+        </form>
+
+        <div class="search-actions">
+            <button type="button" class="reset-btn">
+                <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
+                Reset
+            </button>
+            <button type="button" class="search-btn">Search Sequences</button>
+        </div>
+    </section>
+
+    <section class="results-card" aria-label="Sequence results">
+        <div class="table-wrap">
+            <div class="table-head" role="row">
+                <p>Sequence Name</p>
+                <p>Target Entity</p>
+                <p>Pattern Preview</p>
+                <p>Last Modified</p>
+                <p class="align-end">Actions</p>
+            </div>
+
+            <div class="table-body" role="table">
+                @for (row of rows(); track row.id) {
+                <article class="table-row" role="row">
+                    <div class="name-cell">
+                        <span class="icon-box material-symbols-outlined">{{ row.icon }}</span>
+                        <div>
+                            <p class="name-text">{{ row.name }}</p>
+                            <p class="muted">{{ row.subtitle }}</p>
+                        </div>
+                    </div>
+                    <p><span class="entity-pill">{{ row.targetEntity }}</span></p>
+                    <p><code>{{ row.pattern }}</code></p>
+                    <p class="muted">{{ row.lastModified }}</p>
+                    <p class="actions">
+                        <button type="button">
+                            <mat-icon>visibility</mat-icon>
+                        </button>
+                        <button type="button">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    </p>
+                </article>
+                }
+            </div>
+        </div>
+
+        <footer class="table-footer">
+            <p>Showing 4 of 48 sequences</p>
+            <div class="pager">
+                <button type="button">‹</button>
+                @for (page of pages(); track page) {
+                <button type="button" [class.active]="page === 1">{{ page }}</button>
+                }
+                <span>…</span>
+                <button type="button">›</button>
+            </div>
+        </footer>
+    </section>
+</section>

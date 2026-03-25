@@ -1,3 +1,31 @@
 :host {
 	display: block;
 }
+
+.edit-page {
+	width: 100%;
+}
+
+.workspace-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--vault-space-8);
+	width: 100%;
+}
+
+.editor-canvas {
+	display: grid;
+	gap: var(--vault-space-8);
+	width: 100%;
+	min-width: 0;
+	grid-column: 1 / -1;
+}
+
+.editor-section,
+.editor-section-wide,
+.panel-card,
+.table-card,
+.stack-4,
+.stack-6 {
+	min-width: 0;
+}

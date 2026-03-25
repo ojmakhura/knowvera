@@ -1,0 +1,94 @@
+<section class="invoice-details-page">
+  <header class="head">
+    <div>
+      <p class="crumb">Digital Vault / Invoices</p>
+      <h1>INV-2024-0892</h1>
+      <p class="subline">
+        <span class="material-symbols-outlined">schedule</span>
+        Created on Oct 24, 2023 by System Admin
+      </p>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn-secondary"><span class="material-symbols-outlined">print</span>Print</button>
+      <button type="button" class="btn-primary"><span class="material-symbols-outlined">download</span>Download PDF</button>
+    </div>
+  </header>
+
+  <section class="content-grid">
+    <main class="left-col">
+      <article class="panel amount-card">
+        <div>
+          <span>Total Amount Due</span>
+          <h2>$12,450.00 <small>USD</small></h2>
+        </div>
+        <div class="paid-wrap">
+          <span class="paid-pill">Paid</span>
+          <p>Ref: TRN-982341-VAULT</p>
+        </div>
+      </article>
+
+      <article class="panel context-card">
+        <h3><span class="material-symbols-outlined">corporate_fare</span>Organisation Context</h3>
+        <div class="context-grid">
+          @for (item of context(); track item.label) {
+            <div>
+              <span>{{ item.label }}</span>
+              <p>{{ item.value }}</p>
+            </div>
+          }
+        </div>
+      </article>
+
+      <section class="audit-grid">
+        @for (item of audit(); track item.label) {
+          <article class="panel">
+            <h4>{{ item.label }}</h4>
+            <div class="audit-row"><span>Timestamp</span><p>{{ item.timestamp }}</p></div>
+            <div class="audit-row"><span>{{ item.label === 'Original Entry' ? 'Created By' : 'Modified By' }}</span><p>{{ item.user }}</p></div>
+          </article>
+        }
+      </section>
+    </main>
+
+    <aside class="right-col">
+      <article class="status-card">
+        <h3>Compliance Status</h3>
+        <p><span class="material-symbols-outlined">verified</span>Verified by Veritas Protocol</p>
+        <button type="button" class="btn-light">Edit Invoice</button>
+        <button type="button" class="btn-dark">Manage Payment</button>
+      </article>
+
+      <article class="panel repository">
+        <header>
+          <h3>Repository</h3>
+          <span>2 Files</span>
+        </header>
+        @for (file of files(); track file.name) {
+          <div class="file-row">
+            <span class="material-symbols-outlined icon">{{ file.icon }}</span>
+            <div>
+              <p>{{ file.name }}</p>
+              <small>{{ file.type }}</small>
+            </div>
+            <button type="button"><span class="material-symbols-outlined">download</span></button>
+          </div>
+        }
+        <button type="button" class="attach-btn">+ Attach Supporting File</button>
+      </article>
+
+      <article class="panel help-card">
+        <h4>Need assistance?</h4>
+        <p>Contact Protocol Support</p>
+      </article>
+    </aside>
+  </section>
+
+  <footer class="end-footer">
+    <span class="instance">Veritas Protocol Secure Instance</span>
+    <div class="links">
+      <span>Data Privacy Policy</span>
+      <span>Security Audit Log</span>
+      <span>ID: DB-9201-AXZ</span>
+    </div>
+  </footer>
+</section>

@@ -1,22 +1,21 @@
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   effect,
   inject,
+  linkedSignal,
   OnDestroy,
   OnInit,
   Signal,
   signal,
-  ViewChild,
 } from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
+import { form } from '@angular/forms/signals';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
-import { TableComponent } from '@app/components/table/table';
-import { ActionTemplate } from '@app/models/action-template';
 import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
-import { ColumnModel } from '@app/models/column.model';
-import { Page } from '@app/models/page.model';
 import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -28,37 +27,16 @@ export class SearchDocumentTypesVarsForm {
 
 @Component({
   selector: 'app-document-type',
-  imports: [RouterLink, TranslateModule, FormField],
+  imports: [RouterLink, TranslateModule, CommonModule, MatIconModule, MatButtonModule],
   templateUrl: './document-type.html',
   styleUrls: ['./document-type.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
-  
   searchDocumentTypesVarsForm: SearchDocumentTypesVarsForm = new SearchDocumentTypesVarsForm();
   searchDocumentTypesSignal = signal(this.searchDocumentTypesVarsForm);
   searchDocumentTypesSignalForm = form(this.searchDocumentTypesSignal, (path) => {});
   readonly documentTypeApiStore = inject(DocumentTypeApiStore);
-  @ViewChild('documentTypesTable') documentTypesTable!: TableComponent<Array<DocumentTypeDTO>>;
-  documentTypesTableSignal: Signal<Array<DocumentTypeDTO> | Page<any> | undefined> =
-    signal(undefined);
-  documentTypesTablePaged: boolean = true;
-
-  documentTypesTableColumns: ColumnModel[] = [
-    new ColumnModel('code', 'code', false),
-    new ColumnModel('name', 'name', false),
-  ];
-
-  documentTypesTableColumnsActions: ActionTemplate[] = [
-    {
-      id: 'document-type-edit',
-      label: 'edit',
-      icon: 'edit',
-      tooltip: 'edit',
-    },
-  ];
-
-  showDocumentTypesActions = true;
 
   loaderMessage = signal('');
   messages: Signal<any> = signal({});
@@ -66,6 +44,10 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
   loading = signal(false);
   error = signal(false);
   selected: any = null;
+  currentPage = signal(0);
+  pageSize = signal(10);
+  totalElements = linkedSignal(() => this.documentTypeApiStore.dataPage().page?.totalElements || 0);
+  totalPages = linkedSignal(() => this.documentTypeApiStore.dataPage().page?.totalPages || 0);
   toaster: ToastrService = inject(ToastrService);
 
   protected router: Router = inject(Router);
@@ -82,9 +64,25 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.toaster.error(messages[0]);
       }
     });
+
+    effect(() => {
+      const page = this.documentTypeApiStore.dataPage();
+
+      if (page && Array.isArray(page.content)) {
+        this.searchDocumentTypesSignal.update((state) => ({
+          ...state,
+          documentTypes: page.content,
+        }));
+
+        this.currentPage.set(page.page.number || 0);
+        this.totalElements.set(page.page.totalElements || 0);
+        this.totalPages.set(page.page.totalPages || 0);
+      }
+    });
   }
 
   ngOnInit(): void {
+    this.doSearch();
   }
 
   ngAfterViewInit(): void {
@@ -93,9 +91,42 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
   }
 
-  documentTypesTableLoadEmitter(event: any): void {}
-  // Should be overriden to handle the actions
-  doSearchDocumentTypesEdit(form: any): any {}
+  onCriteriaInput(event: Event): void {
+    const criteria = (event.target as HTMLInputElement)?.value ?? '';
+
+    this.searchDocumentTypesSignal.update((state) => ({
+      ...state,
+      criteria,
+    }));
+  }
+
+  pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages() }, (_, index) => index + 1);
+  }
+
+  previousPage(): void {
+    if (this.currentPage() <= 0) {
+      return;
+    }
+
+    this.goToPage(this.currentPage() - 1);
+  }
+
+  nextPage(): void {
+    if (this.currentPage() >= this.totalPages() - 1) {
+      return;
+    }
+
+    this.goToPage(this.currentPage() + 1);
+  }
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= this.totalPages() || page === this.currentPage()) {
+      return;
+    }
+
+    this.doSearch(page, this.pageSize());
+  }
 
   doSearch(pageNumber: number = 0, pageSize: number = 10): void {
     let criteria = this.searchDocumentTypesSignal().criteria;
@@ -110,15 +141,15 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  documentTypesTableActionClicked(event: any) {
-    switch (event.action) {
+  openCreate(): void {
+    this.router.navigate(['document', 'type', 'edit']);
+  }
 
-      case 'search-document-types-edit':
-
-      this.router.navigate(['document', 'type', 'edit'], {queryParams: {
-        id: event.row.id
-      }})
-        break
-    }
+  openEdit(id: string): void {
+    this.router.navigate(['document', 'type', 'edit'], {
+      queryParams: {
+        id,
+      },
+    });
   }
 }

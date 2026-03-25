@@ -1,67 +1,107 @@
-<section class="dictionary-page" aria-label="Document dictionary">
-  <div class="page-head">
+<section class="dictionary-page" aria-label="Document type registry">
+  <header class="page-head">
     <div>
-      <p class="eyebrow">Registry › Document Types</p>
-      <h1 class="page-title">Document Types</h1>
-      <p class="page-copy">
-        Manage the global taxonomy of verified credentials, compliance certificates,
-        and architectural permits within the secure trust engine.
+      <h1>Document Types</h1>
+      <p>
+        Manage the registry of compliance document categories, validation profiles,
+        and extraction rules within the Veritas Protocol ecosystem.
       </p>
     </div>
-    <button class="primary-btn" type="button">＋ Create New Document Type</button>
-  </div>
+    <button class="new-btn" type="button" (click)="openCreate()">
+      <span class="material-symbols-outlined" aria-hidden="true">note_add</span>
+      New Document Type
+    </button>
+  </header>
 
-  <section class="search-card" aria-label="Search document types">
-    <input class="search-input" type="text" placeholder="Search by code, name, or keywords..." />
-    <button class="search-btn" type="button">Search</button>
-  </section>
-
-  <section class="table-wrap" aria-label="Registered document types">
-    <div class="table-head" role="row">
-      <p>Code</p>
-      <p>Name</p>
-      <p>Description</p>
-      <p class="align-end">Actions</p>
+  <section class="search-card" aria-label="Search parameters">
+    <div class="search-title">
+      <span class="material-symbols-outlined" aria-hidden="true">search</span>
+      <h2>Search Parameters</h2>
     </div>
 
-    <!-- <div class="table-body" role="table">
-      @for (item of documentTypes(); track item.code) {
-        <article class="table-row" role="row">
-          <p><span class="code-pill">{{ item.code }}</span></p>
-          <p class="name-cell">{{ item.name }}</p>
-          <p class="desc-cell">{{ item.description }}</p>
-          <div class="actions-cell" aria-label="Actions">
-            <button type="button" class="icon-action" aria-label="View">◉</button>
-            <a class="icon-action icon-link" aria-label="Edit" routerLink="/document/type/edit">✎</a>
-          </div>
-        </article>
-      }
-    </div> -->
+    <form class="search-grid">
+      <label class="field-block">
+        <span>Search Criteria</span>
+        <input
+          type="text"
+          [value]="searchDocumentTypesSignal().criteria"
+          (input)="onCriteriaInput($event)"
+          placeholder="Search by code, name, or keywords..."
+        />
+      </label>
+      <label class="field-block">
+        <span>Document Code</span>
+        <input type="text" placeholder="e.g. PASSPORT" />
+      </label>
+      <label class="field-block">
+        <span>Document Name</span>
+        <input type="text" placeholder="Identity Verification" />
+      </label>
+      <label class="field-block">
+        <span>Registry Scope</span>
+        <select>
+          <option>All Scopes</option>
+          <option>Identity</option>
+          <option>Compliance</option>
+          <option>Financial</option>
+        </select>
+      </label>
+    </form>
+
+    <div class="search-actions">
+      <button type="button" class="reset-btn">
+        <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
+        Reset
+      </button>
+      <button class="search-btn" type="button" (click)="doSearch()">Search Document Types</button>
+    </div>
   </section>
 
-  <div class="table-footer">
-    <p class="footer-note">Showing 4 of 128 document types registered.</p>
-    <div class="pagination" aria-label="Pagination">
-      <button type="button" class="page-btn">|‹</button>
-      <button type="button" class="page-btn">‹</button>
-      <!-- @for (page of pages(); track page) {
-        <button type="button" class="page-btn" [class.page-btn-active]="page === 1">{{ page }}</button>
-      } -->
-      <button type="button" class="page-btn">›</button>
-      <button type="button" class="page-btn">›|</button>
+  <section class="results-card" aria-label="Registered document types">
+    <div class="table-wrap">
+      <div class="table-head" role="row">
+        <p>Code</p>
+        <p>Name</p>
+        <p>Description</p>
+        <p>Expected Fields</p>
+        <p>Validation Prompts</p>
+        <p class="align-end">Actions</p>
+      </div>
+
+      <div class="table-body" role="table">
+        @for (item of searchDocumentTypesSignal().documentTypes; track item.id ?? item.code) {
+          <article class="table-row" role="row">
+            <p><span class="code-pill">{{ item.code }}</span></p>
+            <p class="name-cell">{{ item.name }}</p>
+            <p class="desc-cell">{{ item.description || 'No description available' }}</p>
+            <p class="muted">{{ item.expectedFields?.length || 0 }} fields</p>
+            <p class="muted">{{ item.validationPrompts?.length || 0 }} prompts</p>
+            <p class="actions">
+              <button matButton type="button" class="btn btn-primary" [routerLink]="['/document', 'type', 'details', item.id]">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button matButton type="button" class="btn btn-secondary" [routerLink]="['/document', 'type', 'edit', item.id]">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </p>
+          </article>
+        } @empty {
+          <article class="table-row empty-row" role="row">
+            <p class="empty-copy">No document types found.</p>
+          </article>
+        }
+      </div>
     </div>
-  </div>
 
-  <section class="insights-grid" aria-label="Dictionary insights">
-    <article class="hero-card">
-      <h2>Audit Compliance Engine</h2>
-      <p>Every document type defined here updates our real-time verification algorithms globally.</p>
-    </article>
-
-    <article class="side-card">
-      <div class="trust-mark">◈</div>
-      <h2>Universal Trust</h2>
-      <p>Standardizing document classification reduces verification lag by 42%.</p>
-    </article>
+    <footer class="table-footer">
+      <p>Showing {{ searchDocumentTypesSignal().documentTypes.length }} of {{ totalElements() }} document types</p>
+      <div class="pager" aria-label="Pagination">
+        <button type="button" [disabled]="currentPage() === 0" (click)="previousPage()">‹</button>
+        @for (page of pageNumbers(); track page) {
+          <button type="button" [class.active]="page - 1 === currentPage()" (click)="goToPage(page - 1)">{{ page }}</button>
+        }
+        <button type="button" [disabled]="currentPage() >= totalPages() - 1" (click)="nextPage()">›</button>
+      </div>
+    </footer>
   </section>
 </section>

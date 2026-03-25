@@ -1,0 +1,97 @@
+<section class="individuals-page" aria-label="Individuals search">
+    <header class="page-head">
+        <div>
+            <h1>Individuals</h1>
+            <p>Manage and verify personal identities within the Veritas Protocol ecosystem.</p>
+        </div>
+        <button type="button" class="new-btn" [routerLink]="['/individual', 'edit']">
+            <span class="material-symbols-outlined" aria-hidden="true">person_add</span>
+            New Individual
+        </button>
+    </header>
+
+    <section class="search-card" aria-label="Search parameters">
+        <div class="search-title">
+            <span class="material-symbols-outlined" aria-hidden="true">search</span>
+            <h2>Search Parameters</h2>
+        </div>
+
+        <form class="search-grid">
+            <label class="field-block"><span>Identity No.</span><input type="text"
+                    placeholder="e.g. ID-882931" /></label>
+            <label class="field-block"><span>First Name</span><input type="text"
+                    placeholder="Legal first name" /></label>
+            <label class="field-block"><span>Middle Name</span><input type="text" placeholder="Optional" /></label>
+            <label class="field-block"><span>Surname</span><input type="text" placeholder="Legal surname" /></label>
+            <label class="field-block"><span>Email Address</span><input type="email"
+                    placeholder="name@domain.com" /></label>
+            <label class="field-block">
+                <span>KYC Status</span>
+                <select>
+                    <option>All Statuses</option>
+                    <option>Verified</option>
+                    <option>Pending</option>
+                    <option>Flagged</option>
+                </select>
+            </label>
+        </form>
+
+        <div class="search-actions">
+            <button type="button" class="reset-btn">
+                <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
+                Reset
+            </button>
+            <button type="button" class="search-btn">Search Individuals</button>
+        </div>
+    </section>
+
+    <section class="results-card" aria-label="Search results">
+        <div class="table-wrap">
+            <div class="table-head" role="row">
+                <p>Name</p>
+                <p>Identity No.</p>
+                <p>Email Address</p>
+                <p>KYC Status</p>
+                <p class="align-end">Actions</p>
+            </div>
+
+            <div class="table-body" role="table">
+                @for (row of rows(); track row.identityNo) {
+                <article class="table-row" role="row">
+                    <div class="name-cell">
+                        <span class="avatar">{{ row.initials }}</span>
+                        <span class="name-text">{{ row.name }}</span>
+                    </div>
+                    <p class="mono">{{ row.identityNo }}</p>
+                    <p class="muted">{{ row.email }}</p>
+                    <p>
+                        <span class="status-pill" [class.status-verified]="row.status === 'VERIFIED'"
+                            [class.status-pending]="row.status === 'PENDING'"
+                            [class.status-flagged]="row.status === 'FLAGGED'">{{ row.status }}</span>
+                    </p>
+                    <p class="actions">
+                        <button matButton type="button" class="btn btn-primary" [routerLink]="['/individual', 'details', row.identityNo]">
+                            <mat-icon>visibility</mat-icon>
+                        </button>
+                        <button matButton type="button" class="btn btn-primary" [routerLink]="['/individual', 'edit', row.identityNo]">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    </p>
+                </article>
+                }
+            </div>
+        </div>
+
+        <footer class="table-footer">
+            <p>Showing 4 of 1,284 verified identities</p>
+            <div class="pager">
+                <button type="button">‹</button>
+                @for (page of pages(); track page) {
+                <button type="button" [class.active]="page === 1">{{ page }}</button>
+                }
+                <span>…</span>
+                <button type="button">›</button>
+            </div>
+        </footer>
+    </section>
+</section>

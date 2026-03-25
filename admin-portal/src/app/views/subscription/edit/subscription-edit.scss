@@ -1,0 +1,355 @@
+:host {
+  display: block;
+}
+
+.sub-edit-page,
+.meta-grid,
+.content-grid,
+.two-col-grid,
+.field-block,
+.method-grid {
+  display: grid;
+}
+
+.sub-edit-page {
+  gap: var(--vault-space-8);
+}
+
+.edit-head,
+.head-actions,
+.ref-line,
+.toggle-row,
+.breakdown p,
+.doc-row,
+.form-footer {
+  display: flex;
+  align-items: center;
+}
+
+.edit-head,
+.form-footer {
+  justify-content: space-between;
+  gap: var(--vault-space-6);
+}
+
+.brand {
+  margin: 0 0 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--vault-primary);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  color: var(--vault-primary);
+  letter-spacing: -0.02em;
+  font-size: 2.25rem;
+}
+
+.subline,
+.form-footer p {
+  color: var(--vault-on-surface-variant);
+}
+
+.panel {
+  background: var(--vault-surface-container-lowest);
+  border-radius: 0.75rem;
+  padding: var(--vault-space-6);
+}
+
+.btn-secondary,
+.btn-primary,
+input,
+select,
+button {
+  font: inherit;
+}
+
+.btn-secondary,
+.btn-primary {
+  border: 0;
+  border-radius: 0.55rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.btn-secondary {
+  background: var(--vault-surface-container);
+  color: var(--vault-on-surface-variant);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--vault-primary), var(--vault-primary-container));
+  color: var(--vault-on-primary);
+}
+
+.meta-grid {
+  grid-template-columns: 1fr 2fr;
+  gap: var(--vault-space-6);
+}
+
+.card {
+  gap: var(--vault-space-3);
+}
+
+.label,
+.field-block label,
+.amount-block label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--vault-on-surface-variant);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.ref-line {
+  gap: var(--vault-space-3);
+}
+
+.immutable-tag {
+  border-radius: 0.45rem;
+  background: var(--vault-secondary-container);
+  color: var(--vault-on-secondary-container);
+  padding: 0.62rem 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.62rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+input,
+select {
+  width: 100%;
+  background: var(--vault-surface-container-low);
+  border: 1px solid rgb(196 198 208 / 20%);
+  border-radius: 0.5rem;
+  color: var(--vault-on-surface);
+  padding: 0.7rem 0.8rem;
+}
+
+input:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--vault-primary);
+  box-shadow: 0 0 0 2px rgb(214 227 255 / 30%);
+}
+
+.content-grid {
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--vault-space-8);
+}
+
+.org-panel,
+.financial-panel,
+.docs-box,
+.breakdown,
+.method-grid,
+.two-col-grid,
+.field-block {
+  gap: var(--vault-space-4);
+}
+
+h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--vault-primary);
+  font-size: 1.1rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.chips span {
+  border-radius: 999px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.67rem;
+  background: var(--vault-surface-container);
+  color: var(--vault-on-surface-variant);
+}
+
+.two-col-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.toggle-row {
+  gap: 0.55rem;
+  min-height: 2.6rem;
+}
+
+.toggle-row small {
+  color: var(--vault-on-surface);
+}
+
+.toggle-switch {
+  position: relative;
+  width: 2.7rem;
+  height: 1.45rem;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch span {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--vault-surface-variant);
+}
+
+.toggle-switch span::before {
+  content: '';
+  position: absolute;
+  width: 1.1rem;
+  height: 1.1rem;
+  left: 0.17rem;
+  top: 0.17rem;
+  border-radius: 999px;
+  background: #fff;
+  transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + span {
+  background: var(--vault-primary);
+}
+
+.toggle-switch input:checked + span::before {
+  transform: translateX(1.2rem);
+}
+
+.financial-panel {
+  background: var(--vault-primary);
+  color: var(--vault-on-primary);
+}
+
+.financial-panel h2 {
+  color: var(--vault-on-primary);
+}
+
+.amount-block small {
+  color: rgb(255 255 255 / 70%);
+  font-size: 0.67rem;
+}
+
+.financial-panel input {
+  background: color-mix(in srgb, var(--vault-primary-container) 70%, transparent);
+  border-color: rgb(255 255 255 / 25%);
+  color: var(--vault-on-primary);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.breakdown {
+  border-radius: 0.55rem;
+  background: rgb(255 255 255 / 8%);
+  padding: 0.8rem;
+}
+
+.breakdown p {
+  justify-content: space-between;
+  font-size: 0.86rem;
+}
+
+.breakdown .total {
+  margin-top: 0.35rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgb(255 255 255 / 15%);
+  font-weight: 800;
+}
+
+.method-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.method-grid button,
+.ghost-btn {
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.method-grid button {
+  border: 1px solid rgb(255 255 255 / 25%);
+  background: rgb(255 255 255 / 8%);
+  color: var(--vault-on-primary);
+}
+
+.method-grid button.active {
+  background: var(--vault-surface-container-lowest);
+  color: var(--vault-primary);
+  border-color: transparent;
+}
+
+.docs-box {
+  background: rgb(255 255 255 / 12%);
+  border-radius: 0.6rem;
+  padding: 0.8rem;
+}
+
+.docs-box h3 {
+  font-size: 0.8rem;
+}
+
+.doc-row {
+  justify-content: space-between;
+  background: rgb(255 255 255 / 14%);
+  border-radius: 0.5rem;
+  padding: 0.55rem;
+}
+
+.doc-row p {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.doc-row small {
+  font-size: 0.63rem;
+  color: rgb(255 255 255 / 72%);
+}
+
+.ghost-btn {
+  border: 1px dashed rgb(255 255 255 / 35%);
+  background: transparent;
+  color: rgb(255 255 255 / 82%);
+}
+
+.form-footer {
+  padding-top: var(--vault-space-6);
+  border-top: 1px solid rgb(196 198 208 / 20%);
+}
+
+@media (max-width: 1120px) {
+  .meta-grid,
+  .content-grid,
+  .two-col-grid,
+  .method-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .edit-head,
+  .head-actions,
+  .form-footer,
+  .ref-line {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

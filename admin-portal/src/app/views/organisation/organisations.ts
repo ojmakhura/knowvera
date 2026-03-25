@@ -4,23 +4,16 @@ import {
   Component,
   effect,
   inject,
-  linkedSignal,
   OnDestroy,
   OnInit,
   Signal,
   signal,
-  ViewChild,
 } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatPaginator } from '@angular/material/paginator';
 import { Router, RouterLink } from '@angular/router';
-import { TableComponent } from '@app/components/table/table';
-import { ActionTemplate } from '@app/models/action-template';
 import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
-import { ColumnModel } from '@app/models/column.model';
 import { SearchObject } from '@app/models/search-object';
 import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
 import { TranslateModule } from '@ngx-translate/core';
@@ -33,7 +26,7 @@ export class SearchOrganisationsVarsForm {
 
 @Component({
   selector: 'app-organisations',
-  imports: [RouterLink, TableComponent, FormField, MatCardModule, MatIconModule, TranslateModule],
+  imports: [RouterLink, FormField, TranslateModule, MatIconModule],
   templateUrl: './organisations.html',
   styleUrls: ['./organisations.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,35 +38,17 @@ export class Organisations implements OnInit, AfterViewInit, OnDestroy {
 
   toaster: ToastrService = inject(ToastrService);
   readonly organisationApiStore = inject(OrganisationApiStore);
-  @ViewChild('organisationsTable') organisationsTable!: TableComponent<Array<OrganisationListDTO>>;
-
-  organisationsTableColumns: ColumnModel[] = [
-    new ColumnModel('registrationNo', 'registration.no', false),
-    new ColumnModel('code', 'code', false),
-    new ColumnModel('name', 'name', false),
-  ];
-
-  organisationsTableColumnsActions: ActionTemplate[] = [
-    {
-      id: 'organisation-edit',
-      label: 'edit',
-      icon: 'edit',
-      tooltip: 'edit',
-    },
-    {
-      id: 'organisation-details',
-      label: 'details',
-      icon: 'remove_red_eye',
-      tooltip: 'details',
-    },
-  ];
   loaderMessage: Signal<string> = signal('');
   messages: Signal<any> = signal({});
   success: Signal<boolean> = signal(false);
   loading: Signal<boolean> = signal(false);
   error: Signal<boolean> = signal(false);
 
-  organisationsTableSignal = linkedSignal(() => this.organisationApiStore.dataPage());
+  organisations = signal<OrganisationListDTO[]>([]);
+  currentPage = signal(0);
+  pageSize = signal(10);
+  totalElements = signal(0);
+  totalPages = signal(0);
   router = inject(Router);
 
   constructor() {
@@ -88,14 +63,23 @@ export class Organisations implements OnInit, AfterViewInit, OnDestroy {
         this.toaster.error(messages[0]);
       }
     });
-  }
-  ngOnInit(): void {
-    this.organisationsTable?.tablePaginator?.page?.subscribe({
-      next: (paginator: MatPaginator) => {
-        this.doSearch(paginator.pageIndex, paginator.pageSize);
-      },
-    });
 
+    effect(() => {
+      const page = this.organisationApiStore.dataPage();
+
+      if (!page) {
+        return;
+      }
+
+      this.organisations.set(page.content || []);
+      this.currentPage.set(page.page?.number || 0);
+      this.pageSize.set(page.page?.size || 10);
+      this.totalElements.set(page.page?.totalElements || 0);
+      this.totalPages.set(page.page?.totalPages || 0);
+    });
+  }
+
+  ngOnInit(): void {
     this.doSearch();
   }
 
@@ -103,31 +87,60 @@ export class Organisations implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {}
 
-  doSearch(pageNumber: number = 0, pageSize: number = 10): void {
+  pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages() }, (_, index) => index + 1);
+  }
 
+  previousPage(): void {
+    if (this.currentPage() <= 0) {
+      return;
+    }
+
+    this.doSearch(this.currentPage() - 1, this.pageSize());
+  }
+
+  nextPage(): void {
+    if (this.currentPage() >= this.totalPages() - 1) {
+      return;
+    }
+
+    this.doSearch(this.currentPage() + 1, this.pageSize());
+  }
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= this.totalPages() || page === this.currentPage()) {
+      return;
+    }
+
+    this.doSearch(page, this.pageSize());
+  }
+
+  doSearch(pageNumber: number = 0, pageSize: number = 10): void {
     let value = this.searchOrganisationsSignal().criteria;
 
-    let criteria = new SearchObject<OrganisationSearchCriteria>()
+    let criteria = new SearchObject<OrganisationSearchCriteria>();
     criteria.pageNumber = pageNumber;
     criteria.pageSize = pageSize;
     criteria.criteria = value;
 
     this.organisationApiStore.pagedSearch({
-      criteria: criteria
+      criteria: criteria,
     });
   }
 
-  organisationsTableActionClicked(event: any): void {
-    console.log('organisationsTableActionClicked', event);
-    switch (event.action) {
-      case 'organisation-edit':
-        
-        this.router.navigate(['organisation', 'edit', event.row.id]);
-        break;
-      case 'organisation-details':
-        
-        this.router.navigate(['organisation', 'details', event.row.id]);
-        break;
+  getClientStatus(organisation: OrganisationListDTO): string {
+    if (!organisation.isClient) {
+      return 'PROSPECT';
     }
+
+    return organisation.status || 'ACTIVE';
+  }
+
+  openEdit(id: string): void {
+    this.router.navigate(['organisation', 'edit', id]);
+  }
+
+  openDetails(id: string): void {
+    this.router.navigate(['organisation', 'details', id]);
   }
 }

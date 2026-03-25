@@ -1,43 +1,18 @@
 <div class="edit-page">
   <header class="edit-header">
     <div>
-      <h1 class="page-title">Edit Document Type</h1>
+      <h3 class="page-title">Edit Document Type</h3>
       <p class="page-subtitle">Configure metadata, data fields, and AI validation logic.</p>
     </div>
     <div class="header-actions">
       <button class="btn-secondary" type="button">Discard</button>
-      <button class="btn-primary" type="button">Save Changes</button>
+      <button class="btn-primary" type="button" (click)="saveDocumentType()">Save Changes</button>
     </div>
   </header>
 
   <div class="workspace-grid">
-    <aside class="local-sidebar">
-      <nav class="section-nav" aria-label="Edit sections">
-        @for (section of sectionLinks(); track section.id) {
-          <a
-            class="section-link"
-            [class.section-link-active]="section.active"
-            [href]="'#' + section.id"
-          >
-            <span class="section-icon" aria-hidden="true">{{ section.icon }}</span>
-            <span>{{ section.label }}</span>
-          </a>
-        }
-      </nav>
 
-      <article class="status-card">
-        <div class="status-head">
-          <div class="status-mark">i</div>
-          <p class="status-label">System Status</p>
-        </div>
-        <p class="status-copy">
-          Version 2.4.0-stable active. AI schema validation is currently synchronized with
-          global extraction rules.
-        </p>
-      </article>
-    </aside>
-
-    <main class="editor-canvas">
+    <main>
       <section class="editor-section" id="general">
         <div class="section-title-row">
           <p class="step-label">Step 01</p>
@@ -48,17 +23,18 @@
           <div class="field-grid">
             <label class="field-block">
               <span class="field-label">Document Code</span>
-              <input class="field-input field-input-mono" type="text" value="KYC_PASSPORT_INT" />
+              <input class="field-input field-input-mono" type="text" [formField]="editDocumentTypeSignalForm.code" />
             </label>
             <label class="field-block">
               <span class="field-label">Display Name</span>
-              <input class="field-input" type="text" value="International Passport" />
+              <input class="field-input" type="text" [formField]="editDocumentTypeSignalForm.name" />
             </label>
           </div>
 
           <label class="field-block">
             <span class="field-label">Description</span>
-            <textarea class="field-input field-textarea" rows="4">Standard identification document used for international verification purposes. Requires MRZ zone visibility and biometric data clarity.</textarea>
+            <textarea class="field-input field-textarea" rows="4"
+              [formField]="editDocumentTypeSignalForm.description"></textarea>
           </label>
         </div>
       </section>
@@ -69,7 +45,7 @@
             <p class="step-label">Step 02</p>
             <h2 class="section-title">Expected Fields</h2>
           </div>
-          <button class="add-btn" type="button">＋ Add Field</button>
+          <button class="add-btn" type="button" (click)="expectedFieldsAdd()">＋ Add Field</button>
         </div>
 
         <div class="panel-card table-card">
@@ -82,20 +58,22 @@
           </div>
 
           <div class="fields-body" role="table">
-            @for (field of expectedFields(); track field.name) {
-              <article class="fields-row" role="row">
-                <input class="table-input" type="text" [value]="field.name" />
-                <div class="centered"><input type="checkbox" [checked]="field.keyField" /></div>
-                <div class="centered"><input type="checkbox" [checked]="field.mandatory" /></div>
-                <select class="format-select">
-                  @for (format of field.formats; track format) {
-                    <option [selected]="format === field.selectedFormat">{{ format }}</option>
+            @for (field of editDocumentTypeSignalForm.expectedFields; track field.field; let index = $index) {
+            <article class="fields-row" role="row">
+              <input class="table-input" type="text" [formField]="field.field" />
+              <!-- <div class="centered"> -->
+                <select class="table-input" [formField]="field.keyField">
+                  @for (option of keyFieldOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
                   }
                 </select>
-                <div class="row-action-wrap">
-                  <button class="delete-btn" type="button" aria-label="Delete field">×</button>
-                </div>
-              </article>
+              <!-- </div> -->
+              <div class="centered"><input type="checkbox" [formField]="field.mandatory" /></div>
+              <input type="text" class="form-control table-input" [formField]="field.format" />
+              <div class="row-action-wrap">
+                <button class="delete-btn" type="button" aria-label="Delete field" (click)="expectedFieldsRemove(index, field().value())">×</button>
+              </div>
+            </article>
             }
           </div>
         </div>
@@ -111,86 +89,25 @@
         </div>
 
         <div class="stack-4">
-          @for (prompt of validationPrompts(); track prompt.content) {
-            <article class="panel-card prompt-card" [class.prompt-card-accent]="prompt.accented">
-              <label class="field-block prompt-role">
-                <span class="field-label">Role</span>
-                <select class="field-input select-input">
-                  <option [selected]="prompt.role === 'System'">System</option>
-                  <option [selected]="prompt.role === 'User'">User</option>
-                  <option [selected]="prompt.role === 'Assistant'">Assistant</option>
-                </select>
-              </label>
+          @for (prompt of editDocumentTypeSignalForm.validationPrompts; track prompt.content) {
+          <article class="panel-card prompt-card">
+            <label class="field-block prompt-role">
+              <span>Role</span>
+              <select class="field-input select-input" [formField]="prompt.role">
+                <option [selected]="prompt.role().value() === 'system'">System</option>
+                <option [selected]="prompt.role().value() === 'user'">User</option>
+                <option [selected]="prompt.role().value() === 'assistant'">Assistant</option>
+              </select>
+            </label>
 
-              <label class="field-block prompt-content">
-                <span class="field-label">Content</span>
-                <textarea class="field-input field-textarea" rows="3">{{ prompt.content }}</textarea>
-              </label>
-            </article>
+            <label class="field-block prompt-content">
+              <span class="field-label">Content</span>
+              <textarea class="field-input field-textarea" rows="3" [formField]="prompt.content"></textarea>
+            </label>
+          </article>
           }
         </div>
       </section>
-
-      <section class="editor-section" id="extraction">
-        <div class="section-title-row">
-          <p class="step-label">Step 04</p>
-          <h2 class="section-title">Extraction Rules</h2>
-        </div>
-
-        <article class="panel-card extraction-card stack-6">
-          <div class="extraction-head">
-            <div class="psychology-mark">◎</div>
-            <div>
-              <h3 class="mini-title">Instructional Logic</h3>
-              <p class="muted-copy">
-                Define how the LLM should parse raw OCR results into the structured fields defined in Step 02.
-              </p>
-            </div>
-          </div>
-
-          <label class="field-block">
-            <span class="field-label">Base Instruction</span>
-            <textarea class="field-input field-textarea extraction-textarea" rows="5">Map the OCR string to JSON.
-1. Use 'passport_number' for the alphanumeric ID usually found top right.
-2. Format all dates as YYYY-MM-DD.
-3. Combine first and last name strings into 'full_name' separated by space.</textarea>
-          </label>
-        </article>
-      </section>
     </main>
-
-    <aside class="helper-rail">
-      <div class="stack-8">
-        <section>
-          <h3 class="helper-title">Live Preview</h3>
-          <div class="preview-card">
-            <div class="preview-head"><span></span></div>
-            <div class="preview-body">
-              <div class="preview-image">▣</div>
-              <div class="preview-lines"><span></span><span></span><span></span></div>
-            </div>
-            <div class="preview-footer">
-              <span class="preview-dot"></span>
-              <span class="preview-pill"></span>
-            </div>
-          </div>
-        </section>
-
-        <section class="audit-card">
-          <h3 class="helper-title helper-title-secondary">Audit Log</h3>
-          <ul class="audit-list">
-            @for (entry of auditEntries(); track entry.title) {
-              <li class="audit-item">
-                <span class="audit-dot"></span>
-                <div>
-                  <p class="audit-title">{{ entry.title }}</p>
-                  <p class="audit-time">{{ entry.time }}</p>
-                </div>
-              </li>
-            }
-          </ul>
-        </section>
-      </div>
-    </aside>
   </div>
 </div>

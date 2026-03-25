@@ -26,9 +26,4 @@ export const documentRoutes: Routes = [
     loadComponent: () =>
       import('./details/document-details').then((module) => module.DocumentDetails),
   },
-  {
-    path: 'type',
-    loadChildren: () =>
-      import('./type/document-type.routes').then((module) => module.documentTypeRoutes),
-  },
 ];

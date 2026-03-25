@@ -1,0 +1,111 @@
+<section class="sub-details-page">
+  <header class="details-head">
+    <div class="title-wrap">
+      <h1>Subscription Details</h1>
+      <p>Veritas Protocol / Compliance Environment</p>
+    </div>
+
+    <div class="head-actions">
+      <button type="button" class="btn-secondary">Download PDF</button>
+      <button type="button" class="btn-primary">Renew Subscription</button>
+    </div>
+  </header>
+
+  <section class="top-grid">
+    <article class="panel overview-card">
+      <div class="overview-grid">
+        @for (item of overview(); track item.label) {
+          <div class="kv">
+            <span>{{ item.label }}</span>
+            <p>{{ item.value }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="progress">
+        @for (segment of progressSegments(); track $index) {
+          <span [class.filled]="segment"></span>
+        }
+      </div>
+      <small>Compliance cycle: 60% completed</small>
+    </article>
+
+    <article class="panel timeline-card">
+      <h2>Subscription Timeline</h2>
+      <div class="timeline-list">
+        @for (item of timeline(); track item.label) {
+          <div class="timeline-row">
+            <span class="material-symbols-outlined">{{ item.icon }}</span>
+            <div>
+              <small>{{ item.label }}</small>
+              <p>{{ item.value }}</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="days-box">
+        <small>Days Remaining</small>
+        <p>214</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel mapping-card">
+    <h2>
+      <span class="material-symbols-outlined">corporate_fare</span>
+      Organisation Mapping
+    </h2>
+
+    <div class="mapping-grid">
+      @for (item of mapping(); track item.label) {
+        <div class="kv">
+          <span>{{ item.label }}</span>
+          <p>{{ item.value }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="panel invoice-card">
+    <div class="invoice-head">
+      <h2>
+        <span class="material-symbols-outlined">receipt_long</span>
+        Invoice History
+      </h2>
+      <button type="button">View All Invoices</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Invoice Ref</th>
+          <th>Billing Date</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (invoice of invoices(); track invoice.ref) {
+          <tr>
+            <td class="mono">{{ invoice.ref }}</td>
+            <td>{{ invoice.date }}</td>
+            <td class="amount">{{ invoice.amount }}</td>
+            <td><span class="paid-pill">{{ invoice.status }}</span></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <footer class="details-footer panel">
+    <div class="meta">
+      <p><strong>Created By</strong><span>Admin_Compliance_01</span></p>
+      <p><strong>Last Modified</strong><span>May 14, 2024 · 14:32 UTC</span></p>
+    </div>
+    <span class="record-chip">
+      <span class="material-symbols-outlined">encrypted</span>
+      Blockchain Verified Record
+    </span>
+  </footer>
+</section>

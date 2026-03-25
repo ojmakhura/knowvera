@@ -1,0 +1,93 @@
+<section class="ind-details-page">
+  <header class="page-head panel">
+    <div>
+      <p class="crumb">Individual / Details</p>
+      <h1>Individual Details</h1>
+      <p class="subline">Comprehensive KYC, identity and monitoring snapshot for a single individual profile.</p>
+    </div>
+
+    <div class="head-actions">
+      <button type="button" class="btn-secondary">Print Summary</button>
+      <a routerLink="../edit" class="btn-primary">Edit Individual</a>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="section-head">
+      <h2>Profile Information</h2>
+    </div>
+
+    <div class="kv-grid kv-grid-4">
+      @for (item of profile(); track item.label) {
+        <article class="kv">
+          <span>{{ item.label }}</span>
+          <p>{{ item.value }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="two-col-grid">
+    <article class="panel">
+      <div class="section-head">
+        <h2>Identification</h2>
+      </div>
+
+      <div class="kv-grid">
+        @for (item of identifiers(); track item.label) {
+          <article class="kv">
+            <span>{{ item.label }}</span>
+            <p>{{ item.value }}</p>
+          </article>
+        }
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="section-head">
+        <h2>Contact and Location</h2>
+      </div>
+
+      <div class="kv-grid">
+        @for (item of contact(); track item.label) {
+          <article class="kv">
+            <span>{{ item.label }}</span>
+            <p>{{ item.value }}</p>
+          </article>
+        }
+      </div>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="section-head">
+      <h2>Compliance and Monitoring</h2>
+    </div>
+
+    <div class="compliance-list">
+      @for (check of compliance(); track check.label) {
+        <article class="compliance-card">
+          <div class="left">
+            <span>{{ check.label }}</span>
+            <p>{{ check.detail }}</p>
+          </div>
+          <span class="chip" [class.chip-ok]="check.status === 'ok'" [class.chip-review]="check.status === 'review'" [class.chip-pending]="check.status === 'pending'">
+            {{ check.status }}
+          </span>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="section-head">
+      <h2>Activity Timeline</h2>
+    </div>
+
+    <ul class="timeline">
+      @for (item of timeline(); track item) {
+        <li>{{ item }}</li>
+      }
+    </ul>
+  </section>
+</section>

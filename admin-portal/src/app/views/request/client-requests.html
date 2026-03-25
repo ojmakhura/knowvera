@@ -1,0 +1,94 @@
+<section class="requests-page" aria-label="Client requests search">
+  <header class="page-head">
+    <div>
+      <h1>Client Requests</h1>
+      <p>Manage and verify client request submissions within the Veritas Protocol ecosystem.</p>
+    </div>
+    <button type="button" class="new-btn">
+      <span class="material-symbols-outlined" aria-hidden="true">person_add</span>
+      New Request
+    </button>
+  </header>
+
+  <section class="search-card" aria-label="Search parameters">
+    <div class="search-title">
+      <span class="material-symbols-outlined" aria-hidden="true">search</span>
+      <h2>Search Parameters</h2>
+    </div>
+
+    <form class="search-grid">
+      <label class="field-block"><span>Request ID</span><input type="text" placeholder="e.g. CR-001" /></label>
+      <label class="field-block"><span>Client Name</span><input type="text" placeholder="Legal name" /></label>
+      <label class="field-block"><span>Email Address</span><input type="email" placeholder="name@domain.com" /></label>
+      <label class="field-block">
+        <span>Request Status</span>
+        <select>
+          <option>All Statuses</option>
+          <option>In Review</option>
+          <option>Approved</option>
+          <option>Rejected</option>
+        </select>
+      </label>
+    </form>
+
+    <div class="search-actions">
+      <button type="button" class="reset-btn">
+        <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
+        Reset
+      </button>
+      <button type="button" class="search-btn">Search Requests</button>
+    </div>
+  </section>
+
+  <section class="results-card" aria-label="Search results">
+    <div class="table-wrap">
+      <div class="table-head" role="row">
+        <p>Client Name</p>
+        <p>Email Address</p>
+        <p>Organisation</p>
+        <p>Request Status</p>
+        <p class="align-end">Actions</p>
+      </div>
+
+      <div class="table-body" role="table">
+        @for (row of rows(); track row.id) {
+          <article class="table-row" role="row">
+            <div class="name-cell">
+              <span class="name-text">{{ row.name }}</span>
+            </div>
+            <p class="muted">{{ row.email }}</p>
+            <p>{{ row.organisation }}</p>
+            <p>
+              <span
+                class="status-pill"
+                [class.status-approved]="row.status === 'APPROVED'"
+                [class.status-pending]="row.status === 'IN_REVIEW'"
+                [class.status-rejected]="row.status === 'REJECTED'"
+              >{{ row.status }}</span>
+            </p>
+            <p class="actions">
+                <button matButton type="button" class="btn btn-primary" [routerLink]="['/client-request', 'details', row.id]">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button matButton type="button" class="btn btn-secondary" [routerLink]="['/client-request', 'edit', row.id]">
+                  <mat-icon>edit</mat-icon>
+                </button>
+            </p>
+          </article>
+        }
+      </div>
+    </div>
+
+    <footer class="table-footer">
+      <p>Showing 4 of 1,284 client requests</p>
+      <div class="pager">
+        <button type="button">‹</button>
+        @for (page of pages(); track page) {
+          <button type="button" [class.active]="page === 1">{{ page }}</button>
+        }
+        <span>…</span>
+        <button type="button">›</button>
+      </div>
+    </footer>
+  </section>
+</section>

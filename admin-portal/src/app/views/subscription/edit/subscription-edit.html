@@ -1,0 +1,128 @@
+<section class="sub-edit-page">
+  <header class="edit-head">
+    <div>
+      <p class="brand">Veritas Protocol</p>
+      <h1>Edit Subscription</h1>
+      <p class="subline">Configure compliance parameters, organisational mapping, and financial terms for the Digital Vault subscription model.</p>
+    </div>
+
+    <div class="head-actions">
+      <button type="button" class="btn-secondary">Cancel</button>
+      <button type="button" class="btn-primary">Save Changes</button>
+    </div>
+  </header>
+
+  <section class="meta-grid">
+    <article class="card panel">
+      <span class="label">Current Status</span>
+      <select>
+        <option>Active</option>
+        <option>Pending Review</option>
+        <option>Flagged</option>
+        <option>Suspended</option>
+      </select>
+    </article>
+
+    <article class="card panel ref-card">
+      <span class="label">Subscription Reference (REF)</span>
+      <div class="ref-line">
+        <input type="text" value="VP-SUB-2024-8891-X" />
+        <span class="immutable-tag">Immutable Ref</span>
+      </div>
+    </article>
+  </section>
+
+  <section class="content-grid">
+    <article class="panel org-panel">
+      <h2>
+        <span class="material-symbols-outlined">corporate_fare</span>
+        Organisation and Period
+      </h2>
+
+      <div class="field-block">
+        <label>Assign Organisation</label>
+        <input type="text" placeholder="Filter by Name, ID or Jurisdiction..." />
+        <div class="chips">
+          <span>Global Compliance Corp</span>
+          <span>Subsidary: EMEA Node</span>
+        </div>
+      </div>
+
+      <div class="two-col-grid">
+        <div class="field-block">
+          <label>Subscription Period</label>
+          <select>
+            <option>Annual (Commitment)</option>
+            <option>Monthly Recurring</option>
+            <option>Biennial (Enterprise)</option>
+          </select>
+        </div>
+        <div class="field-block">
+          <label>Auto-Renewal</label>
+          <div class="toggle-row">
+            <label class="toggle-switch">
+              <input type="checkbox" checked />
+              <span></span>
+            </label>
+            <small>Enabled</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col-grid">
+        <div class="field-block">
+          <label>Start Date</label>
+          <input type="date" value="2024-01-01" />
+        </div>
+        <div class="field-block">
+          <label>End Date</label>
+          <input type="date" value="2024-12-31" />
+        </div>
+      </div>
+    </article>
+
+    <aside class="panel financial-panel">
+      <h2>
+        <span class="material-symbols-outlined">payments</span>
+        Financial Configuration
+      </h2>
+
+      <div class="field-block amount-block">
+        <label>Total Amount (USD)</label>
+        <input type="text" value="$12,450.00" />
+        <small>Calculated based on 48,000 KYC credits / year</small>
+      </div>
+
+      <article class="breakdown">
+        <p><span>Base Platform Fee</span><strong>$2,500.00</strong></p>
+        <p><span>KYC Processing (Tier 2)</span><strong>$9,950.00</strong></p>
+        <p class="total"><span>Total Due</span><strong>$12,450.00</strong></p>
+      </article>
+
+      <div class="field-block">
+        <label>Billing Method</label>
+        <div class="method-grid">
+          <button type="button">Wire Transfer</button>
+          <button type="button" class="active">Credit Card</button>
+        </div>
+      </div>
+
+      <article class="docs-box">
+        <h3>Supporting Documentation</h3>
+        <div class="doc-row">
+          <div>
+            <p>Service_Agreement_v4.pdf</p>
+            <small>2.4 MB · Uploaded Jan 12</small>
+          </div>
+          <span class="material-symbols-outlined">download</span>
+        </div>
+        <button type="button" class="ghost-btn">Add New Attachment</button>
+      </article>
+    </aside>
+  </section>
+
+  <footer class="form-footer">
+    <p>Last edited by Audit_Admin_04 on May 15, 2024 at 09:42 AM</p>
+    <button type="button" class="btn-primary">Update Protocol Settings</button>
+  </footer>
+</section>

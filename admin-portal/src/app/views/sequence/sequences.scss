@@ -2,20 +2,26 @@
   display: block;
 }
 
+.sequences-page,
+.table-wrap,
+.table-body {
+  display: grid;
+}
+
+.sequences-page {
+  gap: var(--vault-space-8);
+}
+
 h1,
 h2,
 p {
   margin: 0;
 }
 
-.dictionary-page {
-  display: grid;
-  gap: var(--vault-space-8);
-}
-
 .page-head,
 .search-title,
 .search-actions,
+.name-cell,
 .table-footer,
 .pager,
 .actions {
@@ -36,7 +42,6 @@ p {
 
 .page-head p,
 .muted,
-.desc-cell,
 .table-footer p {
   color: var(--vault-on-surface-variant);
 }
@@ -69,10 +74,6 @@ p {
   background: var(--vault-surface-container-low);
   border-radius: 0.75rem;
   padding: var(--vault-space-8);
-}
-
-.search-card {
-  background: var(--vault-surface-container-low);
 }
 
 .search-title {
@@ -141,15 +142,10 @@ p {
   box-shadow: 0 4px 20px rgb(25 28 30 / 4%);
 }
 
-.table-wrap,
-.table-body {
-  display: grid;
-}
-
 .table-head,
 .table-row {
   display: grid;
-  grid-template-columns: 1fr 1.4fr 2.3fr 1fr 1fr 0.9fr;
+  grid-template-columns: 2.1fr 1.3fr 1.4fr 1fr 0.9fr;
   gap: var(--vault-space-4);
   align-items: center;
 }
@@ -174,23 +170,45 @@ p {
   background: var(--vault-surface-container-high);
 }
 
-.code-pill {
-  display: inline-flex;
-  padding: 0.35rem 0.55rem;
-  border-radius: 999px;
-  background: var(--vault-surface-container-high);
-  color: var(--vault-primary);
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-
 .name-cell {
+  gap: 0.75rem;
+}
+
+.icon-box {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 0.45rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vault-primary-fixed);
+  color: var(--vault-primary);
+}
+
+.name-text,
+code {
   color: var(--vault-primary);
   font-weight: 700;
 }
 
-.desc-cell {
-  font-size: 0.9rem;
+.entity-pill {
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  background: var(--vault-secondary-container);
+  color: var(--vault-on-secondary-container);
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+code {
+  border-radius: 0.35rem;
+  background: var(--vault-surface-container);
+  padding: 0.2rem 0.45rem;
+  font-size: 0.7rem;
+}
+
+.pager {
+  gap: 0.35rem;
 }
 
 .actions {
@@ -206,15 +224,6 @@ p {
   color: var(--vault-primary);
 }
 
-.empty-row {
-  grid-template-columns: 1fr;
-}
-
-.empty-copy {
-  color: var(--vault-on-surface-variant);
-  text-align: center;
-}
-
 .table-footer {
   padding: var(--vault-space-4);
   background: var(--vault-surface-container-low);
@@ -223,10 +232,6 @@ p {
 
 .table-footer p {
   font-size: 0.75rem;
-}
-
-.pager {
-  gap: 0.35rem;
 }
 
 .pager button {
@@ -245,15 +250,6 @@ p {
   color: #fff;
 }
 
-.pager button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.align-end {
-  justify-self: flex-end;
-}
-
 @media (max-width: 1080px) {
   .search-grid,
   .table-head,
@@ -263,7 +259,8 @@ p {
 
   .page-head,
   .search-actions,
-  .table-footer {
+  .table-footer,
+  .pager {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.6rem;
@@ -271,11 +268,5 @@ p {
 
   .actions {
     justify-content: flex-start;
-  }
-
-  .align-end,
-  .actions-cell {
-    text-align: left;
-    justify-content: start;
   }
 }

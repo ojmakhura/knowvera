@@ -2,20 +2,21 @@
   display: block;
 }
 
+.invoices-page {
+  display: grid;
+  gap: var(--vault-space-8);
+}
+
 h1,
 h2,
 p {
   margin: 0;
 }
 
-.dictionary-page {
-  display: grid;
-  gap: var(--vault-space-8);
-}
-
 .page-head,
 .search-title,
 .search-actions,
+.name-cell,
 .table-footer,
 .pager,
 .actions {
@@ -36,7 +37,6 @@ p {
 
 .page-head p,
 .muted,
-.desc-cell,
 .table-footer p {
   color: var(--vault-on-surface-variant);
 }
@@ -71,10 +71,6 @@ p {
   padding: var(--vault-space-8);
 }
 
-.search-card {
-  background: var(--vault-surface-container-low);
-}
-
 .search-title {
   gap: 0.45rem;
   border-bottom: 1px solid rgb(196 198 208 / 20%);
@@ -83,10 +79,16 @@ p {
 
 .search-title h2,
 .field-block span,
-.table-head {
+.table-head,
+.status-pill {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 700;
+}
+
+.search-title h2,
+.field-block span,
+.table-head {
   color: var(--vault-on-surface-variant);
   font-size: 0.72rem;
 }
@@ -94,7 +96,7 @@ p {
 .search-grid {
   margin-top: var(--vault-space-8);
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--vault-space-4);
 }
 
@@ -141,15 +143,10 @@ p {
   box-shadow: 0 4px 20px rgb(25 28 30 / 4%);
 }
 
-.table-wrap,
-.table-body {
-  display: grid;
-}
-
 .table-head,
 .table-row {
   display: grid;
-  grid-template-columns: 1fr 1.4fr 2.3fr 1fr 1fr 0.9fr;
+  grid-template-columns: 1.5fr 1.8fr 1.1fr 1.3fr 1fr 1.2fr 0.9fr;
   gap: var(--vault-space-4);
   align-items: center;
 }
@@ -165,6 +162,10 @@ p {
   margin: 0;
 }
 
+.table-body {
+  display: grid;
+}
+
 .table-row {
   padding: 0.95rem var(--vault-space-4);
   border-bottom: 1px solid rgb(196 198 208 / 20%);
@@ -174,23 +175,36 @@ p {
   background: var(--vault-surface-container-high);
 }
 
-.code-pill {
-  display: inline-flex;
-  padding: 0.35rem 0.55rem;
-  border-radius: 999px;
-  background: var(--vault-surface-container-high);
-  color: var(--vault-primary);
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-
 .name-cell {
+  gap: 0.6rem;
+}
+
+.name-text,
+.amount {
   color: var(--vault-primary);
   font-weight: 700;
 }
 
-.desc-cell {
-  font-size: 0.9rem;
+.status-pill {
+  display: inline-flex;
+  padding: 0.28rem 0.52rem;
+  border-radius: 999px;
+  font-size: 0.58rem;
+}
+
+.status-approved {
+  background: var(--vault-secondary-container);
+  color: var(--vault-on-secondary-container);
+}
+
+.status-pending {
+  background: rgb(255 179 0 / 15%);
+  color: #ffb300;
+}
+
+.status-rejected {
+  background: var(--vault-error-container);
+  color: var(--vault-on-error-container);
 }
 
 .actions {
@@ -204,15 +218,6 @@ p {
   font-size: 0.74rem;
   font-weight: 700;
   color: var(--vault-primary);
-}
-
-.empty-row {
-  grid-template-columns: 1fr;
-}
-
-.empty-copy {
-  color: var(--vault-on-surface-variant);
-  text-align: center;
 }
 
 .table-footer {
@@ -245,11 +250,6 @@ p {
   color: #fff;
 }
 
-.pager button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
 .align-end {
   justify-self: flex-end;
 }
@@ -271,11 +271,5 @@ p {
 
   .actions {
     justify-content: flex-start;
-  }
-
-  .align-end,
-  .actions-cell {
-    text-align: left;
-    justify-content: start;
   }
 }

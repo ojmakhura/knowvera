@@ -1,0 +1,84 @@
+<section class="req-edit-page" aria-label="Edit client request">
+  <header class="edit-head">
+    <div>
+      <h1>Edit Client Request</h1>
+      <p>Modify compliance records for client request processing</p>
+    </div>
+    <div class="head-actions">
+      <button type="button" class="btn-secondary">Cancel</button>
+      <button type="button" class="btn-primary">
+        <span class="material-symbols-outlined" aria-hidden="true">save</span>
+        Save Changes
+      </button>
+    </div>
+  </header>
+
+  <form class="edit-form">
+    <section class="panel">
+      <div class="section-head">
+        <span class="material-symbols-outlined">person</span>
+        <h2>Client Information</h2>
+      </div>
+
+      <div class="field-grid field-grid-3">
+        <label class="field-block"><span>Full Name</span><input type="text" value="Alexander Vance Sterling" /></label>
+        <label class="field-block"><span>Email Address</span><input type="email" value="a.sterling@nexfix.io" /></label>
+        <label class="field-block"><span>Phone Number</span><input type="tel" value="+44 7700 900123" /></label>
+      </div>
+    </section>
+
+    <div class="two-col-grid">
+      <section class="panel">
+        <div class="section-head">
+          <span class="material-symbols-outlined">badge</span>
+          <h2>Request Details</h2>
+        </div>
+        <div class="stack">
+          <label class="field-block"><span>Request ID</span><input type="text" value="CR-001" readonly /></label>
+          <label class="field-block"><span>Request Type</span><select><option>KYC Verification</option><option>Document Update</option></select></label>
+          <label class="field-block"><span>Priority</span><select><option>Normal</option><option>High</option><option>Urgent</option></select></label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <span class="material-symbols-outlined">verified_user</span>
+          <h2>Request Status</h2>
+        </div>
+        <div class="stack">
+          <label class="field-block"><span>Current Status</span><select><option>IN_REVIEW</option><option>APPROVED</option><option>REJECTED</option></select></label>
+          <label class="field-block"><span>Assigned To</span><select><option>System Administrator</option><option>Compliance Officer</option></select></label>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <div class="section-head">
+        <span class="material-symbols-outlined">contact_mail</span>
+        <h2>Organisation Information</h2>
+      </div>
+
+      <div class="field-grid field-grid-2">
+        <label class="field-block"><span>Organisation Name</span><input type="text" value="Global Tech Holdings LLC" /></label>
+        <label class="field-block"><span>Organisation Registration No.</span><input type="text" value="US-DE-99201" /></label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <span class="material-symbols-outlined">description</span>
+        <h2>Request Notes</h2>
+      </div>
+
+      <label class="field-block">
+        <span>Internal Comments</span>
+        <textarea rows="4">Record notes and compliance comments here...</textarea>
+      </label>
+    </section>
+  </form>
+
+  <footer class="stamp">
+    <span></span>
+    <p>Veritas Protocol Security Standard v4.2</p>
+  </footer>
+</section>

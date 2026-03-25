@@ -3,21 +3,60 @@ import { AuthenticationGuard } from './auth/authentication.guard';
 import { SystemSettings } from './views/settings/system-settings';
 
 export const routes: Routes = [
-	{
-		path: 'document',
-		canActivate: [AuthenticationGuard],
-		loadChildren: () =>
-			import('./views/document/document.routes').then((module) => module.documentRoutes),
-	},
-	{
-		path: 'organisation',
-		canActivate: [AuthenticationGuard],
-		loadChildren: () =>
-			import('./views/organisation/organisation.routes').then((module) => module.organisationRoutes),
-	},
-	{
-		path: 'settings',
-		canActivate: [AuthenticationGuard],
-		component: SystemSettings
-	},
+  {
+    path: 'documents',
+    canActivate: [AuthenticationGuard],
+    loadChildren: () =>
+      import('./views/document/document.routes').then((module) => module.documentRoutes),
+  },
+  {
+    path: 'document/type',
+    loadChildren: () =>
+      import('./views/document/type/document-type.routes').then((module) => module.documentTypeRoutes),
+  },
+  {
+    path: 'organisation',
+    canActivate: [AuthenticationGuard],
+    loadChildren: () =>
+      import('./views/organisation/organisation.routes').then(
+        (module) => module.organisationRoutes,
+      ),
+  },
+  {
+    path: 'individual',
+    canActivate: [AuthenticationGuard],
+    loadChildren: () =>
+      import('./views/individual/individual.routes').then((module) => module.individualRoutes),
+  },
+  {
+    path: 'subscription',
+    canActivate: [AuthenticationGuard],
+    loadChildren: () =>
+      import('./views/subscription/subscription.routes').then(
+        (module) => module.subscriptionRoutes,
+      ),
+  },
+  {
+    path: 'sequence',
+    canActivate: [AuthenticationGuard],
+    loadChildren: () =>
+      import('./views/sequence/sequence.routes').then((module) => module.sequenceRoutes),
+  },
+  {
+    path: 'invoice',
+    canActivate: [AuthenticationGuard],
+    loadChildren: () =>
+      import('./views/invoice/invoice.routes').then((module) => module.invoiceRoutes),
+  },
+  {
+    path: 'client-request',
+    canActivate: [AuthenticationGuard],
+    loadChildren: () =>
+      import('./views/request/request.routes').then((module) => module.requestRoutes),
+  },
+  {
+    path: 'settings',
+    canActivate: [AuthenticationGuard],
+    component: SystemSettings,
+  },
 ];

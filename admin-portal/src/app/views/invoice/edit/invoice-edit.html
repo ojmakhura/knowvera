@@ -1,0 +1,87 @@
+<section class="invoice-edit-page">
+  <header class="topbar">
+    <div class="title">
+      <span class="material-symbols-outlined">edit_document</span>
+      <h1>Edit Invoice</h1>
+    </div>
+    <div class="actions">
+      <button type="button" class="discard">Discard</button>
+      <button type="button" class="save">Save Changes</button>
+    </div>
+  </header>
+
+  <section class="panel">
+    <h2>Invoice Identity</h2>
+    <div class="grid-2">
+      <label>
+        <span>Invoice Reference</span>
+        <input type="text" value="INV-2023-0892-VP" />
+      </label>
+      <label>
+        <span>Organisation</span>
+        <select>
+          <option>Veritas Compliance Partners</option>
+          <option>Aetheria Global Systems</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Subscription Context</h2>
+    <div class="period-toggle">
+      <button type="button">Week</button>
+      <button type="button" class="active">Month</button>
+      <button type="button">Year</button>
+    </div>
+    <div class="grid-2">
+      <label>
+        <span>Start Date</span>
+        <input type="date" value="2023-10-01" />
+      </label>
+      <label>
+        <span>End Date</span>
+        <input type="date" value="2023-10-31" />
+      </label>
+    </div>
+  </section>
+
+  <section class="grid-2 panels-row">
+    <article class="panel">
+      <h2>Financials</h2>
+      <label>
+        <span>Invoice Amount</span>
+        <input type="text" value="USD 12450.00" />
+      </label>
+      <small>Net amount excluding applicable regional taxes.</small>
+    </article>
+
+    <article class="panel">
+      <div class="head-line">
+        <h2>Payment Status</h2>
+        <label class="switch-wrap">
+          <input type="checkbox" checked />
+          <span class="switch"></span>
+          <strong>Is Paid</strong>
+        </label>
+      </div>
+
+      <label>
+        <span>Payment Date</span>
+        <input type="date" value="2023-11-05" />
+      </label>
+
+      <label>
+        <span>Payment Reference</span>
+        <input type="text" value="TXN-48910029X" />
+      </label>
+    </article>
+  </section>
+
+  <section class="meta-grid">
+    <article><span>Created At</span><p>Oct 12, 2023 • 09:41</p></article>
+    <article><span>Created By</span><p>A. Sterling</p></article>
+    <article><span>Modified At</span><p>Nov 06, 2023 • 14:20</p></article>
+    <article><span>Modified By</span><p>S. Chen</p></article>
+  </section>
+</section>

@@ -1,148 +1,187 @@
 <section class="settings-page" aria-label="System settings editor">
-  <header class="settings-header">
-    <div class="header-brand">
-      <span class="brand-icon material-symbols-outlined" aria-hidden="true">security</span>
-      <div>
-        <h1>System Settings Editor</h1>
-        <p>KYC Configuration Hub • v2.4.0</p>
-      </div>
+    <header class="settings-header">
+        <div class="header-brand">
+            <span class="brand-icon material-symbols-outlined" aria-hidden="true">security</span>
+            <div>
+                <h1>System Settings Editor</h1>
+                <p>KYC Configuration Hub • v2.4.0</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-secondary" type="button">Discard Changes</button>
+            <button class="btn-primary" type="button">
+                <span class="material-symbols-outlined" aria-hidden="true">save</span>
+                Save Configuration
+            </button>
+        </div>
+    </header>
+
+    <div class="top-grid">
+        <section class="panel">
+            <div class="panel-head">
+                <span class="material-symbols-outlined" aria-hidden="true">fingerprint</span>
+                <h2>Platform Identity</h2>
+            </div>
+            <div class="field-grid">
+                <label class="field-block"><span>Platform Name</span><input type="text"
+                        [formField]="editSettingsSignalForm.platformName" /></label>
+                <label class="field-block"><span>Platform URL</span><input type="text"
+                        [formField]="editSettingsSignalForm.platformUrl" /></label>
+                <label class="field-block"><span>KYC Portal Link</span><input type="text"
+                        [formField]="editSettingsSignalForm.kycPortalLink" /></label>
+                <label class="field-block"><span>Support Contact</span><input type="email"
+                        [formField]="editSettingsSignalForm.supportContact" /></label>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <span class="material-symbols-outlined" aria-hidden="true">speed</span>
+                <h2>Operational Metrics</h2>
+            </div>
+            <div class="stack">
+                <label class="field-block">
+                    <span>KYC Duration (Years)</span>
+                    <div class="range-row">
+                        <input type="range" [formField]="editSettingsSignalForm.kycDuration" />
+                        <strong>{{ editSettingsSignal().kycDuration }}</strong>
+                    </div>
+                </label>
+                <label class="field-block">
+                    <span>Time to Account Creation (Days)</span>
+                    <input type="number" [formField]="editSettingsSignalForm.timeToAccountCreation" />
+                </label>
+            </div>
+        </section>
     </div>
-    <div class="header-actions">
-      <button class="btn-secondary" type="button">Discard Changes</button>
-      <button class="btn-primary" type="button">
-        <span class="material-symbols-outlined" aria-hidden="true">save</span>
-        Save Configuration
-      </button>
-    </div>
-  </header>
-
-  <div class="top-grid">
-    <section class="panel">
-      <div class="panel-head">
-        <span class="material-symbols-outlined" aria-hidden="true">fingerprint</span>
-        <h2>Platform Identity</h2>
-      </div>
-      <div class="field-grid">
-        <label class="field-block"><span>Platform Name</span><input type="text" value="Veritas Protocol" /></label>
-        <label class="field-block"><span>Platform URL</span><input type="text" value="https://system.veritas.io" /></label>
-        <label class="field-block"><span>KYC Portal Link</span><input type="text" value="https://verify.veritas.io/auth" /></label>
-        <label class="field-block"><span>Support Contact</span><input type="email" value="ops@veritasprotocol.com" /></label>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <span class="material-symbols-outlined" aria-hidden="true">speed</span>
-        <h2>Operational Metrics</h2>
-      </div>
-      <div class="stack">
-        <label class="field-block">
-          <span>KYC Duration (Days)</span>
-          <div class="range-row"><input type="range" /><strong>14</strong></div>
-        </label>
-        <label class="field-block">
-          <span>Time to Account Creation</span>
-          <select>
-            <option>Instant (Automated)</option>
-            <option>Within 24 Hours</option>
-            <option>Manual Review Required</option>
-          </select>
-        </label>
-      </div>
-    </section>
-  </div>
-
-  <section class="panel">
-    <div class="section-title-row">
-      <div>
-        <h2>Document Requirements</h2>
-        <p>Manage mandatory documentation for different entity types.</p>
-      </div>
-      <input class="filter-input" type="text" placeholder="Filter lists..." />
-    </div>
-
-    <div class="doc-grid">
-      <article class="doc-card">
-        <div class="doc-card-head"><h3>Individual Docs</h3><button type="button">+</button></div>
-        <ul>
-          <li><span>Passport Scan</span><button type="button">×</button></li>
-          <li><span>Proof of Residence</span><button type="button">×</button></li>
-        </ul>
-      </article>
-
-      <article class="doc-card">
-        <div class="doc-card-head"><h3>Organisation Docs</h3><button type="button">+</button></div>
-        <ul>
-          <li><span>Certificate of Inc.</span><button type="button">×</button></li>
-          <li><span>Tax ID Certificate</span><button type="button">×</button></li>
-        </ul>
-      </article>
-
-      <article class="doc-card">
-        <div class="doc-card-head"><h3>Org KYC Suite</h3><button type="button">+</button></div>
-        <ul>
-          <li><span>UBO Declaration</span><button type="button">×</button></li>
-        </ul>
-      </article>
-
-      <article class="doc-card">
-        <div class="doc-card-head"><h3>Ind. KYC Suite</h3><button type="button">+</button></div>
-        <ul>
-          <li><span>Selfie Liveness</span><button type="button">×</button></li>
-        </ul>
-      </article>
-    </div>
-  </section>
-
-  <div class="bottom-grid">
-    <section class="panel">
-      <div class="panel-head">
-        <span class="material-symbols-outlined" aria-hidden="true">terminal</span>
-        <h2>Template Mappings</h2>
-      </div>
-
-      <div class="config-stack">
-        <article class="config-block">
-          <h3>Invoice Configuration</h3>
-          <div class="field-grid">
-            <label class="field-block"><span>Document Type</span><select><option>Commercial_Inv</option></select></label>
-            <label class="field-block"><span>Template Type</span><select><option>PDF_Engine_V2</option></select></label>
-          </div>
-          <label class="field-block"><span>Active Template</span><input type="text" value="Standard_Billing_2024" /></label>
-        </article>
-
-        <article class="config-block">
-          <h3>Quotation Configuration</h3>
-          <div class="field-grid">
-            <label class="field-block"><span>Document Type</span><select><option>Formal_Quote</option></select></label>
-            <label class="field-block"><span>Template Type</span><select><option>PDF_Engine_V2</option></select></label>
-          </div>
-          <label class="field-block"><span>Active Template</span><input type="text" value="Global_Sales_Template_B" /></label>
-        </article>
-      </div>
-    </section>
 
     <section class="panel">
-      <div class="panel-head between">
-        <h2>Financial Settings</h2>
-        <button type="button" class="btn-pill">+ Add Range</button>
-      </div>
+        <div class="section-title-row">
+            <div>
+                <h2>Document Requirements</h2>
+                <p>Manage mandatory documentation for different entity types.</p>
+            </div>
+            <input class="filter-input" type="text" placeholder="Filter lists..." />
+        </div>
 
-      <h3 class="table-title">Manage Salary Ranges (USD)</h3>
-      <div class="salary-table">
-        <div class="table-head">Label</div><div class="table-head">Min</div><div class="table-head">Max</div><div class="table-head"></div>
-        <div>Entry Level</div><div>0</div><div>45,000</div><div class="right">×</div>
-        <div>Mid-Market</div><div>45,001</div><div>95,000</div><div class="right">×</div>
-        <div>Executive</div><div>95,001</div><div>250,000</div><div class="right">×</div>
-      </div>
+        <div class="doc-grid">
+            <article class="doc-card">
+                <div class="doc-card-head">
+                    <h3>Individual Docs</h3><button type="button">+</button>
+                </div>
+                <ul>
+                    @for(docType of editSettingsSignal().individualDocuments; track docType.id) {
+                    <li><span>{{ docType.name }}</span><button type="button" (click)="individualDocumentsRemove(docType)">×</button></li>
+                    }
+                </ul>
+            </article>
+
+            <article class="doc-card">
+                <div class="doc-card-head">
+                    <h3>Organisation Docs</h3><button type="button">+</button>
+                </div>
+                <ul>
+                    @for(docType of editSettingsSignal().organisationDocuments; track docType.id) {
+                    <li><span>{{ docType.name }}</span><button type="button" (click)="organisationDocumentsRemove(docType)">×</button></li>
+                    }
+                </ul>
+            </article>
+
+            <article class="doc-card">
+                <div class="doc-card-head">
+                    <h3>Org KYC Suite</h3><button type="button">+</button>
+                </div>
+                <ul>
+                    @for(docType of editSettingsSignal().orgKycDocuments; track docType.id) {
+                    <li><span>{{ docType.name }}</span><button type="button">×</button></li>
+                    }
+                </ul>
+            </article>
+
+            <article class="doc-card">
+                <div class="doc-card-head">
+                    <h3>Ind. KYC Suite</h3><button type="button">+</button>
+                </div>
+                <ul>
+                    @for(docType of editSettingsSignal().indKycDocuments; track docType.id) {
+                    <li><span>{{ docType.name }}</span><button type="button">×</button></li>
+                    }
+                </ul>
+            </article>
+        </div>
     </section>
-  </div>
 
-  <footer class="settings-footer">
-    <div>
-      <h3>Audit Ready Configuration</h3>
-      <p>Last verified by System Admin on 24 Oct 2023</p>
+    <div class="bottom-grid">
+        <section class="panel">
+            <div class="panel-head">
+                <span class="material-symbols-outlined" aria-hidden="true">terminal</span>
+                <h2>Template Mappings</h2>
+            </div>
+
+            <div class="config-stack">
+                <article class="config-block">
+                    <h3>Invoice Configuration</h3>
+                    <div class="field-grid">
+                        <label class="field-block"><span>Document Type</span><select>
+                                <option>Commercial_Inv</option>
+                            </select></label>
+                        <label class="field-block"><span>Template Type</span><select>
+                                <option>PDF_Engine_V2</option>
+                            </select></label>
+                    </div>
+                    <label class="field-block"><span>Active Template</span><input type="text"
+                            value="Standard_Billing_2024" /></label>
+                </article>
+
+                <article class="config-block">
+                    <h3>Quotation Configuration</h3>
+                    <div class="field-grid">
+                        <label class="field-block"><span>Document Type</span><select>
+                                <option>Formal_Quote</option>
+                            </select></label>
+                        <label class="field-block"><span>Template Type</span><select>
+                                <option>PDF_Engine_V2</option>
+                            </select></label>
+                    </div>
+                    <label class="field-block"><span>Active Template</span><input type="text"
+                            value="Global_Sales_Template_B" /></label>
+                </article>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head between">
+                <h2>Financial Settings</h2>
+                <button type="button" class="btn-pill">+ Add Range</button>
+            </div>
+
+            <h3 class="table-title">Manage Salary Ranges (USD)</h3>
+            <div class="salary-table">
+                <div class="table-head">Label</div>
+                <div class="table-head">Min</div>
+                <div class="table-head">Max</div>
+                <div class="table-head"></div>
+                <div>Entry Level</div>
+                <div>0</div>
+                <div>45,000</div>
+                <div class="right">×</div>
+                <div>Mid-Market</div>
+                <div>45,001</div>
+                <div>95,000</div>
+                <div class="right">×</div>
+                <div>Executive</div>
+                <div>95,001</div>
+                <div>250,000</div>
+                <div class="right">×</div>
+            </div>
+        </section>
     </div>
-    <button class="btn-light" type="button">Export Audit Log (.JSON)</button>
-  </footer>
+
+    <footer class="settings-footer">
+        <div>
+            <h3>Audit Ready Configuration</h3>
+            <p>Last verified by System Admin on 24 Oct 2023</p>
+        </div>
+        <button class="btn-light" type="button">Export Audit Log (.JSON)</button>
+    </footer>
 </section>

@@ -1,0 +1,79 @@
+<section class="req-details-page">
+  <header class="page-head panel">
+    <div>
+      <p class="crumb">Client Requests / Details</p>
+      <h1>Client Request Details</h1>
+      <p class="subline">Comprehensive request processing and compliance snapshot for a submitted client request.</p>
+    </div>
+
+    <div class="head-actions">
+      <button type="button" class="btn-secondary">Print Summary</button>
+      <button type="button" class="btn-primary">Edit Request</button>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="section-head">
+      <h2>Request Information</h2>
+    </div>
+
+    <div class="kv-grid kv-grid-4">
+      @for (item of profile(); track item.label) {
+        <article class="kv">
+          <span>{{ item.label }}</span>
+          <p>{{ item.value }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="two-col-grid">
+    <article class="panel">
+      <div class="section-head">
+        <h2>Processing Details</h2>
+      </div>
+
+      <div class="kv-grid">
+        @for (item of details(); track item.label) {
+          <article class="kv">
+            <span>{{ item.label }}</span>
+            <p>{{ item.value }}</p>
+          </article>
+        }
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="section-head">
+        <h2>Request Status</h2>
+      </div>
+
+      <div class="status-box">
+        <div class="status-badge status-approved">
+          <span class="status-indicator"></span>
+          <div>
+            <p class="status-label">Current Status</p>
+            <p class="status-value">APPROVED</p>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="status-actions">
+          <button type="button" class="status-btn">Get Status Update</button>
+          <button type="button" class="status-btn">Flag for Review</button>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="section-head">
+      <h2>Activity Timeline</h2>
+    </div>
+
+    <ul class="timeline">
+      @for (item of timeline(); track item) {
+        <li>{{ item }}</li>
+      }
+    </ul>
+  </section>
+</section>

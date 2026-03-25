@@ -1,0 +1,253 @@
+:host {
+  display: block;
+}
+
+.req-details-page,
+.two-col-grid,
+.kv-grid,
+.timeline {
+  display: grid;
+}
+
+.req-details-page {
+  gap: var(--vault-space-8);
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+.panel {
+  background: var(--vault-surface-container-lowest);
+  border-radius: 0.75rem;
+  padding: var(--vault-space-8);
+  box-shadow: 0 4px 20px rgb(25 28 30 / 4%);
+}
+
+.page-head,
+.head-actions,
+.section-head {
+  display: flex;
+  align-items: center;
+}
+
+.page-head,
+.head-actions {
+  gap: var(--vault-space-4);
+}
+
+.page-head {
+  justify-content: space-between;
+}
+
+.crumb {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  color: var(--vault-on-surface-variant);
+  margin-bottom: 0.35rem;
+}
+
+h1,
+h2 {
+  color: var(--vault-primary);
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: 2rem;
+  text-transform: uppercase;
+}
+
+.subline {
+  color: var(--vault-on-surface-variant);
+  margin-top: 0.35rem;
+}
+
+.btn-secondary,
+.btn-primary {
+  border: 0;
+  border-radius: 0.6rem;
+  padding: 0.7rem 1rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.btn-secondary {
+  background: var(--vault-surface-container);
+  color: var(--vault-on-surface-variant);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--vault-primary), var(--vault-primary-container));
+  color: #fff;
+}
+
+.section-head {
+  justify-content: space-between;
+  padding-bottom: var(--vault-space-4);
+  border-bottom: 1px solid rgb(196 198 208 / 20%);
+  margin-bottom: var(--vault-space-4);
+}
+
+.section-head h2 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--vault-on-surface-variant);
+}
+
+.two-col-grid {
+  gap: var(--vault-space-8);
+  grid-template-columns: 1fr 1fr;
+}
+
+.kv-grid {
+  gap: var(--vault-space-4);
+  grid-template-columns: 1fr 1fr;
+}
+
+.kv-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.kv {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid rgb(196 198 208 / 20%);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background: color-mix(in srgb, var(--vault-surface-container-low) 70%, transparent);
+}
+
+.kv span {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.67rem;
+  font-weight: 700;
+  color: var(--vault-on-surface-variant);
+}
+
+.kv p {
+  color: var(--vault-on-surface);
+}
+
+.status-box {
+  display: grid;
+  gap: var(--vault-space-4);
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--vault-surface-container-low) 70%, transparent);
+  border: 1px solid rgb(196 198 208 / 20%);
+  border-radius: 0.5rem;
+}
+
+.status-approved {
+  border-left: 4px solid #4caf50;
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #4caf50;
+  flex-shrink: 0;
+}
+
+.status-label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.67rem;
+  font-weight: 700;
+  color: var(--vault-on-surface-variant);
+}
+
+.status-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--vault-primary);
+  margin-top: 0.25rem;
+}
+
+.divider {
+  height: 1px;
+  background: rgb(196 198 208 / 20%);
+}
+
+.status-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.status-btn {
+  border: 0;
+  background: transparent;
+  color: var(--vault-primary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.5rem 0;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 0.2s;
+
+  &:hover {
+    text-decoration-color: var(--vault-primary);
+  }
+}
+
+.timeline {
+  gap: 0;
+  list-style: none;
+  padding: 0;
+}
+
+.timeline li {
+  padding: 0.8rem var(--vault-space-4);
+  border-bottom: 1px solid rgb(196 198 208 / 20%);
+  font-size: 0.85rem;
+  color: var(--vault-on-surface);
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline li:last-child {
+  border-bottom: none;
+}
+
+.timeline li::before {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--vault-primary);
+}
+
+@media (max-width: 1080px) {
+  .kv-grid-4,
+  .two-col-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-head,
+  .head-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+}
