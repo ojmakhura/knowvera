@@ -291,6 +291,51 @@ label,
   margin-bottom: var(--vault-space-4);
 }
 
+.add-branch-panel {
+  margin-bottom: var(--vault-space-4);
+}
+
+.add-branch-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--vault-space-4);
+}
+
+.add-branch-grid label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.add-branch-grid span {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--vault-on-surface-variant);
+}
+
+.add-branch-grid input {
+  width: 100%;
+  border: 1px solid rgb(196 198 208 / 20%);
+  border-radius: 0.5rem;
+  background: var(--vault-surface-container-low);
+  color: var(--vault-on-surface);
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+}
+
+.add-branch-grid input:focus-visible {
+  outline: none;
+  border-color: var(--vault-primary);
+  box-shadow: 0 0 0 2px rgb(111 135 164 / 30%);
+}
+
+.add-branch-actions {
+  margin-top: var(--vault-space-4);
+  display: flex;
+  justify-content: flex-end;
+}
+
 .section-title h2 {
   font-size: 1.45rem;
 }
@@ -507,6 +552,10 @@ label,
     grid-template-columns: 1fr;
   }
 
+  .add-branch-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .table-grid-4,
   .table-grid-3 {
     grid-template-columns: 1fr;
@@ -522,5 +571,9 @@ label,
   .details-footer {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .add-branch-grid {
+    grid-template-columns: 1fr;
   }
 }

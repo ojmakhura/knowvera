@@ -1,121 +1,137 @@
-<section class="seq-edit-page">
-  <header class="edit-head">
+<section class="seq-edit-page" aria-label="Edit sequence">
+  <header class="seq-edit-head">
     <div>
-      <nav>
-        <span>Registry</span>
-        <span>/</span>
-        <span class="active">Sequence Editor</span>
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a [routerLink]="['/sequence']">Sequences</a>
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        <strong>Edit</strong>
       </nav>
-      <h1>Edit Sequence Generator</h1>
-      <p>Define the structural logic for unique identifier generation across the protocol.</p>
+      <h1>Edit Sequence</h1>
     </div>
 
-    <span class="draft-pill">Draft State</span>
+    <div class="head-actions">
+      <button class="btn-secondary" type="button" [routerLink]="['/sequence']">Cancel</button>
+      <button class="btn-primary" type="button">Save Changes</button>
+    </div>
   </header>
 
-  <section class="content-grid">
-    <main class="main-stack">
-      <article class="panel">
-        <h2>
-          <span class="material-symbols-outlined">info</span>
-          Core Identity
-        </h2>
-
-        <div class="two-col-grid">
+  <div class="layout-grid">
+    <div class="left-col">
+      <section class="panel">
+        <h2>Core Identity</h2>
+        <div class="field-grid">
           <label class="field-block">
             <span>Sequence Name</span>
-            <input type="text" value="KYC_VERIFICATION_GLOBAL" />
+            <input type="text" [formField]="editSequenceSignalForm.name" />
           </label>
           <label class="field-block">
             <span>Target Entity</span>
-            <select>
-              <option>Compliance Logic</option>
-              <option>Identity Vault</option>
-              <option>Registry Entry</option>
+            <select [formField]="editSequenceSignalForm.targetEntity">
+              @for (option of TargetEntityOptions; track option) {
+                <option [value]="option">
+                  {{ ('target.entity.' + option) | translate }}
+                </option>
+                }
             </select>
           </label>
         </div>
-      </article>
+      </section>
 
-      <article class="panel no-pad">
+      <section class="panel">
         <div class="section-head">
-          <h2>
-            <span class="material-symbols-outlined">reorder</span>
-            Sequence Structure
-          </h2>
-          <button type="button">Add Component</button>
+          <h2>Sequence Structure</h2>
+          <button type="button" class="btn-secondary" (click)="openAddPartDialog()">Add Part</button>
         </div>
 
-        <div class="parts-table">
-          <div class="parts-head">
-            <span>Pos</span>
-            <span>Name &amp; Type</span>
-            <span>Initial</span>
-            <span>Range (Min/Max)</span>
-            <span>Random</span>
-            <span class="align-right">Actions</span>
+        @if (editSequenceSignal().sequenceParts.length) {
+          <div class="parts-table">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Pos</th>
+                  <th scope="col">Name</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Initial</th>
+                  <th scope="col">Range</th>
+                  <th scope="col">Random</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (part of editSequenceSignal().sequenceParts; track part.id ?? part.position ?? $index) {
+                  <tr>
+                    <td>{{ part.position ?? '-' }}</td>
+                    <td>{{ part.name || '-' }}</td>
+                    <td>{{ part.type || '-' }}</td>
+                    <td>{{ part.initialValue || '-' }}</td>
+                    <td>{{ (part.min || '-') + ' / ' + (part.max || '-') }}</td>
+                    <td>{{ part.randomised ? 'Yes' : 'No' }}</td>
+                    <td>
+                      <button type="button" class="table-action" (click)="removeSequencePart($index)">Remove</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="empty-state">No sequence parts configured for this sequence yet.</p>
+        }
+      </section>
+    </div>
+
+  </div>
+
+  @if (dialogOpen()) {
+    <div class="dialog-backdrop" role="presentation" (click)="closeAddPartDialog()">
+      <section class="dialog" role="dialog" aria-modal="true" aria-label="Add sequence part" (click)="$event.stopPropagation()">
+        <header class="dialog-head">
+          <h3>Add Sequence Part</h3>
+        </header>
+
+        <div class="dialog-body">
+          <label class="field-block">
+            <span>Name</span>
+            <input type="text" [value]="newPart().name" (input)="updateNewPart('name', $any($event.target).value)" />
+          </label>
+
+          <label class="field-block">
+            <span>Type</span>
+            <select [value]="newPart().type" (change)="updateNewPart('type', $any($event.target).value)">
+              @for (partType of SequencePartTypeOptions; track partType) {
+                <option [value]="partType">{{ partType }}</option>
+              }
+            </select>
+          </label>
+
+          <div class="field-grid">
+            <label class="field-block">
+              <span>Initial</span>
+              <input type="text" [value]="newPart().initialValue" (input)="updateNewPart('initialValue', $any($event.target).value)" />
+            </label>
+            <label class="field-block">
+              <span>Min</span>
+              <input type="text" [value]="newPart().min" (input)="updateNewPart('min', $any($event.target).value)" />
+            </label>
           </div>
 
-          @for (part of parts(); track part.position) {
-            <div class="part-row">
-              <span class="pos">{{ part.position }}</span>
-              <div>
-                <strong>{{ part.name }}</strong>
-                <small>{{ part.type }}</small>
-              </div>
-              <code>{{ part.initial }}</code>
-              <span>{{ part.range }}</span>
-              <span class="toggle" [class.toggle-on]="part.random"></span>
-              <button type="button" class="delete-btn align-right">
-                <span class="material-symbols-outlined">delete</span>
-              </button>
-            </div>
-          }
+          <div class="field-grid">
+            <label class="field-block">
+              <span>Max</span>
+              <input type="text" [value]="newPart().max" (input)="updateNewPart('max', $any($event.target).value)" />
+            </label>
+            <label class="field-block checkbox-field">
+              <span>Randomised</span>
+              <input type="checkbox" [checked]="newPart().randomised" (change)="updateNewPart('randomised', $any($event.target).checked)" />
+            </label>
+          </div>
         </div>
-      </article>
 
-      <article class="audit-card">
-        <h3>
-          <span class="material-symbols-outlined">history</span>
-          Audit Trail
-        </h3>
-        <div class="audit-grid">
-          <div><span>Created At</span><p>Oct 12, 2023 09:41</p></div>
-          <div><span>Last Modified</span><p>Today at 14:22</p></div>
-          <div><span>Modified By</span><p>j.dorian@veritas.io</p></div>
-          <div><span>Version</span><p>v2.4.0-stable</p></div>
-        </div>
-      </article>
-    </main>
-
-    <aside class="side-stack">
-      <article class="preview-card">
-        <h3>Generated Result Preview</h3>
-        <p class="preview-value">VER-20231027-1001</p>
-        <p>This is an example of how the next identifier will appear in the system based on your current settings.</p>
-      </article>
-
-      <article class="tips-card">
-        <h3>Sequence Logic Tips</h3>
-        <ul>
-          <li><span class="material-symbols-outlined">check_circle</span><span>Use <strong>ISO Dates</strong> for chronological sorting efficiency in high-load databases.</span></li>
-          <li><span class="material-symbols-outlined">check_circle</span><span>Enabled <strong>Randomisation</strong> prevents predictable user ID enumeration.</span></li>
-          <li><span class="material-symbols-outlined">lock</span><span>Initial values cannot be lower than the current database cursor.</span></li>
-        </ul>
-      </article>
-    </aside>
-  </section>
-
-  <footer class="sticky-bar">
-    <div class="sticky-inner">
-      <div class="autosave">
-        <span class="material-symbols-outlined">cloud_done</span>
-        <span>All changes autosaved to local cache</span>
-      </div>
-      <div class="bar-actions">
-        <button type="button" class="discard-btn">Discard Changes</button>
-        <button type="button" class="save-btn">Save Sequence <span class="material-symbols-outlined">arrow_forward</span></button>
-      </div>
+        <footer class="dialog-actions">
+          <button type="button" class="btn-secondary" (click)="closeAddPartDialog()">Cancel</button>
+          <button type="button" class="btn-primary" (click)="addSequencePart()">Add</button>
+        </footer>
+      </section>
     </div>
-  </footer>
+  }
 </section>

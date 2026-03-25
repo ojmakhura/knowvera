@@ -1,8 +1,9 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, linkedSignal, OnDestroy, OnInit, Signal, signal } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
+import { Loader } from '@app/@shared/loader/loader';
 import { IndividualListDTO } from '@app/models/bw/co/centralkyc/individual/individual-list-dto';
 import { IndividualSearchCriteria } from '@app/models/bw/co/centralkyc/individual/individual-search-criteria';
 import { SearchObject } from '@app/models/search-object';
@@ -23,7 +24,7 @@ export class SearchIndividualsVarsForm {
   templateUrl: './individuals.html',
   styleUrls: ['./individuals.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule, RouterLink, MatButtonModule, FormField],
+  imports: [MatIconModule, RouterLink, MatButtonModule, FormField, Loader],
 })
 export class Individuals implements OnInit, AfterViewInit, OnDestroy {
   searchIndividualsVarsForm = new SearchIndividualsVarsForm();
@@ -37,6 +38,11 @@ export class Individuals implements OnInit, AfterViewInit, OnDestroy {
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
   protected readonly router = inject(Router);
+  loaderMessage: Signal<string> = signal('');
+  messages = linkedSignal(() => this.individualApiStore.messages());
+  success = linkedSignal(() => this.individualApiStore.success());
+  loading = linkedSignal(() => this.individualApiStore.loading());
+  error = linkedSignal(() => this.individualApiStore.error());
 
   constructor() {
     effect(() => {

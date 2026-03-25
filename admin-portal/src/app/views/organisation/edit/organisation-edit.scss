@@ -12,7 +12,8 @@
 
 .org-edit-page {
   gap: var(--vault-space-8);
-  max-width: 75rem;
+  width: 100%;
+  max-width: none;
 }
 
 .org-edit-head,
@@ -165,9 +166,68 @@ h2 {
   grid-column: 1 / -1;
 }
 
+.inline-add-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr auto;
+  gap: 0.5rem;
+}
+
+.inline-add-grid-domain {
+  grid-template-columns: 1fr auto;
+}
+
+.btn-compact {
+  padding: 0.65rem 0.9rem;
+  white-space: nowrap;
+}
+
+.token-list {
+  list-style: none;
+  margin: 0.65rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.token-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid rgb(196 198 208 / 20%);
+  border-radius: 0.45rem;
+  background: var(--vault-surface-container-low);
+  padding: 0.5rem 0.65rem;
+}
+
+.token-list span {
+  font-size: 0.82rem;
+  color: var(--vault-on-surface);
+}
+
+.link-danger {
+  border: 0;
+  background: transparent;
+  color: #b42318;
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.muted-inline {
+  margin: 0.55rem 0 0;
+  color: var(--vault-on-surface-variant);
+  font-size: 0.82rem;
+}
+
 @media (max-width: 1024px) {
   .layout-grid,
   .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inline-add-grid,
+  .inline-add-grid-domain {
     grid-template-columns: 1fr;
   }
 

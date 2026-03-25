@@ -4,6 +4,7 @@ import {
   Component,
   effect,
   inject,
+  linkedSignal,
   OnDestroy,
   OnInit,
   Signal,
@@ -12,6 +13,7 @@ import {
 import { form, FormField } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
+import { Loader } from '@app/@shared/loader/loader';
 import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
 import { SearchObject } from '@app/models/search-object';
@@ -26,12 +28,13 @@ export class SearchOrganisationsVarsForm {
 
 @Component({
   selector: 'app-organisations',
-  imports: [RouterLink, FormField, TranslateModule, MatIconModule],
+  imports: [RouterLink, FormField, TranslateModule, MatIconModule, Loader],
   templateUrl: './organisations.html',
   styleUrls: ['./organisations.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Organisations implements OnInit, AfterViewInit, OnDestroy {
+
   searchOrganisationsVarsForm: SearchOrganisationsVarsForm = new SearchOrganisationsVarsForm();
   searchOrganisationsSignal = signal(this.searchOrganisationsVarsForm);
   searchOrganisationsSignalForm = form(this.searchOrganisationsSignal, (path) => {});
@@ -39,10 +42,10 @@ export class Organisations implements OnInit, AfterViewInit, OnDestroy {
   toaster: ToastrService = inject(ToastrService);
   readonly organisationApiStore = inject(OrganisationApiStore);
   loaderMessage: Signal<string> = signal('');
-  messages: Signal<any> = signal({});
-  success: Signal<boolean> = signal(false);
-  loading: Signal<boolean> = signal(false);
-  error: Signal<boolean> = signal(false);
+  messages = linkedSignal(() => this.organisationApiStore.messages());
+  success = linkedSignal(() => this.organisationApiStore.success());
+  loading = linkedSignal(() => this.organisationApiStore.loading());
+  error = linkedSignal(() => this.organisationApiStore.error());
 
   organisations = signal<OrganisationListDTO[]>([]);
   currentPage = signal(0);

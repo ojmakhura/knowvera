@@ -13,7 +13,7 @@
 
     <div class="head-actions">
       <button class="btn-secondary" type="button" [routerLink]="['/organisation']">Cancel</button>
-      <button class="btn-primary" type="button">Save Changes</button>
+      <button class="btn-primary" type="button" (click)="saveOrganisation()">Save Changes</button>
     </div>
   </header>
 
@@ -23,25 +23,30 @@
         <h2>Core Identity</h2>
         <div class="field-grid">
           <label class="field-block">
-            <span>Organisation Name</span>
-            <input type="text" value="Global Architecture Ltd" />
-          </label>
-          <label class="field-block">
-            <span>Internal Code</span>
-            <input type="text" value="ARCH-7721" />
-          </label>
-          <label class="field-block">
             <span>Registration No.</span>
-            <input type="text" value="UK-9928374-B" />
+            <input type="text" [formField]="editOrganisationSignalForm.registrationNo" />
+          </label>
+          <label class="field-block">
+            <span>Abbreviation</span>
+            <input type="text" [formField]="editOrganisationSignalForm.code" />
+          </label>
+          <label class="field-block field-wide">
+            <span>Organisation Name</span>
+            <input type="text" [formField]="editOrganisationSignalForm.name" />
           </label>
           <label class="field-block">
             <span>Country of Registration</span>
-            <select>
-              <option>United Kingdom</option>
-              <option>United States</option>
-              <option>Germany</option>
-              <option>Singapore</option>
+            <select [formField]="editOrganisationSignalForm.countryOfRegistration">
+              <option></option>
+              @for (country of countries; track country) {
+              <option [value]="country">{{ country }}</option>
+              }
             </select>
+          </label>
+          <label class="field-block field-wide">
+            <span>Description</span>
+            <textarea rows="4" [formField]="editOrganisationSignalForm.description"
+              placeholder="Enter organisational details and compliance notes..."></textarea>
           </label>
         </div>
       </section>
@@ -51,23 +56,26 @@
         <div class="field-grid">
           <label class="field-block">
             <span>General Status</span>
-            <select>
+            <select [formField]="editOrganisationSignalForm.status">
               <option value="ACTIVE">ACTIVE</option>
               <option value="INACTIVE">INACTIVE</option>
             </select>
           </label>
           <label class="field-block">
             <span>KYC Compliance Status</span>
-            <select>
+            <select [formField]="editOrganisationSignalForm.kycStatus">
               <option value="CURRENT">CURRENT</option>
               <option value="EXPIRED">EXPIRED</option>
               <option value="ABSENT">ABSENT</option>
               <option value="INCOMPLETE">INCOMPLETE</option>
             </select>
           </label>
-          <label class="field-block field-wide">
-            <span>Description</span>
-            <textarea rows="4" placeholder="Enter organisational details and compliance notes..."></textarea>
+          <label class="field-block">
+            <span>Client Organisation</span>
+            <select [formField]="editOrganisationSignalForm.isClient">
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
           </label>
         </div>
       </section>
@@ -78,21 +86,67 @@
       <div class="field-grid field-grid-single">
         <label class="field-block">
           <span>Contact Email Address</span>
-          <input type="email" value="compliance@globalarch.com" />
+          <input type="email" [formField]="editOrganisationSignalForm.contactEmailAddress" />
         </label>
         <label class="field-block">
           <span>Physical Address</span>
-          <textarea rows="3">12-14 The Gherkin, St Mary Axe
-London, EC3A 8BF
-United Kingdom</textarea>
+          <textarea rows="3" [formField]="editOrganisationSignalForm.physicalAddress"></textarea>
         </label>
         <label class="field-block">
           <span>Postal Address</span>
-          <textarea rows="3">PO Box 4582, Canary Wharf
-London, E14 5AB
-United Kingdom</textarea>
+          <textarea rows="3" [formField]="editOrganisationSignalForm.postalAddress"></textarea>
         </label>
+        <hr>
+        <div class="field-block">
+          <span>Phone Numbers</span>
+          <div class="inline-add-grid">
+            <select [value]="newPhoneType()" (change)="newPhoneType.set($any($event.target).value)">
+              @for (phoneType of PhoneTypeOptions; track phoneType) {
+              <option [value]="phoneType">{{ phoneType }}</option>
+              }
+            </select>
+            <input type="text" [value]="newPhoneNumber()" (input)="newPhoneNumber.set($any($event.target).value)"
+              placeholder="e.g. +44 20 7946 0958" />
+            <button class="btn-secondary btn-compact" type="button" (click)="addPhoneNumber()">Add</button>
+          </div>
+
+          @if (editOrganisationSignal().phoneNumbers.length) {
+          <ul class="token-list">
+            @for (phone of editOrganisationSignal().phoneNumbers; track $index) {
+            <li>
+              <span>{{ phone.type }}: {{ phone.phoneNumber }}</span>
+              <button type="button" class="link-danger" (click)="removePhoneNumber($index)">Remove</button>
+            </li>
+            }
+          </ul>
+          } @else {
+          <p class="muted-inline">No phone numbers added yet.</p>
+          }
+        </div>
+        <hr>
+        <div class="field-block">
+          <span>Domains</span>
+          <div class="inline-add-grid inline-add-grid-domain">
+            <input type="text" [value]="newDomainName()" (input)="newDomainName.set($any($event.target).value)"
+              placeholder="e.g. globalarch.com" />
+            <button class="btn-secondary btn-compact" type="button" (click)="addDomain()">Add</button>
+          </div>
+
+          @if (editOrganisationSignal().domains.length) {
+          <ul class="token-list">
+            @for (domain of editOrganisationSignal().domains; track $index) {
+            <li>
+              <span>{{ domain.name }}</span>
+              <button type="button" class="link-danger" (click)="removeDomain($index)">Remove</button>
+            </li>
+            }
+          </ul>
+          } @else {
+          <p class="muted-inline">No domains added yet.</p>
+          }
+        </div>
       </div>
     </aside>
   </div>
 </section>
+<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>

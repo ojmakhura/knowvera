@@ -18,15 +18,42 @@
       <div class="section-head">
         <span class="material-symbols-outlined">person</span>
         <h2>Core Identity</h2>
+        <div class="toggle-card">
+          <span>Has System User</span>
+          <label class="toggle-switch"><input type="checkbox" [formField]="editIndividualSignalForm.hasUser" /><span></span></label>
+        </div>
       </div>
 
       <div class="field-grid field-grid-3">
-        <label class="field-block"><span>First Name</span><input type="text" value="Alexander" /></label>
-        <label class="field-block"><span>Middle Name</span><input type="text" value="James" /></label>
-        <label class="field-block"><span>Surname</span><input type="text" value="Vaughan" /></label>
-        <label class="field-block"><span>Sex</span><select><option>Male</option><option>Female</option></select></label>
-        <label class="field-block"><span>Nationality</span><select><option>United Kingdom</option><option>United States</option></select></label>
-        <label class="field-block"><span>Marital Status</span><select><option>Married</option><option>Single</option></select></label>
+        <label class="field-block"><span>First Name</span><input type="text"
+            [formField]="editIndividualSignalForm.firstName" /></label>
+        <label class="field-block"><span>Middle Name</span><input type="text"
+            [formField]="editIndividualSignalForm.middleName" /></label>
+        <label class="field-block"><span>Surname</span><input type="text"
+            [formField]="editIndividualSignalForm.surname" /></label>
+        <label class="field-block"><span>Sex</span><select [formField]="editIndividualSignalForm.sex">
+            <option></option>
+            @for(key of SexOptions; track key) {
+            <option [value]="key">
+              {{ SexT[key] }}
+            </option>
+            }
+          </select></label>
+        <label class="field-block"><span>Nationality</span><select [formField]="editIndividualSignalForm.nationality">
+            <option></option>
+            @for (country of countries; track country) {
+            <option [value]="country">{{ country }}</option>
+            }
+          </select></label>
+        <label class="field-block"><span>Marital Status</span><select
+            [formField]="editIndividualSignalForm.maritalStatus">
+            <option></option>
+            @for (key of MaritalStatusOptions; track key) {
+            <option [value]="key">
+              {{ MaritalStatusT[key] }}
+            </option>
+            }
+          </select></label>
       </div>
     </section>
 
@@ -36,9 +63,18 @@
           <span class="material-symbols-outlined">badge</span>
           <h2>Identification</h2>
         </div>
-        <div class="stack">
-          <label class="field-block"><span>Identity Type</span><select><option>Biometric Passport</option></select></label>
-          <label class="field-block"><span>Identity Number</span><input type="text" value="GBR-9988221-X" /></label>
+        <div class="field-grid field-grid-2">
+          <label class="field-block"><span>Identity Type</span><select
+              [formField]="editIndividualSignalForm.identityType">
+              <option></option>
+              @for (key of IndividualIdentityTypeOptions; track key) {
+              <option [value]="key">
+                {{ IndividualIdentityTypeT[key] }}
+              </option>
+              }
+            </select></label>
+          <label class="field-block"><span>Identity Number</span><input type="text"
+              [formField]="editIndividualSignalForm.identityNo" /></label>
         </div>
       </section>
 
@@ -47,9 +83,24 @@
           <span class="material-symbols-outlined">verified_user</span>
           <h2>Compliance &amp; Employment</h2>
         </div>
-        <div class="stack">
-          <label class="field-block"><span>KYC Status</span><select><option>VERIFIED</option><option>PENDING</option><option>FLAGGED</option></select></label>
-          <label class="field-block"><span>Employment Status</span><select><option>Full-Time Employed</option><option>Self-Employed</option></select></label>
+        <div class="field-grid field-grid-2">
+          <label class="field-block"><span>KYC Status</span><select [formField]="editIndividualSignalForm.kycStatus">
+              <option></option>
+              @for (key of KycComplianceStatusOptions; track key) {
+              <option [value]="key">
+                {{ KycComplianceStatusT[key] }}
+              </option>
+              }
+            </select></label>
+          <label class="field-block"><span>Employment Status</span><select
+              [formField]="editIndividualSignalForm.employmentStatus">
+              <option></option>
+              @for (key of EmploymentStatusOptions; track key) {
+              <option [value]="key">
+                {{ EmploymentStatusT[key] }}
+              </option>
+              }
+            </select></label>
         </div>
       </section>
     </div>
@@ -61,20 +112,41 @@
       </div>
 
       <div class="field-grid field-grid-2">
-        <label class="field-block"><span>Email Address</span><input type="email" value="alex.vaughan@veritas.protocol" /></label>
-        <label class="field-block"><span>Physical Address</span><textarea rows="2">12 High Street, Kensington, London, W8 4HX</textarea></label>
+        <label class="field-block"><span>Email Address</span><input type="email"
+            [formField]="editIndividualSignalForm.emailAddress" /></label>
+        <label class="field-block"><span>Physical Address</span><textarea rows="2"
+            [formField]="editIndividualSignalForm.physicalAddress"></textarea></label>
       </div>
 
       <div class="phone-section">
         <div class="phone-title">
           <span>Phone Numbers</span>
-          <button type="button">+ Add Number</button>
+          <button type="button" (click)="phoneNumbersAdd()">+ Add Number</button>
         </div>
+
         <div class="phone-row">
-          <label class="field-block"><span>Type</span><select><option>Mobile</option><option>Work</option></select></label>
-          <label class="field-block"><span>Number</span><input type="text" value="+44 7700 900123" /></label>
-          <button type="button" class="remove-btn">×</button>
+          <label class="field-block"><span>Type</span><select [value]="newPhoneType()"
+              (change)="newPhoneType.set($any($event.target).value)">
+              @for (type of PhoneTypeOptions; track type) {
+              <option [value]="type">{{ type }}</option>
+              }
+            </select></label>
+          <label class="field-block"><span>Number</span><input type="text" [value]="newPhoneNumber()"
+              (input)="newPhoneNumber.set($any($event.target).value)" placeholder="e.g. +44 7700 900123" /></label>
         </div>
+
+        @if (editIndividualSignal().phoneNumbers.length) {
+        <div class="phone-list">
+          @for (phone of editIndividualSignal().phoneNumbers; track $index) {
+          <div class="phone-row phone-row-listed">
+            <div class="phone-value">{{ phone.type }}: {{ phone.phoneNumber }}</div>
+            <button type="button" class="remove-btn" (click)="phoneNumbersRemove($index)">Remove</button>
+          </div>
+          }
+        </div>
+        } @else {
+        <p class="empty-note">No phone numbers added yet.</p>
+        }
       </div>
     </section>
 
@@ -84,13 +156,28 @@
         <h2>Organizational Context</h2>
       </div>
 
-      <div class="field-grid field-grid-3 align-end-grid">
-        <label class="field-block"><span>Organisation</span><input type="text" value="Global Wealth Partners" /></label>
-        <label class="field-block"><span>Branch</span><select><option>London City - HQ</option></select></label>
-        <div class="toggle-card">
-          <span>Has System User</span>
-          <label class="toggle-switch"><input type="checkbox" checked /><span></span></label>
-        </div>
+      <div class="field-grid field-grid-2 align-end-grid">
+        <label class="field-block">
+          <span>Organisation</span>
+          <input type="text" [value]="organisationSearch()" (input)="onOrganisationSearchInput($any($event.target).value)"
+            list="organisation-options" placeholder="Search by code or name" />
+          <datalist id="organisation-options">
+            @for (organisation of filteredOrganisationList(); track organisation.id) {
+            <option [value]="organisationOptionLabel(organisation)"></option>
+            }
+          </datalist>
+        </label>
+
+        <label class="field-block">
+          <span>Branch</span>
+          <input type="text" [value]="branchSearch()" (input)="onBranchSearchInput($any($event.target).value)"
+            list="branch-options" [disabled]="!editIndividualSignal().organisation" placeholder="Search by code or name" />
+          <datalist id="branch-options">
+            @for (branch of filteredBranchList(); track branch.id ?? branch.code ?? $index) {
+            <option [value]="branchOptionLabel(branch)"></option>
+            }
+          </datalist>
+        </label>
       </div>
     </section>
   </form>
@@ -101,3 +188,4 @@
     <span></span>
   </footer>
 </section>
+<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
