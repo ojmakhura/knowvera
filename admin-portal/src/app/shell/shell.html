@@ -40,7 +40,34 @@
       <div class="topbar-actions">
         <button type="button" class="icon-btn" aria-label="Notifications">•</button>
         <button type="button" class="icon-btn" aria-label="Help">?</button>
-        <button type="button" class="account-btn">Account</button>
+        <button type="button" class="account-btn" aria-haspopup="menu" [attr.aria-expanded]="accountMenuOpen()" (click)="toggleAccountMenu($event)">
+          <span class="account-avatar">{{ userInitials }}</span>
+          <span class="account-label">{{ userDisplayName }}</span>
+          <span class="material-symbols-outlined account-caret" aria-hidden="true">expand_more</span>
+        </button>
+
+        @if (accountMenuOpen()) {
+          <section class="account-menu" role="menu" aria-label="Account menu">
+            <div class="account-menu-head">
+              <span class="menu-avatar">{{ userInitials }}</span>
+              <div>
+                <p class="menu-name">{{ userDisplayName }}</p>
+                <p class="menu-email">{{ userEmail }}</p>
+              </div>
+            </div>
+
+            <div class="account-menu-actions">
+              <a class="menu-link" [href]="profileUrl" (click)="closeAccountMenu()">
+                <span class="material-symbols-outlined" aria-hidden="true">account_circle</span>
+                Profile
+              </a>
+              <button type="button" class="menu-link menu-link-danger" (click)="logout()">
+                <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+                Logout
+              </button>
+            </div>
+          </section>
+        }
       </div>
     </header>
 

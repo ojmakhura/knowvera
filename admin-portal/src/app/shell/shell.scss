@@ -177,6 +177,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 0.55rem;
+  position: relative;
 }
 
 .icon-btn,
@@ -194,12 +195,118 @@ h2 {
 }
 
 .account-btn {
-  border-radius: 0.9rem;
-  padding: 0 0.75rem;
+  border-radius: 999px;
+  padding: 0 0.5rem 0 0.32rem;
   width: auto;
+  min-width: 8.5rem;
   color: var(--vault-primary);
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.account-avatar,
+.menu-avatar {
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vault-primary-container);
+  color: var(--vault-on-primary-container);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.account-label {
+  max-width: 8.6rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-caret {
+  font-size: 0.9rem;
+  color: var(--vault-on-surface-variant);
+}
+
+.account-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.45rem);
+  width: 16.5rem;
+  border-radius: 0.75rem;
+  background: var(--vault-surface-container-lowest);
+  border: 1px solid rgb(196 198 208 / 22%);
+  box-shadow: 0 12px 28px rgb(25 28 30 / 15%);
+  padding: 0.55rem;
+  z-index: 20;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.account-menu-head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem;
+  border-radius: 0.5rem;
+  background: var(--vault-surface-container-low);
+}
+
+.menu-avatar {
+  width: 1.8rem;
+  height: 1.8rem;
+  font-size: 0.67rem;
+}
+
+.menu-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--vault-primary);
+}
+
+.menu-email {
+  font-size: 0.68rem;
+  color: var(--vault-on-surface-variant);
+}
+
+.account-menu-actions {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.menu-link {
+  border: 0;
+  text-decoration: none;
+  width: 100%;
+  border-radius: 0.45rem;
+  padding: 0.55rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: transparent;
+  color: var(--vault-on-surface);
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.menu-link:hover {
+  background: var(--vault-surface-container-high);
+}
+
+.menu-link .material-symbols-outlined {
+  font-size: 0.9rem;
+}
+
+.menu-link-danger {
+  color: var(--vault-error);
 }
 
 .content {
@@ -239,6 +346,11 @@ h2 {
 
   .topbar-actions {
     margin-left: 0;
+  }
+
+  .account-menu {
+    right: auto;
+    left: 0;
   }
 
   .content {

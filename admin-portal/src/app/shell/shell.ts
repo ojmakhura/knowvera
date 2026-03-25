@@ -1,5 +1,5 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, signal, ViewChild } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { Title } from '@angular/platform-browser';
 import { Route, Router, RouterModule, RouterOutlet, Routes } from '@angular/router';
@@ -19,7 +19,9 @@ export class Shell {
   @ViewChild('sidenav') sidenav!: MatDrawer;
 
   protected readonly currentYear = new Date().getFullYear();
+  protected readonly accountMenuOpen = signal(false);
   private breakpoint = inject(BreakpointObserver);
+  private elementRef = inject(ElementRef<HTMLElement>);
   private titleService = inject(Title);
   protected router = inject(Router);
   protected translationService = inject(TranslationService);
@@ -57,8 +59,69 @@ export class Shell {
 
   logout() {
     console.log('Logout clicked');
+    this.accountMenuOpen.set(false);
     this.keycloak.logout();
     this.appEnvState.reset();
+  }
+
+  toggleAccountMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.accountMenuOpen.set(!this.accountMenuOpen());
+  }
+
+  closeAccountMenu(): void {
+    this.accountMenuOpen.set(false);
+  }
+
+  get userDisplayName(): string {
+    const userProfile = this.profile();
+
+    if (!userProfile) {
+      return 'Compliance Officer';
+    }
+
+    const fullName = `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim();
+    return fullName || userProfile.username || 'Compliance Officer';
+  }
+
+  get userEmail(): string {
+    return this.profile()?.email || this.profile()?.username || 'admin@vault-tech.io';
+  }
+
+  get userInitials(): string {
+    const userProfile = this.profile();
+
+    if (!userProfile) {
+      return 'CO';
+    }
+
+    const first = userProfile.firstName?.[0] || '';
+    const last = userProfile.lastName?.[0] || '';
+    const initials = `${first}${last}`.toUpperCase();
+
+    return initials || userProfile.username?.slice(0, 2).toUpperCase() || 'CO';
+  }
+
+  get profileUrl(): string {
+    return this.appEnvState.accountUri() || '/settings';
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as Node | null;
+
+    if (!target) {
+      return;
+    }
+
+    if (!this.elementRef.nativeElement.contains(target)) {
+      this.accountMenuOpen.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    this.accountMenuOpen.set(false);
   }
 
   login() {
