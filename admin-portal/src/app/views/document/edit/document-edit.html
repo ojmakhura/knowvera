@@ -1,0 +1,92 @@
+<section class="doc-edit-page" aria-label="Edit document asset">
+  <div class="doc-edit-card">
+    <header class="doc-edit-head">
+      <div>
+        <div class="title-row">
+          <span class="title-icon">◫</span>
+          <h1>Edit Document Asset</h1>
+        </div>
+        <p class="head-meta">Internal Reference: DOC-KYC-2024-8842</p>
+      </div>
+      <div class="head-actions">
+        <button class="btn-secondary" type="button">Cancel</button>
+        <button class="btn-primary" type="button">Save Changes</button>
+      </div>
+    </header>
+
+    <form class="doc-form" aria-label="Document edit form">
+      <section class="form-section">
+        <div class="section-title"><span></span><h2>Identity &amp; Context</h2></div>
+
+        <div class="field-grid">
+          <label class="field-block">
+            <span class="field-label">Document ID</span>
+            <div class="readonly-wrap">
+              <span>⛓</span>
+              <input readonly type="text" value="7e3a-4c21-b921-f092" />
+            </div>
+            <small>This unique identifier is immutable.</small>
+          </label>
+
+          <label class="field-block">
+            <span class="field-label">Target Entity</span>
+            <select><option>Corporate Organization</option><option>Individual Beneficiary</option><option>Trust / Fund</option><option>Government Agency</option></select>
+          </label>
+
+          <label class="field-block">
+            <span class="field-label">Target ID</span>
+            <input type="text" value="ENT-9920-XJ" />
+          </label>
+
+          <label class="field-block">
+            <span class="field-label">Document Type</span>
+            <select><option>Articles of Incorporation</option><option selected>Certificate of Incumbency</option><option>Passport / ID Scan</option><option>Proof of Address</option><option>Tax Certificate</option></select>
+          </label>
+        </div>
+      </section>
+
+      <section class="form-section form-section-topline">
+        <div class="section-title"><span></span><h2>Asset Details</h2></div>
+
+        <div class="field-grid">
+          <label class="field-block">
+            <span class="field-label">File Name</span>
+            <div class="input-icon-wrap">
+              <input type="text" value="incumbency_cert_2024_veritas.pdf" />
+              <span>✎</span>
+            </div>
+          </label>
+
+          <label class="field-block">
+            <span class="field-label">Verification Status</span>
+            <select><option>UNVERIFIED</option><option selected>PENDING</option><option>VERIFIED</option><option>REJECTED</option></select>
+          </label>
+
+          <label class="field-block field-block-wide">
+            <span class="field-label">Document URL</span>
+            <div class="url-row">
+              <input type="url" value="https://vault.veritas.protocol/s/a7f8g9h1j2k3l4m5n6p7q" />
+              <button type="button">View Document</button>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <article class="protocol-note" aria-label="Compliance protocol">
+        <span>⛨</span>
+        <div>
+          <h3>Compliance Protocol Active</h3>
+          <p>
+            All changes to this document form are logged in the immutable audit trail. Ensure all entity
+            references align with current registry data before finalizing the update.
+          </p>
+        </div>
+      </article>
+    </form>
+
+    <footer class="doc-footer">
+      <p>Auto-scanned by Veritas Engine 2.4</p>
+      <p>Updated: 2023-11-24 14:02:11 UTC</p>
+    </footer>
+  </div>
+</section>

@@ -1,0 +1,88 @@
+<section class="org-page" aria-label="Search organisations">
+  <header class="org-header">
+    <div>
+      <h1>Search Organisations</h1>
+      <p>
+        Access the central registry to manage institutional compliance profiles and
+        KYC documentation within the Veritas Protocol.
+      </p>
+    </div>
+    <button type="button" [routerLink]="['/organisation', 'edit']">New Organisation</button>
+  </header>
+
+  <section class="org-search-card" aria-label="Search criteria">
+    <form class="org-search-row" (submit)="doSearch()">
+      <label class="sr-only" for="criteria">Search Criteria</label>
+      <input id="criteria" type="text" [formField]="searchOrganisationsSignalForm.criteria" placeholder="Enter name, registration number or entity code..." />
+      <button type="button" (click)="doSearch()">Search</button>
+    </form>
+  </section>
+
+  <section class="org-table-card" aria-label="Organisation results">
+    <div class="org-table-head" role="row">
+      <p>Name</p>
+      <p>Registration No.</p>
+      <p>Code</p>
+      <p>KYC Status</p>
+      <p>Client Status</p>
+      <p>Actions</p>
+    </div>
+
+    <!-- <div class="org-table-body" role="table">
+      @for (org of organisations(); track org.registration) {
+        <article class="org-row" role="row">
+          <div>
+            <p class="org-name">{{ org.name }}</p>
+            <p class="org-note">{{ org.note }}</p>
+          </div>
+          <p class="mono">{{ org.registration }}</p>
+          <p><span class="code-pill">{{ org.code }}</span></p>
+          <p>
+            <span
+              class="status-badge"
+              [class.status-verified]="org.kycStatus === 'VERIFIED'"
+              [class.status-pending]="org.kycStatus === 'PENDING REVIEW'"
+              [class.status-flagged]="org.kycStatus === 'FLAGGED'"
+            >{{ org.kycStatus }}</span>
+          </p>
+          <p>
+            <span
+              class="status-badge"
+              [class.client-active]="org.clientStatus === 'ACTIVE'"
+              [class.client-onboarding]="org.clientStatus === 'ONBOARDING'"
+              [class.client-suspended]="org.clientStatus === 'SUSPENDED'"
+            >{{ org.clientStatus }}</span>
+          </p>
+          <p class="actions">
+            <a class="edit-link" [routerLink]="['/organisation/edit', org.code]" aria-label="Edit organisation">Edit</a>
+          </p>
+        </article>
+      }
+    </div> -->
+
+    <!-- <footer class="org-table-footer">
+      <p>Showing 4 of 12 Organisations</p>
+      <div class="pager">
+        <button type="button">‹</button>
+        <button type="button" class="active">1</button>
+        <button type="button">2</button>
+        <button type="button">3</button>
+        <button type="button">›</button>
+      </div>
+    </footer> -->
+    <mat-card class="form-section modern-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>assignment</mat-icon>
+            {{ 'search.results' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="modern-content results-content">
+          <div class="table-container">
+            <app-table #organisationsTable [dataColumns]="organisationsTableColumns" [showActions]="true" [paged]="true" [actions]="organisationsTableColumnsActions" (actionClicked)="organisationsTableActionClicked($event)" [dataSignal]="organisationsTableSignal">
+            </app-table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+  </section>
+</section>

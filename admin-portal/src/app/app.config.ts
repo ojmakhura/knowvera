@@ -1,28 +1,24 @@
-import {
-  ApplicationConfig,
-  importProvidersFrom,
-  provideBrowserGlobalErrorListeners,
-} from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { provideRouter, RouteReuseStrategy, withComponentInputBinding } from '@angular/router';
+
+import { routes } from './app.routes';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import {
   provideHttpClient,
   withFetch,
   withInterceptors,
   withInterceptorsFromDi,
+  HttpClient,
 } from '@angular/common/http';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatDateFormats } from '@angular/material/core';
+import { RouteReusableStrategy } from './@core/route-reusable-strategy';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-import { HttpClient } from '@angular/common/http';
-
-import { routes } from './app.routes';
-import { catchError, Observable, of } from 'rxjs';
-import { provideToastr } from 'ngx-toastr';
-import { CUSTOM_DATE_FORMATS } from './@shared/custom-date-formats';
-import { MAT_DATE_FORMATS } from '@angular/material/core';
 import { apiPrefixInterceptor } from './@core/http/api-prefix.interceptor';
 import { errorHandlerInterceptor } from './@core/http/error-handler.interceptor';
-
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { provideToastr } from 'ngx-toastr';
 import {
   AutoRefreshTokenService,
   createInterceptorCondition,
@@ -33,6 +29,18 @@ import {
   UserActivityService,
   withAutoRefreshToken,
 } from 'keycloak-angular';
+
+export class CustomTranslateLoader implements TranslateLoader {
+  constructor(private http: HttpClient) {}
+
+  getTranslation(lang: string): Observable<any> {
+    return this.http.get(`/i18n/${lang}.json`).pipe(catchError(() => of({})));
+  }
+}
+
+export function HttpLoaderFactory(http: HttpClient) {
+  return new CustomTranslateLoader(http);
+}
 
 export const provideKeycloakAndInterceptor = (env: any) => {
   const urlConditions = [
@@ -62,7 +70,7 @@ export const provideKeycloakAndInterceptor = (env: any) => {
       initOptions: {
         onLoad: 'check-sso',
         checkLoginIframe: true,
-        silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+        silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html'
       },
       features: [
         withAutoRefreshToken({
@@ -76,24 +84,30 @@ export const provideKeycloakAndInterceptor = (env: any) => {
   ];
 };
 
-export class CustomTranslateLoader implements TranslateLoader {
-  constructor(private http: HttpClient) {}
+export function initFactory() {
+  // const envStore = inject(AppEnvStore);
 
-  getTranslation(lang: string): Observable<any> {
-    return this.http.get(`/i18n/${lang}.json`).pipe(catchError(() => of({})));
-  }
+  return async () => {};
 }
 
-export function HttpLoaderFactory(http: HttpClient) {
-  return new CustomTranslateLoader(http);
-}
+export const MY_DATE_FORMATS: MatDateFormats = {
+  parse: {
+    dateInput: 'DD/MM/YYYY', // how the input string is parsed
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY', // how it appears in the input
+    monthYearLabel: 'MMM YYYY', // month-year label in calendar
+    dateA11yLabel: 'LL', // accessibility label
+    monthYearA11yLabel: 'MMMM YYYY', // accessibility label for month/year
+  },
+};
 
 export const appConfig = (env: any) => {
   return {
     providers: [
-      provideBrowserGlobalErrorListeners(),
       provideRouter(routes, withComponentInputBinding()),
       provideKeycloakAndInterceptor(env),
+      provideAnimations(),
       provideHttpClient(
         withFetch(),
         withInterceptorsFromDi(),
@@ -101,7 +115,7 @@ export const appConfig = (env: any) => {
           apiPrefixInterceptor,
           errorHandlerInterceptor,
           includeBearerTokenInterceptor,
-        ]),
+        ])
       ),
       provideToastr({
         timeOut: 3000,
@@ -123,10 +137,17 @@ export const appConfig = (env: any) => {
             useFactory: HttpLoaderFactory,
             deps: [HttpClient],
           },
-        }),
+        })
       ),
       { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
-      { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
+      {
+        provide: RouteReuseStrategy,
+        useClass: RouteReusableStrategy,
+      },
+      // { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
+      { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
+      { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+      { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
     ],
-  };
+  } as ApplicationConfig;
 };

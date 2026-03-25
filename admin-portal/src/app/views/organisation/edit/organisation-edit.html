@@ -1,0 +1,98 @@
+<section class="org-edit-page" aria-label="Edit organisation">
+  <header class="org-edit-head">
+    <div>
+      <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a [routerLink]="['/organisation']">Organisations</a>
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        <span>Global Architecture Ltd</span>
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        <strong>Edit</strong>
+      </nav>
+      <h1>Edit Organisation</h1>
+    </div>
+
+    <div class="head-actions">
+      <button class="btn-secondary" type="button" [routerLink]="['/organisation']">Cancel</button>
+      <button class="btn-primary" type="button">Save Changes</button>
+    </div>
+  </header>
+
+  <div class="layout-grid">
+    <div class="left-col">
+      <section class="panel">
+        <h2>Core Identity</h2>
+        <div class="field-grid">
+          <label class="field-block">
+            <span>Organisation Name</span>
+            <input type="text" value="Global Architecture Ltd" />
+          </label>
+          <label class="field-block">
+            <span>Internal Code</span>
+            <input type="text" value="ARCH-7721" />
+          </label>
+          <label class="field-block">
+            <span>Registration No.</span>
+            <input type="text" value="UK-9928374-B" />
+          </label>
+          <label class="field-block">
+            <span>Country of Registration</span>
+            <select>
+              <option>United Kingdom</option>
+              <option>United States</option>
+              <option>Germany</option>
+              <option>Singapore</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Operational Status</h2>
+        <div class="field-grid">
+          <label class="field-block">
+            <span>General Status</span>
+            <select>
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="INACTIVE">INACTIVE</option>
+            </select>
+          </label>
+          <label class="field-block">
+            <span>KYC Compliance Status</span>
+            <select>
+              <option value="CURRENT">CURRENT</option>
+              <option value="EXPIRED">EXPIRED</option>
+              <option value="ABSENT">ABSENT</option>
+              <option value="INCOMPLETE">INCOMPLETE</option>
+            </select>
+          </label>
+          <label class="field-block field-wide">
+            <span>Description</span>
+            <textarea rows="4" placeholder="Enter organisational details and compliance notes..."></textarea>
+          </label>
+        </div>
+      </section>
+    </div>
+
+    <aside class="right-col panel">
+      <h2>Contact</h2>
+      <div class="field-grid field-grid-single">
+        <label class="field-block">
+          <span>Contact Email Address</span>
+          <input type="email" value="compliance@globalarch.com" />
+        </label>
+        <label class="field-block">
+          <span>Physical Address</span>
+          <textarea rows="3">12-14 The Gherkin, St Mary Axe
+London, EC3A 8BF
+United Kingdom</textarea>
+        </label>
+        <label class="field-block">
+          <span>Postal Address</span>
+          <textarea rows="3">PO Box 4582, Canary Wharf
+London, E14 5AB
+United Kingdom</textarea>
+        </label>
+      </div>
+    </aside>
+  </div>
+</section>

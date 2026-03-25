@@ -1,0 +1,67 @@
+<section class="dictionary-page" aria-label="Document dictionary">
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">Registry › Document Types</p>
+      <h1 class="page-title">Document Types</h1>
+      <p class="page-copy">
+        Manage the global taxonomy of verified credentials, compliance certificates,
+        and architectural permits within the secure trust engine.
+      </p>
+    </div>
+    <button class="primary-btn" type="button">＋ Create New Document Type</button>
+  </div>
+
+  <section class="search-card" aria-label="Search document types">
+    <input class="search-input" type="text" placeholder="Search by code, name, or keywords..." />
+    <button class="search-btn" type="button">Search</button>
+  </section>
+
+  <section class="table-wrap" aria-label="Registered document types">
+    <div class="table-head" role="row">
+      <p>Code</p>
+      <p>Name</p>
+      <p>Description</p>
+      <p class="align-end">Actions</p>
+    </div>
+
+    <!-- <div class="table-body" role="table">
+      @for (item of documentTypes(); track item.code) {
+        <article class="table-row" role="row">
+          <p><span class="code-pill">{{ item.code }}</span></p>
+          <p class="name-cell">{{ item.name }}</p>
+          <p class="desc-cell">{{ item.description }}</p>
+          <div class="actions-cell" aria-label="Actions">
+            <button type="button" class="icon-action" aria-label="View">◉</button>
+            <a class="icon-action icon-link" aria-label="Edit" routerLink="/document/type/edit">✎</a>
+          </div>
+        </article>
+      }
+    </div> -->
+  </section>
+
+  <div class="table-footer">
+    <p class="footer-note">Showing 4 of 128 document types registered.</p>
+    <div class="pagination" aria-label="Pagination">
+      <button type="button" class="page-btn">|‹</button>
+      <button type="button" class="page-btn">‹</button>
+      <!-- @for (page of pages(); track page) {
+        <button type="button" class="page-btn" [class.page-btn-active]="page === 1">{{ page }}</button>
+      } -->
+      <button type="button" class="page-btn">›</button>
+      <button type="button" class="page-btn">›|</button>
+    </div>
+  </div>
+
+  <section class="insights-grid" aria-label="Dictionary insights">
+    <article class="hero-card">
+      <h2>Audit Compliance Engine</h2>
+      <p>Every document type defined here updates our real-time verification algorithms globally.</p>
+    </article>
+
+    <article class="side-card">
+      <div class="trust-mark">◈</div>
+      <h2>Universal Trust</h2>
+      <p>Standardizing document classification reduces verification lag by 42%.</p>
+    </article>
+  </section>
+</section>

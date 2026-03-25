@@ -1,0 +1,323 @@
+:host {
+  display: block;
+}
+
+.settings-page {
+  display: grid;
+  gap: var(--vault-space-8);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+.panel {
+  background: var(--vault-surface-container-lowest);
+  border-radius: 0.75rem;
+  padding: var(--vault-space-8);
+  box-shadow: 0 4px 20px rgb(25 28 30 / 4%);
+}
+
+.settings-header,
+.header-brand,
+.header-actions,
+.panel-head,
+.section-title-row,
+.doc-card-head,
+.range-row,
+.settings-footer {
+  display: flex;
+  align-items: center;
+}
+
+.settings-header,
+.section-title-row,
+.doc-card-head,
+.settings-footer,
+.between {
+  justify-content: space-between;
+}
+
+.settings-header {
+  background: color-mix(in srgb, var(--vault-surface) 80%, transparent);
+  border: 1px solid rgb(196 198 208 / 20%);
+  border-radius: 0.75rem;
+  padding: var(--vault-space-4) var(--vault-space-8);
+}
+
+.header-brand,
+.header-actions,
+.panel-head {
+  gap: 0.6rem;
+}
+
+.brand-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.45rem;
+  display: grid;
+  place-items: center;
+  background: var(--vault-primary);
+  color: #fff;
+}
+
+h1,
+h2 {
+  color: var(--vault-primary);
+}
+
+h1 {
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: 1rem;
+}
+
+.header-brand p,
+.section-title-row p,
+.field-block span,
+.table-head,
+.table-title,
+.doc-card h3 {
+  color: var(--vault-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.btn-secondary,
+.btn-primary,
+.btn-pill,
+.btn-light,
+.doc-card-head button,
+.field-block input,
+.field-block select,
+.filter-input {
+  font: inherit;
+}
+
+.btn-secondary,
+.btn-primary,
+.btn-pill,
+.btn-light {
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: var(--vault-surface-container);
+  color: var(--vault-on-surface-variant);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--vault-primary), var(--vault-primary-container));
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-pill {
+  background: transparent;
+  border: 1px solid rgb(0 23 53 / 20%);
+  color: var(--vault-primary);
+}
+
+.btn-light {
+  background: #fff;
+  color: var(--vault-primary);
+}
+
+.top-grid,
+.bottom-grid,
+.field-grid,
+.doc-grid,
+.salary-table {
+  display: grid;
+  gap: var(--vault-space-4);
+}
+
+.top-grid,
+.bottom-grid {
+  grid-template-columns: 2fr 1fr;
+}
+
+.field-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.field-block {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field-block input,
+.field-block select,
+.filter-input {
+  width: 100%;
+  border: 1px solid rgb(196 198 208 / 20%);
+  border-radius: 0.5rem;
+  background: var(--vault-surface-container-low);
+  color: var(--vault-on-surface);
+  padding: 0.7rem 0.8rem;
+}
+
+.field-block input:focus-visible,
+.field-block select:focus-visible,
+.filter-input:focus-visible {
+  outline: none;
+  border-color: var(--vault-primary);
+  box-shadow: 0 0 0 2px rgb(111 135 164 / 30%);
+}
+
+.stack {
+  display: grid;
+  gap: var(--vault-space-4);
+}
+
+.range-row {
+  gap: 0.6rem;
+}
+
+.range-row input {
+  width: 100%;
+}
+
+.range-row strong {
+  color: var(--vault-primary);
+}
+
+.section-title-row {
+  margin-bottom: var(--vault-space-4);
+  gap: var(--vault-space-4);
+}
+
+.doc-grid {
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.doc-card {
+  background: var(--vault-surface-container-low);
+  border-radius: 0.75rem;
+  padding: var(--vault-space-4);
+}
+
+.doc-card h3 {
+  color: var(--vault-primary);
+}
+
+.doc-card-head button {
+  border: 0;
+  border-radius: 999px;
+  width: 1.4rem;
+  height: 1.4rem;
+  background: var(--vault-surface-container-high);
+  color: var(--vault-primary);
+}
+
+.doc-card ul {
+  list-style: none;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.doc-card li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--vault-surface-container-lowest);
+  border-radius: 0.45rem;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.76rem;
+}
+
+.doc-card li button {
+  border: 0;
+  background: transparent;
+  color: var(--vault-on-error-container);
+  font-weight: 700;
+}
+
+.config-stack {
+  display: grid;
+  gap: var(--vault-space-4);
+}
+
+.config-block {
+  background: var(--vault-surface-container-low);
+  border-radius: 0.75rem;
+  padding: var(--vault-space-4);
+  display: grid;
+  gap: var(--vault-space-4);
+}
+
+.table-title {
+  margin: var(--vault-space-4) 0;
+}
+
+.salary-table {
+  grid-template-columns: 1.5fr 1fr 1fr 0.4fr;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid rgb(196 198 208 / 20%);
+}
+
+.salary-table > div {
+  padding: 0.65rem 0.8rem;
+  background: var(--vault-surface-container-lowest);
+  border-bottom: 1px solid rgb(196 198 208 / 15%);
+  font-size: 0.76rem;
+}
+
+.salary-table .table-head {
+  background: var(--vault-surface-container-low);
+}
+
+.salary-table .right {
+  text-align: right;
+}
+
+.settings-footer {
+  background: linear-gradient(135deg, var(--vault-primary-container), var(--vault-primary));
+  border-radius: 1rem;
+  padding: var(--vault-space-8);
+}
+
+.settings-footer h3,
+.settings-footer p {
+  color: #fff;
+}
+
+.settings-footer p {
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+@media (max-width: 1080px) {
+  .top-grid,
+  .bottom-grid,
+  .doc-grid,
+  .field-grid,
+  .salary-table {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-header,
+  .settings-footer,
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

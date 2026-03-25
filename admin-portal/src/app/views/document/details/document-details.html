@@ -1,0 +1,93 @@
+<section class="doc-details" aria-label="Document details">
+  <header class="doc-header">
+    <div>
+      <h1>passport_j_doe.pdf</h1>
+      <p>Uploaded Oct 24, 2023 • Ref: VR-99201-B</p>
+    </div>
+    <div class="header-actions">
+      <span class="status-pill">Verified</span>
+      <button type="button">Download Source</button>
+    </div>
+  </header>
+
+  <section class="main-grid">
+    <div class="left-stack">
+      <article class="panel-card">
+        <div class="panel-head">
+          <h2>Validation Status</h2>
+          <span>◈</span>
+        </div>
+
+        <div class="score-block">
+          <p>Confidence Score</p>
+          <strong>98.4%</strong>
+        </div>
+
+        <div class="segments" aria-label="Confidence segments">
+          @for (segment of confidenceSegments(); track $index) {
+            <span [class.segment-off]="!segment"></span>
+          }
+        </div>
+
+        <div class="validation-details">
+          <div><span>Type Match</span><strong>PASSPORT (Detected)</strong></div>
+          <div><span>Expected Type</span><strong>GOV_ID</strong></div>
+          <p>
+            <strong>Reason:</strong> Machine learning signals indicate high structural parity with
+            standard travel documents. Biometric markers align with expected fields.
+          </p>
+        </div>
+      </article>
+
+      <article class="panel-card panel-soft">
+        <h3>Signal Integrity</h3>
+        <div class="signal-list">
+          @for (signal of integritySignals(); track signal.label) {
+            <div>
+              <span>{{ signal.label }}</span>
+              <span class="signal-value">{{ signal.value }}</span>
+            </div>
+          }
+        </div>
+      </article>
+    </div>
+
+    <div class="right-stack">
+      <article class="panel-card">
+        <h2>Extracted Data Points</h2>
+        <div class="data-grid">
+          @for (item of dataPoints(); track item.label) {
+            <div class="data-cell">
+              <label>{{ item.label }}</label>
+              <p>{{ item.value }}</p>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="panel-card">
+        <h3>Field Coverage Audit</h3>
+        <div class="coverage-head">
+          <span>Target Field</span><span>Status</span><span>Confidence</span>
+        </div>
+        <div class="coverage-body">
+          @for (entry of coverage(); track entry.field) {
+            <div class="coverage-row">
+              <span>{{ entry.field }}</span>
+              <span>• Found</span>
+              <span>{{ entry.confidence }}</span>
+            </div>
+          }
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="preview-card" aria-label="Document preview">
+    <div class="preview-overlay">
+      <p class="preview-title">Interactive Preview Secured</p>
+      <p class="preview-copy">Click to expand high-resolution viewport</p>
+      <button type="button">Launch Vault Viewer</button>
+    </div>
+  </section>
+</section>

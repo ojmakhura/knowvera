@@ -1,0 +1,247 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+p,
+h1,
+h2 {
+  margin: 0;
+}
+
+.shell-layout {
+  min-height: 100dvh;
+  background: var(--vault-surface);
+  color: var(--vault-on-surface);
+  display: grid;
+  grid-template-columns: 12rem 1fr;
+}
+
+.shell-sidebar {
+  background: var(--vault-surface-container-low);
+  padding: var(--vault-space-8) var(--vault-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vault-space-8);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.brand-mark {
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 0.35rem;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--vault-primary);
+  font-size: 0.8rem;
+}
+
+.brand-title,
+.topbar-title,
+.headline,
+.officer-name {
+  color: var(--vault-primary);
+}
+
+.brand-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.brand-subtitle,
+.officer-mail {
+  color: var(--vault-on-surface-variant);
+}
+
+.brand-subtitle {
+  font-size: 0.58rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.new-btn {
+  background: linear-gradient(135deg, var(--vault-primary), var(--vault-primary-container));
+  color: #fff;
+  border: 0;
+  border-radius: 0.45rem;
+  padding: 0.75rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sidebar-nav {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.nav-item {
+  color: var(--vault-on-surface-variant);
+  text-decoration: none;
+  border-radius: 0.5rem;
+  padding: 0.62rem 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.48rem;
+  font-size: 0.88rem;
+  font-weight: 550;
+}
+
+.nav-item-active {
+  background: var(--vault-surface-container-highest);
+  color: var(--vault-primary);
+}
+
+.nav-icon {
+  width: 1rem;
+  text-align: center;
+  font-size: 0.72rem;
+  line-height: 1;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: var(--vault-space-8);
+}
+
+.avatar {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: var(--vault-surface-container-highest);
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+}
+
+.officer-name {
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.officer-mail {
+  font-size: 0.62rem;
+}
+
+.shell-main {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.topbar {
+  height: 3.3rem;
+  background: var(--vault-surface-container-low);
+  display: flex;
+  align-items: center;
+  gap: var(--vault-space-8);
+  padding: 0 var(--vault-space-8);
+}
+
+.topbar-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  min-width: 9rem;
+}
+
+.topbar-search {
+  flex: 1;
+  max-width: 22rem;
+  border: 0;
+  border-radius: 0.35rem;
+  background: var(--vault-surface-container);
+  color: var(--vault-on-surface);
+  padding: 0.58rem 0.75rem;
+}
+
+.topbar-search:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(111 135 164 / 30%);
+}
+
+.topbar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.icon-btn,
+.account-btn {
+  border: 0;
+  border-radius: 999px;
+  background: var(--vault-surface-container-high);
+  color: var(--vault-on-surface-variant);
+  min-width: 1.8rem;
+  height: 1.8rem;
+  display: grid;
+  place-items: center;
+  font: inherit;
+  cursor: pointer;
+}
+
+.account-btn {
+  border-radius: 0.9rem;
+  padding: 0 0.75rem;
+  width: auto;
+  color: var(--vault-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.content {
+  padding: var(--vault-space-8);
+}
+
+@media (max-width: 1024px) {
+  .shell-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .shell-sidebar {
+    gap: var(--vault-space-4);
+  }
+
+  .sidebar-footer {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .topbar {
+    padding: 0 var(--vault-space-4);
+  }
+
+  .topbar-search {
+    max-width: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: var(--vault-space-4);
+    gap: 0.6rem;
+  }
+
+  .topbar-actions {
+    margin-left: 0;
+  }
+
+  .content {
+    padding: var(--vault-space-4);
+  }
+}

@@ -1,0 +1,222 @@
+<section class="org-details-page" aria-label="Organisation details">
+    <header class="org-header">
+        <div>
+            <div class="title-row">
+                <h1>{{organisation().name}}</h1>
+                <span class="code-pill">{{organisation().code}}</span>
+            </div>
+            <div class="badges-row">
+                <span class="status-pill verified-pill">
+                    <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+                    Verified Enterprise
+                </span>
+                <span class="status-pill compliant-pill">
+                    <span class="material-symbols-outlined" aria-hidden="true">verified_user</span>
+                    KYC Compliant
+                </span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <button class="btn-secondary" type="button" [routerLink]="['/organisation/edit', organisation().id]">Edit
+                Organisation</button>
+            <button class="btn-primary" type="button">New Audit</button>
+        </div>
+    </header>
+
+    <div class="top-grid">
+        <section class="panel identity-panel">
+            <div class="panel-title">
+                <span class="panel-icon material-symbols-outlined" aria-hidden="true">fingerprint</span>
+                <h2>Core Identity</h2>
+            </div>
+
+            <div class="identity-grid">
+                <div>
+                    <label>Registration Number</label>
+                    <p>{{organisation().registrationNo}}</p>
+                </div>
+                <div>
+                    <label>Jurisdiction</label>
+                    <!-- <p>{{organisation().jurisdiction}}</p> -->
+                </div>
+                <div class="wide-field">
+                    <label>Description</label>
+                    <p>{{organisation().description}}</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel infra-panel">
+            <div class="panel-title">
+                <span class="panel-icon material-symbols-outlined" aria-hidden="true">dns</span>
+                <h2>Infrastructure</h2>
+            </div>
+
+            <label>Verified Domains</label>
+            <ul class="list-stack">
+                @for (domain of organisation().domains; track $index) {
+                <li>
+                    <span>{{domain.name}}</span>
+                    @if(domain.verified) {
+                    <span class="material-symbols-outlined">verified</span>
+                    }
+                </li>
+                }
+            </ul>
+        </section>
+    </div>
+
+    <section class="panel">
+        <div class="panel-title">
+            <span class="panel-icon material-symbols-outlined" aria-hidden="true">contact_support</span>
+            <h2>Contact Information</h2>
+        </div>
+
+        <div class="contact-grid">
+            <div>
+                <label>Email Address</label>
+                <a href="mailto:{{organisation().contactEmailAddress}}">{{organisation().contactEmailAddress}}</a>
+
+                <label class="spaced-label">Phone numbers</label>
+                <ul class="simple-list">
+                    @for (phone of organisation().phoneNumbers; track $index) {
+                    <li>{{phone.number}} ({{phone.label}})</li>
+                    }
+                </ul>
+            </div>
+
+            <div>
+                <label>Physical Address</label>
+                <p class="muted">
+                    {{organisation().physicalAddress}}
+                </p>
+            </div>
+
+            <div>
+                <label>Postal Address</label>
+                <p class="muted">
+                    {{organisation().postalAddress}}
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="section-title">
+            <span class="panel-icon material-symbols-outlined" aria-hidden="true">account_tree</span>
+            <h2>Registered Branches</h2>
+            <span class="section-meta">3 Branches Active</span>
+        </div>
+
+        <div class="branch-grid">
+            <article class="panel branch branch-primary">
+                <div class="branch-head">
+                    <h3>London (HQ)</h3><span>BR-LON-01</span>
+                </div>
+                <p>Level 42, The Shard, London Bridge St, SE1 9SG</p>
+                <div class="branch-state ok"><span class="material-symbols-outlined">check_circle</span>Verified Primary
+                </div>
+            </article>
+            <article class="panel branch">
+                <div class="branch-head">
+                    <h3>New York Office</h3><span>BR-NYC-04</span>
+                </div>
+                <p>One World Trade Center, Suite 85, NY 10007</p>
+                <div class="branch-state"><span class="material-symbols-outlined">history</span>Pending Validation</div>
+            </article>
+            <article class="panel branch">
+                <div class="branch-head">
+                    <h3>Singapore Hub</h3><span>BR-SGP-02</span>
+                </div>
+                <p>8 Marina View, Asia Square Tower 1, Singapore 018960</p>
+                <div class="branch-state ok"><span class="material-symbols-outlined">check_circle</span>Verified</div>
+            </article>
+        </div>
+    </section>
+
+    <section class="ops-section">
+        <div class="ops-header">
+            <span class="panel-icon panel-icon-dark material-symbols-outlined" aria-hidden="true">hub</span>
+            <div>
+                <h2>Client Operations</h2>
+                <p>Administrative control panel for operational client management</p>
+            </div>
+        </div>
+
+        <div class="ops-grid">
+            <article class="panel ops-left">
+                <div class="ops-title-row">
+                    <h3>Required KYC Documents</h3>
+                    <span class="material-symbols-outlined">info</span>
+                </div>
+
+                <ul class="docs-list">
+                    <li>
+                        <span class="material-symbols-outlined">description</span>
+                        <div>
+                            <p>Certificate of Incorporation</p><small>Mandatory • High Priority</small>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="material-symbols-outlined">group</span>
+                        <div>
+                            <p>Shareholder Register</p><small>Mandatory • High Priority</small>
+                        </div>
+                    </li>
+                    <li class="optional-item">
+                        <span class="material-symbols-outlined">verified</span>
+                        <div>
+                            <p>AML Compliance Policy</p><small>Optional • Internal Audit</small>
+                        </div>
+                    </li>
+                </ul>
+            </article>
+
+            <div class="ops-right">
+                <article class="panel table-panel">
+                    <div class="table-head-row">
+                        <h3>Active Client Requests</h3>
+                        <span class="live-pill">Live</span>
+                    </div>
+                    <div class="table-grid table-grid-4">
+                        <div class="table-head">Name / Registration</div>
+                        <div class="table-head">Email</div>
+                        <div class="table-head center">Status</div>
+                        <div class="table-head right">Target Level</div>
+                        <div><strong>FinTech Solutions</strong><small>FT-990-SGP</small></div>
+                        <div>onboarding@fintech.sg</div>
+                        <div class="center"><span class="status-pill flagged-pill">Flagged</span></div>
+                        <div class="right">Level 3 Audit</div>
+                        <div><strong>Aries Partners</strong><small>AP-441-LDN</small></div>
+                        <div>contact@aries.partners</div>
+                        <div class="center"><span class="status-pill pending-pill">Pending</span></div>
+                        <div class="right">Standard KYC</div>
+                    </div>
+                </article>
+
+                <article class="panel table-panel">
+                    <div class="table-head-row">
+                        <h3>Uploaded Documents</h3>
+                    </div>
+                    <div class="table-grid table-grid-3">
+                        <div class="table-head">File Name</div>
+                        <div class="table-head">Type</div>
+                        <div class="table-head right">Verification</div>
+                        <div><span class="material-symbols-outlined">picture_as_pdf</span>Cert_Incorp_2024.pdf</div>
+                        <div>Certificate of Incorporation</div>
+                        <div class="right"><span class="verify-ok">Verified</span></div>
+                        <div><span class="material-symbols-outlined">description</span>Shareholders_V2.docx</div>
+                        <div>Shareholder Register</div>
+                        <div class="right"><span class="verify-warn">In Review</span></div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <footer class="details-footer">
+        <p><span class="material-symbols-outlined">shield</span>Veritas Protocol Engine</p>
+        <p>Last updated: 2024-10-24 14:32 UTC</p>
+    </footer>
+</section>

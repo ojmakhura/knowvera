@@ -1,0 +1,51 @@
+<div class="shell-layout">
+  <aside class="shell-sidebar" aria-label="Primary navigation">
+    <div class="brand">
+      <div class="brand-mark">◍</div>
+      <div>
+        <p class="brand-title">Vault Compliance</p>
+        <p class="brand-subtitle">SaaS Enterprise</p>
+      </div>
+    </div>
+
+    <button class="new-btn" type="button">＋ New Verification</button>
+
+    <nav class="sidebar-nav">
+      @for (item of menus; track item.titleKey) {
+        <a
+          class="nav-item"
+          [routerLink]="item.routerLink"
+          routerLinkActive="nav-item-active"
+          [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }"
+        >
+          <span class="nav-icon material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
+          <span translate>{{ item.titleKey }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="avatar">🧑</div>
+      <div>
+        <p class="officer-name">Compliance Officer</p>
+        <p class="officer-mail">admin@vault-tech.io</p>
+      </div>
+    </div>
+  </aside>
+
+  <section class="shell-main" aria-label="Application shell">
+    <header class="topbar">
+      <p class="topbar-title">Central KYC Admin Portal</p>
+      <input class="topbar-search" type="text" placeholder="Search verifications or entities..." />
+      <div class="topbar-actions">
+        <button type="button" class="icon-btn" aria-label="Notifications">•</button>
+        <button type="button" class="icon-btn" aria-label="Help">?</button>
+        <button type="button" class="account-btn">Account</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </section>
+</div>

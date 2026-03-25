@@ -1,0 +1,125 @@
+<section class="documents-page" aria-label="Document search">
+  <header class="documents-header">
+    <div class="header-mark">⛨</div>
+    <div>
+      <h1 class="page-title">Document Search</h1>
+      <p class="page-copy">
+        Access the vault search engine to retrieve and verify compliance documentation.
+        All queries are logged for audit purposes under V2.4.0-SECURE.
+      </p>
+    </div>
+  </header>
+
+  <section class="search-grid" aria-label="Search criteria">
+    <article class="search-panel search-main">
+      <label class="field-label" for="file-name">File Name Search</label>
+      <input id="file-name" class="field-input field-input-search" type="text" placeholder="e.g. passport_scan_v1.pdf" />
+
+      <div class="dual-fields">
+        <label class="field-block">
+          <span class="field-label">Document Type Filter</span>
+          <input class="field-input" type="text" placeholder="Filter by type..." />
+        </label>
+        <label class="field-block">
+          <span class="field-label">Target Object Filter</span>
+          <input class="field-input" type="text" placeholder="Filter by entity..." />
+        </label>
+      </div>
+    </article>
+
+    <article class="search-panel search-side">
+      <label class="field-block">
+        <span class="field-label">Target Entity</span>
+        <select class="field-input">
+          <option>All Entities</option>
+          <option>Corporate Client</option>
+          <option>Individual Private</option>
+          <option>Trust / Foundation</option>
+        </select>
+      </label>
+
+      <label class="field-block">
+        <span class="field-label">Document Type</span>
+        <select class="field-input">
+          <option>Select Category</option>
+          <option>Identity Verification</option>
+          <option>Proof of Residence</option>
+          <option>Financial Statement</option>
+          <option>Articles of Association</option>
+        </select>
+      </label>
+
+      <label class="field-block">
+        <span class="field-label">Verification Status</span>
+        <select class="field-input">
+          <option>Status (All)</option>
+          <option>Verified</option>
+          <option>Pending Review</option>
+          <option>Flagged</option>
+        </select>
+      </label>
+
+      <button class="execute-btn" type="button">Execute Search</button>
+    </article>
+  </section>
+
+  <section class="results-card" aria-label="Search results">
+    <div class="results-head">
+      <h2 class="results-title">Search Results</h2>
+      <span class="results-chip">Showing 12 records</span>
+    </div>
+
+    <div class="results-table">
+      <div class="table-head" role="row">
+        <p>File Name</p>
+        <p>Document Type</p>
+        <p>Target</p>
+        <p>Status</p>
+        <p class="align-end">Actions</p>
+      </div>
+
+      <div class="table-body" role="table">
+        @for (item of results(); track item.fileName) {
+          <article class="table-row" role="row">
+            <div class="file-cell">
+              <span class="file-icon" [class.file-icon-flagged]="item.status === 'Flagged'">{{ item.icon }}</span>
+              <span class="file-name">{{ item.fileName }}</span>
+            </div>
+            <p class="muted-text">{{ item.documentType }}</p>
+            <p class="muted-text">{{ item.target }}</p>
+            <div>
+              <span class="status-badge" [class]="item.statusClass">{{ item.status }}</span>
+            </div>
+            <div class="actions-cell">
+              <button class="icon-action" type="button" aria-label="View">◉</button>
+              <button class="icon-action" type="button" aria-label="Download">⇩</button>
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+
+    <div class="results-footer">
+      <p class="footer-note">Page 1 of 4</p>
+      <div class="pagination">
+        <button class="page-btn" type="button">‹</button>
+        @for (page of pages(); track page) {
+          <button class="page-btn" type="button" [class.page-btn-active]="page === 1">{{ page }}</button>
+        }
+        <button class="page-btn" type="button">›</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="vault-grid" aria-label="Vault information">
+    @for (card of vaultCards(); track card.title; let index = $index) {
+      <article class="vault-card" [class.vault-card-alt]="index === 1" [class.vault-card-portrait]="index === 2">
+        <div class="vault-overlay"></div>
+        <div class="vault-content">
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.subtitle }}</p>
+        </div>
+      </article>
+    }
+  </section>
+</section>

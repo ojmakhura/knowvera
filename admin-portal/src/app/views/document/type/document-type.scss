@@ -1,0 +1,269 @@
+:host {
+  display: block;
+}
+
+p,
+h1,
+h2 {
+  margin: 0;
+}
+
+.dictionary-page {
+  display: grid;
+  gap: var(--vault-space-8);
+}
+
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: var(--vault-space-8);
+}
+
+.eyebrow,
+.table-head,
+.footer-note {
+  color: var(--vault-on-surface-variant);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.page-title,
+.hero-card h2,
+.side-card h2 {
+  color: var(--vault-primary);
+  letter-spacing: -0.02em;
+}
+
+.page-title {
+  font-size: 2.6rem;
+}
+
+.page-copy,
+.desc-cell,
+.hero-card p,
+.side-card p {
+  color: var(--vault-on-surface-variant);
+  line-height: 1.55;
+}
+
+.page-copy {
+  max-width: 42rem;
+  margin-top: 0.4rem;
+}
+
+.primary-btn,
+.search-btn {
+  border: 0;
+  border-radius: 0.4rem;
+  background: linear-gradient(135deg, var(--vault-primary), var(--vault-primary-container));
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary-btn {
+  padding: 0.95rem 1.1rem;
+  white-space: nowrap;
+}
+
+.search-card,
+.table-row,
+.hero-card,
+.side-card {
+  background: var(--vault-surface-container-lowest);
+  border-radius: 0.75rem;
+}
+
+.search-card {
+  padding: 0.55rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.55rem;
+  box-shadow: 0 4px 20px rgb(25 28 30 / 4%);
+}
+
+.search-input {
+  border: 0;
+  background: var(--vault-surface-container);
+  color: var(--vault-on-surface);
+  border-radius: 0.45rem;
+  padding: 0.9rem 1rem;
+  font: inherit;
+}
+
+.search-input:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(111 135 164 / 30%);
+}
+
+.search-btn {
+  padding: 0 1.4rem;
+}
+
+.table-wrap {
+  display: grid;
+  gap: var(--vault-space-4);
+}
+
+.table-head,
+.table-row {
+  display: grid;
+  grid-template-columns: 1.05fr 1.6fr 3fr 0.9fr;
+  gap: var(--vault-space-4);
+  align-items: center;
+}
+
+.table-head {
+  padding: 0 0.9rem;
+}
+
+.table-body {
+  display: grid;
+  gap: var(--vault-space-4);
+}
+
+.table-row {
+  padding: 0.95rem;
+}
+
+.code-pill {
+  display: inline-flex;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: var(--vault-surface-container-high);
+  color: var(--vault-primary);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.name-cell {
+  color: var(--vault-primary);
+  font-weight: 700;
+}
+
+.desc-cell {
+  font-size: 0.9rem;
+}
+
+.align-end {
+  text-align: right;
+}
+
+.actions-cell {
+  display: flex;
+  justify-content: end;
+  gap: 0.5rem;
+}
+
+.icon-action,
+.page-btn {
+  border: 0;
+  background: var(--vault-surface-container);
+  color: var(--vault-on-surface-variant);
+  border-radius: 0.35rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.icon-action {
+  width: 2rem;
+  height: 2rem;
+}
+
+.icon-link {
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--vault-space-4);
+}
+
+.footer-note {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.85rem;
+}
+
+.pagination {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.page-btn {
+  min-width: 2rem;
+  height: 2rem;
+}
+
+.page-btn-active {
+  background: var(--vault-primary);
+  color: #fff;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--vault-space-8);
+}
+
+.hero-card,
+.side-card {
+  padding: var(--vault-space-8);
+}
+
+.hero-card {
+  background: linear-gradient(135deg, var(--vault-primary), var(--vault-primary-container));
+}
+
+.hero-card h2,
+.hero-card p {
+  color: #fff;
+}
+
+.hero-card p {
+  opacity: 0.74;
+  max-width: 24rem;
+  margin-top: 0.7rem;
+}
+
+.trust-mark {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--vault-surface-container-high);
+  color: var(--vault-primary);
+  margin-bottom: 0.9rem;
+}
+
+.side-card p {
+  margin-top: 0.7rem;
+}
+
+@media (max-width: 960px) {
+  .page-head,
+  .table-footer,
+  .insights-grid {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .table-head,
+  .table-row {
+    grid-template-columns: 1fr;
+  }
+
+  .align-end,
+  .actions-cell {
+    text-align: left;
+    justify-content: start;
+  }
+}
