@@ -1,159 +1,94 @@
-<div class="app-shell">
-  <!-- Top Navigation Bar -->
-  <header class="top-navbar">
-    <div class="navbar-left">
-      @if (appEnvState.isLoggedIn()) {
-        <button mat-icon-button class="sidebar-toggle" (click)="sidenav?.toggle()">
-          <mat-icon>{{ sidenav?.opened ? 'menu_open' : 'menu' }}</mat-icon>
-        </button>
-      }
-
-      <div class="brand-section">
-        <div class="brand-logo">
-          <mat-icon>shield</mat-icon>
-        </div>
-        <div class="brand-name">
-          <span class="title">CentralKYC</span>
-          <span class="tagline">Verification Platform</span>
-        </div>
+<div class="min-vh-100">
+  <aside id="sidebar">
+    <div class="d-flex align-items-center mb-5 px-2">
+      <div class="brand-logo">
+        <span class="material-symbols-outlined">shield_lock</span>
       </div>
-
-      <div class="page-title">
-        <mat-icon class="title-icon">fiber_manual_record</mat-icon>
-        <span>{{ title }}</span>
+      <div>
+        <h1 class="h6 fw-bold mb-0 text-dark">Vault Compliance</h1>
+        <small class="text-uppercase text-muted fw-bold" style="font-size: 9px; letter-spacing: 1px;">SaaS Enterprise</small>
       </div>
     </div>
 
-    <div class="navbar-right">
-      <!-- Search -->
-      <button mat-icon-button class="nav-action" matTooltip="Search">
-        <mat-icon>search</mat-icon>
-      </button>
+    <button class="btn-new-verification w-100 d-flex align-items-center justify-content-center gap-2">
+      <span class="material-symbols-outlined">add</span>
+      New Verification
+    </button>
 
-      <!-- Language -->
-      <button mat-icon-button class="nav-action" [matMenuTriggerFor]="langMenu" matTooltip="Language">
-        <mat-icon>language</mat-icon>
-      </button>
-      <mat-menu #langMenu="matMenu" class="modern-menu">
-        <div class="menu-title">Select Language</div>
-        @for (lang of availableLanguages; track lang.code) {
-        <button mat-menu-item (click)="changeLanguage(lang.code)" [class.selected]="currentLanguage === lang.code">
-          <mat-icon>{{ currentLanguage === lang.code ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
-          <span>{{ lang.name }}</span>
-        </button>
-        }
-      </mat-menu>
+    <nav class="nav flex-column gap-1">
+    @for (item of menus; track item.routerLink) {
+      <a  
+         class="nav-link" 
+         [routerLink]="item.routerLink" routerLinkActive="active">
+        <span class="material-symbols-outlined">{{ item.icon }}</span>
+        <span>{{ item.titleKey | translate }}</span>
+      </a>
+    }
+    </nav>
 
+    <!-- <div class="user-footer shell-footer">
       @if (appEnvState.isLoggedIn()) {
-      <!-- Notifications -->
-      <button mat-icon-button class="nav-action" matTooltip="Notifications">
-        <mat-icon [matBadge]="3" matBadgeColor="warn" matBadgeSize="small">notifications_none</mat-icon>
-      </button>
+        <div class="d-flex align-items-center gap-2 px-2 mb-2">
+          <div class="avatar-small d-flex align-items-center justify-content-center bg-light">
+            <span class="material-symbols-outlined fs-6 text-primary">person</span>
+          </div>
+          <div class="overflow-hidden">
+            <p class="small fw-bold mb-0 text-dark text-truncate">{{ userDisplayName }}</p>
+            <p class="text-muted mb-0 text-truncate" style="font-size: 10px;">{{ userEmail }}</p>
+          </div>
+        </div>
+        <div class="d-flex gap-2 px-2">
+          <button class="btn btn-sm btn-outline-primary flex-fill" type="button" (click)="openUserProfile()">Profile</button>
+          <button class="btn btn-sm btn-outline-danger flex-fill" type="button" (click)="logout()">Logout</button>
+        </div>
+      } @else {
+        <div class="px-2 d-grid">
+          <button class="btn btn-sm btn-primary" type="button" (click)="login()">Login</button>
+        </div>
+      }
+    </div> -->
+  </aside>
 
-      <!-- User Menu -->
-      <button mat-button class="user-menu-btn" [matMenuTriggerFor]="userMenu">
-        <div class="user-avatar">
-          <mat-icon>account_circle</mat-icon>
-        </div>
-        <div class="user-info">
-          <span class="user-name">{{ profile()?.username }}</span>
-          <mat-icon class="dropdown">expand_more</mat-icon>
-        </div>
-      </button>
-      <mat-menu #userMenu="matMenu" class="modern-menu user-dropdown">
-        <div class="user-profile-header">
-          <div class="profile-avatar">
-            <mat-icon>account_circle</mat-icon>
-          </div>
-          <div class="profile-info">
-            <div class="profile-name">{{ profile()?.firstName }} {{ profile()?.lastName }}</div>
-            <div class="profile-email">{{ profile()?.email }}</div>
-          </div>
-        </div>
-        <mat-divider></mat-divider>
-        <a mat-menu-item type="button" href="{{ appEnvState.accountUri() }}">
-          <mat-icon>person_outline</mat-icon>
-          <span>{{ 'user.profile' | translate }}</span>
-        </a>
-        <button mat-menu-item>
-          <mat-icon>settings_outlined</mat-icon>
-          <span>{{ 'user.settings' | translate }}</span>
+  <!-- Top Navigation Bar -->
+  <header id="topbar" class="shell-header">
+    <div class="d-flex align-items-center w-100">
+      <h5 class="fw-bold mb-0 me-5 text-dark d-none d-lg-block">The Digital Vault</h5>
+      <div class="search-container me-auto">
+        <span class="material-symbols-outlined">search</span>
+        <input class="form-control" placeholder="Search verifications or entities..." type="text" />
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-link text-muted p-1">
+          <span class="material-symbols-outlined">notifications</span>
         </button>
-        <mat-divider></mat-divider>
-        <button mat-menu-item (click)="logout()" class="logout-item">
-          <mat-icon>logout</mat-icon>
-          <span>{{ 'user.logout' | translate }}</span>
+        <button class="btn btn-link text-muted p-1">
+          <span class="material-symbols-outlined">help_outline</span>
         </button>
-      </mat-menu>
-      }
-      @if (!appEnvState.isLoggedIn()) {
-      <button mat-button color="primary" class="login-btn" (click)="login()">
-        <mat-icon>login</mat-icon>
-        <span>{{ 'login.submit' | translate }}</span>
-      </button>
-      }
+        <div class="vr mx-2" style="height: 24px;"></div>
+        @if (appEnvState.isLoggedIn()) {
+          <button class="btn btn-link text-decoration-none d-flex align-items-center gap-2" type="button" (click)="openUserProfile()">
+            <div class="rounded-circle bg-light p-1 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <span class="material-symbols-outlined text-primary fs-5">person</span>
+            </div>
+            <span class="small fw-semibold text-primary">{{ userDisplayName }}</span>
+          </button>
+          <button class="btn btn-sm btn-outline-danger" type="button" (click)="logout()">Logout</button>
+        } @else {
+          <button class="btn btn-sm btn-primary" type="button" (click)="login()">Login</button>
+        }
+      </div>
     </div>
   </header>
 
-  <!-- Main Layout -->
-  <div class="app-layout">
-    <!-- Sidebar -->
-    <mat-drawer-container class="drawer-container" autosize>
-      @if (appEnvState.isLoggedIn()) {
-      <mat-drawer #sidenav class="app-sidebar" [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile">
-        <nav class="sidebar-nav">
-          <!-- Main Section -->
-          <div class="nav-group">
-            <div class="group-label">MAIN</div>
-            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link"
-              (click)="isMobile && sidenav?.close()">
-              <mat-icon>home_outlined</mat-icon>
-              <span>{{ 'home' | translate }}</span>
-              <div class="active-indicator"></div>
-            </a>
-          </div>
+  <!-- Main Content Area -->
+  <main class="shell-main">
+    <div class="container-fluid px-5 py-4">
+        <router-outlet/>
+    </div>
+  </main>
 
-          <!-- Management Section -->
-          <div class="nav-group">
-            <div class="group-label">MANAGEMENT</div>
-            @for (item of menus; track item.routerLink) {
-            <a [routerLink]="item.routerLink" routerLinkActive="active" class="nav-link"
-              (click)="isMobile && sidenav?.close()">
-              <mat-icon>{{ item.icon }}</mat-icon>
-              <span>{{ item.titleKey | translate }}</span>
-              <div class="active-indicator"></div>
-            </a>
-            }
-          </div>
-
-          <!-- System Section -->
-          <div class="nav-group">
-            <div class="group-label">SYSTEM</div>
-            <a routerLink="/about" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
-              class="nav-link" (click)="isMobile && sidenav?.close()">
-              <mat-icon>info_outlined</mat-icon>
-              <span>{{ 'about' | translate }}</span>
-              <div class="active-indicator"></div>
-            </a>
-          </div>
-        </nav>
-
-        <!-- Sidebar Footer -->
-        <div class="sidebar-footer">
-          <div class="footer-content">
-            <mat-icon>copyright</mat-icon>
-            <span>{{ currentYear }} CentralKYC</span>
-          </div>
-        </div>
-      </mat-drawer>
-      }
-
-      <!-- Main Content Area -->
-      <mat-drawer-content class="main-content">
-        <div class="content-wrapper">
-          <router-outlet></router-outlet>
-        </div>
-      </mat-drawer-content>
-    </mat-drawer-container>
-  </div>
+  <!-- Support FAB -->
+  <!-- <button class="fab-support">
+    <span class="material-symbols-outlined fs-4">chat_bubble</span>
+  </button> -->
 </div>

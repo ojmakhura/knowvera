@@ -1,608 +1,211 @@
-// ============================================
-// MODERN SHELL DESIGN - FROM SCRATCH
-// ============================================
+/* Vault Compliance - Custom SCSS (Angular Component) */
 
-// Variables
-$navbar-height: 64px;
-$sidebar-width: 260px;
-$primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-$accent-color: #667eea;
-$accent-light: #a78bfa;
-$text-primary: #1e293b;
-$text-secondary: #64748b;
-$bg-primary: #ffffff;
-$bg-secondary: #f8fafc;
-$border-color: #e2e8f0;
-$hover-bg: #f1f5f9;
-$active-bg: #ede9fe;
-$sidebar-bg: #ffffff;
-$navbar-bg: #ffffff;
+$primary-blue: #002B5B;
+$primary-container: #0e2c52;
+$surface-bg: #f7f9fb;
+$sidebar-bg: #f8fafc;
+$text-main: #0d1c2e;
+$text-muted: #57657a;
+$border-color: #eceef0;
 
-// Reset and Base
-.app-shell {
+:host {
+  display: block;
+}
+
+/* Sidebar Styling */
+#sidebar {
+  width: 260px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: $sidebar-bg;
+  border-right: 1px solid $border-color;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-  background: $bg-secondary;
+  padding: 1.5rem 1rem;
 }
 
-// ============================================
-// TOP NAVIGATION BAR
-// ============================================
-.top-navbar {
-  height: $navbar-height;
-  background: $navbar-bg;
-  border-bottom: 1px solid $border-color;
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  background-color: $primary-blue;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  position: relative;
-  z-index: 1000;
-
-  .navbar-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex: 1;
-
-    .sidebar-toggle {
-      color: $text-secondary;
-      transition: all 0.3s ease;
-
-      &:hover {
-        color: $accent-color;
-        background: $hover-bg;
-        transform: scale(1.05);
-      }
-
-      mat-icon {
-        font-size: 26px;
-        width: 26px;
-        height: 26px;
-      }
-    }
-
-    .brand-section {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 8px 16px;
-      border-radius: 12px;
-      background: $primary-gradient;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
-
-      .brand-logo {
-        mat-icon {
-          font-size: 28px;
-          width: 28px;
-          height: 28px;
-          color: #ffffff;
-        }
-      }
-
-      .brand-name {
-        display: flex;
-        flex-direction: column;
-
-        .title {
-          font-size: 1rem;
-          font-weight: 700;
-          color: #ffffff;
-          line-height: 1.2;
-          letter-spacing: 0.5px;
-        }
-
-        .tagline {
-          font-size: 0.625rem;
-          color: rgba(255, 255, 255, 0.9);
-          font-weight: 500;
-          letter-spacing: 0.8px;
-          text-transform: uppercase;
-        }
-      }
-
-      @media (max-width: 768px) {
-        padding: 6px 12px;
-
-        .brand-name .title {
-          font-size: 0.875rem;
-        }
-
-        .brand-name .tagline {
-          display: none;
-        }
-      }
-    }
-
-    .page-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      background: $hover-bg;
-      border-radius: 8px;
-      margin-left: 12px;
-
-      .title-icon {
-        font-size: 8px;
-        width: 8px;
-        height: 8px;
-        color: $accent-color;
-      }
-
-      span {
-        font-size: 0.9375rem;
-        font-weight: 600;
-        color: $text-primary;
-      }
-
-      @media (max-width: 960px) {
-        display: none;
-      }
-    }
-  }
-
-  .navbar-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .nav-action {
-      color: $text-secondary;
-      width: 40px;
-      height: 40px;
-      transition: all 0.3s ease;
-
-      &:hover {
-        color: $accent-color;
-        background: $hover-bg;
-        transform: scale(1.05);
-      }
-
-      mat-icon {
-        font-size: 22px;
-        width: 22px;
-        height: 22px;
-      }
-    }
-
-    .user-menu-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 4px 12px 4px 4px;
-      border-radius: 24px;
-      background: $hover-bg;
-      border: 1px solid $border-color;
-      transition: all 0.3s ease;
-      margin-left: 8px;
-
-      &:hover {
-        background: $active-bg;
-        border-color: $accent-light;
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
-      }
-
-      .user-avatar {
-        mat-icon {
-          font-size: 36px;
-          width: 36px;
-          height: 36px;
-          color: $accent-color;
-        }
-      }
-
-      .user-info {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-
-        @media (max-width: 768px) {
-          display: none;
-        }
-
-        .user-name {
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: $text-primary;
-          max-width: 120px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        .dropdown {
-          font-size: 20px;
-          width: 20px;
-          height: 20px;
-          color: $text-secondary;
-        }
-      }
-    }
-  }
-}
-
-// ============================================
-// MAIN LAYOUT
-// ============================================
-.app-layout {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-
-  .drawer-container {
-    width: 100%;
-    height: 100%;
-  }
-
-  .app-sidebar {
-    width: $sidebar-width;
-    background: $sidebar-bg;
-    border-right: 1px solid $border-color;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
-
-    .sidebar-nav {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px 12px;
-
-      .nav-group {
-        margin-bottom: 28px;
-
-        &:last-child {
-          margin-bottom: 16px;
-        }
-
-        .group-label {
-          font-size: 0.6875rem;
-          font-weight: 700;
-          letter-spacing: 1.2px;
-          color: $text-secondary;
-          padding: 8px 16px 10px;
-          margin-bottom: 4px;
-        }
-
-        .nav-link {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          padding: 12px 16px;
-          margin: 2px 0;
-          border-radius: 10px;
-          color: $text-primary;
-          text-decoration: none;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          cursor: pointer;
-
-          mat-icon {
-            font-size: 22px;
-            width: 22px;
-            height: 22px;
-            color: $text-secondary;
-            transition: all 0.3s ease;
-          }
-
-          span {
-            font-size: 0.9375rem;
-            font-weight: 500;
-            letter-spacing: 0.2px;
-            flex: 1;
-          }
-
-          .active-indicator {
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%) scaleY(0);
-            width: 4px;
-            height: 70%;
-            background: $primary-gradient;
-            border-radius: 0 4px 4px 0;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 12px rgba(102, 126, 234, 0.6);
-          }
-
-          &:hover {
-            background: $hover-bg;
-            color: $accent-color;
-            transform: translateX(4px);
-
-            mat-icon {
-              color: $accent-color;
-              transform: scale(1.1);
-            }
-          }
-
-          &.active {
-            background: $active-bg;
-            color: $accent-color;
-            font-weight: 600;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
-
-            .active-indicator {
-              transform: translateY(-50%) scaleY(1);
-            }
-
-            mat-icon {
-              color: $accent-color;
-              filter: drop-shadow(0 2px 4px rgba(102, 126, 234, 0.3));
-            }
-          }
-        }
-      }
-    }
-
-    .sidebar-footer {
-      padding: 16px;
-      border-top: 1px solid $border-color;
-      background: $hover-bg;
-      flex-shrink: 0;
-
-      .footer-content {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        color: $text-secondary;
-        font-size: 0.75rem;
-        font-weight: 500;
-
-        mat-icon {
-          font-size: 14px;
-          width: 14px;
-          height: 14px;
-        }
-      }
-    }
-  }
-
-  .main-content {
-    flex: 1;
-    overflow: hidden;
-    background: $bg-secondary;
-
-    .content-wrapper {
-      height: 100%;
-      overflow-y: auto;
-    }
-  }
-}
-
-// ============================================
-// MODERN MENUS
-// ============================================
-::ng-deep .modern-menu {
-  min-width: 240px;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border: 1px solid $border-color;
-  overflow: hidden;
-
-  .mat-mdc-menu-content {
-    padding: 8px;
-  }
-
-  .menu-title {
-    padding: 12px 16px 8px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: $text-secondary;
-  }
-
-  .mat-mdc-menu-item {
-    min-height: 44px;
-    border-radius: 8px;
-    margin: 2px 0;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: $hover-bg !important;
-      color: $accent-color;
-
-      mat-icon {
-        color: $accent-color;
-      }
-    }
-
-    &.selected {
-      background: $active-bg !important;
-      color: $accent-color;
-      font-weight: 600;
-
-      mat-icon {
-        color: $accent-color;
-      }
-    }
-
-    mat-icon {
-      margin-right: 12px;
-      color: $text-secondary;
-      transition: color 0.2s ease;
-    }
-  }
-
-  &.user-dropdown {
-    min-width: 280px;
-
-    .user-profile-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px;
-      background: $primary-gradient;
-      color: #ffffff;
-      margin: -8px -8px 8px;
-      border-radius: 12px 12px 0 0;
-
-      .profile-avatar {
-        mat-icon {
-          font-size: 48px;
-          width: 48px;
-          height: 48px;
-          color: #ffffff;
-        }
-      }
-
-      .profile-info {
-        flex: 1;
-        min-width: 0;
-
-        .profile-name {
-          font-size: 1rem;
-          font-weight: 700;
-          margin-bottom: 4px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        .profile-email {
-          font-size: 0.8125rem;
-          opacity: 0.9;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-      }
-    }
-
-    .logout-item:hover {
-      background: rgba(239, 68, 68, 0.1) !important;
-      color: #ef4444;
-
-      mat-icon {
-        color: #ef4444;
-      }
-    }
-  }
-}
-
-// ============================================
-// SCROLLBAR STYLING
-// ============================================
-.sidebar-nav::-webkit-scrollbar,
-.content-wrapper::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar-nav::-webkit-scrollbar-track,
-.content-wrapper::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar-nav::-webkit-scrollbar-thumb,
-.content-wrapper::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-  transition: background 0.3s ease;
-
-  &:hover {
-    background: #94a3b8;
-  }
-}
-
-// ============================================
-// RESPONSIVE DESIGN
-// ============================================
-@media (max-width: 960px) {
-  .top-navbar {
-    padding: 0 12px;
-
-    .navbar-left {
-      gap: 12px;
-
-      .brand-section {
-        padding: 6px 12px;
-      }
-    }
-  }
-}
-
-@media (max-width: 599px) {
-  .top-navbar {
-    height: 56px;
-    padding: 0 8px;
-
-    .navbar-left {
-      gap: 8px;
-
-      .sidebar-toggle mat-icon {
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
-      }
-
-      .brand-section {
-        padding: 4px 10px;
-
-        .brand-logo mat-icon {
-          font-size: 24px;
-          width: 24px;
-          height: 24px;
-        }
-
-        .brand-name .title {
-          font-size: 0.8125rem;
-        }
-      }
-    }
-
-    .navbar-right {
-      gap: 4px;
-
-      .nav-action {
-        width: 36px;
-        height: 36px;
-
-        mat-icon {
-          font-size: 20px;
-          width: 20px;
-          height: 20px;
-        }
-      }
-    }
-  }
-
-  .app-sidebar {
-    width: 280px;
-  }
-}
-
-// ============================================
-// ANIMATIONS
-// ============================================
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  justify-content: center;
+  color: white;
+  margin-right: 0.75rem;
 }
 
 .nav-link {
-  animation: slideInLeft 0.3s ease forwards;
-  opacity: 0;
+  color: $text-muted;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s;
+  border-right: 4px solid transparent;
+  text-decoration: none;
+
+  &:hover {
+    color: $primary-blue;
+    background-color: rgba(0, 43, 91, 0.05);
+  }
+
+  &.active {
+    color: $primary-blue;
+    background-color: rgba(0, 43, 91, 0.08);
+    border-right-color: $primary-blue;
+  }
 }
 
-@for $i from 1 through 20 {
-  .nav-group:nth-child(1) .nav-link:nth-child(#{$i + 1}) {
-    animation-delay: #{$i * 0.02}s;
+.btn-new-verification {
+  background-color: $primary-blue;
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 0.75rem;
+  margin-bottom: 2rem;
+  border: none;
+  transition: transform 0.1s, background-color 0.2s;
+
+  &:hover {
+    background-color: $primary-container;
+    color: white;
   }
-  .nav-group:nth-child(2) .nav-link:nth-child(#{$i + 1}) {
-    animation-delay: #{0.2 + $i * 0.02}s;
+
+  &:active {
+    transform: scale(0.98);
   }
-  .nav-group:nth-child(3) .nav-link:nth-child(#{$i + 1}) {
-    animation-delay: #{0.5 + $i * 0.02}s;
+}
+
+/* Topbar Styling */
+#topbar {
+  margin-left: 260px;
+  height: 64px;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid $border-color;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+}
+
+.search-container {
+  position: relative;
+  max-width: 400px;
+  width: 100%;
+
+  input {
+    background-color: #f1f3f5;
+    border: none;
+    padding-left: 2.5rem;
+    font-size: 0.875rem;
+    height: 38px;
+    border-radius: 8px;
+    width: 100%;
+    outline: none;
   }
+
+  .material-symbols-outlined {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    font-size: 20px;
+  }
+}
+
+/* Main Content */
+main {
+  margin-left: 260px;
+  padding-top: 64px;
+  min-height: 100vh;
+}
+
+.content-canvas {
+  background-color: white;
+  border-radius: 12px;
+  min-height: calc(100vh - 200px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  border: 1px solid $border-color;
+}
+
+.router-outlet-badge {
+  background-color: $surface-bg;
+  border: 1px solid $border-color;
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  font-family: monospace;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: $primary-blue;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 43, 91, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 43, 91, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 43, 91, 0); }
+}
+
+.fab-support {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: $primary-blue;
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 1050;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    color: white;
+  }
+}
+
+.user-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid $border-color;
+}
+
+.avatar-small {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
 }
