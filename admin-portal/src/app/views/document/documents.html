@@ -16,27 +16,35 @@
       <h2>Search Parameters</h2>
     </div>
 
-    <form class="search-grid">
-      <label class="field-block"><span>File Name</span><input type="text" placeholder="e.g. passport_scan_v1.pdf" /></label>
-      <label class="field-block"><span>Document Type</span><input type="text" placeholder="Identity verification" /></label>
-      <label class="field-block"><span>Target Entity</span><input type="text" placeholder="Client or organisation" /></label>
+    <form class="search-grid" (submit)="doSearch()">
+      <label class="field-block"><span>File Name</span><input type="text" [value]="searchDocumentsSignal().fileName" (input)="updateField('fileName', $any($event.target).value)" placeholder="e.g. passport_scan_v1.pdf" /></label>
+      <label class="field-block"><span>Document Type</span><input type="text" [value]="searchDocumentsSignal().documentType" (input)="updateField('documentType', $any($event.target).value)" placeholder="Identity verification" /></label>
+      <label class="field-block">
+        <span>Target Entity</span>
+        <select [value]="searchDocumentsSignal().target" (change)="updateField('target', $any($event.target).value)">
+          <option value="">All Entities</option>
+          @for (target of targetOptions; track target) {
+            <option [value]="target">{{ target }}</option>
+          }
+        </select>
+      </label>
       <label class="field-block">
         <span>Document Status</span>
-        <select>
-          <option>All Statuses</option>
-          <option>Verified</option>
-          <option>Pending</option>
-          <option>Flagged</option>
+        <select [value]="searchDocumentsSignal().verificationStatus" (change)="updateField('verificationStatus', $any($event.target).value)">
+          <option value="">All Statuses</option>
+          @for (status of statusOptions; track status) {
+            <option [value]="status">{{ status }}</option>
+          }
         </select>
       </label>
     </form>
 
     <div class="search-actions">
-      <button type="button" class="reset-btn">
+      <button type="button" class="reset-btn" (click)="resetSearch()">
         <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
         Reset
       </button>
-      <button type="button" class="search-btn">Search Documents</button>
+      <button type="button" class="search-btn" (click)="doSearch()">Search Documents</button>
     </div>
   </section>
 
@@ -52,44 +60,44 @@
       </div>
 
       <div class="table-body" role="table">
+        @if (rows().length) {
         @for (row of rows(); track row.id) {
           <article class="table-row" role="row">
             <div class="name-cell">
               <span class="name-text">{{ row.fileName }}</span>
             </div>
             <p class="muted">{{ row.documentType }}</p>
-            <p>{{ row.target }}</p>
-            <p class="muted">{{ row.submittedBy }}</p>
+            <p>{{ targetLabelOf(row) }}</p>
+            <p class="muted">{{ submittedByOf(row) }}</p>
             <p>
-              <span
-                class="status-pill"
-                [class.status-approved]="row.status === 'VERIFIED'"
-                [class.status-pending]="row.status === 'PENDING'"
-                [class.status-rejected]="row.status === 'FLAGGED'"
-              >{{ row.status }}</span>
+              <span class="status-pill" [class]="statusClass(row.verificationStatus)">{{ row.verificationStatus }}</span>
             </p>
             <p class="actions">
-              <button type="button" [routerLink]="['/', 'documents', 'details', row.id]">
+              <button type="button" (click)="openDetails(row.id)">
                 <mat-icon>visibility</mat-icon>
               </button>
-              <button type="button" [routerLink]="['/', 'documents', 'edit', row.id]">
-                <mat-icon>download</mat-icon>
+              <button type="button" (click)="openEdit(row.id)">
+                <mat-icon>edit</mat-icon>
               </button>
             </p>
+          </article>
+        }
+        } @else {
+          <article class="table-row empty-row" role="row">
+            <p class="empty-copy">No documents found for the current search.</p>
           </article>
         }
       </div>
     </div>
 
     <footer class="table-footer">
-      <p>Showing 4 of 248 compliance documents</p>
+      <p>Showing {{ rows().length }} of {{ totalElements() }} compliance documents</p>
       <div class="pager">
-        <button type="button">‹</button>
-        @for (page of pages(); track page) {
-          <button type="button" [class.active]="page === 1">{{ page }}</button>
+        <button type="button" (click)="previousPage()" [disabled]="currentPage() === 0">‹</button>
+        @for (page of pageNumbers(); track page) {
+          <button type="button" [class.active]="page - 1 === currentPage()" (click)="goToPage(page - 1)">{{ page }}</button>
         }
-        <span>…</span>
-        <button type="button">›</button>
+        <button type="button" (click)="nextPage()" [disabled]="currentPage() >= totalPages() - 1">›</button>
       </div>
     </footer>
   </section>

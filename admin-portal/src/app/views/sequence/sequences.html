@@ -6,7 +6,7 @@
             </p>
         </div>
 
-        <button type="button" class="new-btn">
+        <button type="button" class="new-btn" (click)="openCreate()">
             <span class="material-symbols-outlined" aria-hidden="true">add</span>
             New Sequence
         </button>
@@ -18,29 +18,30 @@
             <h2>Search Parameters</h2>
         </div>
 
-        <form class="search-grid">
-            <label class="field-block"><span>Sequence Name</span><input type="text"
+        <form class="search-grid" (submit)="doSearch()">
+            <label class="field-block"><span>Sequence Name</span><input type="text" [value]="searchSequencesSignal().name" (input)="updateField('name', $any($event.target).value)"
                     placeholder="e.g. KYC-AUTH-MASTER" /></label>
-            <label class="field-block"><span>Target Entity</span><input type="text" placeholder="UserAccount" /></label>
-            <label class="field-block"><span>Pattern</span><input type="text"
-                    placeholder="VER-{YYYY}-{0000X}" /></label>
             <label class="field-block">
-                <span>Scope</span>
-                <select>
-                    <option>All Scopes</option>
-                    <option>Identity</option>
-                    <option>Compliance</option>
-                    <option>Ledger</option>
+                <span>Target Entity</span>
+                <select [value]="searchSequencesSignal().targetEntity" (change)="updateField('targetEntity', $any($event.target).value)">
+                    <option value="">All Entities</option>
+                    @for (target of targetOptions; track target) {
+                    <option [value]="target">{{ target }}</option>
+                    }
                 </select>
             </label>
+            <label class="field-block"><span>Pattern</span><input type="text" [value]="searchSequencesSignal().pattern" (input)="updateField('pattern', $any($event.target).value)"
+                    placeholder="Search within generated pattern" /></label>
+            <label class="field-block"><span>General Search</span><input type="text" [value]="searchSequencesSignal().general" (input)="updateField('general', $any($event.target).value)"
+                    placeholder="Name, part, or target" /></label>
         </form>
 
         <div class="search-actions">
-            <button type="button" class="reset-btn">
+            <button type="button" class="reset-btn" (click)="resetSearch()">
                 <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
                 Reset
             </button>
-            <button type="button" class="search-btn">Search Sequences</button>
+            <button type="button" class="search-btn" (click)="doSearch()">Search Sequences</button>
         </div>
     </section>
 
@@ -55,40 +56,42 @@
             </div>
 
             <div class="table-body" role="table">
+                @if (rows().length) {
                 @for (row of rows(); track row.id) {
                 <article class="table-row" role="row">
                     <div class="name-cell">
-                        <span class="icon-box material-symbols-outlined">{{ row.icon }}</span>
+                        <span class="icon-box material-symbols-outlined">{{ iconOf(row) }}</span>
                         <div>
                             <p class="name-text">{{ row.name }}</p>
-                            <p class="muted">{{ row.subtitle }}</p>
+                            <p class="muted">{{ subtitleOf(row) }}</p>
                         </div>
                     </div>
                     <p><span class="entity-pill">{{ row.targetEntity }}</span></p>
-                    <p><code>{{ row.pattern }}</code></p>
-                    <p class="muted">{{ row.lastModified }}</p>
+                    <p><code>{{ patternOf(row) }}</code></p>
+                    <p class="muted">{{ lastModifiedOf(row) }}</p>
                     <p class="actions">
-                        <button type="button">
-                            <mat-icon>visibility</mat-icon>
-                        </button>
-                        <button type="button">
+                        <button type="button" (click)="openEdit(row.id)">
                             <mat-icon>edit</mat-icon>
                         </button>
                     </p>
+                </article>
+                }
+                } @else {
+                <article class="table-row empty-row" role="row">
+                    <p class="empty-copy">No sequences found for the current search.</p>
                 </article>
                 }
             </div>
         </div>
 
         <footer class="table-footer">
-            <p>Showing 4 of 48 sequences</p>
+            <p>Showing {{ rows().length }} of {{ totalElements() }} sequences</p>
             <div class="pager">
-                <button type="button">‹</button>
-                @for (page of pages(); track page) {
-                <button type="button" [class.active]="page === 1">{{ page }}</button>
+                <button type="button" (click)="previousPage()" [disabled]="currentPage() === 0">‹</button>
+                @for (page of pageNumbers(); track page) {
+                <button type="button" [class.active]="page - 1 === currentPage()" (click)="goToPage(page - 1)">{{ page }}</button>
                 }
-                <span>…</span>
-                <button type="button">›</button>
+                <button type="button" (click)="nextPage()" [disabled]="currentPage() >= totalPages() - 1">›</button>
             </div>
         </footer>
     </section>

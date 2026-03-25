@@ -5,7 +5,7 @@
       <p>Access and manage subscription records across the digital vault ecosystem.</p>
     </div>
 
-    <button type="button" class="new-btn">
+    <button type="button" class="new-btn" (click)="openCreate()">
       <span class="material-symbols-outlined" aria-hidden="true">add</span>
       New Subscription
     </button>
@@ -17,27 +17,27 @@
       <h2>Search Parameters</h2>
     </div>
 
-    <form class="search-grid">
-      <label class="field-block"><span>Reference ID</span><input type="text" placeholder="#VP-2024-001" /></label>
-      <label class="field-block"><span>Organisation</span><input type="text" placeholder="Organisation name" /></label>
-      <label class="field-block"><span>Subscription Period</span><input type="text" placeholder="Annual or Monthly" /></label>
+    <form class="search-grid" (submit)="doSearch()">
+      <label class="field-block"><span>Reference ID</span><input type="text" [value]="searchSubscriptionsSignal().ref" (input)="updateField('ref', $any($event.target).value)" placeholder="#VP-2024-001" /></label>
+      <label class="field-block"><span>Organisation</span><input type="text" [value]="searchSubscriptionsSignal().organisationName" (input)="updateField('organisationName', $any($event.target).value)" placeholder="Organisation name" /></label>
+      <label class="field-block"><span>Subscription Period</span><input type="text" [value]="searchSubscriptionsSignal().period" (input)="updateField('period', $any($event.target).value)" placeholder="YEAR, MONTH, or WEEK" /></label>
       <label class="field-block">
         <span>Status</span>
-        <select>
-          <option>All Statuses</option>
-          <option>Verified</option>
-          <option>Pending</option>
-          <option>Flagged</option>
+        <select [value]="searchSubscriptionsSignal().status" (change)="updateField('status', $any($event.target).value)">
+          <option value="">All Statuses</option>
+          @for (status of statusOptions; track status) {
+            <option [value]="status">{{ status }}</option>
+          }
         </select>
       </label>
     </form>
 
     <div class="search-actions">
-      <button type="button" class="reset-btn">
+      <button type="button" class="reset-btn" (click)="resetSearch()">
         <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
         Reset
       </button>
-      <button type="button" class="search-btn">Search Subscriptions</button>
+      <button type="button" class="search-btn" (click)="doSearch()">Search Subscriptions</button>
     </div>
   </section>
 
@@ -54,43 +54,43 @@
       </div>
 
       <div class="table-body" role="table">
+        @if (rows().length) {
         @for (row of rows(); track row.id) {
           <article class="table-row" role="row">
             <div class="name-cell">
-              <span class="name-text">{{ row.refId }}</span>
+              <span class="name-text">{{ row.ref }}</span>
             </div>
-            <p>{{ row.organisation }}</p>
-            <p class="muted">{{ row.owner }}</p>
-            <p class="muted">{{ row.period }}</p>
-            <p class="amount">{{ row.amount }}</p>
+            <p>{{ row.organisationName || '—' }}</p>
+            <p class="muted">{{ ownerOf(row) }}</p>
+            <p class="muted">{{ periodLabel(row) }}</p>
+            <p class="amount">{{ formatAmount(row.amount) }}</p>
             <p>
-              <span
-                class="status-pill"
-                [class.status-approved]="row.status === 'VERIFIED'"
-                [class.status-pending]="row.status === 'PENDING'"
-                [class.status-rejected]="row.status === 'FLAGGED'"
-              >{{ row.status }}</span>
+              <span class="status-pill" [class]="statusClass(row.status)">{{ row.status || '—' }}</span>
             </p>
-            <p class="actions"><button type="button">
+            <p class="actions"><button type="button" (click)="openDetails(row.id)">
                 <mat-icon>visibility</mat-icon>
               </button>
-                <button type="button">
+                <button type="button" (click)="openEdit(row.id)">
                 <mat-icon>edit</mat-icon>
               </button></p>
+          </article>
+        }
+        } @else {
+          <article class="table-row empty-row" role="row">
+            <p class="empty-copy">No subscriptions found for the current search.</p>
           </article>
         }
       </div>
     </div>
 
     <footer class="table-footer">
-      <p>Showing 4 of 128 verified subscriptions</p>
+      <p>Showing {{ rows().length }} of {{ totalElements() }} subscriptions</p>
       <div class="pager">
-        <button type="button">‹</button>
-        @for (page of pages(); track page) {
-          <button type="button" [class.active]="page === 1">{{ page }}</button>
+        <button type="button" (click)="previousPage()" [disabled]="currentPage() === 0">‹</button>
+        @for (page of pageNumbers(); track page) {
+          <button type="button" [class.active]="page - 1 === currentPage()" (click)="goToPage(page - 1)">{{ page }}</button>
         }
-        <span>…</span>
-        <button type="button">›</button>
+        <button type="button" (click)="nextPage()" [disabled]="currentPage() >= totalPages() - 1">›</button>
       </div>
     </footer>
   </section>

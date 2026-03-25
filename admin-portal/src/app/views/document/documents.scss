@@ -219,6 +219,15 @@ p {
 	color: var(--vault-primary);
 }
 
+.empty-row {
+	grid-template-columns: 1fr;
+}
+
+.empty-copy {
+	color: var(--vault-on-surface-variant);
+	text-align: center;
+}
+
 .table-footer {
 	padding: var(--vault-space-4);
 	background: var(--vault-surface-container-low);
@@ -247,6 +256,11 @@ p {
 .pager button.active {
 	background: var(--vault-primary);
 	color: #fff;
+}
+
+.pager button:disabled {
+	opacity: 0.35;
+	cursor: not-allowed;
 }
 
 .align-end {

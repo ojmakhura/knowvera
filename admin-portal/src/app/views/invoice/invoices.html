@@ -4,7 +4,7 @@
       <h1>Invoices</h1>
       <p>Manage and verify billing records and settlement activity within the Veritas Protocol ecosystem.</p>
     </div>
-    <button type="button" class="new-btn">
+    <button type="button" class="new-btn" (click)="openCreate()">
       <span class="material-symbols-outlined" aria-hidden="true">receipt_long</span>
       New Invoice
     </button>
@@ -16,27 +16,26 @@
       <h2>Search Parameters</h2>
     </div>
 
-    <form class="search-grid">
-      <label class="field-block"><span>Invoice Reference</span><input type="text" placeholder="e.g. #INV-2024" /></label>
-      <label class="field-block"><span>Organisation</span><input type="text" placeholder="Organisation name" /></label>
-      <label class="field-block"><span>Billing Date</span><input type="text" placeholder="Oct 12, 2024" /></label>
+    <form class="search-grid" (submit)="doSearch()">
+      <label class="field-block"><span>Invoice Reference</span><input type="text" [value]="searchInvoicesSignal().ref" (input)="updateField('ref', $any($event.target).value)" placeholder="e.g. INV-2024" /></label>
+      <label class="field-block"><span>Organisation</span><input type="text" [value]="searchInvoicesSignal().organisationName" (input)="updateField('organisationName', $any($event.target).value)" placeholder="Organisation name" /></label>
+      <label class="field-block"><span>Registration No</span><input type="text" [value]="searchInvoicesSignal().organisationRegistrationNo" (input)="updateField('organisationRegistrationNo', $any($event.target).value)" placeholder="Organisation registration number" /></label>
       <label class="field-block">
         <span>Payment Status</span>
-        <select>
-          <option>All Statuses</option>
-          <option>Verified Paid</option>
-          <option>Awaiting Settlement</option>
-          <option>Overdue</option>
+        <select [value]="searchInvoicesSignal().paid" (change)="updateField('paid', $any($event.target).value)">
+          @for (option of paidOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
         </select>
       </label>
     </form>
 
     <div class="search-actions">
-      <button type="button" class="reset-btn">
+      <button type="button" class="reset-btn" (click)="resetSearch()">
         <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
         Reset
       </button>
-      <button type="button" class="search-btn">Search Invoices</button>
+      <button type="button" class="search-btn" (click)="doSearch()">Search Invoices</button>
     </div>
   </section>
 
@@ -53,44 +52,45 @@
       </div>
 
       <div class="table-body" role="table">
+        @if (rows().length) {
         @for (row of rows(); track row.id) {
           <article class="table-row" role="row">
             <div class="name-cell">
               <span class="name-text">{{ row.ref }}</span>
             </div>
-            <p>{{ row.organisation }}</p>
-            <p class="muted">{{ row.billingDate }}</p>
-            <p class="muted">{{ row.issuedBy }}</p>
-            <p class="amount">{{ row.amount }}</p>
+            <p>{{ row.organisationName || '—' }}</p>
+            <p class="muted">{{ formatDate(row.issueDate) }}</p>
+            <p class="muted">{{ issuedByOf(row) }}</p>
+            <p class="amount">{{ formatAmount(row.amount) }}</p>
             <p>
-              <span
-                class="status-pill"
-                [class.status-approved]="row.status === 'VERIFIED PAID'"
-                [class.status-pending]="row.status === 'AWAITING SETTLEMENT'"
-                [class.status-rejected]="row.status === 'OVERDUE'"
-              >{{ row.status }}</span>
+              <span class="status-pill" [class]="statusClass(row)">{{ statusLabel(row) }}</span>
             </p>
             <p class="actions">
-                <button matButton type="button">
-                    <mat-icon>visibility</mat-icon>
-                </button>
-                <button matButton type="button">
-                    <mat-icon>download</mat-icon>
-                </button></p>
+              <button type="button" (click)="openDetails(row.id)">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button type="button" (click)="openEdit(row.id)">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </p>
+          </article>
+        }
+        } @else {
+          <article class="table-row empty-row" role="row">
+            <p class="empty-copy">No invoices found for the current search.</p>
           </article>
         }
       </div>
     </div>
 
     <footer class="table-footer">
-      <p>Showing 4 of 128 invoice records</p>
+      <p>Showing {{ rows().length }} of {{ totalElements() }} invoice records</p>
       <div class="pager">
-        <button type="button">‹</button>
-        @for (page of pages(); track page) {
-          <button type="button" [class.active]="page === 1">{{ page }}</button>
+        <button type="button" (click)="previousPage()" [disabled]="currentPage() === 0">‹</button>
+        @for (page of pageNumbers(); track page) {
+          <button type="button" [class.active]="page - 1 === currentPage()" (click)="goToPage(page - 1)">{{ page }}</button>
         }
-        <span>…</span>
-        <button type="button">›</button>
+        <button type="button" (click)="nextPage()" [disabled]="currentPage() >= totalPages() - 1">›</button>
       </div>
     </footer>
   </section>
