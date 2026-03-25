@@ -10,37 +10,35 @@
     </div>
 
     <div class="head-actions">
-      <button class="btn-secondary" type="button" [routerLink]="['/sequence']">Cancel</button>
-      <button class="btn-primary" type="button">Save Changes</button>
+      <button class="btn btn-secondary" type="button" [routerLink]="['/sequence']">Cancel</button>
+      <button class="btn btn-primary" type="button">Save Changes</button>
     </div>
   </header>
 
-  <div class="layout-grid">
-    <div class="left-col">
-      <section class="panel">
-        <h2>Core Identity</h2>
-        <div class="field-grid">
-          <label class="field-block">
-            <span>Sequence Name</span>
-            <input type="text" [formField]="editSequenceSignalForm.name" />
-          </label>
-          <label class="field-block">
-            <span>Target Entity</span>
-            <select [formField]="editSequenceSignalForm.targetEntity">
+  <section class="panel">
+    <h2>Core Identity</h2>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Sequence Name</label>
+            <input class="form-control" type="text" [formField]="editSequenceSignalForm.name" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Target Entity</label>
+            <select class="form-select" [formField]="editSequenceSignalForm.targetEntity">
               @for (option of TargetEntityOptions; track option) {
                 <option [value]="option">
                   {{ ('target.entity.' + option) | translate }}
                 </option>
                 }
             </select>
-          </label>
+          </div>
         </div>
-      </section>
+  </section>
 
-      <section class="panel">
-        <div class="section-head">
-          <h2>Sequence Structure</h2>
-          <button type="button" class="btn-secondary" (click)="openAddPartDialog()">Add Part</button>
+  <section class="panel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="mb-0">Sequence Structure</h2>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openAddPartDialog()">Add Part</button>
         </div>
 
         @if (editSequenceSignal().sequenceParts.length) {
@@ -67,7 +65,7 @@
                     <td>{{ (part.min || '-') + ' / ' + (part.max || '-') }}</td>
                     <td>{{ part.randomised ? 'Yes' : 'No' }}</td>
                     <td>
-                      <button type="button" class="table-action" (click)="removeSequencePart($index)">Remove</button>
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeSequencePart($index)">Remove</button>
                     </td>
                   </tr>
                 }
@@ -77,10 +75,7 @@
         } @else {
           <p class="empty-state">No sequence parts configured for this sequence yet.</p>
         }
-      </section>
-    </div>
-
-  </div>
+  </section>
 
   @if (dialogOpen()) {
     <div class="dialog-backdrop" role="presentation" (click)="closeAddPartDialog()">
@@ -90,46 +85,48 @@
         </header>
 
         <div class="dialog-body">
-          <label class="field-block">
-            <span>Name</span>
-            <input type="text" [value]="newPart().name" (input)="updateNewPart('name', $any($event.target).value)" />
-          </label>
+          <div>
+            <label class="form-label">Name</label>
+            <input class="form-control" type="text" [value]="newPart().name" (input)="updateNewPart('name', $any($event.target).value)" />
+          </div>
 
-          <label class="field-block">
-            <span>Type</span>
-            <select [value]="newPart().type" (change)="updateNewPart('type', $any($event.target).value)">
+          <div>
+            <label class="form-label">Type</label>
+            <select class="form-select" [value]="newPart().type" (change)="updateNewPart('type', $any($event.target).value)">
               @for (partType of SequencePartTypeOptions; track partType) {
                 <option [value]="partType">{{ partType }}</option>
               }
             </select>
-          </label>
-
-          <div class="field-grid">
-            <label class="field-block">
-              <span>Initial</span>
-              <input type="text" [value]="newPart().initialValue" (input)="updateNewPart('initialValue', $any($event.target).value)" />
-            </label>
-            <label class="field-block">
-              <span>Min</span>
-              <input type="text" [value]="newPart().min" (input)="updateNewPart('min', $any($event.target).value)" />
-            </label>
           </div>
 
-          <div class="field-grid">
-            <label class="field-block">
-              <span>Max</span>
-              <input type="text" [value]="newPart().max" (input)="updateNewPart('max', $any($event.target).value)" />
-            </label>
-            <label class="field-block checkbox-field">
-              <span>Randomised</span>
-              <input type="checkbox" [checked]="newPart().randomised" (change)="updateNewPart('randomised', $any($event.target).checked)" />
-            </label>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Initial</label>
+              <input class="form-control" type="text" [value]="newPart().initialValue" (input)="updateNewPart('initialValue', $any($event.target).value)" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Min</label>
+              <input class="form-control" type="text" [value]="newPart().min" (input)="updateNewPart('min', $any($event.target).value)" />
+            </div>
+          </div>
+
+          <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+              <label class="form-label">Max</label>
+              <input class="form-control" type="text" [value]="newPart().max" (input)="updateNewPart('max', $any($event.target).value)" />
+            </div>
+            <div class="col-md-6">
+              <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" [checked]="newPart().randomised" (change)="updateNewPart('randomised', $any($event.target).checked)" id="sequence-randomised" />
+                <label class="form-check-label" for="sequence-randomised">Randomised</label>
+              </div>
+            </div>
           </div>
         </div>
 
         <footer class="dialog-actions">
-          <button type="button" class="btn-secondary" (click)="closeAddPartDialog()">Cancel</button>
-          <button type="button" class="btn-primary" (click)="addSequencePart()">Add</button>
+          <button type="button" class="btn btn-secondary" (click)="closeAddPartDialog()">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="addSequencePart()">Add</button>
         </footer>
       </section>
     </div>

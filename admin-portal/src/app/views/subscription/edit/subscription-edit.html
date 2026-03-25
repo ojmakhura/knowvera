@@ -1,128 +1,185 @@
-<section class="sub-edit-page">
-  <header class="edit-head">
+<section class="sub-edit-page" aria-label="Edit Subscription">
+  <!-- ── Header ── -->
+  <header class="sub-edit-head">
     <div>
-      <p class="brand">Veritas Protocol</p>
+      <div class="brand-mark">
+        <span class="material-symbols-outlined">verified_user</span>
+        <span>Veritas Protocol</span>
+      </div>
       <h1>Edit Subscription</h1>
-      <p class="subline">Configure compliance parameters, organisational mapping, and financial terms for the Digital Vault subscription model.</p>
+      <p class="sub-desc">Configure compliance parameters, organizational mapping, and financial terms for the Digital Vault subscription model.</p>
     </div>
-
     <div class="head-actions">
-      <button type="button" class="btn-secondary">Cancel</button>
-      <button type="button" class="btn-primary">Save Changes</button>
+      <button mat-stroked-button class="btn-cancel" type="button" [routerLink]="['/subscription']">Cancel</button>
+      <button mat-flat-button class="btn-save" type="button" [disabled]="editSubscriptionSignalForm().invalid()" (click)="subscriptionSave()">Save Changes</button>
     </div>
   </header>
 
-  <section class="meta-grid">
-    <article class="card panel">
-      <span class="label">Current Status</span>
-      <select>
-        <option>Active</option>
-        <option>Pending Review</option>
-        <option>Flagged</option>
-        <option>Suspended</option>
-      </select>
-    </article>
+  <!-- ── Top Meta Grid: Status + Reference ── -->
+  <div class="meta-grid">
 
-    <article class="card panel ref-card">
-      <span class="label">Subscription Reference (REF)</span>
-      <div class="ref-line">
-        <input type="text" value="VP-SUB-2024-8891-X" />
-        <span class="immutable-tag">Immutable Ref</span>
+    <div class="meta-card">
+      <span class="field-label">Current Status</span>
+      <mat-form-field appearance="outline" class="vault-field">
+        <mat-select [formField]="editSubscriptionSignalForm.status">
+          <mat-option [value]="null">None</mat-option>
+          @for (s of statuses; track s) {
+            <mat-option [value]="s">{{ s }}</mat-option>
+          }
+        </mat-select>
+        @if (editSubscriptionSignalForm.status().touched()) {
+          @for (error of editSubscriptionSignalForm.status().errors(); track error) {
+            <mat-error translate>{{ error.message }}</mat-error>
+          }
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="meta-card ref-card">
+      <span class="field-label">Subscription Reference (REF)</span>
+      <div class="ref-row">
+        <mat-form-field appearance="outline" class="vault-field mono-field">
+          <input id="subRef" matInput type="text"
+            [formField]="editSubscriptionSignalForm.ref"
+            placeholder="e.g. SUB-000000" />
+        </mat-form-field>
+        <div class="immutable-tag">
+          <span class="material-symbols-outlined">lock</span>
+          Immutable Ref
+        </div>
       </div>
-    </article>
-  </section>
+    </div>
 
-  <section class="content-grid">
-    <article class="panel org-panel">
-      <h2>
-        <span class="material-symbols-outlined">corporate_fare</span>
-        Organisation and Period
+  </div>
+
+  <!-- ── Main Asymmetric Grid: 7/5 ── -->
+  <div class="main-grid">
+
+    <!-- Organisation & Period -->
+    <section class="panel org-panel">
+      <h2 class="panel-heading">
+        <span class="material-symbols-outlined">calendar_month</span>
+        Organisation &amp; Period
       </h2>
 
       <div class="field-block">
-        <label>Assign Organisation</label>
-        <input type="text" placeholder="Filter by Name, ID or Jurisdiction..." />
-        <div class="chips">
-          <span>Global Compliance Corp</span>
-          <span>Subsidary: EMEA Node</span>
-        </div>
+        <span class="field-label-sm">Assign Organisation</span>
+        <mat-form-field appearance="outline" class="vault-field">
+          <input id="subOrg" matInput type="text"
+            list="org-options"
+            placeholder="Filter by Name or Code..."
+            (keyup.enter)="filterOrganisation()"
+            [formField]="editSubscriptionSignalForm.organisationFilter" />
+        </mat-form-field>
+        <datalist id="org-options">
+          @for (org of organisationApiStore.dataList(); track org.id) {
+            <option [value]="org.code + ' - ' + org.name"></option>
+          }
+        </datalist>
+        @if (editSubscriptionSignalForm.organisation().touched()) {
+          @for (error of editSubscriptionSignalForm.organisation().errors(); track error) {
+            <p class="field-err" translate>{{ error.message }}</p>
+          }
+        }
       </div>
 
-      <div class="two-col-grid">
-        <div class="field-block">
-          <label>Subscription Period</label>
-          <select>
-            <option>Annual (Commitment)</option>
-            <option>Monthly Recurring</option>
-            <option>Biennial (Enterprise)</option>
-          </select>
-        </div>
-        <div class="field-block">
-          <label>Auto-Renewal</label>
-          <div class="toggle-row">
-            <label class="toggle-switch">
-              <input type="checkbox" checked />
-              <span></span>
-            </label>
-            <small>Enabled</small>
-          </div>
-        </div>
+      <hr class="divider" />
+
+      <div class="field-block">
+        <span class="field-label-sm">Subscription Period</span>
+        <mat-form-field appearance="outline" class="vault-field">
+          <mat-select id="subPeriod" [formField]="editSubscriptionSignalForm.period">
+            <mat-option [value]="null">None</mat-option>
+            @for (p of periods; track p) {
+              <mat-option [value]="p">{{ p }}</mat-option>
+            }
+          </mat-select>
+          @if (editSubscriptionSignalForm.period().touched()) {
+            @for (error of editSubscriptionSignalForm.period().errors(); track error) {
+              <mat-error translate>{{ error.message }}</mat-error>
+            }
+          }
+        </mat-form-field>
       </div>
 
-      <div class="two-col-grid">
+      <div class="dates-grid">
         <div class="field-block">
-          <label>Start Date</label>
-          <input type="date" value="2024-01-01" />
+          <span class="field-label-sm">Start Date</span>
+          <mat-form-field appearance="outline" class="vault-field">
+            <input id="subStart" matInput type="date"
+              [formField]="editSubscriptionSignalForm.startDate" />
+          </mat-form-field>
+          @if (editSubscriptionSignalForm.startDate().touched()) {
+            @for (error of editSubscriptionSignalForm.startDate().errors(); track error) {
+              <p class="field-err" translate>{{ error.message }}</p>
+            }
+          }
         </div>
         <div class="field-block">
-          <label>End Date</label>
-          <input type="date" value="2024-12-31" />
+          <span class="field-label-sm">End Date</span>
+          <mat-form-field appearance="outline" class="vault-field">
+            <input id="subEnd" matInput type="date"
+              [formField]="editSubscriptionSignalForm.endDate" />
+          </mat-form-field>
         </div>
       </div>
-    </article>
+    </section>
 
-    <aside class="panel financial-panel">
-      <h2>
+    <!-- Financial Configuration -->
+    <section class="financial-panel">
+      <div class="fin-deco-a" aria-hidden="true"></div>
+      <div class="fin-deco-b" aria-hidden="true"></div>
+
+      <h2 class="fin-heading">
         <span class="material-symbols-outlined">payments</span>
         Financial Configuration
       </h2>
 
-      <div class="field-block amount-block">
-        <label>Total Amount (USD)</label>
-        <input type="text" value="$12,450.00" />
-        <small>Calculated based on 48,000 KYC credits / year</small>
+      <div class="field-block fin-field">
+        <span class="fin-field-label">Total Amount (BWP)</span>
+        <mat-form-field appearance="outline" class="vault-field amount-field">
+          <span matTextPrefix class="amount-currency">P&nbsp;</span>
+          <input id="subAmount" matInput type="number"
+            placeholder="0.00"
+            [formField]="editSubscriptionSignalForm.amount" />
+        </mat-form-field>
+        @if (editSubscriptionSignalForm.amount().touched()) {
+          @for (error of editSubscriptionSignalForm.amount().errors(); track error) {
+            <p class="fin-err" translate>{{ error.message }}</p>
+          }
+        }
       </div>
 
-      <article class="breakdown">
-        <p><span>Base Platform Fee</span><strong>$2,500.00</strong></p>
-        <p><span>KYC Processing (Tier 2)</span><strong>$9,950.00</strong></p>
-        <p class="total"><span>Total Due</span><strong>$12,450.00</strong></p>
-      </article>
-
-      <div class="field-block">
-        <label>Billing Method</label>
-        <div class="method-grid">
-          <button type="button">Wire Transfer</button>
-          <button type="button" class="active">Credit Card</button>
+      <div class="fee-breakdown">
+        <div class="fee-row">
+          <span>Base Platform Fee</span>
+          <span>—</span>
+        </div>
+        <div class="fee-row">
+          <span>KYC Processing</span>
+          <span>—</span>
+        </div>
+        <hr class="fee-divider" />
+        <div class="fee-row fee-total">
+          <span>Total Due</span>
+          <span>—</span>
         </div>
       </div>
+    </section>
 
-      <article class="docs-box">
-        <h3>Supporting Documentation</h3>
-        <div class="doc-row">
-          <div>
-            <p>Service_Agreement_v4.pdf</p>
-            <small>2.4 MB · Uploaded Jan 12</small>
-          </div>
-          <span class="material-symbols-outlined">download</span>
-        </div>
-        <button type="button" class="ghost-btn">Add New Attachment</button>
-      </article>
-    </aside>
-  </section>
+  </div>
 
-  <footer class="form-footer">
-    <p>Last edited by Audit_Admin_04 on May 15, 2024 at 09:42 AM</p>
-    <button type="button" class="btn-primary">Update Protocol Settings</button>
+  <!-- ── Audit Footer Bar ── -->
+  <footer class="audit-bar">
+    <div class="sync-status">
+      <span class="sync-dot" aria-hidden="true"></span>
+      <span>Vault Sync Status: Encrypted &amp; Live</span>
+    </div>
+    <button mat-flat-button class="btn-update" type="button"
+      [disabled]="editSubscriptionSignalForm().invalid()"
+      (click)="subscriptionSave()">
+      Update Protocol Settings
+    </button>
   </footer>
+
 </section>

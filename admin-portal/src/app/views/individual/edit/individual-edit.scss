@@ -3,17 +3,8 @@
 }
 
 .ind-edit-page,
-.edit-form,
-.field-grid,
-.field-block,
-.stack,
-.phone-section,
-.stamp {
-  display: grid;
-}
-
-.ind-edit-page,
 .edit-form {
+  display: grid;
   gap: var(--vault-space-8);
 }
 
@@ -31,20 +22,9 @@ p {
 }
 
 .edit-head,
-.head-actions,
-.section-head,
-.phone-title,
-.phone-row,
-.toggle-card,
-.stamp {
+.head-actions {
   display: flex;
   align-items: center;
-}
-
-.edit-head,
-.phone-title,
-.toggle-card {
-  justify-content: space-between;
 }
 
 .edit-head {
@@ -62,18 +42,12 @@ h1 {
   font-size: 2rem;
 }
 
-.edit-head p,
-.stamp p {
+.edit-head p {
   color: var(--vault-on-surface-variant);
 }
 
 .btn-secondary,
-.btn-primary,
-.field-block input,
-.field-block select,
-.field-block textarea,
-.phone-title button,
-.remove-btn {
+.btn-primary {
   font: inherit;
 }
 
@@ -99,212 +73,19 @@ h1 {
   color: #fff;
 }
 
-.head-actions,
-.section-head,
-.phone-row {
+.head-actions {
   gap: var(--vault-space-4);
 }
 
-.section-head {
-  padding-bottom: var(--vault-space-4);
-  border-bottom: 1px solid rgb(196 198 208 / 20%);
-  margin-bottom: var(--vault-space-4);
-}
-
-.section-head h2,
-.field-block span,
-.phone-title span,
-.stamp p {
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.section-head h2,
-.field-block span,
-.phone-title span {
-  color: var(--vault-on-surface-variant);
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.field-grid,
-.two-col-grid {
-  gap: var(--vault-space-4);
-}
-
-.field-grid-3 {
-  grid-template-columns: 1fr 1fr 1fr;
-}
-
-.field-grid-2,
-.two-col-grid {
-  grid-template-columns: 1fr 1fr;
-}
-
-.field-block {
-  gap: 0.35rem;
-}
-
-.field-block input,
-.field-block select,
-.field-block textarea {
-  width: 100%;
-  border-radius: 0.5rem;
-  border: 1px solid rgb(196 198 208 / 20%);
-  background: var(--vault-surface-container-low);
+.panel h2 {
   color: var(--vault-on-surface);
-  padding: 0.68rem 0.8rem;
+  font-size: 1.05rem;
 }
 
-.field-block input:disabled {
-  cursor: not-allowed;
-  opacity: 0.65;
-}
-
-.field-block input:focus-visible,
-.field-block select:focus-visible,
-.field-block textarea:focus-visible {
-  outline: none;
-  border-color: var(--vault-primary);
-  box-shadow: 0 0 0 2px rgb(111 135 164 / 30%);
-}
-
-.phone-title button {
-  border: 0;
-  background: transparent;
-  color: var(--vault-primary);
-  text-transform: uppercase;
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-.phone-row {
-  background: color-mix(in srgb, var(--vault-surface-container-low) 70%, transparent);
-  border: 1px solid rgb(196 198 208 / 20%);
-  border-radius: 0.55rem;
-  padding: var(--vault-space-4);
-}
-
-.phone-list {
-  display: grid;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-.phone-row-listed {
-  justify-content: space-between;
-}
-
-.phone-value {
-  color: var(--vault-on-surface);
-  font-size: 0.85rem;
-}
-
-.empty-note {
-  margin: 0.7rem 0 0;
-  color: var(--vault-on-surface-variant);
-  font-size: 0.82rem;
-}
-
-.remove-btn {
-  min-width: 2rem;
-  height: 2rem;
-  border: 0;
-  border-radius: 0.35rem;
-  background: transparent;
-  color: #b42318;
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.align-end-grid {
-  align-items: end;
-}
-
-.toggle-card {
-  border-radius: 0.55rem;
-  background: var(--vault-surface-container-low);
-  border: 1px solid rgb(196 198 208 / 20%);
-  padding: 0.62rem 0.8rem;
-}
-
-.toggle-card span {
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.66rem;
-  font-weight: 700;
-  color: var(--vault-on-surface-variant);
-}
-
-.toggle-switch {
-  position: relative;
-  width: 2.7rem;
-  height: 1.45rem;
-}
-
-.toggle-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.toggle-switch span {
-  position: absolute;
-  cursor: pointer;
-  inset: 0;
-  background: var(--vault-surface-variant);
-  border-radius: 999px;
-  transition: 0.2s;
-}
-
-.toggle-switch span::before {
-  content: '';
-  position: absolute;
-  width: 1.1rem;
-  height: 1.1rem;
-  left: 0.18rem;
-  bottom: 0.17rem;
-  background: #fff;
-  border-radius: 999px;
-  transition: 0.2s;
-}
-
-.toggle-switch input:checked + span {
-  background: var(--vault-primary);
-}
-
-.toggle-switch input:checked + span::before {
-  transform: translateX(1.2rem);
-}
-
-.stamp {
-  grid-template-columns: 3rem auto 3rem;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-}
-
-.stamp span {
-  height: 1px;
-  background: rgb(196 198 208 / 30%);
-}
-
-.stamp p {
-  font-size: 0.62rem;
-  font-weight: 800;
-}
 
 @media (max-width: 1080px) {
-  .field-grid-3,
-  .field-grid-2,
-  .two-col-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .edit-head,
-  .head-actions,
-  .phone-row {
+  .edit-head {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
   }
 }

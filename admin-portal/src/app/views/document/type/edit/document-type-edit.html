@@ -20,22 +20,22 @@
         </div>
 
         <div class="panel-card stack-6">
-          <div class="field-grid">
-            <label class="field-block">
-              <span class="field-label">Document Code</span>
-              <input class="field-input field-input-mono" type="text" [formField]="editDocumentTypeSignalForm.code" />
-            </label>
-            <label class="field-block">
-              <span class="field-label">Display Name</span>
-              <input class="field-input" type="text" [formField]="editDocumentTypeSignalForm.name" />
-            </label>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Document Code</label>
+              <input class="form-control field-input-mono" type="text" [formField]="editDocumentTypeSignalForm.code" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Display Name</label>
+              <input class="form-control" type="text" [formField]="editDocumentTypeSignalForm.name" />
+            </div>
           </div>
 
-          <label class="field-block">
-            <span class="field-label">Description</span>
-            <textarea class="field-input field-textarea" rows="4"
+          <div>
+            <label class="form-label">Description</label>
+            <textarea class="form-control field-textarea" rows="4"
               [formField]="editDocumentTypeSignalForm.description"></textarea>
-          </label>
+          </div>
         </div>
       </section>
 
@@ -60,9 +60,9 @@
           <div class="fields-body" role="table">
             @for (field of editDocumentTypeSignalForm.expectedFields; track field.field; let index = $index) {
             <article class="fields-row" role="row">
-              <input class="table-input" type="text" [formField]="field.field" />
+              <input class="form-control table-input" type="text" [formField]="field.field" />
               <!-- <div class="centered"> -->
-                <select class="table-input" [formField]="field.keyField">
+                <select class="form-select table-input" [formField]="field.keyField">
                   @for (option of keyFieldOptions; track option) {
                   <option [value]="option">{{ option }}</option>
                   }
@@ -92,8 +92,8 @@
           @for (prompt of editDocumentTypeSignalForm.validationPrompts; track prompt.content) {
           <article class="panel-card prompt-card">
             <label class="field-block prompt-role">
-              <span>Role</span>
-              <select class="field-input select-input" [formField]="prompt.role">
+              <span class="form-label d-block">Role</span>
+              <select class="form-select select-input" [formField]="prompt.role">
                 <option [selected]="prompt.role().value() === 'system'">System</option>
                 <option [selected]="prompt.role().value() === 'user'">User</option>
                 <option [selected]="prompt.role().value() === 'assistant'">Assistant</option>
@@ -101,8 +101,8 @@
             </label>
 
             <label class="field-block prompt-content">
-              <span class="field-label">Content</span>
-              <textarea class="field-input field-textarea" rows="3" [formField]="prompt.content"></textarea>
+              <span class="form-label d-block">Content</span>
+              <textarea class="form-control field-textarea" rows="3" [formField]="prompt.content"></textarea>
             </label>
           </article>
           }

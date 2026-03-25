@@ -3,10 +3,15 @@
     <div>
       <nav class="breadcrumbs" aria-label="Breadcrumb">
         <a [routerLink]="['/organisation']">Organisations</a>
+        @if(editOrganisationSignal().id) {
         <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-        <span>Global Architecture Ltd</span>
+        <span>{{ editOrganisationSignal().name }}</span>
         <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
         <strong>Edit</strong>
+        } @else {
+        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+        <strong>new</strong>
+        }
       </nav>
       <h1>Edit Organisation</h1>
     </div>
@@ -21,99 +26,151 @@
     <div class="left-col">
       <section class="panel">
         <h2>Core Identity</h2>
-        <div class="field-grid">
-          <label class="field-block">
-            <span>Registration No.</span>
-            <input type="text" [formField]="editOrganisationSignalForm.registrationNo" />
-          </label>
-          <label class="field-block">
-            <span>Abbreviation</span>
-            <input type="text" [formField]="editOrganisationSignalForm.code" />
-          </label>
-          <label class="field-block field-wide">
-            <span>Organisation Name</span>
-            <input type="text" [formField]="editOrganisationSignalForm.name" />
-          </label>
-          <label class="field-block">
-            <span>Country of Registration</span>
-            <select [formField]="editOrganisationSignalForm.countryOfRegistration">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="registrationNo" class="form-label">Registration No.</label>
+            <input id="registrationNo" type="text" class="form-control is-invalid"
+              [formField]="editOrganisationSignalForm.registrationNo" />
+            @if(editOrganisationSignalForm.registrationNo().touched()) {
+            @for(error of editOrganisationSignalForm.registrationNo().errors(); track error) {
+            <div class="invalid-feedback" translate>{{ error.message }}</div>
+            }
+            }
+          </div>
+          <div class="col-md-6">
+            <label for="code" class="form-label">Abbreviation</label>
+            <input id="code" type="text" class="form-control is-invalid"
+              [formField]="editOrganisationSignalForm.code" />
+            @if(editOrganisationSignalForm.code().touched()) {
+            @for(error of editOrganisationSignalForm.code().errors(); track error) {
+            <div class="invalid-feedback" translate>{{ error.message }}</div>
+            }
+            }
+          </div>
+          <div class="col-12">
+            <label for="name" class="form-label">Organisation Name</label>
+            <input id="name" type="text" class="form-control is-invalid"
+              [formField]="editOrganisationSignalForm.name" />
+            @if(editOrganisationSignalForm.name().touched()) {
+            @for(error of editOrganisationSignalForm.name().errors(); track error) {
+            <div class="invalid-feedback" translate>{{ error.message }}</div>
+            }
+            }
+          </div>
+          <div class="col-md-6">
+            <label for="countryOfRegistration" class="form-label">Country of Registration</label>
+            <select id="countryOfRegistration" class="form-select is-invalid"
+              [formField]="editOrganisationSignalForm.countryOfRegistration">
               <option></option>
               @for (country of countries; track country) {
               <option [value]="country">{{ country }}</option>
               }
             </select>
-          </label>
-          <label class="field-block field-wide">
-            <span>Description</span>
-            <textarea rows="4" [formField]="editOrganisationSignalForm.description"
+            @if(editOrganisationSignalForm.countryOfRegistration().touched()) {
+            @for(error of editOrganisationSignalForm.countryOfRegistration().errors(); track error) {
+            <div class="invalid-feedback" translate>{{ error.message }}</div>
+            }
+            }
+          </div>
+          <div class="col-12">
+            <label class="form-label">Description</label>
+            <textarea rows="4" class="form-control" [formField]="editOrganisationSignalForm.description"
               placeholder="Enter organisational details and compliance notes..."></textarea>
-          </label>
+          </div>
         </div>
       </section>
 
       <section class="panel">
         <h2>Operational Status</h2>
-        <div class="field-grid">
-          <label class="field-block">
-            <span>General Status</span>
-            <select [formField]="editOrganisationSignalForm.status">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label for="status" class="form-label">General Status</label>
+            <select id="status" class="form-select is-invalid" [formField]="editOrganisationSignalForm.status">
               <option value="ACTIVE">ACTIVE</option>
               <option value="INACTIVE">INACTIVE</option>
             </select>
-          </label>
-          <label class="field-block">
-            <span>KYC Compliance Status</span>
-            <select [formField]="editOrganisationSignalForm.kycStatus">
+            @if(editOrganisationSignalForm.status().touched()) {
+            @for(error of editOrganisationSignalForm.status().errors(); track error) {
+            <div class="invalid-feedback" translate>{{ error.message }}</div>
+            }
+            }
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">KYC Compliance Status</label>
+            <select class="form-select is-invalid" [formField]="editOrganisationSignalForm.kycStatus">
               <option value="CURRENT">CURRENT</option>
               <option value="EXPIRED">EXPIRED</option>
               <option value="ABSENT">ABSENT</option>
               <option value="INCOMPLETE">INCOMPLETE</option>
             </select>
-          </label>
-          <label class="field-block">
-            <span>Client Organisation</span>
-            <select [formField]="editOrganisationSignalForm.isClient">
+            @if(editOrganisationSignalForm.kycStatus().touched()) {
+            @for(error of editOrganisationSignalForm.kycStatus().errors(); track error) {
+            <div class="invalid-feedback" translate>{{ error.message }}</div>
+            }
+            }
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Client Organisation</label>
+            <select class="form-select" [formField]="editOrganisationSignalForm.isClient">
               <option value="true">Yes</option>
               <option value="false">No</option>
             </select>
-          </label>
+          </div>
         </div>
       </section>
     </div>
 
     <aside class="right-col panel">
       <h2>Contact</h2>
-      <div class="field-grid field-grid-single">
-        <label class="field-block">
-          <span>Contact Email Address</span>
-          <input type="email" [formField]="editOrganisationSignalForm.contactEmailAddress" />
-        </label>
-        <label class="field-block">
-          <span>Physical Address</span>
-          <textarea rows="3" [formField]="editOrganisationSignalForm.physicalAddress"></textarea>
-        </label>
-        <label class="field-block">
-          <span>Postal Address</span>
-          <textarea rows="3" [formField]="editOrganisationSignalForm.postalAddress"></textarea>
-        </label>
-        <hr>
-        <div class="field-block">
-          <span>Phone Numbers</span>
-          <div class="inline-add-grid">
-            <select [value]="newPhoneType()" (change)="newPhoneType.set($any($event.target).value)">
-              @for (phoneType of PhoneTypeOptions; track phoneType) {
-              <option [value]="phoneType">{{ phoneType }}</option>
-              }
-            </select>
-            <input type="text" [value]="newPhoneNumber()" (input)="newPhoneNumber.set($any($event.target).value)"
-              placeholder="e.g. +44 20 7946 0958" />
-            <button class="btn-secondary btn-compact" type="button" (click)="addPhoneNumber()">Add</button>
+      <div class="row g-3">
+        <div class="col-12">
+          <label for="email" class="form-label">Contact Email Address</label>
+          <input id="email" type="email" class="form-control is-invalid"
+            [formField]="editOrganisationSignalForm.contactEmailAddress" />
+          @if(editOrganisationSignalForm.contactEmailAddress().touched()) {
+          @for(error of editOrganisationSignalForm.contactEmailAddress().errors(); track error) {
+          <div class="invalid-feedback" translate>{{ error.message }}</div>
+          }
+          }
+        </div>
+        <div class="col-12">
+          <label for="physicalAddress" class="form-label">Physical Address</label>
+          <textarea id="physicalAddress" rows="3" class="form-control"
+            [formField]="editOrganisationSignalForm.physicalAddress"></textarea>
+        </div>
+        <div class="col-12">
+          <label for="postalAddress" class="form-label">Postal Address</label>
+          <textarea id="postalAddress" rows="3" class="form-control"
+            [formField]="editOrganisationSignalForm.postalAddress"></textarea>
+        </div>
+        <div class="col-12">
+          <hr class="my-1">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Phone Numbers</label>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+              <select class="form-select" [value]="newPhoneType()"
+                (change)="newPhoneType.set($any($event.target).value)">
+                @for (phoneType of PhoneTypeOptions; track phoneType) {
+                <option [value]="phoneType">{{ phoneType }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-md-5">
+              <input type="text" class="form-control" [value]="newPhoneNumber()"
+                (input)="newPhoneNumber.set($any($event.target).value)" placeholder="e.g. +44 20 7946 0958" />
+            </div>
+            <div class="col-md-3 d-grid">
+              <button class="btn btn-outline-secondary btn-compact" type="button"
+                (click)="addPhoneNumber()">Add</button>
+            </div>
           </div>
 
           @if (editOrganisationSignal().phoneNumbers.length) {
-          <ul class="token-list">
+          <ul class="list-group token-list">
             @for (phone of editOrganisationSignal().phoneNumbers; track $index) {
-            <li>
+            <li class="list-group-item d-flex align-items-center justify-content-between gap-3">
               <span>{{ phone.type }}: {{ phone.phoneNumber }}</span>
               <button type="button" class="link-danger" (click)="removePhoneNumber($index)">Remove</button>
             </li>
@@ -123,19 +180,25 @@
           <p class="muted-inline">No phone numbers added yet.</p>
           }
         </div>
-        <hr>
-        <div class="field-block">
-          <span>Domains</span>
-          <div class="inline-add-grid inline-add-grid-domain">
-            <input type="text" [value]="newDomainName()" (input)="newDomainName.set($any($event.target).value)"
-              placeholder="e.g. globalarch.com" />
-            <button class="btn-secondary btn-compact" type="button" (click)="addDomain()">Add</button>
+        <div class="col-12">
+          <hr class="my-1">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Domains</label>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-9">
+              <input type="text" class="form-control" [value]="newDomainName()"
+                (input)="newDomainName.set($any($event.target).value)" placeholder="e.g. globalarch.com" />
+            </div>
+            <div class="col-md-3 d-grid">
+              <button class="btn btn-outline-secondary btn-compact" type="button" (click)="addDomain()">Add</button>
+            </div>
           </div>
 
           @if (editOrganisationSignal().domains.length) {
-          <ul class="token-list">
+          <ul class="list-group token-list">
             @for (domain of editOrganisationSignal().domains; track $index) {
-            <li>
+            <li class="list-group-item d-flex align-items-center justify-content-between gap-3">
               <span>{{ domain.name }}</span>
               <button type="button" class="link-danger" (click)="removeDomain($index)">Remove</button>
             </li>

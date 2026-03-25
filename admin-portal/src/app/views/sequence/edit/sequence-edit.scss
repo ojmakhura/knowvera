@@ -2,14 +2,6 @@
   display: block;
 }
 
-.seq-edit-page,
-.layout-grid,
-.left-col,
-.field-grid,
-.field-block {
-  display: grid;
-}
-
 .seq-edit-page {
   gap: var(--vault-space-8);
   width: 100%;
@@ -17,17 +9,12 @@
 
 .seq-edit-head,
 .breadcrumbs,
-.head-actions,
-.section-head,
-.dialog-actions,
-.dialog-head {
+.head-actions {
   display: flex;
   align-items: center;
 }
 
-.seq-edit-head,
-.section-head,
-.dialog-actions {
+.seq-edit-head {
   justify-content: space-between;
   gap: var(--vault-space-4);
 }
@@ -85,17 +72,8 @@ h3 {
 }
 
 .btn-secondary,
-.btn-primary,
-.table-action,
-.field-block input,
-.field-block select,
-.field-block textarea {
+.btn-primary {
   font: inherit;
-}
-
-.btn-secondary,
-.btn-primary,
-.table-action {
   border: 0;
   border-radius: 0.5rem;
   padding: 0.65rem 1rem;
@@ -113,22 +91,6 @@ h3 {
   font-weight: 700;
 }
 
-.table-action {
-  padding: 0.4rem 0.75rem;
-  background: rgb(196 198 208 / 18%);
-  color: var(--vault-on-surface);
-}
-
-.layout-grid {
-  grid-template-columns: 1fr;
-  gap: var(--vault-space-8);
-  align-items: start;
-}
-
-.left-col {
-  gap: var(--vault-space-8);
-}
-
 .panel {
   background: var(--vault-surface-container-lowest);
   border-radius: 0.75rem;
@@ -136,54 +98,8 @@ h3 {
   padding: var(--vault-space-8);
 }
 
-.section-head {
+h2 {
   margin-bottom: var(--vault-space-4);
-}
-
-.field-grid {
-  gap: var(--vault-space-4);
-  grid-template-columns: 1fr 1fr;
-}
-
-.field-grid-single {
-  grid-template-columns: 1fr;
-}
-
-.field-block {
-  gap: 0.45rem;
-}
-
-.field-block span {
-  color: var(--vault-on-surface-variant);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.field-block input,
-.field-block select,
-.field-block textarea {
-  width: 100%;
-  border-radius: 0.5rem;
-  border: 1px solid rgb(196 198 208 / 20%);
-  background: var(--vault-surface-container-low);
-  color: var(--vault-on-surface);
-  padding: 0.85rem 0.95rem;
-}
-
-.field-block input:focus-visible,
-.field-block select:focus-visible,
-.field-block textarea:focus-visible {
-  outline: none;
-  border-color: var(--vault-primary);
-  box-shadow: 0 0 0 2px rgb(111 135 164 / 30%);
-}
-
-.checkbox-field input {
-  width: auto;
-  justify-self: start;
-  margin-top: 0.35rem;
 }
 
 .parts-table {
