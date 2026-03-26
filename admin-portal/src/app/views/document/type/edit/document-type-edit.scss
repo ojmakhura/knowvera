@@ -354,9 +354,33 @@
 
 .prompt-layout {
 	display: grid;
-	grid-template-columns: minmax(11rem, 0.8fr) minmax(0, 2fr) auto;
-	gap: 1rem;
+	grid-template-columns: minmax(9rem, 11rem) minmax(0, 1fr) 2.75rem;
+	gap: 1.1rem;
 	align-items: start;
+}
+
+.prompt-role,
+.prompt-content {
+	align-content: start;
+	min-width: 0;
+}
+
+.prompt-role .vault-field,
+.prompt-content .vault-field {
+	margin: 0;
+	width: 100%;
+}
+
+.prompt-actions {
+	width: 2.75rem;
+	min-width: 2.75rem;
+	justify-content: center;
+	align-self: start;
+	padding-top: 0;
+}
+
+.prompt-actions .delete-btn {
+	margin-top: 1.55rem;
 }
 
 .prompt-card .mat-mdc-card-content,
@@ -426,36 +450,6 @@
 	margin: 0;
 	color: var(--vault-on-surface-variant);
 	font-size: 0.84rem;
-}
-
-:host ::ng-deep .vault-field {
-	width: 100%;
-}
-
-:host ::ng-deep .vault-field .mat-mdc-text-field-wrapper {
-	background: var(--vault-surface-container-low);
-	border-radius: 0.85rem;
-}
-
-:host ::ng-deep .vault-field .mdc-notched-outline__leading,
-:host ::ng-deep .vault-field .mdc-notched-outline__notch,
-:host ::ng-deep .vault-field .mdc-notched-outline__trailing {
-	border-color: var(--vault-outline-ghost) !important;
-}
-
-:host ::ng-deep .vault-field.mat-focused .mdc-notched-outline__leading,
-:host ::ng-deep .vault-field.mat-focused .mdc-notched-outline__notch,
-:host ::ng-deep .vault-field.mat-focused .mdc-notched-outline__trailing {
-	border-color: var(--vault-primary) !important;
-	border-width: 1px !important;
-}
-
-:host ::ng-deep .vault-field.mat-focused .mat-mdc-text-field-wrapper {
-	box-shadow: 0 0 0 4px rgb(214 227 255 / 35%);
-}
-
-:host ::ng-deep .vault-field .mat-mdc-form-field-subscript-wrapper {
-	display: none;
 }
 
 .textarea-field :is(textarea) {

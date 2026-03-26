@@ -7,6 +7,7 @@
     --vault-primary: #001735;
     --vault-primary-container: #0e2c52;
     --vault-primary-fixed: #6f87a4;
+    --vault-error: #b3261e;
 
     --vault-surface: #f7f9fb;
     --vault-surface-variant: #d8dbe2;
@@ -44,6 +45,88 @@ body {
     font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background: var(--vault-surface);
     color: var(--vault-on-surface);
+}
+
+.mat-mdc-form-field {
+    --mat-form-field-focus-state-layer-opacity: 0;
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-focus-overlay {
+    opacity: 0 !important;
+}
+
+.vault-field {
+    width: 100%;
+}
+
+.vault-field .mat-mdc-text-field-wrapper {
+    background: var(--vault-surface-container-low);
+    border-radius: 0.85rem;
+}
+
+.vault-field .mdc-notched-outline__leading,
+.vault-field .mdc-notched-outline__notch,
+.vault-field .mdc-notched-outline__trailing {
+    border-color: rgb(196 198 208 / 20%) !important;
+}
+
+.vault-field.mat-focused .mdc-notched-outline__leading,
+.vault-field.mat-focused .mdc-notched-outline__notch,
+.vault-field.mat-focused .mdc-notched-outline__trailing {
+    border-color: var(--vault-primary) !important;
+    border-width: 1px !important;
+}
+
+.vault-field.mat-focused .mat-mdc-text-field-wrapper {
+    box-shadow: 0 0 0 4px rgb(214 227 255 / 35%);
+}
+
+.vault-field .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper,
+.mat-mdc-form-field.mat-mdc-form-field-has-icon-suffix.mat-focused .mat-mdc-text-field-wrapper,
+.mat-mdc-form-field.mat-mdc-form-field-has-icon-prefix.mat-focused .mat-mdc-text-field-wrapper {
+    box-shadow: none !important;
+    background-image: none;
+}
+
+.mat-mdc-form-field input.mat-mdc-input-element:focus,
+.mat-mdc-form-field input.mat-mdc-input-element:focus-visible,
+.mat-mdc-form-field textarea.mat-mdc-input-element:focus,
+.mat-mdc-form-field textarea.mat-mdc-input-element:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__trailing,
+.mat-mdc-form-field.mat-mdc-form-field-invalid .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-mdc-form-field-invalid .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-mdc-form-field-invalid .mdc-notched-outline__trailing,
+.mat-mdc-form-field .mdc-text-field--invalid .mdc-notched-outline__leading,
+.mat-mdc-form-field .mdc-text-field--invalid .mdc-notched-outline__notch,
+.mat-mdc-form-field .mdc-text-field--invalid .mdc-notched-outline__trailing {
+    border-color: var(--vault-error) !important;
+}
+
+.mat-mdc-form-field.mat-form-field-invalid input.mat-mdc-input-element,
+.mat-mdc-form-field.mat-form-field-invalid textarea.mat-mdc-input-element,
+.mat-mdc-form-field.mat-form-field-invalid .mat-mdc-select-value-text,
+.mat-mdc-form-field.mat-form-field-invalid .mat-mdc-select-placeholder,
+.mat-mdc-form-field.mat-mdc-form-field-invalid input.mat-mdc-input-element,
+.mat-mdc-form-field.mat-mdc-form-field-invalid textarea.mat-mdc-input-element,
+.mat-mdc-form-field.mat-mdc-form-field-invalid .mat-mdc-select-value-text,
+.mat-mdc-form-field.mat-mdc-form-field-invalid .mat-mdc-select-placeholder,
+.mat-mdc-form-field .mdc-text-field--invalid input.mat-mdc-input-element,
+.mat-mdc-form-field .mdc-text-field--invalid textarea.mat-mdc-input-element,
+.mat-mdc-form-field .mdc-text-field--invalid .mat-mdc-select-value-text,
+.mat-mdc-form-field .mdc-text-field--invalid .mat-mdc-select-placeholder,
+.mat-mdc-form-field .mat-mdc-form-field-error,
+.error-message {
+    color: var(--vault-error) !important;
 }
 
 .edit-page,
@@ -247,6 +330,14 @@ body {
     outline: none;
     border-color: var(--vault-primary);
     box-shadow: 0 0 0 2px rgb(111 135 164 / 30%)
+}
+
+:host ::ng-deep .vault-field input.mat-mdc-input-element:focus,
+:host ::ng-deep .vault-field input.mat-mdc-input-element:focus-visible,
+:host ::ng-deep .vault-field textarea.mat-mdc-input-element:focus,
+:host ::ng-deep .vault-field textarea.mat-mdc-input-element:focus-visible {
+	outline: none;
+	box-shadow: none;
 }
 
 .edit-page .field-input-mono,
@@ -599,11 +690,11 @@ body {
     color: var(--vault-on-surface)
 }
 
-.documents-page .field-input:focus-visible {
-    outline: none;
-    border-color: var(--vault-primary);
-    box-shadow: 0 0 0 2px rgb(111 135 164 / 30%)
-}
+// .documents-page .field-input:focus-visible {
+//     outline: none;
+//     border-color: var(--vault-primary);
+//     box-shadow: 0 0 0 2px rgb(111 135 164 / 30%)
+// }
 
 .documents-page .execute-btn {
     padding: 1rem;

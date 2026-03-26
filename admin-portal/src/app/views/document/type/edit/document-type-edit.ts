@@ -20,13 +20,14 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { form, required, applyEach } from '@angular/forms/signals';
+import { form, required, applyEach, FormField } from '@angular/forms/signals';
 import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
 import { ExpectedField } from '@app/models/bw/co/centralkyc/document/type/expected-field';
 import { KeyField } from '@app/models/bw/co/centralkyc/key-field';
 import { CompletionRequestMessage } from '@app/models/bw/co/centralkyc/lmstudio/completion-request-message';
 import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
 import Swal from 'sweetalert2';
+import { Loader } from '@app/@shared/loader/loader';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -55,7 +56,10 @@ export class EditDocumentTypeVarsForm {
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    MatCheckboxModule],
+    MatCheckboxModule,
+    Loader,
+    FormField
+  ],
 })
 export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   @Input() id: string = '';
@@ -83,7 +87,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
 
       let docType = this.documentTypeApiStore.data();
-      
+
       if(docType) {
         this.editDocumentTypeSignal.set(this.updateDocumentTypeSignal(docType));
       }
@@ -138,7 +142,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   expectedFieldsRemove(i: number, selected: ExpectedField) {
-    
+
     Swal.fire({
       title: 'Are you sure?',
       text: `This will remove the field "${selected.field}" from the expected fields list.`,
@@ -205,22 +209,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
         validationPrompts: validationPrompts
       }
     });
-  }
-
-  updateValidationPrompt(index: number, field: keyof CompletionRequestMessage, value: any): void {
-    this.editDocumentTypeSignal.update((state) => ({
-      ...state,
-      validationPrompts: state.validationPrompts.map((item, itemIndex) => {
-        if (itemIndex !== index) {
-          return item;
-        }
-
-        return {
-          ...item,
-          [field]: value,
-        };
-      }),
-    }));
   }
 
   createNewTextExtractionPrompts(): CompletionRequestMessage {

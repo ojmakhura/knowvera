@@ -428,32 +428,6 @@ h1 {
 	line-height: 1.55;
 }
 
-:host ::ng-deep .vault-field .mat-mdc-text-field-wrapper {
-	background: var(--vault-surface-container-low);
-	border-radius: 0.85rem;
-}
-
-:host ::ng-deep .vault-field .mdc-notched-outline__leading,
-:host ::ng-deep .vault-field .mdc-notched-outline__notch,
-:host ::ng-deep .vault-field .mdc-notched-outline__trailing {
-	border-color: var(--vault-outline-ghost) !important;
-}
-
-:host ::ng-deep .vault-field.mat-focused .mdc-notched-outline__leading,
-:host ::ng-deep .vault-field.mat-focused .mdc-notched-outline__notch,
-:host ::ng-deep .vault-field.mat-focused .mdc-notched-outline__trailing {
-	border-color: var(--vault-primary) !important;
-	border-width: 1px !important;
-}
-
-:host ::ng-deep .vault-field.mat-focused .mat-mdc-text-field-wrapper {
-	box-shadow: 0 0 0 4px rgb(214 227 255 / 35%);
-}
-
-:host ::ng-deep .vault-field .mat-mdc-form-field-subscript-wrapper {
-	display: none;
-}
-
 @media (max-width: 1080px) {
 	.hero-panel,
 	.results-footer,

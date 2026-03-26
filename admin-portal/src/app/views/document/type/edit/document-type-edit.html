@@ -67,8 +67,7 @@
 										type="text"
 										class="field-input-mono"
 										placeholder="e.g. KYC_ID_001"
-										[value]="editDocumentTypeSignal().code || ''"
-										(input)="updateField('code', $any($event.target).value)"
+										[formField]="editDocumentTypeSignalForm.code"
 									/>
 								</mat-form-field>
 							</div>
@@ -81,8 +80,7 @@
 										matInput
 										type="text"
 										placeholder="e.g. Passport Visual"
-										[value]="editDocumentTypeSignal().name || ''"
-										(input)="updateField('name', $any($event.target).value)"
+										[formField]="editDocumentTypeSignalForm.name"
 									/>
 								</mat-form-field>
 							</div>
@@ -96,8 +94,7 @@
 									matInput
 									rows="4"
 									placeholder="Explain the purpose of this document type for extraction logic..."
-									[value]="editDocumentTypeSignal().description || ''"
-									(input)="updateField('description', $any($event.target).value)"
+									[formField]="editDocumentTypeSignalForm.description"
 								></textarea>
 							</mat-form-field>
 						</div>
@@ -129,21 +126,20 @@
 						</div>
 
 						<div class="fields-body" role="table">
-							@for (field of editDocumentTypeSignal().expectedFields; track trackByIndex($index); let index = $index) {
+							@for (field of editDocumentTypeSignalForm.expectedFields; track trackByIndex($index); let index = $index) {
 								<article class="fields-row" role="row">
 									<mat-form-field appearance="outline" class="vault-field compact-field">
 										<mat-label>Field Name</mat-label>
 										<input
 											matInput
 											type="text"
-											[value]="field.field || ''"
-											(input)="updateExpectedField(index, 'field', $any($event.target).value)"
+											[formField]="field.field"
 										/>
 									</mat-form-field>
 
 									<mat-form-field appearance="outline" class="vault-field compact-field centered-field">
 										<mat-label>Key Field</mat-label>
-										<mat-select [value]="field.keyField" (selectionChange)="updateExpectedField(index, 'keyField', $event.value)">
+										<mat-select [formField]="field.keyField">
 											@for (option of keyFieldOptions; track option) {
 												<mat-option [value]="option">{{ option }}</mat-option>
 											}
@@ -152,8 +148,7 @@
 
 									<div class="centered checkbox-cell">
 										<mat-checkbox
-											[checked]="!!field.mandatory"
-											(change)="updateExpectedField(index, 'mandatory', $event.checked)"
+											[formField]="field.mandatory"
 											aria-label="Mandatory field"
 										></mat-checkbox>
 									</div>
@@ -163,8 +158,7 @@
 										<input
 											matInput
 											type="text"
-											[value]="field.format || ''"
-											(input)="updateExpectedField(index, 'format', $any($event.target).value)"
+											[formField]="field.format"
 										/>
 									</mat-form-field>
 
@@ -175,7 +169,7 @@
 											class="delete-btn"
 											aria-label="Delete field"
 											matTooltip="Delete field"
-											(click)="expectedFieldsRemove(index, field)"
+											(click)="expectedFieldsRemove(index, field().value())"
 										>
 											<mat-icon>delete</mat-icon>
 										</button>
@@ -192,76 +186,59 @@
 				</mat-card>
 			</section>
 
-			<section class="editor-section" id="validation">
-				<div class="section-head-between">
-					<div class="section-title-row">
-						<p class="step-label">Step 03</p>
-						<h2 class="section-title">Validation Prompts</h2>
-					</div>
+			<section class="editor-section" id="expected-fields">
+        <mat-card class="panel-card table-card">
+					<mat-card-content>
+						<div class="fields-head" role="row">
+							<p>Role</p>
+							<p class="centered">Content</p>
+							<p></p>
+						</div>
 
-					<div class="section-actions">
-						<button mat-button type="button" class="text-action">
-							<mat-icon>auto_awesome</mat-icon>
-							<span>Generate Suggestions</span>
-						</button>
-						<button mat-button type="button" class="add-btn subtle-btn" (click)="validationPromptsAdd()">
-							<mat-icon>add</mat-icon>
-							<span>Add Prompt</span>
-						</button>
-					</div>
-				</div>
+						<div class="fields-body" role="table">
+							@for (prompt of editDocumentTypeSignalForm.validationPrompts; track trackByIndex($index); let index = $index) {
+								<article class="fields-row" role="row">
+									<mat-form-field appearance="outline" class="vault-field compact-field">
+										<mat-label>Field Name</mat-label>
+										<input
+											matInput
+											type="text"
+											[formField]="prompt.role"
+										/>
+									</mat-form-field>
 
-				<div class="stack-4">
-					@for (prompt of editDocumentTypeSignal().validationPrompts; track trackByIndex($index); let index = $index) {
-						<mat-card class="panel-card prompt-card">
-							<mat-card-content>
-								<div class="prompt-layout">
-									<div class="field-block prompt-role">
-										<label class="form-label">Role</label>
-										<mat-form-field appearance="outline" class="vault-field compact-field">
-											<mat-select [value]="prompt.role || 'system'" (selectionChange)="updateValidationPrompt(index, 'role', $event.value)">
-												@for (option of promptRoleOptions; track option) {
-													<mat-option [value]="option">{{ option | titlecase }}</mat-option>
-												}
-											</mat-select>
-										</mat-form-field>
-									</div>
+									<mat-form-field appearance="outline" class="vault-field compact-field">
+										<mat-label>Prompt</mat-label>
+										<textarea
+											matInput
+											type="text"
+											[formField]="prompt.content"
+										></textarea>
+									</mat-form-field>
 
-									<div class="field-block prompt-content">
-										<label class="form-label">Content</label>
-										<mat-form-field appearance="outline" class="vault-field textarea-field compact-textarea">
-											<textarea
-												matInput
-												rows="3"
-												[value]="prompt.content || ''"
-												(input)="updateValidationPrompt(index, 'content', $any($event.target).value)"
-											></textarea>
-										</mat-form-field>
-									</div>
-
-									<div class="prompt-actions">
+									<div class="row-action-wrap">
 										<button
 											mat-icon-button
 											type="button"
 											class="delete-btn"
 											matTooltip="Delete prompt"
 											aria-label="Delete prompt"
-											(click)="validationPromptsRemove(index, prompt)"
+											(click)="validationPromptsRemove(index, prompt().value())"
 										>
 											<mat-icon>delete</mat-icon>
 										</button>
 									</div>
+								</article>
+							} @empty {
+								<div class="empty-state-card">
+									<mat-icon>list_alt</mat-icon>
+									<p>No expected fields configured yet.</p>
 								</div>
-							</mat-card-content>
-						</mat-card>
-					} @empty {
-						<div class="empty-state-card">
-							<mat-icon>verified_user</mat-icon>
-							<p>No validation prompts configured yet.</p>
+							}
 						</div>
-					}
-				</div>
-			</section>
+					</mat-card-content>
+				</mat-card>
+      </section>
 
 			<section class="editor-section" id="extraction">
 				<div class="section-head-between">
@@ -277,7 +254,7 @@
 				</div>
 
 				<div class="stack-4 extraction-stack">
-					@for (prompt of editDocumentTypeSignal().textExtractionPrompts; track trackByIndex($index); let index = $index) {
+					@for (prompt of editDocumentTypeSignalForm.textExtractionPrompts; track trackByIndex($index); let index = $index) {
 						<mat-card class="panel-card extraction-card">
 							<mat-card-content>
 								<div class="extraction-head">
@@ -296,7 +273,7 @@
 										class="delete-btn"
 										matTooltip="Delete extraction rule"
 										aria-label="Delete extraction rule"
-										(click)="textExtractionPromptsRemove(index, prompt)"
+										(click)="textExtractionPromptsRemove(index, prompt().value())"
 									>
 										<mat-icon>delete</mat-icon>
 									</button>
@@ -308,8 +285,7 @@
 										<textarea
 											matInput
 											rows="5"
-											[value]="prompt.content || ''"
-											(input)="updateTextExtractionPrompt(index, 'content', $any($event.target).value)"
+											[formField]="prompt.content"
 										></textarea>
 									</mat-form-field>
 								</div>

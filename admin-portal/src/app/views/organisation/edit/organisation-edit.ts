@@ -1,6 +1,7 @@
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +21,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { applyEach, form, FormField, required } from '@angular/forms/signals';
+import { applyEach, email, form, FormField, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { Loader } from '@app/@shared/loader/loader';
 import { GeneralStatus } from '@app/models/bw/co/centralkyc/general-status';
@@ -34,6 +35,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import Swal from 'sweetalert2';
 
 export class EditOrganisationVarsForm {
   id: string | any = null;
@@ -74,14 +76,16 @@ export class EditOrganisationVarsForm {
     MatListModule,
     MatDividerModule,
     MatSlideToggleModule,
-    Loader
-  ],
+    MatCheckboxModule,
+    Loader,
+    FormField
+],
 })
 export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   @Input() id: string | any = null;
 
-  editOrganisationVarsFormSignal = signal(new EditOrganisationVarsForm());
-  editOrganisationVarsFormSignalForm = form(this.editOrganisationVarsFormSignal, (path) => {
+  editOrganisationFormSignal = signal(new EditOrganisationVarsForm());
+  editOrganisationFormSignalForm = form(this.editOrganisationFormSignal, (path) => {
     required(path.isClient, { message: 'is.client.required' });
     required(path.status, { message: 'status.required' });
     required(path.kycStatus, { message: 'kyc.status.required' });
@@ -89,13 +93,15 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
     required(path.code, { message: 'code.required' });
     required(path.name, { message: 'name.required' });
     required(path.countryOfRegistration, { message: 'country.of.registration.required' });
-    required(path.description, { message: 'description.required' });
     required(path.postalAddress, { message: 'postal.address.required' });
     required(path.physicalAddress, { message: 'physical.address.required' });
-    required(path.domains, { message: 'domains.required' });
+    email(path.contactEmailAddress, { message: 'contact.email.invalid' });
     applyEach(path.phoneNumbers, (phonePath) => {
       required(phonePath.type, { message: 'phone.type.required' });
       required(phonePath.phoneNumber, { message: 'phone.number.required' });
+    });
+    applyEach(path.domains, (domainPath) => {
+      required(domainPath.name, { message: 'domain.name.required' });
     });
   });
 
@@ -142,7 +148,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       const item = this.organisationApiStore.data();
       if (item && item.id) {
-        this.editOrganisationVarsFormSignal.set(item as any);
+        this.editOrganisationFormSignal.set(item as any);
       }
     });
 
@@ -160,6 +166,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.organisationApiStore.reset();
     if (this.id) {
       this.organisationApiStore.findById({ id: this.id });
     }
@@ -170,7 +177,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {}
 
   saveOrganisation(): void {
-    const formData = this.editOrganisationVarsFormSignal();
+    const formData = this.editOrganisationFormSignal();
     this.organisationApiStore.save({ organisation: formData as any });
   }
 
@@ -178,15 +185,15 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/organisation']);
   }
 
-  updateField<K extends keyof EditOrganisationVarsForm>(field: K, value: EditOrganisationVarsForm[K]): void {
-    this.editOrganisationVarsFormSignal.update((current) => ({
-      ...current,
-      [field]: value,
-    }));
-  }
+  // updateField<K extends keyof EditOrganisationVarsForm>(field: K, value: EditOrganisationVarsForm[K]): void {
+  //   this.editOrganisationFormSignal.update((current) => ({
+  //     ...current,
+  //     [field]: value,
+  //   }));
+  // }
 
   toggleIsClient(event: any): void {
-    this.editOrganisationVarsFormSignal.update((val) => {
+    this.editOrganisationFormSignal.update((val) => {
       return {
         ...val,
         isClient: event.target.checked,
@@ -195,7 +202,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   addPhoneNumber(): void {
-    this.editOrganisationVarsFormSignal.update((val) => {
+    this.editOrganisationFormSignal.update((val) => {
       return {
         ...val,
         phoneNumbers: [...(val.phoneNumbers || []), { type: null, phoneNumber: '' } as any],
@@ -204,7 +211,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   updatePhoneType(index: number, type: string): void {
-    this.editOrganisationVarsFormSignal.update((val) => {
+    this.editOrganisationFormSignal.update((val) => {
       let clone = [...(val.phoneNumbers || [])];
       (clone[index] as any).type = type;
       return {
@@ -215,7 +222,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   updatePhoneNumber(index: number, numberStr: string): void {
-    this.editOrganisationVarsFormSignal.update((val) => {
+    this.editOrganisationFormSignal.update((val) => {
       let clone = [...(val.phoneNumbers || [])];
       (clone[index] as any).phoneNumber = numberStr;
       return {
@@ -226,25 +233,39 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   removePhoneNumber(index: number): void {
-    this.editOrganisationVarsFormSignal.update((val) => {
-      let clone = [...(val.phoneNumbers || [])];
-      clone.splice(index, 1);
-      return {
-        ...val,
-        phoneNumbers: clone,
-      };
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.editOrganisationFormSignal.update((val) => {
+          let clone = [...(val.phoneNumbers || [])];
+          clone.splice(index, 1);
+          return {
+            ...val,
+            phoneNumbers: clone,
+          };
+        });
+        Swal.fire('Deleted!', 'The phone number has been deleted.', 'success');
+      }
     });
   }
 
   addDomain(): void {
-    this.editOrganisationVarsFormSignal.update((val) => ({
+    this.editOrganisationFormSignal.update((val) => ({
       ...val,
       domains: [...(val.domains || []), { name: '', verified: false } as any],
     }));
   }
 
   updateDomainName(index: number, name: string): void {
-    this.editOrganisationVarsFormSignal.update((val) => {
+    this.editOrganisationFormSignal.update((val) => {
       const clone = [...(val.domains || [])];
       clone[index] = {
         ...clone[index],
@@ -257,8 +278,22 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  toggleDomainUnverified(index: number, isUnverified: boolean): void {
+    this.editOrganisationFormSignal.update((val) => {
+      const clone = [...(val.domains || [])];
+      clone[index] = {
+        ...clone[index],
+        verified: !isUnverified,
+      } as any;
+      return {
+        ...val,
+        domains: clone,
+      };
+    });
+  }
+
   removeDomain(index: number): void {
-    this.editOrganisationVarsFormSignal.update((val) => {
+    this.editOrganisationFormSignal.update((val) => {
       const clone = [...(val.domains || [])];
       clone.splice(index, 1);
       return {
