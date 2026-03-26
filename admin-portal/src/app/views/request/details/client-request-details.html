@@ -1,79 +1,144 @@
-<section class="req-details-page">
-  <header class="page-head panel">
-    <div>
-      <p class="crumb">Client Requests / Details</p>
-      <h1>Client Request Details</h1>
-      <p class="subline">Comprehensive request processing and compliance snapshot for a submitted client request.</p>
-    </div>
+<section class="client-request-details-page">
+	<header class="page-header">
+		<div>
+			<button mat-button type="button" class="back-link" (click)="backToDashboard()">
+				<mat-icon>arrow_back</mat-icon>
+				<span>Back to Dashboard</span>
+			</button>
 
-    <div class="head-actions">
-      <button type="button" class="btn-secondary">Print Summary</button>
-      <button type="button" class="btn-primary">Edit Request</button>
-    </div>
-  </header>
+			<h1 class="page-title">Client Request Details</h1>
+			<p class="page-subtitle">Request Reference: REQ-002934-VP</p>
+		</div>
 
-  <section class="panel">
-    <div class="section-head">
-      <h2>Request Information</h2>
-    </div>
+		<div class="header-actions">
+			<span class="status-pill" [class]="statusClass(requestStatus())">
+				<span class="status-dot"></span>
+				{{ statusLabel(requestStatus()) }}
+			</span>
 
-    <div class="kv-grid kv-grid-4">
-      @for (item of profile(); track item.label) {
-        <article class="kv">
-          <span>{{ item.label }}</span>
-          <p>{{ item.value }}</p>
-        </article>
-      }
-    </div>
-  </section>
+			<button mat-flat-button type="button" class="primary-btn" (click)="updateStatus()">Update Status</button>
+		</div>
+	</header>
 
-  <section class="two-col-grid">
-    <article class="panel">
-      <div class="section-head">
-        <h2>Processing Details</h2>
-      </div>
+	<div class="details-grid">
+		<mat-card class="identity-card panel-card span-7">
+			<div class="section-head">
+				<div class="icon-box dark-box">
+					<mat-icon>person</mat-icon>
+				</div>
+				<div>
+					<span class="section-label">Core Identity</span>
+					<h2>Primary Applicant Data</h2>
+				</div>
+			</div>
 
-      <div class="kv-grid">
-        @for (item of details(); track item.label) {
-          <article class="kv">
-            <span>{{ item.label }}</span>
-            <p>{{ item.value }}</p>
-          </article>
-        }
-      </div>
-    </article>
+			<div class="identity-grid">
+				@for (item of coreIdentity(); track item.label) {
+					<div class="identity-item">
+						<span class="field-label">{{ item.label }}</span>
 
-    <article class="panel">
-      <div class="section-head">
-        <h2>Request Status</h2>
-      </div>
+						@if (item.icon) {
+							<div class="icon-value-row">
+								<mat-icon>{{ item.icon }}</mat-icon>
+								<p [class.primary-text]="item.tone === 'primary'">{{ item.value }}</p>
+							</div>
+						} @else {
+							<p [class.primary-text]="item.tone === 'primary'">{{ item.value }}</p>
+						}
+					</div>
+				}
+			</div>
+		</mat-card>
 
-      <div class="status-box">
-        <div class="status-badge status-approved">
-          <span class="status-indicator"></span>
-          <div>
-            <p class="status-label">Current Status</p>
-            <p class="status-value">APPROVED</p>
-          </div>
-        </div>
-        <div class="divider"></div>
-        <div class="status-actions">
-          <button type="button" class="status-btn">Get Status Update</button>
-          <button type="button" class="status-btn">Flag for Review</button>
-        </div>
-      </div>
-    </article>
-  </section>
+		<mat-card class="compliance-card panel-card span-5">
+			<span class="section-label">Compliance Target</span>
 
-  <section class="panel">
-    <div class="section-head">
-      <h2>Activity Timeline</h2>
-    </div>
+			<div class="compliance-head">
+				<div class="warning-frame" [class]="targetStatusClass(targetKycStatus())">
+					<mat-icon>warning</mat-icon>
+				</div>
 
-    <ul class="timeline">
-      @for (item of timeline(); track item) {
-        <li>{{ item }}</li>
-      }
-    </ul>
-  </section>
+				<div>
+					<h2 class="compliance-title">{{ targetStatusLabel(targetKycStatus()) }}</h2>
+					<p class="compliance-subtitle">Target KYC Status</p>
+				</div>
+			</div>
+
+			<div class="progress-card">
+				<div class="progress-copy-row">
+					<span>Verification Progress</span>
+					<strong>{{ verificationPercent() }}%</strong>
+				</div>
+
+				<div class="progress-row" aria-label="Verification progress">
+					@for (segment of progressSegments(); track $index) {
+						<span [class.filled]="segment"></span>
+					}
+				</div>
+			</div>
+		</mat-card>
+
+		<mat-card class="panel-card organisation-card span-8">
+			<div class="section-head compact-head">
+				<div class="icon-box light-box">
+					<mat-icon>corporate_fare</mat-icon>
+				</div>
+				<h2>Organisation Context</h2>
+			</div>
+
+			<div class="organisation-grid">
+				@for (item of organisationContext(); track item.label) {
+					<div class="identity-item">
+						<span class="field-label">{{ item.label }}</span>
+						<p>{{ item.value }}</p>
+					</div>
+				}
+			</div>
+		</mat-card>
+
+		<mat-card class="artifact-card span-4">
+			<div class="artifact-watermark">
+				<mat-icon>description</mat-icon>
+			</div>
+
+			<div class="artifact-content">
+				<span class="section-label light-label">Verification Artifact</span>
+				<h2>Corporate Certificate</h2>
+				<p class="artifact-meta">Type ID: DOC_992_CERT</p>
+
+				<div class="file-tile">
+					<mat-icon>picture_as_pdf</mat-icon>
+					<div>
+						<p>sterling_assets_auth_2024.pdf</p>
+						<small>2.4 MB • PDF Document</small>
+					</div>
+				</div>
+
+				<button mat-stroked-button type="button" class="download-btn" (click)="downloadFile()">
+					<mat-icon>download</mat-icon>
+					<span>Download File</span>
+				</button>
+			</div>
+		</mat-card>
+
+		<mat-card class="audit-card span-12">
+			<div class="audit-grid">
+				@for (item of auditFields(); track item.label) {
+					<div class="audit-item">
+						<span class="field-label">{{ item.label }}</span>
+						<div class="audit-value">
+							<mat-icon>{{ iconForAudit(item.label) }}</mat-icon>
+							<p>{{ item.value }}</p>
+						</div>
+					</div>
+				}
+			</div>
+		</mat-card>
+	</div>
+
+	<footer class="action-footer">
+		<button mat-button type="button" class="ghost-action" (click)="archiveRequest()">Archive Request</button>
+		<button mat-stroked-button type="button" class="outline-action" (click)="flagForReview()">Flag for Review</button>
+		<button mat-flat-button type="button" class="primary-btn" (click)="approveRequest()">Approve Request</button>
+	</footer>
 </section>

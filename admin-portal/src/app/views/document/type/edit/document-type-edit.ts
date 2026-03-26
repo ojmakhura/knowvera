@@ -1,3 +1,12 @@
+
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -11,7 +20,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { form, required, FormField } from '@angular/forms/signals';
+import { form, required, applyEach } from '@angular/forms/signals';
 import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
 import { ExpectedField } from '@app/models/bw/co/centralkyc/document/type/expected-field';
 import { KeyField } from '@app/models/bw/co/centralkyc/key-field';
@@ -38,22 +47,36 @@ export class EditDocumentTypeVarsForm {
   templateUrl: './document-type-edit.html',
   styleUrls: ['./document-type-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormField],
+  imports: [CommonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatCheckboxModule],
 })
 export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   @Input() id: string = '';
   protected readonly keyFieldOptions = Object.values(KeyField);
+  protected readonly promptRoleOptions = ['system', 'user', 'assistant'];
 
   editDocumentTypeVarsForm: EditDocumentTypeVarsForm = new EditDocumentTypeVarsForm();
   editDocumentTypeSignal = signal(this.editDocumentTypeVarsForm);
   editDocumentTypeSignalForm = form(this.editDocumentTypeSignal, (path) => {
     required(path.code, { message: 'code.required' });
     required(path.name, { message: 'name.required' });
+    applyEach(path.expectedFields, (fieldPath) => {
+      required(fieldPath.keyField, { message: 'expectedFields.keyField.required' });
+      required(fieldPath.mandatory, { message: 'expectedFields.mandatory.required' });
+      required(fieldPath.field, { message: 'expectedFields.field.required' });
+    });
   });
 
   documentTypeApiStore = inject(DocumentTypeApiStore);
 
-  loading = linkedSignal(() => false);
+  loading = signal(false);
 
   constructor() {
 
@@ -79,6 +102,24 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {}
 
   ngOnDestroy(): void {}
+
+  discardChanges(): void {
+    const current = this.documentTypeApiStore.data();
+
+    if (current?.id) {
+      this.editDocumentTypeSignal.set(this.updateDocumentTypeSignal(current));
+      return;
+    }
+
+    this.editDocumentTypeSignal.set(new EditDocumentTypeVarsForm());
+  }
+
+  updateField<K extends keyof EditDocumentTypeVarsForm>(field: K, value: EditDocumentTypeVarsForm[K]): void {
+    this.editDocumentTypeSignal.update((state) => ({
+      ...state,
+      [field]: value,
+    }));
+  }
 
 
   createNewExpectedFields(): ExpectedField {
@@ -118,15 +159,26 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  updateExpectedField(index: number, field: keyof ExpectedField, value: any): void {
+    this.editDocumentTypeSignal.update((state) => ({
+      ...state,
+      expectedFields: state.expectedFields.map((item, itemIndex) => {
+        if (itemIndex !== index) {
+          return item;
+        }
+
+        return {
+          ...item,
+          [field]: value,
+        };
+      }),
+    }));
+  }
+
   onExpectedFieldKeyFieldChange(index: number, event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
 
-    this.editDocumentTypeSignal.update((state) => ({
-      ...state,
-      expectedFields: state.expectedFields.map((item, itemIndex) =>
-        itemIndex === index ? { ...item, keyField: value } : item
-      ),
-    }));
+    this.updateExpectedField(index, 'keyField', value);
   }
 
   createNewValidationPrompts(): CompletionRequestMessage {
@@ -155,6 +207,22 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  updateValidationPrompt(index: number, field: keyof CompletionRequestMessage, value: any): void {
+    this.editDocumentTypeSignal.update((state) => ({
+      ...state,
+      validationPrompts: state.validationPrompts.map((item, itemIndex) => {
+        if (itemIndex !== index) {
+          return item;
+        }
+
+        return {
+          ...item,
+          [field]: value,
+        };
+      }),
+    }));
+  }
+
   createNewTextExtractionPrompts(): CompletionRequestMessage {
     return new CompletionRequestMessage();
   }
@@ -179,6 +247,22 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
         textExtractionPrompts: textExtractionPrompts
       }
     });
+  }
+
+  updateTextExtractionPrompt(index: number, field: keyof CompletionRequestMessage, value: any): void {
+    this.editDocumentTypeSignal.update((state) => ({
+      ...state,
+      textExtractionPrompts: state.textExtractionPrompts.map((item, itemIndex) => {
+        if (itemIndex !== index) {
+          return item;
+        }
+
+        return {
+          ...item,
+          [field]: value,
+        };
+      }),
+    }));
   }
 
   updateDocumentTypeSignal(documentType: DocumentTypeDTO): EditDocumentTypeVarsForm {
@@ -227,5 +311,11 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     //     this.loading.set(false);
     //   }
     // });
+
+    this.loading.set(false);
+  }
+
+  trackByIndex(index: number): number {
+    return index;
   }
 }

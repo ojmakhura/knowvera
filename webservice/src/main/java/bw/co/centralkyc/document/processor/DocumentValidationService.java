@@ -58,7 +58,15 @@ public class DocumentValidationService {
         completionRequest.setModel("local-model");
         completionRequest.setMessages(List.of(systemPrompt, userPrompt));
         lmStudioExtractorService.extractInformation(completionRequest)
-                .thenAccept(response -> documentProcessorService.processDocumentConfirmation(response, document));
+                .thenAccept(response -> {
+                    System.out.println("✅ Got response");
+                    documentProcessorService.processDocumentConfirmation(response, document);
+                })
+                .exceptionally(ex -> {
+                    System.err.println("❌ ERROR:");
+                    ex.printStackTrace();
+                    return null;
+                });
     }
 
     private CompletionRequestMessage buildCustomSystemPrompt(DocumentDTO document) {
@@ -131,7 +139,7 @@ public class DocumentValidationService {
         systemPromptBuilder.append("""
                 Instructions:
                 1. For each signal, indicate if it is present (1) or absent (0) in the OCR text.
-                2. Compute the verification score: sum of signal values / total number of signals for the expected type.
+                2. Compute the verification score: sum of signal values / total number of signals for the expected type and output only the result of this calculation.
                 3. Compare the verification score to a threshold of 0.6:
                    - >=0.6 → match=true
                    - <0.6 → match=false

@@ -1,9 +1,14 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, linkedSignal, OnDestroy, OnInit, Signal, signal } from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatCardModule } from '@angular/material/card';
+import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, linkedSignal, OnInit, Signal, signal, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Router, RouterLink } from '@angular/router';
-import { Loader } from '@app/@shared/loader/loader';
+import { Router } from '@angular/router';
 import { IndividualListDTO } from '@app/models/bw/co/centralkyc/individual/individual-list-dto';
 import { IndividualSearchCriteria } from '@app/models/bw/co/centralkyc/individual/individual-search-criteria';
 import { SearchObject } from '@app/models/search-object';
@@ -24,25 +29,35 @@ export class SearchIndividualsVarsForm {
   templateUrl: './individuals.html',
   styleUrls: ['./individuals.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule, RouterLink, MatButtonModule, FormField, Loader],
+  imports: [MatIconModule, MatButtonModule, MatCardModule, MatTableModule, MatPaginatorModule, MatInputModule, MatSelectModule, MatTooltipModule, MatFormFieldModule],
 })
-export class Individuals implements OnInit, AfterViewInit, OnDestroy {
+export class Individuals implements OnInit, AfterViewInit {
   searchIndividualsVarsForm = new SearchIndividualsVarsForm();
   searchIndividualsSignal = signal(this.searchIndividualsVarsForm);
-  searchIndividualsSignalForm = form(this.searchIndividualsSignal, (path) => {});
 
   readonly individualApiStore = inject(IndividualApiStore);
   protected readonly rows = signal<IndividualListDTO[]>([]);
+  dataSource = new MatTableDataSource<IndividualListDTO>([]);
   protected readonly currentPage = signal(0);
   protected readonly pageSize = signal(10);
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
   protected readonly router = inject(Router);
+  @ViewChild(MatPaginator) paginator?: MatPaginator;
   loaderMessage: Signal<string> = signal('');
   messages = linkedSignal(() => this.individualApiStore.messages());
   success = linkedSignal(() => this.individualApiStore.success());
   loading = linkedSignal(() => this.individualApiStore.loading());
   error = linkedSignal(() => this.individualApiStore.error());
+
+  displayedColumns: string[] = ['name', 'identityNo', 'email', 'status', 'actions'];
+  protected readonly kycStatusOptions = [
+    { value: '', label: 'All Statuses' },
+    { value: 'CURRENT', label: 'Verified' },
+    { value: 'INCOMPLETE', label: 'Pending' },
+    { value: 'EXPIRED', label: 'Expired' },
+    { value: 'FLAGGED', label: 'Flagged' },
+  ];
 
   constructor() {
     effect(() => {
@@ -53,10 +68,17 @@ export class Individuals implements OnInit, AfterViewInit, OnDestroy {
       }
 
       this.rows.set(page.content || []);
+      this.dataSource.data = page.content || [];
       this.currentPage.set(page.page?.number || 0);
       this.pageSize.set(page.page?.size || 10);
       this.totalElements.set(page.page?.totalElements || 0);
       this.totalPages.set(page.page?.totalPages || 0);
+
+      if (this.paginator) {
+        this.paginator.length = page.page?.totalElements || 0;
+        this.paginator.pageIndex = page.page?.number || 0;
+        this.paginator.pageSize = page.page?.size || 10;
+      }
 
       this.searchIndividualsSignal.update((state) => ({
         ...state,
@@ -69,9 +91,11 @@ export class Individuals implements OnInit, AfterViewInit, OnDestroy {
     this.doSearch();
   }
 
-  ngAfterViewInit(): void {}
-
-  ngOnDestroy(): void {}
+  ngAfterViewInit(): void {
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+    }
+  }
 
   pageNumbers(): number[] {
     return Array.from({ length: this.totalPages() }, (_, index) => index + 1);
@@ -101,17 +125,57 @@ export class Individuals implements OnInit, AfterViewInit, OnDestroy {
     this.doSearch(page, this.pageSize());
   }
 
+  handlePageEvent(e: PageEvent) {
+    this.doSearch(e.pageIndex, e.pageSize);
+  }
+
+  updateField(field: keyof SearchIndividualsVarsForm, value: string): void {
+    this.searchIndividualsSignal.update((state) => ({
+      ...state,
+      [field]: value,
+    }));
+  }
+
   resetSearch(): void {
     this.searchIndividualsSignal.set(new SearchIndividualsVarsForm());
     this.doSearch();
   }
 
-//   updateField(field: keyof SearchIndividualsVarsForm, value: string): void {
-//     this.searchIndividualsSignal.update((state) => ({
-//       ...state,
-//       [field]: value,
-//     }));
-//   }
+  createNewIndividual(): void {
+    this.router.navigate(['/individual', 'edit']);
+  }
+
+  statusLabel(status: string | null | undefined): string {
+    switch (status) {
+      case 'CURRENT':
+        return 'Verified';
+      case 'INCOMPLETE':
+        return 'Pending';
+      case 'EXPIRED':
+        return 'Expired';
+      default:
+        return 'Flagged';
+    }
+  }
+
+  createdLabel(index: number): string {
+    const baseDate = new Date(2023, 9, 12);
+    baseDate.setDate(baseDate.getDate() + index * 24);
+    return baseDate.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  }
+
+  avatarTone(index: number): 'tone-secondary' | 'tone-tertiary' | 'tone-primary' {
+    const tones: Array<'tone-secondary' | 'tone-tertiary' | 'tone-primary'> = [
+      'tone-secondary',
+      'tone-primary',
+      'tone-tertiary',
+    ];
+    return tones[index % tones.length];
+  }
 
   doSearch(pageNumber: number = 0, pageSize: number = 10): void {
     const value = this.searchIndividualsSignal();

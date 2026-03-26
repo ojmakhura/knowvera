@@ -1,187 +1,438 @@
-<section class="settings-page" aria-label="System settings editor">
-    <header class="settings-header">
-        <div class="header-brand">
-            <span class="brand-icon material-symbols-outlined" aria-hidden="true">security</span>
-            <div>
-                <h1>System Settings Editor</h1>
-                <p>KYC Configuration Hub • v2.4.0</p>
-            </div>
-        </div>
-        <div class="header-actions">
-            <button class="btn-secondary" type="button">Discard Changes</button>
-            <button class="btn-primary" type="button">
-                <span class="material-symbols-outlined" aria-hidden="true">save</span>
-                Save Configuration
-            </button>
-        </div>
-    </header>
+<div class="settings-page">
+	<app-loader [isLoading]="isLoading" [message]="'Loading settings...'" [size]="'medium'"></app-loader>
 
-    <div class="top-grid">
-        <section class="panel">
-            <div class="panel-head">
-                <span class="material-symbols-outlined" aria-hidden="true">fingerprint</span>
-                <h2>Platform Identity</h2>
-            </div>
-            <div class="field-grid">
-                <label class="field-block"><span>Platform Name</span><input type="text"
-                        [formField]="editSettingsSignalForm.platformName" /></label>
-                <label class="field-block"><span>Platform URL</span><input type="text"
-                        [formField]="editSettingsSignalForm.platformUrl" /></label>
-                <label class="field-block"><span>KYC Portal Link</span><input type="text"
-                        [formField]="editSettingsSignalForm.kycPortalLink" /></label>
-                <label class="field-block"><span>Support Contact</span><input type="email"
-                        [formField]="editSettingsSignalForm.supportContact" /></label>
-            </div>
-        </section>
+	<header class="settings-header">
+		<div class="header-brand">
+			<div class="brand-mark">
+				<mat-icon>security</mat-icon>
+			</div>
 
-        <section class="panel">
-            <div class="panel-head">
-                <span class="material-symbols-outlined" aria-hidden="true">speed</span>
-                <h2>Operational Metrics</h2>
-            </div>
-            <div class="stack">
-                <label class="field-block">
-                    <span>KYC Duration (Years)</span>
-                    <div class="range-row">
-                        <input type="range" [formField]="editSettingsSignalForm.kycDuration" />
-                        <strong>{{ editSettingsSignal().kycDuration }}</strong>
-                    </div>
-                </label>
-                <label class="field-block">
-                    <span>Time to Account Creation (Days)</span>
-                    <input type="number" [formField]="editSettingsSignalForm.timeToAccountCreation" />
-                </label>
-            </div>
-        </section>
-    </div>
+			<div>
+				<h1>System Settings Editor</h1>
+				<p>KYC Configuration Hub</p>
+			</div>
+		</div>
 
-    <section class="panel">
-        <div class="section-title-row">
-            <div>
-                <h2>Document Requirements</h2>
-                <p>Manage mandatory documentation for different entity types.</p>
-            </div>
-            <input class="filter-input" type="text" placeholder="Filter lists..." />
-        </div>
+		<div class="header-actions">
+			<button mat-stroked-button type="button" (click)="resetForm()">Discard Changes</button>
+			<button mat-flat-button color="primary" type="button" (click)="saveSettings()">
+				<mat-icon>save</mat-icon>
+				Save Configuration
+			</button>
+		</div>
+	</header>
 
-        <div class="doc-grid">
-            <article class="doc-card">
-                <div class="doc-card-head">
-                    <h3>Individual Docs</h3><button type="button">+</button>
-                </div>
-                <ul>
-                    @for(docType of editSettingsSignal().individualDocuments; track docType.id) {
-                    <li><span>{{ docType.name }}</span><button type="button" (click)="individualDocumentsRemove(docType)">×</button></li>
-                    }
-                </ul>
-            </article>
+	<section class="overview-grid">
+		<mat-card class="vault-card identity-card">
+			<mat-card-header>
+				<mat-icon mat-card-avatar>fingerprint</mat-icon>
+				<mat-card-title>Platform Identity</mat-card-title>
+			</mat-card-header>
 
-            <article class="doc-card">
-                <div class="doc-card-head">
-                    <h3>Organisation Docs</h3><button type="button">+</button>
-                </div>
-                <ul>
-                    @for(docType of editSettingsSignal().organisationDocuments; track docType.id) {
-                    <li><span>{{ docType.name }}</span><button type="button" (click)="organisationDocumentsRemove(docType)">×</button></li>
-                    }
-                </ul>
-            </article>
+			<mat-card-content>
+				<div class="field-grid two-column">
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Platform Name</mat-label>
+						<input matInput [(ngModel)]="settingsForm.platformName" name="platformName" />
+					</mat-form-field>
 
-            <article class="doc-card">
-                <div class="doc-card-head">
-                    <h3>Org KYC Suite</h3><button type="button">+</button>
-                </div>
-                <ul>
-                    @for(docType of editSettingsSignal().orgKycDocuments; track docType.id) {
-                    <li><span>{{ docType.name }}</span><button type="button">×</button></li>
-                    }
-                </ul>
-            </article>
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Platform URL</mat-label>
+						<input matInput [(ngModel)]="settingsForm.platformUrl" name="platformUrl" />
+					</mat-form-field>
 
-            <article class="doc-card">
-                <div class="doc-card-head">
-                    <h3>Ind. KYC Suite</h3><button type="button">+</button>
-                </div>
-                <ul>
-                    @for(docType of editSettingsSignal().indKycDocuments; track docType.id) {
-                    <li><span>{{ docType.name }}</span><button type="button">×</button></li>
-                    }
-                </ul>
-            </article>
-        </div>
-    </section>
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>KYC Portal Link</mat-label>
+						<input matInput [(ngModel)]="settingsForm.kycPortalLink" name="kycPortalLink" />
+					</mat-form-field>
 
-    <div class="bottom-grid">
-        <section class="panel">
-            <div class="panel-head">
-                <span class="material-symbols-outlined" aria-hidden="true">terminal</span>
-                <h2>Template Mappings</h2>
-            </div>
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Support Contact</mat-label>
+						<input matInput type="email" [(ngModel)]="settingsForm.supportContact" name="supportContact" />
+					</mat-form-field>
+				</div>
+			</mat-card-content>
+		</mat-card>
 
-            <div class="config-stack">
-                <article class="config-block">
-                    <h3>Invoice Configuration</h3>
-                    <div class="field-grid">
-                        <label class="field-block"><span>Document Type</span><select>
-                                <option>Commercial_Inv</option>
-                            </select></label>
-                        <label class="field-block"><span>Template Type</span><select>
-                                <option>PDF_Engine_V2</option>
-                            </select></label>
-                    </div>
-                    <label class="field-block"><span>Active Template</span><input type="text"
-                            value="Standard_Billing_2024" /></label>
-                </article>
+		<mat-card class="vault-card metrics-card">
+			<mat-card-header>
+				<mat-icon mat-card-avatar>speed</mat-icon>
+				<mat-card-title>Operational Metrics</mat-card-title>
+			</mat-card-header>
 
-                <article class="config-block">
-                    <h3>Quotation Configuration</h3>
-                    <div class="field-grid">
-                        <label class="field-block"><span>Document Type</span><select>
-                                <option>Formal_Quote</option>
-                            </select></label>
-                        <label class="field-block"><span>Template Type</span><select>
-                                <option>PDF_Engine_V2</option>
-                            </select></label>
-                    </div>
-                    <label class="field-block"><span>Active Template</span><input type="text"
-                            value="Global_Sales_Template_B" /></label>
-                </article>
-            </div>
-        </section>
+			<mat-card-content>
+				<div class="metrics-stack">
+					<div class="metric-block">
+						<div class="metric-label-row">
+							<span>KYC Duration (Days)</span>
+							<strong>{{ settingsForm.kycDuration || 0 }}</strong>
+						</div>
 
-        <section class="panel">
-            <div class="panel-head between">
-                <h2>Financial Settings</h2>
-                <button type="button" class="btn-pill">+ Add Range</button>
-            </div>
+						<mat-slider min="1" max="90" step="1" discrete class="metric-slider">
+							<input matSliderThumb [(ngModel)]="settingsForm.kycDuration" name="kycDuration" />
+						</mat-slider>
+					</div>
 
-            <h3 class="table-title">Manage Salary Ranges (USD)</h3>
-            <div class="salary-table">
-                <div class="table-head">Label</div>
-                <div class="table-head">Min</div>
-                <div class="table-head">Max</div>
-                <div class="table-head"></div>
-                <div>Entry Level</div>
-                <div>0</div>
-                <div>45,000</div>
-                <div class="right">×</div>
-                <div>Mid-Market</div>
-                <div>45,001</div>
-                <div>95,000</div>
-                <div class="right">×</div>
-                <div>Executive</div>
-                <div>95,001</div>
-                <div>250,000</div>
-                <div class="right">×</div>
-            </div>
-        </section>
-    </div>
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Time to Account Creation</mat-label>
+						<mat-select [(ngModel)]="settingsForm.timeToAccountCreation" name="timeToAccountCreation">
+							@for (option of accountCreationOptions; track option.value) {
+								<mat-option [value]="option.value">{{ option.label }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
 
-    <footer class="settings-footer">
-        <div>
-            <h3>Audit Ready Configuration</h3>
-            <p>Last verified by System Admin on 24 Oct 2023</p>
-        </div>
-        <button class="btn-light" type="button">Export Audit Log (.JSON)</button>
-    </footer>
-</section>
+					<div class="access-grid">
+						<mat-form-field appearance="outline" class="vault-field">
+							<mat-label>Organisation Admin Role</mat-label>
+							<mat-select [(ngModel)]="settingsForm.organisationAdminRole" name="organisationAdminRole">
+								@for (role of roleOptions; track role) {
+									<mat-option [value]="role">{{ role }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+
+						<mat-form-field appearance="outline" class="vault-field">
+							<mat-label>Normal User Role</mat-label>
+							<mat-select [(ngModel)]="settingsForm.normalUserRole" name="normalUserRole">
+								@for (role of roleOptions; track role) {
+									<mat-option [value]="role">{{ role }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+					</div>
+
+					<div class="summary-chip-row">
+						<mat-chip-set>
+							<mat-chip>Creation: {{ accountCreationLabel }}</mat-chip>
+							<mat-chip>Admin: {{ settingsForm.organisationAdminRole || 'Unset' }}</mat-chip>
+						</mat-chip-set>
+					</div>
+				</div>
+			</mat-card-content>
+		</mat-card>
+	</section>
+
+	<mat-card class="vault-card">
+		<mat-card-header>
+			<mat-icon mat-card-avatar>description</mat-icon>
+			<mat-card-title>Document Requirements</mat-card-title>
+			<mat-card-subtitle>Manage mandatory documentation for each verification flow.</mat-card-subtitle>
+		</mat-card-header>
+
+		<mat-card-content>
+			<div class="section-tools">
+				<mat-form-field appearance="outline" class="vault-field filter-field">
+					<mat-label>Filter lists</mat-label>
+					<input matInput [(ngModel)]="documentFilter" name="documentFilter" />
+					<mat-icon matSuffix>filter_list</mat-icon>
+				</mat-form-field>
+			</div>
+
+			<div class="requirements-grid">
+				<article class="requirement-card">
+					<div class="requirement-head">
+						<h3>Individual Docs</h3>
+					</div>
+
+					<div class="requirement-add-row">
+						<mat-form-field appearance="outline" class="vault-field compact-field">
+							<mat-label>Add document</mat-label>
+							<mat-select [(ngModel)]="selectedIndividualDocumentId" name="selectedIndividualDocumentId">
+								@for (item of availableDocumentOptions(documentTypePurpose.INDIVIDUAL); track item.id) {
+									<mat-option [value]="item.id">{{ documentTypeDisplay(item) }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+
+						<button mat-icon-button type="button" (click)="addDocumentRequirement(documentTypePurpose.INDIVIDUAL)">
+							<mat-icon>add_circle</mat-icon>
+						</button>
+					</div>
+
+					<div class="requirement-list">
+						@for (item of filteredDocuments('individualDocuments'); track item.id) {
+							<div class="requirement-item">
+								<span>{{ documentTypeDisplay(item) }}</span>
+								<button mat-icon-button type="button" (click)="removeDocumentRequirement(documentTypePurpose.INDIVIDUAL, item)">
+									<mat-icon>delete</mat-icon>
+								</button>
+							</div>
+						} @empty {
+							<p class="empty-copy">No individual documents configured.</p>
+						}
+					</div>
+				</article>
+
+				<article class="requirement-card">
+					<div class="requirement-head">
+						<h3>Organisation Docs</h3>
+					</div>
+
+					<div class="requirement-add-row">
+						<mat-form-field appearance="outline" class="vault-field compact-field">
+							<mat-label>Add document</mat-label>
+							<mat-select [(ngModel)]="selectedOrganisationDocumentId" name="selectedOrganisationDocumentId">
+								@for (item of availableDocumentOptions(documentTypePurpose.ORGANISATION); track item.id) {
+									<mat-option [value]="item.id">{{ documentTypeDisplay(item) }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+
+						<button mat-icon-button type="button" (click)="addDocumentRequirement(documentTypePurpose.ORGANISATION)">
+							<mat-icon>add_circle</mat-icon>
+						</button>
+					</div>
+
+					<div class="requirement-list">
+						@for (item of filteredDocuments('organisationDocuments'); track item.id) {
+							<div class="requirement-item">
+								<span>{{ documentTypeDisplay(item) }}</span>
+								<button mat-icon-button type="button" (click)="removeDocumentRequirement(documentTypePurpose.ORGANISATION, item)">
+									<mat-icon>delete</mat-icon>
+								</button>
+							</div>
+						} @empty {
+							<p class="empty-copy">No organisation documents configured.</p>
+						}
+					</div>
+				</article>
+
+				<article class="requirement-card">
+					<div class="requirement-head">
+						<h3>Org KYC Suite</h3>
+					</div>
+
+					<div class="requirement-add-row">
+						<mat-form-field appearance="outline" class="vault-field compact-field">
+							<mat-label>Add document</mat-label>
+							<mat-select [(ngModel)]="selectedOrganisationKycDocumentId" name="selectedOrganisationKycDocumentId">
+								@for (item of availableDocumentOptions(documentTypePurpose.ORGANISATION_KYC); track item.id) {
+									<mat-option [value]="item.id">{{ documentTypeDisplay(item) }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+
+						<button mat-icon-button type="button" (click)="addDocumentRequirement(documentTypePurpose.ORGANISATION_KYC)">
+							<mat-icon>add_circle</mat-icon>
+						</button>
+					</div>
+
+					<div class="requirement-list">
+						@for (item of filteredDocuments('orgKycDocuments'); track item.id) {
+							<div class="requirement-item highlighted">
+								<span>{{ documentTypeDisplay(item) }}</span>
+								<button mat-icon-button type="button" (click)="removeDocumentRequirement(documentTypePurpose.ORGANISATION_KYC, item)">
+									<mat-icon>delete</mat-icon>
+								</button>
+							</div>
+						} @empty {
+							<p class="empty-copy">No organisation KYC documents configured.</p>
+						}
+					</div>
+				</article>
+
+				<article class="requirement-card">
+					<div class="requirement-head">
+						<h3>Ind. KYC Suite</h3>
+					</div>
+
+					<div class="requirement-add-row">
+						<mat-form-field appearance="outline" class="vault-field compact-field">
+							<mat-label>Add document</mat-label>
+							<mat-select [(ngModel)]="selectedIndividualKycDocumentId" name="selectedIndividualKycDocumentId">
+								@for (item of availableDocumentOptions(documentTypePurpose.INDIVIDUAL_KYC); track item.id) {
+									<mat-option [value]="item.id">{{ documentTypeDisplay(item) }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+
+						<button mat-icon-button type="button" (click)="addDocumentRequirement(documentTypePurpose.INDIVIDUAL_KYC)">
+							<mat-icon>add_circle</mat-icon>
+						</button>
+					</div>
+
+					<div class="requirement-list">
+						@for (item of filteredDocuments('indKycDocuments'); track item.id) {
+							<div class="requirement-item highlighted">
+								<span>{{ documentTypeDisplay(item) }}</span>
+								<button mat-icon-button type="button" (click)="removeDocumentRequirement(documentTypePurpose.INDIVIDUAL_KYC, item)">
+									<mat-icon>delete</mat-icon>
+								</button>
+							</div>
+						} @empty {
+							<p class="empty-copy">No individual KYC documents configured.</p>
+						}
+					</div>
+				</article>
+			</div>
+		</mat-card-content>
+	</mat-card>
+
+	<section class="bottom-grid">
+		<mat-card class="vault-card">
+			<mat-card-header>
+				<mat-icon mat-card-avatar>terminal</mat-icon>
+				<mat-card-title>Template Mappings</mat-card-title>
+			</mat-card-header>
+
+			<mat-card-content>
+				<div class="mapping-stack">
+					<section class="mapping-block">
+						<h3>Invoice Configuration</h3>
+
+						<div class="field-grid two-column">
+							<mat-form-field appearance="outline" class="vault-field">
+								<mat-label>Document Type</mat-label>
+								<mat-select [(ngModel)]="settingsForm.invoiceDocumentType" name="invoiceDocumentType" [compareWith]="compareDocumentType">
+									@for (item of availableDocumentTypes(); track item.id) {
+										<mat-option [value]="item">{{ documentTypeDisplay(item) }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+
+							<mat-form-field appearance="outline" class="vault-field">
+								<mat-label>Template Type</mat-label>
+								<mat-select [(ngModel)]="settingsForm.invoiceTemplateType" name="invoiceTemplateType" [compareWith]="compareDocumentType">
+									@for (item of availableDocumentTypes(); track item.id) {
+										<mat-option [value]="item">{{ documentTypeDisplay(item) }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<mat-form-field appearance="outline" class="vault-field">
+							<mat-label>Active Template</mat-label>
+							<mat-select [(ngModel)]="settingsForm.invoiceTemplate" name="invoiceTemplate" [compareWith]="compareTemplate">
+								@for (item of templatesFor(targetEntity.INVOICE); track item.id) {
+									<mat-option [value]="item">{{ templateDisplay(item) }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+					</section>
+
+					<section class="mapping-block">
+						<h3>Quotation Configuration</h3>
+
+						<div class="field-grid two-column">
+							<mat-form-field appearance="outline" class="vault-field">
+								<mat-label>Document Type</mat-label>
+								<mat-select [(ngModel)]="settingsForm.quotationDocumentType" name="quotationDocumentType" [compareWith]="compareDocumentType">
+									@for (item of availableDocumentTypes(); track item.id) {
+										<mat-option [value]="item">{{ documentTypeDisplay(item) }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+
+							<mat-form-field appearance="outline" class="vault-field">
+								<mat-label>Template Type</mat-label>
+								<mat-select [(ngModel)]="settingsForm.quotationTemplateType" name="quotationTemplateType" [compareWith]="compareDocumentType">
+									@for (item of availableDocumentTypes(); track item.id) {
+										<mat-option [value]="item">{{ documentTypeDisplay(item) }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<mat-form-field appearance="outline" class="vault-field">
+							<mat-label>Active Template</mat-label>
+							<mat-select [(ngModel)]="settingsForm.quotationTemplate" name="quotationTemplate" [compareWith]="compareTemplate">
+								@for (item of templatesFor(targetEntity.QUOTATION); track item.id) {
+									<mat-option [value]="item">{{ templateDisplay(item) }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+					</section>
+				</div>
+			</mat-card-content>
+		</mat-card>
+
+		<mat-card class="vault-card">
+			<mat-card-header>
+				<mat-icon mat-card-avatar>payments</mat-icon>
+				<mat-card-title>Financial Settings</mat-card-title>
+			</mat-card-header>
+
+			<mat-card-content>
+				<div class="financial-head">
+					<h3>Manage Salary Ranges</h3>
+					<button mat-stroked-button type="button" (click)="addSalaryRange()">Add Range</button>
+				</div>
+
+				<table mat-table [dataSource]="settingsForm.salaryRanges" class="salary-table">
+					<ng-container matColumnDef="label">
+						<th mat-header-cell *matHeaderCellDef>Range</th>
+						<td mat-cell *matCellDef="let row; let index = index">{{ salaryRangeLabel(index) }}</td>
+					</ng-container>
+
+					<ng-container matColumnDef="min">
+						<th mat-header-cell *matHeaderCellDef>Min</th>
+						<td mat-cell *matCellDef="let row; let index = index">
+							<input matInput type="number" class="range-table-input" [(ngModel)]="settingsForm.salaryRanges[index].min" [name]="'salaryMin' + index" />
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="max">
+						<th mat-header-cell *matHeaderCellDef>Max</th>
+						<td mat-cell *matCellDef="let row; let index = index">
+							<input matInput type="number" class="range-table-input" [(ngModel)]="settingsForm.salaryRanges[index].max" [name]="'salaryMax' + index" placeholder="Open ended" />
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="active">
+						<th mat-header-cell *matHeaderCellDef>State</th>
+						<td mat-cell *matCellDef="let row; let index = index">
+							<mat-chip>{{ settingsForm.salaryRanges[index].active ? 'Active' : 'Inactive' }}</mat-chip>
+						</td>
+					</ng-container>
+
+					<ng-container matColumnDef="actions">
+						<th mat-header-cell *matHeaderCellDef></th>
+						<td mat-cell *matCellDef="let row; let index = index" class="actions-cell">
+							<button mat-icon-button type="button" (click)="removeSalaryRange(index)">
+								<mat-icon>remove_circle</mat-icon>
+							</button>
+						</td>
+					</ng-container>
+
+					<tr mat-header-row *matHeaderRowDef="salaryRangeColumns"></tr>
+					<tr mat-row *matRowDef="let row; columns: salaryRangeColumns"></tr>
+				</table>
+
+				<div class="request-settings">
+					<h3>Client Request Settings</h3>
+
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Global File Type Restriction</mat-label>
+						<mat-select [(ngModel)]="settingsForm.clientRequestFileType" name="clientRequestFileType" [compareWith]="compareDocumentType">
+							@for (item of availableDocumentTypes(); track item.id) {
+								<mat-option [value]="item">{{ documentTypeDisplay(item) }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+
+					@if (settingsForm.clientRequestFileType) {
+						<mat-chip-set>
+							<mat-chip>{{ documentTypeDisplay(settingsForm.clientRequestFileType) }}</mat-chip>
+						</mat-chip-set>
+					}
+				</div>
+			</mat-card-content>
+		</mat-card>
+	</section>
+
+	<footer class="audit-footer">
+		<div class="audit-copy">
+			<div class="audit-icon">
+				<mat-icon>verified_user</mat-icon>
+			</div>
+
+			<div>
+				<h2>Audit Ready Configuration</h2>
+				<p>Last verified on {{ lastVerifiedAt }}</p>
+			</div>
+		</div>
+
+		<button mat-stroked-button type="button" (click)="exportAuditLog()">Export Audit Log (.JSON)</button>
+	</footer>
+</div>

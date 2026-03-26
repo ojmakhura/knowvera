@@ -91,7 +91,15 @@ public class TextProcessingService {
             request.setMessages(List.of(system, message));
 
             lmStudioExtractorService.extractInformation(request)
-                    .thenAccept(response -> documentProcessorService.processLmCompletionResponse(response, document));
+                    .thenAccept(response -> {
+                        System.out.println("✅ Got response");
+                        documentProcessorService.processLmCompletionResponse(response, document);
+                    })
+                    .exceptionally(ex -> {
+                        System.err.println("❌ ERROR:");
+                        ex.printStackTrace();
+                        return null;
+                    });
 
             log.info("Completed text processing for document ID: {}", queueObject.documentId());
         } catch (Exception e) {

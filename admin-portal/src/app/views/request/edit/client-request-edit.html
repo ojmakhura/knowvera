@@ -1,83 +1,194 @@
-<section class="req-edit-page" aria-label="Edit client request">
-  <header class="edit-head">
-    <div>
-      <h1>Edit Client Request</h1>
-      <p>Modify compliance records for client request processing</p>
-    </div>
-    <div class="head-actions">
-      <button type="button" class="btn btn-secondary">Cancel</button>
-      <button type="button" class="btn btn-primary">
-        <span class="material-symbols-outlined" aria-hidden="true">save</span>
-        Save Changes
-      </button>
-    </div>
-  </header>
+<section class="client-request-edit-page">
+	<header class="page-header">
+		<div>
+			<h1 class="page-title">Edit Client Request</h1>
+			<p class="page-subtitle">Modification Workflow — Ref: CR-88291-VX</p>
+		</div>
 
-  <form class="edit-form">
-    <section class="panel">
-      <div class="d-flex align-items-center gap-2 mb-3">
-        <span class="material-symbols-outlined">person</span>
-        <h2 class="mb-0">Client Information</h2>
-      </div>
+		<div class="header-actions">
+			<button mat-stroked-button type="button" class="discard-btn" (click)="discardChanges()">Discard</button>
+			<button mat-flat-button type="button" class="save-btn" (click)="saveChanges()">Save Changes</button>
+		</div>
+	</header>
 
-      <div class="row g-3">
-        <div class="col-md-4"><label class="form-label">Full Name</label><input class="form-control" type="text" value="Alexander Vance Sterling" /></div>
-        <div class="col-md-4"><label class="form-label">Email Address</label><input class="form-control" type="email" value="a.sterling@nexfix.io" /></div>
-        <div class="col-md-4"><label class="form-label">Phone Number</label><input class="form-control" type="tel" value="+44 7700 900123" /></div>
-      </div>
-    </section>
+	<section class="content-stack">
+		<mat-card class="audit-card">
+			<div class="section-heading section-heading-tight">
+				<mat-icon>fingerprint</mat-icon>
+				<h2>Section 1: Audit Metadata</h2>
+			</div>
 
-    <div class="row g-3">
-      <div class="col-md-6">
-        <section class="panel h-100">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <span class="material-symbols-outlined">badge</span>
-            <h2 class="mb-0">Request Details</h2>
-          </div>
-        <div class="row g-3">
-          <div class="col-12"><label class="form-label">Request ID</label><input class="form-control" type="text" value="CR-001" readonly /></div>
-          <div class="col-md-6"><label class="form-label">Request Type</label><select class="form-select"><option>KYC Verification</option><option>Document Update</option></select></div>
-          <div class="col-md-6"><label class="form-label">Priority</label><select class="form-select"><option>Normal</option><option>High</option><option>Urgent</option></select></div>
-        </div>
-        </section>
-      </div>
+			<div class="audit-grid">
+				@for (item of auditFields(); track item.label) {
+					<div class="audit-item">
+						<span>{{ item.label }}</span>
+						<p>{{ item.value }}</p>
+					</div>
+				}
+			</div>
+		</mat-card>
 
-      <div class="col-md-6">
-        <section class="panel h-100">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <span class="material-symbols-outlined">verified_user</span>
-            <h2 class="mb-0">Request Status</h2>
-          </div>
-        <div class="row g-3">
-          <div class="col-12"><label class="form-label">Current Status</label><select class="form-select"><option>IN_REVIEW</option><option>APPROVED</option><option>REJECTED</option></select></div>
-          <div class="col-12"><label class="form-label">Assigned To</label><select class="form-select"><option>System Administrator</option><option>Compliance Officer</option></select></div>
-        </div>
-        </section>
-      </div>
-    </div>
+		<div class="panel-grid">
+			<mat-card class="panel-card">
+				<div class="section-heading">
+					<mat-icon>hub</mat-icon>
+					<h2>Section 2: Target Entity</h2>
+				</div>
 
-    <section class="panel">
-      <div class="d-flex align-items-center gap-2 mb-3">
-        <span class="material-symbols-outlined">contact_mail</span>
-        <h2 class="mb-0">Organisation Information</h2>
-      </div>
+				<div class="panel-stack">
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Target Type</mat-label>
+						<mat-select [value]="selectedTargetType()" (selectionChange)="setTargetType($event.value)">
+							@for (target of targetOptions; track target) {
+								<mat-option [value]="target">{{ targetTypeLabel(target) }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
 
-      <div class="row g-3">
-        <div class="col-md-6"><label class="form-label">Organisation Name</label><input class="form-control" type="text" value="Global Tech Holdings LLC" /></div>
-        <div class="col-md-6"><label class="form-label">Organisation Registration No.</label><input class="form-control" type="text" value="US-DE-99201" /></div>
-      </div>
-    </section>
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Filter Target Object</mat-label>
+						<mat-icon matPrefix>search</mat-icon>
+						<input
+							matInput
+							[value]="targetFilter()"
+							(input)="updateTargetFilter($any($event.target).value)"
+							placeholder="Search by name or UUID..."
+						/>
+					</mat-form-field>
 
-    <section class="panel">
-      <div class="d-flex align-items-center gap-2 mb-3">
-        <span class="material-symbols-outlined">description</span>
-        <h2 class="mb-0">Request Notes</h2>
-      </div>
+					<div class="selected-target">
+						<span>Selected Target</span>
+						<p>{{ selectedTarget().name }}</p>
+						<small>{{ selectedTarget().reference }}</small>
+					</div>
+				</div>
+			</mat-card>
 
-      <div class="col-12">
-        <label class="form-label">Internal Comments</label>
-        <textarea rows="4" class="form-control">Record notes and compliance comments here...</textarea>
-      </div>
-    </section>
-  </form>
+			<mat-card class="panel-card">
+				<div class="section-heading">
+					<mat-icon>corporate_fare</mat-icon>
+					<h2>Section 3: Organisation</h2>
+				</div>
+
+				<div class="panel-stack">
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Filter Organisation</mat-label>
+						<input
+							matInput
+							[value]="organisationFilter()"
+							(input)="updateOrganisationFilter($any($event.target).value)"
+							placeholder="Start typing org name..."
+						/>
+					</mat-form-field>
+
+					<div class="result-list-label">Search Results</div>
+
+					<div class="organisation-results">
+						@for (organisation of organisationResults(); track organisation.id) {
+							<button
+								mat-button
+								type="button"
+								class="organisation-option"
+								[class.selected]="isOrganisationSelected(organisation)"
+								(click)="selectOrganisation(organisation)"
+							>
+								<div>
+									<p>{{ organisation.name }}</p>
+									<small>{{ organisation.registration }}</small>
+								</div>
+								<mat-icon>{{ isOrganisationSelected(organisation) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+							</button>
+						}
+					</div>
+				</div>
+			</mat-card>
+		</div>
+
+		<mat-card class="panel-card document-card">
+			<div class="section-heading">
+				<mat-icon>description</mat-icon>
+				<h2>Section 4: Document Information</h2>
+			</div>
+
+			<div class="document-grid">
+				<mat-form-field appearance="outline" class="vault-field">
+					<mat-label>Document ID</mat-label>
+					<input matInput [value]="documentId()" (input)="updateDocumentId($any($event.target).value)" />
+				</mat-form-field>
+
+				<mat-form-field appearance="outline" class="vault-field">
+					<mat-label>File Name</mat-label>
+					<input matInput [value]="fileName()" (input)="updateFileName($any($event.target).value)" />
+					<button mat-icon-button matSuffix type="button" aria-label="Open file link">
+						<mat-icon>link</mat-icon>
+					</button>
+				</mat-form-field>
+			</div>
+		</mat-card>
+
+		<mat-card class="status-card">
+			<div class="status-shield">
+				<mat-icon>verified_user</mat-icon>
+			</div>
+
+			<div class="section-heading section-heading-dark">
+				<mat-icon>security</mat-icon>
+				<h2>Section 5: Compliance &amp; Status</h2>
+			</div>
+
+			<div class="status-grid">
+				<div class="status-block">
+					<span class="status-label">Client Request Status</span>
+					<div class="request-status-options">
+						@for (status of requestStatuses; track status) {
+							<button
+								mat-stroked-button
+								type="button"
+								class="request-status-btn"
+								[class.selected]="isCurrentRequestStatus(status)"
+								[class]="requestToneClass(status)"
+								(click)="setRequestStatus(status)"
+							>
+								{{ requestStatusLabel(status) }}
+							</button>
+						}
+					</div>
+				</div>
+
+				<div class="status-block">
+					<span class="status-label">Target KYC Status</span>
+					<div class="kyc-status-grid">
+						@for (status of kycStatuses; track status) {
+							<button
+								mat-button
+								type="button"
+								class="kyc-option"
+								[class.selected]="isCurrentKycStatus(status)"
+								[class]="kycToneClass(status)"
+								(click)="setKycStatus(status)"
+							>
+								<span class="status-indicator"></span>
+								<span>{{ kycStatusLabel(status) }}</span>
+							</button>
+						}
+					</div>
+				</div>
+			</div>
+		</mat-card>
+	</section>
+
+	<footer class="page-footer">
+		<div class="footer-item">
+			<mat-icon>shield</mat-icon>
+			<span>AES-256 Encrypted</span>
+		</div>
+		<div class="footer-item">
+			<mat-icon>gavel</mat-icon>
+			<span>GDPR Compliant</span>
+		</div>
+		<div class="footer-item">
+			<mat-icon>history_edu</mat-icon>
+			<span>Audit Log Immutable</span>
+		</div>
+	</footer>
 </section>

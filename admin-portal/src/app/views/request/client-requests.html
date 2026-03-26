@@ -1,94 +1,211 @@
-<section class="requests-page" aria-label="Client requests search">
-  <header class="page-head">
-    <div>
-      <h1>Client Requests</h1>
-      <p>Manage and verify client request submissions within the Veritas Protocol ecosystem.</p>
-    </div>
-    <button type="button" class="new-btn">
-      <span class="material-symbols-outlined" aria-hidden="true">person_add</span>
-      New Request
-    </button>
-  </header>
+<section class="client-requests-page">
+	<header class="page-header">
+		<div class="page-title-group">
+			<h1 class="page-title">Client Requests</h1>
+			<p class="page-subtitle">Veritas Protocol / Audit Environment</p>
+		</div>
 
-  <section class="search-card" aria-label="Search parameters">
-    <div class="search-title">
-      <span class="material-symbols-outlined" aria-hidden="true">search</span>
-      <h2>Search Parameters</h2>
-    </div>
+		<button mat-flat-button type="button" class="new-request-btn" (click)="createRequest()">
+			<mat-icon>add</mat-icon>
+			<span>New Request</span>
+		</button>
+	</header>
 
-    <form class="search-grid">
-      <label class="field-block"><span>Request ID</span><input type="text" placeholder="e.g. CR-001" /></label>
-      <label class="field-block"><span>Client Name</span><input type="text" placeholder="Legal name" /></label>
-      <label class="field-block"><span>Email Address</span><input type="email" placeholder="name@domain.com" /></label>
-      <label class="field-block">
-        <span>Request Status</span>
-        <select>
-          <option>All Statuses</option>
-          <option>In Review</option>
-          <option>Approved</option>
-          <option>Rejected</option>
-        </select>
-      </label>
-    </form>
+	<mat-card class="search-card">
+		<div class="section-heading">
+			<mat-icon>manage_search</mat-icon>
+			<h2>ClientRequestSearchForm</h2>
+		</div>
 
-    <div class="search-actions">
-      <button type="button" class="reset-btn">
-        <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
-        Reset
-      </button>
-      <button type="button" class="search-btn">Search Requests</button>
-    </div>
-  </section>
+		<form class="search-form" (submit)="$event.preventDefault(); onSubmit()">
+			<mat-form-field appearance="outline" class="vault-field">
+				<mat-label>Name</mat-label>
+				<input
+					matInput
+					[value]="filters().name"
+					(input)="updateField('name', $any($event.target).value)"
+					placeholder="Search by name..."
+				/>
+			</mat-form-field>
 
-  <section class="results-card" aria-label="Search results">
-    <div class="table-wrap">
-      <div class="table-head" role="row">
-        <p>Client Name</p>
-        <p>Email Address</p>
-        <p>Organisation</p>
-        <p>Request Status</p>
-        <p class="align-end">Actions</p>
-      </div>
+			<mat-form-field appearance="outline" class="vault-field">
+				<mat-label>Email Address</mat-label>
+				<input
+					matInput
+					type="email"
+					[value]="filters().emailAddress"
+					(input)="updateField('emailAddress', $any($event.target).value)"
+					placeholder="client@example.com"
+				/>
+			</mat-form-field>
 
-      <div class="table-body" role="table">
-        @for (row of rows(); track row.id) {
-          <article class="table-row" role="row">
-            <div class="name-cell">
-              <span class="name-text">{{ row.name }}</span>
-            </div>
-            <p class="muted">{{ row.email }}</p>
-            <p>{{ row.organisation }}</p>
-            <p>
-              <span
-                class="status-pill"
-                [class.status-approved]="row.status === 'APPROVED'"
-                [class.status-pending]="row.status === 'IN_REVIEW'"
-                [class.status-rejected]="row.status === 'REJECTED'"
-              >{{ row.status }}</span>
-            </p>
-            <p class="actions">
-                <button matButton type="button" class="btn btn-primary" [routerLink]="['/client-request', 'details', row.id]">
-                  <mat-icon>visibility</mat-icon>
-                </button>
-                <button matButton type="button" class="btn btn-secondary" [routerLink]="['/client-request', 'edit', row.id]">
-                  <mat-icon>edit</mat-icon>
-                </button>
-            </p>
-          </article>
-        }
-      </div>
-    </div>
+			<mat-form-field appearance="outline" class="vault-field">
+				<mat-label>Organisation</mat-label>
+				<mat-select
+					[value]="filters().organisationId"
+					(selectionChange)="updateField('organisationId', $event.value)"
+				>
+					<mat-option value="">All Organisations</mat-option>
+					@for (organisation of organisations(); track organisation.id) {
+						<mat-option [value]="organisation.id">{{ organisation.name || organisation.registrationNo }}</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
 
-    <footer class="table-footer">
-      <p>Showing 4 of 1,284 client requests</p>
-      <div class="pager">
-        <button type="button">‹</button>
-        @for (page of pages(); track page) {
-          <button type="button" [class.active]="page === 1">{{ page }}</button>
-        }
-        <span>…</span>
-        <button type="button">›</button>
-      </div>
-    </footer>
-  </section>
+			<mat-form-field appearance="outline" class="vault-field">
+				<mat-label>Status</mat-label>
+				<mat-select [value]="filters().status" (selectionChange)="updateField('status', $event.value)">
+					<mat-option value="">All Statuses</mat-option>
+					@for (status of statusOptions; track status) {
+						<mat-option [value]="status">{{ statusLabel(status) }}</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
+
+			<mat-form-field appearance="outline" class="vault-field">
+				<mat-label>Target Entity</mat-label>
+				<mat-select [value]="filters().target" (selectionChange)="updateField('target', $event.value)">
+					<mat-option value="">All Targets</mat-option>
+					@for (target of targetOptions; track target) {
+						<mat-option [value]="target">{{ targetLabel(target) }}</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
+
+			<mat-form-field appearance="outline" class="vault-field">
+				<mat-label>Target ID Filter</mat-label>
+				<input
+					matInput
+					[value]="filters().targetId"
+					(input)="updateField('targetId', $any($event.target).value)"
+					placeholder="UUID or Reference No."
+				/>
+			</mat-form-field>
+
+			<div class="search-actions">
+				<button mat-button type="button" class="clear-btn" (click)="clearFilters()">Clear Filters</button>
+				<button mat-flat-button type="submit" class="search-btn">Execute Search</button>
+			</div>
+		</form>
+	</mat-card>
+
+	<mat-card class="results-card">
+		<div class="results-head">
+			<h3>
+				<mat-icon>list_alt</mat-icon>
+				<span>Vault Query Results</span>
+			</h3>
+
+			<span class="record-count">Showing {{ totalElements() }} Records</span>
+		</div>
+
+		@if (loading()) {
+			<div class="loader-wrap">
+				<app-loader [isLoading]="true" [overlay]="false" [fullScreen]="false" message="Loading requests"></app-loader>
+			</div>
+		}
+
+		<div class="results-table-wrap">
+			<table mat-table [dataSource]="rows()" class="requests-table">
+				<ng-container matColumnDef="client">
+					<th mat-header-cell *matHeaderCellDef>Client Name / Registration</th>
+					<td mat-cell *matCellDef="let row">
+						<div class="client-cell">
+							<div class="client-name">{{ row.name || 'Unnamed Request' }}</div>
+							<div class="client-reference">{{ requestReference(row) }}</div>
+							<span class="entity-chip">{{ targetLabel(row.target) }}</span>
+						</div>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="email">
+					<th mat-header-cell *matHeaderCellDef>Email Address</th>
+					<td mat-cell *matCellDef="let row" class="email-cell">{{ row.emailAddress || '-' }}</td>
+				</ng-container>
+
+				<ng-container matColumnDef="status">
+					<th mat-header-cell *matHeaderCellDef>Status</th>
+					<td mat-cell *matCellDef="let row">
+						<span class="status-badge" [class]="statusClass(row.status)">
+							<span class="status-dot"></span>
+							{{ statusLabel(row.status) }}
+						</span>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="organisation">
+					<th mat-header-cell *matHeaderCellDef>Organisation</th>
+					<td mat-cell *matCellDef="let row">
+						<div class="organisation-cell">
+							<div class="organisation-name">{{ row.organisation || 'No organisation attached' }}</div>
+							<div class="organisation-reference">{{ organisationSubtitle(row) }}</div>
+						</div>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="documents">
+					<th mat-header-cell *matHeaderCellDef>Documents</th>
+					<td mat-cell *matCellDef="let row">
+						<div class="document-cell">
+							<mat-icon [class.alert]="!row.fileName">{{ row.fileName ? 'description' : 'warning' }}</mat-icon>
+							<div>
+								<div class="document-name">{{ documentName(row) }}</div>
+								<div class="document-type">{{ documentType(row) }}</div>
+							</div>
+						</div>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="target">
+					<th mat-header-cell *matHeaderCellDef>Target &amp; KYC</th>
+					<td mat-cell *matCellDef="let row">
+						<div class="target-cell">
+							<div class="target-name">{{ row.targetId || targetLabel(row.target) }}</div>
+							<div class="kyc-row" [class]="kycClass(row.targetKycStatus)">
+								<mat-icon>{{ statusIcon(row.status) }}</mat-icon>
+								<span>{{ kycLabel(row.targetKycStatus) }}</span>
+							</div>
+						</div>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="actions">
+					<th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
+					<td mat-cell *matCellDef="let row" class="actions-cell">
+						<button mat-icon-button type="button" matTooltip="View request" (click)="openDetails(row.id)">
+							<mat-icon>visibility</mat-icon>
+						</button>
+						<button mat-icon-button type="button" matTooltip="Edit request" (click)="openEdit(row.id)">
+							<mat-icon>edit</mat-icon>
+						</button>
+					</td>
+				</ng-container>
+
+				<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+				<tr mat-row *matRowDef="let row; columns: displayedColumns; trackBy: trackByRequest"></tr>
+
+				<tr class="mat-row empty-row" *matNoDataRow>
+					<td class="mat-cell" colspan="7">No client requests matched the current search.</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="results-footer">
+			<p class="results-summary">Viewing {{ showingStart() }} - {{ showingEnd() }} of {{ totalElements() }} requests</p>
+
+			<mat-paginator
+				[length]="totalElements()"
+				[pageIndex]="currentPage()"
+				[pageSize]="pageSize()"
+				[pageSizeOptions]="[5, 10, 25, 50]"
+				[hidePageSize]="false"
+				showFirstLastButtons
+				(page)="handlePageEvent($event)"
+			></mat-paginator>
+		</div>
+	</mat-card>
+
+	<footer class="security-footer">
+		<p>Veritas Protocol Secure Search Interface • End-to-End Encrypted Data Access</p>
+	</footer>
 </section>

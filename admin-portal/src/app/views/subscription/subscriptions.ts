@@ -1,15 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
+import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { KycSubsciptionStatus } from '@app/models/bw/co/centralkyc/subscription/kyc-subsciption-status';
 import { KycSubscriptionDTO } from '@app/models/bw/co/centralkyc/subscription/kyc-subscription-dto';
 import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscription/kyc-subscription-api.store';
 
 export class SearchSubscriptionsVarsForm {
-  ref: string = '';
-  organisationName: string = '';
-  period: string = '';
+  criteria: string = '';
   status: string = '';
   subscriptions: Array<KycSubscriptionDTO> = [];
 }
@@ -21,9 +28,21 @@ export class SearchSubscriptionsVarsForm {
   styleUrls: ['./subscriptions.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {},
-  imports: [CommonModule, MatIconModule],
+  imports: [
+    CommonModule, 
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatChipsModule,
+    MatTooltipModule,
+  ],
 })
-export class Subscriptions implements OnInit, AfterViewInit, OnDestroy {
+export class Subscriptions implements OnInit {
   searchSubscriptionsVarsForm = new SearchSubscriptionsVarsForm();
   searchSubscriptionsSignal = signal(this.searchSubscriptionsVarsForm);
 
@@ -34,7 +53,16 @@ export class Subscriptions implements OnInit, AfterViewInit, OnDestroy {
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
   protected readonly router = inject(Router);
+  protected readonly subscriptionStatus = KycSubsciptionStatus;
   protected readonly statusOptions = Object.values(KycSubsciptionStatus);
+  protected readonly quickFilters = [
+    { label: 'All Subscriptions', value: '' },
+    { label: 'Active', value: KycSubsciptionStatus.ACTIVE },
+    { label: 'Inactive', value: KycSubsciptionStatus.INACTIVE },
+    { label: 'Cancelled', value: KycSubsciptionStatus.CANCELLED },
+  ];
+
+  displayedColumns: string[] = ['ref', 'organisation', 'owner', 'period', 'amount', 'status', 'actions'];
 
   constructor() {
     effect(() => {
@@ -61,10 +89,6 @@ export class Subscriptions implements OnInit, AfterViewInit, OnDestroy {
     this.doSearch();
   }
 
-  ngAfterViewInit(): void {}
-
-  ngOnDestroy(): void {}
-
   updateField(field: keyof SearchSubscriptionsVarsForm, value: string): void {
     this.searchSubscriptionsSignal.update((state) => ({
       ...state,
@@ -72,37 +96,26 @@ export class Subscriptions implements OnInit, AfterViewInit, OnDestroy {
     }));
   }
 
+  updateCriteria(value: string): void {
+    this.updateField('criteria', value);
+  }
+
+  onSearchSubmit(): void {
+    this.doSearch(0, this.pageSize());
+  }
+
+  applyStatusFilter(status: string): void {
+    this.updateField('status', status);
+    this.doSearch(0, this.pageSize());
+  }
+
+  isStatusFilterActive(status: string): boolean {
+    return this.searchSubscriptionsSignal().status === status;
+  }
+
   resetSearch(): void {
     this.searchSubscriptionsSignal.set(new SearchSubscriptionsVarsForm());
     this.doSearch();
-  }
-
-  pageNumbers(): number[] {
-    return Array.from({ length: this.totalPages() }, (_, index) => index + 1);
-  }
-
-  previousPage(): void {
-    if (this.currentPage() <= 0) {
-      return;
-    }
-
-    this.doSearch(this.currentPage() - 1, this.pageSize());
-  }
-
-  nextPage(): void {
-    if (this.currentPage() >= this.totalPages() - 1) {
-      return;
-    }
-
-    this.doSearch(this.currentPage() + 1, this.pageSize());
-  }
-
-  goToPage(page: number): void {
-    if (page < 0 || page >= this.totalPages() || page === this.currentPage()) {
-      return;
-    }
-
-    this.doSearch(page, this.pageSize());
   }
 
   doSearch(pageNumber: number = 0, pageSize: number = 10): void {
@@ -120,10 +133,15 @@ export class Subscriptions implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  onPageChange(event: PageEvent): void {
+    this.pageSize.set(event.pageSize);
+    this.doSearch(event.pageIndex, event.pageSize);
+  }
+
   searchText(): string {
     const value = this.searchSubscriptionsSignal();
 
-    return [value.ref, value.organisationName, value.period, value.status]
+    return [value.criteria, value.status]
       .map((item) => item.trim())
       .filter((item) => !!item)
       .join(' ');
@@ -166,6 +184,18 @@ export class Subscriptions implements OnInit, AfterViewInit, OnDestroy {
     return endDate ? `${period} · ends ${endDate}` : String(period);
   }
 
+  organisationSubtitle(row: KycSubscriptionDTO): string {
+    return row.organisationRegistrationNo || row.organisationCode || 'No organisation metadata';
+  }
+
+  pageCount(): number {
+    return this.rows().length;
+  }
+
+  summaryCount(status: KycSubsciptionStatus): number {
+    return this.rows().filter((row) => row.status === status).length;
+  }
+
   formatDate(value: Date | string | null | undefined): string {
     if (!value) {
       return '—';
@@ -184,14 +214,20 @@ export class Subscriptions implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  statusClass(status: string | null | undefined): 'status-approved' | 'status-pending' | 'status-rejected' {
+  statusClass(status: string | null | undefined): string {
     switch (status) {
       case 'ACTIVE':
-        return 'status-approved';
+        return 'active';
       case 'INACTIVE':
-        return 'status-pending';
+        return 'inactive';
+      case 'CANCELLED':
+        return 'cancelled';
       default:
-        return 'status-rejected';
+        return 'unknown';
     }
+  }
+
+  statusLabel(status: string | null | undefined): string {
+    return status ? `${status.charAt(0)}${status.slice(1).toLowerCase()}` : 'Unknown';
   }
 }

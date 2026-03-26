@@ -1,110 +1,217 @@
 <section class="invoice-edit-page">
-  <header class="d-flex justify-content-between align-items-center">
-    <div class="d-flex align-items-center gap-2">
-      <span class="material-symbols-outlined">edit_document</span>
-      <h1 class="mb-0">Edit Invoice</h1>
-    </div>
-    <div class="d-flex gap-2">
-      <button type="button" class="btn btn-secondary">Discard</button>
-      <button type="button" class="btn btn-primary">Save Changes</button>
-    </div>
-  </header>
+	<header class="page-header">
+		<div class="page-title-group">
+			<div class="title-mark">
+				<mat-icon>edit_document</mat-icon>
+				<span>Edit Invoice</span>
+			</div>
+			<h1>{{ editInvoiceSignal().id ? 'Update Invoice Record' : 'Create Invoice Record' }}</h1>
+			<p>
+				Configure identity, subscription context, and payment state for the selected invoice record.
+			</p>
+		</div>
 
-  <section class="panel">
-    <h2>Invoice Identity</h2>
-    <div class="row g-3">
-      <div class="col-md-6">
-        <label class="form-label">Invoice Reference</label>
-        <input class="form-control" type="text" value="INV-2023-0892-VP" />
-      </div>
-      <div class="col-md-6">
-        <label class="form-label">Organisation</label>
-        <select class="form-select">
-          <option>Veritas Compliance Partners</option>
-          <option>Aetheria Global Systems</option>
-        </select>
-      </div>
-    </div>
-  </section>
+		<div class="header-actions">
+			<button mat-stroked-button type="button" class="secondary-action" (click)="cancel()">
+				Discard
+			</button>
+			<button mat-flat-button type="button" class="primary-action" [disabled]="loading() || editInvoiceSignalForm().invalid()" (click)="saveInvoice()">
+				Save Changes
+			</button>
+		</div>
+	</header>
 
-  <section class="panel">
-    <h2>Subscription Context</h2>
-    <div class="btn-group mb-3" role="group" aria-label="Subscription period">
-      <button type="button" class="btn btn-outline-secondary">Week</button>
-      <button type="button" class="btn btn-outline-secondary active">Month</button>
-      <button type="button" class="btn btn-outline-secondary">Year</button>
-    </div>
-    <div class="row g-3">
-      <div class="col-md-6">
-        <label class="form-label">Start Date</label>
-        <input class="form-control" type="date" value="2023-10-01" />
-      </div>
-      <div class="col-md-6">
-        <label class="form-label">End Date</label>
-        <input class="form-control" type="date" value="2023-10-31" />
-      </div>
-    </div>
-  </section>
+	<div class="page-shell">
+		<mat-card class="vault-card">
+			<mat-card-content>
+				<div class="section-heading">
+					<mat-icon>fingerprint</mat-icon>
+					<h2>Invoice Identity</h2>
+				</div>
 
-  <div class="row g-3">
-    <div class="col-md-6">
-      <article class="panel">
-      <h2>Financials</h2>
-      <div>
-        <label class="form-label">Invoice Amount</label>
-        <input class="form-control" type="text" value="USD 12450.00" />
-      </div>
-      <small>Net amount excluding applicable regional taxes.</small>
-      </article>
-    </div>
+				<div class="field-grid two-column">
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Invoice Reference</mat-label>
+						<mat-icon matPrefix>tag</mat-icon>
+						<input
+							matInput
+							type="text"
+							placeholder="e.g. INV-2024-001"
+							[value]="editInvoiceSignal().ref || ''"
+							(input)="updateField('ref', $any($event.target).value)"
+						/>
+					</mat-form-field>
 
-    <div class="col-md-6">
-      <article class="panel">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h2 class="mb-0">Payment Status</h2>
-          <div class="form-check form-switch mb-0">
-            <input class="form-check-input" type="checkbox" id="isPaid" checked />
-            <label class="form-check-label fw-semibold" for="isPaid">Is Paid</label>
-          </div>
-        </div>
+					<div class="organisation-stack">
+						<mat-form-field appearance="outline" class="vault-field">
+							<mat-label>Organisation Lookup</mat-label>
+							<mat-icon matPrefix>search</mat-icon>
+							<input
+								matInput
+								type="text"
+								placeholder="Filter by name, code, or registration"
+								[value]="editInvoiceSignal().organisationFilter || ''"
+								(input)="updateField('organisationFilter', $any($event.target).value); filterOrganisation()"
+							/>
+						</mat-form-field>
 
-      <div>
-        <label class="form-label">Payment Date</label>
-        <input class="form-control" type="date" value="2023-11-05" />
-      </div>
+						<mat-form-field appearance="outline" class="vault-field">
+							<mat-label>Organisation</mat-label>
+							<mat-icon matPrefix>corporate_fare</mat-icon>
+							<mat-select
+								[value]="editInvoiceSignal().organisation?.id || null"
+								[disabled]="organisationLoading()"
+								(selectionChange)="selectOrganisation($event.value)"
+							>
+								@for (organisation of organisationFilteredList(); track organisation.id) {
+									<mat-option [value]="organisation.id">{{ organisationOptionLabel(organisation) }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
 
-      <div>
-        <label class="form-label">Payment Reference</label>
-        <input class="form-control" type="text" value="TXN-48910029X" />
-      </div>
-      </article>
-    </div>
-  </div>
+						<p class="support-copy">{{ organisationSupportLabel() }}</p>
+					</div>
+				</div>
+			</mat-card-content>
+		</mat-card>
 
-  <div class="row g-3">
-    <div class="col-6 col-md-3">
-      <div class="panel text-center py-3">
-        <span class="d-block text-uppercase fw-semibold small text-muted">Created At</span>
-        <p class="mb-0">Oct 12, 2023 • 09:41</p>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="panel text-center py-3">
-        <span class="d-block text-uppercase fw-semibold small text-muted">Created By</span>
-        <p class="mb-0">A. Sterling</p>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="panel text-center py-3">
-        <span class="d-block text-uppercase fw-semibold small text-muted">Modified At</span>
-        <p class="mb-0">Nov 06, 2023 • 14:20</p>
-      </div>
-    </div>
-    <div class="col-6 col-md-3">
-      <div class="panel text-center py-3">
-        <span class="d-block text-uppercase fw-semibold small text-muted">Modified By</span>
-        <p class="mb-0">S. Chen</p>
-      </div>
-    </div>
-  </div>
+		<mat-card class="vault-card">
+			<mat-card-content>
+				<div class="section-heading">
+					<mat-icon>calendar_today</mat-icon>
+					<h2>Subscription Context</h2>
+				</div>
+
+				<div class="period-stack">
+					<p class="field-label">Billing Period</p>
+					<mat-button-toggle-group
+						class="period-toggle"
+						[value]="editInvoiceSignal().subscriptionPeriod"
+						(change)="updateField('subscriptionPeriod', $event.value)"
+					>
+						@for (period of timePeriodOptions; track period) {
+							<mat-button-toggle [value]="period">{{ periodLabel(period) }}</mat-button-toggle>
+						}
+					</mat-button-toggle-group>
+				</div>
+
+				<div class="field-grid two-column top-gap">
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Start Date</mat-label>
+						<input
+							matInput
+							type="date"
+							[value]="asDateInput(editInvoiceSignal().startDate)"
+							(input)="updateField('startDate', $any($event.target).value)"
+						/>
+					</mat-form-field>
+
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>End Date</mat-label>
+						<input
+							matInput
+							type="date"
+							[value]="asDateInput(editInvoiceSignal().endDate)"
+							(input)="updateField('endDate', $any($event.target).value)"
+						/>
+					</mat-form-field>
+				</div>
+			</mat-card-content>
+		</mat-card>
+
+		<div class="split-grid">
+			<mat-card class="vault-card compact-card">
+				<mat-card-content>
+					<div class="section-heading">
+						<mat-icon>payments</mat-icon>
+						<h2>Financials</h2>
+					</div>
+
+					<mat-form-field appearance="outline" class="vault-field amount-field">
+						<mat-label>Invoice Amount</mat-label>
+						<span matTextPrefix>USD&nbsp;</span>
+						<input
+							matInput
+							type="number"
+							step="0.01"
+							placeholder="0.00"
+							[value]="editInvoiceSignal().amount ?? ''"
+							(input)="updateField('amount', $any($event.target).value)"
+						/>
+					</mat-form-field>
+
+					<p class="support-copy">Net amount excluding applicable regional taxes.</p>
+				</mat-card-content>
+			</mat-card>
+
+			<mat-card class="vault-card compact-card">
+				<mat-card-content>
+					<div class="payment-header">
+						<div class="section-heading section-heading-inline">
+							<mat-icon>verified_user</mat-icon>
+							<h2>Payment Status</h2>
+						</div>
+
+						<mat-slide-toggle
+							color="primary"
+							[checked]="!!editInvoiceSignal().paid"
+							(change)="updateField('paid', $event.checked)"
+						>
+							Is Paid
+						</mat-slide-toggle>
+					</div>
+
+					<div class="payment-grid">
+						<mat-form-field appearance="outline" class="vault-field">
+							<mat-label>Payment Date</mat-label>
+							<input
+								matInput
+								type="date"
+								[disabled]="!editInvoiceSignal().paid"
+								[value]="asDateInput(editInvoiceSignal().paymentDate)"
+								(input)="updateField('paymentDate', $any($event.target).value)"
+							/>
+						</mat-form-field>
+
+						<mat-form-field appearance="outline" class="vault-field">
+							<mat-label>Payment Reference</mat-label>
+							<mat-icon matPrefix>receipt_long</mat-icon>
+							<input
+								matInput
+								type="text"
+								[disabled]="!editInvoiceSignal().paid"
+								placeholder="Transaction ID"
+								[value]="editInvoiceSignal().paymentReference || ''"
+								(input)="updateField('paymentReference', $any($event.target).value)"
+							/>
+						</mat-form-field>
+					</div>
+				</mat-card-content>
+			</mat-card>
+		</div>
+
+		<footer class="audit-grid">
+			<div class="audit-item">
+				<p class="audit-label">Created At</p>
+				<p class="audit-value">{{ formatAuditDate(editInvoiceSignal().createdAt) }}</p>
+			</div>
+
+			<div class="audit-item">
+				<p class="audit-label">Created By</p>
+				<p class="audit-value">{{ editInvoiceSignal().createdBy || 'Not available' }}</p>
+			</div>
+
+			<div class="audit-item">
+				<p class="audit-label">Modified At</p>
+				<p class="audit-value">{{ formatAuditDate(editInvoiceSignal().modifiedAt) }}</p>
+			</div>
+
+			<div class="audit-item">
+				<p class="audit-label">Modified By</p>
+				<p class="audit-value">{{ editInvoiceSignal().modifiedBy || 'Not available' }}</p>
+			</div>
+		</footer>
+	</div>
+
+	<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
 </section>

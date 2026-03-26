@@ -1,3 +1,7 @@
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -40,6 +44,8 @@ export class EditSubscriptionVarsForm {
   styleUrls: ['./subscription-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    MatCardModule, MatDividerModule, MatIconModule, MatTooltipModule,
+
     CommonModule,
     FormField,
     TranslateModule,

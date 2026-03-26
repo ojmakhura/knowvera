@@ -11,7 +11,5 @@ import bw.co.centralkyc.lmstudio.CompletionResponse;
 public interface LmStudioExtractor {
     
     @PostExchange("/chat/completions")
-    CompletionResponse createChatCompletion(@RequestBody CompletionRequest request);
-
-    
+    String createChatCompletion(@RequestBody CompletionRequest request);
 }

@@ -1,7 +1,15 @@
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
-import { applyEach, email, form, FormField, required } from '@angular/forms/signals';
-import { Loader } from '@app/@shared/loader/loader';
+import { applyEach, email, form, required } from '@angular/forms/signals';
 import { GeneralStatus } from '@app/models/bw/co/centralkyc/general-status';
 import { EmploymentStatus } from '@app/models/bw/co/centralkyc/individual/employment-status';
 import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
@@ -17,6 +25,7 @@ import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/indiv
 import { BranchApiStore } from '@app/store/bw/co/centralkyc/organisation/branch/branch-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
 import { TranslateModule } from '@ngx-translate/core';
+import { Router } from '@angular/router';
 
 export class EditIndividualVarsForm {
   id: string | any = null;
@@ -52,12 +61,7 @@ export class EditIndividualVarsForm {
   templateUrl: './individual-edit.html',
   styleUrls: ['./individual-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    FormField,
-    TranslateModule,
-    Loader
-  ]
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatInputModule, MatSelectModule, MatSlideToggleModule, MatDividerModule, MatAutocompleteModule, MatFormFieldModule]
 })
 export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
 
@@ -66,9 +70,11 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
   organisationApiStore = inject(OrganisationApiStore);
   branchApiStore = inject(BranchApiStore);
   readonly individualApiStore = inject(IndividualApiStore);
+  readonly router = inject(Router);
   loading = computed(
     () => this.individualApiStore.loading() || this.organisationApiStore.loading() || this.branchApiStore.loading(),
   );
+  isSaving = signal(false);
 
   organisationList = linkedSignal(() => this.organisationApiStore.dataList());
   branchList = linkedSignal(() => this.branchApiStore.dataList());
@@ -194,6 +200,21 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     });
+
+    effect(() => {
+      if (!this.isSaving()) {
+        return;
+      }
+
+      if (this.success() && !this.loading()) {
+        this.isSaving.set(false);
+        this.router.navigate(['/individual', 'details', this.individual().id || this.editIndividualSignal().id]);
+      }
+
+      if (this.error() && !this.loading()) {
+        this.isSaving.set(false);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -215,27 +236,66 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
 
 
 
-  phoneNumbersAdd() {
+  updateField<K extends keyof EditIndividualVarsForm>(field: K, value: EditIndividualVarsForm[K]): void {
+    this.editIndividualSignal.update((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
 
-    const phoneNumber = this.newPhoneNumber().trim();
-    if (!phoneNumber) {
+  updateTextField<K extends keyof EditIndividualVarsForm>(field: K, value: string): void {
+    this.updateField(field, value as EditIndividualVarsForm[K]);
+  }
+
+  cancel(): void {
+    const targetId = this.editIndividualSignal().id || this.id;
+
+    if (targetId) {
+      this.router.navigate(['/individual', 'details', targetId]);
       return;
     }
 
-    const phone: PhoneNumber = {
-      type: this.newPhoneType(),
-      phoneNumber
-    };
+    this.router.navigate(['/individual']);
+  }
 
+  addPhoneNumber(): void {
     this.editIndividualSignal.update((value) => ({
       ...value,
       phoneNumbers: [
         ...(value.phoneNumbers ?? []),
-        phone
-      ]
+        { type: PhoneType.MOBILE, phoneNumber: '' } as PhoneNumber,
+      ],
     }));
+  }
 
-    this.newPhoneNumber.set('');
+  updatePhoneType(index: number, type: PhoneType): void {
+    this.editIndividualSignal.update((value) => {
+      const phoneNumbers = [...(value.phoneNumbers ?? [])];
+      phoneNumbers[index] = {
+        ...phoneNumbers[index],
+        type,
+      } as PhoneNumber;
+
+      return {
+        ...value,
+        phoneNumbers,
+      };
+    });
+  }
+
+  updatePhoneNumber(index: number, phoneNumber: string): void {
+    this.editIndividualSignal.update((value) => {
+      const phoneNumbers = [...(value.phoneNumbers ?? [])];
+      phoneNumbers[index] = {
+        ...phoneNumbers[index],
+        phoneNumber,
+      } as PhoneNumber;
+
+      return {
+        ...value,
+        phoneNumbers,
+      };
+    });
   }
 
   phoneNumbersRemove(i: number) {
@@ -289,6 +349,10 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  selectOrganisation(label: string): void {
+    this.onOrganisationSearchInput(label);
+  }
+
   onBranchSearchInput(input: string): void {
     this.branchSearch.set(input);
 
@@ -310,5 +374,14 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
         branch: null,
       }));
     }
+  }
+
+  selectBranch(label: string): void {
+    this.onBranchSearchInput(label);
+  }
+
+  save(): void {
+    this.isSaving.set(true);
+    this.individualApiStore.save({ individual: this.editIndividualSignal() as any });
   }
 }

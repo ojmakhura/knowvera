@@ -1,4 +1,23 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatTableModule } from '@angular/material/table';
+import { MatCardModule } from '@angular/material/card';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  linkedSignal,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { InvoiceSearchCriteria } from '@app/models/bw/co/centralkyc/invoice/invoice-search-criteria';
@@ -20,10 +39,22 @@ export class SearchInvoicesVarsForm {
   templateUrl: './invoices.html',
   styleUrls: ['./invoices.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {},
-  imports: [MatIconModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatIconModule,
+    MatCardModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatTooltipModule,
+    MatProgressBarModule,
+  ],
 })
-export class Invoices implements OnInit, AfterViewInit, OnDestroy {
+export class Invoices implements OnInit {
   searchInvoicesVarsForm = new SearchInvoicesVarsForm();
   searchInvoicesSignal = signal(this.searchInvoicesVarsForm);
 
@@ -34,11 +65,15 @@ export class Invoices implements OnInit, AfterViewInit, OnDestroy {
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
   protected readonly router = inject(Router);
+  protected readonly loading = linkedSignal(() => this.kycInvoiceApiStore.loading());
+  protected readonly loaderMessage = linkedSignal(() => this.kycInvoiceApiStore.loaderMessage());
   protected readonly paidOptions = [
     { label: 'All Statuses', value: '' },
     { label: 'Paid', value: 'true' },
     { label: 'Unpaid', value: 'false' },
   ];
+
+  displayedColumns: string[] = ['ref', 'organisation', 'billingDate', 'amount', 'status', 'actions'];
 
   constructor() {
     effect(() => {
@@ -65,10 +100,6 @@ export class Invoices implements OnInit, AfterViewInit, OnDestroy {
     this.doSearch();
   }
 
-  ngAfterViewInit(): void {}
-
-  ngOnDestroy(): void {}
-
   updateField(field: keyof SearchInvoicesVarsForm, value: string): void {
     this.searchInvoicesSignal.update((state) => ({
       ...state,
@@ -76,37 +107,13 @@ export class Invoices implements OnInit, AfterViewInit, OnDestroy {
     }));
   }
 
+  handlePageEvent(e: PageEvent) {
+    this.doSearch(e.pageIndex, e.pageSize);
+  }
+
   resetSearch(): void {
     this.searchInvoicesSignal.set(new SearchInvoicesVarsForm());
     this.doSearch();
-  }
-
-  pageNumbers(): number[] {
-    return Array.from({ length: this.totalPages() }, (_, index) => index + 1);
-  }
-
-  previousPage(): void {
-    if (this.currentPage() <= 0) {
-      return;
-    }
-
-    this.doSearch(this.currentPage() - 1, this.pageSize());
-  }
-
-  nextPage(): void {
-    if (this.currentPage() >= this.totalPages() - 1) {
-      return;
-    }
-
-    this.doSearch(this.currentPage() + 1, this.pageSize());
-  }
-
-  goToPage(page: number): void {
-    if (page < 0 || page >= this.totalPages() || page === this.currentPage()) {
-      return;
-    }
-
-    this.doSearch(page, this.pageSize());
   }
 
   doSearch(pageNumber: number = 0, pageSize: number = 10): void {
@@ -137,10 +144,6 @@ export class Invoices implements OnInit, AfterViewInit, OnDestroy {
 
   openEdit(id: string): void {
     this.router.navigate(['/', 'invoice', 'edit', id]);
-  }
-
-  issuedByOf(row: KycInvoiceDTO): string {
-    return row.createdBy || row.modifiedBy || 'System';
   }
 
   formatDate(value: Date | string | null | undefined): string {
@@ -176,10 +179,43 @@ export class Invoices implements OnInit, AfterViewInit, OnDestroy {
   }
 
   statusLabel(row: KycInvoiceDTO): string {
-    return row.paid ? 'PAID' : 'UNPAID';
+    return row.paid ? 'Verified Paid' : 'Awaiting Settlement';
   }
 
   statusClass(row: KycInvoiceDTO): 'status-approved' | 'status-pending' {
     return row.paid ? 'status-approved' : 'status-pending';
+  }
+
+  organisationInitial(row: KycInvoiceDTO): string {
+    return (row.organisationName || '?').trim().charAt(0).toUpperCase() || '?';
+  }
+
+  organisationMeta(row: KycInvoiceDTO): string {
+    return row.organisationRegistrationNo || row.organisationCode || this.issuedByOf(row);
+  }
+
+  issuedByOf(row: KycInvoiceDTO): string {
+    return row.createdBy || row.modifiedBy || 'System';
+  }
+
+  showingLabel(): string {
+    return `Showing ${this.totalElements()} results`;
+  }
+
+  pageReport(): string {
+    const total = this.totalElements();
+
+    if (!total) {
+      return 'No invoice records available';
+    }
+
+    const start = this.currentPage() * this.pageSize() + 1;
+    const end = Math.min(total, start + this.rows().length - 1);
+
+    return `Displaying ${start}-${end} of ${total} records`;
+  }
+
+  trackByInvoice(_: number, row: KycInvoiceDTO): string {
+    return row.id || row.ref || `${row.organisationId}-${row.issueDate}`;
   }
 }

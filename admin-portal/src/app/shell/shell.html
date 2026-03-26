@@ -1,78 +1,86 @@
-<div class="shell-layout">
-  <aside class="shell-sidebar" aria-label="Primary navigation">
+<mat-sidenav-container class="shell-layout">
+  <mat-sidenav #sidenav class="shell-sidebar" mode="side" opened aria-label="Primary navigation">
     <div class="brand">
       <div class="brand-mark">◍</div>
       <div>
         <p class="brand-title">Central KYC</p>
-        <!-- <p class="brand-subtitle">SaaS Enterprise</p> -->
       </div>
     </div>
 
-    <button class="new-btn" type="button">＋ New Verification</button>
+    <button mat-flat-button color="primary" class="new-btn" type="button">
+      <mat-icon>add</mat-icon> New Verification
+    </button>
 
-    <nav class="sidebar-nav">
+    <mat-nav-list class="sidebar-nav">
       @for (item of menus; track item.titleKey) {
         <a
+          mat-list-item
           class="nav-item"
           [routerLink]="item.routerLink"
           routerLinkActive="nav-item-active"
           [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }"
         >
-          <span class="nav-icon material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
-          <span translate>{{ item.titleKey }}</span>
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle translate>{{ item.titleKey }}</span>
         </a>
       }
-    </nav>
+    </mat-nav-list>
 
-    <div class="sidebar-footer">
+    <!-- <div class="sidebar-footer">
       <div class="avatar">🧑</div>
       <div>
         <p class="officer-name">Compliance Officer</p>
         <p class="officer-mail">admin@vault-tech.io</p>
       </div>
-    </div>
-  </aside>
+    </div> -->
+  </mat-sidenav>
 
-  <section class="shell-main" aria-label="Application shell">
-    <header class="topbar">
+  <mat-sidenav-content class="shell-main" aria-label="Application shell">
+    <mat-toolbar class="topbar">
       <p class="topbar-title">Central KYC Admin Portal</p>
-      <input class="topbar-search" type="text" placeholder="Search verifications or entities..." />
+      <span class="spacer"></span>
+      <mat-form-field appearance="outline" class="topbar-search-field" subscriptSizing="dynamic">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput placeholder="Search verifications or entities..." />
+      </mat-form-field>
+      
       <div class="topbar-actions">
-        <button type="button" class="icon-btn" aria-label="Notifications">•</button>
-        <button type="button" class="icon-btn" aria-label="Help">?</button>
-        <button type="button" class="account-btn" aria-haspopup="menu" [attr.aria-expanded]="accountMenuOpen()" (click)="toggleAccountMenu($event)">
-          <span class="account-avatar">{{ userInitials }}</span>
-          <span class="account-label">{{ userDisplayName }}</span>
-          <span class="material-symbols-outlined account-caret" aria-hidden="true">expand_more</span>
+        <button mat-icon-button type="button" aria-label="Notifications">
+          <mat-icon>notifications</mat-icon>
+        </button>
+        <button mat-icon-button type="button" aria-label="Help">
+          <mat-icon>help_outline</mat-icon>
         </button>
 
-        @if (accountMenuOpen()) {
-          <section class="account-menu" role="menu" aria-label="Account menu">
-            <div class="account-menu-head">
-              <span class="menu-avatar">{{ userInitials }}</span>
-              <div>
-                <p class="menu-name">{{ userDisplayName }}</p>
-                <p class="menu-email">{{ userEmail }}</p>
-              </div>
-            </div>
+        <button mat-button class="account-btn" [matMenuTriggerFor]="accountMenu">
+          <span class="account-avatar">{{ userInitials }}</span>
+          <span class="account-label">{{ userDisplayName }}</span>
+          <mat-icon>expand_more</mat-icon>
+        </button>
 
-            <div class="account-menu-actions">
-              <a class="menu-link" [href]="profileUrl" (click)="closeAccountMenu()">
-                <span class="material-symbols-outlined" aria-hidden="true">account_circle</span>
-                Profile
-              </a>
-              <button type="button" class="menu-link menu-link-danger" (click)="logout()">
-                <span class="material-symbols-outlined" aria-hidden="true">logout</span>
-                Logout
-              </button>
+        <mat-menu #accountMenu="matMenu" class="account-menu">
+          <div class="account-menu-head">
+            <span class="menu-avatar">{{ userInitials }}</span>
+            <div>
+              <p class="menu-name">{{ userDisplayName }}</p>
+              <p class="menu-email">{{ userEmail }}</p>
             </div>
-          </section>
-        }
+          </div>
+          <mat-divider></mat-divider>
+          <a mat-menu-item [href]="profileUrl">
+            <mat-icon>account_circle</mat-icon>
+            <span>Profile</span>
+          </a>
+          <button mat-menu-item class="menu-link-danger" (click)="logout()">
+            <mat-icon color="warn">logout</mat-icon>
+            <span class="warn-text">Logout</span>
+          </button>
+        </mat-menu>
       </div>
-    </header>
+    </mat-toolbar>
 
     <main class="content">
       <router-outlet></router-outlet>
     </main>
-  </section>
-</div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

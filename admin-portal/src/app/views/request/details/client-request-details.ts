@@ -1,8 +1,22 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ClientRequestStatus } from '@app/models/bw/co/centralkyc/organisation/client/client-request-status';
+import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
 
 type LabeledValue = {
   label: string;
   value: string;
+};
+
+type IdentityField = {
+  label: string;
+  value: string;
+  tone?: 'primary' | 'default';
+  icon?: string;
 };
 
 @Component({
@@ -10,40 +24,132 @@ type LabeledValue = {
   templateUrl: './client-request-details.html',
   styleUrls: ['./client-request-details.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule
+  ]
 })
-export class ClientRequestDetails implements OnInit, AfterViewInit, OnDestroy {
-  protected readonly profile = signal<LabeledValue[]>([
-    { label: 'Request ID', value: 'CR-001' },
-    { label: 'Client Name', value: 'Alexander Vance Sterling' },
-    { label: 'Email', value: 'a.sterling@nexfix.io' },
-    { label: 'Request Type', value: 'KYC Verification' },
-    { label: 'Status', value: 'Approved' },
-    { label: 'Priority', value: 'Normal' },
-    { label: 'Created Date', value: '2025-01-18' },
-    { label: 'Organization', value: 'Nexus Financial' },
+export class ClientRequestDetails {
+  readonly requestStatus = signal<ClientRequestStatus>(ClientRequestStatus.CONTACTED);
+  readonly targetKycStatus = signal<KycComplianceStatus>(KycComplianceStatus.ABSENT);
+  readonly verificationPercent = signal(15);
+
+  readonly coreIdentity = signal<IdentityField[]>([
+    { label: 'Full Legal Name', value: 'Alexander J. Sterling', tone: 'primary' },
+    {
+      label: 'Identity Type',
+      value: 'PASSPORT_INTERNATIONAL',
+      icon: 'badge',
+    },
+    { label: 'Registration No.', value: 'GB-8829-X-442' },
+    {
+      label: 'Email Address',
+      value: 'a.sterling@private-equity.co.uk',
+      tone: 'primary',
+    },
   ]);
 
-  protected readonly details = signal<LabeledValue[]>([
-    { label: 'Request Reference', value: 'CR-001-VX' },
-    { label: 'Submission Date', value: '2025-01-18 14:32' },
-    { label: 'Assigned Officer', value: 'Compliance Department' },
-    { label: 'Review Status', value: 'Complete' },
-    { label: 'Approval Date', value: '2025-01-20 09:15' },
-    { label: 'Approved By', value: 'm.sterling@veritas.io' },
+  readonly organisationContext = signal<LabeledValue[]>([
+    { label: 'Organisation Name', value: 'Sterling Global Assets Ltd' },
+    { label: 'Internal Org ID', value: 'ORG-9920-ALPHA' },
+    { label: 'Org Registration No.', value: 'SC-8812903321' },
   ]);
 
-  protected readonly timeline = signal<string[]>([
-    '2025-01-20 · Request approved by compliance officer',
-    '2025-01-19 · Documents reviewed and verified',
-    '2025-01-18 · Request submitted and queued for review',
-    '2025-01-18 · Client request created in the portal',
+  readonly auditFields = signal<LabeledValue[]>([
+    { label: 'Created At', value: '2023-11-14 09:22:11' },
+    { label: 'Created By', value: 'System Gateway Alpha' },
+    { label: 'Last Modified', value: '2024-02-01 14:15:00' },
+    { label: 'Modified By', value: 'Compliance_Officer_32' },
   ]);
 
-  constructor() {}
+  readonly progressSegments = computed(() => {
+    const percent = Math.max(0, Math.min(this.verificationPercent(), 100));
+    const filled = Math.max(1, Math.round(percent / 20));
 
-  ngOnInit(): void {}
+    return Array.from({ length: 5 }, (_, index) => index < filled);
+  });
 
-  ngAfterViewInit(): void {}
+  backToDashboard(): void {}
 
-  ngOnDestroy(): void {}
+  updateStatus(): void {}
+
+  archiveRequest(): void {}
+
+  flagForReview(): void {}
+
+  approveRequest(): void {}
+
+  downloadFile(): void {}
+
+  statusLabel(status: ClientRequestStatus): string {
+    switch (status) {
+      case ClientRequestStatus.CONTACTED:
+        return 'In Review';
+      case ClientRequestStatus.PENDING:
+        return 'Pending';
+      case ClientRequestStatus.ACCEPTED:
+        return 'Accepted';
+      case ClientRequestStatus.REJECTED:
+        return 'Rejected';
+    }
+  }
+
+  statusClass(status: ClientRequestStatus): string {
+    switch (status) {
+      case ClientRequestStatus.ACCEPTED:
+        return 'accepted';
+      case ClientRequestStatus.PENDING:
+        return 'pending';
+      case ClientRequestStatus.REJECTED:
+        return 'rejected';
+      case ClientRequestStatus.CONTACTED:
+      default:
+        return 'review';
+    }
+  }
+
+  targetStatusLabel(status: KycComplianceStatus): string {
+    switch (status) {
+      case KycComplianceStatus.CURRENT:
+        return 'Current';
+      case KycComplianceStatus.EXPIRED:
+        return 'Expired';
+      case KycComplianceStatus.INCOMPLETE:
+        return 'Incomplete';
+      case KycComplianceStatus.ABSENT:
+      default:
+        return 'Absent';
+    }
+  }
+
+  targetStatusClass(status: KycComplianceStatus): string {
+    switch (status) {
+      case KycComplianceStatus.CURRENT:
+        return 'current';
+      case KycComplianceStatus.EXPIRED:
+        return 'expired';
+      case KycComplianceStatus.INCOMPLETE:
+        return 'incomplete';
+      case KycComplianceStatus.ABSENT:
+      default:
+        return 'absent';
+    }
+  }
+
+  iconForAudit(label: string): string {
+    switch (label) {
+      case 'Created At':
+        return 'calendar_today';
+      case 'Created By':
+        return 'account_circle';
+      case 'Last Modified':
+        return 'history';
+      case 'Modified By':
+      default:
+        return 'edit_note';
+    }
+  }
 }

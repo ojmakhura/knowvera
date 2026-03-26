@@ -1,3 +1,11 @@
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -9,10 +17,11 @@ import {
   OnInit,
   Signal,
   signal,
+  ViewChild,
 } from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
+import { form } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { Loader } from '@app/@shared/loader/loader';
 import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
@@ -28,7 +37,19 @@ export class SearchOrganisationsVarsForm {
 
 @Component({
   selector: 'app-organisations',
-  imports: [RouterLink, FormField, TranslateModule, MatIconModule, Loader],
+  imports: [
+    TranslateModule,
+    MatIconModule,
+    Loader,
+    MatCardModule,
+    MatButtonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTooltipModule
+  ],
   templateUrl: './organisations.html',
   styleUrls: ['./organisations.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,11 +69,19 @@ export class Organisations implements OnInit, AfterViewInit, OnDestroy {
   error = linkedSignal(() => this.organisationApiStore.error());
 
   organisations = signal<OrganisationListDTO[]>([]);
+  dataSource = new MatTableDataSource<OrganisationListDTO>([]);
   currentPage = signal(0);
   pageSize = signal(10);
   totalElements = signal(0);
   totalPages = signal(0);
   router = inject(Router);
+  @ViewChild(MatPaginator) paginator?: MatPaginator;
+
+  displayedColumns: string[] = ['name', 'registrationNo', 'code', 'contactEmailAddress', 'kycStatus', 'clientStatus', 'actions'];
+
+  handlePageEvent(event: PageEvent): void {
+    this.doSearch(event.pageIndex, event.pageSize);
+  }
 
   constructor() {
     effect(() => {
@@ -75,10 +104,17 @@ export class Organisations implements OnInit, AfterViewInit, OnDestroy {
       }
 
       this.organisations.set(page.content || []);
+      this.dataSource.data = page.content || [];
       this.currentPage.set(page.page?.number || 0);
       this.pageSize.set(page.page?.size || 10);
       this.totalElements.set(page.page?.totalElements || 0);
       this.totalPages.set(page.page?.totalPages || 0);
+
+      if (this.paginator) {
+        this.paginator.length = page.page?.totalElements || 0;
+        this.paginator.pageIndex = page.page?.number || 0;
+        this.paginator.pageSize = page.page?.size || 10;
+      }
     });
   }
 
@@ -86,37 +122,13 @@ export class Organisations implements OnInit, AfterViewInit, OnDestroy {
     this.doSearch();
   }
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+    }
+  }
 
   ngOnDestroy(): void {}
-
-  pageNumbers(): number[] {
-    return Array.from({ length: this.totalPages() }, (_, index) => index + 1);
-  }
-
-  previousPage(): void {
-    if (this.currentPage() <= 0) {
-      return;
-    }
-
-    this.doSearch(this.currentPage() - 1, this.pageSize());
-  }
-
-  nextPage(): void {
-    if (this.currentPage() >= this.totalPages() - 1) {
-      return;
-    }
-
-    this.doSearch(this.currentPage() + 1, this.pageSize());
-  }
-
-  goToPage(page: number): void {
-    if (page < 0 || page >= this.totalPages() || page === this.currentPage()) {
-      return;
-    }
-
-    this.doSearch(page, this.pageSize());
-  }
 
   doSearch(pageNumber: number = 0, pageSize: number = 10): void {
     let value = this.searchOrganisationsSignal().criteria;
@@ -145,5 +157,61 @@ export class Organisations implements OnInit, AfterViewInit, OnDestroy {
 
   openDetails(id: string): void {
     this.router.navigate(['organisation', 'details', id]);
+  }
+
+  createNewOrganisation(): void {
+    this.router.navigate(['organisation', 'edit']);
+  }
+
+  updateCriteria(value: string): void {
+    this.searchOrganisationsSignal.update((current) => ({
+      ...current,
+      criteria: value,
+    }));
+  }
+
+  onSearchSubmit(): void {
+    this.doSearch(0, this.pageSize());
+  }
+
+  organisationSubtitle(organisation: OrganisationListDTO): string {
+    const category = organisation.isClient ? 'Client Entity' : 'Prospect Entity';
+    return organisation.contactEmailAddress ? `${category} • ${organisation.contactEmailAddress}` : category;
+  }
+
+  organisationIcon(organisation: OrganisationListDTO): string {
+    if (organisation.kycStatus === 'FLAGGED' || organisation.status === 'SUSPENDED') {
+      return 'warning_amber';
+    }
+
+    if (organisation.isClient) {
+      return 'account_balance';
+    }
+
+    return 'apartment';
+  }
+
+  kycStatusClass(status: string | null | undefined): string {
+    if (status === 'FLAGGED') {
+      return 'flagged';
+    }
+
+    if (status?.includes('PENDING')) {
+      return 'pending';
+    }
+
+    return 'verified';
+  }
+
+  clientStatusClass(status: string | null | undefined): string {
+    if (status === 'SUSPENDED') {
+      return 'suspended';
+    }
+
+    if (status === 'ONBOARDING' || status === 'PROSPECT') {
+      return 'onboarding';
+    }
+
+    return 'active';
   }
 }

@@ -1,43 +1,79 @@
 <section class="sub-details-page">
   <header class="details-head">
     <div class="title-wrap">
-      <h1>Subscription Details</h1>
-      <p>Veritas Protocol / Compliance Environment</p>
+      <button mat-icon-button type="button" class="back-btn" matTooltip="Back to subscriptions" (click)="backToSubscriptions()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+
+      <div>
+        <h1>{{ title() }}</h1>
+        <p>{{ subtitle() }}</p>
+      </div>
     </div>
 
     <div class="head-actions">
-      <button type="button" class="btn-secondary">Download PDF</button>
-      <button type="button" class="btn-primary">Renew Subscription</button>
+      <button mat-stroked-button type="button" class="ghost-btn" (click)="printView()">Download PDF</button>
+      <button mat-flat-button type="button" class="primary-btn" (click)="openRenew()">Renew Subscription</button>
     </div>
   </header>
 
   <section class="top-grid">
-    <article class="panel overview-card">
-      <div class="overview-grid">
-        @for (item of overview(); track item.label) {
-          <div class="kv">
-            <span>{{ item.label }}</span>
-            <p>{{ item.value }}</p>
-          </div>
-        }
+    <mat-card class="panel overview-card">
+      <div class="hero-glow"></div>
+
+      <div class="overview-head">
+        <div>
+          <span class="section-label">Reference ID</span>
+          <p class="ref-value">{{ subscription().ref || 'Not available' }}</p>
+        </div>
+
+        <span class="status-pill" [class]="statusClass(subscription().status)">
+          <span class="status-dot"></span>
+          {{ statusLabel(subscription().status) }}
+        </span>
       </div>
 
-      <div class="progress">
+      <div class="overview-grid">
+        <div class="metric-block">
+          <span class="section-label">Annual Commitment</span>
+          <div class="amount-row">
+            <strong>{{ annualCommitment() }}</strong>
+            @if (amountSuffix()) {
+              <span>{{ amountSuffix() }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="metric-block">
+          <span class="section-label">Service Tier</span>
+          <div class="tier-row">
+            <mat-icon>verified</mat-icon>
+            <strong>{{ serviceTier() }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-row" aria-label="Compliance cycle progress">
         @for (segment of progressSegments(); track $index) {
           <span [class.filled]="segment"></span>
         }
       </div>
-      <small>Compliance cycle: 60% completed</small>
-    </article>
 
-    <article class="panel timeline-card">
-      <h2>Subscription Timeline</h2>
+      <p class="progress-copy">Compliance cycle: {{ progressPercent() }}% completed</p>
+    </mat-card>
+
+    <mat-card class="panel timeline-card">
+      <h2 class="section-title">Subscription Timeline</h2>
+
       <div class="timeline-list">
         @for (item of timeline(); track item.label) {
           <div class="timeline-row">
-            <span class="material-symbols-outlined">{{ item.icon }}</span>
+            <div class="timeline-icon" [class.warn]="item.tone === 'warn'">
+              <mat-icon>{{ item.icon }}</mat-icon>
+            </div>
+
             <div>
-              <small>{{ item.label }}</small>
+              <span class="section-label">{{ item.label }}</span>
               <p>{{ item.value }}</p>
             </div>
           </div>
@@ -45,67 +81,120 @@
       </div>
 
       <div class="days-box">
-        <small>Days Remaining</small>
-        <p>214</p>
+        <span>Days Remaining</span>
+        <strong>{{ daysRemaining() }}</strong>
       </div>
-    </article>
+    </mat-card>
   </section>
 
-  <section class="panel mapping-card">
-    <h2>
-      <span class="material-symbols-outlined">corporate_fare</span>
-      Organisation Mapping
-    </h2>
+  <mat-card class="panel mapping-card">
+    <div class="section-head">
+      <mat-icon>corporate_fare</mat-icon>
+      <h2 class="section-title">Organisation Mapping</h2>
+    </div>
 
     <div class="mapping-grid">
-      @for (item of mapping(); track item.label) {
-        <div class="kv">
-          <span>{{ item.label }}</span>
-          <p>{{ item.value }}</p>
+      <div class="kv">
+        <span class="section-label">Legal Entity Name</span>
+        <p>{{ organisationName() }}</p>
+      </div>
+
+      <div class="kv">
+        <span class="section-label">Organisation Code</span>
+        <div class="code-row">
+          <span class="code-chip">{{ organisationCode() }}</span>
+          <button mat-icon-button type="button" matTooltip="Copy organisation code" (click)="copyOrganisationCode()">
+            <mat-icon>content_copy</mat-icon>
+          </button>
         </div>
-      }
-    </div>
-  </section>
+      </div>
 
-  <section class="panel invoice-card">
+      <div class="kv">
+        <span class="section-label">Registration No.</span>
+        <p>{{ organisationRegistration() }}</p>
+      </div>
+    </div>
+  </mat-card>
+
+  <mat-card class="panel invoice-card">
     <div class="invoice-head">
-      <h2>
-        <span class="material-symbols-outlined">receipt_long</span>
-        Invoice History
-      </h2>
-      <button type="button">View All Invoices</button>
+      <div class="section-head">
+        <mat-icon>receipt_long</mat-icon>
+        <h2 class="section-title">Invoice History</h2>
+      </div>
+
+      <button mat-button type="button" [routerLink]="['/invoice']">View All Invoices</button>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Invoice Ref</th>
-          <th>Billing Date</th>
-          <th>Amount</th>
-          <th>Status</th>
+    <div class="invoice-table-wrap">
+      <table mat-table [dataSource]="invoices()" class="invoice-table">
+        <ng-container matColumnDef="ref">
+          <th mat-header-cell *matHeaderCellDef>Invoice Ref</th>
+          <td mat-cell *matCellDef="let invoice" class="mono-cell">{{ invoice.ref || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Billing Date</th>
+          <td mat-cell *matCellDef="let invoice">{{ formatInvoiceDate(invoice) }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Amount</th>
+          <td mat-cell *matCellDef="let invoice" class="amount-cell">{{ formatInvoiceAmount(invoice) }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let invoice">
+            <span class="invoice-pill" [class]="invoiceStatusClass(invoice)">{{ invoiceStatusLabel(invoice) }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="align-end"></th>
+          <td mat-cell *matCellDef="let invoice" class="align-end">
+            <button mat-icon-button type="button" matTooltip="Open invoice" (click)="openInvoice(invoice)" [disabled]="!invoice.id">
+              <mat-icon>open_in_new</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedInvoiceColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedInvoiceColumns"></tr>
+        <tr class="mat-row empty-row" *matNoDataRow>
+          <td class="mat-cell" colspan="5">
+            <div class="empty-state">
+              <mat-icon>receipt_long</mat-icon>
+              <p>No invoices are linked to this subscription yet.</p>
+            </div>
+          </td>
         </tr>
-      </thead>
-      <tbody>
-        @for (invoice of invoices(); track invoice.ref) {
-          <tr>
-            <td class="mono">{{ invoice.ref }}</td>
-            <td>{{ invoice.date }}</td>
-            <td class="amount">{{ invoice.amount }}</td>
-            <td><span class="paid-pill">{{ invoice.status }}</span></td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </section>
-
-  <footer class="details-footer panel">
-    <div class="meta">
-      <p><strong>Created By</strong><span>Admin_Compliance_01</span></p>
-      <p><strong>Last Modified</strong><span>May 14, 2024 · 14:32 UTC</span></p>
+      </table>
     </div>
+  </mat-card>
+
+  <mat-card class="panel details-footer">
+    <div class="meta">
+      <div class="meta-item">
+        <mat-icon>history_edu</mat-icon>
+        <div>
+          <span class="section-label">Created By</span>
+          <p>{{ createdBy() }}</p>
+        </div>
+      </div>
+
+      <div class="meta-item">
+        <mat-icon>update</mat-icon>
+        <div>
+          <span class="section-label">Last Modified</span>
+          <p>{{ lastModified() }}</p>
+        </div>
+      </div>
+    </div>
+
     <span class="record-chip">
-      <span class="material-symbols-outlined">encrypted</span>
+      <mat-icon>encrypted</mat-icon>
       Blockchain Verified Record
     </span>
-  </footer>
+  </mat-card>
 </section>

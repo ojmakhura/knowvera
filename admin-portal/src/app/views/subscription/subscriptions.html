@@ -1,97 +1,190 @@
-<section class="subs-page" aria-label="Subscription search">
-  <header class="page-head">
-    <div>
-      <h1>Subscriptions</h1>
-      <p>Access and manage subscription records across the digital vault ecosystem.</p>
-    </div>
+<section class="subscriptions-page">
+	<header class="page-header">
+		<div class="page-title-group">
+			<div class="brand-mark">
+				<span class="brand-icon">
+					<mat-icon>verified_user</mat-icon>
+				</span>
+				<span>Veritas Protocol</span>
+			</div>
+			<h1 class="page-title">Subscription Registry</h1>
+			<p class="page-subtitle">
+				Access and manage KYC compliance subscriptions across the digital vault ecosystem.
+			</p>
+		</div>
 
-    <button type="button" class="new-btn" (click)="openCreate()">
-      <span class="material-symbols-outlined" aria-hidden="true">add</span>
-      New Subscription
-    </button>
-  </header>
+		<button mat-flat-button type="button" class="create-btn" (click)="openCreate()">
+			<mat-icon>add</mat-icon>
+			New Subscription
+		</button>
+	</header>
 
-  <section class="search-card" aria-label="Search parameters">
-    <div class="search-title">
-      <span class="material-symbols-outlined" aria-hidden="true">search</span>
-      <h2>Search Parameters</h2>
-    </div>
+	<mat-card class="search-card">
+		<form class="search-form" (ngSubmit)="onSearchSubmit()">
+			<mat-form-field appearance="outline" class="search-field vault-field">
+				<mat-label>Search subscriptions</mat-label>
+				<mat-icon matPrefix>search</mat-icon>
+				<input
+					matInput
+					type="text"
+					placeholder="Search by ref, organisation, or compliance criteria..."
+					[value]="searchSubscriptionsSignal().criteria"
+					(input)="updateCriteria($any($event.target).value)"
+					(keyup.enter)="onSearchSubmit()"
+				/>
+				@if (searchSubscriptionsSignal().criteria) {
+					<button mat-icon-button matSuffix type="button" aria-label="Clear search" (click)="updateCriteria('')">
+						<mat-icon>close</mat-icon>
+					</button>
+				}
+			</mat-form-field>
 
-    <form class="search-grid" (submit)="doSearch()">
-      <label class="field-block"><span>Reference ID</span><input type="text" [value]="searchSubscriptionsSignal().ref" (input)="updateField('ref', $any($event.target).value)" placeholder="#VP-2024-001" /></label>
-      <label class="field-block"><span>Organisation</span><input type="text" [value]="searchSubscriptionsSignal().organisationName" (input)="updateField('organisationName', $any($event.target).value)" placeholder="Organisation name" /></label>
-      <label class="field-block"><span>Subscription Period</span><input type="text" [value]="searchSubscriptionsSignal().period" (input)="updateField('period', $any($event.target).value)" placeholder="YEAR, MONTH, or WEEK" /></label>
-      <label class="field-block">
-        <span>Status</span>
-        <select [value]="searchSubscriptionsSignal().status" (change)="updateField('status', $any($event.target).value)">
-          <option value="">All Statuses</option>
-          @for (status of statusOptions; track status) {
-            <option [value]="status">{{ status }}</option>
-          }
-        </select>
-      </label>
-    </form>
+			<div class="search-actions">
+				<button mat-button type="button" (click)="resetSearch()">Reset</button>
+				<button mat-flat-button color="primary" type="button" (click)="onSearchSubmit()">Search</button>
+			</div>
+		</form>
 
-    <div class="search-actions">
-      <button type="button" class="reset-btn" (click)="resetSearch()">
-        <span class="material-symbols-outlined" aria-hidden="true">restart_alt</span>
-        Reset
-      </button>
-      <button type="button" class="search-btn" (click)="doSearch()">Search Subscriptions</button>
-    </div>
-  </section>
+		<mat-chip-set class="filter-row" aria-label="Status filters">
+			@for (filter of quickFilters; track filter.value) {
+				<mat-chip-option
+					[selected]="isStatusFilterActive(filter.value)"
+					(click)="applyStatusFilter(filter.value)"
+				>
+					{{ filter.label }}
+				</mat-chip-option>
+			}
+		</mat-chip-set>
+	</mat-card>
 
-  <section class="results-card" aria-label="Search results">
-    <div class="table-wrap">
-      <div class="table-head" role="row">
-        <p>Ref ID</p>
-        <p>Organisation</p>
-        <p>Owner</p>
-        <p>Period</p>
-        <p>Amount</p>
-        <p>Status</p>
-        <p class="align-end">Actions</p>
-      </div>
+	<mat-card class="results-card">
+		<div class="results-table-wrap">
+			<table mat-table [dataSource]="rows()" class="subscriptions-table">
+				<ng-container matColumnDef="ref">
+					<th mat-header-cell *matHeaderCellDef>Ref ID</th>
+					<td mat-cell *matCellDef="let row" class="mono-cell">{{ row.ref || '—' }}</td>
+				</ng-container>
 
-      <div class="table-body" role="table">
-        @if (rows().length) {
-        @for (row of rows(); track row.id) {
-          <article class="table-row" role="row">
-            <div class="name-cell">
-              <span class="name-text">{{ row.ref }}</span>
-            </div>
-            <p>{{ row.organisationName || '—' }}</p>
-            <p class="muted">{{ ownerOf(row) }}</p>
-            <p class="muted">{{ periodLabel(row) }}</p>
-            <p class="amount">{{ formatAmount(row.amount) }}</p>
-            <p>
-              <span class="status-pill" [class]="statusClass(row.status)">{{ row.status || '—' }}</span>
-            </p>
-            <p class="actions"><button type="button" (click)="openDetails(row.id)">
-                <mat-icon>visibility</mat-icon>
-              </button>
-                <button type="button" (click)="openEdit(row.id)">
-                <mat-icon>edit</mat-icon>
-              </button></p>
-          </article>
-        }
-        } @else {
-          <article class="table-row empty-row" role="row">
-            <p class="empty-copy">No subscriptions found for the current search.</p>
-          </article>
-        }
-      </div>
-    </div>
+				<ng-container matColumnDef="organisation">
+					<th mat-header-cell *matHeaderCellDef>Organisation</th>
+					<td mat-cell *matCellDef="let row">
+						<div class="organisation-cell">
+							<span class="organisation-mark">
+								<mat-icon>apartment</mat-icon>
+							</span>
+							<div class="organisation-copy">
+								<button type="button" class="entity-link" (click)="openDetails(row.id)">
+									{{ row.organisationName || 'Unnamed organisation' }}
+								</button>
+								<p>{{ organisationSubtitle(row) }}</p>
+							</div>
+						</div>
+					</td>
+				</ng-container>
 
-    <footer class="table-footer">
-      <p>Showing {{ rows().length }} of {{ totalElements() }} subscriptions</p>
-      <div class="pager">
-        <button type="button" (click)="previousPage()" [disabled]="currentPage() === 0">‹</button>
-        @for (page of pageNumbers(); track page) {
-          <button type="button" [class.active]="page - 1 === currentPage()" (click)="goToPage(page - 1)">{{ page }}</button>
-        }
-        <button type="button" (click)="nextPage()" [disabled]="currentPage() >= totalPages() - 1">›</button>
-      </div>
-    </footer>
-  </section>
+				<ng-container matColumnDef="owner">
+					<th mat-header-cell *matHeaderCellDef>Owner</th>
+					<td mat-cell *matCellDef="let row" class="muted-cell">{{ ownerOf(row) }}</td>
+				</ng-container>
+
+				<ng-container matColumnDef="period">
+					<th mat-header-cell *matHeaderCellDef>Period</th>
+					<td mat-cell *matCellDef="let row" class="muted-cell">{{ periodLabel(row) }}</td>
+				</ng-container>
+
+				<ng-container matColumnDef="amount">
+					<th mat-header-cell *matHeaderCellDef class="align-end">Amount</th>
+					<td mat-cell *matCellDef="let row" class="amount-cell align-end">{{ formatAmount(row.amount) }}</td>
+				</ng-container>
+
+				<ng-container matColumnDef="status">
+					<th mat-header-cell *matHeaderCellDef>Status</th>
+					<td mat-cell *matCellDef="let row">
+						<span class="status-pill" [class]="statusClass(row.status)">
+							<span class="status-dot"></span>
+							{{ statusLabel(row.status) }}
+						</span>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="actions">
+					<th mat-header-cell *matHeaderCellDef class="align-end">Actions</th>
+					<td mat-cell *matCellDef="let row" class="actions-cell align-end">
+						<button mat-icon-button type="button" matTooltip="View details" (click)="openDetails(row.id)">
+							<mat-icon>visibility</mat-icon>
+						</button>
+						<button mat-icon-button type="button" matTooltip="Edit subscription" (click)="openEdit(row.id)">
+							<mat-icon>edit</mat-icon>
+						</button>
+					</td>
+				</ng-container>
+
+				<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+				<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+				<tr class="mat-row empty-row" *matNoDataRow>
+					<td class="mat-cell" colspan="7">
+						<div class="empty-state">
+							<mat-icon>search_off</mat-icon>
+							<p>No subscriptions matched the current search.</p>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="results-footer">
+			<p class="results-summary">
+				Showing {{ pageCount() }} of {{ totalElements() }} verified subscriptions
+			</p>
+
+			<mat-paginator
+				[length]="totalElements()"
+				[pageIndex]="currentPage()"
+				[pageSize]="pageSize()"
+				[pageSizeOptions]="[5, 10, 25, 50]"
+				showFirstLastButtons
+				(page)="onPageChange($event)"
+			></mat-paginator>
+		</div>
+	</mat-card>
+
+	<section class="metrics-grid" aria-label="Subscription metrics">
+		<mat-card class="metric-card hero-card">
+			<span class="metric-label">Visible now</span>
+			<strong>{{ pageCount() }}</strong>
+			<p>Subscriptions currently surfaced in the registry view.</p>
+		</mat-card>
+
+		<mat-card class="metric-card">
+			<span class="metric-label">Active</span>
+			<strong>{{ summaryCount(subscriptionStatus.ACTIVE) }}</strong>
+			<p>Subscriptions on the current page with an active billing cycle.</p>
+		</mat-card>
+
+		<mat-card class="metric-card">
+			<span class="metric-label">Inactive</span>
+			<strong>{{ summaryCount(subscriptionStatus.INACTIVE) }}</strong>
+			<p>Subscriptions currently paused or awaiting operational action.</p>
+		</mat-card>
+	</section>
+
+	<section class="insights-grid" aria-label="Registry insights">
+		<mat-card class="insight-card">
+			<mat-icon>security</mat-icon>
+			<h2>Registry Integrity</h2>
+			<p>Subscription records remain anchored to the compliance ledger for audit visibility.</p>
+		</mat-card>
+
+		<mat-card class="insight-card">
+			<mat-icon>sync</mat-icon>
+			<h2>Real-time Updates</h2>
+			<p>Status and ownership changes propagate through the protocol without leaving the vault context.</p>
+		</mat-card>
+
+		<mat-card class="insight-card">
+			<mat-icon>analytics</mat-icon>
+			<h2>Compliance Audit</h2>
+			<p>Review period and monetary exposure from the same registry used for subscription operations.</p>
+		</mat-card>
+	</section>
 </section>

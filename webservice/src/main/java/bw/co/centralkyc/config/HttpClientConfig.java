@@ -25,7 +25,7 @@ public class HttpClientConfig {
             
             SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
             factory.setConnectTimeout((int) Duration.ofSeconds(5).toMillis());
-            factory.setReadTimeout((int) Duration.ofSeconds(60).toMillis());
+            factory.setReadTimeout((int) Duration.ofSeconds(180).toMillis());
 
             groups.filterByName("lmstudio")
                     .forEachClient((group, builder) -> builder

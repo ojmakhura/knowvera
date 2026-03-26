@@ -1,93 +1,257 @@
-<section class="doc-details" aria-label="Document details">
-  <header class="doc-header">
+<div class="vault-container">
+
+  <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap">
     <div>
-      <h1>passport_j_doe.pdf</h1>
-      <p>Uploaded Oct 24, 2023 • Ref: VR-99201-B</p>
+      <div class="breadcrumb-nav">
+        <mat-icon inline>folder_open</mat-icon>
+        Documents / Details
+      </div>
+      <h1 class="page-title">
+        <mat-icon inline style="font-size: 2.25rem; width: 2.25rem; height: 2.25rem;">description</mat-icon>
+        {{ document().fileName || 'passport_scan_v2.pdf' }}
+      </h1>
     </div>
-    <div class="header-actions">
-      <span class="status-pill">Verified</span>
-      <button type="button">Download Source</button>
+
+    <div class="status-badge-container">
+      <span class="status-label">Current Status</span>
+      <div class="status-badge">
+        <mat-icon inline>pending_actions</mat-icon>
+        MANUAL_REVIEW
+      </div>
     </div>
-  </header>
+  </div>
 
-  <section class="main-grid">
-    <div class="left-stack">
-      <article class="panel-card">
-        <div class="panel-head">
-          <h2>Validation Status</h2>
-          <span>◈</span>
-        </div>
+  <div class="row g-4">
+    <!-- Left Column (lg-8) -->
+    <div class="col-12 col-lg-8">
 
-        <div class="score-block">
-          <p>Confidence Score</p>
-          <strong>98.4%</strong>
-        </div>
-
-        <div class="segments" aria-label="Confidence segments">
-          @for (segment of confidenceSegments(); track $index) {
-            <span [class.segment-off]="!segment"></span>
-          }
-        </div>
-
-        <div class="validation-details">
-          <div><span>Type Match</span><strong>PASSPORT (Detected)</strong></div>
-          <div><span>Expected Type</span><strong>GOV_ID</strong></div>
-          <p>
-            <strong>Reason:</strong> Machine learning signals indicate high structural parity with
-            standard travel documents. Biometric markers align with expected fields.
-          </p>
-        </div>
-      </article>
-
-      <article class="panel-card panel-soft">
-        <h3>Signal Integrity</h3>
-        <div class="signal-list">
-          @for (signal of integritySignals(); track signal.label) {
+      <!-- AI Assessment Card -->
+      <mat-card class="vault-card">
+        <mat-card-content>
+          <div class="vault-card-header">
             <div>
-              <span>{{ signal.label }}</span>
-              <span class="signal-value">{{ signal.value }}</span>
+              <h2>AI Automated Validation</h2>
+              <p>Compliance Assessment</p>
             </div>
-          }
-        </div>
-      </article>
+            <div class="score">
+              <div class="value">94%</div>
+              <div class="label">Confidence Score</div>
+            </div>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-box">
+              <div class="meta-label">Expected Type</div>
+              <div class="meta-value">Biometric Passport</div>
+            </div>
+            <div class="meta-box">
+              <div class="meta-label">Detected Type</div>
+              <div class="meta-value">Biometric Passport</div>
+            </div>
+            <div class="meta-box highlight">
+              <div class="meta-label">Match Status</div>
+              <div class="meta-value">
+                <mat-icon inline>check_circle</mat-icon> Verified Match
+              </div>
+            </div>
+          </div>
+
+          <div class="progress-container">
+            <div class="progress-header">
+              <span>Threshold Alignment</span>
+              <span>Pass</span>
+            </div>
+            <div class="segmented-progress">
+              <div class="segment"></div>
+              <div class="segment"></div>
+              <div class="segment"></div>
+              <div class="segment"></div>
+              <div class="segment"></div>
+              <div class="segment"></div>
+              <div class="segment"></div>
+              <div class="segment"></div>
+              <div class="segment"></div>
+              <div class="segment off"></div>
+            </div>
+          </div>
+
+          <div class="info-alert mt-4">
+            <mat-icon inline style="color: #001735;">info</mat-icon>
+            <div>
+              "The document shows high structural integrity. Security watermarks detected. MRZ checksum validates
+              correctly. Manual review requested due to slight glare on portrait area preventing 100% facial vector
+              match."
+            </div>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Data Table Card -->
+      <mat-card class="vault-card">
+        <mat-card-content style="padding-bottom: 0 !important;">
+          <h2 class="table-header-title mb-4">
+            <mat-icon inline>compare_arrows</mat-icon>
+            Extracted Information vs Expected Data
+          </h2>
+
+          <div class="table-responsive">
+            <table class="vault-table">
+              <thead>
+                <tr>
+                  <th>Field Label</th>
+                  <th>Expected (Database)</th>
+                  <th>Extracted (OCR)</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="label-col">GIVEN_NAME</td>
+                  <td>ALEXANDER</td>
+                  <td>ALEXANDER</td>
+                  <td><span class="badge-valid">Valid</span></td>
+                </tr>
+                <tr>
+                  <td class="label-col">SURNAME</td>
+                  <td>THOMPSON</td>
+                  <td>THOMPSON</td>
+                  <td><span class="badge-valid">Valid</span></td>
+                </tr>
+                <tr>
+                  <td class="label-col">DOC_NUMBER</td>
+                  <td>L9822001</td>
+                  <td>L9822001</td>
+                  <td><span class="badge-valid">Valid</span></td>
+                </tr>
+                <tr>
+                  <td class="label-col">EXPIRY_DATE</td>
+                  <td class="text-error">2024-05-12</td>
+                  <td class="text-error">2024-05-12</td>
+                  <td><span class="badge-expired">Expired</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
     </div>
 
-    <div class="right-stack">
-      <article class="panel-card">
-        <h2>Extracted Data Points</h2>
-        <div class="data-grid">
-          @for (item of dataPoints(); track item.label) {
-            <div class="data-cell">
-              <label>{{ item.label }}</label>
-              <p>{{ item.value }}</p>
-            </div>
-          }
-        </div>
-      </article>
+    <!-- Right Column (lg-4) -->
+    <div class="col-12 col-lg-4">
 
-      <article class="panel-card">
-        <h3>Field Coverage Audit</h3>
-        <div class="coverage-head">
-          <span>Target Field</span><span>Status</span><span>Confidence</span>
-        </div>
-        <div class="coverage-body">
-          @for (entry of coverage(); track entry.field) {
-            <div class="coverage-row">
-              <span>{{ entry.field }}</span>
-              <span>• Found</span>
-              <span>{{ entry.confidence }}</span>
-            </div>
-          }
-        </div>
-      </article>
-    </div>
-  </section>
+      <!-- Target Entity Identity -->
+      <mat-card class="identity-card">
+        <div class="identity-decoration"></div>
+        <mat-card-content>
+          <div class="id-label">Target Entity Identity</div>
 
-  <section class="preview-card" aria-label="Document preview">
-    <div class="preview-overlay">
-      <p class="preview-title">Interactive Preview Secured</p>
-      <p class="preview-copy">Click to expand high-resolution viewport</p>
-      <button type="button">Launch Vault Viewer</button>
+          <div class="profile-header">
+            <div class="icon-circle">
+              <mat-icon inline style="font-size: 1.5rem; width: 1.5rem; height: 1.5rem;">person</mat-icon>
+            </div>
+            <div>
+              <h3>Alexander Thompson</h3>
+              <p>Customer ID: #USR-8829-X</p>
+            </div>
+          </div>
+
+          <div class="id-details">
+            <div class="detail-row">
+              <span class="key">Entity Type</span>
+              <span class="val">Natural Person</span>
+            </div>
+            <div class="detail-row">
+              <span class="key">Registration</span>
+              <span class="val">UK-RES-2023</span>
+            </div>
+            <div class="detail-row">
+              <span class="key">Risk Profile</span>
+              <span class="val-low">LOW</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Integrity Signals -->
+      <mat-card class="vault-card">
+        <mat-card-content>
+          <div class="section-label">Integrity Signals</div>
+
+          <div class="integrity-list">
+            <div class="integrity-item">
+              <div class="left">
+                <mat-icon inline>photo_filter</mat-icon> Image Clarity
+              </div>
+              <div class="right">98%</div>
+            </div>
+            <div class="integrity-item">
+              <div class="left">
+                <mat-icon inline>qr_code_scanner</mat-icon> MRZ Valid
+              </div>
+              <div class="right"><mat-icon inline>check_circle</mat-icon></div>
+            </div>
+            <div class="integrity-item">
+              <div class="left">
+                <mat-icon inline>face</mat-icon> Face Match
+              </div>
+              <div class="right">82%</div>
+            </div>
+            <div class="integrity-item">
+              <div class="left">
+                <mat-icon inline>security</mat-icon> Hologram Check
+              </div>
+              <div class="right"><mat-icon inline>check_circle</mat-icon></div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Actions -->
+      <div class="action-buttons">
+        <button mat-button class="btn-download-archive">
+          <mat-icon inline>download</mat-icon> Download Archive
+        </button>
+        <div class="sub-actions">
+          <button mat-button>
+            <mat-icon inline>edit</mat-icon> Metadata
+          </button>
+          <button mat-button>
+            <mat-icon inline>update</mat-icon> Update Status
+          </button>
+        </div>
+        <button mat-button class="btn-void">
+          Void Document Instance
+        </button>
+      </div>
+
     </div>
-  </section>
-</section>
+  </div>
+</div>
+
+<!-- Visual Inspection Point Banner -->
+<div class="visual-inspection">
+  <div class="bg-pattern"></div>
+  <div class="magnify-button">
+    <mat-icon inline>search</mat-icon>
+  </div>
+  <div class="inspection-label">Visual Inspection Point</div>
+  <h3 class="inspection-title">Secure Rendering Engine v4.0</h3>
+</div>
+
+<div class="mt-5 d-flex justify-content-between align-items-center"
+  style="opacity: 0.6; font-size: 0.625rem; font-weight: 700; text-transform: uppercase;">
+  <div class="d-flex align-items-center gap-2">
+    <div style="background: #001735; color: white; padding: 0.25rem; border-radius: 4px; display: inline-flex;">
+      <mat-icon inline style="font-size: 1rem; width: 1rem; height: 1rem;">shield</mat-icon>
+    </div>
+    <div>
+      <div style="color: #001735; font-weight: 900; letter-spacing: 0.05em;">THE VAULT COMPLIANCE ENGINE</div>
+      <div style="font-weight: 500;">TRANSACTION HASH: 0X82F...A109</div>
+    </div>
+  </div>
+  <div style="letter-spacing: 0.1em; color: #43474f;">
+    VERITAS PROTOCOL © 2024
+  </div>
+</div>

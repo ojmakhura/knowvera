@@ -5,6 +5,7 @@
 //
 package bw.co.centralkyc.individual;
 
+import bw.co.centralkyc.organisation.OrganisationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -55,6 +56,8 @@ public class IndividualApiImpl implements IndividualApi {
     private final EmailService emailService;
     private final IndividualService individualService;
 
+    private final OrganisationService organisationService;
+
     private static final String newUserTemplate = """
             Dear %s,
 
@@ -71,7 +74,7 @@ public class IndividualApiImpl implements IndividualApi {
             CentralKYC Team
             """;
 
-    public IndividualApiImpl(IndividualService individualService, KeycloakUserService keycloakUserService,
+    public IndividualApiImpl(IndividualService individualService, KeycloakUserService keycloakUserService, OrganisationService organisationService,
             BranchService branchService, EmailService emailService, KeycloakOrganisationService keycloakOrgService) {
 
         this.individualService = individualService;
@@ -79,6 +82,7 @@ public class IndividualApiImpl implements IndividualApi {
         this.branchService = branchService;
         this.emailService = emailService;
         this.keycloakOrgService = keycloakOrgService;
+        this.organisationService = organisationService;
     }
 
     @Override
@@ -92,7 +96,7 @@ public class IndividualApiImpl implements IndividualApi {
 
                 if(data.getOrganisation() != null && StringUtils.isNotBlank(data.getOrganisation().id())) {
 
-                    OrganisationDTO org = keycloakOrgService.findById(data.getOrganisation().id());
+                    OrganisationDTO org = organisationService.findById(data.getOrganisation().id());
                     OrganisationListDTO o = new OrganisationListDTO(
                         org.getId(), 
                         org.getCode(), 

@@ -1,192 +1,275 @@
-<section class="ind-edit-page" aria-label="Edit individual">
-  <header class="edit-head">
-    <div>
-      <h1>Edit Individual</h1>
-      <p>Modify compliance records for ID-VARS-99283</p>
-    </div>
-    <div class="head-actions">
-      <button type="button" class="btn btn-secondary">Cancel</button>
-      <button type="button" class="btn btn-primary">
-        <span class="material-symbols-outlined" aria-hidden="true">save</span>
-        Save Changes
-      </button>
-    </div>
-  </header>
+<main class="edit-page">
+	@if (loading()) {
+		<div class="loading-overlay">
+			<div class="loading-panel">{{ loaderMessage() || 'Loading individual...' }}</div>
+		</div>
+	}
 
-  <form class="edit-form">
-    <section class="panel">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-flex align-items-center gap-2">
-          <span class="material-symbols-outlined">person</span>
-          <h2 class="mb-0">Core Identity</h2>
-        </div>
-        <div class="form-check form-switch mb-0">
-          <input class="form-check-input" type="checkbox" id="hasUser" [formField]="editIndividualSignalForm.hasUser" />
-          <label class="form-check-label" for="hasUser">Has System User</label>
-        </div>
-      </div>
+	<header class="top-bar">
+		<div>
+			<h1 class="page-title">Edit Individual</h1>
+			<p class="page-subtitle">Modify compliance records for {{ editIndividualSignal().identityNo || 'new individual profile' }}</p>
+		</div>
 
-      <div class="row g-3">
-        <div class="col-md-4"><label class="form-label">First Name</label><input class="form-control" type="text"
-            [formField]="editIndividualSignalForm.firstName" /></div>
-        <div class="col-md-4"><label class="form-label">Middle Name</label><input class="form-control" type="text"
-            [formField]="editIndividualSignalForm.middleName" /></div>
-        <div class="col-md-4"><label class="form-label">Surname</label><input class="form-control" type="text"
-            [formField]="editIndividualSignalForm.surname" /></div>
-        <div class="col-md-4"><label class="form-label">Sex</label><select class="form-select" [formField]="editIndividualSignalForm.sex">
-            <option></option>
-            @for(key of SexOptions; track key) {
-            <option [value]="key">
-              {{ SexT[key] }}
-            </option>
-            }
-          </select></div>
-        <div class="col-md-4"><label class="form-label">Nationality</label><select class="form-select" [formField]="editIndividualSignalForm.nationality">
-            <option></option>
-            @for (country of countries; track country) {
-            <option [value]="country">{{ country }}</option>
-            }
-          </select></div>
-        <div class="col-md-4"><label class="form-label">Marital Status</label><select class="form-select"
-            [formField]="editIndividualSignalForm.maritalStatus">
-            <option></option>
-            @for (key of MaritalStatusOptions; track key) {
-            <option [value]="key">
-              {{ MaritalStatusT[key] }}
-            </option>
-            }
-          </select></div>
-      </div>
-    </section>
+		<div class="top-actions desktop-actions">
+			<button mat-button type="button" class="cancel-btn" (click)="cancel()">Cancel</button>
+			<button mat-flat-button type="button" class="save-btn" (click)="save()">
+				<mat-icon>save</mat-icon>
+				Save Changes
+			</button>
+		</div>
+	</header>
 
-    <div class="row g-3">
-      <div class="col-md-6">
-        <section class="panel h-100">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <span class="material-symbols-outlined">badge</span>
-            <h2 class="mb-0">Identification</h2>
-          </div>
-          <div class="row g-3">
-            <div class="col-md-6"><label class="form-label">Identity Type</label><select class="form-select"
-                [formField]="editIndividualSignalForm.identityType">
-                <option></option>
-                @for (key of IndividualIdentityTypeOptions; track key) {
-                <option [value]="key">
-                  {{ IndividualIdentityTypeT[key] }}
-                </option>
-                }
-              </select></div>
-            <div class="col-md-6"><label class="form-label">Identity Number</label><input class="form-control" type="text"
-                [formField]="editIndividualSignalForm.identityNo" /></div>
-          </div>
-        </section>
-      </div>
+	<form class="edit-form" (ngSubmit)="save()">
+		<mat-card class="vault-card">
+			<div class="section-header">
+				<mat-icon>person</mat-icon>
+				<h2>Core Identity</h2>
+                <div class="toggle-card">
+					<span>Has System User</span>
+					<mat-slide-toggle [checked]="!!editIndividualSignal().hasUser" (change)="updateField('hasUser', $event.checked)"></mat-slide-toggle>
+				</div>
+			</div>
 
-      <div class="col-md-6">
-        <section class="panel h-100">
-          <div class="d-flex align-items-center gap-2 mb-3">
-            <span class="material-symbols-outlined">verified_user</span>
-            <h2 class="mb-0">Compliance &amp; Employment</h2>
-          </div>
-          <div class="row g-3">
-            <div class="col-md-6"><label class="form-label">KYC Status</label><select class="form-select" [formField]="editIndividualSignalForm.kycStatus">
-                <option></option>
-                @for (key of KycComplianceStatusOptions; track key) {
-                <option [value]="key">
-                  {{ KycComplianceStatusT[key] }}
-                </option>
-                }
-              </select></div>
-            <div class="col-md-6"><label class="form-label">Employment Status</label><select class="form-select"
-                [formField]="editIndividualSignalForm.employmentStatus">
-                <option></option>
-                @for (key of EmploymentStatusOptions; track key) {
-                <option [value]="key">
-                  {{ EmploymentStatusT[key] }}
-                </option>
-                }
-              </select></div>
-          </div>
-        </section>
-      </div>
-    </div>
+			<div class="grid three-col">
+				<div class="field-block">
+					<label>First Name</label>
+					<mat-form-field appearance="outline" class="vault-field">
+						<input matInput [value]="editIndividualSignal().firstName || ''" (input)="updateTextField('firstName', $any($event.target).value)" type="text" />
+					</mat-form-field>
+				</div>
 
-    <section class="panel">
-      <div class="d-flex align-items-center gap-2 mb-3">
-        <span class="material-symbols-outlined">contact_mail</span>
-        <h2 class="mb-0">Contact Information</h2>
-      </div>
+				<div class="field-block">
+					<label>Middle Name</label>
+					<mat-form-field appearance="outline" class="vault-field">
+						<input matInput [value]="editIndividualSignal().middleName || ''" (input)="updateTextField('middleName', $any($event.target).value)" type="text" />
+					</mat-form-field>
+				</div>
 
-        <div class="row g-3">
-        <div class="col-md-6"><label class="form-label">Email Address</label><input class="form-control" type="email"
-          [formField]="editIndividualSignalForm.emailAddress" /></div>
-        <div class="col-md-6"><label class="form-label">Physical Address</label><textarea rows="2" class="form-control"
-          [formField]="editIndividualSignalForm.physicalAddress"></textarea></div>
-      </div>
+				<div class="field-block">
+					<label>Surname</label>
+					<mat-form-field appearance="outline" class="vault-field">
+						<input matInput [value]="editIndividualSignal().surname || ''" (input)="updateTextField('surname', $any($event.target).value)" type="text" />
+					</mat-form-field>
+				</div>
 
-      <div class="mt-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <span class="fw-semibold">Phone Numbers</span>
-          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="phoneNumbersAdd()">+ Add Number</button>
-        </div>
+				<div class="field-block">
+					<label>Sex</label>
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-select [value]="editIndividualSignal().sex" (selectionChange)="updateField('sex', $event.value)">
+							@for (option of SexOptions; track option) {
+								<mat-option [value]="SexT[option]">{{ option }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+				</div>
 
-        <div class="row g-2 align-items-end">
-          <div class="col-md-4"><label class="form-label">Type</label><select class="form-select" [value]="newPhoneType()"
-              (change)="newPhoneType.set($any($event.target).value)">
-              @for (type of PhoneTypeOptions; track type) {
-              <option [value]="type">{{ type }}</option>
-              }
-            </select></div>
-          <div class="col-md-8"><label class="form-label">Number</label><input class="form-control" type="text" [value]="newPhoneNumber()"
-              (input)="newPhoneNumber.set($any($event.target).value)" placeholder="e.g. +44 7700 900123" /></div>
-        </div>
+				<div class="field-block">
+					<label>Nationality</label>
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-select [value]="editIndividualSignal().nationality" (selectionChange)="updateField('nationality', $event.value)">
+							@for (country of countries; track country) {
+								<mat-option [value]="country">{{ country }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+				</div>
 
-        @if (editIndividualSignal().phoneNumbers.length) {
-        <div class="mt-2 d-flex flex-column gap-1">
-          @for (phone of editIndividualSignal().phoneNumbers; track $index) {
-          <div class="d-flex justify-content-between align-items-center border rounded px-3 py-2">
-            <div>{{ phone.type }}: {{ phone.phoneNumber }}</div>
-            <button type="button" class="btn btn-sm btn-outline-danger" (click)="phoneNumbersRemove($index)">Remove</button>
-          </div>
-          }
-        </div>
-        } @else {
-        <p class="text-muted fst-italic small mt-2">No phone numbers added yet.</p>
-        }
-      </div>
-    </section>
+				<div class="field-block">
+					<label>Marital Status</label>
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-select [value]="editIndividualSignal().maritalStatus" (selectionChange)="updateField('maritalStatus', $event.value)">
+							@for (option of MaritalStatusOptions; track option) {
+								<mat-option [value]="MaritalStatusT[option]">{{ option }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+				</div>
+			</div>
+		</mat-card>
 
-    <section class="panel">
-      <div class="d-flex align-items-center gap-2 mb-3">
-        <span class="material-symbols-outlined">account_tree</span>
-        <h2 class="mb-0">Organizational Context</h2>
-      </div>
+		<div class="split-sections">
+			<mat-card class="vault-card">
+				<div class="section-header">
+					<mat-icon>badge</mat-icon>
+					<h2>Identification</h2>
+				</div>
 
-      <div class="row g-3 align-items-end">
-        <div class="col-md-6">
-          <label class="form-label">Organisation</label>
-          <input class="form-control" type="text" [value]="organisationSearch()" (input)="onOrganisationSearchInput($any($event.target).value)"
-            list="organisation-options" placeholder="Search by code or name" />
-          <datalist id="organisation-options">
-            @for (organisation of filteredOrganisationList(); track organisation.id) {
-            <option [value]="organisationOptionLabel(organisation)"></option>
-            }
-          </datalist>
-        </div>
+				<div class="grid one-col">
+					<div class="field-block">
+						<label>Identity Type</label>
+						<mat-form-field appearance="outline" class="vault-field">
+							<mat-select [value]="editIndividualSignal().identityType" (selectionChange)="updateField('identityType', $event.value)">
+								@for (option of IndividualIdentityTypeOptions; track option) {
+									<mat-option [value]="IndividualIdentityTypeT[option]">{{ option }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+					</div>
 
-        <div class="col-md-6">
-          <label class="form-label">Branch</label>
-          <input class="form-control" type="text" [value]="branchSearch()" (input)="onBranchSearchInput($any($event.target).value)"
-            list="branch-options" [disabled]="!editIndividualSignal().organisation" placeholder="Search by code or name" />
-          <datalist id="branch-options">
-            @for (branch of filteredBranchList(); track branch.id ?? branch.code ?? $index) {
-            <option [value]="branchOptionLabel(branch)"></option>
-            }
-          </datalist>
-        </div>
-      </div>
-    </section>
-  </form>
+					<div class="field-block">
+						<label>Identity Number</label>
+						<mat-form-field appearance="outline" class="vault-field">
+							<input matInput [value]="editIndividualSignal().identityNo || ''" (input)="updateTextField('identityNo', $any($event.target).value)" type="text" />
+						</mat-form-field>
+					</div>
+				</div>
+			</mat-card>
 
-</section>
-<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+			<mat-card class="vault-card">
+				<div class="section-header">
+					<mat-icon>verified_user</mat-icon>
+					<h2>Compliance & Employment</h2>
+				</div>
+
+				<div class="grid one-col">
+					<div class="field-block">
+						<label>KYC Status</label>
+						<mat-form-field appearance="outline" class="vault-field emphasis-field">
+							<mat-select [value]="editIndividualSignal().kycStatus" (selectionChange)="updateField('kycStatus', $event.value)">
+								@for (option of KycComplianceStatusOptions; track option) {
+									<mat-option [value]="KycComplianceStatusT[option]">{{ option }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+					</div>
+
+					<div class="field-block">
+						<label>Employment Status</label>
+						<mat-form-field appearance="outline" class="vault-field">
+							<mat-select [value]="editIndividualSignal().employmentStatus" (selectionChange)="updateField('employmentStatus', $event.value)">
+								@for (option of EmploymentStatusOptions; track option) {
+									<mat-option [value]="EmploymentStatusT[option]">{{ option }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+					</div>
+				</div>
+			</mat-card>
+		</div>
+
+		<mat-card class="vault-card">
+			<div class="section-header">
+				<mat-icon>contact_mail</mat-icon>
+				<h2>Contact Information</h2>
+			</div>
+
+			<div class="grid two-col wide-gap contact-top-grid">
+				<div class="field-block">
+					<label>Email Address</label>
+					<mat-form-field appearance="outline" class="vault-field">
+						<input matInput [value]="editIndividualSignal().emailAddress || ''" (input)="updateTextField('emailAddress', $any($event.target).value)" type="email" />
+					</mat-form-field>
+				</div>
+
+				<div class="field-block">
+					<label>Physical Address</label>
+					<mat-form-field appearance="outline" class="vault-field textarea-field">
+						<textarea matInput [value]="editIndividualSignal().physicalAddress || ''" (input)="updateTextField('physicalAddress', $any($event.target).value)" rows="2"></textarea>
+					</mat-form-field>
+				</div>
+			</div>
+
+			<div class="phones-block">
+				<div class="phones-header">
+					<label>Phone Numbers</label>
+					<button mat-button type="button" class="add-phone-btn" (click)="addPhoneNumber()">
+						<mat-icon>add_circle</mat-icon>
+						Add Number
+					</button>
+				</div>
+
+				<div class="phone-list">
+					@for (phone of editIndividualSignal().phoneNumbers; track phone; let i = $index) {
+						<div class="phone-row">
+							<div class="phone-edit-grid">
+								<div class="field-block phone-field">
+									<label>Type</label>
+									<mat-form-field appearance="outline" class="vault-field compact-field">
+										<mat-select [value]="$any(phone).type" (selectionChange)="updatePhoneType(i, $event.value)">
+											@for (option of PhoneTypeOptions; track option) {
+												<mat-option [value]="PhoneTypeT[option]">{{ option }}</mat-option>
+											}
+										</mat-select>
+									</mat-form-field>
+								</div>
+
+								<div class="field-block phone-field phone-number-field">
+									<label>Number</label>
+									<mat-form-field appearance="outline" class="vault-field compact-field">
+										<input matInput [value]="$any(phone).phoneNumber || ''" (input)="updatePhoneNumber(i, $any($event.target).value)" type="text" />
+									</mat-form-field>
+								</div>
+							</div>
+
+							<button mat-icon-button type="button" class="delete-phone-btn" (click)="phoneNumbersRemove(i)">
+								<mat-icon>delete</mat-icon>
+							</button>
+						</div>
+					} @empty {
+						<div class="empty-state">No phone numbers added yet.</div>
+					}
+				</div>
+			</div>
+		</mat-card>
+
+		<mat-card class="vault-card">
+			<div class="section-header">
+				<mat-icon>account_tree</mat-icon>
+				<h2>Organizational Context</h2>
+			</div>
+
+			<div class="grid three-col align-end">
+				<div class="field-block">
+					<label>Organisation</label>
+					<mat-form-field appearance="outline" class="vault-field">
+						<input
+							matInput
+							[value]="organisationSearch()"
+							(input)="onOrganisationSearchInput($any($event.target).value)"
+							[matAutocomplete]="organisationAuto"
+						/>
+						<mat-icon matSuffix>search</mat-icon>
+					</mat-form-field>
+					<mat-autocomplete #organisationAuto="matAutocomplete" (optionSelected)="selectOrganisation($event.option.value)">
+						@for (organisation of filteredOrganisationList(); track organisation.id) {
+							<mat-option [value]="organisationOptionLabel(organisation)">{{ organisationOptionLabel(organisation) }}</mat-option>
+						}
+					</mat-autocomplete>
+				</div>
+
+				<div class="field-block">
+					<label>Branch</label>
+					<mat-form-field appearance="outline" class="vault-field">
+						<input
+							matInput
+							[value]="branchSearch()"
+							(input)="onBranchSearchInput($any($event.target).value)"
+							[matAutocomplete]="branchAuto"
+							[disabled]="!editIndividualSignal().organisation"
+						/>
+					</mat-form-field>
+					<mat-autocomplete #branchAuto="matAutocomplete" (optionSelected)="selectBranch($event.option.value)">
+						@for (branch of filteredBranchList(); track branch.id) {
+							<mat-option [value]="branchOptionLabel(branch)">{{ branchOptionLabel(branch) }}</mat-option>
+						}
+					</mat-autocomplete>
+				</div>
+			</div>
+		</mat-card>
+
+		<div class="mobile-actions">
+			<button mat-flat-button type="submit" class="save-btn full-width">
+				<mat-icon>save</mat-icon>
+				Save Changes
+			</button>
+			<button mat-button type="button" class="mobile-cancel-btn" (click)="cancel()">Cancel</button>
+		</div>
+	</form>
+
+	<div class="footer-stamp">
+		<div class="stamp-line"></div>
+		<span>Veritas Protocol Security Standard v4.2</span>
+		<div class="stamp-line"></div>
+	</div>
+</main>

@@ -1,4 +1,26 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatListModule } from '@angular/material/list';
+import { MatTableModule } from '@angular/material/table';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  Input,
+  linkedSignal,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { Loader } from '@app/@shared/loader/loader';
+import { ToastrService } from 'ngx-toastr';
+import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
 
 type DataPoint = {
   label: string;
@@ -20,29 +42,55 @@ type IntegritySignal = {
   templateUrl: './document-details.html',
   styleUrls: ['./document-details.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    MatDividerModule,
+    MatListModule,
+    MatTableModule,
+    Loader,
+  ],
 })
-export class DocumentDetails {
-  protected readonly dataPoints = signal<DataPoint[]>([
-    { label: 'Full Name', value: 'JOHNATHAN DOE' },
-    { label: 'Document Number', value: 'EP7882104' },
-    { label: 'Date of Birth', value: '14 JAN 1988' },
-    { label: 'Expiration Date', value: '14 JAN 2028' },
-    { label: 'Issuing Authority', value: 'IPSWICH OFFICE' },
-    { label: 'Nationality', value: 'BRITISH CITIZEN' },
-  ]);
+export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
+  toaster: ToastrService = inject(ToastrService);
+  readonly documentApiStore = inject(DocumentApiStore);
 
-  protected readonly coverage = signal<CoverageItem[]>([
-    { field: 'mrz_code', confidence: '0.992' },
-    { field: 'biometric_photo', confidence: '0.978' },
-    { field: 'place_of_birth', confidence: '0.954' },
-    { field: 'signature_scan', confidence: '0.891' },
-  ]);
+  loaderMessage = linkedSignal(() => this.documentApiStore.loaderMessage());
+  messages = linkedSignal(() => this.documentApiStore.messages());
+  success = linkedSignal(() => this.documentApiStore.success());
+  loading = linkedSignal(() => this.documentApiStore.loading());
+  error = linkedSignal(() => this.documentApiStore.error());
 
-  protected readonly integritySignals = signal<IntegritySignal[]>([
-    { label: 'Metadata Consistency', value: 'High' },
-    { label: 'OCR Clarity', value: 'Optimal' },
-    { label: 'Anti-Tamper Check', value: 'Pass' },
-  ]);
+  @Input() id!: string;
 
-  protected readonly confidenceSegments = signal([true, true, true, true, false]);
+  document = linkedSignal(() => this.documentApiStore.data());
+
+  constructor() {
+    effect(() => {
+      let messages = this.messages();
+
+      if (this.success() && !this.loading()) {
+        this.toaster.success(messages[0]);
+      }
+
+      if (this.error() && !this.loading()) {
+        this.toaster.error(messages[0]);
+      }
+    });
+  }
+
+  ngOnInit(): void {
+
+    if(this.id) {
+      this.documentApiStore.findById({id: this.id});
+    }
+  }
+
+  ngAfterViewInit(): void {}
+
+  ngOnDestroy(): void {}
 }

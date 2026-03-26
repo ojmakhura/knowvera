@@ -1,3 +1,10 @@
+import { MatCardModule } from '@angular/material/card';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,10 +27,21 @@ export class SearchSequencesVarsForm {
   templateUrl: './sequences.html',
   styleUrls: ['./sequences.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {},
-  imports: [CommonModule, MatIconModule],
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatCardModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatButtonModule
+  ],
 })
 export class Sequences implements OnInit, AfterViewInit, OnDestroy {
+  displayedColumns: string[] = ['name', 'targetEntity', 'patternPreview', 'lastModified', 'actions'];
+
   searchSequencesVarsForm = new SearchSequencesVarsForm();
   searchSequencesSignal = signal(this.searchSequencesVarsForm);
 
@@ -67,6 +85,11 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
 
   doSearch(pageNumber: number = 0): void {
     this.recomputeRows(pageNumber);
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageSize.set(event.pageSize);
+    this.recomputeRows(event.pageIndex);
   }
 
   pageNumbers(): number[] {
@@ -136,14 +159,50 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/', 'sequence', 'edit', id]);
   }
 
+  activeProtocols(): number {
+    return new Set(
+      this.allRows()
+        .map((row) => String(row.targetEntity || '').trim())
+        .filter(Boolean),
+    ).size;
+  }
+
+  showingLabel(): string {
+    if (!this.totalElements()) {
+      return '0-0';
+    }
+
+    const start = this.currentPage() * this.pageSize() + 1;
+    const end = Math.min(start + this.rows().length - 1, this.totalElements());
+    return `${start}-${end}`;
+  }
+
+  targetLabel(target: TargetEntity | string | null | undefined): string {
+    return String(target || 'UNASSIGNED').replaceAll('_', ' ');
+  }
+
   iconOf(row: SequenceGeneratorDTO): string {
     switch (row.targetEntity) {
       case 'DOCUMENT':
         return 'description';
       case 'ORGANISATION':
-        return 'domain';
+        return 'corporate_fare';
       case 'INDIVIDUAL':
         return 'person';
+      case 'BRANCH':
+        return 'account_tree';
+      case 'SUBSCRIPTION':
+        return 'workspace_premium';
+      case 'INVOICE':
+        return 'receipt_long';
+      case 'QUOTATION':
+        return 'request_quote';
+      case 'CLIENT_REQUEST':
+        return 'assignment_ind';
+      case 'KYC_RECORD':
+        return 'verified_user';
+      case 'CONTACT':
+        return 'contact_mail';
       default:
         return 'tag';
     }
@@ -163,7 +222,7 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
   }
 
   lastModifiedOf(row: SequenceGeneratorDTO): string {
-    return row.id ? `ID ${row.id}` : '—';
+    return row.id ? `Record #${row.id}` : 'Pending ID';
   }
 
   formatDate(value: Date | string | null | undefined): string {

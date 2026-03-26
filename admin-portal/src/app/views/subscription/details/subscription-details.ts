@@ -1,53 +1,269 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-
-type OverviewItem = {
-  label: string;
-  value: string;
-};
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, Input, linkedSignal, OnDestroy, OnInit } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router, RouterLink } from '@angular/router';
+import { KycInvoiceDTO } from '@app/models/bw/co/centralkyc/invoice/kyc-invoice-dto';
+import { KycSubsciptionStatus } from '@app/models/bw/co/centralkyc/subscription/kyc-subsciption-status';
+import { KycSubscriptionDTO } from '@app/models/bw/co/centralkyc/subscription/kyc-subscription-dto';
+import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscription/kyc-subscription-api.store';
 
 type TimelineItem = {
   icon: string;
   label: string;
   value: string;
-};
-
-type InvoiceItem = {
-  ref: string;
-  date: string;
-  amount: string;
-  status: string;
+  tone?: 'primary' | 'warn';
 };
 
 @Component({
   selector: 'app-subscription-details',
+  standalone: true,
   templateUrl: './subscription-details.html',
   styleUrls: ['./subscription-details.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    MatChipsModule,
+    MatIconModule,
+    MatTableModule,
+    MatTooltipModule,
+    RouterLink
+  ],
+  providers: [DatePipe, CurrencyPipe],
 })
-export class SubscriptionDetails {
-  protected readonly overview = signal<OverviewItem[]>([
-    { label: 'Reference ID', value: 'VP-SUB-9921-XQ' },
-    { label: 'Status', value: 'Active' },
-    { label: 'Annual Commitment', value: '$42,000 /yr' },
-    { label: 'Service Tier', value: 'Enterprise Vault' },
-  ]);
+export class SubscriptionDetails implements OnInit, OnDestroy {
+  @Input() id: string = '';
 
-  protected readonly timeline = signal<TimelineItem[]>([
-    { icon: 'event_available', label: 'Start Date', value: 'January 01, 2024' },
-    { icon: 'event_busy', label: 'End Date', value: 'December 31, 2024' },
-    { icon: 'schedule', label: 'Billing Period', value: 'Annual (Net-30)' },
-  ]);
+  private readonly router = inject(Router);
+  private readonly datePipe = inject(DatePipe);
+  private readonly currencyPipe = inject(CurrencyPipe);
+  private readonly kycSubscriptionApiStore = inject(KycSubscriptionApiStore);
 
-  protected readonly mapping = signal<OverviewItem[]>([
-    { label: 'Legal Entity Name', value: 'Global FinTech Solutions Ltd.' },
-    { label: 'Organisation Code', value: 'GFS-EMEA-88' },
-    { label: 'Registration No.', value: 'REG-2023-441092-B' },
-  ]);
+  protected readonly displayedInvoiceColumns = ['ref', 'date', 'amount', 'status', 'actions'];
+  protected readonly statusEnum = KycSubsciptionStatus;
+  protected readonly loading = linkedSignal(() => this.kycSubscriptionApiStore.loading());
+  protected readonly subscription = linkedSignal<KycSubscriptionDTO>(() => this.kycSubscriptionApiStore.data() || new KycSubscriptionDTO());
+  protected readonly invoices = computed(() => this.subscription().invoices || []);
+  protected readonly progressSegments = computed(() => {
+    const filled = Math.round(this.progressRatio() * 5);
 
-  protected readonly invoices = signal<InvoiceItem[]>([
-    { ref: 'INV-2024-001', date: 'Jan 05, 2024', amount: '$42,000.00', status: 'Paid' },
-    { ref: 'INV-2023-012', date: 'Dec 05, 2023', amount: '$3,500.00', status: 'Paid' },
-  ]);
+    return Array.from({ length: 5 }, (_, index) => index < filled);
+  });
+  protected readonly timeline = computed<TimelineItem[]>(() => {
+    const subscription = this.subscription();
 
-  protected readonly progressSegments = signal([true, true, true, false, false]);
+    return [
+      { icon: 'event_available', label: 'Start Date', value: this.formatDate(subscription.startDate), tone: 'primary' },
+      { icon: 'event_busy', label: 'End Date', value: this.formatDate(subscription.endDate), tone: 'warn' },
+      { icon: 'schedule', label: 'Billing Period', value: this.billingPeriodLabel(), tone: 'primary' },
+    ];
+  });
+
+  ngOnInit(): void {
+    if (this.id) {
+      this.kycSubscriptionApiStore.findById({ id: this.id });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.kycSubscriptionApiStore.reset();
+  }
+
+  backToSubscriptions(): void {
+    this.router.navigate(['/subscription']);
+  }
+
+  openRenew(): void {
+    this.router.navigate(['/subscription', 'edit', this.subscription().id || this.id]);
+  }
+
+  openInvoice(invoice: KycInvoiceDTO): void {
+    if (!invoice?.id) {
+      return;
+    }
+
+    this.router.navigate(['/invoice', 'details', invoice.id]);
+  }
+
+  printView(): void {
+    window.print();
+  }
+
+  copyOrganisationCode(): void {
+    const code = this.subscription().organisationCode;
+
+    if (!code || !navigator.clipboard) {
+      return;
+    }
+
+    navigator.clipboard.writeText(String(code));
+  }
+
+  title(): string {
+    return this.subscription().ref || 'Subscription Details';
+  }
+
+  subtitle(): string {
+    return 'Veritas Protocol / Compliance Environment';
+  }
+
+  annualCommitment(): string {
+    return this.formatAmount(this.subscription().amount);
+  }
+
+  statusLabel(status: string | null | undefined): string {
+    return status ? `${status.charAt(0)}${status.slice(1).toLowerCase()}` : 'Unknown';
+  }
+
+  statusClass(status: string | null | undefined): string {
+    switch (status) {
+      case KycSubsciptionStatus.ACTIVE:
+        return 'active';
+      case KycSubsciptionStatus.INACTIVE:
+        return 'inactive';
+      case KycSubsciptionStatus.CANCELLED:
+        return 'cancelled';
+      default:
+        return 'unknown';
+    }
+  }
+
+  serviceTier(): string {
+    const amount = Number(this.subscription().amount || 0);
+
+    if (amount >= 20000) {
+      return 'Enterprise Vault';
+    }
+
+    if (amount >= 5000) {
+      return 'Professional Vault';
+    }
+
+    return 'Core Vault';
+  }
+
+  billingPeriodLabel(): string {
+    return this.subscription().period || 'Custom billing period';
+  }
+
+  amountSuffix(): string {
+    const period = String(this.subscription().period || '').toLowerCase();
+
+    if (period.includes('year') || period.includes('annual')) {
+      return '/yr';
+    }
+
+    if (period.includes('month')) {
+      return '/mo';
+    }
+
+    if (period.includes('quarter')) {
+      return '/qtr';
+    }
+
+    return '';
+  }
+
+  daysRemaining(): number {
+    const endDate = this.dateValue(this.subscription().endDate);
+
+    if (!endDate) {
+      return 0;
+    }
+
+    const difference = endDate.getTime() - Date.now();
+
+    return Math.max(0, Math.ceil(difference / (1000 * 60 * 60 * 24)));
+  }
+
+  progressPercent(): number {
+    return Math.round(this.progressRatio() * 100);
+  }
+
+  invoiceStatusLabel(invoice: KycInvoiceDTO): string {
+    return invoice.paid ? 'Paid' : 'Pending';
+  }
+
+  invoiceStatusClass(invoice: KycInvoiceDTO): string {
+    return invoice.paid ? 'paid' : 'pending';
+  }
+
+  createdBy(): string {
+    return this.subscription().createdBy || 'System';
+  }
+
+  lastModified(): string {
+    const modified = this.subscription().modifiedAt || this.subscription().createdAt;
+    return this.formatDateTime(modified);
+  }
+
+  organisationName(): string {
+    return this.subscription().organisationName || 'Not available';
+  }
+
+  organisationCode(): string {
+    return this.subscription().organisationCode || 'Not available';
+  }
+
+  organisationRegistration(): string {
+    return this.subscription().organisationRegistrationNo || 'Not available';
+  }
+
+  formatInvoiceAmount(invoice: KycInvoiceDTO): string {
+    return this.formatAmount(invoice.amount);
+  }
+
+  formatInvoiceDate(invoice: KycInvoiceDTO): string {
+    return this.formatDate(invoice.issueDate);
+  }
+
+  private progressRatio(): number {
+    const startDate = this.dateValue(this.subscription().startDate);
+    const endDate = this.dateValue(this.subscription().endDate);
+
+    if (!startDate || !endDate || endDate <= startDate) {
+      return 0;
+    }
+
+    const now = Date.now();
+    const duration = endDate.getTime() - startDate.getTime();
+    const elapsed = Math.min(Math.max(now - startDate.getTime(), 0), duration);
+
+    return elapsed / duration;
+  }
+
+  private dateValue(value: Date | string | null | undefined): Date | null {
+    if (!value) {
+      return null;
+    }
+
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  private formatDate(value: Date | string | null | undefined): string {
+    const date = this.dateValue(value);
+    return date ? this.datePipe.transform(date, 'MMMM dd, yyyy') || 'Not available' : 'Not available';
+  }
+
+  private formatDateTime(value: Date | string | null | undefined): string {
+    const date = this.dateValue(value);
+    return date ? this.datePipe.transform(date, 'MMM d, yyyy • HH:mm') || 'Not available' : 'Not available';
+  }
+
+  private formatAmount(value: number | string | null | undefined): string {
+    const amount = typeof value === 'string' ? Number(value) : value;
+
+    if (amount === null || amount === undefined || Number.isNaN(amount)) {
+      return '—';
+    }
+
+    return this.currencyPipe.transform(amount, 'EUR', 'symbol', '1.2-2') || '—';
+  }
 }

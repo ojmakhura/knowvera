@@ -1,3 +1,10 @@
+
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatTableModule } from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -8,13 +15,11 @@ import {
   linkedSignal,
   OnDestroy,
   OnInit,
-  Signal,
   signal,
 } from '@angular/core';
-import { form } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
 import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
 import { TranslateModule } from '@ngx-translate/core';
@@ -27,40 +32,47 @@ export class SearchDocumentTypesVarsForm {
 
 @Component({
   selector: 'app-document-type',
-  imports: [RouterLink, TranslateModule, CommonModule, MatIconModule, MatButtonModule],
+  imports: [TranslateModule, CommonModule, MatIconModule, MatButtonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTableModule,
+    MatChipsModule,
+    MatTooltipModule],
   templateUrl: './document-type.html',
   styleUrls: ['./document-type.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
+  displayedColumns: string[] = ['code', 'name', 'description', 'fields', 'prompts', 'actions'];
+
   searchDocumentTypesVarsForm: SearchDocumentTypesVarsForm = new SearchDocumentTypesVarsForm();
   searchDocumentTypesSignal = signal(this.searchDocumentTypesVarsForm);
-  searchDocumentTypesSignalForm = form(this.searchDocumentTypesSignal, (path) => {});
   readonly documentTypeApiStore = inject(DocumentTypeApiStore);
 
-  loaderMessage = signal('');
-  messages: Signal<any> = signal({});
-  success = signal(false);
-  loading = signal(false);
-  error = signal(false);
-  selected: any = null;
+  readonly rows = linkedSignal(() => this.searchDocumentTypesSignal().documentTypes || []);
+  loaderMessage = linkedSignal(() => this.documentTypeApiStore.loaderMessage());
+  messages = linkedSignal(() => this.documentTypeApiStore.messages());
+  success = linkedSignal(() => this.documentTypeApiStore.success());
+  loading = linkedSignal(() => this.documentTypeApiStore.loading());
+  error = linkedSignal(() => this.documentTypeApiStore.error());
   currentPage = signal(0);
   pageSize = signal(10);
-  totalElements = linkedSignal(() => this.documentTypeApiStore.dataPage().page?.totalElements || 0);
-  totalPages = linkedSignal(() => this.documentTypeApiStore.dataPage().page?.totalPages || 0);
+  totalElements = signal(0);
+  totalPages = signal(0);
   toaster: ToastrService = inject(ToastrService);
 
   protected router: Router = inject(Router);
 
   constructor() {
     effect(() => {
-      let messages = this.messages();
+      const messages = this.messages();
 
-      if (this.success() && !this.loading()) {
+      if (this.success() && !this.loading() && messages.length) {
         this.toaster.success(messages[0]);
       }
 
-      if (this.error() && !this.loading()) {
+      if (this.error() && !this.loading() && messages.length) {
         this.toaster.error(messages[0]);
       }
     });
@@ -74,9 +86,10 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
           documentTypes: page.content,
         }));
 
-        this.currentPage.set(page.page.number || 0);
-        this.totalElements.set(page.page.totalElements || 0);
-        this.totalPages.set(page.page.totalPages || 0);
+        this.currentPage.set(page.page?.number || 0);
+        this.pageSize.set(page.page?.size || 10);
+        this.totalElements.set(page.page?.totalElements || 0);
+        this.totalPages.set(page.page?.totalPages || 0);
       }
     });
   }
@@ -89,6 +102,15 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+  }
+
+  clearCriteria(): void {
+    this.searchDocumentTypesSignal.update((state) => ({
+      ...state,
+      criteria: '',
+    }));
+
+    this.doSearch();
   }
 
   onCriteriaInput(event: Event): void {
@@ -128,11 +150,20 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.doSearch(page, this.pageSize());
   }
 
-  doSearch(pageNumber: number = 0, pageSize: number = 10): void {
-    let criteria = this.searchDocumentTypesSignal().criteria;
+  firstPage(): void {
+    this.goToPage(0);
+  }
 
-    this.loading.set(true);
-    this.loaderMessage.set(`Loading page ${pageNumber} document types.`);
+  lastPage(): void {
+    const lastIndex = this.totalPages() - 1;
+
+    if (lastIndex >= 0) {
+      this.goToPage(lastIndex);
+    }
+  }
+
+  doSearch(pageNumber: number = 0, pageSize: number = 10): void {
+    const criteria = this.searchDocumentTypesSignal().criteria;
 
     this.documentTypeApiStore.pagedSearch({
       criteria: criteria ? criteria : '',
@@ -141,15 +172,36 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  onPageChange(event: any): void {
+    this.pageSize.set(event.pageSize);
+    this.doSearch(event.pageIndex, event.pageSize);
+  }
+
+  showingCount(): number {
+    return this.rows().length;
+  }
+
+  fieldCount(documentType: DocumentTypeDTO): number {
+    return documentType.expectedFields?.length || 0;
+  }
+
+  promptCount(documentType: DocumentTypeDTO): number {
+    return (documentType.validationPrompts?.length || 0) + (documentType.textExtractionPrompts?.length || 0);
+  }
+
+  openDetails(id: string): void {
+    this.router.navigate(['/', 'document', 'type', 'edit', id]);
+  }
+
   openCreate(): void {
-    this.router.navigate(['document', 'type', 'edit']);
+    this.router.navigate(['/', 'document', 'type', 'edit']);
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['document', 'type', 'edit'], {
-      queryParams: {
-        id,
-      },
-    });
+    this.router.navigate(['/', 'document', 'type', 'edit', id]);
+  }
+
+  trackByPage(_: number, page: number): number {
+    return page;
   }
 }

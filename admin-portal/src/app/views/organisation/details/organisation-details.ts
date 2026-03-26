@@ -1,3 +1,11 @@
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatListModule } from '@angular/material/list';
+import { MatTableModule } from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -19,7 +27,18 @@ import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscriptio
 @Component({
   selector: 'app-organisation-details',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [
+    CommonModule,
+    RouterLink,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatListModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTableModule,
+    MatChipsModule
+  ],
   templateUrl: './organisation-details.html',
   styleUrl: './organisation-details.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

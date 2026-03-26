@@ -1,18 +1,46 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  linkedSignal,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+
+// Material Imports
 import { MatIconModule } from '@angular/material/icon';
-import { Router, RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
 import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
 import { DocumentSearchCriteria } from '@app/models/bw/co/centralkyc/document/document-search-criteria';
+import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { SearchObject } from '@app/models/search-object';
+import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
 import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
+import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
+import { ToastrService } from 'ngx-toastr';
 
 export class SearchDocumentsVarsForm {
   fileName: string = '';
   documentType: string = '';
-  target: string = '';
-  verificationStatus: string = '';
+  target: TargetEntity | '' = '';
+  targetId: string = '';
+  verificationStatus: DocumentVerificationStatus | '' = '';
   documents: Array<DocumentDTO> = [];
 }
 
@@ -22,21 +50,45 @@ export class SearchDocumentsVarsForm {
   templateUrl: './documents.html',
   styleUrls: ['./documents.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule, RouterLink],
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatChipsModule,
+    MatTooltipModule,
+    MatProgressBarModule,
+    FormsModule,
+  ],
 })
-export class Documents implements OnInit, AfterViewInit, OnDestroy {
+export class Documents implements OnInit {
   searchDocumentsVarsForm = new SearchDocumentsVarsForm();
   searchDocumentsSignal = signal(this.searchDocumentsVarsForm);
 
   readonly documentApiStore = inject(DocumentApiStore);
+  readonly documentTypeApiStore = inject(DocumentTypeApiStore);
+  private readonly documentApi = inject(DocumentApi);
+  private readonly toaster = inject(ToastrService);
   protected readonly rows = signal<DocumentDTO[]>([]);
   protected readonly currentPage = signal(0);
   protected readonly pageSize = signal(10);
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
   protected readonly router = inject(Router);
+  protected readonly loading = linkedSignal(() => this.documentApiStore.loading());
+  protected readonly loaderMessage = linkedSignal(() => this.documentApiStore.loaderMessage());
+  protected readonly documentTypeOptions = linkedSignal<DocumentTypeDTO[]>(() =>
+    this.documentTypeApiStore.dataList(),
+  );
   protected readonly targetOptions = Object.values(TargetEntity);
   protected readonly statusOptions = Object.values(DocumentVerificationStatus);
+
+  displayedColumns: string[] = ['fileName', 'documentType', 'target', 'status', 'actions'];
 
   constructor() {
     effect(() => {
@@ -60,14 +112,14 @@ export class Documents implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.documentTypeApiStore.getAll();
     this.doSearch();
   }
 
-  ngAfterViewInit(): void {}
-
-  ngOnDestroy(): void {}
-
-  updateField(field: keyof SearchDocumentsVarsForm, value: string): void {
+  updateField(
+    field: keyof SearchDocumentsVarsForm,
+    value: string | TargetEntity | DocumentVerificationStatus,
+  ): void {
     this.searchDocumentsSignal.update((state) => ({
       ...state,
       [field]: value,
@@ -79,35 +131,7 @@ export class Documents implements OnInit, AfterViewInit, OnDestroy {
     this.doSearch();
   }
 
-  pageNumbers(): number[] {
-    return Array.from({ length: this.totalPages() }, (_, index) => index + 1);
-  }
-
-  previousPage(): void {
-    if (this.currentPage() <= 0) {
-      return;
-    }
-
-    this.doSearch(this.currentPage() - 1, this.pageSize());
-  }
-
-  nextPage(): void {
-    if (this.currentPage() >= this.totalPages() - 1) {
-      return;
-    }
-
-    this.doSearch(this.currentPage() + 1, this.pageSize());
-  }
-
-  goToPage(page: number): void {
-    if (page < 0 || page >= this.totalPages() || page === this.currentPage()) {
-      return;
-    }
-
-    this.doSearch(page, this.pageSize());
-  }
-
-  doSearch(pageNumber: number = 0, pageSize: number = 10): void {
+  doSearch(pageNumber: number = 0, pageSize: number = this.pageSize()): void {
     const value = this.searchDocumentsSignal();
     const criteria = new SearchObject<DocumentSearchCriteria>();
 
@@ -117,14 +141,19 @@ export class Documents implements OnInit, AfterViewInit, OnDestroy {
       fileName: value.fileName || null,
       documentType: value.documentType || null,
       target: value.target || null,
+      targetId: value.targetId || null,
       verificationStatus: value.verificationStatus || null,
       documentTypeId: null,
-      targetId: null,
     };
 
     this.documentApiStore.searchPaged({
       criteria,
     });
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageSize.set(event.pageSize);
+    this.doSearch(event.pageIndex, event.pageSize);
   }
 
   openDetails(id: string): void {
@@ -135,23 +164,109 @@ export class Documents implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/', 'documents', 'edit', id]);
   }
 
+  downloadDocument(row: DocumentDTO): void {
+    const request = row.id
+      ? this.documentApi.downloadFile(row.id)
+      : row.url
+        ? this.documentApi.downloadFileByUrl(row.url)
+        : null;
+
+    if (!request) {
+      this.toaster.error('No downloadable file reference was found for this document.');
+      return;
+    }
+
+    request.subscribe({
+      next: (blob: Blob) => this.saveBlob(blob, this.downloadFileNameOf(row)),
+      error: () => this.toaster.error('Failed to download document.'),
+    });
+  }
+
   targetLabelOf(row: DocumentDTO): string {
     return row.targetLabel || row.target || '—';
   }
 
-  submittedByOf(row: DocumentDTO): string {
-    return row.createdBy || row.modifiedBy || 'System';
+  targetOptionLabel(target: TargetEntity): string {
+    return target.replaceAll('_', ' ');
   }
 
-  statusClass(status: string | null | undefined): 'status-approved' | 'status-pending' | 'status-rejected' {
+  documentTypeLabelOf(row: DocumentDTO): string {
+    return row.documentType || 'Unclassified document';
+  }
+
+  statusLabel(status: string | null | undefined): string {
     switch (status) {
-      case 'VERIFIED':
-        return 'status-approved';
-      case 'UNVERIFIED':
-      case 'MANUAL_REVIEW':
-        return 'status-pending';
+      case DocumentVerificationStatus.VERIFIED:
+        return 'Verified';
+      case DocumentVerificationStatus.MANUAL_REVIEW:
+        return 'Pending Review';
+      case DocumentVerificationStatus.REJECTED:
+        return 'Flagged';
       default:
-        return 'status-rejected';
+        return 'Unverified';
     }
+  }
+
+  statusClass(status: string | null | undefined): string {
+    switch (status) {
+      case DocumentVerificationStatus.VERIFIED:
+        return 'status-verified';
+      case DocumentVerificationStatus.MANUAL_REVIEW:
+        return 'status-pending';
+      case DocumentVerificationStatus.REJECTED:
+        return 'status-flagged';
+      default:
+        return 'status-unverified';
+    }
+  }
+
+  documentIcon(row: DocumentDTO): string {
+    if (row.verificationStatus === DocumentVerificationStatus.REJECTED) {
+      return 'report';
+    }
+
+    if ((row.documentType || '').toLowerCase().includes('financial')) {
+      return 'account_balance';
+    }
+
+    if ((row.documentType || '').toLowerCase().includes('address')) {
+      return 'article';
+    }
+
+    return 'description';
+  }
+
+  showingLabel(): string {
+    const total = this.totalElements();
+
+    if (!total) {
+      return 'Showing 0 records';
+    }
+
+    const start = this.currentPage() * this.pageSize() + 1;
+    const end = Math.min(start + this.rows().length - 1, total);
+    return `Showing ${start}-${end} of ${total} records`;
+  }
+
+  pageReport(): string {
+    return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
+  }
+
+  trackByDocument(_: number, row: DocumentDTO): string {
+    return row.id || row.fileName || `${row.documentType}-${row.targetId}`;
+  }
+
+  private downloadFileNameOf(row: DocumentDTO): string {
+    return row.fileName || 'document-download';
+  }
+
+  private saveBlob(blob: Blob, fileName: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+    window.URL.revokeObjectURL(url);
   }
 }

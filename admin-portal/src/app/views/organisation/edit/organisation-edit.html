@@ -1,215 +1,244 @@
-<section class="org-edit-page" aria-label="Edit organisation">
-  <header class="org-edit-head">
-    <div>
-      <nav class="breadcrumbs" aria-label="Breadcrumb">
-        <a [routerLink]="['/organisation']">Organisations</a>
-        @if(editOrganisationSignal().id) {
-        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-        <span>{{ editOrganisationSignal().name }}</span>
-        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-        <strong>Edit</strong>
-        } @else {
-        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-        <strong>new</strong>
-        }
-      </nav>
-      <h1>Edit Organisation</h1>
-    </div>
+<div class="page-wrapper">
+		<app-loader [isLoading]="loading()" [size]="'medium'"></app-loader>
 
-    <div class="head-actions">
-      <button class="btn-secondary" type="button" [routerLink]="['/organisation']">Cancel</button>
-      <button class="btn-primary" type="button" (click)="saveOrganisation()">Save Changes</button>
-    </div>
-  </header>
+	<header class="page-header">
+		<div>
+			<nav class="breadcrumb" aria-label="Breadcrumb">
+				<a routerLink="/organisation">{{ breadcrumbLabel }}</a>
+				<mat-icon>chevron_right</mat-icon>
+				<span>{{ editOrganisationVarsFormSignal().name || 'Organisation' }}</span>
+				<mat-icon>chevron_right</mat-icon>
+				<span class="crumb-current">Edit</span>
+			</nav>
+			<h1 class="page-title">Edit Organisation</h1>
+		</div>
 
-  <div class="layout-grid">
-    <div class="left-col">
-      <section class="panel">
-        <h2>Core Identity</h2>
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label for="registrationNo" class="form-label">Registration No.</label>
-            <input id="registrationNo" type="text" class="form-control is-invalid"
-              [formField]="editOrganisationSignalForm.registrationNo" />
-            @if(editOrganisationSignalForm.registrationNo().touched()) {
-            @for(error of editOrganisationSignalForm.registrationNo().errors(); track error) {
-            <div class="invalid-feedback" translate>{{ error.message }}</div>
-            }
-            }
-          </div>
-          <div class="col-md-6">
-            <label for="code" class="form-label">Abbreviation</label>
-            <input id="code" type="text" class="form-control is-invalid"
-              [formField]="editOrganisationSignalForm.code" />
-            @if(editOrganisationSignalForm.code().touched()) {
-            @for(error of editOrganisationSignalForm.code().errors(); track error) {
-            <div class="invalid-feedback" translate>{{ error.message }}</div>
-            }
-            }
-          </div>
-          <div class="col-12">
-            <label for="name" class="form-label">Organisation Name</label>
-            <input id="name" type="text" class="form-control is-invalid"
-              [formField]="editOrganisationSignalForm.name" />
-            @if(editOrganisationSignalForm.name().touched()) {
-            @for(error of editOrganisationSignalForm.name().errors(); track error) {
-            <div class="invalid-feedback" translate>{{ error.message }}</div>
-            }
-            }
-          </div>
-          <div class="col-md-6">
-            <label for="countryOfRegistration" class="form-label">Country of Registration</label>
-            <select id="countryOfRegistration" class="form-select is-invalid"
-              [formField]="editOrganisationSignalForm.countryOfRegistration">
-              <option></option>
-              @for (country of countries; track country) {
-              <option [value]="country">{{ country }}</option>
-              }
-            </select>
-            @if(editOrganisationSignalForm.countryOfRegistration().touched()) {
-            @for(error of editOrganisationSignalForm.countryOfRegistration().errors(); track error) {
-            <div class="invalid-feedback" translate>{{ error.message }}</div>
-            }
-            }
-          </div>
-          <div class="col-12">
-            <label class="form-label">Description</label>
-            <textarea rows="4" class="form-control" [formField]="editOrganisationSignalForm.description"
-              placeholder="Enter organisational details and compliance notes..."></textarea>
-          </div>
-        </div>
-      </section>
+		<div class="header-btns">
+			<button mat-button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+			<button mat-flat-button type="button" class="btn-save" (click)="saveOrganisation()">Save Changes</button>
+		</div>
+	</header>
 
-      <section class="panel">
-        <h2>Operational Status</h2>
-        <div class="row g-3">
-          <div class="col-md-4">
-            <label for="status" class="form-label">General Status</label>
-            <select id="status" class="form-select is-invalid" [formField]="editOrganisationSignalForm.status">
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="INACTIVE">INACTIVE</option>
-            </select>
-            @if(editOrganisationSignalForm.status().touched()) {
-            @for(error of editOrganisationSignalForm.status().errors(); track error) {
-            <div class="invalid-feedback" translate>{{ error.message }}</div>
-            }
-            }
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">KYC Compliance Status</label>
-            <select class="form-select is-invalid" [formField]="editOrganisationSignalForm.kycStatus">
-              <option value="CURRENT">CURRENT</option>
-              <option value="EXPIRED">EXPIRED</option>
-              <option value="ABSENT">ABSENT</option>
-              <option value="INCOMPLETE">INCOMPLETE</option>
-            </select>
-            @if(editOrganisationSignalForm.kycStatus().touched()) {
-            @for(error of editOrganisationSignalForm.kycStatus().errors(); track error) {
-            <div class="invalid-feedback" translate>{{ error.message }}</div>
-            }
-            }
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Client Organisation</label>
-            <select class="form-select" [formField]="editOrganisationSignalForm.isClient">
-              <option value="true">Yes</option>
-              <option value="false">No</option>
-            </select>
-          </div>
-        </div>
-      </section>
-    </div>
+	<div class="content-grid">
+		<div class="main-column">
+			<mat-card class="vault-card">
+				<div class="section-head">
+					<mat-icon class="section-icon">corporate_fare</mat-icon>
+					<h2 class="section-title">Core Identity</h2>
+				</div>
 
-    <aside class="right-col panel">
-      <h2>Contact</h2>
-      <div class="row g-3">
-        <div class="col-12">
-          <label for="email" class="form-label">Contact Email Address</label>
-          <input id="email" type="email" class="form-control is-invalid"
-            [formField]="editOrganisationSignalForm.contactEmailAddress" />
-          @if(editOrganisationSignalForm.contactEmailAddress().touched()) {
-          @for(error of editOrganisationSignalForm.contactEmailAddress().errors(); track error) {
-          <div class="invalid-feedback" translate>{{ error.message }}</div>
-          }
-          }
-        </div>
-        <div class="col-12">
-          <label for="physicalAddress" class="form-label">Physical Address</label>
-          <textarea id="physicalAddress" rows="3" class="form-control"
-            [formField]="editOrganisationSignalForm.physicalAddress"></textarea>
-        </div>
-        <div class="col-12">
-          <label for="postalAddress" class="form-label">Postal Address</label>
-          <textarea id="postalAddress" rows="3" class="form-control"
-            [formField]="editOrganisationSignalForm.postalAddress"></textarea>
-        </div>
-        <div class="col-12">
-          <hr class="my-1">
-        </div>
-        <div class="col-12">
-          <label class="form-label">Phone Numbers</label>
-          <div class="row g-2 align-items-end">
-            <div class="col-md-4">
-              <select class="form-select" [value]="newPhoneType()"
-                (change)="newPhoneType.set($any($event.target).value)">
-                @for (phoneType of PhoneTypeOptions; track phoneType) {
-                <option [value]="phoneType">{{ phoneType }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-md-5">
-              <input type="text" class="form-control" [value]="newPhoneNumber()"
-                (input)="newPhoneNumber.set($any($event.target).value)" placeholder="e.g. +44 20 7946 0958" />
-            </div>
-            <div class="col-md-3 d-grid">
-              <button class="btn btn-outline-secondary btn-compact" type="button"
-                (click)="addPhoneNumber()">Add</button>
-            </div>
-          </div>
+				<div class="field-grid single-column">
+					<div class="field-group">
+						<label class="field-label" for="organisationName">Organisation Name</label>
+						<mat-form-field appearance="outline" class="vault-field">
+							<input id="organisationName" matInput [value]="editOrganisationVarsFormSignal().name" (input)="updateField('name', $any($event.target).value)" />
+						</mat-form-field>
+					</div>
+				</div>
 
-          @if (editOrganisationSignal().phoneNumbers.length) {
-          <ul class="list-group token-list">
-            @for (phone of editOrganisationSignal().phoneNumbers; track $index) {
-            <li class="list-group-item d-flex align-items-center justify-content-between gap-3">
-              <span>{{ phone.type }}: {{ phone.phoneNumber }}</span>
-              <button type="button" class="link-danger" (click)="removePhoneNumber($index)">Remove</button>
-            </li>
-            }
-          </ul>
-          } @else {
-          <p class="muted-inline">No phone numbers added yet.</p>
-          }
-        </div>
-        <div class="col-12">
-          <hr class="my-1">
-        </div>
-        <div class="col-12">
-          <label class="form-label">Domains</label>
-          <div class="row g-2 align-items-end">
-            <div class="col-md-9">
-              <input type="text" class="form-control" [value]="newDomainName()"
-                (input)="newDomainName.set($any($event.target).value)" placeholder="e.g. globalarch.com" />
-            </div>
-            <div class="col-md-3 d-grid">
-              <button class="btn btn-outline-secondary btn-compact" type="button" (click)="addDomain()">Add</button>
-            </div>
-          </div>
+				<div class="field-grid two-column mt-field">
+					<div class="field-group">
+						<label class="field-label" for="organisationCode">Internal Code</label>
+						<mat-form-field appearance="outline" class="vault-field">
+							<input id="organisationCode" matInput [value]="editOrganisationVarsFormSignal().code" (input)="updateField('code', $any($event.target).value)" />
+						</mat-form-field>
+					</div>
 
-          @if (editOrganisationSignal().domains.length) {
-          <ul class="list-group token-list">
-            @for (domain of editOrganisationSignal().domains; track $index) {
-            <li class="list-group-item d-flex align-items-center justify-content-between gap-3">
-              <span>{{ domain.name }}</span>
-              <button type="button" class="link-danger" (click)="removeDomain($index)">Remove</button>
-            </li>
-            }
-          </ul>
-          } @else {
-          <p class="muted-inline">No domains added yet.</p>
-          }
-        </div>
-      </div>
-    </aside>
-  </div>
-</section>
-<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+					<div class="field-group">
+						<label class="field-label" for="organisationRegistrationNo">Registration No.</label>
+						<mat-form-field appearance="outline" class="vault-field">
+							<input id="organisationRegistrationNo" matInput [value]="editOrganisationVarsFormSignal().registrationNo" (input)="updateField('registrationNo', $any($event.target).value)" />
+						</mat-form-field>
+					</div>
+				</div>
+
+				<div class="field-grid two-column align-end mt-field">
+					<div class="field-group">
+						<label class="field-label" for="organisationCountryOfRegistration">Country of Registration</label>
+						<mat-form-field appearance="outline" class="vault-field">
+							<mat-select id="organisationCountryOfRegistration" [value]="editOrganisationVarsFormSignal().countryOfRegistration" (selectionChange)="updateField('countryOfRegistration', $event.value)">
+								@for (country of countries; track country) {
+									<mat-option [value]="country">{{ country }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+					</div>
+
+					<div class="client-toggle">
+						<span class="toggle-label">Client Toggle</span>
+						<mat-slide-toggle color="primary" [checked]="!!editOrganisationVarsFormSignal().isClient" (change)="toggleIsClient($event)"></mat-slide-toggle>
+					</div>
+				</div>
+			</mat-card>
+
+			<mat-card class="vault-card">
+				<div class="section-head">
+					<mat-icon class="section-icon">verified_user</mat-icon>
+					<h2 class="section-title">Operational Status</h2>
+				</div>
+
+				<div class="field-grid two-column">
+					<div class="field-group">
+						<label class="field-label" for="organisationStatus">General Status</label>
+						<mat-form-field appearance="outline" class="vault-field">
+							<mat-select id="organisationStatus" [value]="editOrganisationVarsFormSignal().status" (selectionChange)="updateField('status', $event.value)">
+								@for (status of generalStatuses; track status) {
+									<mat-option [value]="status">{{ status }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+					</div>
+
+					<div class="field-group">
+						<label class="field-label" for="organisationKycStatus">KYC Compliance Status</label>
+						<mat-form-field appearance="outline" class="vault-field">
+							<mat-select id="organisationKycStatus" [value]="editOrganisationVarsFormSignal().kycStatus" (selectionChange)="updateField('kycStatus', $event.value)">
+								@for (status of kycComplianceStatuses; track status) {
+									<mat-option [value]="status">{{ status }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+					</div>
+				</div>
+
+				<div class="field-group mt-field">
+					<label class="field-label" for="organisationDescription">Description</label>
+					<mat-form-field appearance="outline" class="vault-field vault-textarea">
+						<textarea id="organisationDescription" matInput rows="4" [value]="editOrganisationVarsFormSignal().description" (input)="updateField('description', $any($event.target).value)" placeholder="Enter organisational details and compliance notes..."></textarea>
+					</mat-form-field>
+				</div>
+			</mat-card>
+
+			<mat-card class="vault-card">
+				<div class="section-head section-head-split">
+					<div class="section-head-inner">
+						<mat-icon class="section-icon">language</mat-icon>
+						<h2 class="section-title">Managed Domains</h2>
+					</div>
+
+					<button mat-button type="button" class="add-action-btn" (click)="addDomain()">
+						<mat-icon>add_circle</mat-icon>
+						Add Domain
+					</button>
+				</div>
+
+				<div class="domains-list">
+					@for (domain of editOrganisationVarsFormSignal().domains; track domain; let index = $index) {
+						<div class="domain-row">
+							<div class="domain-meta domain-meta-grow">
+								<mat-icon class="domain-icon">link</mat-icon>
+								<mat-form-field appearance="outline" class="vault-field domain-field">
+									<input matInput [value]="$any(domain).name || ''" (input)="updateDomainName(index, $any($event.target).value)" placeholder="Enter domain" />
+								</mat-form-field>
+							</div>
+
+							<div class="domain-actions">
+								<span class="status-badge" [class.verified]="domainVerified(domain)" [class.unverified]="!domainVerified(domain)">
+									{{ domainVerified(domain) ? 'Verified' : 'Unverified' }}
+								</span>
+								<button mat-icon-button type="button" class="domain-delete-btn" (click)="removeDomain(index)">
+									<mat-icon>delete</mat-icon>
+								</button>
+							</div>
+						</div>
+					} @empty {
+						<p class="empty-state">No managed domains added yet.</p>
+					}
+				</div>
+			</mat-card>
+		</div>
+
+		<div class="side-column">
+			<mat-card class="vault-card vault-card-side">
+				<div class="section-head">
+					<mat-icon class="section-icon">alternate_email</mat-icon>
+					<h2 class="section-title">Contact</h2>
+				</div>
+
+				<div class="field-group">
+					<label class="field-label" for="organisationEmail">Contact Email Address</label>
+					<mat-form-field appearance="outline" class="vault-field">
+						<input id="organisationEmail" matInput type="email" [value]="editOrganisationVarsFormSignal().contactEmailAddress" (input)="updateField('contactEmailAddress', $any($event.target).value)" />
+					</mat-form-field>
+				</div>
+
+				<div class="phones-section">
+					<div class="phones-header">
+						<label class="field-label">Phone Numbers</label>
+						<button mat-button type="button" class="add-action-btn" (click)="addPhoneNumber()">Add Phone</button>
+					</div>
+
+					@for (phone of editOrganisationVarsFormSignal().phoneNumbers; track phone; let index = $index) {
+						<div class="phone-row">
+							<mat-form-field appearance="outline" class="vault-field phone-type">
+								<mat-select [value]="$any(phone).type" (selectionChange)="updatePhoneType(index, $event.value)">
+									@for (type of phoneTypes; track type) {
+										<mat-option [value]="type">{{ type }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+
+							<mat-form-field appearance="outline" class="vault-field phone-number">
+								<input matInput [value]="$any(phone).phoneNumber || ''" (input)="updatePhoneNumber(index, $any($event.target).value)" placeholder="Phone number" />
+							</mat-form-field>
+
+							<button mat-icon-button type="button" class="phone-delete" (click)="removePhoneNumber(index)">
+								<mat-icon>delete</mat-icon>
+							</button>
+						</div>
+					} @empty {
+						<p class="empty-state">No phone numbers added yet.</p>
+					}
+				</div>
+			</mat-card>
+
+			<mat-card class="vault-card vault-card-side">
+				<div class="section-head">
+					<mat-icon class="section-icon">location_on</mat-icon>
+					<h2 class="section-title">Addresses</h2>
+				</div>
+
+				<div class="field-group">
+					<label class="field-label" for="organisationPhysicalAddress">Physical Address</label>
+					<mat-form-field appearance="outline" class="vault-field vault-textarea compact-textarea">
+						<textarea id="organisationPhysicalAddress" matInput rows="3" [value]="editOrganisationVarsFormSignal().physicalAddress" (input)="updateField('physicalAddress', $any($event.target).value)"></textarea>
+					</mat-form-field>
+				</div>
+
+				<div class="field-group mt-field">
+					<label class="field-label" for="organisationPostalAddress">Postal Address</label>
+					<mat-form-field appearance="outline" class="vault-field vault-textarea compact-textarea">
+						<textarea id="organisationPostalAddress" matInput rows="3" [value]="editOrganisationVarsFormSignal().postalAddress" (input)="updateField('postalAddress', $any($event.target).value)"></textarea>
+					</mat-form-field>
+				</div>
+			</mat-card>
+		</div>
+	</div>
+
+	<footer class="audit-footer">
+		<div class="audit-grid">
+			<div class="audit-item">
+				<label class="field-label">Created At</label>
+				<p class="audit-value">{{ formatAuditDate(editOrganisationVarsFormSignal().createdAt) }}</p>
+			</div>
+
+			<div class="audit-item">
+				<label class="field-label">Created By</label>
+				<p class="audit-value">{{ editOrganisationVarsFormSignal().createdBy || 'Not available' }}</p>
+			</div>
+
+			<div class="audit-item">
+				<label class="field-label">Modified At</label>
+				<p class="audit-value">{{ formatAuditDate(editOrganisationVarsFormSignal().modifiedAt) }}</p>
+			</div>
+
+			<div class="audit-item">
+				<label class="field-label">Modified By</label>
+				<p class="audit-value">{{ editOrganisationVarsFormSignal().modifiedBy || 'Not available' }}</p>
+			</div>
+		</div>
+	</footer>
+
+	<div class="background-orb orb-top"></div>
+	<div class="background-orb orb-bottom"></div>
+</div>

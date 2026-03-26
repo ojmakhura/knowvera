@@ -1,30 +1,282 @@
 :host {
-  display: block;
+	display: block;
+	--vault-primary: #001735;
+	--vault-surface-container-low: #f2f4f6;
+	--vault-on-surface: #191c1e;
+	--vault-on-surface-variant: #43474f;
+	--vault-outline-ghost: rgb(196 198 208 / 20%);
 }
 
-.doc-edit-page {
-  display: grid;
-  gap: var(--vault-space-8);
+.document-edit-page {
+	min-height: 100%;
+	padding: 1rem;
+	background: linear-gradient(180deg, #fbfcfd 0%, #f7f9fb 16rem);
 }
 
-.panel {
-  background: var(--vault-surface-container-lowest);
-  border-radius: 0.75rem;
-  padding: var(--vault-space-8);
-  box-shadow: 0 4px 20px rgb(25 28 30 / 4%);
+.edit-shell {
+	max-width: 58rem;
+	margin: 0 auto;
 }
 
-h1 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--vault-primary);
-  margin: 0;
+.edit-card {
+	overflow: hidden;
+	border-radius: 1rem;
+	border: 0;
+	box-shadow: 0 4px 20px rgb(25 28 30 / 4%), 0 8px 40px rgb(25 28 30 / 8%);
+	background: #fff;
 }
 
-h2 {
-  color: var(--vault-on-surface);
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0 0 1rem;
+.edit-header,
+.heading-row,
+.section-head,
+.url-row,
+.compliance-panel,
+.edit-footer,
+.footer-left,
+.trust-footer {
+	display: flex;
+	align-items: center;
 }
+
+.edit-header,
+.edit-footer,
+.trust-footer {
+	justify-content: space-between;
+}
+
+.edit-header {
+	gap: 1rem;
+	padding: 1.5rem 2rem;
+	background: var(--vault-surface-container-low);
+}
+
+.heading-row {
+	gap: 0.45rem;
+}
+
+.heading-row h1,
+.section-head h2,
+.compliance-panel h3 {
+	margin: 0;
+}
+
+.heading-row h1 {
+	color: var(--vault-primary);
+	font-size: 1.3rem;
+	font-weight: 900;
+	letter-spacing: -0.02em;
+	text-transform: uppercase;
+}
+
+.header-copy p,
+.field-note,
+.compliance-panel p,
+.footer-left span,
+.footer-right,
+.trust-footer span {
+	margin: 0;
+	color: var(--vault-on-surface-variant);
+}
+
+.header-copy p {
+	margin-top: 0.3rem;
+	font-size: 0.82rem;
+	font-weight: 500;
+}
+
+.header-actions {
+	gap: 0.75rem;
+}
+
+.cancel-btn,
+.save-btn,
+.view-btn {
+	border-radius: 0.6rem;
+	font-weight: 700;
+}
+
+.edit-form {
+	display: grid;
+	gap: 1.75rem;
+	padding: 2rem;
+}
+
+.section-block {
+	display: grid;
+	gap: 1.4rem;
+}
+
+.section-block-compact {
+	gap: 1.2rem;
+}
+
+.section-head {
+	gap: 0.7rem;
+}
+
+.section-mark {
+	width: 0.2rem;
+	height: 1.6rem;
+	background: var(--vault-primary);
+}
+
+.section-head h2 {
+	color: var(--vault-on-surface);
+	font-size: 1.35rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+}
+
+.field-grid {
+	display: grid;
+	gap: 1.35rem 1.5rem;
+}
+
+.two-column {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field-group {
+	display: grid;
+	gap: 0.45rem;
+}
+
+.field-span-2 {
+	grid-column: 1 / -1;
+}
+
+.field-label {
+	color: var(--vault-on-surface-variant);
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.field-note {
+	font-size: 0.66rem;
+	font-style: italic;
+}
+
+.url-row {
+	gap: 0.9rem;
+}
+
+.url-field {
+	flex: 1;
+}
+
+.compliance-panel {
+	gap: 0.9rem;
+	padding: 1rem 1.1rem;
+	border-radius: 0.75rem;
+	background: rgb(0 23 53 / 4%);
+	border: 1px solid rgb(0 23 53 / 8%);
+}
+
+.compliance-panel .mat-icon,
+.heading-row .mat-icon,
+.trust-footer .mat-icon {
+	color: var(--vault-primary);
+}
+
+.compliance-panel h3 {
+	color: var(--vault-primary);
+	font-size: 0.85rem;
+	font-weight: 800;
+}
+
+.compliance-panel p {
+	margin-top: 0.25rem;
+	font-size: 0.78rem;
+	line-height: 1.55;
+}
+
+.edit-footer {
+	gap: 1rem;
+	padding: 1.25rem 2rem;
+}
+
+.footer-left,
+.trust-footer {
+	gap: 0.6rem;
+}
+
+.user-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 999px;
+	background: var(--vault-primary);
+	color: #fff;
+	font-size: 0.62rem;
+	font-weight: 800;
+}
+
+.footer-right,
+.footer-left span {
+	font-size: 0.72rem;
+}
+
+:host ::ng-deep .vault-field {
+	width: 100%;
+}
+
+:host ::ng-deep .vault-field .mat-mdc-text-field-wrapper {
+	background: #fff;
+}
+
+:host ::ng-deep .locked-field .mat-mdc-text-field-wrapper,
+:host ::ng-deep .url-field .mat-mdc-text-field-wrapper {
+	background: var(--vault-surface-container-low);
+}
+
+:host ::ng-deep .vault-field .mdc-notched-outline__leading,
+:host ::ng-deep .vault-field .mdc-notched-outline__notch,
+:host ::ng-deep .vault-field .mdc-notched-outline__trailing {
+	border-color: var(--vault-outline-ghost) !important;
+}
+
+:host ::ng-deep .vault-field.mat-focused .mdc-notched-outline__leading,
+:host ::ng-deep .vault-field.mat-focused .mdc-notched-outline__notch,
+:host ::ng-deep .vault-field.mat-focused .mdc-notched-outline__trailing {
+	border-color: var(--vault-primary) !important;
+}
+
+:host ::ng-deep .vault-field .mat-mdc-form-field-subscript-wrapper {
+	display: none;
+}
+
+:host ::ng-deep .save-btn.mat-mdc-unelevated-button {
+	--mdc-filled-button-container-color: var(--vault-primary);
+	--mdc-filled-button-label-text-color: #ffffff;
+}
+
+@media (max-width: 768px) {
+	.edit-header,
+	.header-actions,
+	.url-row,
+	.edit-footer {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.two-column {
+		grid-template-columns: 1fr;
+	}
+
+	.document-edit-page,
+	.edit-form,
+	.edit-header,
+	.edit-footer {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+
+	.field-span-2 {
+		grid-column: auto;
+	}
+}
+

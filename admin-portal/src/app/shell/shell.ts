@@ -1,6 +1,13 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Component, ElementRef, HostListener, inject, signal, ViewChild } from '@angular/core';
-import { MatDrawer } from '@angular/material/sidenav';
+import { MatSidenavModule, MatDrawer } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatListModule } from '@angular/material/list';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { Title } from '@angular/platform-browser';
 import { Route, Router, RouterModule, RouterOutlet, Routes } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -11,7 +18,7 @@ import { AppEnvStore } from '@app/store/app-env.state';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterModule, TranslateModule],
+  imports: [RouterOutlet, RouterModule, TranslateModule, MatSidenavModule, MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule, MatListModule, MatFormFieldModule, MatInputModule],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })

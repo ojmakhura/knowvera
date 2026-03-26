@@ -1,241 +1,267 @@
-<section class="org-details-page" aria-label="Organisation details">
-  <header class="org-header">
-    <div>
-      <div class="title-row">
-        <h1>{{organisation().name}}</h1>
-        <span class="code-pill">{{organisation().code}}</span>
-      </div>
-      <div class="badges-row">
-        <span class="status-pill verified-pill">
-          <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
-          Verified Enterprise
-        </span>
-        <span class="status-pill compliant-pill">
-          <span class="material-symbols-outlined" aria-hidden="true">verified_user</span>
-          KYC Compliant
-        </span>
-      </div>
-    </div>
+<div class="details-page">
+	<header class="details-header">
+		<div class="header-left">
+			<div class="title-row">
+				<h1 class="org-title">{{ organisation().name || 'Organisation' }}</h1>
+				<span class="org-code-chip">{{ organisation().code || 'ORG-CODE' }}</span>
+			</div>
 
-    <div class="header-actions">
-      <button class="btn-secondary" type="button" [routerLink]="['/organisation/edit', organisation().id]">Edit
-        Organisation</button>
-      <button class="btn-primary" type="button">New Audit</button>
-    </div>
-  </header>
+			<div class="status-row">
+				<span class="status-pill verified-enterprise">
+					<mat-icon>verified</mat-icon>
+					Verified Enterprise
+				</span>
+				<span class="status-pill compliant-pill">
+					<mat-icon>verified_user</mat-icon>
+					{{ organisation().kycStatus || 'KYC Compliant' }}
+				</span>
+			</div>
+		</div>
 
-  <div class="top-grid">
-    <section class="panel identity-panel">
-      <div class="panel-title">
-        <span class="panel-icon material-symbols-outlined" aria-hidden="true">fingerprint</span>
-        <h2>Core Identity</h2>
-      </div>
+		<div class="header-actions">
+			<button mat-stroked-button class="btn-edit" [routerLink]="['/organisation/edit', organisation().id || id]">
+				Edit Organisation
+			</button>
+			<button mat-flat-button class="btn-audit">
+				New Audit
+			</button>
+		</div>
+	</header>
 
-      <div class="identity-grid">
-        <div>
-          <label>Registration Number</label>
-          <p>{{organisation().registrationNo}}</p>
-        </div>
-        <div>
-          <label>Jurisdiction</label>
-          <!-- <p>{{organisation().jurisdiction}}</p> -->
-        </div>
-        <div class="wide-field">
-          <label>Description</label>
-          <p>{{organisation().description}}</p>
-        </div>
-      </div>
-    </section>
+	<section class="main-grid">
+		<mat-card class="vault-card card-core">
+			<div class="section-head">
+				<div class="icon-wrap">
+					<mat-icon>fingerprint</mat-icon>
+				</div>
+				<h2>Core Identity</h2>
+			</div>
 
-    <section class="panel infra-panel">
-      <div class="panel-title">
-        <span class="panel-icon material-symbols-outlined" aria-hidden="true">dns</span>
-        <h2>Infrastructure</h2>
-      </div>
+			<div class="core-grid">
+				<div class="meta-item">
+					<label>Registration Number</label>
+					<p>{{ organisation().registrationNo || 'Not available' }}</p>
+				</div>
 
-      <label>Verified Domains</label>
-      <ul class="list-stack">
-        @for (domain of organisation().domains; track $index) {
-        <li>
-          <span>{{domain.name}}</span>
-          @if(domain.verified) {
-          <span class="material-symbols-outlined">verified</span>
-          }
-        </li>
-        }
-      </ul>
-    </section>
-  </div>
+				<div class="meta-item">
+					<label>Jurisdiction</label>
+					<p>{{ organisation().countryOfRegistration || 'Not available' }}</p>
+				</div>
 
-  <section class="panel">
-    <div class="panel-title">
-      <span class="panel-icon material-symbols-outlined" aria-hidden="true">contact_support</span>
-      <h2>Contact Information</h2>
-    </div>
+				<div class="meta-item full-row">
+					<label>Description</label>
+					<p class="description">{{ organisation().description || 'No description available.' }}</p>
+				</div>
+			</div>
+		</mat-card>
 
-    <div class="contact-grid">
-      <div>
-        <label>Email Address</label>
-        <a href="mailto:{{organisation().contactEmailAddress}}">{{organisation().contactEmailAddress}}</a>
+		<mat-card class="vault-card card-infra">
+			<div class="section-head">
+				<div class="icon-wrap icon-wrap-alt">
+					<mat-icon>dns</mat-icon>
+				</div>
+				<h2>Infrastructure</h2>
+			</div>
 
-        <label class="spaced-label">Phone numbers</label>
-        <ul class="simple-list">
-          @for (phone of organisation().phoneNumbers; track $index) {
-          <li>{{phone.type}}: ({{phone.phoneNumber}})</li>
-          }
-        </ul>
-      </div>
+			<label class="section-label">Verified Domains</label>
+			<div class="domain-list">
+				@for (domain of organisation().domains || []; track domain) {
+					<div class="domain-row">
+						<span>{{ $any(domain).name || '-' }}</span>
+						<mat-icon class="domain-verified">verified</mat-icon>
+					</div>
+				} @empty {
+					<p class="empty-text">No domains configured.</p>
+				}
+			</div>
+		</mat-card>
 
-      <div>
-        <label>Physical Address</label>
-        <p class="muted">
-          {{organisation().physicalAddress}}
-        </p>
-      </div>
+		<mat-card class="vault-card card-contact">
+			<div class="section-head">
+				<div class="icon-wrap">
+					<mat-icon>contact_support</mat-icon>
+				</div>
+				<h2>Contact Information</h2>
+			</div>
 
-      <div>
-        <label>Postal Address</label>
-        <p class="muted">
-          {{organisation().postalAddress}}
-        </p>
-      </div>
-    </div>
-  </section>
+			<div class="contact-grid">
+				<div class="meta-item">
+					<label>Email Address</label>
+					<a class="contact-link" [href]="'mailto:' + (organisation().contactEmailAddress || '')">
+						{{ organisation().contactEmailAddress || 'Not available' }}
+					</a>
+				</div>
 
-  <section>
-    <div class="section-title">
-      <span class="panel-icon material-symbols-outlined" aria-hidden="true">account_tree</span>
-      <h2>Registered Branches</h2>
-      <span class="section-meta">{{branches().length}} Branches Active</span>
-    </div>
+				<div class="meta-item">
+					<label>Physical Address</label>
+					<p class="multiline">{{ organisation().physicalAddress || 'Not available' }}</p>
+				</div>
 
-    <div class="panel add-branch-panel">
-      <div class="add-branch-grid">
-        <label>
-          <span>Branch Code</span>
-          <input type="text" [value]="newBranch().code"
-            (input)="newBranch.set({ ...newBranch(), code: $any($event.target).value })" placeholder="e.g. BR-LON-01" />
-        </label>
-        <label>
-          <span>Branch Name</span>
-          <input type="text" [value]="newBranch().name"
-            (input)="newBranch.set({ ...newBranch(), name: $any($event.target).value })"
-            placeholder="e.g. London (HQ)" />
-        </label>
-        <label>
-          <span>Physical Address</span>
-          <input type="text" [value]="newBranch().physicalAddress"
-            (input)="newBranch.set({ ...newBranch(), physicalAddress: $any($event.target).value })"
-            placeholder="Street, city, country" />
-        </label>
-        <label>
-          <span>Description</span>
-          <input type="text" [value]="newBranch().description"
-            (input)="newBranch.set({ ...newBranch(), description: $any($event.target).value })"
-            placeholder="Optional" />
-        </label>
-      </div>
-      <div class="add-branch-actions">
-        <button class="btn-primary" type="button" (click)="addBranch()">Add Branch</button>
-      </div>
-    </div>
+				<div class="meta-item">
+					<label>Postal Address</label>
+					<p class="multiline">{{ organisation().postalAddress || 'Not available' }}</p>
+				</div>
 
-    <div class="branch-grid">
-      @for (branch of branches(); track $index) {
-      <article class="panel branch branch-primary">
-        <div class="branch-head">
-          <h3>{{branch.name}}</h3><span>{{branch.code}}</span>
-        </div>
-        <p>{{branch.physicalAddress}}</p>
-        <div class="branch-state ok"><span class="material-symbols-outlined">check_circle</span>Verified Primary
-        </div>
-      </article>
-      }
-    </div>
-  </section>
+				<div class="meta-item full-row">
+					<label>Phone Numbers</label>
+					<ul class="phone-list">
+						@for (phone of organisation().phoneNumbers || []; track phone) {
+							<li>{{ $any(phone).phoneNumber }} <span class="phone-type">({{ $any(phone).type }})</span></li>
+						} @empty {
+							<li>Not available</li>
+						}
+					</ul>
+				</div>
+			</div>
+		</mat-card>
+	</section>
 
-  <section class="ops-section">
-    <div class="ops-header">
-      <span class="panel-icon panel-icon-dark material-symbols-outlined" aria-hidden="true">hub</span>
-      <div>
-        <h2>Client Operations</h2>
-        <p>Administrative control panel for operational client management</p>
-      </div>
-    </div>
+	<section class="branches-section">
+		<div class="branches-head">
+			<div class="section-head">
+				<div class="icon-wrap">
+					<mat-icon>account_tree</mat-icon>
+				</div>
+				<h2>Registered Branches</h2>
+			</div>
+			<span class="branches-count">{{ branches().length }} Branches Active</span>
+		</div>
 
-    <div class="ops-grid">
-      <article class="panel ops-left">
-        <div class="ops-title-row">
-          <h3>Required KYC Documents</h3>
-          <span class="material-symbols-outlined">info</span>
-        </div>
+		<div class="branches-grid">
+			@for (branch of branches(); track branch.id || branch.code) {
+				<mat-card class="branch-card" [class.branch-primary]="$index === 0">
+					<div class="branch-head">
+						<h3>{{ branch.name || 'Unnamed Branch' }}</h3>
+						<span class="branch-code">{{ branch.code || '-' }}</span>
+					</div>
+					<p class="branch-address">{{ branch.physicalAddress || 'Address not provided' }}</p>
+					<div class="branch-status" [class.pending]="$index !== 0">
+						<mat-icon>{{ $index === 0 ? 'check_circle' : 'history' }}</mat-icon>
+						{{ $index === 0 ? 'Verified Primary' : 'Pending Validation' }}
+					</div>
+				</mat-card>
+			} @empty {
+				<p class="empty-text">No branches available.</p>
+			}
+		</div>
+	</section>
 
-        <ul class="docs-list">
-          <li>
-            <span class="material-symbols-outlined">description</span>
-            <div>
-              <p>Certificate of Incorporation</p><small>Mandatory • High Priority</small>
-            </div>
-          </li>
-          <li>
-            <span class="material-symbols-outlined">group</span>
-            <div>
-              <p>Shareholder Register</p><small>Mandatory • High Priority</small>
-            </div>
-          </li>
-          <li class="optional-item">
-            <span class="material-symbols-outlined">verified</span>
-            <div>
-              <p>AML Compliance Policy</p><small>Optional • Internal Audit</small>
-            </div>
-          </li>
-        </ul>
-      </article>
+	@if (organisation().isClient) {
+		<section class="client-ops">
+			<div class="client-ops-head">
+				<div class="ops-icon-wrap">
+					<mat-icon>hub</mat-icon>
+				</div>
+				<div>
+					<h2>Client Operations</h2>
+					<p>Administrative control panel for operational client management</p>
+				</div>
+			</div>
 
-      <div class="ops-right">
-        <article class="panel table-panel">
-          <div class="table-head-row">
-            <h3>Active Client Requests</h3>
-            <span class="live-pill">Live</span>
-          </div>
-          <div class="table-grid table-grid-4">
-            <div class="table-head">Name / Registration</div>
-            <div class="table-head">Email</div>
-            <div class="table-head center">Status</div>
-            <div class="table-head right">Target Level</div>
-            <div><strong>FinTech Solutions</strong><small>FT-990-SGP</small></div>
-            <div>onboarding@fintech.sg</div>
-            <div class="center"><span class="status-pill flagged-pill">Flagged</span></div>
-            <div class="right">Level 3 Audit</div>
-            <div><strong>Aries Partners</strong><small>AP-441-LDN</small></div>
-            <div>contact@aries.partners</div>
-            <div class="center"><span class="status-pill pending-pill">Pending</span></div>
-            <div class="right">Standard KYC</div>
-          </div>
-        </article>
+			<div class="ops-grid">
+				<mat-card class="ops-card required-docs">
+					<div class="ops-card-head">
+						<h3>Required KYC Documents</h3>
+						<mat-icon>info</mat-icon>
+					</div>
+					<div class="doc-list">
+						<div class="doc-item mandatory">
+							<mat-icon>description</mat-icon>
+							<div>
+								<p>Certificate of Incorporation</p>
+								<span>Mandatory • High Priority</span>
+							</div>
+						</div>
+						<div class="doc-item mandatory">
+							<mat-icon>group</mat-icon>
+							<div>
+								<p>Shareholder Register</p>
+								<span>Mandatory • High Priority</span>
+							</div>
+						</div>
+						<div class="doc-item optional">
+							<mat-icon>verified</mat-icon>
+							<div>
+								<p>AML Compliance Policy</p>
+								<span>Optional • Internal Audit</span>
+							</div>
+						</div>
+					</div>
+				</mat-card>
 
-        <article class="panel table-panel">
-          <div class="table-head-row">
-            <h3>Uploaded Documents</h3>
-          </div>
-          <div class="table-grid table-grid-3">
-            <div class="table-head">File Name</div>
-            <div class="table-head">Type</div>
-            <div class="table-head right">Verification</div>
-            <div><span class="material-symbols-outlined">picture_as_pdf</span>Cert_Incorp_2024.pdf</div>
-            <div>Certificate of Incorporation</div>
-            <div class="right"><span class="verify-ok">Verified</span></div>
-            <div><span class="material-symbols-outlined">description</span>Shareholders_V2.docx</div>
-            <div>Shareholder Register</div>
-            <div class="right"><span class="verify-warn">In Review</span></div>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
+				<div class="ops-tables">
+					<mat-card class="ops-card table-card">
+						<div class="table-head">
+							<h3>Active Client Requests</h3>
+							<span class="live-chip">Live</span>
+						</div>
+						<table mat-table [dataSource]="clientRequests()" class="vault-table">
+							<ng-container matColumnDef="organisation">
+								<th mat-header-cell *matHeaderCellDef>Name / Registration</th>
+								<td mat-cell *matCellDef="let request">
+									<div class="cell-strong">{{ request.organisation || '-' }}</div>
+									<div class="cell-sub">{{ request.id || '-' }}</div>
+								</td>
+							</ng-container>
 
-  <footer class="details-footer">
-    <p><span class="material-symbols-outlined">shield</span>Veritas Protocol Engine</p>
-    <p>Last updated: 2024-10-24 14:32 UTC</p>
-  </footer>
-</section>
+							<ng-container matColumnDef="createdAt">
+								<th mat-header-cell *matHeaderCellDef>Email</th>
+								<td mat-cell *matCellDef="let request">{{ request.createdBy || '-' }}</td>
+							</ng-container>
+
+							<ng-container matColumnDef="status">
+								<th mat-header-cell *matHeaderCellDef>Status</th>
+								<td mat-cell *matCellDef="let request">
+									<span class="table-status" [class.flagged]="request.status === 'FLAGGED'" [class.pending]="request.status !== 'FLAGGED'">
+										{{ request.status || 'Pending' }}
+									</span>
+								</td>
+							</ng-container>
+
+							<tr mat-header-row *matHeaderRowDef="clientRequestsColumns"></tr>
+							<tr mat-row *matRowDef="let row; columns: clientRequestsColumns"></tr>
+						</table>
+					</mat-card>
+
+					<mat-card class="ops-card table-card">
+						<div class="table-head">
+							<h3>Uploaded Documents</h3>
+						</div>
+
+						<table class="simple-table">
+							<thead>
+								<tr>
+									<th>File Name</th>
+									<th>Type</th>
+									<th>Verification</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><mat-icon>picture_as_pdf</mat-icon> Cert_Incorp_2024.pdf</td>
+									<td>Certificate of Incorporation</td>
+									<td><span class="verify-ok"><mat-icon>verified</mat-icon> Verified</span></td>
+								</tr>
+								<tr>
+									<td><mat-icon>description</mat-icon> Shareholders_V2.docx</td>
+									<td>Shareholder Register</td>
+									<td><span class="verify-review"><mat-icon>schedule</mat-icon> In Review</span></td>
+								</tr>
+							</tbody>
+						</table>
+					</mat-card>
+				</div>
+			</div>
+		</section>
+	}
+
+	<footer class="details-footer">
+		<div class="footer-brand">
+			<mat-icon>shield</mat-icon>
+			<span>Veritas Protocol Engine</span>
+		</div>
+		<div class="footer-updated">
+			Last updated: {{ (organisation().modifiedAt | date: 'yyyy-MM-dd HH:mm') || 'N/A' }} UTC
+		</div>
+	</footer>
+</div>

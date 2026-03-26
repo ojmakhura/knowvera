@@ -1,94 +1,187 @@
 <section class="invoice-details-page">
-  <header class="head">
-    <div>
-      <p class="crumb">Digital Vault / Invoices</p>
-      <h1>INV-2024-0892</h1>
-      <p class="subline">
-        <span class="material-symbols-outlined">schedule</span>
-        Created on Oct 24, 2023 by System Admin
-      </p>
-    </div>
-    <div class="actions">
-      <button type="button" class="btn-secondary"><span class="material-symbols-outlined">print</span>Print</button>
-      <button type="button" class="btn-primary"><span class="material-symbols-outlined">download</span>Download PDF</button>
-    </div>
-  </header>
+	<header class="page-head">
+		<div class="title-wrap">
+			<button mat-icon-button type="button" class="back-btn" matTooltip="Back to invoices" (click)="backToInvoices()">
+				<mat-icon>arrow_back</mat-icon>
+			</button>
 
-  <section class="content-grid">
-    <main class="left-col">
-      <article class="panel amount-card">
-        <div>
-          <span>Total Amount Due</span>
-          <h2>$12,450.00 <small>USD</small></h2>
-        </div>
-        <div class="paid-wrap">
-          <span class="paid-pill">Paid</span>
-          <p>Ref: TRN-982341-VAULT</p>
-        </div>
-      </article>
+			<div>
+				<span class="eyebrow">Digital Vault / Invoices</span>
+				<h1>{{ invoiceRef() }}</h1>
+				<p>{{ createdSummary() }}</p>
+			</div>
+		</div>
 
-      <article class="panel context-card">
-        <h3><span class="material-symbols-outlined">corporate_fare</span>Organisation Context</h3>
-        <div class="context-grid">
-          @for (item of context(); track item.label) {
-            <div>
-              <span>{{ item.label }}</span>
-              <p>{{ item.value }}</p>
-            </div>
-          }
-        </div>
-      </article>
+		<div class="head-actions">
+			<button mat-stroked-button type="button" class="ghost-btn" (click)="printView()">
+				<mat-icon>print</mat-icon>
+				Print
+			</button>
 
-      <section class="audit-grid">
-        @for (item of audit(); track item.label) {
-          <article class="panel">
-            <h4>{{ item.label }}</h4>
-            <div class="audit-row"><span>Timestamp</span><p>{{ item.timestamp }}</p></div>
-            <div class="audit-row"><span>{{ item.label === 'Original Entry' ? 'Created By' : 'Modified By' }}</span><p>{{ item.user }}</p></div>
-          </article>
-        }
-      </section>
-    </main>
+			<button mat-flat-button type="button" class="primary-btn" (click)="downloadPrimaryDocument()">
+				<mat-icon>download</mat-icon>
+				Download PDF
+			</button>
+		</div>
+	</header>
 
-    <aside class="right-col">
-      <article class="status-card">
-        <h3>Compliance Status</h3>
-        <p><span class="material-symbols-outlined">verified</span>Verified by Veritas Protocol</p>
-        <button type="button" class="btn-light">Edit Invoice</button>
-        <button type="button" class="btn-dark">Manage Payment</button>
-      </article>
+	<section class="details-grid">
+		<div class="main-column">
+			<mat-card class="panel summary-panel">
+				<div>
+					<span class="section-label">Total Amount Due</span>
+					<h2>{{ amountLabel() }}</h2>
+					<p>{{ subscriptionPeriodLabel() }}</p>
+				</div>
 
-      <article class="panel repository">
-        <header>
-          <h3>Repository</h3>
-          <span>2 Files</span>
-        </header>
-        @for (file of files(); track file.name) {
-          <div class="file-row">
-            <span class="material-symbols-outlined icon">{{ file.icon }}</span>
-            <div>
-              <p>{{ file.name }}</p>
-              <small>{{ file.type }}</small>
-            </div>
-            <button type="button"><span class="material-symbols-outlined">download</span></button>
-          </div>
-        }
-        <button type="button" class="attach-btn">+ Attach Supporting File</button>
-      </article>
+				<div class="summary-side">
+					<span class="status-pill" [class.paid]="invoice()?.paid" [class.pending]="!invoice()?.paid">
+						<span class="status-dot"></span>
+						{{ paymentStatusLabel() }}
+					</span>
+					<span class="meta-note">Ref: {{ paymentReference() }}</span>
+				</div>
+			</mat-card>
 
-      <article class="panel help-card">
-        <h4>Need assistance?</h4>
-        <p>Contact Protocol Support</p>
-      </article>
-    </aside>
-  </section>
+			<mat-card class="panel context-panel">
+				<div class="panel-head">
+					<div class="section-head">
+						<div class="org-avatar">{{ organisationInitial() }}</div>
+						<div>
+							<h2>Organisation Context</h2>
+							<p>{{ serviceTier() }}</p>
+						</div>
+					</div>
+				</div>
 
-  <footer class="end-footer">
-    <span class="instance">Veritas Protocol Secure Instance</span>
-    <div class="links">
-      <span>Data Privacy Policy</span>
-      <span>Security Audit Log</span>
-      <span>ID: DB-9201-AXZ</span>
-    </div>
-  </footer>
+				<div class="context-grid">
+					<div class="kv">
+						<span class="section-label">Legal Entity Name</span>
+						<p>{{ invoice()?.organisationName || 'Not available' }}</p>
+					</div>
+
+					<div class="kv">
+						<span class="section-label">Organisation Code</span>
+						<p>{{ invoice()?.organisationCode || 'Not available' }}</p>
+					</div>
+
+					<div class="kv">
+						<span class="section-label">Registration No.</span>
+						<p>{{ invoice()?.organisationRegistrationNo || 'Not available' }}</p>
+					</div>
+
+					<div class="kv">
+						<span class="section-label">Subscription Ref</span>
+						<p>{{ invoice()?.subscriptionRef || 'Not available' }}</p>
+					</div>
+				</div>
+			</mat-card>
+
+			<section class="meta-grid">
+				<mat-card class="panel meta-panel">
+					<span class="section-label">Original Entry</span>
+					<div class="meta-stack">
+						<div class="meta-row">
+							<span>Timestamp</span>
+							<strong>{{ auditTimestamp('created') }}</strong>
+						</div>
+						<div class="meta-row">
+							<span>Created By</span>
+							<strong>{{ auditUser('created') }}</strong>
+						</div>
+					</div>
+				</mat-card>
+
+				<mat-card class="panel meta-panel">
+					<span class="section-label">Last Modification</span>
+					<div class="meta-stack">
+						<div class="meta-row">
+							<span>Timestamp</span>
+							<strong>{{ auditTimestamp('modified') }}</strong>
+						</div>
+						<div class="meta-row">
+							<span>Modified By</span>
+							<strong>{{ auditUser('modified') }}</strong>
+						</div>
+					</div>
+				</mat-card>
+			</section>
+		</div>
+
+		<aside class="side-column">
+			<mat-card class="panel status-panel">
+				<h2>Compliance Status</h2>
+				<div class="status-copy">
+					<mat-icon>verified</mat-icon>
+					<span>{{ invoice()?.paid ? 'Payment verified by Veritas Protocol' : 'Awaiting payment verification' }}</span>
+				</div>
+
+				<div class="status-actions">
+					<button mat-flat-button type="button" class="light-btn" (click)="openEdit()">
+						<mat-icon>edit</mat-icon>
+						Edit Invoice
+					</button>
+
+					<button mat-stroked-button type="button" class="dark-btn" (click)="openEdit()">
+						<mat-icon>payments</mat-icon>
+						Manage Payment
+					</button>
+				</div>
+			</mat-card>
+
+			<mat-card class="panel repository-panel">
+				<div class="repository-head">
+					<h2>Repository</h2>
+					<span>{{ repositoryFiles().length }} Files</span>
+				</div>
+
+				<div class="repo-list">
+					<button
+						type="button"
+						class="repo-item"
+						*ngFor="let file of repositoryFiles(); trackBy: trackFile"
+						[disabled]="!canDownload(file)"
+						(click)="downloadAttachment(file)"
+					>
+						<div class="repo-icon">
+							<mat-icon>{{ file.icon }}</mat-icon>
+						</div>
+
+						<div class="repo-copy">
+							<strong>{{ file.name }}</strong>
+							<span>{{ file.type }}</span>
+						</div>
+
+						<mat-icon>download</mat-icon>
+					</button>
+				</div>
+			</mat-card>
+
+			<mat-card class="panel support-panel">
+				<div class="support-icon">
+					<mat-icon>help_outline</mat-icon>
+				</div>
+				<div>
+					<h3>Need assistance?</h3>
+					<p>Contact Protocol Support</p>
+				</div>
+			</mat-card>
+
+			<mat-card class="panel support-panel audit-panel">
+				<span class="section-label">Billing Coverage</span>
+				<h3>{{ coverageLabel() }}</h3>
+				<p>Issued {{ issueDateLabel() }} • Payment date {{ paymentDateLabel() }}</p>
+			</mat-card>
+		</aside>
+	</section>
+
+	@if (loading()) {
+		<mat-card class="panel loading-panel">
+			<mat-icon>hourglass_top</mat-icon>
+			<div>
+				<strong>Loading invoice details</strong>
+				<p>{{ loaderMessage() || 'Fetching the latest invoice record...' }}</p>
+			</div>
+		</mat-card>
+	}
 </section>
