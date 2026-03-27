@@ -29,11 +29,11 @@ export const menuItems: any[] = [
         titleKey: "individual.title",
         icon: "person"
     },
-    {
-        routerLink: "/user",
-        titleKey: "users.title",
-        icon: "group"
-    },
+    // {
+    //     routerLink: "/user",
+    //     titleKey: "users.title",
+    //     icon: "group"
+    // },
     {
         routerLink: "/subscription",
         titleKey: "kyc.subscription.title",

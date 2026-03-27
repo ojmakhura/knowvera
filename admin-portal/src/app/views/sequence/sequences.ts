@@ -1,12 +1,12 @@
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { SequenceGeneratorDTO } from '@app/models/bw/co/centralkyc/sequence/sequence-generator-dto';
@@ -48,12 +48,14 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
   readonly sequenceGeneratorApiStore = inject(SequenceGeneratorApiStore);
   protected readonly allRows = signal<SequenceGeneratorDTO[]>([]);
   protected readonly rows = signal<SequenceGeneratorDTO[]>([]);
+  protected readonly dataSource = new MatTableDataSource<SequenceGeneratorDTO>([]);
   protected readonly currentPage = signal(0);
   protected readonly pageSize = signal(10);
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
   protected readonly router = inject(Router);
   protected readonly targetOptions = Object.values(TargetEntity);
+  @ViewChild(MatPaginator) paginator?: MatPaginator;
 
   constructor() {
     effect(() => {
@@ -67,7 +69,11 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
     this.sequenceGeneratorApiStore.getAll();
   }
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+    }
+  }
 
   ngOnDestroy(): void {}
 
@@ -148,7 +154,8 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
     this.totalElements.set(total);
     this.totalPages.set(totalPages);
     this.currentPage.set(safePage);
-    this.rows.set(filtered.slice(start, start + size));
+    this.rows.set(filtered);
+    this.dataSource.data = filtered;
   }
 
   openCreate(): void {
@@ -173,7 +180,7 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const start = this.currentPage() * this.pageSize() + 1;
-    const end = Math.min(start + this.rows().length - 1, this.totalElements());
+    const end = Math.min(start + this.pageSize() - 1, this.totalElements());
     return `${start}-${end}`;
   }
 

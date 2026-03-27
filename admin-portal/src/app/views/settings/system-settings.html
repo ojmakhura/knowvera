@@ -453,19 +453,19 @@
         <div class="salary-range-item">
           <div class="row">
 
-            <mat-form-field class="col-md-3">
+            <mat-form-field class="col-md-3 vault-field">
               <mat-label translate>min</mat-label>
               <input matInput type="number" id="salaryRangeMin_{{i}}" [formField]="item.min" />
               <mat-icon matSuffix>trending_down</mat-icon>
             </mat-form-field>
 
-            <mat-form-field class="col-md-3">
+            <mat-form-field class="col-md-3 vault-field">
               <mat-label translate>max</mat-label>
               <input matInput type="number" id="salaryRangeMax_{{i}}" [formField]="item.max" />
               <mat-icon matSuffix>trending_up</mat-icon>
             </mat-form-field>
 
-            <mat-form-field class="col-md-3">
+            <mat-form-field class="col-md-3 vault-field">
               <mat-label translate>active</mat-label>
               <mat-select id="salaryRangeActive_{{i}}" [formField]="item.active">
                 <mat-option [value]="true">{{ 'yes' | translate }}</mat-option>

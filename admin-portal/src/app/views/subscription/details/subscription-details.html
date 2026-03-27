@@ -124,10 +124,14 @@
       </div>
 
       <button mat-button type="button" [routerLink]="['/invoice']">View All Invoices</button>
+      <button mat-raised-button color="primary" (click)="addInvoice()" class="action-button">
+          <mat-icon>add</mat-icon>
+          {{ 'invoice.add' | translate }}
+        </button>
     </div>
 
     <div class="invoice-table-wrap">
-      <table mat-table [dataSource]="invoices()" class="invoice-table">
+      <table mat-table [dataSource]="invoiceDataSource" class="invoice-table">
         <ng-container matColumnDef="ref">
           <th mat-header-cell *matHeaderCellDef>Invoice Ref</th>
           <td mat-cell *matCellDef="let invoice" class="mono-cell">{{ invoice.ref || '—' }}</td>
@@ -170,31 +174,13 @@
           </td>
         </tr>
       </table>
+
+      <mat-paginator
+        [pageSize]="5"
+        [pageSizeOptions]="[5, 10, 25]"
+        showFirstLastButtons
+      ></mat-paginator>
     </div>
-  </mat-card>
-
-  <mat-card class="panel details-footer">
-    <div class="meta">
-      <div class="meta-item">
-        <mat-icon>history_edu</mat-icon>
-        <div>
-          <span class="section-label">Created By</span>
-          <p>{{ createdBy() }}</p>
-        </div>
-      </div>
-
-      <div class="meta-item">
-        <mat-icon>update</mat-icon>
-        <div>
-          <span class="section-label">Last Modified</span>
-          <p>{{ lastModified() }}</p>
-        </div>
-      </div>
-    </div>
-
-    <span class="record-chip">
-      <mat-icon>encrypted</mat-icon>
-      Blockchain Verified Record
-    </span>
   </mat-card>
 </section>
+<app-loader [isLoading]="loading()" [message]="loaderMessage()"></app-loader>

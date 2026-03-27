@@ -26,7 +26,7 @@
 				<div class="search-card-label">Filter By Criteria</div>
 
 				<div class="search-layout">
-					<mat-form-field appearance="outline" class="search-primary">
+					<mat-form-field appearance="outline" class="search-primary vault-field">
 						<mat-label>Search all sequence metadata</mat-label>
 						<mat-icon matPrefix>search</mat-icon>
 						<input
@@ -38,7 +38,7 @@
 						/>
 					</mat-form-field>
 
-					<mat-form-field appearance="outline">
+					<mat-form-field appearance="outline" class="vault-field">
 						<mat-label>Sequence Name</mat-label>
 						<input
 							matInput
@@ -49,7 +49,7 @@
 						/>
 					</mat-form-field>
 
-					<mat-form-field appearance="outline">
+					<mat-form-field appearance="outline" class="vault-field">
 						<mat-label>Target Entity</mat-label>
 						<mat-select
 							[value]="searchSequencesSignal().targetEntity"
@@ -62,7 +62,7 @@
 						</mat-select>
 					</mat-form-field>
 
-					<mat-form-field appearance="outline">
+					<mat-form-field appearance="outline" class="vault-field">
 						<mat-label>Pattern</mat-label>
 						<input
 							matInput
@@ -99,9 +99,9 @@
 		</mat-card>
 	</section>
 
-	<mat-card class="results-card" aria-label="Sequence results">
-		<div class="table-wrap">
-			<table mat-table [dataSource]="rows()" class="sequences-table">
+	<mat-card class="results-card search-results-card" aria-label="Sequence results">
+		<div class="table-wrap search-results-table-wrap">
+			<table mat-table [dataSource]="dataSource" class="sequences-table search-results-table">
 				<ng-container matColumnDef="name">
 					<th mat-header-cell *matHeaderCellDef>Sequence Name</th>
 					<td mat-cell *matCellDef="let row">
@@ -152,13 +152,18 @@
 				<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
 				<tr class="mat-row empty-row" *matNoDataRow>
-					<td class="mat-cell" colspan="5">No sequences found for the current search.</td>
+					<td class="mat-cell" colspan="5">
+						<div class="empty-state">
+							<mat-icon>search_off</mat-icon>
+							<p>No sequences found for the current search.</p>
+						</div>
+					</td>
 				</tr>
 			</table>
 		</div>
 
-		<div class="results-footer">
-			<p>Showing {{ showingLabel() }} of {{ totalElements() }} sequences</p>
+		<div class="results-footer search-results-footer">
+			<p class="search-results-summary">Showing {{ showingLabel() }} of {{ totalElements() }} sequences</p>
 
 			<mat-paginator
 				[length]="totalElements()"

@@ -1,4 +1,5 @@
 <mat-sidenav-container class="shell-layout">
+  @if(keycloak.authenticated) {
   <mat-sidenav #sidenav class="shell-sidebar" mode="side" opened aria-label="Primary navigation">
     <div class="brand">
       <div class="brand-mark">◍</div>
@@ -6,23 +7,17 @@
         <p class="brand-title">Central KYC</p>
       </div>
     </div>
-
     <button mat-flat-button color="primary" class="new-btn" type="button">
-      <mat-icon>add</mat-icon> New Verification
+      <mat-icon>add</mat-icon> New Verification {{keycloak.authenticated}}
     </button>
 
     <mat-nav-list class="sidebar-nav">
       @for (item of menus; track item.titleKey) {
-        <a
-          mat-list-item
-          class="nav-item"
-          [routerLink]="item.routerLink"
-          routerLinkActive="nav-item-active"
-          [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }"
-        >
-          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-          <span matListItemTitle translate>{{ item.titleKey }}</span>
-        </a>
+      <a mat-list-item class="nav-item" [routerLink]="item.routerLink" routerLinkActive="nav-item-active"
+        [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle translate>{{ item.titleKey }}</span>
+      </a>
       }
     </mat-nav-list>
 
@@ -34,16 +29,17 @@
       </div>
     </div> -->
   </mat-sidenav>
+  }
 
   <mat-sidenav-content class="shell-main" aria-label="Application shell">
     <mat-toolbar class="topbar">
       <p class="topbar-title">Central KYC Admin Portal</p>
       <span class="spacer"></span>
-      <mat-form-field appearance="outline" class="topbar-search-field" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" class="topbar-search-field vault-field" subscriptSizing="dynamic">
         <mat-icon matPrefix>search</mat-icon>
         <input matInput placeholder="Search verifications or entities..." />
       </mat-form-field>
-      
+
       <div class="topbar-actions">
         <button mat-icon-button type="button" aria-label="Notifications">
           <mat-icon>notifications</mat-icon>

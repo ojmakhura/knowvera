@@ -15,7 +15,8 @@
 			<button mat-stroked-button type="button" class="secondary-action" (click)="cancel()">
 				Discard
 			</button>
-			<button mat-flat-button type="button" class="primary-action" [disabled]="loading() || editInvoiceSignalForm().invalid()" (click)="saveInvoice()">
+			<button mat-flat-button type="button" class="primary-action"
+				[disabled]="loading() || editInvoiceSignalForm().invalid()" (click)="saveInvoice()">
 				Save Changes
 			</button>
 		</div>
@@ -33,38 +34,28 @@
 					<mat-form-field appearance="outline" class="vault-field">
 						<mat-label>Invoice Reference</mat-label>
 						<mat-icon matPrefix>tag</mat-icon>
-						<input
-							matInput
-							type="text"
-							placeholder="e.g. INV-2024-001"
+						<input matInput type="text" placeholder="e.g. INV-2024-001"
 							[value]="editInvoiceSignal().ref || ''"
-							(input)="updateField('ref', $any($event.target).value)"
-						/>
+							(input)="updateField('ref', $any($event.target).value)" />
 					</mat-form-field>
 
 					<div class="organisation-stack">
 						<mat-form-field appearance="outline" class="vault-field">
 							<mat-label>Organisation Lookup</mat-label>
 							<mat-icon matPrefix>search</mat-icon>
-							<input
-								matInput
-								type="text"
-								placeholder="Filter by name, code, or registration"
+							<input matInput type="text" placeholder="Filter by name, code, or registration"
 								[value]="editInvoiceSignal().organisationFilter || ''"
-								(input)="updateField('organisationFilter', $any($event.target).value); filterOrganisation()"
-							/>
+								(input)="updateField('organisationFilter', $any($event.target).value); filterOrganisation()" />
 						</mat-form-field>
 
 						<mat-form-field appearance="outline" class="vault-field">
 							<mat-label>Organisation</mat-label>
 							<mat-icon matPrefix>corporate_fare</mat-icon>
-							<mat-select
-								[value]="editInvoiceSignal().organisation?.id || null"
-								[disabled]="organisationLoading()"
-								(selectionChange)="selectOrganisation($event.value)"
-							>
+							<mat-select [value]="editInvoiceSignal().organisation?.id || null"
+								[disabled]="organisationLoading()" (selectionChange)="selectOrganisation($event.value)">
 								@for (organisation of organisationFilteredList(); track organisation.id) {
-									<mat-option [value]="organisation.id">{{ organisationOptionLabel(organisation) }}</mat-option>
+								<mat-option [value]="organisation.id">{{ organisationOptionLabel(organisation)
+									}}</mat-option>
 								}
 							</mat-select>
 						</mat-form-field>
@@ -82,39 +73,25 @@
 					<h2>Subscription Context</h2>
 				</div>
 
-				<div class="period-stack">
-					<p class="field-label">Billing Period</p>
-					<mat-button-toggle-group
-						class="period-toggle"
-						[value]="editInvoiceSignal().subscriptionPeriod"
-						(change)="updateField('subscriptionPeriod', $event.value)"
-					>
-						@for (period of timePeriodOptions; track period) {
-							<mat-button-toggle [value]="period">{{ periodLabel(period) }}</mat-button-toggle>
-						}
-					</mat-button-toggle-group>
-				</div>
+				<p class="support-copy context-copy">
+					Subscription metadata is inherited from the linked record and cannot be edited here.
+				</p>
 
-				<div class="field-grid two-column top-gap">
-					<mat-form-field appearance="outline" class="vault-field">
-						<mat-label>Start Date</mat-label>
-						<input
-							matInput
-							type="date"
-							[value]="asDateInput(editInvoiceSignal().startDate)"
-							(input)="updateField('startDate', $any($event.target).value)"
-						/>
-					</mat-form-field>
+				<div class="subscription-context-grid top-gap">
+					<div class="context-item">
+						<p class="field-label">Billing Period</p>
+						<p class="context-value">{{ subscriptionPeriodLabel() }}</p>
+					</div>
 
-					<mat-form-field appearance="outline" class="vault-field">
-						<mat-label>End Date</mat-label>
-						<input
-							matInput
-							type="date"
-							[value]="asDateInput(editInvoiceSignal().endDate)"
-							(input)="updateField('endDate', $any($event.target).value)"
-						/>
-					</mat-form-field>
+					<div class="context-item">
+						<p class="field-label">Start Date</p>
+						<p class="context-value">{{ editInvoiceSignal().startDate | date: 'dd-MM-yyyy' }}</p>
+					</div>
+
+					<div class="context-item">
+						<p class="field-label">End Date</p>
+						<p class="context-value">{{ editInvoiceSignal().endDate | date: 'dd-MM-yyyy' }}</p>
+					</div>
 				</div>
 			</mat-card-content>
 		</mat-card>
@@ -130,14 +107,9 @@
 					<mat-form-field appearance="outline" class="vault-field amount-field">
 						<mat-label>Invoice Amount</mat-label>
 						<span matTextPrefix>USD&nbsp;</span>
-						<input
-							matInput
-							type="number"
-							step="0.01"
-							placeholder="0.00"
+						<input matInput type="number" step="0.01" placeholder="0.00"
 							[value]="editInvoiceSignal().amount ?? ''"
-							(input)="updateField('amount', $any($event.target).value)"
-						/>
+							(input)="updateField('amount', $any($event.target).value)" />
 					</mat-form-field>
 
 					<p class="support-copy">Net amount excluding applicable regional taxes.</p>
@@ -152,11 +124,8 @@
 							<h2>Payment Status</h2>
 						</div>
 
-						<mat-slide-toggle
-							color="primary"
-							[checked]="!!editInvoiceSignal().paid"
-							(change)="updateField('paid', $event.checked)"
-						>
+						<mat-slide-toggle color="primary" [checked]="!!editInvoiceSignal().paid"
+							(change)="updateField('paid', $event.checked)">
 							Is Paid
 						</mat-slide-toggle>
 					</div>
@@ -164,26 +133,17 @@
 					<div class="payment-grid">
 						<mat-form-field appearance="outline" class="vault-field">
 							<mat-label>Payment Date</mat-label>
-							<input
-								matInput
-								type="date"
-								[disabled]="!editInvoiceSignal().paid"
+							<input matInput type="date" [disabled]="!editInvoiceSignal().paid"
 								[value]="asDateInput(editInvoiceSignal().paymentDate)"
-								(input)="updateField('paymentDate', $any($event.target).value)"
-							/>
+								(input)="updateField('paymentDate', $any($event.target).value)" />
 						</mat-form-field>
 
 						<mat-form-field appearance="outline" class="vault-field">
 							<mat-label>Payment Reference</mat-label>
 							<mat-icon matPrefix>receipt_long</mat-icon>
-							<input
-								matInput
-								type="text"
-								[disabled]="!editInvoiceSignal().paid"
-								placeholder="Transaction ID"
-								[value]="editInvoiceSignal().paymentReference || ''"
-								(input)="updateField('paymentReference', $any($event.target).value)"
-							/>
+							<input matInput type="text" [disabled]="!editInvoiceSignal().paid"
+								placeholder="Transaction ID" [value]="editInvoiceSignal().paymentReference || ''"
+								(input)="updateField('paymentReference', $any($event.target).value)" />
 						</mat-form-field>
 					</div>
 				</mat-card-content>

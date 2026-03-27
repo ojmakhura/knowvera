@@ -22,6 +22,10 @@ import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/o
 import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscription/kyc-subscription-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { Loader } from '@app/@shared/loader/loader';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import {provideNativeDateAdapter} from '@angular/material/core';
+import {MatDatepickerModule} from '@angular/material/datepicker';
 
 export class EditSubscriptionVarsForm {
   id: string | any = null;
@@ -44,8 +48,10 @@ export class EditSubscriptionVarsForm {
   styleUrls: ['./subscription-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatCardModule, MatDividerModule, MatIconModule, MatTooltipModule,
-
+    MatCardModule, 
+    MatDividerModule, 
+    MatIconModule, 
+    MatTooltipModule,
     CommonModule,
     FormField,
     TranslateModule,
@@ -55,7 +61,10 @@ export class EditSubscriptionVarsForm {
     MatInputModule,
     MatSelectModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    Loader,
+    NgxMatSelectSearchModule,
+    MatDatepickerModule
   ]
 })
 export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
@@ -176,7 +185,7 @@ export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
     subscription.modifiedBy = formValue.modifiedBy;
     subscription.modifiedAt = formValue.modifiedAt;
 
-    // this.kycSubscriptionApiStore.save({ subscription });
+    this.kycSubscriptionApiStore.save({ subscription });
   }
 
   selectionChanged(org: OrganisationListDTO): void {

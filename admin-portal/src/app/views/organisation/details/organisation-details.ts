@@ -1,13 +1,14 @@
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatListModule } from '@angular/material/list';
-import { MatTableModule } from '@angular/material/table';
+import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TableComponent } from '@app/components/table/table';
 import { BranchDTO } from '@app/models/bw/co/centralkyc/organisation/branch/branch-dto';
@@ -34,6 +35,7 @@ import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscriptio
     MatButtonModule,
     MatIconModule,
     MatListModule,
+    MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
     MatTableModule,
@@ -89,6 +91,10 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   clientRequestsTableSignal = linkedSignal<Page<ClientRequestDTO>>(() => this.clientRequestApiStore.dataPage());
   clientRequests = linkedSignal<ClientRequestDTO[]>(() => this.clientRequestsTableSignal().content || []);
+  clientRequestsDataSource = new MatTableDataSource<ClientRequestDTO>([]);
+  clientRequestsCurrentPage = signal(0);
+  clientRequestsPageSize = signal(10);
+  clientRequestsTotalElements = signal(0);
   clientRequestStatuses = Object.values(ClientRequestStatus);
   clientRequestsColumns = [
     'createdAt', 'organisation', 'status'
@@ -112,7 +118,24 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   // requestsColumns = [...this.clientRequestsTableColumns.map(column => column.id), 'actions'];
 
-  constructor() { }
+  constructor() {
+    effect(() => {
+      const page = this.clientRequestsTableSignal();
+
+      if (!page) {
+        this.clientRequestsDataSource.data = [];
+        this.clientRequestsCurrentPage.set(0);
+        this.clientRequestsPageSize.set(10);
+        this.clientRequestsTotalElements.set(0);
+        return;
+      }
+
+      this.clientRequestsDataSource.data = page.content || [];
+      this.clientRequestsCurrentPage.set(page.page?.number || 0);
+      this.clientRequestsPageSize.set(page.page?.size || 10);
+      this.clientRequestsTotalElements.set(page.page?.totalElements || page.totalElements || 0);
+    });
+  }
 
   ngOnInit(): void {
     console.log('OrganisationDetails ngOnInit', this.id);
@@ -183,6 +206,10 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
         pageSize,
       });
     }
+  }
+
+  onClientRequestsPageChange(event: PageEvent): void {
+    this.doSearchRequests(event.pageIndex, event.pageSize);
   }
 
   // Branches Management Methods

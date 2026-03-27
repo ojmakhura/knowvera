@@ -118,6 +118,35 @@
 	gap: 0.75rem;
 }
 
+.subscription-context-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+.context-item {
+	border: 1px solid rgba(196, 198, 208, 0.45);
+	border-radius: 0.85rem;
+	background: #f7f9fb;
+	padding: 1rem;
+}
+
+.context-copy {
+	max-width: 42rem;
+}
+
+.context-item .field-label {
+	margin: 0 0 0.45rem;
+	color: #43474f;
+}
+
+.context-value {
+	margin: 0;
+	color: #191c1e;
+	font-size: 1rem;
+	font-weight: 700;
+}
+
 .top-gap {
 	margin-top: 1.25rem;
 }
@@ -209,7 +238,8 @@
 
 	.field-grid.two-column,
 	.split-grid,
-	.audit-grid {
+	.audit-grid,
+	.subscription-context-grid {
 		grid-template-columns: 1fr;
 	}
 

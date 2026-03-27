@@ -1,7 +1,7 @@
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -17,7 +17,6 @@ import {
   OnInit,
   Signal,
   signal,
-  ViewChild,
 } from '@angular/core';
 import { form } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
@@ -54,7 +53,7 @@ export class SearchOrganisationsVarsForm {
   styleUrls: ['./organisations.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Organisations implements OnInit, AfterViewInit, OnDestroy {
+export class Organisations implements OnInit, OnDestroy {
 
   searchOrganisationsVarsForm: SearchOrganisationsVarsForm = new SearchOrganisationsVarsForm();
   searchOrganisationsSignal = signal(this.searchOrganisationsVarsForm);
@@ -75,7 +74,6 @@ export class Organisations implements OnInit, AfterViewInit, OnDestroy {
   totalElements = signal(0);
   totalPages = signal(0);
   router = inject(Router);
-  @ViewChild(MatPaginator) paginator?: MatPaginator;
 
   displayedColumns: string[] = ['name', 'registrationNo', 'code', 'contactEmailAddress', 'kycStatus', 'clientStatus', 'actions'];
 
@@ -109,23 +107,11 @@ export class Organisations implements OnInit, AfterViewInit, OnDestroy {
       this.pageSize.set(page.page?.size || 10);
       this.totalElements.set(page.page?.totalElements || 0);
       this.totalPages.set(page.page?.totalPages || 0);
-
-      if (this.paginator) {
-        this.paginator.length = page.page?.totalElements || 0;
-        this.paginator.pageIndex = page.page?.number || 0;
-        this.paginator.pageSize = page.page?.size || 10;
-      }
     });
   }
 
   ngOnInit(): void {
     this.doSearch();
-  }
-
-  ngAfterViewInit(): void {
-    if (this.paginator) {
-      this.dataSource.paginator = this.paginator;
-    }
   }
 
   ngOnDestroy(): void {}

@@ -49,10 +49,10 @@
 		</mat-card-content>
 	</mat-card>
 
-	<mat-card class="results-card" aria-label="Document type search results">
+	<mat-card class="results-card search-results-card" aria-label="Document type search results">
 		<mat-card-content>
-			<div class="table-shell">
-				<table mat-table [dataSource]="rows()" class="document-type-table">
+			<div class="table-shell search-results-table-wrap">
+				<table mat-table [dataSource]="dataSource" class="document-type-table search-results-table">
 					<ng-container matColumnDef="code">
 						<th mat-header-cell *matHeaderCellDef>Code</th>
 						<td mat-cell *matCellDef="let row">
@@ -138,7 +138,7 @@
 				</table>
 			</div>
 
-			<div class="results-footer">
+			<div class="results-footer search-results-footer">
 				<div class="results-meta">
 					<p>
 						Showing <span>{{ showingCount() }}</span> of <span>{{ totalElements() }}</span> document types registered.
@@ -148,67 +148,15 @@
 					}
 				</div>
 
-				@if (totalPages() > 0) {
-					<div class="pagination-controls" aria-label="Pagination">
-						<button
-							mat-icon-button
-							type="button"
-							class="pagination-button"
-							aria-label="First page"
-							[disabled]="currentPage() === 0"
-							(click)="firstPage()"
-						>
-							<mat-icon>first_page</mat-icon>
-						</button>
-
-						<button
-							mat-icon-button
-							type="button"
-							class="pagination-button"
-							aria-label="Previous page"
-							[disabled]="currentPage() === 0"
-							(click)="previousPage()"
-						>
-							<mat-icon>chevron_left</mat-icon>
-						</button>
-
-						<div class="page-number-group">
-							@for (page of pageNumbers(); track trackByPage($index, page)) {
-								<button
-									mat-button
-									type="button"
-									class="page-number"
-									[class.is-active]="currentPage() === page - 1"
-									(click)="goToPage(page - 1)"
-								>
-									{{ page }}
-								</button>
-							}
-						</div>
-
-						<button
-							mat-icon-button
-							type="button"
-							class="pagination-button"
-							aria-label="Next page"
-							[disabled]="currentPage() >= totalPages() - 1"
-							(click)="nextPage()"
-						>
-							<mat-icon>chevron_right</mat-icon>
-						</button>
-
-						<button
-							mat-icon-button
-							type="button"
-							class="pagination-button"
-							aria-label="Last page"
-							[disabled]="currentPage() >= totalPages() - 1"
-							(click)="lastPage()"
-						>
-							<mat-icon>last_page</mat-icon>
-						</button>
-					</div>
-				}
+				<mat-paginator
+					[pageIndex]="currentPage()"
+					[length]="totalElements()"
+					[pageSize]="pageSize()"
+					[pageSizeOptions]="[5, 10, 25, 50]"
+					[hidePageSize]="totalElements() <= 5"
+					(page)="onPageChange($event)"
+					aria-label="Document type pagination"
+				></mat-paginator>
 			</div>
 		</mat-card-content>
 	</mat-card>

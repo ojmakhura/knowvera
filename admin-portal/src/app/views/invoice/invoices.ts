@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import {
   ChangeDetectionStrategy,
@@ -60,6 +60,7 @@ export class Invoices implements OnInit {
 
   readonly kycInvoiceApiStore = inject(KycInvoiceApiStore);
   protected readonly rows = signal<KycInvoiceDTO[]>([]);
+  protected readonly dataSource = new MatTableDataSource<KycInvoiceDTO>([]);
   protected readonly currentPage = signal(0);
   protected readonly pageSize = signal(10);
   protected readonly totalElements = signal(0);
@@ -84,6 +85,7 @@ export class Invoices implements OnInit {
       }
 
       this.rows.set(page.content || []);
+      this.dataSource.data = page.content || [];
       this.currentPage.set(page.page?.number || 0);
       this.pageSize.set(page.page?.size || 10);
       this.totalElements.set(page.page?.totalElements || 0);

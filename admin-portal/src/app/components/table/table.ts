@@ -73,13 +73,11 @@ export class TableComponent<T> implements OnInit, OnDestroy, AfterViewInit {
 
       if (!this.paged) {
         const data: T[] = <T[]>this.dataSignal();
-        this.dataSource = new MatTableDataSource(data || []);
-        this.dataSource.sort = this.tableSort;
-        this.totalElements = (data?.length || 0);
+        this.dataSource.data = data || [];
+        this.totalElements = data?.length || 0;
       } else {
         const page = <Page<T>>this.dataSignal() || new Page<T>();
-        this.dataSource = new MatTableDataSource((page?.content || []));
-        this.dataSource.sort = this.tableSort;
+        this.dataSource.data = page?.content || [];
         this.totalElements = page?.page ? page.page.totalElements : (page?.totalElements || 0);
       }
     });
@@ -99,6 +97,12 @@ export class TableComponent<T> implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {}
 
   ngAfterViewInit() {
+    this.dataSource.sort = this.tableSort;
+
+    if (!this.paged) {
+      this.dataSource.paginator = this.tablePaginator;
+    }
+
     this.tablePaginator.page.subscribe({
       next: (paginator: MatPaginator) => {
         if (this.paginatorChange) {

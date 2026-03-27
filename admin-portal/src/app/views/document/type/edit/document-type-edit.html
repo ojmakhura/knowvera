@@ -7,46 +7,14 @@
 
 		<div class="header-actions">
 			<button mat-button type="button" class="btn-secondary" (click)="discardChanges()">Discard</button>
-			<button mat-flat-button type="button" class="btn-primary" [disabled]="loading()" (click)="saveDocumentType()">
+			<button mat-flat-button type="button" class="btn-save" [disabled]="loading()" (click)="saveDocumentType()">
 				<mat-icon>save</mat-icon>
-				<span>Save Changes</span>
+				<span>Save</span>
 			</button>
 		</div>
 	</header>
 
 	<div class="workspace-shell">
-		<aside class="side-panel">
-			<nav class="section-nav" aria-label="Document type editor sections">
-				<a class="nav-link is-active" href="#general">
-					<mat-icon>description</mat-icon>
-					<span>General Details</span>
-				</a>
-				<a class="nav-link" href="#fields">
-					<mat-icon>list_alt</mat-icon>
-					<span>Expected Fields</span>
-				</a>
-				<a class="nav-link" href="#validation">
-					<mat-icon>verified_user</mat-icon>
-					<span>AI Validation</span>
-				</a>
-				<a class="nav-link" href="#extraction">
-					<mat-icon>database</mat-icon>
-					<span>Extraction Rules</span>
-				</a>
-			</nav>
-
-			<mat-card class="status-card">
-				<mat-card-content>
-					<div class="status-chip">
-						<mat-icon>info</mat-icon>
-						<span>System Status</span>
-					</div>
-					<p>
-						Version 2.4.0-stable active. AI schema validation is currently synchronized with global extraction rules.
-					</p>
-				</mat-card-content>
-			</mat-card>
-		</aside>
 
 		<main class="content-canvas">
 			<section class="editor-section" id="general">
@@ -61,41 +29,37 @@
 							<div class="field-block">
 								<label class="form-label" for="documentTypeCode">Document Code</label>
 								<mat-form-field appearance="outline" class="vault-field">
-									<input
-										id="documentTypeCode"
-										matInput
-										type="text"
-										class="field-input-mono"
-										placeholder="e.g. KYC_ID_001"
-										[formField]="editDocumentTypeSignalForm.code"
-									/>
+									<mat-label translate>code</mat-label>
+									<input id="documentTypeCode" matInput type="text" class="field-input-mono"
+										placeholder="e.g. KYC_ID_001" [formField]="editDocumentTypeSignalForm.code" />
 								</mat-form-field>
+								@if(editDocumentTypeSignalForm.code().touched()) {
+								@for (error of editDocumentTypeSignalForm.code().errors(); track $index) {
+								<p class="error-message" translate>{{ error.message }}</p>
+								}
+								}
 							</div>
 
 							<div class="field-block">
 								<label class="form-label" for="documentTypeName">Display Name</label>
 								<mat-form-field appearance="outline" class="vault-field">
-									<input
-										id="documentTypeName"
-										matInput
-										type="text"
-										placeholder="e.g. Passport Visual"
-										[formField]="editDocumentTypeSignalForm.name"
-									/>
+									<input id="documentTypeName" matInput type="text" placeholder="e.g. Passport Visual"
+										[formField]="editDocumentTypeSignalForm.name" />
 								</mat-form-field>
+								@if(editDocumentTypeSignalForm.name().touched()) {
+								@for (error of editDocumentTypeSignalForm.name().errors(); track $index) {
+								<p class="error-message" translate>{{ error.message }}</p>
+								}
+								}
 							</div>
 						</div>
 
 						<div class="field-block">
 							<label class="form-label" for="documentTypeDescription">Description</label>
 							<mat-form-field appearance="outline" class="vault-field textarea-field">
-								<textarea
-									id="documentTypeDescription"
-									matInput
-									rows="4"
+								<textarea id="documentTypeDescription" matInput rows="4"
 									placeholder="Explain the purpose of this document type for extraction logic..."
-									[formField]="editDocumentTypeSignalForm.description"
-								></textarea>
+									[formField]="editDocumentTypeSignalForm.description"></textarea>
 							</mat-form-field>
 						</div>
 					</mat-card-content>
@@ -126,60 +90,44 @@
 						</div>
 
 						<div class="fields-body" role="table">
-							@for (field of editDocumentTypeSignalForm.expectedFields; track trackByIndex($index); let index = $index) {
-								<article class="fields-row" role="row">
-									<mat-form-field appearance="outline" class="vault-field compact-field">
-										<mat-label>Field Name</mat-label>
-										<input
-											matInput
-											type="text"
-											[formField]="field.field"
-										/>
-									</mat-form-field>
+							@for (field of editDocumentTypeSignalForm.expectedFields; track trackByIndex($index); let
+							index = $index) {
+							<article class="fields-row" role="row">
+								<mat-form-field appearance="outline" class="vault-field compact-field">
+									<mat-label>Field Name</mat-label>
+									<input matInput type="text" [formField]="field.field" />
+								</mat-form-field>
 
-									<mat-form-field appearance="outline" class="vault-field compact-field centered-field">
-										<mat-label>Key Field</mat-label>
-										<mat-select [formField]="field.keyField">
-											@for (option of keyFieldOptions; track option) {
-												<mat-option [value]="option">{{ option }}</mat-option>
-											}
-										</mat-select>
-									</mat-form-field>
+								<mat-form-field appearance="outline" class="vault-field compact-field centered-field">
+									<mat-label>Key Field</mat-label>
+									<mat-select [formField]="field.keyField">
+										@for (option of keyFieldOptions; track option) {
+										<mat-option [value]="option">{{ option }}</mat-option>
+										}
+									</mat-select>
+								</mat-form-field>
 
-									<div class="centered checkbox-cell">
-										<mat-checkbox
-											[formField]="field.mandatory"
-											aria-label="Mandatory field"
-										></mat-checkbox>
-									</div>
-
-									<mat-form-field appearance="outline" class="vault-field compact-field">
-										<mat-label>Format</mat-label>
-										<input
-											matInput
-											type="text"
-											[formField]="field.format"
-										/>
-									</mat-form-field>
-
-									<div class="row-action-wrap">
-										<button
-											mat-icon-button
-											type="button"
-											class="delete-btn"
-											aria-label="Delete field"
-											matTooltip="Delete field"
-											(click)="expectedFieldsRemove(index, field().value())"
-										>
-											<mat-icon>delete</mat-icon>
-										</button>
-									</div>
-								</article>
-							} @empty {
-								<div class="empty-state-card">
-									<mat-icon>list_alt</mat-icon>
-									<p>No expected fields configured yet.</p>
+								<div class="centered checkbox-cell">
+									<mat-checkbox [formField]="field.mandatory" aria-label="Mandatory field"></mat-checkbox>
 								</div>
+
+								<mat-form-field appearance="outline" class="vault-field compact-field">
+									<mat-label>Format</mat-label>
+									<input matInput type="text" [formField]="field.format" />
+								</mat-form-field>
+
+								<div class="row-action-wrap">
+									<button mat-icon-button type="button" class="delete-btn" aria-label="Delete field"
+										matTooltip="Delete field" (click)="expectedFieldsRemove(index, field().value())">
+										<mat-icon>delete</mat-icon>
+									</button>
+								</div>
+							</article>
+							} @empty {
+							<div class="empty-state-card">
+								<mat-icon>list_alt</mat-icon>
+								<p>No expected fields configured yet.</p>
+							</div>
 							}
 						</div>
 					</mat-card-content>
@@ -187,7 +135,7 @@
 			</section>
 
 			<section class="editor-section" id="expected-fields">
-        <mat-card class="panel-card table-card">
+				<mat-card class="panel-card table-card">
 					<mat-card-content>
 						<div class="fields-head" role="row">
 							<p>Role</p>
@@ -196,49 +144,36 @@
 						</div>
 
 						<div class="fields-body" role="table">
-							@for (prompt of editDocumentTypeSignalForm.validationPrompts; track trackByIndex($index); let index = $index) {
-								<article class="fields-row" role="row">
-									<mat-form-field appearance="outline" class="vault-field compact-field">
-										<mat-label>Field Name</mat-label>
-										<input
-											matInput
-											type="text"
-											[formField]="prompt.role"
-										/>
-									</mat-form-field>
+							@for (prompt of editDocumentTypeSignalForm.validationPrompts; track trackByIndex($index);
+							let index = $index) {
+							<article class="fields-row" role="row">
+								<mat-form-field appearance="outline" class="vault-field compact-field">
+									<mat-label>Field Name</mat-label>
+									<input matInput type="text" [formField]="prompt.role" />
+								</mat-form-field>
 
-									<mat-form-field appearance="outline" class="vault-field compact-field">
-										<mat-label>Prompt</mat-label>
-										<textarea
-											matInput
-											type="text"
-											[formField]="prompt.content"
-										></textarea>
-									</mat-form-field>
+								<mat-form-field appearance="outline" class="vault-field compact-field">
+									<mat-label>Prompt</mat-label>
+									<textarea matInput type="text" [formField]="prompt.content"></textarea>
+								</mat-form-field>
 
-									<div class="row-action-wrap">
-										<button
-											mat-icon-button
-											type="button"
-											class="delete-btn"
-											matTooltip="Delete prompt"
-											aria-label="Delete prompt"
-											(click)="validationPromptsRemove(index, prompt().value())"
-										>
-											<mat-icon>delete</mat-icon>
-										</button>
-									</div>
-								</article>
-							} @empty {
-								<div class="empty-state-card">
-									<mat-icon>list_alt</mat-icon>
-									<p>No expected fields configured yet.</p>
+								<div class="row-action-wrap">
+									<button mat-icon-button type="button" class="delete-btn" matTooltip="Delete prompt"
+										aria-label="Delete prompt" (click)="validationPromptsRemove(index, prompt().value())">
+										<mat-icon>delete</mat-icon>
+									</button>
 								</div>
+							</article>
+							} @empty {
+							<div class="empty-state-card">
+								<mat-icon>list_alt</mat-icon>
+								<p>No expected fields configured yet.</p>
+							</div>
 							}
 						</div>
 					</mat-card-content>
 				</mat-card>
-      </section>
+			</section>
 
 			<section class="editor-section" id="extraction">
 				<div class="section-head-between">
@@ -254,70 +189,60 @@
 				</div>
 
 				<div class="stack-4 extraction-stack">
-					@for (prompt of editDocumentTypeSignalForm.textExtractionPrompts; track trackByIndex($index); let index = $index) {
-						<mat-card class="panel-card extraction-card">
-							<mat-card-content>
-								<div class="extraction-head">
-									<div class="instruction-mark">
-										<mat-icon>psychology</mat-icon>
-									</div>
-
-									<div class="instruction-copy">
-										<h3>Instructional Logic</h3>
-										<p>Define how the LLM should parse raw OCR results into the structured fields defined above.</p>
-									</div>
-
-									<button
-										mat-icon-button
-										type="button"
-										class="delete-btn"
-										matTooltip="Delete extraction rule"
-										aria-label="Delete extraction rule"
-										(click)="textExtractionPromptsRemove(index, prompt().value())"
-									>
-										<mat-icon>delete</mat-icon>
-									</button>
+					@for (prompt of editDocumentTypeSignalForm.textExtractionPrompts; track trackByIndex($index); let
+					index = $index) {
+					<mat-card class="panel-card extraction-card">
+						<mat-card-content>
+							<div class="extraction-head">
+								<div class="instruction-mark">
+									<mat-icon>psychology</mat-icon>
 								</div>
 
-								<div class="field-block">
-									<label class="form-label">Base Instruction</label>
-									<mat-form-field appearance="outline" class="vault-field textarea-field extraction-textarea">
-										<textarea
-											matInput
-											rows="5"
-											[formField]="prompt.content"
-										></textarea>
-									</mat-form-field>
+								<div class="instruction-copy">
+									<h3>Instructional Logic</h3>
+									<p>Define how the LLM should parse raw OCR results into the structured fields
+										defined above.</p>
 								</div>
-							</mat-card-content>
-						</mat-card>
+
+								<button mat-icon-button type="button" class="delete-btn" matTooltip="Delete extraction rule"
+									aria-label="Delete extraction rule" (click)="textExtractionPromptsRemove(index, prompt().value())">
+									<mat-icon>delete</mat-icon>
+								</button>
+							</div>
+
+							<div class="field-block">
+								<label class="form-label">Base Instruction</label>
+								<mat-form-field appearance="outline" class="vault-field textarea-field extraction-textarea">
+									<textarea matInput rows="5" [formField]="prompt.content"></textarea>
+								</mat-form-field>
+							</div>
+						</mat-card-content>
+					</mat-card>
 					} @empty {
-						<mat-card class="panel-card extraction-card placeholder-card">
-							<mat-card-content>
-								<div class="extraction-head">
-									<div class="instruction-mark">
-										<mat-icon>psychology</mat-icon>
-									</div>
-									<div class="instruction-copy">
-										<h3>Instructional Logic</h3>
-										<p>Define how the LLM should parse raw OCR results into the structured fields defined in Step 02.</p>
-									</div>
+					<mat-card class="panel-card extraction-card placeholder-card">
+						<mat-card-content>
+							<div class="extraction-head">
+								<div class="instruction-mark">
+									<mat-icon>psychology</mat-icon>
 								</div>
+								<div class="instruction-copy">
+									<h3>Instructional Logic</h3>
+									<p>Define how the LLM should parse raw OCR results into the structured fields
+										defined in Step 02.</p>
+								</div>
+							</div>
 
-								<div class="field-block">
-									<label class="form-label">Base Instruction</label>
-									<mat-form-field appearance="outline" class="vault-field textarea-field extraction-textarea">
-										<textarea
-											matInput
-											rows="5"
-											placeholder="Map the OCR string to JSON. Use the configured field keys and normalize values into the expected formats."
-											[value]="''"
-											(input)="textExtractionPromptsAdd(); updateTextExtractionPrompt(0, 'content', $any($event.target).value)"
-										></textarea>
-									</mat-form-field>
-								</div>
-							</mat-card-content>
-						</mat-card>
+							<div class="field-block">
+								<label class="form-label">Base Instruction</label>
+								<mat-form-field appearance="outline" class="vault-field textarea-field extraction-textarea">
+									<textarea matInput rows="5"
+										placeholder="Map the OCR string to JSON. Use the configured field keys and normalize values into the expected formats."
+										[value]="''"
+										(input)="textExtractionPromptsAdd(); updateTextExtractionPrompt(0, 'content', $any($event.target).value)"></textarea>
+								</mat-form-field>
+							</div>
+						</mat-card-content>
+					</mat-card>
 					}
 				</div>
 			</section>
@@ -325,3 +250,4 @@
 	</div>
 </div>
 
+<app-loader [isLoading]="loading()" [size]="'medium'"></app-loader>

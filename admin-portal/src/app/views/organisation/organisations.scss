@@ -78,44 +78,6 @@
 	font-weight: 800;
 }
 
-.results-table-wrap {
-	overflow-x: auto;
-}
-
-:host ::ng-deep .organisations-table {
-	width: 100%;
-	background: transparent;
-
-	.mat-mdc-header-row {
-		background: rgba(242, 244, 246, 0.5);
-	}
-
-	.mat-mdc-header-cell {
-		border-bottom: none;
-		color: #43474f;
-		font-size: 0.68rem;
-		font-weight: 800;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-		padding: 1rem 1.1rem;
-	}
-
-	.mat-mdc-row {
-		transition: background-color 150ms ease;
-	}
-
-	.mat-mdc-row:hover {
-		background: #f2f4f6;
-	}
-
-	.mat-mdc-cell {
-		border-bottom: 1px solid rgba(236, 238, 240, 1);
-		padding: 1rem 1.1rem;
-		vertical-align: middle;
-		color: #191c1e;
-	}
-}
-
 .name-cell {
 	display: flex;
 	align-items: center;
@@ -245,67 +207,6 @@
 	font-size: 0.8rem;
 }
 
-.actions-cell {
-	text-align: right;
-	white-space: nowrap;
-}
-
-.empty-state {
-	padding: 2rem 1rem;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 0.5rem;
-	color: #43474f;
-
-	mat-icon {
-		color: #747780;
-	}
-
-	p {
-		margin: 0;
-	}
-}
-
-.results-footer {
-	border-top: 1px solid rgba(196, 198, 208, 0.1);
-	background: rgba(242, 244, 246, 0.3);
-	padding: 0.9rem 1.1rem;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1rem;
-}
-
-.results-summary {
-	margin: 0;
-	color: #43474f;
-	font-size: 0.68rem;
-	font-weight: 800;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-}
-
-:host ::ng-deep .results-footer .mat-mdc-paginator {
-	background: transparent;
-}
-
-:host ::ng-deep .results-footer .mat-mdc-paginator-container {
-	min-height: auto;
-	padding: 0;
-	gap: 0.5rem;
-}
-
-:host ::ng-deep .results-footer .mat-mdc-paginator-page-size-label,
-:host ::ng-deep .results-footer .mat-mdc-paginator-range-label {
-	color: #43474f;
-	font-size: 0.68rem;
-	font-weight: 700;
-}
-
-:host ::ng-deep .results-footer .mat-mdc-icon-button {
-	--mdc-icon-button-state-layer-size: 30px;
-}
 
 .security-footer {
 	display: flex;

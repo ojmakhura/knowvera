@@ -2,10 +2,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, linkedSignal, OnInit, Signal, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, linkedSignal, OnInit, Signal, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -31,7 +31,7 @@ export class SearchIndividualsVarsForm {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatIconModule, MatButtonModule, MatCardModule, MatTableModule, MatPaginatorModule, MatInputModule, MatSelectModule, MatTooltipModule, MatFormFieldModule],
 })
-export class Individuals implements OnInit, AfterViewInit {
+export class Individuals implements OnInit {
   searchIndividualsVarsForm = new SearchIndividualsVarsForm();
   searchIndividualsSignal = signal(this.searchIndividualsVarsForm);
 
@@ -43,7 +43,6 @@ export class Individuals implements OnInit, AfterViewInit {
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
   protected readonly router = inject(Router);
-  @ViewChild(MatPaginator) paginator?: MatPaginator;
   loaderMessage: Signal<string> = signal('');
   messages = linkedSignal(() => this.individualApiStore.messages());
   success = linkedSignal(() => this.individualApiStore.success());
@@ -74,12 +73,6 @@ export class Individuals implements OnInit, AfterViewInit {
       this.totalElements.set(page.page?.totalElements || 0);
       this.totalPages.set(page.page?.totalPages || 0);
 
-      if (this.paginator) {
-        this.paginator.length = page.page?.totalElements || 0;
-        this.paginator.pageIndex = page.page?.number || 0;
-        this.paginator.pageSize = page.page?.size || 10;
-      }
-
       this.searchIndividualsSignal.update((state) => ({
         ...state,
         individuals: page.content || [],
@@ -92,9 +85,7 @@ export class Individuals implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (this.paginator) {
-      this.dataSource.paginator = this.paginator;
-    }
+    
   }
 
   pageNumbers(): number[] {

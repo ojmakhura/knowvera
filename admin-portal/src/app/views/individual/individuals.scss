@@ -181,43 +181,6 @@
 	overflow: hidden;
 }
 
-.table-shell {
-	overflow-x: auto;
-}
-
-.individuals-table {
-	width: 100%;
-	background: transparent;
-}
-
-.individuals-table .mat-mdc-header-row {
-	background: #eceef0;
-}
-
-.individuals-table .mat-mdc-header-cell {
-	border-bottom: none;
-	padding: 1.05rem 1.15rem;
-	font-size: 0.7rem;
-	font-weight: 800;
-	letter-spacing: 0.14em;
-	text-transform: uppercase;
-	color: #43474f;
-}
-
-.individuals-table .mat-mdc-row {
-	transition: background-color 180ms ease;
-}
-
-.individuals-table .mat-mdc-row:hover {
-	background: #eceef0;
-}
-
-.individuals-table .mat-mdc-cell {
-	border-bottom-color: #eceef0;
-	padding: 1.1rem 1.15rem;
-	color: #191c1e;
-}
-
 .name-cell {
 	display: flex;
 	align-items: center;
@@ -307,19 +270,8 @@
 	}
 }
 
-.results-footer {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1rem;
-	padding: 1rem 1.15rem;
-	background: #f2f4f6;
-
-	p {
-		margin: 0;
-		font-size: 0.78rem;
-		color: #43474f;
-	}
+.empty-state button {
+	margin-top: 0.25rem;
 }
 
 .results-footer .mat-mdc-paginator {

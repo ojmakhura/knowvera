@@ -28,6 +28,7 @@ import { CompletionRequestMessage } from '@app/models/bw/co/centralkyc/lmstudio/
 import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
 import Swal from 'sweetalert2';
 import { Loader } from '@app/@shared/loader/loader';
+import { TranslateModule } from '@ngx-translate/core';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -58,7 +59,8 @@ export class EditDocumentTypeVarsForm {
     MatTooltipModule,
     MatCheckboxModule,
     Loader,
-    FormField
+    FormField,
+    TranslateModule
   ],
 })
 export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
@@ -201,12 +203,23 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   validationPromptsRemove(i: number, selected: CompletionRequestMessage) {
-    this.editDocumentTypeSignal.update((value) => {
-      const validationPrompts = value.validationPrompts.filter((_: any, index: number) => index !== i);
 
-      return {
-        ...value,
-        validationPrompts: validationPrompts
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `This will remove the prompt with role "${selected.role}" from the validation prompts list.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, remove it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.editDocumentTypeSignal.update((value) => {
+          const validationPrompts = value.validationPrompts.filter((_: any, index: number) => index !== i);
+
+          return {
+            ...value,
+            validationPrompts: validationPrompts
+          }
+        });
       }
     });
   }
@@ -227,12 +240,22 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   textExtractionPromptsRemove(i: number, selected: CompletionRequestMessage) {
-    this.editDocumentTypeSignal.update((value) => {
-      const textExtractionPrompts = value.textExtractionPrompts.filter((_: any, index: number) => index !== i);
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `This will remove the prompt with role "${selected.role}" from the text extraction prompts list.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, remove it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.editDocumentTypeSignal.update((value) => {
+          const textExtractionPrompts = value.textExtractionPrompts.filter((_: any, index: number) => index !== i);
 
-      return {
-        ...value,
-        textExtractionPrompts: textExtractionPrompts
+          return {
+            ...value,
+            textExtractionPrompts: textExtractionPrompts
+          }
+        });
       }
     });
   }

@@ -62,6 +62,12 @@ export class InvoiceDetails implements OnInit {
         this.toaster.error(message);
       }
     });
+
+    effect(() => {
+      const invoice = this.kycInvoiceApiStore.data();
+
+      console.log('Invoice data updated:', invoice);
+    });
   }
 
   ngOnInit(): void {

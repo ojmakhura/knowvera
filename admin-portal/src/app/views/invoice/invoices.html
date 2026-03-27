@@ -68,7 +68,7 @@
 		</mat-card-content>
 	</mat-card>
 
-	<mat-card class="results-card">
+	<mat-card class="results-card search-results-card">
 		@if (loading()) {
 			<mat-progress-bar mode="indeterminate"></mat-progress-bar>
 		}
@@ -82,8 +82,8 @@
 			<span class="results-count">{{ showingLabel() }}</span>
 		</div>
 
-		<div class="table-shell">
-			<table mat-table [dataSource]="rows()" class="invoice-table">
+		<div class="table-shell search-results-table-wrap">
+			<table mat-table [dataSource]="dataSource" class="invoice-table search-results-table">
 				<ng-container matColumnDef="ref">
 					<th mat-header-cell *matHeaderCellDef>Invoice Ref</th>
 					<td mat-cell *matCellDef="let row">
@@ -169,8 +169,8 @@
 			</table>
 		</div>
 
-		<div class="results-footer">
-			<p class="footer-copy">{{ pageReport() }}</p>
+		<div class="results-footer search-results-footer">
+			<p class="footer-copy search-results-summary">{{ pageReport() }}</p>
 
 			<mat-paginator
 				[length]="totalElements()"

@@ -32,13 +32,13 @@
 				/>
 			</mat-form-field>
 
-			<button mat-flat-button type="button" class="search-btn">Search</button>
+			<button mat-flat-button type="submit" class="search-btn">Search</button>
 		</form>
 	</mat-card>
 
-	<mat-card class="results-card">
-		<div class="results-table-wrap">
-			<table mat-table [dataSource]="dataSource" class="organisations-table">
+	<mat-card class="results-card search-results-card">
+		<div class="results-table-wrap search-results-table-wrap">
+			<table mat-table [dataSource]="dataSource" class="organisations-table search-results-table">
 				<ng-container matColumnDef="name">
 					<th mat-header-cell *matHeaderCellDef>Name</th>
 					<td mat-cell *matCellDef="let organisation">
@@ -106,18 +106,19 @@
 
 				<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
 				<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+				<tr class="mat-row empty-row" *matNoDataRow>
+					<td class="mat-cell" colspan="7">
+						<div class="empty-state">
+							<mat-icon>search_off</mat-icon>
+							<p>No organisations matched the current search.</p>
+						</div>
+					</td>
+				</tr>
 			</table>
-
-			@if (!organisations().length && !loading()) {
-				<div class="empty-state">
-					<mat-icon>search_off</mat-icon>
-					<p>No organisations matched the current search.</p>
-				</div>
-			}
 		</div>
 
-		<div class="results-footer">
-			<p class="results-summary">Showing {{ organisations().length }} of {{ totalElements() }} organisations</p>
+		<div class="results-footer search-results-footer">
+			<p class="results-summary search-results-summary">Showing {{ organisations().length }} of {{ totalElements() }} organisations</p>
 
 			<mat-paginator
 				[length]="totalElements()"

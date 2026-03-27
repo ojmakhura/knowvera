@@ -279,6 +279,12 @@ export class InvoiceEdit implements OnInit {
     return value.charAt(0) + value.slice(1).toLowerCase();
   }
 
+  subscriptionPeriodLabel(): string {
+    const period = this.editInvoiceSignal().subscriptionPeriod;
+
+    return period ? this.periodLabel(period) : 'Not available';
+  }
+
   organisationOptionLabel(organisation: OrganisationListDTO): string {
     return `${organisation.name || 'Unnamed'}${organisation.code ? ' • ' + organisation.code : ''}`;
   }
@@ -310,6 +316,24 @@ export class InvoiceEdit implements OnInit {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+    }).format(date);
+  }
+
+  formatContextDate(value: Date | string | null | undefined): string {
+    if (!value) {
+      return 'Not available';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return String(value);
+    }
+
+    return new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
     }).format(date);
   }
 

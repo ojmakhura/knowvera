@@ -2,12 +2,12 @@
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   effect,
@@ -36,6 +36,7 @@ export class SearchDocumentTypesVarsForm {
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    MatPaginatorModule,
     MatTableModule,
     MatChipsModule,
     MatTooltipModule],
@@ -43,7 +44,7 @@ export class SearchDocumentTypesVarsForm {
   styleUrls: ['./document-type.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
+export class DocumentTypeComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['code', 'name', 'description', 'fields', 'prompts', 'actions'];
 
   searchDocumentTypesVarsForm: SearchDocumentTypesVarsForm = new SearchDocumentTypesVarsForm();
@@ -51,6 +52,7 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly documentTypeApiStore = inject(DocumentTypeApiStore);
 
   readonly rows = linkedSignal(() => this.searchDocumentTypesSignal().documentTypes || []);
+  readonly dataSource = new MatTableDataSource<DocumentTypeDTO>([]);
   loaderMessage = linkedSignal(() => this.documentTypeApiStore.loaderMessage());
   messages = linkedSignal(() => this.documentTypeApiStore.messages());
   success = linkedSignal(() => this.documentTypeApiStore.success());
@@ -81,6 +83,7 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
       const page = this.documentTypeApiStore.dataPage();
 
       if (page && Array.isArray(page.content)) {
+        this.dataSource.data = page.content;
         this.searchDocumentTypesSignal.update((state) => ({
           ...state,
           documentTypes: page.content,
@@ -96,9 +99,6 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.doSearch();
-  }
-
-  ngAfterViewInit(): void {
   }
 
   ngOnDestroy(): void {
@@ -122,46 +122,6 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
     }));
   }
 
-  pageNumbers(): number[] {
-    return Array.from({ length: this.totalPages() }, (_, index) => index + 1);
-  }
-
-  previousPage(): void {
-    if (this.currentPage() <= 0) {
-      return;
-    }
-
-    this.goToPage(this.currentPage() - 1);
-  }
-
-  nextPage(): void {
-    if (this.currentPage() >= this.totalPages() - 1) {
-      return;
-    }
-
-    this.goToPage(this.currentPage() + 1);
-  }
-
-  goToPage(page: number): void {
-    if (page < 0 || page >= this.totalPages() || page === this.currentPage()) {
-      return;
-    }
-
-    this.doSearch(page, this.pageSize());
-  }
-
-  firstPage(): void {
-    this.goToPage(0);
-  }
-
-  lastPage(): void {
-    const lastIndex = this.totalPages() - 1;
-
-    if (lastIndex >= 0) {
-      this.goToPage(lastIndex);
-    }
-  }
-
   doSearch(pageNumber: number = 0, pageSize: number = 10): void {
     const criteria = this.searchDocumentTypesSignal().criteria;
 
@@ -172,7 +132,7 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  onPageChange(event: any): void {
+  onPageChange(event: PageEvent): void {
     this.pageSize.set(event.pageSize);
     this.doSearch(event.pageIndex, event.pageSize);
   }
@@ -199,9 +159,5 @@ export class DocumentTypeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   openEdit(id: string): void {
     this.router.navigate(['/', 'document', 'type', 'edit', id]);
-  }
-
-  trackByPage(_: number, page: number): number {
-    return page;
   }
 }

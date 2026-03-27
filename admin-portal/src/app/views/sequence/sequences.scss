@@ -188,38 +188,6 @@ h1 {
 	box-shadow: 0 4px 20px rgb(25 28 30 / 4%);
 }
 
-.table-wrap {
-	overflow-x: auto;
-}
-
-:host ::ng-deep .sequences-table {
-	width: 100%;
-	background: transparent;
-}
-
-:host ::ng-deep .sequences-table .mat-mdc-header-row {
-	background: var(--vault-surface-container-low);
-}
-
-.sequences-table .mat-mdc-header-cell {
-	border-bottom: 0;
-	color: var(--vault-on-surface-variant);
-	font-size: 0.68rem;
-}
-
-:host ::ng-deep .sequences-table .mat-mdc-header-cell,
-:host ::ng-deep .sequences-table .mat-mdc-cell {
-	padding: 1.15rem 1rem;
-}
-
-:host ::ng-deep .sequences-table .mat-mdc-cell {
-	border-bottom-color: rgb(236 238 240 / 70%);
-}
-
-:host ::ng-deep .sequences-table .mat-mdc-row:hover .mat-mdc-cell {
-	background: var(--vault-surface-container-high);
-}
-
 .name-cell {
 	display: flex;
 	align-items: center;
@@ -283,43 +251,8 @@ code {
 	font-weight: 700;
 }
 
-.actions-header,
-.actions-cell {
-	text-align: right;
-}
-
 :host ::ng-deep .actions-cell .mat-mdc-icon-button {
 	color: var(--vault-primary);
-}
-
-.empty-row td {
-	padding: 2rem 1rem;
-	text-align: center;
-	color: var(--vault-on-surface-variant);
-}
-
-.results-footer {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1rem;
-	padding: 0.9rem 1rem;
-	background: var(--vault-surface-container-low);
-}
-
-.results-footer p {
-	margin: 0;
-	color: var(--vault-on-surface-variant);
-	font-size: 0.66rem;
-}
-
-:host ::ng-deep .results-footer .mat-mdc-paginator {
-	background: transparent;
-}
-
-:host ::ng-deep .results-footer .mat-mdc-paginator-container {
-	min-height: auto;
-	padding: 0;
 }
 
 .page-footer {

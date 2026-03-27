@@ -1,16 +1,34 @@
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, Input, linkedSignal, OnDestroy, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  Input,
+  linkedSignal,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
+import { Loader } from '@app/@shared/loader/loader';
 import { KycInvoiceDTO } from '@app/models/bw/co/centralkyc/invoice/kyc-invoice-dto';
 import { KycSubsciptionStatus } from '@app/models/bw/co/centralkyc/subscription/kyc-subsciption-status';
 import { KycSubscriptionDTO } from '@app/models/bw/co/centralkyc/subscription/kyc-subscription-dto';
+import { KycInvoiceApiStore } from '@app/store/bw/co/centralkyc/invoice/kyc-invoice-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
 import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscription/kyc-subscription-api.store';
+import { TranslateModule } from '@ngx-translate/core';
+import Swal from 'sweetalert2';
 
 type TimelineItem = {
   icon: string;
@@ -31,15 +49,20 @@ type TimelineItem = {
     MatCardModule,
     MatChipsModule,
     MatIconModule,
+    MatPaginatorModule,
     MatTableModule,
     MatTooltipModule,
-    RouterLink
+    RouterLink,
+    Loader,
+    TranslateModule
   ],
   providers: [DatePipe, CurrencyPipe],
 })
-export class SubscriptionDetails implements OnInit, OnDestroy {
+export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
   @Input() id: string = '';
 
+  organisationApiStore = inject(OrganisationApiStore);
+  kycInvoiceApiStore = inject(KycInvoiceApiStore);
   private readonly router = inject(Router);
   private readonly datePipe = inject(DatePipe);
   private readonly currencyPipe = inject(CurrencyPipe);
@@ -48,31 +71,82 @@ export class SubscriptionDetails implements OnInit, OnDestroy {
   protected readonly displayedInvoiceColumns = ['ref', 'date', 'amount', 'status', 'actions'];
   protected readonly statusEnum = KycSubsciptionStatus;
   protected readonly loading = linkedSignal(() => this.kycSubscriptionApiStore.loading());
-  protected readonly subscription = linkedSignal<KycSubscriptionDTO>(() => this.kycSubscriptionApiStore.data() || new KycSubscriptionDTO());
-  protected readonly invoices = computed(() => this.subscription().invoices || []);
+  protected readonly error = linkedSignal(() => this.kycSubscriptionApiStore.error());
+  protected readonly messages = linkedSignal(() => this.kycSubscriptionApiStore.messages())
+  protected readonly success = linkedSignal(() => this.kycSubscriptionApiStore.success());
+  protected readonly loaderMessage = linkedSignal(() => {
+    if (this.loading()) {
+      return 'Loading subscription details...';
+    }
+    if (this.error()) {
+      return 'Failed to load subscription details.';
+    }
+    return '';
+  });
+  protected readonly subscription = linkedSignal<KycSubscriptionDTO>(
+    () => this.kycSubscriptionApiStore.data() || new KycSubscriptionDTO(),
+  );
+  protected readonly invoices = computed(() => this.kycInvoiceApiStore.dataList() || []);
+  protected readonly invoiceDataSource = new MatTableDataSource<KycInvoiceDTO>([]);
+  @ViewChild(MatPaginator) invoicesPaginator?: MatPaginator;
   protected readonly progressSegments = computed(() => {
     const filled = Math.round(this.progressRatio() * 5);
 
     return Array.from({ length: 5 }, (_, index) => index < filled);
   });
+
   protected readonly timeline = computed<TimelineItem[]>(() => {
     const subscription = this.subscription();
 
     return [
-      { icon: 'event_available', label: 'Start Date', value: this.formatDate(subscription.startDate), tone: 'primary' },
-      { icon: 'event_busy', label: 'End Date', value: this.formatDate(subscription.endDate), tone: 'warn' },
-      { icon: 'schedule', label: 'Billing Period', value: this.billingPeriodLabel(), tone: 'primary' },
+      {
+        icon: 'event_available',
+        label: 'Start Date',
+        value: this.formatDate(subscription.startDate),
+        tone: 'primary',
+      },
+      {
+        icon: 'event_busy',
+        label: 'End Date',
+        value: this.formatDate(subscription.endDate),
+        tone: 'warn',
+      },
+      {
+        icon: 'schedule',
+        label: 'Billing Period',
+        value: this.billingPeriodLabel(),
+        tone: 'primary',
+      },
     ];
   });
 
+  constructor() {
+    effect(() => {
+      this.invoiceDataSource.data = this.invoices();
+    });
+  }
+
   ngOnInit(): void {
+    this.organisationApiStore.reset();
+    this.kycInvoiceApiStore.reset();
+    this.kycSubscriptionApiStore.reset();
     if (this.id) {
       this.kycSubscriptionApiStore.findById({ id: this.id });
+      this.kycInvoiceApiStore.findBySubscription({ subscriptionId: this.id });
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (this.invoicesPaginator) {
+      this.invoiceDataSource.paginator = this.invoicesPaginator;
     }
   }
 
   ngOnDestroy(): void {
     this.kycSubscriptionApiStore.reset();
+    this.kycInvoiceApiStore.reset();
+    this.organisationApiStore.reset();
+
   }
 
   backToSubscriptions(): void {
@@ -249,12 +323,16 @@ export class SubscriptionDetails implements OnInit, OnDestroy {
 
   private formatDate(value: Date | string | null | undefined): string {
     const date = this.dateValue(value);
-    return date ? this.datePipe.transform(date, 'MMMM dd, yyyy') || 'Not available' : 'Not available';
+    return date
+      ? this.datePipe.transform(date, 'MMMM dd, yyyy') || 'Not available'
+      : 'Not available';
   }
 
   private formatDateTime(value: Date | string | null | undefined): string {
     const date = this.dateValue(value);
-    return date ? this.datePipe.transform(date, 'MMM d, yyyy • HH:mm') || 'Not available' : 'Not available';
+    return date
+      ? this.datePipe.transform(date, 'MMM d, yyyy • HH:mm') || 'Not available'
+      : 'Not available';
   }
 
   private formatAmount(value: number | string | null | undefined): string {
@@ -265,5 +343,23 @@ export class SubscriptionDetails implements OnInit, OnDestroy {
     }
 
     return this.currencyPipe.transform(amount, 'EUR', 'symbol', '1.2-2') || '—';
+  }
+
+  addInvoice(): void {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to generate a new invoice for this subscription?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, generate it!',
+      cancelButtonText: 'No, cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.kycInvoiceApiStore.generateInvoice({
+          subscriptionId: this.subscription()?.id,
+        });
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+      }
+    });
   }
 }

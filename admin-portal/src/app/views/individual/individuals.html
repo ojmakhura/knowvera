@@ -31,7 +31,7 @@
 		</div>
 
 		<form class="search-grid" (submit)="$event.preventDefault(); doSearch()">
-			<mat-form-field appearance="outline">
+			<mat-form-field appearance="outline" class="vault-field">
 				<mat-label>Identity No.</mat-label>
 				<input
 					matInput
@@ -41,7 +41,7 @@
 				/>
 			</mat-form-field>
 
-			<mat-form-field appearance="outline">
+			<mat-form-field appearance="outline" class="vault-field">
 				<mat-label>First Name</mat-label>
 				<input
 					matInput
@@ -51,7 +51,7 @@
 				/>
 			</mat-form-field>
 
-			<mat-form-field appearance="outline">
+			<mat-form-field appearance="outline" class="vault-field">
 				<mat-label>Middle Name</mat-label>
 				<input
 					matInput
@@ -61,7 +61,7 @@
 				/>
 			</mat-form-field>
 
-			<mat-form-field appearance="outline">
+			<mat-form-field appearance="outline" class="vault-field">
 				<mat-label>Surname</mat-label>
 				<input
 					matInput
@@ -71,7 +71,7 @@
 				/>
 			</mat-form-field>
 
-			<mat-form-field appearance="outline">
+			<mat-form-field appearance="outline" class="vault-field">
 				<mat-label>Email Address</mat-label>
 				<input
 					matInput
@@ -82,7 +82,7 @@
 				/>
 			</mat-form-field>
 
-			<mat-form-field appearance="outline">
+			<mat-form-field appearance="outline" class="vault-field">
 				<mat-label>KYC Status</mat-label>
 				<mat-select
 					[value]="searchIndividualsSignal().kycStatus"
@@ -107,10 +107,9 @@
 		</div>
 	</mat-card>
 
-	<mat-card class="results-card">
-		@if (rows().length) {
-			<div class="table-shell">
-				<table mat-table [dataSource]="dataSource" class="individuals-table">
+	<mat-card class="results-card search-results-card">
+		<div class="table-shell search-results-table-wrap">
+			<table mat-table [dataSource]="dataSource" class="individuals-table search-results-table">
 					<ng-container matColumnDef="name">
 						<th mat-header-cell *matHeaderCellDef>Name</th>
 						<td mat-cell *matCellDef="let row; let index = index">
@@ -148,13 +147,23 @@
 						</td>
 					</ng-container>
 
-					<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-					<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-				</table>
-			</div>
+				<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+				<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+				<tr class="mat-row empty-row" *matNoDataRow>
+					<td class="mat-cell" colspan="5">
+						<div class="empty-state">
+							<mat-icon>person_search</mat-icon>
+							<h3>No individuals found</h3>
+							<p>Adjust the search parameters or add a new identity record to the protocol.</p>
+							<button mat-stroked-button type="button" (click)="resetSearch()">Clear Filters</button>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
 
-			<div class="results-footer">
-				<p>
+		<div class="results-footer search-results-footer">
+			<p class="search-results-summary">
 					Showing {{ rows().length }} of {{ totalElements() || rows().length }}
 					{{ totalElements() === 1 ? 'verified identity' : 'verified identities' }}
 				</p>
@@ -167,14 +176,6 @@
 					[showFirstLastButtons]="false"
 					(page)="handlePageEvent($event)"
 				/>
-			</div>
-		} @else {
-			<div class="empty-state">
-				<mat-icon>person_search</mat-icon>
-				<h3>No individuals found</h3>
-				<p>Adjust the search parameters or add a new identity record to the protocol.</p>
-				<button mat-stroked-button type="button" (click)="resetSearch()">Clear Filters</button>
-			</div>
-		}
+		</div>
 	</mat-card>
 </section>

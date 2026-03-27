@@ -5,7 +5,7 @@
 			<p class="page-subtitle">Veritas Protocol / Audit Environment</p>
 		</div>
 
-		<button mat-flat-button type="button" class="new-request-btn" (click)="createRequest()">
+		<button mat-flat-button type="button" class="new-request-btn" [routerLink]="['/client-request/edit']">
 			<mat-icon>add</mat-icon>
 			<span>New Request</span>
 		</button>
@@ -14,7 +14,7 @@
 	<mat-card class="search-card">
 		<div class="section-heading">
 			<mat-icon>manage_search</mat-icon>
-			<h2>ClientRequestSearchForm</h2>
+			<h2>Search Parameters</h2>
 		</div>
 
 		<form class="search-form" (submit)="$event.preventDefault(); onSubmit()">
@@ -89,7 +89,7 @@
 		</form>
 	</mat-card>
 
-	<mat-card class="results-card">
+	<mat-card class="results-card search-results-card">
 		<div class="results-head">
 			<h3>
 				<mat-icon>list_alt</mat-icon>
@@ -105,8 +105,8 @@
 			</div>
 		}
 
-		<div class="results-table-wrap">
-			<table mat-table [dataSource]="rows()" class="requests-table">
+		<div class="results-table-wrap search-results-table-wrap">
+			<table mat-table [dataSource]="dataSource" class="requests-table search-results-table">
 				<ng-container matColumnDef="client">
 					<th mat-header-cell *matHeaderCellDef>Client Name / Registration</th>
 					<td mat-cell *matCellDef="let row">
@@ -185,13 +185,18 @@
 				<tr mat-row *matRowDef="let row; columns: displayedColumns; trackBy: trackByRequest"></tr>
 
 				<tr class="mat-row empty-row" *matNoDataRow>
-					<td class="mat-cell" colspan="7">No client requests matched the current search.</td>
+					<td class="mat-cell" colspan="7">
+						<div class="empty-state">
+							<mat-icon>search_off</mat-icon>
+							<p>No client requests matched the current search.</p>
+						</div>
+					</td>
 				</tr>
 			</table>
 		</div>
 
-		<div class="results-footer">
-			<p class="results-summary">Viewing {{ showingStart() }} - {{ showingEnd() }} of {{ totalElements() }} requests</p>
+		<div class="results-footer search-results-footer">
+			<p class="results-summary search-results-summary">Viewing {{ showingStart() }} - {{ showingEnd() }} of {{ totalElements() }} requests</p>
 
 			<mat-paginator
 				[length]="totalElements()"

@@ -32,7 +32,7 @@ export class Shell {
   private titleService = inject(Title);
   protected router = inject(Router);
   protected translationService = inject(TranslationService);
-  private keycloak = inject(Keycloak);
+  protected keycloak = inject(Keycloak);
   readonly appEnvState = inject(AppEnvStore);
   profile = this.appEnvState.profile;
 

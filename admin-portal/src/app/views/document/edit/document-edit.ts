@@ -21,12 +21,15 @@ import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-
 import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
+import { TranslateModule } from '@ngx-translate/core';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 class EditDocumentForm {
   id: string | any = null;
   target: TargetEntity | any = null;
   targetId: string | any = null;
   documentType: DocumentTypeDTO | any = null;
+  documentTypeFilter: DocumentTypeDTO | any = null;
   fileName: string | any = null;
   verificationStatus: DocumentVerificationStatus | any = DocumentVerificationStatus.UNVERIFIED;
   url: string | any = null;
@@ -50,7 +53,9 @@ selector: 'app-document-edit',
     MatDividerModule,
     MatProgressBarModule,
     FormField,
-    Loader
+    Loader,
+    TranslateModule,
+    NgxMatSelectSearchModule
   ]
 })
 export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
@@ -271,6 +276,23 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
       fileName: document.fileName,
       verificationStatus: document.verificationStatus || DocumentVerificationStatus.UNVERIFIED,
       url: document.url,
+      documentTypeFilter: null,
     });
+  }
+
+  filterDocumentType(): void {
+    // const search = this.editSettingsSignal().quotationDocumentTypeFilter?.toLowerCase() || '';
+    // this.loading.set(true);
+    // this.loaderMessage.set(`Searching document types.`);
+    // this.documentTypeApi.search(search).subscribe(
+    //   (data) => {
+    //     this.quotationDocumentTypeFilteredList.set(data || []);
+    //     this.loading.set(false);
+    //   },
+    //   (error) => {
+    //     this.toastr.error(error.error?.message ? error.error.message : error.message);
+    //     this.loading.set(false);
+    //   }
+    // );
   }
 }

@@ -148,44 +148,6 @@
 	padding: 1rem 1.5rem 0;
 }
 
-.results-table-wrap {
-	overflow-x: auto;
-}
-
-:host ::ng-deep .requests-table {
-	width: 100%;
-	background: transparent;
-
-	.mat-mdc-header-row {
-		background: rgb(242 244 246 / 0.52);
-	}
-
-	.mat-mdc-header-cell {
-		border-bottom: none;
-		color: var(--vault-on-surface-variant);
-		font-size: 0.68rem;
-		font-weight: 800;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
-		padding: 1rem 1.25rem;
-	}
-
-	.mat-mdc-row {
-		transition: background-color 160ms ease;
-	}
-
-	.mat-mdc-row:hover {
-		background: var(--vault-surface-container-high);
-	}
-
-	.mat-mdc-cell {
-		border-bottom: 0;
-		padding: 1rem 1.25rem 1.2rem;
-		vertical-align: middle;
-		color: var(--vault-on-surface);
-	}
-}
-
 .client-cell,
 .organisation-cell,
 .target-cell {
@@ -297,38 +259,9 @@
 	}
 }
 
-.actions-header {
-	text-align: right;
-}
-
 .actions-cell {
 	justify-content: flex-end;
 	gap: 0.15rem;
-}
-
-.empty-row .mat-cell,
-:host ::ng-deep .empty-row .mat-mdc-cell {
-	padding: 1.8rem 1.25rem;
-	text-align: center;
-	color: var(--vault-on-surface-variant);
-}
-
-.results-footer {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1rem;
-	padding: 1rem 1.25rem;
-	background: rgb(242 244 246 / 0.38);
-}
-
-.results-summary {
-	margin: 0;
-	color: var(--vault-on-surface-variant);
-	font-size: 0.68rem;
-	font-weight: 800;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
 }
 
 .security-footer {

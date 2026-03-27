@@ -7,9 +7,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Loader } from '@app/@shared/loader/loader';
 import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
 import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
@@ -56,7 +56,8 @@ const INITIAL_FILTERS: ClientRequestSearchForm = {
     MatPaginatorModule,
     MatFormFieldModule,
     MatTooltipModule,
-  ],
+    RouterLink
+],
 })
 export class ClientRequests implements OnInit {
   private readonly router = inject(Router);
@@ -67,6 +68,7 @@ export class ClientRequests implements OnInit {
   readonly filters = signal<ClientRequestSearchForm>({ ...INITIAL_FILTERS });
   readonly organisations = signal<OrganisationListDTO[]>([]);
   readonly rows = signal<ClientRequestDTO[]>([]);
+  readonly dataSource = new MatTableDataSource<ClientRequestDTO>([]);
   readonly currentPage = signal(0);
   readonly pageSize = signal(10);
   readonly totalElements = signal(0);
@@ -98,6 +100,7 @@ export class ClientRequests implements OnInit {
       }
 
       this.rows.set(page.content || []);
+      this.dataSource.data = page.content || [];
       this.currentPage.set(page.page?.number || 0);
       this.pageSize.set(page.page?.size || 10);
       this.totalElements.set(page.page?.totalElements || page.totalElements || 0);
@@ -135,7 +138,7 @@ export class ClientRequests implements OnInit {
   }
 
   createRequest(): void {
-    this.router.navigate(['request', 'edit']);
+    this.router.navigate(['client-request', 'edit']);
   }
 
   openDetails(id: string | null | undefined): void {
@@ -143,7 +146,7 @@ export class ClientRequests implements OnInit {
       return;
     }
 
-    this.router.navigate(['request', 'details', id]);
+    this.router.navigate(['client-request', 'details', id]);
   }
 
   openEdit(id: string | null | undefined): void {
@@ -151,7 +154,7 @@ export class ClientRequests implements OnInit {
       return;
     }
 
-    this.router.navigate(['request', 'edit', id]);
+    this.router.navigate(['client-request', 'edit', id]);
   }
 
   statusLabel(status: ClientRequestStatus | null | undefined): string {

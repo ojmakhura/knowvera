@@ -3,6 +3,87 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/Inter-Light.otf') format('opentype');
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/Inter-Regular.otf') format('opentype');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/Inter-Medium.otf') format('opentype');
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/Inter-SemiBold.otf') format('opentype');
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/Inter-Bold.otf') format('opentype');
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/Inter-ExtraBold.otf') format('opentype');
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('/fonts/Roboto-Light.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('/fonts/Roboto-Regular.woff2') format('woff2'),
+        url('/fonts/Roboto-Regular.woff') format('woff');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('/fonts/Roboto-Medium.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('/fonts/Roboto-Bold.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
 :root {
     --vault-primary: #001735;
     --vault-primary-container: #0e2c52;
@@ -47,8 +128,145 @@ body {
     color: var(--vault-on-surface);
 }
 
+.search-results-card {
+    overflow: hidden;
+    border-radius: 1rem;
+}
+
+.search-results-table-wrap {
+    overflow-x: auto;
+}
+
+.search-results-table {
+    width: 100%;
+    min-width: 56rem;
+    background: transparent;
+}
+
+.search-results-table .mat-mdc-header-row,
+.search-results-table .mat-mdc-row,
+.search-results-table .mdc-data-table__content,
+.search-results-footer .mat-mdc-paginator,
+.search-results-footer .mat-mdc-paginator-container {
+    background: transparent;
+}
+
+.search-results-table .mat-mdc-header-row {
+    background: var(--vault-surface-container-low);
+}
+
+.search-results-table .mat-mdc-header-cell {
+    border-bottom: 0;
+    padding: 1rem 1.1rem;
+    color: var(--vault-on-surface-variant);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.search-results-table .mat-mdc-cell {
+    border-bottom: 1px solid rgb(196 198 208 / 18%);
+    padding: 1rem 1.1rem;
+    vertical-align: middle;
+    color: var(--vault-on-surface);
+}
+
+.search-results-table .mat-mdc-row {
+    transition: background-color 160ms ease;
+}
+
+.search-results-table .mat-mdc-row:hover .mat-mdc-cell {
+    background: var(--vault-surface-container-low);
+}
+
+.search-results-table .mat-column-actions,
+.search-results-table .cdk-column-actions {
+    text-align: right;
+}
+
+.search-results-table .empty-row .mat-mdc-cell,
+.search-results-table .empty-row .mat-cell {
+    padding: 2rem 1.25rem;
+    text-align: center;
+    border-bottom: 0;
+}
+
+.search-results-table .empty-state {
+    display: grid;
+    place-items: center;
+    gap: 0.5rem;
+    color: var(--vault-on-surface-variant);
+    text-align: center;
+}
+
+.search-results-table .empty-state h3,
+.search-results-table .empty-state p {
+    margin: 0;
+}
+
+.search-results-table .empty-state .mat-icon,
+.search-results-table .empty-state mat-icon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 2rem;
+    color: var(--vault-primary-container);
+}
+
+.search-results-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    border-top: 1px solid rgb(196 198 208 / 18%);
+    background: rgb(242 244 246 / 38%);
+}
+
+.search-results-summary {
+    margin: 0;
+    color: var(--vault-on-surface-variant);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.search-results-footer .mat-mdc-paginator-page-size-label,
+.search-results-footer .mat-mdc-paginator-range-label {
+    color: var(--vault-on-surface-variant);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.search-results-footer .mat-mdc-paginator-container {
+    min-height: auto;
+    padding: 0;
+    gap: 0.5rem;
+}
+
+.search-results-footer .mat-mdc-icon-button {
+    --mdc-icon-button-state-layer-size: 30px;
+}
+
 .mat-mdc-form-field {
     --mat-form-field-focus-state-layer-opacity: 0;
+}
+
+@media (max-width: 960px) {
+    .search-results-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .search-results-table {
+        min-width: 42rem;
+    }
+
+    .search-results-table .mat-column-actions,
+    .search-results-table .cdk-column-actions {
+        text-align: left;
+    }
 }
 
 .mat-mdc-form-field .mat-mdc-form-field-focus-overlay {
@@ -56,33 +274,64 @@ body {
 }
 
 .vault-field {
+    --mdc-outlined-text-field-outline-color: rgb(196 198 208 / 35%);
+    --mdc-outlined-text-field-hover-outline-color: rgb(116 119 128 / 45%);
+    --mdc-outlined-text-field-focus-outline-color: var(--vault-primary);
+    --mdc-outlined-text-field-caret-color: var(--vault-primary);
     width: 100%;
+    display: block;
+}
+
+.vault-field .mdc-notched-outline__leading {
+    border-radius: 0.5rem 0 0 0.5rem;
+}
+
+.vault-field .mdc-notched-outline__trailing {
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.vault-field .mdc-notched-outline__notch {
+    border-top: 1px solid;
 }
 
 .vault-field .mat-mdc-text-field-wrapper {
-    background: var(--vault-surface-container-low);
-    border-radius: 0.85rem;
+    background: var(--vault-surface-container-low) !important;
+    border-radius: 0.5rem !important;
 }
 
 .vault-field .mdc-notched-outline__leading,
 .vault-field .mdc-notched-outline__notch,
 .vault-field .mdc-notched-outline__trailing {
-    border-color: rgb(196 198 208 / 20%) !important;
+    border-color: rgb(196 198 208 / 35%) !important;
 }
 
 .vault-field.mat-focused .mdc-notched-outline__leading,
 .vault-field.mat-focused .mdc-notched-outline__notch,
 .vault-field.mat-focused .mdc-notched-outline__trailing {
     border-color: var(--vault-primary) !important;
-    border-width: 1px !important;
+    border-width: 1.5px !important;
 }
 
-.vault-field.mat-focused .mat-mdc-text-field-wrapper {
-    box-shadow: 0 0 0 4px rgb(214 227 255 / 35%);
+.vault-field.mat-form-field-invalid .mdc-notched-outline__leading,
+.vault-field.mat-form-field-invalid .mdc-notched-outline__notch,
+.vault-field.mat-form-field-invalid .mdc-notched-outline__trailing,
+.vault-field.mat-mdc-form-field-invalid .mdc-notched-outline__leading,
+.vault-field.mat-mdc-form-field-invalid .mdc-notched-outline__notch,
+.vault-field.mat-mdc-form-field-invalid .mdc-notched-outline__trailing,
+.vault-field.mat-form-field-invalid.mat-focused .mdc-notched-outline__leading,
+.vault-field.mat-form-field-invalid.mat-focused .mdc-notched-outline__notch,
+.vault-field.mat-form-field-invalid.mat-focused .mdc-notched-outline__trailing,
+.vault-field.mat-mdc-form-field-invalid.mat-focused .mdc-notched-outline__leading,
+.vault-field.mat-mdc-form-field-invalid.mat-focused .mdc-notched-outline__notch,
+.vault-field.mat-mdc-form-field-invalid.mat-focused .mdc-notched-outline__trailing {
+    border-color: var(--vault-error) !important;
+    border-width: 1.5px !important;
 }
 
-.vault-field .mat-mdc-form-field-subscript-wrapper {
-    display: none;
+.vault-field .mat-mdc-form-field-infix {
+    min-height: 46px !important;
+    padding-top: 12px !important;
+    padding-bottom: 10px !important;
 }
 
 .mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper,
@@ -98,6 +347,27 @@ body {
 .mat-mdc-form-field textarea.mat-mdc-input-element:focus-visible {
     outline: none;
     box-shadow: none;
+}
+
+.vault-field input.mat-mdc-input-element,
+.vault-field textarea.mat-mdc-input-element,
+.vault-field .mat-mdc-select-value-text,
+.vault-field .mat-mdc-select-placeholder {
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: var(--vault-on-surface) !important;
+}
+
+.vault-field .mdc-floating-label {
+    color: var(--vault-on-surface-variant) !important;
+}
+
+.vault-textarea .mat-mdc-form-field-infix {
+    min-height: 100px !important;
+}
+
+.vault-textarea textarea.mat-mdc-input-element {
+    resize: none;
 }
 
 .mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__leading,
@@ -302,10 +572,246 @@ body {
     gap: var(--vault-space-4)
 }
 
-.edit-page .field-input,
-.edit-page .table-input,
-.edit-page .format-select,
-.edit-page .btn-primary,
+/* Harmonize the remaining edit routes with the organisation/subscription visual system. */
+.edit-page,
+.invoice-edit-page,
+.sequence-edit-page,
+.client-request-edit-page,
+.document-edit-page {
+    min-height: 100%;
+    padding: 1.5rem 2.5rem 4rem !important;
+    background:
+        radial-gradient(circle at top right, rgb(214 227 255 / 0.32), transparent 24rem),
+        linear-gradient(180deg, #fbfcfd 0%, var(--vault-surface) 15rem) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.edit-page .top-bar,
+.edit-page .edit-header,
+.invoice-edit-page .page-header,
+.sequence-edit-page .page-header,
+.client-request-edit-page .page-header,
+.document-edit-page .edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1.5rem;
+    margin-bottom: 2.25rem !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    backdrop-filter: none !important;
+}
+
+.edit-page .page-title,
+.invoice-edit-page .page-title-group h1,
+.sequence-edit-page h1,
+.client-request-edit-page .page-title,
+.document-edit-page .heading-row h1 {
+    margin: 0;
+    color: var(--vault-primary) !important;
+    font-size: clamp(1.9rem, 4vw, 2.6rem) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.04em !important;
+    line-height: 1.05 !important;
+    text-transform: none !important;
+}
+
+.edit-page .page-subtitle,
+.invoice-edit-page .page-title-group p,
+.sequence-edit-page .page-header p,
+.client-request-edit-page .page-subtitle,
+.document-edit-page .header-copy p {
+    margin-top: 0.6rem !important;
+    max-width: 46rem;
+    color: var(--vault-on-surface-variant) !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.6 !important;
+    text-transform: none !important;
+}
+
+.invoice-edit-page .page-shell,
+.document-edit-page .edit-shell,
+.client-request-edit-page .content-stack,
+.sequence-edit-page .page-grid,
+.edit-page .edit-form,
+.edit-page .workspace-shell {
+    width: 100%;
+    max-width: 80rem;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.edit-page .header-btns,
+.edit-page .top-actions,
+.invoice-edit-page .header-actions,
+.client-request-edit-page .header-actions,
+.document-edit-page .header-actions,
+.sequence-edit-page .sticky-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.edit-page .btn-cancel,
+.edit-page .cancel-btn,
+.invoice-edit-page .secondary-action,
+.client-request-edit-page .discard-btn,
+.document-edit-page .cancel-btn,
+.sequence-edit-page .sticky-actions button:first-child {
+    min-height: 2.8rem;
+    padding-inline: 1.2rem;
+    border-radius: 0.8rem !important;
+    background: var(--vault-surface-container) !important;
+    color: #515f74 !important;
+    border-color: transparent !important;
+    font-weight: 700 !important;
+    box-shadow: none !important;
+}
+
+.edit-page .btn-save,
+.edit-page .save-btn,
+.invoice-edit-page .primary-action,
+.client-request-edit-page .save-btn,
+.document-edit-page .save-btn,
+.sequence-edit-page .sticky-actions button:last-child,
+.sequence-edit-page .add-part-button,
+.document-type-edit-page .btn-save {
+    min-height: 2.8rem;
+    padding-inline: 1.35rem;
+    border-radius: 0.8rem !important;
+    background: var(--vault-primary) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    box-shadow: 0 10px 24px rgb(0 23 53 / 14%) !important;
+}
+
+.edit-page .vault-card,
+.invoice-edit-page .vault-card,
+.sequence-edit-page .vault-card,
+.client-request-edit-page .audit-card,
+.client-request-edit-page .panel-card,
+.client-request-edit-page .status-card,
+.document-edit-page .edit-card {
+    border: 0 !important;
+    border-radius: 1rem !important;
+    background: rgb(255 255 255 / 88%) !important;
+    box-shadow: 0 4px 20px rgb(25 28 30 / 4%), 0 8px 40px rgb(25 28 30 / 8%) !important;
+    backdrop-filter: blur(18px);
+}
+
+.edit-page .section-header,
+.invoice-edit-page .section-heading,
+.sequence-edit-page .section-label,
+.client-request-edit-page .section-heading,
+.document-edit-page .section-head {
+    margin-bottom: 1.35rem !important;
+}
+
+.edit-page .section-header h2,
+.invoice-edit-page .section-heading h2,
+.sequence-edit-page .section-label,
+.client-request-edit-page .section-heading h2,
+.document-edit-page .section-head h2,
+.edit-page .field-block label,
+.invoice-edit-page .field-label,
+.sequence-edit-page .field-label,
+.client-request-edit-page .result-list-label,
+.client-request-edit-page .status-label,
+.document-edit-page .field-label,
+.document-type-edit-page .form-label {
+    color: var(--vault-on-surface-variant) !important;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+}
+
+.edit-page .toggle-card,
+.edit-page .summary-chip-row,
+.client-request-edit-page .selected-target,
+.invoice-edit-page .audit-item,
+.sequence-edit-page .draft-badge,
+.document-edit-page .compliance-panel {
+    border-radius: 0.9rem !important;
+}
+
+.sequence-edit-page .draft-badge,
+.invoice-edit-page .title-mark,
+.client-request-edit-page .page-subtitle {
+    background: var(--vault-secondary-container) !important;
+    color: var(--vault-on-secondary-container) !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px !important;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    width: fit-content;
+}
+
+.client-request-edit-page .page-subtitle {
+    margin-top: 0.75rem !important;
+}
+
+.sequence-edit-page .sticky-footer,
+.client-request-edit-page .page-footer,
+.document-edit-page .trust-footer,
+.edit-page .footer-stamp {
+    width: 100%;
+    max-width: 80rem;
+    margin: 1.5rem auto 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgb(196 198 208 / 0.3);
+    color: var(--vault-on-surface-variant);
+}
+
+@media (max-width: 960px) {
+    .edit-page,
+    .invoice-edit-page,
+    .sequence-edit-page,
+    .client-request-edit-page,
+    .document-edit-page {
+        padding: 1.25rem 1rem 3rem !important;
+    }
+
+    .edit-page .top-bar,
+    .edit-page .edit-header,
+    .invoice-edit-page .page-header,
+    .sequence-edit-page .page-header,
+    .client-request-edit-page .page-header,
+    .document-edit-page .edit-header,
+    .sequence-edit-page .sticky-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .edit-page .header-btns,
+    .edit-page .top-actions,
+    .invoice-edit-page .header-actions,
+    .client-request-edit-page .header-actions,
+    .document-edit-page .header-actions,
+    .sequence-edit-page .sticky-actions {
+        justify-content: stretch;
+    }
+
+    .edit-page .header-btns > *,
+    .edit-page .top-actions > *,
+    .invoice-edit-page .header-actions > *,
+    .client-request-edit-page .header-actions > *,
+    .document-edit-page .header-actions > *,
+    .sequence-edit-page .sticky-actions > * {
+        flex: 1;
+    }
+}
 .edit-page .btn-secondary,
 .edit-page .add-btn,
 .edit-page .text-action,
@@ -533,6 +1039,14 @@ body {
 }
 
 @media (max-width:720px) {
+
+	.header-btns {
+		justify-content: stretch;
+	}
+
+	.header-btns .mdc-button {
+		flex: 1;
+	}
 
     .edit-page .edit-header,
     .edit-page .header-actions,
@@ -879,3 +1393,39 @@ body {
     }
 }
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+
+.header-btns {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.btn-cancel.mdc-button {
+	font-size: 0.8rem;
+	font-weight: 700;
+	color: #515f74;
+	background: #eceef0;
+	border-radius: 8px;
+	padding: 0 1.5rem;
+	height: 40px;
+
+	&:hover {
+		background: #e0e3e5;
+	}
+}
+
+.btn-save.mdc-button {
+	font-size: 0.8rem;
+	font-weight: 700;
+	background: #001735;
+	color: #fff;
+	border-radius: 8px;
+	padding: 0 2rem;
+	height: 40px;
+
+	&:hover {
+		background: #0e2c52;
+	}
+}

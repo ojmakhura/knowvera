@@ -4,7 +4,7 @@
 	<div class="edit-shell">
 		<mat-card class="edit-card">
 			@if (loading()) {
-				<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+			<mat-progress-bar mode="indeterminate"></mat-progress-bar>
 			}
 
 			<header class="edit-header">
@@ -18,7 +18,8 @@
 
 				<div class="header-actions">
 					<button mat-button type="button" class="cancel-btn" (click)="cancelEdit()">Cancel</button>
-					<button mat-flat-button color="primary" type="button" class="save-btn" [disabled]="loading()" (click)="editDocumentSave()">
+					<button mat-flat-button color="primary" type="button" class="save-btn" [disabled]="loading()"
+						(click)="editDocumentSave()">
 						Save Changes
 					</button>
 				</div>
@@ -46,7 +47,7 @@
 							<mat-form-field class="vault-field">
 								<mat-select [formField]="editDocumentSignalForm.target">
 									@for (option of TargetEntityOptions; track option) {
-										<mat-option [value]="option">{{ targetEntityLabel(option) }}</mat-option>
+									<mat-option [value]="option">{{ targetEntityLabel(option) }}</mat-option>
 									}
 								</mat-select>
 							</mat-form-field>
@@ -63,8 +64,16 @@
 							<label class="field-label">Document Type</label>
 							<mat-form-field class="vault-field">
 								<mat-select [formField]="editDocumentSignalForm.documentType" [compareWith]="documentTypeCompare">
+									<mat-option>
+										<ngx-mat-select-search [placeholderLabel]="'search.document.type' | translate"
+											[formField]="editDocumentSignalForm.documentTypeFilter" (keyup.enter)="filterDocumentType()"
+											[noEntriesFoundLabel]="'no.entries.found' | translate">
+											<!-- <button mat-flat-button type="button" color="primary"
+                    (click)="filterDocumentType()">Search</button> -->
+										</ngx-mat-select-search>
+									</mat-option>
 									@for (option of documentTypeOptions(); track option.id) {
-										<mat-option [value]="option">{{ option.name || option.code }}</mat-option>
+									<mat-option [value]="option">{{ option.name || option.code }}</mat-option>
 									}
 								</mat-select>
 							</mat-form-field>
@@ -94,7 +103,7 @@
 							<mat-form-field class="vault-field">
 								<mat-select [formField]="editDocumentSignalForm.verificationStatus">
 									@for (status of DocumentVerificationStatusOptions; track status) {
-										<mat-option [value]="status">{{ verificationStatusLabel(status) }}</mat-option>
+									<mat-option [value]="status">{{ verificationStatusLabel(status) }}</mat-option>
 									}
 								</mat-select>
 							</mat-form-field>
@@ -107,14 +116,8 @@
 									<input matInput [formField]="editDocumentSignalForm.url" />
 								</mat-form-field>
 
-								<button
-									mat-stroked-button
-									type="button"
-									class="view-btn"
-									[disabled]="!canViewDocument()"
-									(click)="viewDocument()"
-									matTooltip="Open document preview"
-								>
+								<button mat-stroked-button type="button" class="view-btn" [disabled]="!canViewDocument()"
+									(click)="viewDocument()" matTooltip="Open document preview">
 									<mat-icon>visibility</mat-icon>
 									View Document
 								</button>

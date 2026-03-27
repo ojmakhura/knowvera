@@ -6,7 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -48,6 +48,7 @@ export class Subscriptions implements OnInit {
 
   readonly kycSubscriptionApiStore = inject(KycSubscriptionApiStore);
   protected readonly rows = signal<KycSubscriptionDTO[]>([]);
+  protected readonly dataSource = new MatTableDataSource<KycSubscriptionDTO>([]);
   protected readonly currentPage = signal(0);
   protected readonly pageSize = signal(10);
   protected readonly totalElements = signal(0);
@@ -73,6 +74,7 @@ export class Subscriptions implements OnInit {
       }
 
       this.rows.set(page.content || []);
+      this.dataSource.data = page.content || [];
       this.currentPage.set(page.page?.number || 0);
       this.pageSize.set(page.page?.size || 10);
       this.totalElements.set(page.page?.totalElements || 0);
