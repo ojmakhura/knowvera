@@ -400,8 +400,8 @@ public class DocumentApiImpl implements DocumentApi {
                     doc.getTarget(),
                     doc.getTargetId());
 
-            rabbitTemplate.convertAndSend(rabbitProperties.getTextExtractionQueueExchange(),
-                    rabbitProperties.getTextExtractionQueueRoutingKey(), queueObject);
+            rabbitTemplate.convertAndSend(rabbitProperties.getTextCleanupQueueExchange(),
+                    rabbitProperties.getTextCleanupQueueRoutingKey(), queueObject);
 
             return ResponseEntity.ok(doc);
         } catch (Exception e) {

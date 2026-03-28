@@ -57,6 +57,7 @@ public class DocumentValidationService {
         completionRequest.setStream(false);
         completionRequest.setModel("local-model");
         completionRequest.setMessages(List.of(systemPrompt, userPrompt));
+        
         lmStudioExtractorService.extractInformation(completionRequest)
                 .thenAccept(response -> {
                     System.out.println("✅ Got response");

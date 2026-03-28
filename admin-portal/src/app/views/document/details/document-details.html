@@ -1,5 +1,4 @@
 <div class="vault-container">
-
   <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap">
     <div>
       <div class="breadcrumb-nav">
@@ -8,140 +7,21 @@
       </div>
       <h1 class="page-title">
         <mat-icon inline style="font-size: 2.25rem; width: 2.25rem; height: 2.25rem;">description</mat-icon>
-        {{ document().fileName || 'passport_scan_v2.pdf' }}
+        {{ document().fileName || '—' }}
       </h1>
     </div>
 
     <div class="status-badge-container">
       <span class="status-label">Current Status</span>
       <div class="status-badge">
-        <mat-icon inline>pending_actions</mat-icon>
-        MANUAL_REVIEW
+        <mat-icon inline>{{ statusIcon }}</mat-icon>
+        {{ document().verificationStatus || '—' }}
       </div>
     </div>
   </div>
 
   <div class="row g-4">
-    <!-- Left Column (lg-8) -->
     <div class="col-12 col-lg-8">
-
-      <!-- AI Assessment Card -->
-      <mat-card class="vault-card">
-        <mat-card-content>
-          <div class="vault-card-header">
-            <div>
-              <h2>AI Automated Validation</h2>
-              <p>Compliance Assessment</p>
-            </div>
-            <div class="score">
-              <div class="value">94%</div>
-              <div class="label">Confidence Score</div>
-            </div>
-          </div>
-
-          <div class="meta-grid">
-            <div class="meta-box">
-              <div class="meta-label">Expected Type</div>
-              <div class="meta-value">Biometric Passport</div>
-            </div>
-            <div class="meta-box">
-              <div class="meta-label">Detected Type</div>
-              <div class="meta-value">Biometric Passport</div>
-            </div>
-            <div class="meta-box highlight">
-              <div class="meta-label">Match Status</div>
-              <div class="meta-value">
-                <mat-icon inline>check_circle</mat-icon> Verified Match
-              </div>
-            </div>
-          </div>
-
-          <div class="progress-container">
-            <div class="progress-header">
-              <span>Threshold Alignment</span>
-              <span>Pass</span>
-            </div>
-            <div class="segmented-progress">
-              <div class="segment"></div>
-              <div class="segment"></div>
-              <div class="segment"></div>
-              <div class="segment"></div>
-              <div class="segment"></div>
-              <div class="segment"></div>
-              <div class="segment"></div>
-              <div class="segment"></div>
-              <div class="segment"></div>
-              <div class="segment off"></div>
-            </div>
-          </div>
-
-          <div class="info-alert mt-4">
-            <mat-icon inline style="color: #001735;">info</mat-icon>
-            <div>
-              "The document shows high structural integrity. Security watermarks detected. MRZ checksum validates
-              correctly. Manual review requested due to slight glare on portrait area preventing 100% facial vector
-              match."
-            </div>
-          </div>
-
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Data Table Card -->
-      <mat-card class="vault-card">
-        <mat-card-content style="padding-bottom: 0 !important;">
-          <h2 class="table-header-title mb-4">
-            <mat-icon inline>compare_arrows</mat-icon>
-            Extracted Information vs Expected Data
-          </h2>
-
-          <div class="table-responsive">
-            <table class="vault-table">
-              <thead>
-                <tr>
-                  <th>Field Label</th>
-                  <th>Expected (Database)</th>
-                  <th>Extracted (OCR)</th>
-                  <th>Result</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="label-col">GIVEN_NAME</td>
-                  <td>ALEXANDER</td>
-                  <td>ALEXANDER</td>
-                  <td><span class="badge-valid">Valid</span></td>
-                </tr>
-                <tr>
-                  <td class="label-col">SURNAME</td>
-                  <td>THOMPSON</td>
-                  <td>THOMPSON</td>
-                  <td><span class="badge-valid">Valid</span></td>
-                </tr>
-                <tr>
-                  <td class="label-col">DOC_NUMBER</td>
-                  <td>L9822001</td>
-                  <td>L9822001</td>
-                  <td><span class="badge-valid">Valid</span></td>
-                </tr>
-                <tr>
-                  <td class="label-col">EXPIRY_DATE</td>
-                  <td class="text-error">2024-05-12</td>
-                  <td class="text-error">2024-05-12</td>
-                  <td><span class="badge-expired">Expired</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-    </div>
-
-    <!-- Right Column (lg-4) -->
-    <div class="col-12 col-lg-4">
-
-      <!-- Target Entity Identity -->
       <mat-card class="identity-card">
         <div class="identity-decoration"></div>
         <mat-card-content>
@@ -152,67 +32,201 @@
               <mat-icon inline style="font-size: 1.5rem; width: 1.5rem; height: 1.5rem;">person</mat-icon>
             </div>
             <div>
-              <h3>Alexander Thompson</h3>
-              <p>Customer ID: #USR-8829-X</p>
+              <h3>{{ document().targetLabel || '—' }}</h3>
+              <p>ID: {{ document().targetId || '—' }}</p>
             </div>
           </div>
 
           <div class="id-details">
             <div class="detail-row">
               <span class="key">Entity Type</span>
-              <span class="val">Natural Person</span>
+              <span class="val">{{ entityTypeLabel }}</span>
             </div>
             <div class="detail-row">
-              <span class="key">Registration</span>
-              <span class="val">UK-RES-2023</span>
+              <span class="key">Document Type</span>
+              <span class="val">{{ document().documentType || '—' }}</span>
             </div>
-            <div class="detail-row">
-              <span class="key">Risk Profile</span>
-              <span class="val-low">LOW</span>
-            </div>
+            @if (document().metadata?.registration) {
+              <div class="detail-row">
+                <span class="key">Registration</span>
+                <span class="val">{{ document().metadata.registration }}</span>
+              </div>
+            }
+            @if (document().metadata?.riskProfile) {
+              <div class="detail-row">
+                <span class="key">Risk Profile</span>
+                <span class="val-low">{{ document().metadata.riskProfile }}</span>
+              </div>
+            }
           </div>
         </mat-card-content>
       </mat-card>
 
-      <!-- Integrity Signals -->
       <mat-card class="vault-card">
         <mat-card-content>
-          <div class="section-label">Integrity Signals</div>
-
-          <div class="integrity-list">
-            <div class="integrity-item">
-              <div class="left">
-                <mat-icon inline>photo_filter</mat-icon> Image Clarity
-              </div>
-              <div class="right">98%</div>
+          <div class="vault-card-header">
+            <div>
+              <h2>AI Automated Validation</h2>
+              <p>Compliance Assessment</p>
             </div>
-            <div class="integrity-item">
-              <div class="left">
-                <mat-icon inline>qr_code_scanner</mat-icon> MRZ Valid
-              </div>
-              <div class="right"><mat-icon inline>check_circle</mat-icon></div>
-            </div>
-            <div class="integrity-item">
-              <div class="left">
-                <mat-icon inline>face</mat-icon> Face Match
-              </div>
-              <div class="right">82%</div>
-            </div>
-            <div class="integrity-item">
-              <div class="left">
-                <mat-icon inline>security</mat-icon> Hologram Check
-              </div>
-              <div class="right"><mat-icon inline>check_circle</mat-icon></div>
+            <div class="score">
+              <div class="value">{{ document().validationResults?.score != null ? document().validationResults.score + '%' : '—' }}</div>
+              <div class="label">Confidence Score</div>
             </div>
           </div>
+
+          <div class="meta-grid">
+            <div class="meta-box">
+              <div class="meta-label">Expected Type</div>
+              <div class="meta-value">{{ document().validationResults?.expectedType || '—' }}</div>
+            </div>
+            <div class="meta-box">
+              <div class="meta-label">Detected Type</div>
+              <div class="meta-value">{{ document().validationResults?.detectedType || '—' }}</div>
+            </div>
+            <div class="meta-box highlight">
+              <div class="meta-label">Match Status</div>
+              <div class="meta-value">
+                <mat-icon inline>{{ matchIcon }}</mat-icon> {{ matchLabel }}
+              </div>
+            </div>
+          </div>
+
+          <div class="progress-container">
+            <div class="progress-header">
+              <span>Threshold Alignment</span>
+              <span>{{ thresholdLabel }}</span>
+            </div>
+            <div class="segmented-progress">
+              @for (filled of confidenceSegments; track $index) {
+                <div class="segment" [class.off]="!filled"></div>
+              }
+            </div>
+          </div>
+
+          @if (document().validationResults?.reason) {
+            <div class="info-alert mt-4">
+              <mat-icon inline style="color: #001735;">info</mat-icon>
+              <div>{{ document().validationResults.reason }}</div>
+            </div>
+          }
         </mat-card-content>
       </mat-card>
 
-      <!-- Actions -->
-      <div class="action-buttons">
-        <button mat-button class="btn-download-archive">
-          <mat-icon inline>download</mat-icon> Download Archive
-        </button>
+      <mat-card class="vault-card tabs-card">
+        <mat-card-content style="padding-bottom: 0 !important;">
+          <mat-tab-group class="details-tabs" animationDuration="200ms">
+            <mat-tab label="Integrity Signals">
+              <div class="tab-pane-content">
+                @if (integritySignalRows.length > 0) {
+                  <div class="integrity-list">
+                    @for (signal of integritySignalRows; track signal.key) {
+                      <div class="integrity-item">
+                        <div class="left">
+                          <mat-icon inline>{{ signalIcon(signal.key) }}</mat-icon> {{ signal.label }}
+                        </div>
+                        <div class="right">
+                          @if (signal.isBoolean) {
+                            <mat-icon inline>{{ signal.value ? 'check_circle' : 'cancel' }}</mat-icon>
+                          } @else {
+                            {{ signal.value }}
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <p class="tab-empty">No signal data available</p>
+                }
+              </div>
+            </mat-tab>
+
+            <mat-tab label="Extracted vs Expected Data">
+              <div class="tab-pane-content tab-table-pane">
+                <div class="table-responsive">
+                  <table class="vault-table">
+                    <thead>
+                      <tr>
+                        <th>Field Label</th>
+                        <th>Expected (Database)</th>
+                        <th>Extracted (OCR)</th>
+                        <th>Result</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @if (extractionRows.length > 0) {
+                        @for (row of extractionRows; track row.field) {
+                          <tr>
+                            <td class="label-col">{{ row.field }}</td>
+                            <td [class.text-error]="!row.matches">{{ row.expected }}</td>
+                            <td [class.text-error]="!row.matches">{{ row.extracted }}</td>
+                            <td>
+                              @if (row.matches) {
+                                <span class="badge-valid">Valid</span>
+                              } @else {
+                                <span class="badge-expired">Mismatch</span>
+                              }
+                            </td>
+                          </tr>
+                        }
+                      } @else {
+                        <tr>
+                          <td colspan="4" style="text-align: center; color: #9aa0a6; padding: 2rem;">No extraction data available</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </mat-tab>
+
+            <mat-tab label="File Content">
+              <div class="tab-pane-content">
+                <div class="file-content-header">
+                  <div>
+                    <h2>
+                      <mat-icon inline>article</mat-icon>
+                      File Content
+                    </h2>
+                    <p>Raw extracted text from the document</p>
+                  </div>
+                  <button mat-icon-button
+                    [matTooltip]="fileContentCopied() ? 'Copied!' : 'Copy to clipboard'"
+                    (click)="copyFileContent()">
+                    <mat-icon>{{ fileContentCopied() ? 'check' : 'content_copy' }}</mat-icon>
+                  </button>
+                </div>
+                <textarea
+                  class="file-content-area"
+                  [ngModel]="fileContent()"
+                  (ngModelChange)="fileContent.set($event)"
+                  placeholder="No file content available..."
+                  spellcheck="false"
+                ></textarea>
+                <div class="file-content-actions">
+                  <button mat-flat-button color="primary" (click)="saveDocument()" [disabled]="loading()">
+                    <mat-icon>save</mat-icon>
+                    Update Document
+                  </button>
+                </div>
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="action-buttons sticky-actions">
+        @if (document().url) {
+          <a mat-button class="btn-download-archive" [href]="document().url" target="_blank" rel="noopener noreferrer">
+            <mat-icon inline>download</mat-icon> Download Archive
+          </a>
+        } @else {
+          <button mat-button class="btn-download-archive" disabled>
+            <mat-icon inline>download</mat-icon> Download Archive
+          </button>
+        }
         <div class="sub-actions">
           <button mat-button>
             <mat-icon inline>edit</mat-icon> Metadata
@@ -225,7 +239,6 @@
           Void Document Instance
         </button>
       </div>
-
     </div>
   </div>
 </div>
@@ -248,7 +261,7 @@
     </div>
     <div>
       <div style="color: #001735; font-weight: 900; letter-spacing: 0.05em;">THE VAULT COMPLIANCE ENGINE</div>
-      <div style="font-weight: 500;">TRANSACTION HASH: 0X82F...A109</div>
+      <div style="font-weight: 500;">DOCUMENT ID: {{ document().id || '—' }}</div>
     </div>
   </div>
   <div style="letter-spacing: 0.1em; color: #43474f;">

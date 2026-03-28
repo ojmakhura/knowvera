@@ -205,4 +205,29 @@ public class DocumentProcessorService {
         });
 
     }
+
+    @Async("virtualThreadExecutor")
+    public void updateFileContent(CompletionResponse response, DocumentDTO document) {
+        log.info("Updating file content for document ID: {}", document.getId());
+
+        response.getChoices().forEach(choice -> {
+            if (choice.getMessage() != null && choice.getMessage().getContent() != null) {
+                String updatedContent = choice.getMessage().getContent();
+                document.setFileContent(updatedContent);
+                documentService.save(document);
+                log.info("Updated file content for document ID: {}", document.getId());
+
+                QueueObject queueObject = new QueueObject(
+                        document.getId(),
+                        document.getTarget(),
+                        document.getTargetId());
+
+                rabbitTemplate.convertAndSend(
+                    rabbitProperties.getTextProcessingQueueExchange(),
+                    rabbitProperties.getTextProcessingQueueRoutingKey(),
+                        queueObject);
+            }
+        });
+
+    }
 }

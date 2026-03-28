@@ -32,6 +32,10 @@ public class RabbitProperties {
     private final String informationConfirmationQueue;
     private final String informationConfirmationQueueRoutingKey;
 
+    private final String textCleanupQueueExchange;
+    private final String textCleanupQueue;
+    private final String textCleanupQueueRoutingKey;
+
     public String getHost() {
         return host;
     }
@@ -106,5 +110,17 @@ public class RabbitProperties {
 
     public String getInformationConfirmationQueueRoutingKey() {
         return informationConfirmationQueueRoutingKey;
+    }
+
+    public String getTextCleanupQueueExchange() {
+        return textCleanupQueueExchange;
+    }
+
+    public String getTextCleanupQueue() {
+        return textCleanupQueue;
+    }
+
+    public String getTextCleanupQueueRoutingKey() {
+        return textCleanupQueueRoutingKey;
     }
 }

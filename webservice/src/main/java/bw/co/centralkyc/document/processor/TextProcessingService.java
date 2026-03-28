@@ -48,10 +48,11 @@ public class TextProcessingService {
 
     @RabbitListener(queues = "${app.rabbitmq.textProcessingQueue}")
     public void processExtractedText(QueueObject queueObject) {
-        
+
         log.info("Processing extracted text for document ID: {}", queueObject.documentId());
         try {
-            DocumentDTO document = documentService.findById(queueObject.documentId()); // Replace with actual retrieval logic
+            DocumentDTO document = documentService.findById(queueObject.documentId()); // Replace with actual retrieval
+                                                                                       // logic
 
             if (document == null) {
                 log.warn("Document not found for ID: {}", queueObject.documentId());
@@ -105,5 +106,71 @@ public class TextProcessingService {
         } catch (Exception e) {
             log.error("Text processing interrupted for document ID: {}", queueObject.documentId(), e);
         }
+    }
+
+    private final String systemCleanUpPrompt = """
+                You are a text normalization and cleaning engine. Your task is to clean and structure raw OCR-extracted text from documents while preserving meaning. Do not add new information or hallucinate content.
+            """;
+
+    private final String userCleanUpPromptTemplate = """
+            I will provide you with raw text extracted from a document using OCR. Your job is to clean and normalize it.
+
+            Goals:
+            1. Fix OCR errors (misread characters, broken words, incorrect spacing).
+            2. Remove noise (headers, footers, page numbers, watermarks, repeated artifacts).
+            3. Reconstruct broken sentences where obvious.
+            4. Normalize spacing and punctuation.
+            5. Preserve original meaning exactly — do NOT rewrite or summarize.
+            6. Keep the structure of the document where possible (paragraphs, sections, bullet points).
+            7. If the structure is unclear, infer minimal logical formatting.
+            8. Do NOT invent missing text.
+
+            Output rules:
+            - Return only the cleaned text.
+            - Do not explain your changes.
+            - Do not add commentary.
+            - Maintain original language.
+
+            Input text:
+            %s
+            """;
+
+    @RabbitListener(queues = "${app.rabbitmq.textCleanupQueue}")
+    public void cleanExtractedText(QueueObject queueObject) {
+
+        try {
+            DocumentDTO document = documentService.findById(queueObject.documentId());
+
+            String finalPrompt = String.format(userCleanUpPromptTemplate, document.getFileContent());
+
+            CompletionRequest request = new CompletionRequest();
+            request.setModel("local-model"); // Specify the model you want to use
+            request.setStream(false);
+
+            CompletionRequestMessage system = new CompletionRequestMessage();
+            system.setRole("system");
+            system.setContent(systemCleanUpPrompt);
+
+            CompletionRequestMessage message = new CompletionRequestMessage();
+            message.setRole("user");
+            message.setContent(finalPrompt);
+
+            request.setMessages(List.of(system, message));
+
+            lmStudioExtractorService.extractInformation(request)
+                    .thenAccept(response -> {
+                        documentProcessorService.updateFileContent(response, document);
+
+                    })
+                    .exceptionally(ex -> {
+                        log.error("Error during text cleanup for document ID: {}", queueObject.documentId(), ex);
+                        return null;
+                    });
+
+        } catch (Exception e) {
+            log.error("Error retrieving document for ID: {}", queueObject.documentId(), e);
+            return;
+        }
+
     }
 }

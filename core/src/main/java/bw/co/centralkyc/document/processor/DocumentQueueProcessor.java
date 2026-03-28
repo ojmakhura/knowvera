@@ -67,10 +67,9 @@ public class DocumentQueueProcessor {
                 document.setFileContent(text);
                 documentService.save(document);
 
-                rabbitTemplate.convertAndSend(
-                    rabbitProperties.getTextProcessingQueueExchange(),
-                    rabbitProperties.getTextProcessingQueueRoutingKey(),
-                        queueObject);
+                rabbitTemplate.convertAndSend(rabbitProperties.getTextCleanupQueueExchange(),
+                    rabbitProperties.getTextCleanupQueueRoutingKey(), queueObject);
+                    
             }).exceptionally(ex -> {
                 log.error("Async extraction failed for id: {}", queueObject.documentId(), ex);
                 sendToDeadLetter(queueObject);
@@ -90,7 +89,8 @@ public class DocumentQueueProcessor {
 
         String candidate = rawUrlOrObjectName.trim();
 
-        // Support either stored object names or full URLs persisted in the document record.
+        // Support either stored object names or full URLs persisted in the document
+        // record.
         if (candidate.startsWith("http://") || candidate.startsWith("https://")) {
             try {
                 String path = new URI(candidate).getPath();

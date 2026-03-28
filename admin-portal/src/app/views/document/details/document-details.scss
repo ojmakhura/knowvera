@@ -330,7 +330,7 @@ mat-card.identity-card {
 .id-details {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 1rem;
-  
+
   .detail-row {
     display: flex;
     justify-content: space-between;
@@ -388,7 +388,7 @@ mat-card.identity-card {
     font-size: 0.875rem;
     font-weight: 700;
     color: #001735;
-    
+
     mat-icon {
       font-size: 1.25rem;
       width: 1.25rem;
@@ -447,6 +447,51 @@ mat-card.identity-card {
   }
 }
 
+.sticky-actions {
+  position: sticky;
+  top: 1rem;
+}
+
+.tabs-card {
+  ::ng-deep .mat-mdc-tab-header {
+    border-bottom: 1px solid #f0f2f5;
+    margin: 0 -2rem;
+    padding: 0 2rem;
+  }
+}
+
+.details-tabs {
+  ::ng-deep .mdc-tab {
+    min-width: 0;
+    padding: 0 1rem;
+  }
+
+  ::ng-deep .mdc-tab__text-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+}
+
+.tab-pane-content {
+  padding: 1.5rem 0 0.5rem;
+}
+
+.tab-table-pane {
+  padding-top: 1rem;
+
+  .table-responsive {
+    margin: 0 -2rem -2rem -2rem;
+  }
+}
+
+.tab-empty {
+  color: #9aa0a6;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
 .table-header-title {
   font-size: 0.875rem;
   font-weight: 700;
@@ -500,7 +545,7 @@ mat-card.identity-card {
     z-index: 1;
     margin: 0;
   }
-  
+
   .magnify-button {
     position: absolute;
     top: 50%;
@@ -526,3 +571,59 @@ mat-card.identity-card {
     }
   }
 }
+
+.file-content-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+  }
+
+  p {
+    font-size: 0.8125rem;
+    color: #9aa0a6;
+    margin: 0;
+  }
+}
+
+.file-content-area {
+  display: block;
+  width: 100%;
+  min-height: 14rem;
+  padding: 1rem;
+  font-family: 'Roboto Mono', 'Courier New', monospace;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  color: #1a1a2e;
+  background: #f8f9fa;
+  border: 1px solid rgba(196, 198, 208, 0.4);
+  border-radius: 0.5rem;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &::placeholder {
+    color: #9aa0a6;
+    font-style: italic;
+  }
+
+  &:focus {
+    border-color: var(--vault-primary, #673ab7);
+    box-shadow: 0 0 0 3px rgba(103, 58, 183, 0.12);
+  }
+}
+
+.file-content-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+

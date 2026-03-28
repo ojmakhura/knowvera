@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AuthenticationGuard } from '@app/auth/authentication.guard';
 
 export const recordsRoutes: Routes = [
   {
@@ -7,18 +8,22 @@ export const recordsRoutes: Routes = [
   },
   {
     path: 'details/:id',
+    canActivate: [AuthenticationGuard],
     loadComponent: () => import('./details/record-details').then((module) => module.RecordDetails),
   },
   {
     path: 'details',
+    canActivate: [AuthenticationGuard],
     loadComponent: () => import('./details/record-details').then((module) => module.RecordDetails),
   },
   {
     path: 'edit/:id',
-    loadChildren: () => import('./edit/record-edit.routes').then(m => m.recordEditRoutes),
+    canActivate: [AuthenticationGuard],
+    loadComponent: () => import('./edit/record-edit').then((module) => module.RecordEdit),
   },
   {
     path: 'edit',
-    loadChildren: () => import('./edit/record-edit.routes').then(m => m.recordEditRoutes),
+    canActivate: [AuthenticationGuard],
+    loadComponent: () => import('./edit/record-edit').then((module) => module.RecordEdit),
   },
 ];
