@@ -60,7 +60,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
-    public ResponseEntity<Collection<DocumentDTO>> findByDocumentType(String documentTypeId) {
+    public ResponseEntity<Collection<DocumentListDTO>> findByDocumentType(String documentTypeId) {
 
         try {
 
@@ -87,7 +87,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
-    public ResponseEntity<Collection<DocumentDTO>> findByTarget(
+    public ResponseEntity<Collection<DocumentListDTO>> findByTarget(
             bw.co.centralkyc.TargetEntity target, String targetId) {
 
         try {
@@ -100,13 +100,13 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
-    public ResponseEntity<Collection<DocumentDTO>> getAll() {
+    public ResponseEntity<Collection<DocumentListDTO>> getAll() {
         return ResponseEntity.ok(documentService.getAll());
 
     }
 
     @Override
-    public ResponseEntity<Page<DocumentDTO>> getAllPaged(Integer pageNumber, Integer pageSize) {
+    public ResponseEntity<Page<DocumentListDTO>> getAllPaged(Integer pageNumber, Integer pageSize) {
 
         try {
 
@@ -157,7 +157,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
-    public ResponseEntity<Collection<DocumentDTO>> search(SearchObject<DocumentSearchCriteria> criteria) {
+    public ResponseEntity<Collection<DocumentListDTO>> search(SearchObject<DocumentSearchCriteria> criteria) {
 
         try {
 
@@ -339,11 +339,11 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
-    public @Nullable ResponseEntity<Page<DocumentDTO>> searchPaged(
+    public @Nullable ResponseEntity<Page<DocumentListDTO>> searchPaged(
             @Valid SearchObject<DocumentSearchCriteria> criteria) throws Exception {
         
         try {
-            Page<DocumentDTO> results = documentService.search(criteria);
+            Page<DocumentListDTO> results = documentService.search(criteria);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
             throw e;
@@ -352,14 +352,14 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
-    public ResponseEntity<Page<DocumentDTO>> findByDocumentsPaged(TargetEntity target, @Nullable Integer pageNumber,
+    public ResponseEntity<Page<DocumentListDTO>> findMyDocumentsPaged(TargetEntity target, @Nullable Integer pageNumber,
             @Nullable Integer pageSize) throws Exception {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findByDocumentsPaged'");
     }
 
     @Override
-    public @Nullable ResponseEntity<DocumentDTO> findMyDocuments(TargetEntity target) throws Exception {
+    public @Nullable ResponseEntity<Collection<DocumentListDTO>> findMyDocuments(TargetEntity target) throws Exception {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findMyDocuments'");
     }

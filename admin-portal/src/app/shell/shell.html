@@ -76,7 +76,24 @@
     </mat-toolbar>
 
     <main class="content">
-      <router-outlet></router-outlet>
+      @if (keycloak.authenticated) {
+        <router-outlet></router-outlet>
+      } @else {
+        <div class="login-screen">
+          <div class="login-card">
+            <div class="login-brand">
+              <span class="login-brand-mark">◍</span>
+              <span class="login-brand-name">Central KYC</span>
+            </div>
+            <h1 class="login-heading">Admin Portal</h1>
+            <p class="login-sub">Sign in with your organisational account to access the compliance dashboard.</p>
+            <button mat-flat-button color="primary" class="login-btn" type="button" (click)="login()">
+              <mat-icon>lock_open</mat-icon>
+              Sign in
+            </button>
+          </div>
+        </div>
+      }
     </main>
   </mat-sidenav-content>
 </mat-sidenav-container>

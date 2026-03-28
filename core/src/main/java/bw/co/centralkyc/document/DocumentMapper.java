@@ -6,14 +6,8 @@
 package bw.co.centralkyc.document;
 
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
-import bw.co.centralkyc.document.type.ExpectedField;
-import bw.co.centralkyc.utils.MappingUtils;
-
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -21,65 +15,32 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring", uses = {
-        DocumentTypeMapper.class,
-        MappingUtils.class
-})
+@Mapper(
+    componentModel = "spring"
+    , uses = {
+        DocumentTypeMapper.class    }
+)
 public interface DocumentMapper {
-
+    
     /**
      * Converts this entity to an object of type {@link DocumentDTO}.
-     * 
      * @param entity
      * @return DocumentDTO
      */
-    // WARNING! No conversion for target.documentType (can't convert
-    // source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to
-    // java.lang.String
+    // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String
     @Mapping(target = "documentTypeId", source = "documentType.id")
     @Mapping(target = "documentType", source = "documentType.name")
-    @Mapping(target = "expectedFields", expression = "java(getExpectedFields(entity))")
+    // @Mapping(target = "expectedFields", expression = "java(getExpectedFields(entity))")
     DocumentDTO toDocumentDTO(Document entity);
 
-    default Map<String, Object> getExpectedFields(Document entity) {
-
-        Map<String, Object> expectedInfor = new HashMap<>();
-
-        if (entity.getDocumentType().getExpectedFields() != null) {
-            Collection<ExpectedField> fields = entity.getDocumentType().getExpectedFields();
-            for(ExpectedField field : fields) {
-
-                StringBuilder builder = new StringBuilder();
-
-                if(field.getFormat() != null && !field.getFormat().isEmpty()) {
-                    builder.append("Expecting: ")
-                        .append(field.getFormat());
-                } else {
-                    builder.append("null");
-                }
-
-                
-
-                expectedInfor.put(field.getField(), builder.toString());
-
-            }
-        }
-
-        return expectedInfor;
-    }
-
-    /**
-     * Converts this DAO's entity to a Collection of instances of type
-     * {@link DocumentDTO}.
-     * 
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link DocumentDTO}.
      * @param entities
-     * @return Collection<DocumentDTO>
-     */
+     * @return Collection<DocumentDTO>     */
     List<DocumentDTO> toDocumentDTOCollection(Collection<Document> entities);
 
     /**
      * Converts an instance of type {@link DocumentDTO} to this DAO's entity.
-     * 
      * @param documentDTO
      * @return Document
      */
@@ -89,5 +50,33 @@ public interface DocumentMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
     void updateDocumentFromDocumentDTO(DocumentDTO documentDTO, @MappingTarget Document entity);
+
+    /**
+     * Converts this entity to an object of type {@link DocumentListDTO}.
+     * @param entity
+     * @return DocumentListDTO
+     */
+    // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String
+    @Mapping(target = "documentTypeId", source = "documentType.id")
+    @Mapping(target = "documentType", source = "documentType.name")
+    DocumentListDTO toDocumentListDTO(Document entity);
+
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link DocumentListDTO}.
+     * @param entities
+     * @return Collection<DocumentListDTO>     */
+    List<DocumentListDTO> toDocumentListDTOCollection(Collection<Document> entities);
+
+    /**
+     * Converts an instance of type {@link DocumentListDTO} to this DAO's entity.
+     * @param documentListDTO
+     * @return Document
+     */
+    @InheritInverseConfiguration
+    Document documentListDTOToEntity(DocumentListDTO documentListDTO);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @InheritInverseConfiguration
+    void updateDocumentFromDocumentListDTO(DocumentListDTO documentListDTO, @MappingTarget Document entity);
 
 }

@@ -11,6 +11,7 @@ export const routes: Routes = [
   },
   {
     path: 'document/type',
+    canActivate: [AuthenticationGuard],
     loadChildren: () =>
       import('./views/document/type/document-type.routes').then((module) => module.documentTypeRoutes),
   },

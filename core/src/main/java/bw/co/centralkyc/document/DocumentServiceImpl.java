@@ -8,11 +8,16 @@
  */
 package bw.co.centralkyc.document;
 
+import bw.co.centralkyc.KeyField;
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.SortOrder;
 import bw.co.centralkyc.TargetEntity;
+import bw.co.centralkyc.document.type.DocumentType;
+import bw.co.centralkyc.document.type.ExpectedField;
+import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
+import bw.co.centralkyc.kyc.KycRecord;
 import bw.co.centralkyc.kyc.KycRecordRepository;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
@@ -22,6 +27,8 @@ import jakarta.validation.Valid;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -51,10 +58,11 @@ public class DocumentServiceImpl
     private final KycRecordRepository kycRecordRepository;
     private final ClientRequestRepository clientRequestRepository;
     private final KycSubscriptionRepository kycSubscriptionRepository;
-            
+
     public DocumentServiceImpl(DocumentDao documentDao, DocumentRepository documentRepository,
             OrganisationRepository organisationRepository, IndividualRepository individualRepository,
-            KycRecordRepository kycRecordRepository, ClientRequestRepository clientRequestRepository, KycSubscriptionRepository kycSubscriptionRepository,
+            KycRecordRepository kycRecordRepository, ClientRequestRepository clientRequestRepository,
+            KycSubscriptionRepository kycSubscriptionRepository,
             DocumentMapper documentMapper, MessageSource messageSource) {
         super(documentDao, documentRepository, documentMapper, messageSource);
         // TODO Auto-generated constructor stub
@@ -76,6 +84,11 @@ public class DocumentServiceImpl
         Document doc = documentRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new Exception("Document not found"));
 
+        if (doc.getExpectedInformation() == null || doc.getExpectedInformation().isEmpty()) {
+            extractExpectedInformation(doc);
+            doc = documentRepository.save(doc);
+        }
+
         DocumentDTO dto = documentMapper.toDocumentDTO(doc);
         setTargetLabel(dto);
         return dto;
@@ -89,6 +102,7 @@ public class DocumentServiceImpl
             throws Exception {
 
         Document entity = documentDao.documentDTOToEntity(document);
+        extractExpectedInformation(entity);
         entity = documentRepository.save(entity);
 
         DocumentDTO dto = documentMapper.toDocumentDTO(entity);
@@ -113,11 +127,11 @@ public class DocumentServiceImpl
      * @see bw.co.centralkyc.document.DocumentService#getAll()
      */
     @Override
-    protected Collection<DocumentDTO> handleGetAll()
+    protected Collection<DocumentListDTO> handleGetAll()
             throws Exception {
         Collection<Document> all = documentRepository.findAll();
-        return documentMapper.toDocumentDTOCollection(all).stream()
-                .peek(dto -> setTargetLabel(dto))
+        return documentMapper.toDocumentListDTOCollection(all).stream()
+                .map(this::setTargetLabel)
                 .toList();
     }
 
@@ -125,15 +139,15 @@ public class DocumentServiceImpl
      * @see bw.co.centralkyc.document.DocumentService#getAll(Integer, Integer)
      */
     @Override
-    protected Page<DocumentDTO> handleGetAll(Integer pageNumber, Integer pageSize)
+    protected Page<DocumentListDTO> handleGetAll(Integer pageNumber, Integer pageSize)
             throws Exception {
 
         PageRequest request = PageRequest.of(pageNumber, pageSize);
         Page<Document> page = documentRepository.findAll(request);
 
         return page.map(doc -> {
-            DocumentDTO dto = documentMapper.toDocumentDTO(doc);
-            setTargetLabel(dto);
+            DocumentListDTO dto = documentMapper.toDocumentListDTO(doc);
+             setTargetLabel(dto);
             return dto;
         });
     }
@@ -142,7 +156,7 @@ public class DocumentServiceImpl
      * @see bw.co.centralkyc.document.DocumentService#findByDocumentType(String)
      */
     @Override
-    protected Collection<DocumentDTO> handleFindByDocumentType(String documentTypeId)
+    protected Collection<DocumentListDTO> handleFindByDocumentType(String documentTypeId)
             throws Exception {
 
         Specification<Document> spec = (root, cq, cb) -> {
@@ -151,8 +165,8 @@ public class DocumentServiceImpl
 
         Collection<Document> docs = documentRepository.findAll(spec, Sort.by(Direction.ASC, "fileName"));
 
-        return documentMapper.toDocumentDTOCollection(docs).stream()
-                .peek(dto -> setTargetLabel(dto))
+        return documentMapper.toDocumentListDTOCollection(docs).stream()
+                .map(this::setTargetLabel)
                 .toList();
 
     }
@@ -175,7 +189,7 @@ public class DocumentServiceImpl
      *      String)
      */
     @Override
-    protected Collection<DocumentDTO> handleFindByTarget(TargetEntity target, String targetId)
+    protected Collection<DocumentListDTO> handleFindByTarget(TargetEntity target, String targetId)
             throws Exception {
         Specification<Document> spec = (root, cq, cb) -> {
             return cb.and(
@@ -185,8 +199,8 @@ public class DocumentServiceImpl
 
         Collection<Document> docs = documentRepository.findAll(spec, Sort.by(Direction.ASC, "fileName"));
 
-        return documentDao.toDocumentDTOCollection(docs).stream()
-                .peek(dto -> setTargetLabel(dto))
+        return documentMapper.toDocumentListDTOCollection(docs).stream()
+                .map(dto -> setTargetLabel(dto))
                 .toList();
 
     }
@@ -205,63 +219,89 @@ public class DocumentServiceImpl
                     .and((root, cq, cb) -> cb.equal(root.get("documentType").get("name"), criteria.getDocumentType()));
         }
 
-        if(StringUtils.isNotBlank(criteria.getFileName())) {
+        if (StringUtils.isNotBlank(criteria.getFileName())) {
             spec = spec.and((root, cq, cb) -> cb.like(root.get("fileName"), "%" + criteria.getFileName() + "%"));
         }
 
-        if(criteria.getTarget() != null) {
+        if (criteria.getTarget() != null) {
             spec = spec.and((root, cq, cb) -> cb.equal(root.get("target"), criteria.getTarget()));
-        }   
+        }
 
-        if(StringUtils.isNotBlank(criteria.getTargetId())) {
+        if (StringUtils.isNotBlank(criteria.getTargetId())) {
             spec = spec.and((root, cq, cb) -> cb.equal(root.get("targetId"), criteria.getTargetId()));
         }
 
-        if(criteria.getVerificationStatus() != null) {
-            spec = spec.and((root, cq, cb) -> cb.equal(root.get("verificationStatus"), criteria.getVerificationStatus()));
+        if (criteria.getVerificationStatus() != null) {
+            spec = spec
+                    .and((root, cq, cb) -> cb.equal(root.get("verificationStatus"), criteria.getVerificationStatus()));
         }
 
         return spec;
     }
 
-    private void setTargetLabel(DocumentDTO dto) {
-        if (dto.getTarget() != null && StringUtils.isNotBlank(dto.getTargetId())) {
-            
-            String label = null;
+    private String extractTargetLabel(TargetEntity target, String targetId) {
+        String label = null;
 
-            if(dto.getTarget() == TargetEntity.ORGANISATION) {
-                Organisation org = organisationRepository.findById(UUID.fromString(dto.getTargetId())).orElse(null);
-                if(org != null) {
+        if (target != null && StringUtils.isNotBlank(targetId)) {
+
+            if (target == TargetEntity.ORGANISATION) {
+                Organisation org = organisationRepository.findById(UUID.fromString(targetId)).orElse(null);
+                if (org != null) {
                     label = org.getCode() + ' ' + org.getName();
                 }
-            } else if(dto.getTarget() == TargetEntity.INDIVIDUAL) {
-                bw.co.centralkyc.individual.Individual ind = individualRepository.findById(UUID.fromString(dto.getTargetId())).orElse(null);
-                if(ind != null) {
+            } else if (target == TargetEntity.INDIVIDUAL) {
+                bw.co.centralkyc.individual.Individual ind = individualRepository
+                        .findById(UUID.fromString(targetId)).orElse(null);
+                if (ind != null) {
                     label = ind.getFirstName() + " " + ind.getSurname();
                 }
-            } else if(dto.getTarget() == TargetEntity.KYC_RECORD) {
-                bw.co.centralkyc.kyc.KycRecord record = kycRecordRepository.findById(UUID.fromString(dto.getTargetId())).orElse(null);
-                if(record != null) {
+            } else if (target == TargetEntity.KYC_RECORD) {
+                bw.co.centralkyc.kyc.KycRecord record = kycRecordRepository.findById(UUID.fromString(targetId))
+                        .orElse(null);
+                if (record != null) {
                     label = "KYC Record - " + record.getRef();
                 }
-            } else if(dto.getTarget() == TargetEntity.CLIENT_REQUEST) {
-                bw.co.centralkyc.organisation.client.ClientRequest request = clientRequestRepository.findById(UUID.fromString(dto.getTargetId())).orElse(null);
-                if(request != null) {
+            } else if (target == TargetEntity.CLIENT_REQUEST) {
+                bw.co.centralkyc.organisation.client.ClientRequest request = clientRequestRepository
+                        .findById(UUID.fromString(targetId)).orElse(null);
+                if (request != null) {
                     // label = "Client Request - " + request.get;
                 }
-            } else if(dto.getTarget() == TargetEntity.SUBSCRIPTION) {
-                bw.co.centralkyc.subscription.KycSubscription subscription = kycSubscriptionRepository.findById(UUID.fromString(dto.getTargetId())).orElse(null);
-                if(subscription != null) {
+            } else if (target == TargetEntity.SUBSCRIPTION) {
+                bw.co.centralkyc.subscription.KycSubscription subscription = kycSubscriptionRepository
+                        .findById(UUID.fromString(targetId)).orElse(null);
+                if (subscription != null) {
                     label = "KYC Subscription - " + subscription.getRef();
                 }
             }
+
+        }
+
+        return label;
+    }
+
+    private void setTargetLabel(DocumentDTO dto) {
+        if (dto.getTarget() != null && StringUtils.isNotBlank(dto.getTargetId())) {
+
+            String label = extractTargetLabel(dto.getTarget(), dto.getTargetId());
 
             dto.setTargetLabel(label);
         }
     }
 
+    private DocumentListDTO setTargetLabel(DocumentListDTO dto) {
+        if (dto.target() != null && StringUtils.isNotBlank(dto.targetId())) {
+
+            String label = extractTargetLabel(dto.target(), dto.targetId());
+
+            dto = new DocumentListDTO(dto.id(), dto.target(), dto.targetId(), label, dto.fileName(), dto.documentTypeId(),
+                    dto.documentType());
+        }
+        return dto;
+    }
+
     @Override
-    protected Collection<DocumentDTO> handleSearch(@Valid DocumentSearchCriteria criteria,
+    protected Collection<DocumentListDTO> handleSearch(@Valid DocumentSearchCriteria criteria,
             @Valid Set<PropertySearchOrder> orderings) throws Exception {
 
         Specification<Document> spec = buildSearchSpecification(criteria);
@@ -273,13 +313,13 @@ public class DocumentServiceImpl
 
         Collection<Document> docs = documentRepository.findAll(spec, sort);
 
-        return documentMapper.toDocumentDTOCollection(docs).stream()
-                .peek(dto -> setTargetLabel(dto))
+        return documentMapper.toDocumentListDTOCollection(docs).stream()
+                .map(dto -> setTargetLabel(dto))
                 .toList();
     }
 
     @Override
-    protected Page<DocumentDTO> handleSearch(SearchObject<DocumentSearchCriteria> criteria) throws Exception {
+    protected Page<DocumentListDTO> handleSearch(SearchObject<DocumentSearchCriteria> criteria) throws Exception {
 
         Specification<Document> spec = buildSearchSpecification(criteria.getCriteria());
         Sort sort = Sort.by(criteria.getSortings().stream()
@@ -292,8 +332,8 @@ public class DocumentServiceImpl
         Page<Document> page = documentRepository.findAll(spec, pageRequest);
 
         return page.map(doc -> {
-            DocumentDTO dto = documentMapper.toDocumentDTO(doc);
-            setTargetLabel(dto);
+            DocumentListDTO dto = documentMapper.toDocumentListDTO(doc);
+            dto = setTargetLabel(dto);
             return dto;
         });
     }
@@ -305,6 +345,7 @@ public class DocumentServiceImpl
                 .orElseThrow(() -> new Exception("Document not found"));
 
         doc.setFileContent(content);
+        extractExpectedInformation(doc);
         doc = documentRepository.save(doc);
         DocumentDTO dto = documentMapper.toDocumentDTO(doc);
         setTargetLabel(dto);
@@ -315,6 +356,206 @@ public class DocumentServiceImpl
     protected DocumentDTO handleAnalyseDocument(String id) throws Exception {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'handleAnalyseDocument'");
+    }
+
+    private void extractExpectedInformation(Document doc) {
+        // Placeholder for document analysis logic, e.g., using OCR or metadata
+        // extraction
+        // This method can be expanded to populate additional fields in the Document
+        // entity
+        UUID targetId = UUID.fromString(doc.getTargetId());
+
+        switch (doc.getTarget()) {
+            case INDIVIDUAL:
+
+                Individual individual = individualRepository.findById(targetId)
+                        .orElseThrow(() -> new DocumentServiceException("No individual found for document target"));
+
+                doc.setExpectedInformation(
+                        this.getIndividualExpectedInformation(individual, doc.getDocumentType(), null));
+
+                break;
+
+            case ORGANISATION:
+                Organisation org = organisationRepository.findById(targetId)
+                        .orElseThrow(() -> new DocumentServiceException("No organisation found for document target"));
+
+                doc.setExpectedInformation(this.getOrganisationExpectedInformation(org, doc.getDocumentType(), null));
+                break;
+            case KYC_RECORD:
+                KycRecord record = kycRecordRepository.findById(targetId)
+                        .orElseThrow(() -> new DocumentServiceException("No KYC record found for document target"));
+
+                doc.setExpectedInformation(extractKycRecordExpectedInformation(doc, record));
+
+                break;
+            case CLIENT_REQUEST:
+
+                break;
+            case SUBSCRIPTION:
+
+                break;
+            default:
+                break;
+        }
+    }
+
+    private Map<String, Object> extractKycRecordExpectedInformation(Document document, KycRecord record) {
+
+        Map<String, Object> extractedInfo = new HashMap<>();
+
+        if (record.getTarget() == TargetEntity.INDIVIDUAL) {
+
+            Individual individual = individualRepository.findById(UUID.fromString(record.getTargetId()))
+                    .orElseThrow(() -> new DocumentServiceException("No individual found for document target"));
+
+            extractedInfo = getIndividualExpectedInformation(individual, document.getDocumentType(), extractedInfo);
+
+        } else if (record.getTarget() == TargetEntity.ORGANISATION) {
+            extractedInfo = getOrganisationExpectedInformation(record.getTargetId(), document.getDocumentType(),
+                    extractedInfo);
+        }
+
+        return extractedInfo;
+    }
+
+    private Map<String, Object> getOrganisationExpectedInformation(Organisation organisation, DocumentType docType,
+            Map<String, Object> expectedInformation) {
+
+        if (expectedInformation == null) {
+            expectedInformation = new HashMap<>();
+        }
+
+        for (ExpectedField expectedField : docType.getExpectedFields()) {
+
+            switch (expectedField.getKeyField()) {
+                case ORGANISATION_NAME:
+                    expectedInformation.put(expectedField.getField(), organisation.getName());
+                    break;
+
+                case ORGANISATION_REGISTRATION_NO:
+                    expectedInformation.put(expectedField.getField(), organisation.getRegistrationNo());
+                    break;
+                case ORGANISATION_PHONE_NUMBER:
+                    expectedInformation.put(expectedField.getField(), organisation.getPhoneNumbers());
+                    break;
+                case ORGANISATION_PHYSICAL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), organisation.getPhysicalAddress());
+                    break;
+                case ORGANISATION_POSTAL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), organisation.getPostalAddress());
+                    break;
+
+                case ORGANISATION_EMAIL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), organisation.getContactEmailAddress());
+                    break;
+
+                default:
+                    break;
+            }
+
+        }
+
+        return expectedInformation;
+
+    }
+
+    private Map<String, Object> getIndividualExpectedInformation(Individual individual, DocumentType docType,
+            Map<String, Object> expectedInformation) {
+
+        if (expectedInformation == null) {
+            expectedInformation = new HashMap<>();
+        }
+
+        for (ExpectedField expectedField : docType.getExpectedFields()) {
+
+            switch (expectedField.getKeyField()) {
+                case INDIVIDUAL_FIRST_NAME:
+                    expectedInformation.put(expectedField.getField(), individual.getFirstName());
+                    break;
+
+                case INDIVIDUAL_MIDDLE_NAME:
+                    expectedInformation.put(expectedField.getField(), individual.getMiddleName());
+
+                    break;
+                case INDIVIDUAL_SURNAME:
+                    expectedInformation.put(expectedField.getField(), individual.getSurname());
+                    break;
+                case INDIVIDUAL_IDENTITY_NO:
+                    expectedInformation.put(expectedField.getField(), individual.getIdentityNo());
+                    break;
+                case INDIVIDUAL_IDENTITY_TYPE:
+                    expectedInformation.put(expectedField.getField(), individual.getIdentityType());
+                    break;
+                case INDIVIDUAL_POSTAL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), individual.getPostalAddress());
+                    break;
+                case INDIVIDUAL_PHYSICAL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), individual.getPhysicalAddress());
+                    break;
+
+                case INDIVIDUAL_EMAIL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), individual.getEmailAddress());
+                    break;
+
+                case INDIVIDUAL_SEX:
+                    expectedInformation.put(expectedField.getField(), individual.getSex());
+                    break;
+                case INDIVIDUAL_NATIONALITY:
+                    expectedInformation.put(expectedField.getField(), individual.getNationality());
+                    break;
+
+                default:
+                    break;
+            }
+
+        }
+
+        return expectedInformation;
+    }
+
+    private Map<String, Object> getOrganisationExpectedInformation(String individualId, DocumentType docType,
+            Map<String, Object> expectedInformation) {
+
+        if (expectedInformation == null) {
+            expectedInformation = new HashMap<>();
+        }
+
+        Organisation organisation = organisationRepository.findById(UUID.fromString(individualId))
+                .orElseThrow(() -> new DocumentServiceException("No organisation found for document target"));
+
+        for (ExpectedField expectedField : docType.getExpectedFields()) {
+
+            switch (expectedField.getKeyField()) {
+                case ORGANISATION_NAME:
+                    expectedInformation.put(expectedField.getField(), organisation.getName());
+                    break;
+
+                case ORGANISATION_REGISTRATION_NO:
+                    expectedInformation.put(expectedField.getField(), organisation.getRegistrationNo());
+                    break;
+                case ORGANISATION_PHONE_NUMBER:
+                    expectedInformation.put(expectedField.getField(), organisation.getPhoneNumbers());
+                    break;
+                case ORGANISATION_PHYSICAL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), organisation.getPhysicalAddress());
+                    break;
+                case ORGANISATION_POSTAL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), organisation.getPostalAddress());
+                    break;
+
+                case ORGANISATION_EMAIL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), organisation.getContactEmailAddress());
+                    break;
+
+                default:
+                    break;
+            }
+
+        }
+
+        return expectedInformation;
+
     }
 
 }

@@ -108,4 +108,10 @@ public class DocumentDaoImpl
                 .orElseThrow(() -> new EntityNotFoundException("Entity not found for id: " + source.getDocumentTypeId())));
         }
     }
+
+    @Override
+    public DocumentListDTO toDocumentListDTO(Document entity) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'toDocumentListDTO'");
+    }
 }
