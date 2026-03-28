@@ -20,6 +20,7 @@ export type AppEnvState = {
     email: string;
     username: string;
   } | null;
+  currency: string | null;
 };
 
 const initialState: AppEnvState = {
@@ -34,7 +35,8 @@ const initialState: AppEnvState = {
   isLoggedIn: false,
   accountUri: null,
   username: null,
-  profile: null
+  profile: null,
+  currency: null,
 };
 
 export const AppEnvStore = signalStore(
@@ -51,7 +53,7 @@ export const AppEnvStore = signalStore(
           return fetch('/env.json')
             .then((response) => response.json())
             .then((env) => {
-              patchState(store, { env, loading: false, error: false });
+              patchState(store, { env, loading: false, error: false, currency: env.currency || null });
             })
             .catch((error) => {
               patchState(store, { error, loading: false });

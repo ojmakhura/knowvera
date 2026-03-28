@@ -10,8 +10,10 @@ package bw.co.centralkyc.subscription;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -21,7 +23,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import bw.co.centralkyc.PropertySearchOrder;
+import bw.co.centralkyc.SearchObject;
+import bw.co.centralkyc.SortOrder;
+import bw.co.centralkyc.SortOrderFactory;
 import bw.co.centralkyc.TargetEntity;
+import bw.co.centralkyc.invoice.InvoiceSearchCriteria;
+import bw.co.centralkyc.invoice.KycInvoice;
 import bw.co.centralkyc.invoice.KycInvoiceDTO;
 import bw.co.centralkyc.invoice.KycInvoiceDao;
 import bw.co.centralkyc.invoice.KycInvoiceMapper;
@@ -140,25 +148,81 @@ public class KycSubscriptionServiceImpl
         return kycSubscriptionDao.toKycSubscriptionDTOCollection(subscriptions);
     }
 
-    private Specification<KycSubscription> createSearchSpecification(String criteria) {
-        return (root, query, builder) -> {
-            String likeCriteria = "%" + criteria.toLowerCase() + "%";
-            return builder.or(
-                    builder.like(builder.lower(root.get("ref")), likeCriteria),
-                    builder.like(builder.lower(root.get("organisation").get("name")), likeCriteria));
-        };
+    private Specification<KycSubscription> createSearchSpecification(SubscriptionSearchCriteria criteria) {
+        Specification<KycSubscription> specification = ((root, query, builder) -> builder.conjunction());
+
+        if (StringUtils.isNotBlank(criteria.getRef())) {
+
+            Specification<KycSubscription> refSpec = (root, query, cb) -> cb.like(cb.lower(root.get("ref")),
+                    "%" + criteria.getRef().toLowerCase() + "%");
+            specification = specification == null ? refSpec : specification.and(refSpec);
+        }
+
+        if (StringUtils.isNotBlank(criteria.getOrganisationName())) {
+
+            Specification<KycSubscription> orgNameSpec = (root, query, cb) -> cb.like(
+                    cb.lower(root.get("organisation").get("name")),
+                    "%" + criteria.getOrganisationName().toLowerCase() + "%");
+            specification = specification == null ? orgNameSpec : specification.and(orgNameSpec);
+        }
+
+        if (StringUtils.isNotBlank(criteria.getOrganisationRegistrationNo())) {
+
+            Specification<KycSubscription> orgRegNoSpec = (root, query, cb) -> cb.like(
+                    cb.lower(root.get("organisation").get("registrationNo")),
+                    "%" + criteria.getOrganisationRegistrationNo().toLowerCase() + "%");
+            specification = specification == null ? orgRegNoSpec : specification.and(orgRegNoSpec);
+        }
+
+        if (StringUtils.isNotBlank(criteria.getOrganisatonCode())) {
+
+            Specification<KycSubscription> orgCodeSpec = (root, query, cb) -> cb.like(
+                    cb.lower(root.get("organisation").get("code")),
+                    "%" + criteria.getOrganisatonCode().toLowerCase() + "%");
+            specification = specification == null ? orgCodeSpec : specification.and(orgCodeSpec);
+        }
+
+        if (StringUtils.isNotBlank(criteria.getOrganisatonId())) {
+
+            Specification<KycSubscription> orgIdSpec = (root, query, cb) -> cb.equal(root.get("organisationId"),
+                    UUID.fromString(criteria.getOrganisatonId()));
+            specification = specification == null ? orgIdSpec : specification.and(orgIdSpec);
+        }
+
+        if( criteria.getPeriod() != null) {
+
+            Specification<KycSubscription> periodSpec = (root, query, cb) -> cb.equal(root.get("period"),
+                    criteria.getPeriod());
+            specification = specification == null ? periodSpec : specification.and(periodSpec);
+        }
+
+        if( criteria.getStatus() != null) {
+
+            Specification<KycSubscription> statusSpec = (root, query, cb) -> cb.equal(root.get("status"),
+                    criteria.getStatus());
+            specification = specification == null ? statusSpec : specification.and(statusSpec);
+        }
+
+        return specification;
     }
 
     /**
      * @see bw.co.centralkyc.subscription.KycSubscriptionService#search(String)
      */
     @Override
-    protected Collection<KycSubscriptionDTO> handleSearch(String criteria)
+    protected Collection<KycSubscriptionDTO> handleSearch(SubscriptionSearchCriteria criteria,
+            Set<PropertySearchOrder> sortOrders)
             throws Exception {
 
         Specification<KycSubscription> specification = createSearchSpecification(criteria);
+        if (sortOrders == null || sortOrders.isEmpty()) {
+            PropertySearchOrder def = new PropertySearchOrder();
+            def.setOrder(SortOrder.ASC);
+            def.setPropertyName("createdAt");
+            sortOrders = Set.of(def);
+        }
 
-        Collection<KycSubscription> subscriptions = kycSubscriptionRepository.findAll(specification);
+        Collection<KycSubscription> subscriptions = kycSubscriptionRepository.findAll(specification, SortOrderFactory.createSortOrder(sortOrders));
         return kycSubscriptionDao.toKycSubscriptionDTOCollection(subscriptions);
     }
 
@@ -180,12 +244,25 @@ public class KycSubscriptionServiceImpl
      *      Integer, Integer)
      */
     @Override
-    protected Page<KycSubscriptionDTO> handleSearch(String criteria, Integer pageNumber, Integer pageSize)
+    protected Page<KycSubscriptionDTO> handleSearch(SearchObject<SubscriptionSearchCriteria> criteria)
             throws Exception {
-        Specification<KycSubscription> specification = createSearchSpecification(criteria);
+        Specification<KycSubscription> specification = createSearchSpecification(criteria.getCriteria());
+        Set<PropertySearchOrder> sortOrders = new HashSet<>();
 
-        Page<KycSubscription> subscriptions = kycSubscriptionRepository.findAll(specification,
-                PageRequest.of(pageNumber, pageSize));
+        if (CollectionUtils.isNotEmpty(criteria.getSortings())) {
+            sortOrders.addAll(criteria.getSortings());
+        } else {
+
+            PropertySearchOrder def = new PropertySearchOrder();
+            def.setOrder(SortOrder.ASC);
+            def.setPropertyName("createdAt");
+            sortOrders.add(def);
+        }
+
+        PageRequest page = PageRequest.of(criteria.getPageNumber(), criteria.getPageSize(),
+                SortOrderFactory.createSortOrder(sortOrders));
+
+        Page<KycSubscription> subscriptions = kycSubscriptionRepository.findAll(specification, page);
 
         return subscriptions.map(arg0 -> kycSubscriptionDao.toKycSubscriptionDTO(arg0));
     }

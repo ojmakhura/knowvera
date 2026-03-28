@@ -20,10 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import bw.co.centralkyc.AuditTracker;
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
-import bw.co.centralkyc.keycloak.KeycloakOrganisationService;
-import bw.co.centralkyc.organisation.OrganisationDTO;
-import bw.co.centralkyc.subscription.KycSubscriptionDTO;
-import bw.co.centralkyc.subscription.KycSubscriptionServiceException;
 
 @RestController
 public class KycInvoiceApiImpl implements KycInvoiceApi {

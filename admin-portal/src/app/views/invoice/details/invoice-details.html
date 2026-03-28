@@ -27,55 +27,57 @@
 
 	<section class="details-grid">
 		<div class="main-column">
-			<mat-card class="panel summary-panel">
-				<div>
-					<span class="section-label">Total Amount Due</span>
-					<h2>{{ amountLabel() }}</h2>
-					<p>{{ subscriptionPeriodLabel() }}</p>
-				</div>
+			<section class="top-panels-grid">
+				<mat-card class="panel summary-panel">
+					<div>
+						<span class="section-label">Total Amount Due</span>
+						<h2>{{ invoice()?.amount | currency: appEnvState.currency() || 'BWP' }}</h2>
+						<p>{{ subscriptionPeriodLabel() }}</p>
+					</div>
 
-				<div class="summary-side">
-					<span class="status-pill" [class.paid]="invoice()?.paid" [class.pending]="!invoice()?.paid">
-						<span class="status-dot"></span>
-						{{ paymentStatusLabel() }}
-					</span>
-					<span class="meta-note">Ref: {{ paymentReference() }}</span>
-				</div>
-			</mat-card>
+					<div class="summary-side">
+						<span class="status-pill" [class.paid]="invoice()?.paid" [class.pending]="!invoice()?.paid">
+							<span class="status-dot"></span>
+							{{ paymentStatusLabel() }}
+						</span>
+						<span class="meta-note">Ref: {{ paymentReference() }}</span>
+					</div>
+				</mat-card>
 
-			<mat-card class="panel context-panel">
-				<div class="panel-head">
-					<div class="section-head">
-						<div class="org-avatar">{{ organisationInitial() }}</div>
-						<div>
-							<h2>Organisation Context</h2>
-							<p>{{ serviceTier() }}</p>
+				<mat-card class="panel context-panel">
+					<div class="panel-head">
+						<div class="section-head">
+							<div class="org-avatar">{{ organisationInitial() }}</div>
+							<div>
+								<h2>Organisation Context</h2>
+								<p>{{ serviceTier() }}</p>
+							</div>
 						</div>
 					</div>
-				</div>
 
-				<div class="context-grid">
-					<div class="kv">
-						<span class="section-label">Legal Entity Name</span>
-						<p>{{ invoice()?.organisationName || 'Not available' }}</p>
-					</div>
+					<div class="context-grid">
+						<div class="kv">
+							<span class="section-label">Legal Entity Name</span>
+							<p>{{ invoice()?.organisationName || 'Not available' }}</p>
+						</div>
 
-					<div class="kv">
-						<span class="section-label">Organisation Code</span>
-						<p>{{ invoice()?.organisationCode || 'Not available' }}</p>
-					</div>
+						<div class="kv">
+							<span class="section-label">Organisation Code</span>
+							<p>{{ invoice()?.organisationCode || 'Not available' }}</p>
+						</div>
 
-					<div class="kv">
-						<span class="section-label">Registration No.</span>
-						<p>{{ invoice()?.organisationRegistrationNo || 'Not available' }}</p>
-					</div>
+						<div class="kv">
+							<span class="section-label">Registration No.</span>
+							<p>{{ invoice()?.organisationRegistrationNo || 'Not available' }}</p>
+						</div>
 
-					<div class="kv">
-						<span class="section-label">Subscription Ref</span>
-						<p>{{ invoice()?.subscriptionRef || 'Not available' }}</p>
+						<div class="kv">
+							<span class="section-label">Subscription Ref</span>
+							<p>{{ invoice()?.subscriptionRef || 'Not available' }}</p>
+						</div>
 					</div>
-				</div>
-			</mat-card>
+				</mat-card>
+			</section>
 
 			<section class="meta-grid">
 				<mat-card class="panel meta-panel">
@@ -128,35 +130,6 @@
 					</button>
 				</div>
 			</mat-card>
-
-			<mat-card class="panel repository-panel">
-				<div class="repository-head">
-					<h2>Repository</h2>
-					<span>{{ repositoryFiles().length }} Files</span>
-				</div>
-
-				<div class="repo-list">
-					<button
-						type="button"
-						class="repo-item"
-						*ngFor="let file of repositoryFiles(); trackBy: trackFile"
-						[disabled]="!canDownload(file)"
-						(click)="downloadAttachment(file)"
-					>
-						<div class="repo-icon">
-							<mat-icon>{{ file.icon }}</mat-icon>
-						</div>
-
-						<div class="repo-copy">
-							<strong>{{ file.name }}</strong>
-							<span>{{ file.type }}</span>
-						</div>
-
-						<mat-icon>download</mat-icon>
-					</button>
-				</div>
-			</mat-card>
-
 			<mat-card class="panel support-panel">
 				<div class="support-icon">
 					<mat-icon>help_outline</mat-icon>

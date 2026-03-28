@@ -1,0 +1,331 @@
+<section class="records-vault">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Compliance Registry</p>
+      <h1>KYC Records Search</h1>
+      <p class="page-copy">
+        Access and verify individual compliance profiles across the global Veritas Protocol network.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button mat-stroked-button type="button" class="secondary-action" (click)="exportCsv()">
+        <mat-icon>download</mat-icon>
+        <span>Export CSV</span>
+      </button>
+
+      <button mat-flat-button type="button" class="primary-action" (click)="openCreate()">
+        <mat-icon>add_moderator</mat-icon>
+        <span>New Record</span>
+      </button>
+    </div>
+  </header>
+
+  <mat-card class="filter-card">
+    <mat-card-content>
+      <form class="filter-grid" (submit)="$event.preventDefault(); doSearch()">
+        <div class="section-heading">
+          <mat-icon>person_search</mat-icon>
+          <h2>Individual Search Criteria</h2>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="first-name">First Name</label>
+          <mat-form-field appearance="outline" class="vault-field">
+            <input
+              id="first-name"
+              matInput
+              [ngModel]="searchRecordsSignal().firstName"
+              (ngModelChange)="updateField('firstName', $event)"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="e.g. Alexander"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="middle-name">Middle Name</label>
+          <mat-form-field appearance="outline" class="vault-field">
+            <input
+              id="middle-name"
+              matInput
+              [ngModel]="searchRecordsSignal().middleName"
+              (ngModelChange)="updateField('middleName', $event)"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="Optional"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="surname">Surname</label>
+          <mat-form-field appearance="outline" class="vault-field">
+            <input
+              id="surname"
+              matInput
+              [ngModel]="searchRecordsSignal().surname"
+              (ngModelChange)="updateField('surname', $event)"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="e.g. Hamilton"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="email-address">Email Address</label>
+          <mat-form-field appearance="outline" class="vault-field">
+            <input
+              id="email-address"
+              matInput
+              [ngModel]="searchRecordsSignal().emailAddress"
+              (ngModelChange)="updateField('emailAddress', $event)"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="name@domain.com"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="identity-type">Identity Type</label>
+          <mat-form-field appearance="outline" class="vault-field">
+            <mat-select
+              id="identity-type"
+              [ngModel]="searchRecordsSignal().identityType"
+              (ngModelChange)="updateField('identityType', $event)"
+              [ngModelOptions]="{ standalone: true }"
+            >
+              @for (option of identityTypeOptions; track option.label) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="identity-number">Identity Number</label>
+          <mat-form-field appearance="outline" class="vault-field">
+            <input
+              id="identity-number"
+              matInput
+              [ngModel]="searchRecordsSignal().identityNo"
+              (ngModelChange)="updateField('identityNo', $event)"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="ID No."
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="field-group status-group">
+          <label class="field-label">Compliance Status</label>
+          <div class="status-options">
+            @for (option of statusOptions; track option.value) {
+              <button
+                type="button"
+                class="status-filter"
+                [class.is-active]="hasStatus(option.value)"
+                (click)="toggleStatus(option.value)"
+              >
+                {{ option.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="date-range">
+          <label class="field-label with-icon">
+            <mat-icon>calendar_today</mat-icon>
+            <span>Expiry Date Range</span>
+          </label>
+
+          <div class="date-inputs">
+            <mat-form-field appearance="outline" class="vault-field compact">
+              <input
+                matInput
+                type="date"
+                [ngModel]="searchRecordsSignal().expiryFrom"
+                (ngModelChange)="updateField('expiryFrom', $event)"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </mat-form-field>
+
+            <span class="date-separator">To</span>
+
+            <mat-form-field appearance="outline" class="vault-field compact">
+              <input
+                matInput
+                type="date"
+                [ngModel]="searchRecordsSignal().expiryTo"
+                (ngModelChange)="updateField('expiryTo', $event)"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="date-range">
+          <label class="field-label with-icon">
+            <mat-icon>history</mat-icon>
+            <span>Upload Date Range</span>
+          </label>
+
+          <div class="date-inputs">
+            <mat-form-field appearance="outline" class="vault-field compact">
+              <input
+                matInput
+                type="date"
+                [ngModel]="searchRecordsSignal().uploadedFrom"
+                (ngModelChange)="updateField('uploadedFrom', $event)"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </mat-form-field>
+
+            <span class="date-separator">To</span>
+
+            <mat-form-field appearance="outline" class="vault-field compact">
+              <input
+                matInput
+                type="date"
+                [ngModel]="searchRecordsSignal().uploadedTo"
+                (ngModelChange)="updateField('uploadedTo', $event)"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <button mat-stroked-button type="button" class="secondary-action" (click)="resetSearch()">
+            Reset
+          </button>
+
+          <button mat-flat-button type="submit" class="primary-action" [disabled]="loading()">
+            <mat-icon>search</mat-icon>
+            <span>{{ loading() ? 'Searching...' : 'Apply Filters' }}</span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="results-card search-results-card">
+    <div class="results-header">
+      <div>
+        <h2>Matching Records</h2>
+        <p class="results-copy">{{ loaderMessage() || showingSummary() }}</p>
+      </div>
+
+      <span class="results-count">{{ totalElements() }} Found</span>
+    </div>
+
+    <div class="table-shell search-results-table-wrap">
+      <table mat-table [dataSource]="dataSource" class="records-table search-results-table">
+        <ng-container matColumnDef="ref">
+          <th mat-header-cell *matHeaderCellDef>Reference</th>
+          <td mat-cell *matCellDef="let row">{{ row.ref || 'N/A' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Target Name</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="name-cell">
+              <p class="primary-text">{{ row.name || 'Unknown target' }}</p>
+              <p class="secondary-text">{{ row.emailAddress || 'No email available' }}</p>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="identityNo">
+          <th mat-header-cell *matHeaderCellDef>Identity No</th>
+          <td mat-cell *matCellDef="let row" class="mono-cell">{{ row.identityNo || 'N/A' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="identityType">
+          <th mat-header-cell *matHeaderCellDef>Identity Type</th>
+          <td mat-cell *matCellDef="let row">{{ identityTypeLabel(row.identityType) }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="kycStatus">
+          <th mat-header-cell *matHeaderCellDef>KYC Status</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="status-badge" [class]="statusClass(row.kycStatus)">
+              {{ statusLabel(row.kycStatus) }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="expiryDate">
+          <th mat-header-cell *matHeaderCellDef>Expiry Date</th>
+          <td mat-cell *matCellDef="let row">{{ formatDate(row.expiryDate) }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
+          <td mat-cell *matCellDef="let row" class="actions-cell">
+            <button mat-button type="button" (click)="openDetails(row)">
+              View Detail
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns; trackBy: trackByRecord"></tr>
+
+        <tr class="mat-row empty-row" *matNoDataRow>
+          <td class="mat-cell" colspan="7">
+            <div class="empty-state">
+              <mat-icon>person_search</mat-icon>
+              <h3>No records found</h3>
+              <p>Adjust the search parameters and apply filters again.</p>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="results-footer search-results-footer">
+      <p class="search-results-summary">{{ showingSummary() }}</p>
+
+      <mat-paginator
+        [length]="totalElements()"
+        [pageIndex]="currentPage()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[10, 25, 50]"
+        showFirstLastButtons
+        (page)="handlePageEvent($event)"
+      />
+    </div>
+  </mat-card>
+
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <div class="stat-icon verified">
+        <mat-icon>verified_user</mat-icon>
+      </div>
+      <div>
+        <h3>98.4%</h3>
+        <p>Network Verification Rate</p>
+      </div>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <div class="stat-icon secure">
+        <mat-icon>security</mat-icon>
+      </div>
+      <div>
+        <h3>256-Bit</h3>
+        <p>AES Active Encryption</p>
+      </div>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <div class="stat-icon risk">
+        <mat-icon>report_gmailerrorred</mat-icon>
+      </div>
+      <div>
+        <h3>12</h3>
+        <p>Pending Risk Flags</p>
+      </div>
+    </mat-card>
+  </div>
+</section>

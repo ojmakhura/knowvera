@@ -11,6 +11,7 @@ import { KycInvoiceDTO } from '@app/models/bw/co/centralkyc/invoice/kyc-invoice-
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
 import { ToastrService } from 'ngx-toastr';
+import { AppEnvStore } from '@app/store/app-env.state';
 
 type RepositoryFile = {
   key: 'invoice' | 'payment';
@@ -40,6 +41,7 @@ export class InvoiceDetails implements OnInit {
   readonly toaster = inject(ToastrService);
   readonly documentApi = inject(DocumentApi);
   readonly kycInvoiceApiStore = inject(KycInvoiceApiStore);
+  protected appEnvState = inject(AppEnvStore);
 
   readonly loading = linkedSignal(() => this.kycInvoiceApiStore.loading());
   readonly loaderMessage = linkedSignal(() => this.kycInvoiceApiStore.loaderMessage());
@@ -100,40 +102,40 @@ export class InvoiceDetails implements OnInit {
   }
 
   downloadPrimaryDocument(): void {
-    const primaryDocument = this.repositoryFiles()[0]?.document;
+    // const primary = this.repositoryFiles().find((file) => file.key === 'invoice');
 
-    if (!primaryDocument) {
-      this.toaster.error('No invoice file is available for download.');
-      return;
-    }
+    // if (!primary) {
+    //   this.toaster.error('No invoice document is available.');
+    //   return;
+    // }
 
-    this.downloadDocument(primaryDocument, this.repositoryFiles()[0].name);
+    // this.downloadAttachment(primary);
   }
 
-  repositoryFiles(): RepositoryFile[] {
-    const invoice = this.invoice();
+  // repositoryFiles(): RepositoryFile[] {
+  //   const invoice = this.invoice();
 
-    if (!invoice) {
-      return [];
-    }
+  //   if (!invoice) {
+  //     return [];
+  //   }
 
-    return [
-      {
-        key: 'invoice',
-        name: invoice.invoiceDocument?.fileName || `${invoice.ref || 'invoice'}.pdf`,
-        type: 'Invoice Document',
-        icon: 'description',
-        document: invoice.invoiceDocument || null,
-      },
-      {
-        key: 'payment',
-        name: invoice.proofOfPayment?.fileName || (invoice.paid ? 'Payment proof pending filename' : 'Awaiting payment proof'),
-        type: 'Proof Of Payment',
-        icon: 'verified_user',
-        document: invoice.proofOfPayment || null,
-      },
-    ];
-  }
+  //   return [
+  //     {
+  //       key: 'invoice',
+  //       name: invoice.invoiceDocument?.fileName || `${invoice.ref || 'invoice'}.pdf`,
+  //       type: 'Invoice Document',
+  //       icon: 'description',
+  //       document: invoice.invoiceDocument || null,
+  //     },
+  //     {
+  //       key: 'payment',
+  //       name: invoice.proofOfPayment?.fileName || (invoice.paid ? 'Payment proof pending filename' : 'Awaiting payment proof'),
+  //       type: 'Proof Of Payment',
+  //       icon: 'verified_user',
+  //       document: invoice.proofOfPayment || null,
+  //     },
+  //   ];
+  // }
 
   downloadAttachment(file: RepositoryFile): void {
     if (!file.document) {

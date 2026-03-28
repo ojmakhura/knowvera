@@ -242,7 +242,7 @@ public class DocumentServiceImpl
             } else if(dto.getTarget() == TargetEntity.KYC_RECORD) {
                 bw.co.centralkyc.kyc.KycRecord record = kycRecordRepository.findById(UUID.fromString(dto.getTargetId())).orElse(null);
                 if(record != null) {
-                    // label = "KYC Record - " + record.getId().toString();
+                    label = "KYC Record - " + record.getRef();
                 }
             } else if(dto.getTarget() == TargetEntity.CLIENT_REQUEST) {
                 bw.co.centralkyc.organisation.client.ClientRequest request = clientRequestRepository.findById(UUID.fromString(dto.getTargetId())).orElse(null);
@@ -252,7 +252,7 @@ public class DocumentServiceImpl
             } else if(dto.getTarget() == TargetEntity.SUBSCRIPTION) {
                 bw.co.centralkyc.subscription.KycSubscription subscription = kycSubscriptionRepository.findById(UUID.fromString(dto.getTargetId())).orElse(null);
                 if(subscription != null) {
-                    // label = "KYC Subscription - " + subscription.getId().toString();
+                    label = "KYC Subscription - " + subscription.getRef();
                 }
             }
 
@@ -296,6 +296,25 @@ public class DocumentServiceImpl
             setTargetLabel(dto);
             return dto;
         });
+    }
+
+    @Override
+    protected DocumentDTO handleUpdateFileContent(String id, String content) throws Exception {
+
+        Document doc = documentRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new Exception("Document not found"));
+
+        doc.setFileContent(content);
+        doc = documentRepository.save(doc);
+        DocumentDTO dto = documentMapper.toDocumentDTO(doc);
+        setTargetLabel(dto);
+        return dto;
+    }
+
+    @Override
+    protected DocumentDTO handleAnalyseDocument(String id) throws Exception {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'handleAnalyseDocument'");
     }
 
 }

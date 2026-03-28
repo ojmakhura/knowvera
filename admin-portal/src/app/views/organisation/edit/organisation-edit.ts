@@ -86,7 +86,6 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
 
   editOrganisationFormSignal = signal(new EditOrganisationVarsForm());
   editOrganisationFormSignalForm = form(this.editOrganisationFormSignal, (path) => {
-    required(path.isClient, { message: 'is.client.required' });
     required(path.status, { message: 'status.required' });
     required(path.kycStatus, { message: 'kyc.status.required' });
     required(path.registrationNo, { message: 'registration.no.required' });

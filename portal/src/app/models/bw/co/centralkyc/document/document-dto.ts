@@ -36,6 +36,8 @@ export class DocumentDTO extends AuditableDTO {
 
     targetLabel: string | any;
 
+    expectedInformation: any | any;
+
     constructor() {
         super();
         this.target = null;
@@ -53,5 +55,6 @@ export class DocumentDTO extends AuditableDTO {
         this.validationPrompts = [];
         this.textExtractionPrompts = [];
         this.targetLabel = null;
+        this.expectedInformation = null;
     }
 }

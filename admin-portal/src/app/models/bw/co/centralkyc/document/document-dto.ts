@@ -8,35 +8,37 @@ import {DocumentValidationResults} from '@models/bw/co/centralkyc/document/docum
 
 export class DocumentDTO extends AuditableDTO {
     target: TargetEntity | any;
-    
+
     documentTypeId: string | any;
-    
+
     documentType: string | any;
-    
+
     url: string | any;
-    
+
     targetId: string | any;
-    
+
     metadata: any | any;
-    
+
     fileName: string | any;
-    
+
     fileContent: string | any;
-    
+
     extractedInformation: any | any;
-    
+
     expectedFields: any | any;
-    
+
 
     validationResults: DocumentValidationResults | any;
     verificationStatus: DocumentVerificationStatus | any = DocumentVerificationStatus.UNVERIFIED;
-    
+
     validationPrompts: Array<CompletionRequestMessage> | any;
-    
+
     textExtractionPrompts: Array<CompletionRequestMessage> | any;
-    
+
     targetLabel: string | any;
-    
+
+    expectedInformation: any | any;
+
     constructor() {
         super();
         this.target = null;
@@ -54,5 +56,6 @@ export class DocumentDTO extends AuditableDTO {
         this.validationPrompts = [];
         this.textExtractionPrompts = [];
         this.targetLabel = null;
+        this.expectedInformation = null;
     }
 }

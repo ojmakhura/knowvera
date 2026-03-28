@@ -24,5 +24,7 @@ export enum TargetEntity {
     /** TODO: Model Documentation for Enumeration Literal KYC_RECORD value "KYC_RECORD": $literal.enumerationLiteralDisplay */
     KYC_RECORD = "KYC_RECORD",
     /** TODO: Model Documentation for Enumeration Literal CONTACT value "CONTACT": $literal.enumerationLiteralDisplay */
-    CONTACT = "CONTACT"
+    CONTACT = "CONTACT",
+    /** TODO: Model Documentation for Enumeration Literal SETTINGS value "SETTINGS": $literal.enumerationLiteralDisplay */
+    SETTINGS = "SETTINGS"
 }

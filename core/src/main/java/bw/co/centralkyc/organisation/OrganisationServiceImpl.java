@@ -158,6 +158,13 @@ public class OrganisationServiceImpl
             spec = spec == null ? tmp : spec.and(tmp);
         }
 
+        if(criteria.getIsClient() != null) {
+
+            spec = spec.and(
+                    (root, query, builder) -> builder.equal(root.get("isClient"), criteria.getIsClient())
+            );
+        }
+
         return spec;
     }
 

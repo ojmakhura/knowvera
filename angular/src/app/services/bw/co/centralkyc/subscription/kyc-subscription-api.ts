@@ -10,48 +10,49 @@ import { SearchObject } from '@models/search-object';
   providedIn: 'root'
 })
 export class KycSubscriptionApi {
+    
+    protected path = '/subscription';
 
-  protected path = '/subscription';
+    private http = inject(HttpClient);
 
-  private http = inject(HttpClient);
+    public findById(id: string): Observable<KycSubscriptionDTO> {
 
-  public findById(id: string | any): Observable<KycSubscriptionDTO | any> {
+        return this.http.get<KycSubscriptionDTO>(`${this.path}/${id}`);
+    }
 
-    return this.http.get<KycSubscriptionDTO | any>(`${this.path}/${id}`);
-  }
+    public findByOrganisation(organisationId: string): Observable<KycSubscriptionDTO[]> {
 
-  public getAll(): Observable<KycSubscriptionDTO[] | any[]> {
+        return this.http.get<KycSubscriptionDTO[]>(`${this.path}/by-organisation/${organisationId}`);
+    }
 
-    return this.http.get<KycSubscriptionDTO[] | any[]>(`${this.path}`);
-  }
+    public getAll(): Observable<KycSubscriptionDTO[]> {
 
-  public getAllPaged(pageNumber: number | any, pageSize: number | any): Observable<Page<KycSubscriptionDTO> | any> {
+        return this.http.get<KycSubscriptionDTO[]>(`${this.path}`);
+    }
 
-    return this.http.get<Page<KycSubscriptionDTO> | any>(`${this.path}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
-  }
+    public getAllPaged(pageNumber: number, pageSize: number): Observable<Page<KycSubscriptionDTO>> {
 
-  public pagedSearch(criteria: string | any, pageNumber: number | any, pageSize: number | any): Observable<Page<KycSubscriptionDTO> | any> {
+        return this.http.get<Page<KycSubscriptionDTO>>(`${this.path}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    }
 
-    return this.http.get<Page<KycSubscriptionDTO> | any>(`${this.path}/search/paged?criteria=${criteria}&pageNumber=${pageNumber}&pageSize=${pageSize}`);
-  }
+    public pagedSearch(criteria: SearchObject<SubscriptionSearchCriteria>): Observable<Page<KycSubscriptionDTO>> {
 
-  public remove(id: string | any): Observable<boolean | any> {
+        return this.http.post<Page<KycSubscriptionDTO>>(`${this.path}/search/paged`, criteria);
+    }
 
-    return this.http.delete<boolean | any>(`${this.path}/${id}`);
-  }
+    public remove(id: string): Observable<boolean> {
 
-  public save(subscription: KycSubscriptionDTO | any): Observable<KycSubscriptionDTO | any> {
+        return this.http.delete<boolean>(`${this.path}/${id}`);
+    }
 
-    return this.http.post<KycSubscriptionDTO | any>(`${this.path}`, subscription);
-  }
+    public save(subscription: KycSubscriptionDTO): Observable<KycSubscriptionDTO> {
 
-  public search(criteria: string | any): Observable<KycSubscriptionDTO[] | any[]> {
+        return this.http.post<KycSubscriptionDTO>(`${this.path}`, subscription);
+    }
 
-    return this.http.get<KycSubscriptionDTO[] | any[]>(`${this.path}/search?criteria=${criteria}`);
-  }
+    public search(criteria: SearchObject<SubscriptionSearchCriteria>): Observable<KycSubscriptionDTO[]> {
 
-  public findByOrganisation(organisationId: string | any): Observable<KycSubscriptionDTO[] | any[]> {
+        return this.http.post<KycSubscriptionDTO[]>(`${this.path}/search`, criteria);
+    }
 
-    return this.http.get<KycSubscriptionDTO[] | any[]>(`${this.path}/by-organisation/${organisationId}`);
-  }
 }

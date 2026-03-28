@@ -14,11 +14,25 @@ import { Router } from '@angular/router';
 import { KycSubsciptionStatus } from '@app/models/bw/co/centralkyc/subscription/kyc-subsciption-status';
 import { KycSubscriptionDTO } from '@app/models/bw/co/centralkyc/subscription/kyc-subscription-dto';
 import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscription/kyc-subscription-api.store';
+import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
+import { TimePeriod } from '@app/models/bw/co/centralkyc/time-period';
+import { form, FormField } from '@angular/forms/signals';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
+import { SearchObject } from '@app/models/search-object';
+import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
+import { SubscriptionSearchCriteria } from '@app/models/bw/co/centralkyc/subscription/subscription-search-criteria';
+import { TranslateModule } from '@ngx-translate/core';
+import { AppEnvStore } from '@app/store/app-env.state';
 
 export class SearchSubscriptionsVarsForm {
-  criteria: string = '';
-  status: string = '';
-  subscriptions: Array<KycSubscriptionDTO> = [];
+  ref: string | any = null;
+  organisation: OrganisationListDTO | any = null;
+  organisationFilter: OrganisationListDTO | any = null;
+  period: TimePeriod | any = null;
+  status: KycSubsciptionStatus | any = null;
+  startDate: Date | any = null;
+  endDate: Date | any = null
 }
 
 @Component({
@@ -29,7 +43,7 @@ export class SearchSubscriptionsVarsForm {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {},
   imports: [
-    CommonModule, 
+    CommonModule,
     MatIconModule,
     MatButtonModule,
     MatCardModule,
@@ -40,13 +54,20 @@ export class SearchSubscriptionsVarsForm {
     MatPaginatorModule,
     MatChipsModule,
     MatTooltipModule,
+    FormField,
+    NgxMatSelectSearchModule,
+    TranslateModule
   ],
 })
 export class Subscriptions implements OnInit {
   searchSubscriptionsVarsForm = new SearchSubscriptionsVarsForm();
   searchSubscriptionsSignal = signal(this.searchSubscriptionsVarsForm);
+  searchSubscriptionForm = form(this.searchSubscriptionsSignal);
 
   readonly kycSubscriptionApiStore = inject(KycSubscriptionApiStore);
+  readonly organisationApiStore = inject(OrganisationApiStore);
+  protected appEnvState = inject(AppEnvStore);
+
   protected readonly rows = signal<KycSubscriptionDTO[]>([]);
   protected readonly dataSource = new MatTableDataSource<KycSubscriptionDTO>([]);
   protected readonly currentPage = signal(0);
@@ -56,14 +77,17 @@ export class Subscriptions implements OnInit {
   protected readonly router = inject(Router);
   protected readonly subscriptionStatus = KycSubsciptionStatus;
   protected readonly statusOptions = Object.values(KycSubsciptionStatus);
-  protected readonly quickFilters = [
-    { label: 'All Subscriptions', value: '' },
-    { label: 'Active', value: KycSubsciptionStatus.ACTIVE },
-    { label: 'Inactive', value: KycSubsciptionStatus.INACTIVE },
-    { label: 'Cancelled', value: KycSubsciptionStatus.CANCELLED },
-  ];
+  protected readonly periodOptions = Object.values(TimePeriod);
+  // protected readonly quickFilters = [
+  //   { label: 'All Subscriptions', value: '' },
+  //   { label: 'Active', value: KycSubsciptionStatus.ACTIVE },
+  //   { label: 'Inactive', value: KycSubsciptionStatus.INACTIVE },
+  //   { label: 'Cancelled', value: KycSubsciptionStatus.CANCELLED },
+  // ];
 
   displayedColumns: string[] = ['ref', 'organisation', 'owner', 'period', 'amount', 'status', 'actions'];
+
+  statuses = Object.values(KycSubsciptionStatus);
 
   constructor() {
     effect(() => {
@@ -98,9 +122,9 @@ export class Subscriptions implements OnInit {
     }));
   }
 
-  updateCriteria(value: string): void {
-    this.updateField('criteria', value);
-  }
+  // updateCriteria(value: string): void {
+  //   this.updateField('criteria', value);
+  // }
 
   onSearchSubmit(): void {
     this.doSearch(0, this.pageSize());
@@ -121,32 +145,28 @@ export class Subscriptions implements OnInit {
   }
 
   doSearch(pageNumber: number = 0, pageSize: number = 10): void {
-    const criteria = this.searchText();
+    const value = this.searchSubscriptionsSignal();
 
-    if (!criteria) {
-      this.kycSubscriptionApiStore.getAllPaged({ pageNumber, pageSize });
-      return;
-    }
+    const criteria = new SearchObject<SubscriptionSearchCriteria>();
+    criteria.pageNumber = pageNumber;
+    criteria.pageSize = pageSize;
+    criteria.criteria = {
+      ref: value.ref || null,
+      organisationId: value.organisation?.id || null,
+      period: value.period || null,
+      status: value.status || null,
+      startDate: value.startDate || null,
+      endDate: value.endDate || null
+    };
 
     this.kycSubscriptionApiStore.pagedSearch({
       criteria,
-      pageNumber,
-      pageSize,
-    });
+    } as any);
   }
 
   onPageChange(event: PageEvent): void {
     this.pageSize.set(event.pageSize);
     this.doSearch(event.pageIndex, event.pageSize);
-  }
-
-  searchText(): string {
-    const value = this.searchSubscriptionsSignal();
-
-    return [value.criteria, value.status]
-      .map((item) => item.trim())
-      .filter((item) => !!item)
-      .join(' ');
   }
 
   openCreate(): void {
@@ -231,5 +251,22 @@ export class Subscriptions implements OnInit {
 
   statusLabel(status: string | null | undefined): string {
     return status ? `${status.charAt(0)}${status.slice(1).toLowerCase()}` : 'Unknown';
+  }
+
+  organisationCompare(o1: OrganisationListDTO | any, o2: OrganisationListDTO | any) {
+    return o1 && o2 ? o1.id === o2.id : o1 === o2;
+  }
+
+  filterOrganisation() {
+    const filterValue = this.searchSubscriptionsSignal().organisationFilter || '';
+    let search = new SearchObject<OrganisationSearchCriteria>();
+    search.criteria = {
+      name: filterValue,
+      isClient: true
+    };
+
+    this.organisationApiStore.search({
+      criteria: search,
+    });
   }
 }

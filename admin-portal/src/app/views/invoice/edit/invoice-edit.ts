@@ -21,12 +21,17 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Loader } from '@app/@shared/loader/loader';
 import { TimePeriod } from '@app/models/bw/co/centralkyc/time-period';
 import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
-import { form, required } from '@angular/forms/signals';
+import { disabled, form, FormField, required } from '@angular/forms/signals';
 import { KycInvoiceDTO } from '@app/models/bw/co/centralkyc/invoice/kyc-invoice-dto';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { KycInvoiceApiStore } from '@app/store/bw/co/centralkyc/invoice/kyc-invoice-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { SearchObject } from '@app/models/search-object';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
+import { AppEnvStore } from '@app/store/app-env.state';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 export class EditInvoiceVarsForm {
   id: string | any = null;
@@ -44,6 +49,9 @@ export class EditInvoiceVarsForm {
   paid: boolean | any = null;
   paymentDate: Date | any = null;
   paymentReference: string | any = null;
+  vat: number | any = null;
+  totalAmount: number | any = null;
+  issueDate: Date | any = null;
 }
 
 @Component({
@@ -63,22 +71,28 @@ export class EditInvoiceVarsForm {
     MatButtonToggleModule,
     TranslateModule,
     Loader,
+    FormField,
+    NgxMatSelectSearchModule,
+    MatDatepickerModule
   ],
 })
 export class InvoiceEdit implements OnInit {
   editInvoiceVarsForm: EditInvoiceVarsForm = new EditInvoiceVarsForm();
   editInvoiceSignal = signal(this.editInvoiceVarsForm);
   editInvoiceSignalForm = form(this.editInvoiceSignal, (path) => {
-    required(path.ref, { message: 'ref.required' });
+    disabled(path.ref);
     required(path.organisation, { message: 'organisation.required' });
     required(path.subscriptionPeriod, { message: 'subscription.period.required' });
     required(path.amount, { message: 'amount.required' });
+    disabled(path.vat);
+    disabled(path.totalAmount);
   });
 
   protected route: ActivatedRoute = inject(ActivatedRoute);
   protected router: Router = inject(Router);
   toaster: ToastrService = inject(ToastrService);
   readonly kycInvoiceApiStore = inject(KycInvoiceApiStore);
+  protected appEnvState = inject(AppEnvStore);
 
   readonly timePeriodOptions = Object.values(TimePeriod);
   loaderMessage = signal('');
@@ -141,6 +155,9 @@ export class InvoiceEdit implements OnInit {
         paid: Boolean(invoice.paid),
         paymentDate: invoice.paymentDate,
         paymentReference: invoice.paymentReference,
+        vat: invoice.vat,
+        totalAmount: invoice.totalAmount,
+        issueDate: invoice.issueDate,
       }));
 
       if (invoice.organisationId) {
@@ -216,7 +233,7 @@ export class InvoiceEdit implements OnInit {
   }
 
   ngOnInit(): void {
-    this.organisationApiStore.getAll();
+    this.filterOrganisation();
 
     if (this.id) {
       this.kycInvoiceApiStore.findById({ id: this.id });
@@ -234,19 +251,31 @@ export class InvoiceEdit implements OnInit {
     }
   }
 
-  updateField<K extends keyof EditInvoiceVarsForm>(field: K, value: EditInvoiceVarsForm[K]): void {
-    this.editInvoiceSignal.update((form) => ({
-      ...form,
-      [field]: value,
-    }));
-  }
+  // updateAmount(value: string | number | null | undefined): void {
+  //   this.updateField('amount', value as any);
+  //   this.recalculateTotalAmount();
+  // }
+
+  // updateVat(value: string | number | null | undefined): void {
+  //   this.updateField('vat', value as any);
+  //   this.recalculateTotalAmount();
+  // }
 
   organisationCompare(o1: OrganisationListDTO | any, o2: OrganisationListDTO | any) {
     return o1 && o2 && o1.id === o2.id;
   }
 
   filterOrganisation() {
-    this.applyOrganisationFilter(String(this.editInvoiceSignal().organisationFilter || ''));
+    const filterValue = this.editInvoiceSignal().organisationFilter || '';
+    let search = new SearchObject<OrganisationSearchCriteria>();
+    search.criteria = {
+      name: filterValue,
+      isClient: true
+    };
+
+    this.organisationApiStore.search({
+      criteria: search,
+    });
   }
 
   selectOrganisation(organisationId: string): void {
@@ -299,58 +328,6 @@ export class InvoiceEdit implements OnInit {
     return organisation.registrationNo || organisation.contactEmailAddress || organisation.code || '';
   }
 
-  formatAuditDate(value: Date | string | null | undefined): string {
-    if (!value) {
-      return 'Not available';
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return String(value);
-    }
-
-    return new Intl.DateTimeFormat('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
-  }
-
-  formatContextDate(value: Date | string | null | undefined): string {
-    if (!value) {
-      return 'Not available';
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return String(value);
-    }
-
-    return new Intl.DateTimeFormat('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    }).format(date);
-  }
-
-  asDateInput(value: Date | string | null | undefined): string {
-    if (!value) {
-      return '';
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return '';
-    }
-
-    return date.toISOString().slice(0, 10);
-  }
-
   private applyOrganisationFilter(rawValue: string): void {
     const value = rawValue.trim().toLowerCase();
     const organisations = this.allOrganisations();
@@ -388,10 +365,21 @@ export class InvoiceEdit implements OnInit {
     invoice.startDate = current.startDate || null;
     invoice.endDate = current.endDate || null;
     invoice.amount = current.amount === '' || current.amount === null ? null : Number(current.amount);
+    invoice.vat = current.vat === '' || current.vat === null ? null : Number(current.vat);
+    invoice.totalAmount = current.totalAmount === '' || current.totalAmount === null ? null : Number(current.totalAmount);
     invoice.paid = Boolean(current.paid);
     invoice.paymentDate = current.paid ? current.paymentDate || null : null;
     invoice.paymentReference = current.paid ? current.paymentReference || null : null;
 
     return invoice;
+  }
+
+  private asNumber(value: string | number | null | undefined): number | null {
+    if (value === '' || value === null || value === undefined) {
+      return null;
+    }
+
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? null : parsed;
   }
 }

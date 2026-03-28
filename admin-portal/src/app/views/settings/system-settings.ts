@@ -83,6 +83,7 @@ export class EditSettingsVarsForm {
   clientRequestFileType: DocumentTypeDTO | any = null;
   clientRequestFileTypeFilter: DocumentTypeDTO | any = null;
   salaryRanges: Array<SalaryRangeDTO> = [];
+  vat: number | any = null;
 }
 
 @Component({
@@ -251,14 +252,28 @@ export class SystemSettings {
   }
 
   salaryRangesRemove(i: number, selected: SalaryRangeDTO) {
-    this.editSettingsSignal.update((value) => {
-      const salaryRanges = value.salaryRanges.filter((_: any, index: number) => index !== i);
 
-      return {
-        ...value,
-        salaryRanges: salaryRanges
+    Swal.fire({
+      title: 'Remove salary range?',
+      text: `This will remove the salary range with min ${selected.min} and max ${selected.max}.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Remove',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+
+        this.editSettingsSignal.update((value) => {
+          const salaryRanges = value.salaryRanges.filter((_: any, index: number) => index !== i);
+
+          return {
+            ...value,
+            salaryRanges: salaryRanges
+          }
+        });
       }
     });
+
   }
 
   addDocumentRequirement(purpose: DocumentTypePurpose): void {
@@ -468,6 +483,7 @@ export class SystemSettings {
       kycPortalLink: settings.kycPortalLink,
       organisationAdminRole: settings.organisationAdminRole,
       normalUserRole: settings.normalUserRole,
+      vat: settings.vat
     });
 
   }
@@ -499,6 +515,7 @@ export class SystemSettings {
     settings.organisationAdminRole = value.organisationAdminRole;
     settings.normalUserRole = value.normalUserRole;
     settings.timeToAccountCreation = value.timeToAccountCreation;
+    settings.vat = value.vat;
 
     return settings;
   }

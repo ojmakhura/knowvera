@@ -24,6 +24,7 @@ import { Loader } from '@app/@shared/loader/loader';
 import { KycInvoiceDTO } from '@app/models/bw/co/centralkyc/invoice/kyc-invoice-dto';
 import { KycSubsciptionStatus } from '@app/models/bw/co/centralkyc/subscription/kyc-subsciption-status';
 import { KycSubscriptionDTO } from '@app/models/bw/co/centralkyc/subscription/kyc-subscription-dto';
+import { AppEnvStore } from '@app/store/app-env.state';
 import { KycInvoiceApiStore } from '@app/store/bw/co/centralkyc/invoice/kyc-invoice-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
 import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscription/kyc-subscription-api.store';
@@ -63,6 +64,8 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
 
   organisationApiStore = inject(OrganisationApiStore);
   kycInvoiceApiStore = inject(KycInvoiceApiStore);
+  protected appEnvState = inject(AppEnvStore);
+
   private readonly router = inject(Router);
   private readonly datePipe = inject(DatePipe);
   private readonly currencyPipe = inject(CurrencyPipe);

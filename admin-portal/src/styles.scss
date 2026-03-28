@@ -1429,3 +1429,49 @@ body {
 		background: #0e2c52;
 	}
 }
+
+
+.page-shell {
+	display: grid;
+	gap: 1.5rem;
+	max-width: 68rem;
+	margin: 0 auto;
+	width: 100%;
+}
+
+.vault-card {
+	border: 0;
+	border-radius: 1rem;
+	background: #fff;
+	box-shadow: 0 4px 20px rgba(25, 28, 30, 0.04);
+}
+
+.section-heading {
+	margin-bottom: 1.25rem;
+}
+
+.section-heading h2,
+.field-label,
+.audit-label {
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.section-heading h2 {
+	color: #43474f;
+}
+
+.field-grid,
+.split-grid,
+.audit-grid {
+	display: grid;
+	gap: 1rem;
+}
+
+.field-grid.two-column,
+.split-grid,
+.audit-grid {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}

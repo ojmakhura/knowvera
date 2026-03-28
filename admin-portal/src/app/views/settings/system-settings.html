@@ -159,7 +159,7 @@
             @for (item of editSettingsSignal().individualDocuments; track item.id) {
             <div class="requirement-item">
               <span>{{ item.name }}</span>
-              <button mat-icon-button type="button"
+              <button mat-icon-button type="button" color="warn"
                 (click)="removeDocumentRequirement(documentTypePurpose.INDIVIDUAL, item)">
                 <mat-icon>delete</mat-icon>
               </button>
@@ -203,7 +203,7 @@
             @for (item of editSettingsSignal().organisationDocuments; track item.id) {
             <div class="requirement-item">
               <span>{{ item.name }}</span>
-              <button mat-icon-button type="button"
+              <button mat-icon-button type="button" color="warn"
                 (click)="removeDocumentRequirement(documentTypePurpose.ORGANISATION, item)">
                 <mat-icon>delete</mat-icon>
               </button>
@@ -249,7 +249,7 @@
             @for (item of editSettingsSignal().orgKycDocuments; track item.id) {
             <div class="requirement-item highlighted">
               <span>{{ item.name }}</span>
-              <button mat-icon-button type="button"
+              <button mat-icon-button type="button" color="warn"
                 (click)="removeDocumentRequirement(documentTypePurpose.ORGANISATION_KYC, item)">
                 <mat-icon>delete</mat-icon>
               </button>
@@ -294,7 +294,7 @@
             @for (item of editSettingsSignal().indKycDocuments; track item.id) {
             <div class="requirement-item highlighted">
               <span>{{ item.name }}</span>
-              <button mat-icon-button type="button"
+              <button mat-icon-button type="button" color="warn"
                 (click)="removeDocumentRequirement(documentTypePurpose.INDIVIDUAL_KYC, item)">
                 <mat-icon>delete</mat-icon>
               </button>
@@ -451,21 +451,20 @@
         </div>
         @for (item of editSettingsSignalForm.salaryRanges; track i; let i = $index) {
         <div class="salary-range-item">
-          <div class="row">
-
-            <mat-form-field class="col-md-3 vault-field">
+          <div class="salary-range-row">
+            <mat-form-field class="vault-field salary-range-field">
               <mat-label translate>min</mat-label>
               <input matInput type="number" id="salaryRangeMin_{{i}}" [formField]="item.min" />
               <mat-icon matSuffix>trending_down</mat-icon>
             </mat-form-field>
 
-            <mat-form-field class="col-md-3 vault-field">
+            <mat-form-field class="vault-field salary-range-field">
               <mat-label translate>max</mat-label>
               <input matInput type="number" id="salaryRangeMax_{{i}}" [formField]="item.max" />
               <mat-icon matSuffix>trending_up</mat-icon>
             </mat-form-field>
 
-            <mat-form-field class="col-md-3 vault-field">
+            <mat-form-field class="vault-field salary-range-field">
               <mat-label translate>active</mat-label>
               <mat-select id="salaryRangeActive_{{i}}" [formField]="item.active">
                 <mat-option [value]="true">{{ 'yes' | translate }}</mat-option>
@@ -473,8 +472,9 @@
               </mat-select>
               <mat-icon matSuffix>toggle_on</mat-icon>
             </mat-form-field>
-            <button mat-icon-button color="warn" type="button" (click)="salaryRangesRemove(i, item().value())"
-              matTooltip="{{ 'remove' | translate }}">
+
+            <button class="salary-range-remove" mat-icon-button color="warn" type="button"
+              (click)="salaryRangesRemove(i, item().value())" matTooltip="{{ 'remove' | translate }}">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
@@ -484,15 +484,22 @@
         <div class="request-settings">
           <h3>Client Request Settings</h3>
 
-          <mat-form-field class="vault-field">
-            <mat-label>Global File Type Restriction</mat-label>
-            <mat-select [formField]="editSettingsSignalForm.clientRequestFileType" id="clientRequestFileType"
-              [compareWith]="compareDocumentType">
-              @for (item of availableDocumentTypes(); track item.id) {
-              <mat-option [value]="item">{{ item.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          <div class="field-grid two-column">
+            <mat-form-field class="vault-field col-md-4">
+              <mat-label>VAT (%)</mat-label>
+              <input matInput type="number" [formField]="editSettingsSignalForm.vat" id="vat" />
+            </mat-form-field>
+
+            <mat-form-field class="vault-field">
+              <mat-label>Client Request File Type</mat-label>
+              <mat-select [formField]="editSettingsSignalForm.clientRequestFileType" id="clientRequestFileType"
+                [compareWith]="compareDocumentType">
+                @for (item of availableDocumentTypes(); track item.id) {
+                <mat-option [value]="item">{{ item.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
 
         </div>
       </mat-card-content>

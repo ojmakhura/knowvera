@@ -45,7 +45,7 @@ export const menuItems: any[] = [
         icon: "receipt_long"
     },
     {
-        routerLink: "/kyc",
+        routerLink: "/records",
         titleKey: "kyc.record.title",
         icon: "verified_user"
     },

@@ -363,4 +363,50 @@ public class DocumentApiImpl implements DocumentApi {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findMyDocuments'");
     }
+
+    @Override
+    public ResponseEntity<DocumentDTO> analyseDocument(String id) throws Exception {
+
+        try {
+            DocumentDTO document = documentService.findById(id);
+            if (document == null) {
+                throw new IllegalArgumentException("Document not found with id: " + id);
+            }
+
+            
+            QueueObject queueObject = new QueueObject(
+                    document.getId(),
+                    document.getTarget(),
+                    document.getTargetId());
+
+            rabbitTemplate.convertAndSend(rabbitProperties.getTextExtractionQueueExchange(),
+                    rabbitProperties.getTextExtractionQueueRoutingKey(), queueObject);
+
+            return ResponseEntity.ok(documentService.findById(id));
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    public ResponseEntity<DocumentDTO> updateFileContent(String id, String content) throws Exception {
+        
+        try {
+
+            DocumentDTO doc = documentService.findById(id);
+
+            QueueObject queueObject = new QueueObject(
+                    doc.getId(),
+                    doc.getTarget(),
+                    doc.getTargetId());
+
+            rabbitTemplate.convertAndSend(rabbitProperties.getTextExtractionQueueExchange(),
+                    rabbitProperties.getTextExtractionQueueRoutingKey(), queueObject);
+
+            return ResponseEntity.ok(doc);
+        } catch (Exception e) {
+            throw e;
+        }
+
+    }
 }

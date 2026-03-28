@@ -38,6 +38,8 @@ import bw.co.centralkyc.sequence.SequenceGeneratorRepository;
 import bw.co.centralkyc.sequence.SequenceGeneratorService;
 import bw.co.centralkyc.sequence.SequencePart;
 import bw.co.centralkyc.sequence.SequencePartType;
+import bw.co.centralkyc.settings.SettingsDTO;
+import bw.co.centralkyc.settings.SettingsService;
 import bw.co.centralkyc.subscription.KycSubsciptionStatus;
 import bw.co.centralkyc.subscription.KycSubscription;
 import bw.co.centralkyc.subscription.KycSubscriptionDao;
@@ -55,17 +57,19 @@ public class KycInvoiceServiceImpl
     private static final String SEQUENCE_NAME = "KYC_INVOICE_REF";
     private final SequenceGeneratorService sequenceGeneratorService;
     private final SequenceGeneratorRepository sequenceGeneratorRepository;
+    private final SettingsService settingsService;
 
     public KycInvoiceServiceImpl(KycInvoiceDao kycInvoiceDao, KycInvoiceRepository kycInvoiceRepository,
             KycInvoiceMapper kycInvoiceMapper, KycSubscriptionDao kycSubscriptionDao,
             SequenceGeneratorService sequenceGeneratorService, SequenceGeneratorRepository sequenceGeneratorRepository,
-            KycSubscriptionRepository kycSubscriptionRepository, KycSubscriptionMapper kycSubscriptionMapper,
+            KycSubscriptionRepository kycSubscriptionRepository, KycSubscriptionMapper kycSubscriptionMapper, SettingsService settingsService,
             MessageSource messageSource) {
         super(kycInvoiceDao, kycInvoiceRepository, kycInvoiceMapper, kycSubscriptionDao, kycSubscriptionRepository,
                 kycSubscriptionMapper, messageSource);
         // TODO Auto-generated constructor stub
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.sequenceGeneratorRepository = sequenceGeneratorRepository;
+        this.settingsService = settingsService;
     }
 
     /**
@@ -333,6 +337,17 @@ public class KycInvoiceServiceImpl
 
             default:
                 break;
+        }
+
+        double amount = subscription.getAmount();
+        SettingsDTO settings = settingsService.getAll().stream().findFirst().orElse(null);
+        
+        if (settings != null && settings.getVat() != null) {
+            invoice.setVat(settings.getVat());
+            double vat = amount * settings.getVat() / 100;
+            invoice.setTotalAmount(amount + vat);
+        } else {
+            invoice.setTotalAmount(amount);
         }
 
         invoice = this.kycInvoiceRepository.save(invoice);

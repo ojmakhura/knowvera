@@ -10,12 +10,12 @@ import { Page } from '@app/models/page.model';
 import { BranchDTO } from '@app/models/bw/co/centralkyc/organisation/branch/branch-dto';
 import { BranchApi } from '@app/services/bw/co/centralkyc/organisation/branch/branch-api';
 
-export type BranchApiState = AppState<any, any> & {};
+export type BranchApiState = AppState<BranchDTO, BranchDTO> & {};
 
 const initialState: BranchApiState = {
-  data: null,
+  data: new BranchDTO(),
   dataList: [],
-  dataPage: new Page<any>(),
+  dataPage: new Page<BranchDTO>(),
   searchCriteria: new SearchObject<any>(),
   loading: false,
   success: false,

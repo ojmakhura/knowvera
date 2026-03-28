@@ -6,6 +6,8 @@
 package bw.co.centralkyc.subscription;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 import bw.co.centralkyc.AuditTracker;
+import bw.co.centralkyc.PropertySearchOrder;
+import bw.co.centralkyc.SearchObject;
 
 @RestController
 public class KycSubscriptionApiImpl implements KycSubscriptionApi {
@@ -65,9 +69,9 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     }
 
     @Override
-    public ResponseEntity<Page<KycSubscriptionDTO>> pagedSearch(String criteria, Integer pageNumber, Integer pageSize) throws Exception {
+    public ResponseEntity<Page<KycSubscriptionDTO>> pagedSearch(SearchObject<SubscriptionSearchCriteria> criteria) throws Exception {
         try {
-            Page<KycSubscriptionDTO> page = kycSubscriptionService.search(criteria, pageNumber, pageSize);
+            Page<KycSubscriptionDTO> page = kycSubscriptionService.search(criteria);
 
             return ResponseEntity.ok(page);
         } catch (Exception e) {
@@ -104,10 +108,15 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     }
 
     @Override
-    public ResponseEntity<Collection<KycSubscriptionDTO>> search(String criteria) throws Exception {
+    public ResponseEntity<Collection<KycSubscriptionDTO>> search(SearchObject<SubscriptionSearchCriteria> criteria) throws Exception {
         try {
 
-            Collection<KycSubscriptionDTO> subscriptions = kycSubscriptionService.search(criteria);
+            Set<PropertySearchOrder> sortOrders = new HashSet<>();
+            if(criteria.getSortings() != null){
+                sortOrders.addAll(criteria.getSortings());
+            }
+            
+            Collection<KycSubscriptionDTO> subscriptions = kycSubscriptionService.search(criteria.getCriteria(), sortOrders);
             return ResponseEntity.ok(subscriptions);
         } catch (Exception e) {
 

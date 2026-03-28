@@ -48,9 +48,9 @@ export class EditSubscriptionVarsForm {
   styleUrls: ['./subscription-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    MatCardModule, 
-    MatDividerModule, 
-    MatIconModule, 
+    MatCardModule,
+    MatDividerModule,
+    MatIconModule,
     MatTooltipModule,
     CommonModule,
     FormField,
@@ -157,6 +157,7 @@ export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
     let search = new SearchObject<OrganisationSearchCriteria>();
     search.criteria = {
       name: filterValue,
+      isClient: true
     };
 
     this.organisationApiStore.search({

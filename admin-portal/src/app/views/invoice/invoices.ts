@@ -24,13 +24,19 @@ import { InvoiceSearchCriteria } from '@app/models/bw/co/centralkyc/invoice/invo
 import { KycInvoiceDTO } from '@app/models/bw/co/centralkyc/invoice/kyc-invoice-dto';
 import { SearchObject } from '@app/models/search-object';
 import { KycInvoiceApiStore } from '@app/store/bw/co/centralkyc/invoice/kyc-invoice-api.store';
+import { form, FormField } from '@angular/forms/signals';
+import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
+import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { TranslateModule } from '@ngx-translate/core';
+import { AppEnvStore } from '@app/store/app-env.state';
 
 export class SearchInvoicesVarsForm {
-  ref: string = '';
-  organisationName: string = '';
-  organisationRegistrationNo: string = '';
-  paid: string = '';
-  invoices: Array<KycInvoiceDTO> = [];
+  ref: string | any = null;
+  organisation: OrganisationListDTO | any = null;
+  organisationFilter: OrganisationListDTO | any = null;
+  paid: boolean | any = null;
 }
 
 @Component({
@@ -52,13 +58,22 @@ export class SearchInvoicesVarsForm {
     MatButtonModule,
     MatTooltipModule,
     MatProgressBarModule,
+    FormField,
+    NgxMatSelectSearchModule,
+    TranslateModule
   ],
 })
 export class Invoices implements OnInit {
   searchInvoicesVarsForm = new SearchInvoicesVarsForm();
   searchInvoicesSignal = signal(this.searchInvoicesVarsForm);
 
+  searchInvoicesForm = form(this.searchInvoicesSignal, (path) => {
+  });
+
   readonly kycInvoiceApiStore = inject(KycInvoiceApiStore);
+  organisationApiStore = inject(OrganisationApiStore);
+  protected appEnvState = inject(AppEnvStore);
+
   protected readonly rows = signal<KycInvoiceDTO[]>([]);
   protected readonly dataSource = new MatTableDataSource<KycInvoiceDTO>([]);
   protected readonly currentPage = signal(0);
@@ -102,13 +117,6 @@ export class Invoices implements OnInit {
     this.doSearch();
   }
 
-  updateField(field: keyof SearchInvoicesVarsForm, value: string): void {
-    this.searchInvoicesSignal.update((state) => ({
-      ...state,
-      [field]: value,
-    }));
-  }
-
   handlePageEvent(e: PageEvent) {
     this.doSearch(e.pageIndex, e.pageSize);
   }
@@ -126,11 +134,9 @@ export class Invoices implements OnInit {
     criteria.pageSize = pageSize;
     criteria.criteria = {
       ref: value.ref || null,
-      organisationName: value.organisationName || null,
-      organisationRegistrationNo: value.organisationRegistrationNo || null,
-      organisatonId: null,
+      organisatonId: value.organisation?.id || null,
       organisatonCode: null,
-      paid: value.paid === '' ? null : value.paid === 'true',
+      paid: value.paid
     };
 
     this.kycInvoiceApiStore.pagedSearch({ criteria });
@@ -219,5 +225,22 @@ export class Invoices implements OnInit {
 
   trackByInvoice(_: number, row: KycInvoiceDTO): string {
     return row.id || row.ref || `${row.organisationId}-${row.issueDate}`;
+  }
+
+  organisationCompare(o1: OrganisationListDTO | any, o2: OrganisationListDTO | any) {
+    return o1 && o2 ? o1.id === o2.id : o1 === o2;
+  }
+
+  filterOrganisation() {
+    const filterValue = this.searchInvoicesSignal().organisationFilter || '';
+    let search = new SearchObject<OrganisationSearchCriteria>();
+    search.criteria = {
+      name: filterValue,
+      isClient: true
+    };
+
+    this.organisationApiStore.search({
+      criteria: search,
+    });
   }
 }

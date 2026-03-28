@@ -240,6 +240,25 @@
   text-align: right;
 }
 
+.salary-range-item {
+  margin-top: 0.75rem;
+}
+
+.salary-range-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.salary-range-field {
+  margin: 0;
+}
+
+.salary-range-remove {
+  align-self: center;
+}
+
 .request-settings {
   margin-top: 1rem;
   padding-top: 1rem;
@@ -339,6 +358,14 @@
 @media (max-width: 640px) {
   .requirements-grid {
     grid-template-columns: 1fr;
+  }
+
+  .salary-range-row {
+    grid-template-columns: 1fr;
+  }
+
+  .salary-range-remove {
+    justify-self: flex-start;
   }
 
   .requirement-add-row,

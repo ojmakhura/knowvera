@@ -12,12 +12,12 @@ import { KycInvoiceApi } from '@app/services/bw/co/centralkyc/invoice/kyc-invoic
 import { InvoiceSearchCriteria } from '@app/models/bw/co/centralkyc/invoice/invoice-search-criteria';
 import { UploadPurpose } from '@app/models/bw/co/centralkyc/invoice/upload-purpose';
 
-export type KycInvoiceApiState = AppState<any, any> & {};
+export type KycInvoiceApiState = AppState<KycInvoiceDTO, KycInvoiceDTO> & {};
 
 const initialState: KycInvoiceApiState = {
-  data: null,
+  data: new KycInvoiceDTO(),
   dataList: [],
-  dataPage: new Page<any>(),
+  dataPage: new Page<KycInvoiceDTO>(),
   searchCriteria: new SearchObject<any>(),
   loading: false,
   success: false,

@@ -49,6 +49,18 @@ export const routes: Routes = [
       import('./views/invoice/invoice.routes').then((module) => module.invoiceRoutes),
   },
   {
+    path: 'records',
+    canActivate: [AuthenticationGuard],
+    loadChildren: () =>
+      import('./views/records/records.routes').then((module) => module.recordsRoutes),
+  },
+  {
+    path: 'kyc',
+    canActivate: [AuthenticationGuard],
+    loadChildren: () =>
+      import('./views/records/records.routes').then((module) => module.recordsRoutes),
+  },
+  {
     path: 'client-request',
     canActivate: [AuthenticationGuard],
     loadChildren: () =>

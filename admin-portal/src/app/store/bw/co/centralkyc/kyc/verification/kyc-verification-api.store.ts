@@ -13,12 +13,12 @@ import { KycVerificationApi } from '@app/services/bw/co/centralkyc/kyc/verificat
 import { KycRecordSearchCriteria } from '@app/models/bw/co/centralkyc/kyc/kyc-record-search-criteria';
 import { TargetEntity } from '@models/bw/co/centralkyc/target-entity';
 
-export type KycVerificationApiState = AppState<any, any> & {};
+export type KycVerificationApiState = AppState<KycVerificationDTO, KycVerificationDTO> & {};
 
 const initialState: KycVerificationApiState = {
-  data: null,
+  data: new KycVerificationDTO(),
   dataList: [],
-  dataPage: new Page<any>(),
+  dataPage: new Page<KycVerificationDTO>(),
   searchCriteria: new SearchObject<any>(),
   loading: false,
   success: false,
@@ -43,11 +43,11 @@ export const KycVerificationApiStore = signalStore(
             tapResponse({
               next: (response: KycVerificationDTO) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -55,12 +55,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -75,11 +75,11 @@ export const KycVerificationApiStore = signalStore(
             tapResponse({
               next: (response: KycVerificationDTO) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -87,12 +87,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -107,11 +107,11 @@ export const KycVerificationApiStore = signalStore(
             tapResponse({
               next: (response: KycVerificationDTO[]) => {
                 patchState(
-                  store, 
+                  store,
                   {
-                    dataList: response, 
-                    loading: false, 
-                    success: true, 
+                    dataList: response,
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -119,12 +119,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -139,11 +139,11 @@ export const KycVerificationApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycVerificationDTO>) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     dataPage: response,
-                    loading: false, 
-                    success: true, 
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -151,12 +151,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -171,11 +171,11 @@ export const KycVerificationApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycVerificationDTO>) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     dataPage: response,
-                    loading: false, 
-                    success: true, 
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -183,12 +183,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -203,11 +203,11 @@ export const KycVerificationApiStore = signalStore(
             tapResponse({
               next: (response: boolean) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -215,12 +215,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -235,11 +235,11 @@ export const KycVerificationApiStore = signalStore(
             tapResponse({
               next: (response: KycVerificationDTO) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -247,12 +247,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -267,11 +267,11 @@ export const KycVerificationApiStore = signalStore(
             tapResponse({
               next: (response: KycVerificationDTO[]) => {
                 patchState(
-                  store, 
+                  store,
                   {
-                    dataList: response, 
-                    loading: false, 
-                    success: true, 
+                    dataList: response,
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -279,12 +279,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -299,11 +299,11 @@ export const KycVerificationApiStore = signalStore(
             tapResponse({
               next: (response: KycVerificationDTO[]) => {
                 patchState(
-                  store, 
+                  store,
                   {
-                    dataList: response, 
-                    loading: false, 
-                    success: true, 
+                    dataList: response,
+                    loading: false,
+                    success: true,
                     messages: ['Created successfully!!'],
                     error: false,
                   }
@@ -311,12 +311,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
