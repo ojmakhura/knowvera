@@ -89,4 +89,12 @@ export class DocumentApi {
       responseType: 'blob',
     });
   }
+
+  public updateFileContent(id: string, content: string): Observable<DocumentDTO> {
+    return this.http.put<DocumentDTO>(`${this.path}/${id}/content`, content);
+  }
+
+  public analyseDocument(id: string): Observable<DocumentDTO> {
+    return this.http.get<DocumentDTO>(`${this.path}/${id}/analysis`);
+  }
 }

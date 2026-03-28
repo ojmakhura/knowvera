@@ -182,7 +182,7 @@ export class Records implements OnInit {
   }
 
   openCreate(): void {
-    this.router.navigate(['/', 'individual', 'edit']);
+    this.router.navigate(['/', 'records', 'edit']);
   }
 
   openDetails(row: KycRecordDTO): void {
@@ -195,7 +195,7 @@ export class Records implements OnInit {
       return;
     }
 
-    this.router.navigate(['/', 'individual', 'details', row.targetId]);
+    this.router.navigate(['/', 'records', 'details', row.targetId]);
   }
 
   exportCsv(): void {

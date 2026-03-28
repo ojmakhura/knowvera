@@ -1,0 +1,277 @@
+<section class="record-details-page">
+	<header class="page-head">
+		<div class="title-wrap">
+			<button mat-icon-button type="button" class="back-btn" matTooltip="Back to records" (click)="backToRecords()">
+				<mat-icon>arrow_back</mat-icon>
+			</button>
+
+			<div>
+				<span class="eyebrow">Digital Vault / KYC Records</span>
+				<h1>{{ recordTitle() }}</h1>
+				<p>{{ createdSummary() }}</p>
+			</div>
+		</div>
+
+		<div class="head-actions">
+			<button mat-stroked-button type="button" class="ghost-btn" (click)="printView()">
+				<mat-icon>print</mat-icon>
+				Print
+			</button>
+
+			<button mat-flat-button type="button" class="primary-btn" (click)="downloadStatement()">
+				<mat-icon>download</mat-icon>
+				Download Statement
+			</button>
+		</div>
+	</header>
+
+	<section class="details-grid">
+		<div class="main-column">
+			<section class="top-panels-grid">
+				<!-- KYC Compliance Status Panel -->
+				<mat-card class="panel status-summary-panel">
+					<div>
+						<span class="section-label">KYC Status</span>
+						<h2 [class]="'status-' + kycStatusClass()">{{ kycStatusDisplay() }}</h2>
+						<p>Compliance Level</p>
+					</div>
+
+					<div class="summary-side">
+						<div class="compliance-meter">
+							<div class="meter-bar">
+								<div class="meter-fill" [style.width.%]="kycCompliancePercentage()"></div>
+							</div>
+							<span class="meter-value">{{ kycCompliancePercentage() }}%</span>
+						</div>
+					</div>
+				</mat-card>
+
+				<!-- Entity Context Panel -->
+				<mat-card class="panel context-panel">
+					<div class="panel-head">
+						<div class="section-head">
+							<div class="entity-avatar">{{ targetAvatar() }}</div>
+							<div>
+								<h2>Entity Details</h2>
+								<p>{{ targetTypeDisplay() }} Account</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="context-grid">
+						<div class="kv">
+							<span class="section-label">Reference Number</span>
+							<p>{{ record()?.ref || 'Not available' }}</p>
+						</div>
+
+						<div class="kv">
+							<span class="section-label">Target ID</span>
+							<p>{{ record()?.targetId || 'Not available' }}</p>
+						</div>
+
+						@if (record()?.target === TargetEntity.INDIVIDUAL) {
+						<div class="kv">
+							<span class="section-label">Identity Type</span>
+							<p>{{ identityTypeLabel() }}</p>
+						</div>
+
+						<div class="kv">
+							<span class="section-label">Identity Number</span>
+							<p>{{ record()?.identityNo || 'Not available' }}</p>
+						</div>
+						}
+
+						<div class="kv">
+							<span class="section-label">Email Address</span>
+							<p>{{ record()?.emailAddress || 'Not available' }}</p>
+						</div>
+
+						<div class="kv" *ngIf="record()?.target !== TargetEntity.INDIVIDUAL">
+							<span class="section-label">Legal Entity Name</span>
+							<p>{{ record()?.name || 'Not available' }}</p>
+						</div>
+					</div>
+				</mat-card>
+			</section>
+
+			<!-- Address & Compliance Declaration -->
+			<section class="declaration-grid">
+				<!-- Address Card -->
+				<mat-card class="panel address-panel">
+					<h3 class="section-label">Physical Address</h3>
+					<p class="address-text">{{ record()?.physicalAddress || 'Not provided' }}</p>
+
+					<h3 class="section-label" style="margin-top: 1.5rem;">Postal Address</h3>
+					<p class="address-text">{{ record()?.postalAddress || 'Not provided' }}</p>
+				</mat-card>
+
+				<!-- Declaration Card -->
+				<mat-card class="panel declaration-panel">
+					<h3 class="section-label mb-1">Declaration Status</h3>
+
+					<div class="declaration-item">
+						<div class="declaration-check">
+							<mat-icon>
+								@if (pepStatusLabel()) {
+									cancel
+								} @else {
+									check_circle
+								}
+							</mat-icon>
+						</div>
+						<div>
+							<span class="declaration-label">PEP Status</span>
+							<p>{{ pepStatusLabel() ? 'Person of Public Exposure Flagged' : 'No PEP association detected' }}</p>
+						</div>
+					</div>
+
+					<div class="declaration-item">
+						<div class="declaration-check">
+							<mat-icon>
+								@if (sanctionsMatchLabel()) {
+									cancel
+								} @else {
+									check_circle
+								}
+							</mat-icon>
+						</div>
+						<div>
+							<span class="declaration-label">Sanctions Match</span>
+							<p>{{ sanctionsMatchLabel() ? 'Sanctions list match detected' : 'No sanctions list matches found' }}</p>
+						</div>
+					</div>
+				</mat-card>
+			</section>
+
+			<!-- Source of Funds -->
+			<mat-card class="panel source-of-funds-panel">
+				<h3 class="section-label">Source of Funds</h3>
+				<p class="source-display">{{ sourceOfFundsDisplay() }}</p>
+				@if (record()?.sourceOfFundsDetails) {
+				<p class="details-text">{{ record()?.sourceOfFundsDetails }}</p>
+				}
+			</mat-card>
+
+			<!-- Audit Trail -->
+			<section class="meta-grid">
+				<mat-card class="panel meta-panel">
+					<span class="section-label">Original Entry</span>
+					<div class="meta-stack">
+						<div class="meta-row">
+							<span>Timestamp</span>
+							<strong>{{ auditTimestamp('created') }}</strong>
+						</div>
+						<div class="meta-row">
+							<span>Created By</span>
+							<strong>{{ auditUser('created') }}</strong>
+						</div>
+					</div>
+				</mat-card>
+
+				<mat-card class="panel meta-panel">
+					<span class="section-label">Last Modification</span>
+					<div class="meta-stack">
+						<div class="meta-row">
+							<span>Timestamp</span>
+							<strong>{{ auditTimestamp('modified') }}</strong>
+						</div>
+						<div class="meta-row">
+							<span>Modified By</span>
+							<strong>{{ auditUser('modified') }}</strong>
+						</div>
+					</div>
+				</mat-card>
+			</section>
+		</div>
+
+		<!-- Sidebar -->
+		<aside class="side-column">
+			<!-- Compliance Status Panel -->
+			<mat-card class="panel status-panel">
+				<h2>Verification Status</h2>
+				<div class="status-copy">
+					<mat-icon>verified</mat-icon>
+					<span>
+						@if (record()?.kycStatus === KycComplianceStatus.CURRENT) {
+							KYC verified and current
+						} @else if (record()?.kycStatus === KycComplianceStatus.EXPIRED) {
+							KYC expired - renewal required
+						} @else if (record()?.kycStatus === KycComplianceStatus.INCOMPLETE) {
+							KYC incomplete - additional documents needed
+						} @else {
+							KYC status unknown
+						}
+					</span>
+				</div>
+
+				<div class="status-dates">
+					<div class="date-info">
+						<span class="date-label">Verified</span>
+						<p class="date-value">{{ complianceDateLabel() }}</p>
+					</div>
+					<div class="date-info">
+						<span class="date-label">Expires</span>
+						<p class="date-value">{{ expiryDateLabel() }}</p>
+					</div>
+				</div>
+
+				<div class="status-actions">
+					<button mat-flat-button type="button" class="light-btn" (click)="openEdit()">
+						<mat-icon>edit</mat-icon>
+						Edit Record
+					</button>
+
+					@if (canDownloadDocuments()) {
+					<button mat-stroked-button type="button" class="dark-btn" (click)="downloadDocuments()">
+						<mat-icon>download</mat-icon>
+						Documents ({{ documentCount() }})
+					</button>
+					}
+				</div>
+			</mat-card>
+
+			<!-- Support Panel -->
+			<mat-card class="panel support-panel">
+				<div class="support-icon">
+					<mat-icon>help_outline</mat-icon>
+				</div>
+				<div>
+					<h3>Documentation Support</h3>
+					<p>View KYC requirements</p>
+				</div>
+			</mat-card>
+
+			<!-- Document Repository -->
+			@if (documentCount() > 0) {
+			<mat-card class="panel repository-panel">
+				<div class="repository-title">
+					<h3>Documents</h3>
+					<span class="document-count">{{ documentCount() }}</span>
+				</div>
+				<mat-list>
+					@for (doc of record()?.documents; track doc.id) {
+					<mat-list-item class="document-item">
+						<mat-icon matListItemIcon>description</mat-icon>
+						<div matListItemTitle>{{ doc.fileName }}</div>
+						<div matListItemLine class="doc-type">{{ doc.documentTypeId }}</div>
+						<button mat-icon-button matListItemMeta type="button">
+							<mat-icon>download</mat-icon>
+						</button>
+					</mat-list-item>
+					}
+				</mat-list>
+			</mat-card>
+			}
+		</aside>
+	</section>
+
+	@if (loading()) {
+		<mat-card class="panel loading-panel">
+			<mat-icon>hourglass_top</mat-icon>
+			<div>
+				<strong>Loading record details</strong>
+				<p>{{ loaderMessage() || 'Fetching the latest KYC record...' }}</p>
+			</div>
+		</mat-card>
+	}
+</section>

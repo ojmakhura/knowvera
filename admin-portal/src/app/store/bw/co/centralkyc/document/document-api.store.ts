@@ -418,6 +418,70 @@ export const DocumentApiStore = signalStore(
           );
         }),
       ),
+      updateFileContent: rxMethod<{id: string, content: string }>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Updating ...' });
+          return documentApi.updateFileContent(data.id, data.content, ).pipe(
+            tapResponse({
+              next: (response: DocumentDTO) => {
+                patchState(
+                  store,
+                  {
+                    data: response,
+                    loading: false,
+                    success: true,
+                    messages: ['Update successful!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
+                    success: false,
+                    error: true,
+                    messages: [error?.error?.message || 'An error occurred during update'],
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      analyseDocument: rxMethod<{id: string }>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Analysing ...' });
+          return documentApi.analyseDocument(data.id, ).pipe(
+            tapResponse({
+              next: (response: DocumentDTO) => {
+                patchState(
+                  store,
+                  {
+                    data: response,
+                    loading: false,
+                    success: true,
+                    messages: ['Analysis successful!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
+                    success: false,
+                    error: true,
+                    messages: [error?.error?.message || 'An error occurred during analysis'],
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
     }
   }),
 );
