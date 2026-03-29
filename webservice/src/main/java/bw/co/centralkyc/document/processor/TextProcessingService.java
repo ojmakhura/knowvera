@@ -20,6 +20,7 @@ import bw.co.centralkyc.lmstudio.CompletionRequest;
 import bw.co.centralkyc.lmstudio.CompletionRequestMessage;
 import bw.co.centralkyc.lmstudio.CompletionResponse;
 import bw.co.centralkyc.properties.RabbitProperties;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.json.JsonMapper;
@@ -34,6 +35,16 @@ public class TextProcessingService {
     private final JsonMapper jsonMapper;
     private final DocumentProcessorService documentProcessorService;
     private final ChatClient geminiClient;
+
+    @PostConstruct
+    public void verifyCredentials() {
+        String creds = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+        if (creds == null) {
+            System.out.println("===========> Warning: GOOGLE_APPLICATION_CREDENTIALS is not set!");
+        } else {
+            System.out.println("===========> Using credentials from: " + creds);
+        }
+    }
 
     private final String initialPrompt = """
                 Extract all required information from the text and return it strictly in JSON format.
