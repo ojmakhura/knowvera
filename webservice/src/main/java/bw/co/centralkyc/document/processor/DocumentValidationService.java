@@ -4,7 +4,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import bw.co.centralkyc.QueueObject;
@@ -28,6 +31,7 @@ public class DocumentValidationService {
     private final DocumentTypeService documentTypeService;
     private final LmStudioExtractorService lmStudioExtractorService;
     private final DocumentProcessorService documentProcessorService;
+    private final ChatClient geminiClient;
 
     @RabbitListener(queues = "${app.rabbitmq.documentConfirmationQueue}")
     public void handleDocumentConfirmation(QueueObject queueObject) {
@@ -57,6 +61,13 @@ public class DocumentValidationService {
         completionRequest.setStream(false);
         completionRequest.setModel("local-model");
         completionRequest.setMessages(List.of(systemPrompt, userPrompt));
+
+        ChatResponse chatResponse = geminiClient.prompt()
+            .system(systemPrompt.getContent())
+            .user(userPrompt.getContent())
+            .call()
+            .chatResponse();
+
         
         lmStudioExtractorService.extractInformation(completionRequest)
                 .thenAccept(response -> {

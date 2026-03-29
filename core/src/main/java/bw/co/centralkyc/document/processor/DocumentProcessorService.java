@@ -230,4 +230,10 @@ public class DocumentProcessorService {
         });
 
     }
+
+    String removeThinkBlocks(String input) {
+        if (input == null) return null;
+
+        return input.replaceAll("(?s)<think>.*?</think>", "").trim();
+    }
 }

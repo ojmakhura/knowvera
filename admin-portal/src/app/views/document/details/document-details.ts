@@ -89,6 +89,13 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     })
   }
 
+  analyseDocument(): void {
+    const documentId = this.document()?.id;
+    if (!documentId) return;
+
+    this.documentApiStore.analyseDocument({ id: documentId });
+  }
+
   constructor() {
     effect(() => {
       let messages = this.messages();

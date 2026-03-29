@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class TextProcessingService {
     private final LmStudioExtractorService lmStudioExtractorService;
     private final JsonMapper jsonMapper;
     private final DocumentProcessorService documentProcessorService;
+    private final ChatClient geminiClient;
 
     private final String initialPrompt = """
                 Extract all required information from the text and return it strictly in JSON format.

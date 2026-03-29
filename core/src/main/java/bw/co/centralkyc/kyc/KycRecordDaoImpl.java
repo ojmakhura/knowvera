@@ -82,7 +82,7 @@ public class KycRecordDaoImpl
                     .orElseThrow(() -> new KycRecordServiceException(
                             "Individual not found for id: " + source.getTargetId()));
 
-            target.setIdentityNo(individual.getIdentityNo());
+//            target.setIdentityNo(individual.getIdentityNo());
 
             StringBuilder builder = new StringBuilder();
 
@@ -92,11 +92,11 @@ public class KycRecordDaoImpl
             }
             builder.append(" ").append(individual.getSurname());
 
-            target.setName(builder.toString());
-            target.setEmailAddress(individual.getEmailAddress());
+//            target.setName(builder.toString());
+//            target.setEmailAddress(individual.getEmailAddress());
             target.setIdentityType(individual.getIdentityType());
-            target.setPhysicalAddress(individual.getPhysicalAddress());
-            target.setPostalAddress(individual.getPostalAddress());
+//            target.setPhysicalAddress(individual.getPhysicalAddress());
+//            target.setPostalAddress(individual.getPostalAddress());
         }
 
         DeclarationDTO declaration = new DeclarationDTO();

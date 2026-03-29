@@ -48,6 +48,7 @@
           <mat-icon>help_outline</mat-icon>
         </button>
 
+        @if (keycloak.authenticated) {
         <button mat-button class="account-btn" [matMenuTriggerFor]="accountMenu">
           <span class="account-avatar">{{ userInitials }}</span>
           <span class="account-label">{{ userDisplayName }}</span>
@@ -72,6 +73,7 @@
             <span class="warn-text">Logout</span>
           </button>
         </mat-menu>
+        }
       </div>
     </mat-toolbar>
 

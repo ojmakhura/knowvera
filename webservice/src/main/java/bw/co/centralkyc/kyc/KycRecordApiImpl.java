@@ -76,8 +76,8 @@ public class KycRecordApiImpl implements KycRecordApi {
 
                     if (org != null) {
 
-                        record.setName(org.getName());
-                        record.setIdentityNo(org.getRegistrationNo());
+                        // record.setName(org.getName());
+                        // record.setIdentityNo(org.getRegistrationNo());
                     }
 
                 } catch (Exception e) {

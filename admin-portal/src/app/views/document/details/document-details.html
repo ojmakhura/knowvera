@@ -204,6 +204,10 @@
                   spellcheck="false"
                 ></textarea>
                 <div class="file-content-actions">
+                  <button mat-stroked-button (click)="analyseDocument()" [disabled]="loading() || !document().id">
+                    <mat-icon>analytics</mat-icon>
+                    Analyse Document
+                  </button>
                   <button mat-flat-button color="primary" (click)="saveDocument()" [disabled]="loading()">
                     <mat-icon>save</mat-icon>
                     Update Document

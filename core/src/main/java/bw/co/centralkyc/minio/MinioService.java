@@ -43,7 +43,7 @@ public class MinioService {
             PutObjectArgs.builder()
                 .bucket(bucketName)
                 .object(safeObjectName)
-                .stream(data, size, -1)
+                .stream(data, size, -1L)
                 .contentType(contentType)
                 .build()
         );

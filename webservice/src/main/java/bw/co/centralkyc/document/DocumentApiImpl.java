@@ -393,17 +393,17 @@ public class DocumentApiImpl implements DocumentApi {
         
         try {
 
-            DocumentDTO doc = documentService.findById(id);
+//            DocumentDTO doc = documentService.findById(id);
 
-            QueueObject queueObject = new QueueObject(
-                    doc.getId(),
-                    doc.getTarget(),
-                    doc.getTargetId());
+            // QueueObject queueObject = new QueueObject(
+            //         doc.getId(),
+            //         doc.getTarget(),
+            //         doc.getTargetId());
 
-            rabbitTemplate.convertAndSend(rabbitProperties.getTextCleanupQueueExchange(),
-                    rabbitProperties.getTextCleanupQueueRoutingKey(), queueObject);
+            // rabbitTemplate.convertAndSend(rabbitProperties.getTextCleanupQueueExchange(),
+            //         rabbitProperties.getTextCleanupQueueRoutingKey(), queueObject);
 
-            return ResponseEntity.ok(doc);
+            return ResponseEntity.ok(documentService.updateFileContent(id, content));
         } catch (Exception e) {
             throw e;
         }
