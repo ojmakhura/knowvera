@@ -3,8 +3,8 @@ package bw.co.centralkyc.extractor;
 import java.util.concurrent.CompletableFuture;
 
 import bw.co.centralkyc.lmstudio.CompletionRequestMessage;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.model.ChatResponse;
+// import org.springframework.ai.chat.client.ChatClient;
+// import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ import tools.jackson.databind.json.JsonMapper;
 public class LmStudioExtractorService {
     
     private final LmStudioExtractor lmStudioExtractor;
-    private final ChatClient geminiClient;
+    // private final ChatClient geminiClient;
     private final JsonMapper jsonMapper;
 
     @Async("virtualThreadExecutor")
@@ -34,16 +34,16 @@ public class LmStudioExtractorService {
 
             CompletionRequestMessage userPrompt = request.getMessages().stream().filter(m -> "user".equals(m.getRole())).findFirst().orElse(null);
 
-            System.out.println("===============================================");
+            // System.out.println("===============================================");
 
-            if(systemPrompt != null && userPrompt != null) {
+            // if(systemPrompt != null && userPrompt != null) {
 
-                ChatResponse chatResponse = geminiClient.prompt()
-                        .system(systemPrompt.getContent())
-                        .user(userPrompt.getContent())
-                        .call()
-                        .chatResponse();
-            }
+            //     ChatResponse chatResponse = geminiClient.prompt()
+            //             .system(systemPrompt.getContent())
+            //             .user(userPrompt.getContent())
+            //             .call()
+            //             .chatResponse();
+            // }
 
             return future;
         }

@@ -112,12 +112,6 @@
                 <groupId>bw.co.roguesystems.comm</groupId>
                 <artifactId>roguecomm-common</artifactId>
                 <version>0.0.1</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>io.jsonwebtoken</groupId>
-                        <artifactId>jjwt</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>commons-beanutils</groupId>
@@ -155,37 +149,16 @@
                 <artifactId>commons-text</artifactId>
                 <version>1.3</version>
             </dependency>
-            <dependency>
+            <!-- <dependency>
                 <groupId>org.jboss.spec</groupId>
                 <artifactId>jboss-jboss-jakartaee-8.0</artifactId>
                 <version>1.0.1.Final</version>
                 <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>5.3.2</version>
-                <!-- <scope>compile</scope> -->
-            </dependency>
-            <dependency> 
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp-jvm</artifactId>
-                <version>5.3.2</version>
-            </dependency>
+            </dependency> -->
             <dependency>
                 <groupId>io.minio</groupId>
                 <artifactId>minio</artifactId>
                 <version>9.0.0</version>
-                <!-- <exclusions>
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.core</groupId>
-                        <artifactId>jackson-databind</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.core</groupId>
-                        <artifactId>jackson-core</artifactId>
-                    </exclusion>
-                </exclusions> -->
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -207,18 +180,12 @@
             <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-                <version>3.0.2</version>
-                <!-- <exclusions>
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.core</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions> -->
+                <version>3.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-common</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.liquibase</groupId>
@@ -236,12 +203,6 @@
                 <version>1.6.3</version>
                 <scope>provided</scope>
             </dependency>
-            <!-- For Working with Json Web Tokens (JWT) -->
-            <!-- <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt</artifactId>
-                <version>0.9.0</version>
-            </dependency> -->
             <dependency>
                 <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-spring-boot-starter</artifactId>
@@ -251,6 +212,11 @@
                 <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-admin-client</artifactId>
                 <version>26.0.8</version>
+            </dependency>
+            <dependency>
+                <groupId>bw.co.roguesystems.comm</groupId>
+                <artifactId>roguecomm-common</artifactId>
+                <version>0.0.1</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/net.sourceforge.tess4j/tess4j -->
             <dependency>
@@ -277,14 +243,18 @@
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
                 <artifactId>opentelemetry-logback-appender-1.0</artifactId>
-                <version>2.25.0-alpha</version>
+                <version>2.26.1-alpha</version>
             </dependency>
             <dependency>
-                <groupId>org.springframework.ai</groupId>
-                <artifactId>spring-ai-bom</artifactId>
-                <version>2.0.0-M4</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>5.3.2</version>
+                <!-- <scope>compile</scope> -->
+            </dependency>
+            <dependency> 
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp-jvm</artifactId>
+                <version>5.3.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -354,9 +324,9 @@
             <plugin>
                 <!-- See https://github.com/lkwg82/enforcer-maven-plugin. Patched original. Fix
                 cloudbees error on pom download -->
-                <groupId>org.apache.maven.plugins</groupId>
+                <groupId>de.lgohlke.mojo</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.6.2</version>
+                <version>${maven-enforcer-plugin.version}</version>
             </plugin>
         </plugins>
     </build>
@@ -473,11 +443,11 @@
         <dataSource>java:comp/env/${dataSource.name}</dataSource>
         <!-- Set andromda.xml hibernateVersion=7, sessionFactory and localTransactionManager to
         hibernate4.-->
-        <!-- <hibernate.version>7.1.10.Final</hibernate.version> -->
+        <hibernate.version>7.1.10.Final</hibernate.version>
         <!-- Set andromda.xml hibernateVersion=7, sessionFactory and localTransactionManager to
         hibernate4.-->
         <!-- v 9.x only supports JDK7 and you cannot configure jetty.port from maven.-->
-        <!-- v5 migration needed -->
+        <!-- v5 migration needed --> 
         <!-- <spring.version>5.3.2</spring.version> -->
         <spring-boot.version>4.0.1</spring-boot.version>
         <openapi.version>1.6.13</openapi.version>
@@ -694,7 +664,7 @@
                         <enabled>true</enabled>
                     </snapshots>
                 </repository>
-            </repositories>
+            </repositories> 
         </profile>
     </profiles>
     <repositories>
@@ -706,17 +676,6 @@
         <repository>
             <id>spring-milestones</id>
             <url>https://repo.spring.io/milestone</url>
-        </repository>
-        <repository>
-            <id>spring-snapshots</id>
-            <name>Spring Snapshots</name>
-            <url>https://repo.spring.io/snapshot</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
         </repository>
     </repositories>
     <pluginRepositories>

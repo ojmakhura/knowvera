@@ -123,9 +123,9 @@ export class RecordDetails implements OnInit {
   recordTitle(): string {
     const record = this.record();
     if (record?.target === TargetEntity.ORGANISATION) {
-      return record?.name || 'Organisation Record';
+      return record?.ownerDetails?.name || 'Organisation Record';
     }
-    return record?.name || 'Individual Record';
+    return record?.ownerDetails?.name || 'Individual Record';
   }
 
   createdSummary(): string {
@@ -223,7 +223,7 @@ export class RecordDetails implements OnInit {
       return 'Not applicable';
     }
 
-    const type = record.identityType as IndividualIdentityType;
+    const type = record.ownerDetails.identityType as IndividualIdentityType;
 
     switch (type) {
       case IndividualIdentityType.OMANG:

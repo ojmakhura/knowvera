@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
-import { applyEach, email, form, required } from '@angular/forms/signals';
+import { applyEach, email, form, required, FormField } from '@angular/forms/signals';
 import { GeneralStatus } from '@app/models/bw/co/centralkyc/general-status';
 import { EmploymentStatus } from '@app/models/bw/co/centralkyc/individual/employment-status';
 import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
@@ -26,6 +26,10 @@ import { BranchApiStore } from '@app/store/bw/co/centralkyc/organisation/branch/
 import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
+import { SearchObject } from '@app/models/search-object';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { Loader } from '@app/@shared/loader/loader';
 
 export class EditIndividualVarsForm {
   id: string | any = null;
@@ -61,7 +65,22 @@ export class EditIndividualVarsForm {
   templateUrl: './individual-edit.html',
   styleUrls: ['./individual-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatInputModule, MatSelectModule, MatSlideToggleModule, MatDividerModule, MatAutocompleteModule, MatFormFieldModule]
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    MatSlideToggleModule,
+    MatDividerModule,
+    MatAutocompleteModule,
+    MatFormFieldModule,
+    FormField,
+    NgxMatSelectSearchModule,
+    TranslateModule,
+    Loader
+  ]
 })
 export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
 
@@ -78,32 +97,10 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
 
   organisationList = linkedSignal(() => this.organisationApiStore.dataList());
   branchList = linkedSignal(() => this.branchApiStore.dataList());
-  organisationSearch = signal('');
-  branchSearch = signal('');
-  filteredOrganisationList = computed(() => {
-    const query = this.organisationSearch().toLowerCase().trim();
-    const organisations = this.organisationList() ?? [];
-    if (!query) {
-      return organisations;
-    }
 
-    return organisations.filter((organisation) => {
-      const label = this.organisationOptionLabel(organisation).toLowerCase();
-      return label.includes(query);
-    });
-  });
-  filteredBranchList = computed(() => {
-    const query = this.branchSearch().toLowerCase().trim();
-    const branches = this.branchList() ?? [];
-    if (!query) {
-      return branches;
-    }
+  filteredOrganisationList = linkedSignal(() => this.organisationApiStore.dataList());
 
-    return branches.filter((branch) => {
-      const label = this.branchOptionLabel(branch).toLowerCase();
-      return label.includes(query);
-    });
-  });
+  filteredBranchList = linkedSignal(() => this.branchApiStore.dataList());
 
   error = linkedSignal(() => this.individualApiStore.error());
   messages = linkedSignal(() => this.individualApiStore.messages());
@@ -191,12 +188,12 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
         }));
 
         if (individual.organisation) {
-          this.organisationSearch.set(this.organisationOptionLabel(individual.organisation));
+          // this.organisationSearch.set(this.organisationOptionLabel(individual.organisation));
           this.branchApiStore.findByOrganisation({ organisationId: individual.organisation.id });
         }
 
         if (individual.branch) {
-          this.branchSearch.set(this.branchOptionLabel(individual.branch));
+          // this.branchSearch.set(this.branchOptionLabel(individual.branch));
         }
       }
     });
@@ -224,7 +221,7 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
     this.branchApiStore.reset();
     this.organisationApiStore.getAll();
 
-    if(this.id && this.id !== '') {
+    if (this.id && this.id !== '') {
       this.individualApiStore.findById({ id: this.id });
     }
 
@@ -233,19 +230,6 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void { }
 
   ngOnDestroy(): void { }
-
-
-
-  updateField<K extends keyof EditIndividualVarsForm>(field: K, value: EditIndividualVarsForm[K]): void {
-    this.editIndividualSignal.update((current) => ({
-      ...current,
-      [field]: value,
-    }));
-  }
-
-  updateTextField<K extends keyof EditIndividualVarsForm>(field: K, value: string): void {
-    this.updateField(field, value as EditIndividualVarsForm[K]);
-  }
 
   cancel(): void {
     const targetId = this.editIndividualSignal().id || this.id;
@@ -313,75 +297,28 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
     return o1 && o2 && o1.id === o2.id;
   }
 
-  organisationOptionLabel(organisation: OrganisationListDTO | any): string {
-    return `${organisation?.code ?? ''} - ${organisation?.name ?? ''}`.trim();
+  branchCompare(b1: BranchDTO | any, b2: BranchDTO | any) {
+    return b1 && b2 && b1.id === b2.id;
   }
 
-  branchOptionLabel(branch: BranchDTO | any): string {
-    return `${branch?.code ?? ''} - ${branch?.name ?? ''}`.trim();
-  }
-
-  onOrganisationSearchInput(input: string): void {
-    this.organisationSearch.set(input);
-
-    const selectedOrganisation = (this.organisationList() ?? []).find(
-      (organisation) => this.organisationOptionLabel(organisation) === input,
-    );
-
-    if (selectedOrganisation) {
-      this.editIndividualSignal.update((value) => ({
-        ...value,
-        organisation: selectedOrganisation,
-        branch: null,
-      }));
-      this.branchSearch.set('');
-      this.branchApiStore.findByOrganisation({ organisationId: selectedOrganisation.id });
-      return;
-    }
-
-    if (!input.trim()) {
-      this.editIndividualSignal.update((value) => ({
-        ...value,
-        organisation: null,
-        branch: null,
-      }));
-      this.branchSearch.set('');
-    }
-  }
-
-  selectOrganisation(label: string): void {
-    this.onOrganisationSearchInput(label);
-  }
-
-  onBranchSearchInput(input: string): void {
-    this.branchSearch.set(input);
-
-    const selectedBranch = (this.branchList() ?? []).find(
-      (branch) => this.branchOptionLabel(branch) === input,
-    );
-
-    if (selectedBranch) {
-      this.editIndividualSignal.update((value) => ({
-        ...value,
-        branch: selectedBranch,
-      }));
-      return;
-    }
-
-    if (!input.trim()) {
-      this.editIndividualSignal.update((value) => ({
-        ...value,
-        branch: null,
-      }));
-    }
-  }
-
-  selectBranch(label: string): void {
-    this.onBranchSearchInput(label);
-  }
 
   save(): void {
     this.isSaving.set(true);
     this.individualApiStore.save({ individual: this.editIndividualSignal() as any });
   }
+
+  filterOrganisations() {
+    let criteria = new SearchObject<OrganisationSearchCriteria>();
+    criteria.criteria = {
+      name: this.editIndividualSignal().organisationFilter,
+    };
+    this.organisationApiStore.search({ criteria });
+  }
+
+  organisationSelected() {
+
+    console.log(this.editIndividualSignal().organisation);
+    this.branchApiStore.findByOrganisation({ organisationId: this.editIndividualSignal().organisation?.id });
+  }
+
 }

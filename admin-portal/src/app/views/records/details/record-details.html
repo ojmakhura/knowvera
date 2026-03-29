@@ -77,18 +77,18 @@
 
 						<div class="kv">
 							<span class="section-label">Identity Number</span>
-							<p>{{ record()?.identityNo || 'Not available' }}</p>
+							<p>{{ record()?.ownerDetails?.identityNo || 'Not available' }}</p>
 						</div>
 						}
 
 						<div class="kv">
 							<span class="section-label">Email Address</span>
-							<p>{{ record()?.emailAddress || 'Not available' }}</p>
+							<p>{{ record()?.ownerDetails?.emailAddress || 'Not available' }}</p>
 						</div>
 
 						<div class="kv" *ngIf="record()?.target !== TargetEntity.INDIVIDUAL">
 							<span class="section-label">Legal Entity Name</span>
-							<p>{{ record()?.name || 'Not available' }}</p>
+							<p>{{ record()?.ownerDetails }}</p>
 						</div>
 					</div>
 				</mat-card>
@@ -99,10 +99,10 @@
 				<!-- Address Card -->
 				<mat-card class="panel address-panel">
 					<h3 class="section-label">Physical Address</h3>
-					<p class="address-text">{{ record()?.physicalAddress || 'Not provided' }}</p>
+					<p class="address-text">{{ record()?.ownerDetails?.physicalAddress || 'Not provided' }}</p>
 
 					<h3 class="section-label" style="margin-top: 1.5rem;">Postal Address</h3>
-					<p class="address-text">{{ record()?.postalAddress || 'Not provided' }}</p>
+					<p class="address-text">{{ record()?.ownerDetails?.postalAddress || 'Not provided' }}</p>
 				</mat-card>
 
 				<!-- Declaration Card -->

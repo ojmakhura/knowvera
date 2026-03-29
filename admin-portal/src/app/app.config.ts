@@ -29,9 +29,10 @@ import {
   UserActivityService,
   withAutoRefreshToken,
 } from 'keycloak-angular';
+import { provideQuillConfig } from 'ngx-quill';
 
 export class CustomTranslateLoader implements TranslateLoader {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getTranslation(lang: string): Observable<any> {
     return this.http.get(`/i18n/${lang}.json`).pipe(catchError(() => of({})));
@@ -87,7 +88,7 @@ export const provideKeycloakAndInterceptor = (env: any) => {
 export function initFactory() {
   // const envStore = inject(AppEnvStore);
 
-  return async () => {};
+  return async () => { };
 }
 
 export const MY_DATE_FORMATS: MatDateFormats = {
@@ -100,6 +101,24 @@ export const MY_DATE_FORMATS: MatDateFormats = {
     dateA11yLabel: 'LL', // accessibility label
     monthYearA11yLabel: 'MMMM YYYY', // accessibility label for month/year
   },
+};
+
+const modules = {
+  toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote', 'code-block'],
+      [{ header: 1 }, { header: 2 }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ script: 'sub' }, { script: 'super' }],
+      [{ indent: '-1' }, { indent: '+1' }],
+      [{ size: ['small', false, 'large', 'huge'] }],
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      [{ color: [] }, { background: [] }],
+      [{ font: [] }],
+      [{ align: [] }],
+      ['clean'],
+      ['link', 'image'],
+    ],
 };
 
 export const appConfig = (env: any) => {
@@ -144,6 +163,11 @@ export const appConfig = (env: any) => {
         provide: RouteReuseStrategy,
         useClass: RouteReusableStrategy,
       },
+      provideQuillConfig({
+        modules: {
+          toolbar: modules.toolbar
+        }
+      }),
       provideNativeDateAdapter(),
       // { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
       { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },

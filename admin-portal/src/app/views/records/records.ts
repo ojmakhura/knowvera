@@ -210,9 +210,9 @@ export class Records implements OnInit {
       ['Reference', 'Name', 'Identity No', 'Identity Type', 'Status', 'Expiry Date'].join(','),
       ...records.map((row) => [
         this.escapeCsv(row.ref),
-        this.escapeCsv(row.name),
-        this.escapeCsv(row.identityNo),
-        this.escapeCsv(this.identityTypeLabel(row.identityType)),
+        this.escapeCsv(row.ownerDetails.name),
+        this.escapeCsv(row.ownerDetails.identityNo),
+        this.escapeCsv(this.identityTypeLabel(row.ownerDetails.identityType)),
         this.escapeCsv(this.statusLabel(row.kycStatus)),
         this.escapeCsv(this.formatDate(row.expiryDate)),
       ].join(',')),
@@ -305,14 +305,14 @@ export class Records implements OnInit {
   }
 
   trackByRecord(_: number, row: KycRecordDTO): string {
-    return row.id || row.ref || row.targetId || `${row.identityNo}-${row.uploadDate}`;
+    return row.id || row.ref || row.targetId || `${row.ownerDetails.identityNo}-${row.uploadDate}`;
   }
 
   private applyClientSideFilters(rows: KycRecordDTO[]): KycRecordDTO[] {
     const form = this.searchRecordsSignal();
 
     return rows.filter((row) => {
-      const lowerName = (row.name || '').toLowerCase();
+      const lowerName = (row.ownerDetails.name || '').toLowerCase();
       const first = form.firstName.trim().toLowerCase();
       const middle = form.middleName.trim().toLowerCase();
       const surname = form.surname.trim().toLowerCase();
@@ -324,9 +324,9 @@ export class Records implements OnInit {
         (!middle || lowerName.includes(middle)) &&
         (!surname || lowerName.includes(surname));
 
-      const identityNoMatch = !identityNo || (row.identityNo || '').toLowerCase().includes(identityNo);
-      const emailMatch = !emailAddress || (row.emailAddress || '').toLowerCase().includes(emailAddress);
-      const identityTypeMatch = !form.identityType || row.identityType === form.identityType;
+      const identityNoMatch = !identityNo || (row.ownerDetails.identityNo || '').toLowerCase().includes(identityNo);
+      const emailMatch = !emailAddress || (row.ownerDetails.emailAddress || '').toLowerCase().includes(emailAddress);
+      const identityTypeMatch = !form.identityType || row.ownerDetails.identityType === form.identityType;
       const statusMatch = !form.statuses.length || form.statuses.includes(row.kycStatus);
       const expiryMatch = this.matchDateRange(row.expiryDate, form.expiryFrom, form.expiryTo);
       const uploadMatch = this.matchDateRange(row.uploadDate, form.uploadedFrom, form.uploadedTo);

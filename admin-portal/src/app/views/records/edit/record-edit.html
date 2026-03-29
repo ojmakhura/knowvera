@@ -13,11 +13,13 @@
 
     <div class="header-actions">
       <button mat-stroked-button type="button" class="secondary-action" (click)="cancel()">
-        Discard
+        <mat-icon>close</mat-icon>
+        Reset
       </button>
       <button mat-flat-button type="button" class="primary-action"
-        [disabled]="loading() || editRecordSignalForm().invalid()" (click)="saveRecord()">
-        Save Changes
+         (click)="saveRecord()">
+        <mat-icon>save</mat-icon>
+        Save
       </button>
     </div>
   </header>
@@ -35,14 +37,12 @@
           <label class="field-label">Entity Type</label>
           <div class="entity-toggle">
             <button (click)="setTarget(TargetEntity.INDIVIDUAL)" type="button"
-              [class.is-active]="editRecordSignal().target === TargetEntity.INDIVIDUAL"
-              class="entity-button">
+              [class.is-active]="editRecordSignal().target === TargetEntity.INDIVIDUAL" class="entity-button">
               <mat-icon>person</mat-icon>
               Individual
             </button>
             <button (click)="setTarget(TargetEntity.ORGANISATION)" type="button"
-              [class.is-active]="editRecordSignal().target === TargetEntity.ORGANISATION"
-              class="entity-button">
+              [class.is-active]="editRecordSignal().target === TargetEntity.ORGANISATION" class="entity-button">
               <mat-icon>business</mat-icon>
               Organisation
             </button>
@@ -54,59 +54,85 @@
             <label class="field-label">Record Reference</label>
             <mat-form-field appearance="outline" class="vault-field">
               <mat-icon matPrefix>tag</mat-icon>
-              <input matInput type="text" placeholder="e.g. KYC-2024-001"
-                [formField]="editRecordSignalForm.ref" />
+              <input matInput type="text" placeholder="e.g. KYC-2024-001" [formField]="editRecordSignalForm.ref" />
             </mat-form-field>
           </div>
 
-          <div class="field-group">
-            <label class="field-label">{{ editRecordSignal().target === TargetEntity.ORGANISATION ? 'Organisation Name' : 'Full Legal Name' }}</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <mat-icon matPrefix>{{ editRecordSignal().target === TargetEntity.ORGANISATION ? 'business' : 'person' }}</mat-icon>
-              <input matInput type="text" [placeholder]="editRecordSignal().target === TargetEntity.ORGANISATION ? 'Organisation name' : 'Full legal name'"
-                [formField]="editRecordSignalForm.name" />
+          @if(editRecordSignal().target === TargetEntity.ORGANISATION) {
+          <div class="field-block">
+            <label class="field-label">Organisation</label>
+            <mat-form-field class="vault-field">
+              <mat-select [formField]="editRecordSignalForm.ownerDetails" [compareWith]="recordOwnerCompare">
+                <mat-option>
+                  <ngx-mat-select-search [placeholderLabel]="'search.organisations' | translate"
+                    [formField]="editRecordSignalForm.recordOwnerFilter" (keyup.enter)="filterOwners()"
+                    [noEntriesFoundLabel]="'no.entries.found' | translate">
+                  </ngx-mat-select-search>
+                  <button mat-icon-button type="button" aria-label="Search organisations" (click)="filterOwners()">
+                    <mat-icon>search</mat-icon>
+                  </button>
+                </mat-option>
+                @for (option of ownerOptions(); track option.id) {
+                <mat-option [value]="option">{{ option.name }}</mat-option>
+                }
+              </mat-select>
             </mat-form-field>
-            @if (editRecordSignalForm.name().touched()) {
-            @for (error of editRecordSignalForm.name().errors(); track $index) {
-            <p class="error-message" translate>{{ error }}</p>
-            }
-            }
           </div>
+          } @else {
+          <div class="field-block">
+            <label class="field-label">Individual</label>
+            <mat-form-field class="vault-field">
+              <mat-select [formField]="editRecordSignalForm.ownerDetails" [compareWith]="recordOwnerCompare">
+                <mat-option>
+                  <ngx-mat-select-search [placeholderLabel]="'search.individuals' | translate"
+                    [formField]="editRecordSignalForm.recordOwnerFilter" (keyup.enter)="filterOwners()"
+                    [noEntriesFoundLabel]="'no.entries.found' | translate">
+                  </ngx-mat-select-search>
+                  <button mat-icon-button type="button" aria-label="Search individuals" (click)="filterOwners()">
+                    <mat-icon>search</mat-icon>
+                  </button>
+                </mat-option>
+                @for (option of ownerOptions(); track option.id) {
+                <mat-option [value]="option">{{ option.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          }
 
           <!-- Individual-Specific Fields -->
-          @if (editRecordSignal().target === TargetEntity.INDIVIDUAL) {
+
           <div class="field-group">
             <label class="field-label">Identity Number (SSN/ID)</label>
             <mat-form-field appearance="outline" class="vault-field">
               <mat-icon matPrefix>badge</mat-icon>
-              <input matInput type="text" placeholder="Identity number"
-                [formField]="editRecordSignalForm.identityNo" />
+              <input matInput type="text" placeholder="Identity number" [value]="editRecordSignal().ownerDetails.identityNo" readonly/>
             </mat-form-field>
-            @if (editRecordSignalForm.identityNo().touched()) {
-            @for (error of editRecordSignalForm.identityNo().errors(); track $index) {
-            <p class="error-message" translate>{{ error }}</p>
+            @if (editRecordSignalForm.ownerDetails.identityNo().touched()) {
+            @for (error of editRecordSignalForm.ownerDetails.identityNo().errors(); track $index) {
+            <p class="error-message" translate>{{ error.message }}</p>
             }
             }
           </div>
-
+          @if (editRecordSignal().target === TargetEntity.INDIVIDUAL) {
           <div class="field-group">
             <label class="field-label">Identity Type</label>
             <mat-form-field appearance="outline" class="vault-field">
-              <mat-select [formField]="editRecordSignalForm.identityType">
-                <mat-option>
+              <input matInput [value]="editRecordSignal().ownerDetails.identityType" readonly>
+                <!-- <mat-option>
                   <ngx-mat-select-search [formField]="editRecordSignalForm.identityType">
                   </ngx-mat-select-search>
-                </mat-option>
-                @for(item of identityTypeOptions; track item) {
+                </mat-option> -->
+                <!-- @for(item of identityTypeOptions; track item) {
                 <mat-option [value]="item">
                   {{ identityTypeLabel(item) }}
                 </mat-option>
-                }
-              </mat-select>
+                } -->
+              <!-- </input> -->
             </mat-form-field>
-            @if (editRecordSignalForm.identityType().touched()) {
-            @for (error of editRecordSignalForm.identityType().errors(); track $index) {
-            <p class="error-message" translate>{{ error }}</p>
+            @if (editRecordSignalForm.ownerDetails.identityType().touched()) {
+            @for (error of editRecordSignalForm.ownerDetails.identityType().errors(); track $index) {
+            <p class="error-message" translate>{{ error.message }}</p>
             }
             }
           </div>
@@ -117,45 +143,13 @@
             <mat-form-field appearance="outline" class="vault-field">
               <mat-icon matPrefix>email</mat-icon>
               <input matInput type="email" placeholder="Email address"
-                [formField]="editRecordSignalForm.emailAddress" />
+                [formField]="editRecordSignalForm.ownerDetails.emailAddress" />
             </mat-form-field>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Expiry Date</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <input matInput [matDatepicker]="expiryPicker" [formField]="editRecordSignalForm.expiryDate" >
-              <mat-hint>DD/MM/YYYY</mat-hint>
-              <mat-datepicker-toggle matIconSuffix [for]="expiryPicker"></mat-datepicker-toggle>
-              <mat-datepicker #expiryPicker></mat-datepicker>
-            </mat-form-field>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="vault-card">
-      <mat-card-content>
-        <div class="section-heading">
-          <mat-icon>location_on</mat-icon>
-          <h2>Address Details</h2>
-        </div>
-
-        <div class="field-grid single-column">
-          <div class="field-group">
-            <label class="field-label">Physical Address</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <textarea matInput placeholder="Physical address"
-                [formField]="editRecordSignalForm.physicalAddress"></textarea>
-            </mat-form-field>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Postal Address</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <textarea matInput placeholder="Postal address"
-                [formField]="editRecordSignalForm.postalAddress"></textarea>
-            </mat-form-field>
+            @if (editRecordSignalForm.ownerDetails.emailAddress().touched()) {
+            @for (error of editRecordSignalForm.ownerDetails.emailAddress().errors(); track $index) {
+            <p class="error-message" translate>{{ error.message }}</p>
+            }
+            }
           </div>
         </div>
       </mat-card-content>
@@ -178,12 +172,11 @@
               <div class="field-group">
                 <label class="field-label">Political Exposure Status</label>
                 <mat-form-field appearance="outline" class="vault-field">
-                  <mat-select (valueChange)="updateDeclarationField('pepStatus', $event)"
-                    [value]="editRecordSignal().declaration?.pepStatus || null">
+                  <mat-select [formField]="editRecordSignalForm.declaration.pepStatus">
                     <mat-option [value]="null">Not Specified</mat-option>
                     @for(item of pepStatusOptions; track item) {
-                    <mat-option [value]="item">
-                      {{ pepStatusLabel(item) }}
+                    <mat-option [value]="item" translate>
+                      <span translate>pep.status.{{ item }} </span>
                     </mat-option>
                     }
                   </mat-select>
@@ -192,11 +185,15 @@
 
               <div class="field-group">
                 <label class="field-label">PEP Details / Position</label>
-                <mat-form-field appearance="outline" class="vault-field">
+                <quill-editor [style]="{ height: '200px' }"
+                  (onEditorCreated)="onQuillEditorCreated('pepDetails', $event)"
+                  (onContentChanged)="onQuillContentChanged('pepDetails', $event)"
+                  theme="snow"></quill-editor>
+                <!-- <mat-form-field appearance="outline" class="vault-field">
                   <textarea matInput placeholder="PEP specific details..."
                     (valueChange)="updateDeclarationField('pepDetails', $event)"
                     [value]="editRecordSignal().declaration?.pepDetails || ''"></textarea>
-                </mat-form-field>
+                </mat-form-field> -->
               </div>
             </mat-card-content>
           </mat-card>
@@ -209,20 +206,22 @@
 
               <div class="payment-header">
                 <label class="field-label">Screening Result</label>
-                <mat-slide-toggle color="primary"
-                  (change)="updateDeclarationField('sanctionsMatch', $event.checked)"
-                  [checked]="editRecordSignal().declaration?.sanctionsMatch || false">
+                <mat-slide-toggle color="primary" [formField]="editRecordSignalForm.declaration.sanctionsMatch">
                   Matched
                 </mat-slide-toggle>
               </div>
 
               <div class="field-group">
                 <label class="field-label">Sanctions Details</label>
-                <mat-form-field appearance="outline" class="vault-field">
-                  <textarea matInput placeholder="Sanctions details..."
+                <!-- <mat-form-field appearance="outline" class="vault-field"> -->
+                  <quill-editor [style]="{ height: '200px' }"
+                    (onEditorCreated)="onQuillEditorCreated('sanctionsDetails', $event)"
+                    (onContentChanged)="onQuillContentChanged('sanctionsDetails', $event)"
+                    theme="snow"></quill-editor>
+                  <!-- <textarea matInput placeholder="Sanctions details..."
                     (valueChange)="updateDeclarationField('sanctionsDetails', $event)"
-                    [value]="editRecordSignal().declaration?.sanctionsDetails || ''"></textarea>
-                </mat-form-field>
+                    [value]="editRecordSignal().declaration?.sanctionsDetails || ''"></textarea> -->
+                <!-- </mat-form-field> -->
               </div>
             </mat-card-content>
           </mat-card>
@@ -241,10 +240,9 @@
           <label class="field-label">Fund Origins</label>
           <div class="toggle-group">
             @for(fund of sourceOfFundsOptions; track fund) {
-            <button (click)="toggleSourceOfFunds(fund)"
-              [class.is-active]="hasSourceOfFunds(fund)" type="button"
-              class="toggle-chip">
-              {{ sourceOfFundsLabel(fund) }}
+            <button (click)="toggleSourceOfFunds(fund)" [class.is-active]="hasSourceOfFunds(fund)" type="button"
+              class="toggle-chip" translate>
+              source.of.funds.{{ fund }}
             </button>
             }
           </div>
@@ -252,10 +250,14 @@
 
         <div class="field-group">
           <label class="field-label">Additional Details</label>
-          <mat-form-field appearance="outline" class="vault-field">
-            <textarea matInput placeholder="Explain the sources of funds..."
-              [formField]="editRecordSignalForm.sourceOfFundsDetails"></textarea>
-          </mat-form-field>
+          <!-- <mat-form-field appearance="outline" class="vault-field"> -->
+            <quill-editor [style]="{ height: '200px' }"
+              (onEditorCreated)="onQuillEditorCreated('sourceOfFundsDetails', $event)"
+              (onContentChanged)="onQuillContentChanged('sourceOfFundsDetails', $event)"
+              theme="snow"></quill-editor>
+            <!-- <textarea matInput placeholder="Explain the sources of funds..."
+              [formField]="editRecordSignalForm.sourceOfFundsDetails"></textarea> -->
+          <!-- </mat-form-field> -->
         </div>
       </mat-card-content>
     </mat-card>
@@ -274,7 +276,8 @@
         <div class="compliance-grid top-gap">
           <div class="context-item">
             <p class="field-label">KYC Status</p>
-            <p class="context-value">{{ editRecordSignal().kycStatus ? kycStatusLabel(editRecordSignal().kycStatus) : 'Not Set' }}</p>
+            <p class="context-value">{{ editRecordSignal().kycStatus ? kycStatusLabel(editRecordSignal().kycStatus) :
+              'Not Set' }}</p>
           </div>
 
           <div class="context-item">
@@ -305,10 +308,8 @@
           <div class="file-upload-zone">
             <mat-icon>cloud_upload</mat-icon>
             <p>Drag and drop files here or click to browse</p>
-            <input #fileInput type="file" (change)="onDocumentSelected($event)"
-              multiple hidden />
-            <button mat-stroked-button type="button" (click)="fileInput.click()"
-              class="upload-button">
+            <input #fileInput type="file" (change)="onDocumentSelected($event)" multiple hidden />
+            <button mat-stroked-button type="button" (click)="fileInput.click()" class="upload-button">
               <mat-icon>upload</mat-icon>
               Choose Files
             </button>
@@ -335,19 +336,24 @@
                 </div>
               </div>
 
-              <mat-form-field appearance="outline" class="vault-field upload-type-field">
-                <mat-label>Document Type</mat-label>
-                <mat-select
-                  [value]="entry.documentTypeId"
-                  (valueChange)="setUploadDocumentType($index, $event)">
-                  @for (docType of allowedDocumentTypes(); track docType.id) {
-                  <mat-option [value]="docType.id">{{ docType.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <div class="field-group">
+                <label class="field-label">Additional Details</label>
+                <mat-form-field appearance="outline" class="vault-field upload-type-field">
+                  <mat-select [value]="entry.documentTypeId" (valueChange)="setUploadDocumentType($index, $event)">
+                    @if(editRecordSignal().target === TargetEntity.INDIVIDUAL) {
+                    @for (docType of settingsApiStore.data().indKycDocuments || []; track docType.id) {
+                    <mat-option [value]="docType.id">{{ docType.name }}</mat-option>
+                    }
+                    } @else {
+                    @for (docType of settingsApiStore.data().orgKycDocuments || []; track docType.id) {
+                    <mat-option [value]="docType.id">{{ docType.name }}</mat-option>
+                    }
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
 
-              <button mat-icon-button type="button"
-                (click)="removeDocument($index)" class="remove-btn">
+              <button mat-icon-button type="button" (click)="removeDocument($index)" class="remove-btn">
                 <mat-icon>close</mat-icon>
               </button>
             </div>

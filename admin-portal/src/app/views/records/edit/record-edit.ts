@@ -23,7 +23,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Loader } from '@app/@shared/loader/loader';
-import { disabled, form, FormField, required } from '@angular/forms/signals';
+import { disabled, form, FormField, readonly, required } from '@angular/forms/signals';
 import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -37,6 +37,15 @@ import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
 import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
 import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
+import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
+import { SearchObject } from '@app/models/search-object';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
+import { IndividualSearchCriteria } from '@app/models/bw/co/centralkyc/individual/individual-search-criteria';
+import { QuillEditorComponent, QuillModule } from 'ngx-quill';
+import { OwnerDetails } from '@app/models/bw/co/centralkyc/kyc/owner-details';
+import { KycVerificationDTO } from '@app/models/bw/co/centralkyc/kyc/verification/kyc-verification-dto';
+import { EmploymentRecordDTO } from '@app/models/bw/co/centralkyc/individual/employment/employment-record-dto';
 
 type QueuedDocumentUpload = {
   file: File;
@@ -52,12 +61,8 @@ export class EditRecordVarsForm {
   ref: string | any = null;
   target: TargetEntity | any = TargetEntity.INDIVIDUAL;
   targetId: string | any = null;
-  name: string | any = null;
-  identityNo: string | any = null;
-  identityType: IndividualIdentityType | any = null;
-  emailAddress: string | any = null;
-  physicalAddress: string | any = null;
-  postalAddress: string | any = null;
+  ownerDetails: OwnerDetails = new OwnerDetails();
+  recordOwnerFilter: any = null;
   expiryDate: Date | any = null;
   uploadDate: Date | any = null;
   kycStatus: KycComplianceStatus | any = null;
@@ -66,6 +71,8 @@ export class EditRecordVarsForm {
   sourceOfFundsDetails: string | any = null;
   documents: DocumentDTO[] | any = [];
   documentsToUpload: QueuedDocumentUpload[] = [];
+  kycVerification: KycVerificationDTO | any = new KycVerificationDTO();
+  employmentRecord: EmploymentRecordDTO | any = new EmploymentRecordDTO();
 
   constructor() {
     this.declaration = new DeclarationDTO();
@@ -94,6 +101,7 @@ export class EditRecordVarsForm {
     MatListModule,
     MatProgressBarModule,
     NgxMatSelectSearchModule,
+    QuillEditorComponent
   ],
 })
 export class RecordEdit implements OnInit {
@@ -103,14 +111,17 @@ export class RecordEdit implements OnInit {
     disabled(path.ref);
     disabled(path.uploadDate);
     disabled(path.target);
-    required(path.name, { message: 'record.name.required' });
+    required(path.ownerDetails.name, { message: 'record.name.required' });
 
     // Conditionally require identity fields only for individuals
-    const target = this.editRecordSignal().target;
-    if (target === TargetEntity.INDIVIDUAL) {
-      required(path.identityNo, { message: 'record.identity.required' });
-      required(path.identityType, { message: 'record.identity.type.required' });
-    }
+    // const target = this.editRecordSignal().target;
+    // if (target === TargetEntity.INDIVIDUAL) {
+    //   required(path.identityNo, { message: 'record.identity.required' });
+    //   required(path.identityType, { message: 'record.identity.type.required' });
+    // }
+
+    disabled(path.ownerDetails.identityNo);
+    disabled(path.ownerDetails.identityType);
   });
 
   protected route: ActivatedRoute = inject(ActivatedRoute);
@@ -118,6 +129,8 @@ export class RecordEdit implements OnInit {
   toaster: ToastrService = inject(ToastrService);
   readonly kycRecordApiStore = inject(KycRecordApiStore);
   readonly settingsApiStore = inject(SettingsApiStore);
+  readonly organisationApiStore = inject(OrganisationApiStore);
+  readonly individualApiStore = inject(IndividualApiStore);
 
   readonly pepStatusOptions = Object.values(PepStatus);
   readonly kycStatusOptions = Object.values(KycComplianceStatus);
@@ -130,6 +143,31 @@ export class RecordEdit implements OnInit {
   loading = linkedSignal(() => this.kycRecordApiStore.loading());
   private readonly saveRequested = signal(false);
   readonly allowedDocumentTypes = signal<DocumentTypeDTO[]>([]);
+  private readonly quillEditors = new Map<string, any>();
+
+  ownerOptions = linkedSignal(() => {
+    const target = this.editRecordSignal().target;
+
+    if (target === TargetEntity.ORGANISATION) {
+      return (this.organisationApiStore.dataList() || []).map((org) => ({
+        id: org.id,
+        name: org.name,
+        identityNo: org.registrationNo,
+        emailAddress: org.contactEmailAddress,
+        identityType: null
+      }));
+    } else if (target === TargetEntity.INDIVIDUAL) {
+      return (this.individualApiStore.dataList() || []).map((ind) => ({
+        id: ind.id,
+        name: ind.name,
+        identityNo: ind.identityNo,
+        emailAddress: ind.emailAddress,
+        identityType: ind.identityType
+      }));
+    }
+
+    return [];
+  });
 
   @Input() id: string | null = null;
 
@@ -167,12 +205,7 @@ export class RecordEdit implements OnInit {
         ref: record.ref,
         target: record.target || TargetEntity.INDIVIDUAL,
         targetId: record.targetId,
-        name: record.name,
-        identityNo: record.identityNo,
-        identityType: record.identityType,
-        emailAddress: record.emailAddress,
-        physicalAddress: record.physicalAddress,
-        postalAddress: record.postalAddress,
+        ownerDetails: record.ownerDetails,
         expiryDate: record.expiryDate,
         uploadDate: record.uploadDate,
         kycStatus: record.kycStatus,
@@ -181,6 +214,10 @@ export class RecordEdit implements OnInit {
         sourceOfFundsDetails: record.sourceOfFundsDetails,
         documents: record.documents || [],
       }));
+
+      this.setQuillContent('pepDetails', record.declaration?.pepDetails ?? null);
+      this.setQuillContent('sanctionsDetails', record.declaration?.sanctionsDetails ?? null);
+      this.setQuillContent('sourceOfFundsDetails', record.sourceOfFundsDetails ?? null);
     });
 
     this.kycRecordApiStore.reset();
@@ -223,18 +260,42 @@ export class RecordEdit implements OnInit {
   }
 
   saveRecord(): void {
-    if (this.editRecordSignalForm().invalid()) {
-      this.toaster.error('Complete the required record fields before saving.');
-      return;
+    // if (this.editRecordSignalForm().invalid()) {
+    //   this.toaster.error('Complete the required record fields before saving.');
+    //   return;
+    // }
+
+    // if (this.hasDocumentsWithoutType()) {
+    //   this.toaster.error('Select a document type for each file before saving.');
+    //   return;
+    // }
+
+    let record: KycRecordDTO = {
+      id: this.editRecordSignal().id,
+      ref: this.editRecordSignal().ref,
+      target: this.editRecordSignal().target,
+      targetId: this.editRecordSignal().targetId,
+      ownerDetails: this.editRecordSignal().ownerDetails,
+      expiryDate: this.editRecordSignal().expiryDate,
+      uploadDate: this.editRecordSignal().uploadDate,
+      kycStatus: this.editRecordSignal().kycStatus,
+      declaration: this.editRecordSignal().declaration,
+      sourceOfFunds: this.editRecordSignal().sourceOfFunds,
+      sourceOfFundsDetails: this.editRecordSignal().sourceOfFundsDetails,
+      documents: this.editRecordSignal().documents,
+      createdAt: this.editRecordSignal().createdAt,
+      createdBy: this.editRecordSignal().createdBy,
+      modifiedAt: this.editRecordSignal().modifiedAt,
+      modifiedBy: this.editRecordSignal().modifiedBy,
+      employmentRecord: this.editRecordSignal().employmentRecord,
+      kycVerification: this.editRecordSignal().kycVerification,
+
     }
 
-    if (this.hasDocumentsWithoutType()) {
-      this.toaster.error('Select a document type for each file before saving.');
-      return;
-    }
+    console.log('Saving record with data:', this.editRecordSignal());
 
-    this.saveRequested.set(true);
-    this.kycRecordApiStore.save({ kycRecord: this.buildRecordPayload() });
+    // this.saveRequested.set(true);
+    this.kycRecordApiStore.save({ kycRecord: record });
   }
 
   cancel(): void {
@@ -291,39 +352,48 @@ export class RecordEdit implements OnInit {
     return labels[value] || value;
   }
 
-  sourceOfFundsLabel(value: SourceOfFunds): string {
-    const labels: { [key in SourceOfFunds]: string } = {
-      [SourceOfFunds.SALARY]: 'Salary',
-      [SourceOfFunds.BUSINESS_INCOME]: 'Business Income',
-      [SourceOfFunds.INVESTMENTS]: 'Investments',
-      [SourceOfFunds.PENSIONS]: 'Pensions',
-      [SourceOfFunds.GIFTS]: 'Gifts',
-      [SourceOfFunds.REMITTANCE]: 'Remittance',
-      [SourceOfFunds.OTHER]: 'Other',
-    };
-    return labels[value] || value;
-  }
+  // sourceOfFundsLabel(value: SourceOfFunds): string {
+  //   const labels: { [key in SourceOfFunds]: string } = {
+  //     [SourceOfFunds.SALARY]: 'Salary',
+  //     [SourceOfFunds.BUSINESS_INCOME]: 'Business Income',
+  //     [SourceOfFunds.INVESTMENTS]: 'Investments',
+  //     [SourceOfFunds.PENSIONS]: 'Pensions',
+  //     [SourceOfFunds.GIFTS]: 'Gifts',
+  //     [SourceOfFunds.REMITTANCE]: 'Remittance',
+  //     [SourceOfFunds.OTHER]: 'Other',
+  //   };
+  //   return labels[value] || value;
+  // }
 
-  targetLabel(value: TargetEntity): string {
-    const labels: { [key in TargetEntity]: string } = {
-      [TargetEntity.INDIVIDUAL]: 'Individual',
-      [TargetEntity.ORGANISATION]: 'Organisation',
-      [TargetEntity.BRANCH]: 'Branch',
-      [TargetEntity.SUBSCRIPTION]: 'Subscription',
-      [TargetEntity.INVOICE]: 'Invoice',
-      [TargetEntity.QUOTATION]: 'Quotation',
-      [TargetEntity.CLIENT_REQUEST]: 'Client Request',
-      [TargetEntity.KYC_RECORD]: 'KYC Record',
-      [TargetEntity.CONTACT]: 'Contact',
-      [TargetEntity.SETTINGS]: 'Settings',
-    };
-    return labels[value] || value;
-  }
+  // targetLabel(value: TargetEntity): string {
+  //   const labels: { [key in TargetEntity]: string } = {
+  //     [TargetEntity.INDIVIDUAL]: 'Individual',
+  //     [TargetEntity.ORGANISATION]: 'Organisation',
+  //     [TargetEntity.BRANCH]: 'Branch',
+  //     [TargetEntity.SUBSCRIPTION]: 'Subscription',
+  //     [TargetEntity.INVOICE]: 'Invoice',
+  //     [TargetEntity.QUOTATION]: 'Quotation',
+  //     [TargetEntity.CLIENT_REQUEST]: 'Client Request',
+  //     [TargetEntity.KYC_RECORD]: 'KYC Record',
+  //     [TargetEntity.CONTACT]: 'Contact',
+  //     [TargetEntity.SETTINGS]: 'Settings',
+  //   };
+  //   return labels[value] || value;
+  // }
 
   setTarget(target: TargetEntity): void {
     this.editRecordSignal.update((form) => ({
       ...form,
       target,
+      ownerDetails: {
+        name: null,
+        identityNo: null,
+        identityType: null,
+        emailAddress: null,
+        phoneNumbers: [],
+        physicalAddress: null,
+        postalAddress: null,
+      },
     }));
   }
 
@@ -381,6 +451,38 @@ export class RecordEdit implements OnInit {
     return docType?.name || 'Unknown';
   }
 
+  onQuillEditorCreated(key: string, editor: any): void {
+    this.quillEditors.set(key, editor);
+    const content = this.getQuillFieldContent(key);
+    if (content) {
+      editor.clipboard.dangerouslyPasteHTML(content);
+    }
+  }
+
+  onQuillContentChanged(key: string, event: any): void {
+    if (event.source !== 'user') return;
+    if (key === 'pepDetails' || key === 'sanctionsDetails') {
+      this.updateDeclarationField(key as keyof DeclarationDTO, event.html);
+    } else if (key === 'sourceOfFundsDetails') {
+      this.editRecordSignal.update(form => ({ ...form, sourceOfFundsDetails: event.html }));
+    }
+  }
+
+  private getQuillFieldContent(key: string): string | null {
+    const s = this.editRecordSignal();
+    if (key === 'pepDetails') return s.declaration?.pepDetails ?? null;
+    if (key === 'sanctionsDetails') return s.declaration?.sanctionsDetails ?? null;
+    if (key === 'sourceOfFundsDetails') return s.sourceOfFundsDetails ?? null;
+    return null;
+  }
+
+  private setQuillContent(key: string, html: string | null): void {
+    const editor = this.quillEditors.get(key);
+    if (editor && html) {
+      editor.clipboard.dangerouslyPasteHTML(html);
+    }
+  }
+
   updateDeclarationField(field: keyof DeclarationDTO, value: any): void {
     this.editRecordSignal.update((form) => ({
       ...form,
@@ -391,32 +493,68 @@ export class RecordEdit implements OnInit {
     }));
   }
 
-  private buildRecordPayload(): KycRecordDTO {
-    const current = this.editRecordSignal();
+  // private buildRecordPayload(): KycRecordDTO {
+  //   const current = this.editRecordSignal();
 
-    return {
-      ...new KycRecordDTO(),
-      id: current.id,
-      ref: current.ref,
-      target: current.target || TargetEntity.INDIVIDUAL,
-      targetId: current.targetId,
-      name: current.name?.trim() || null,
-      identityNo: current.identityNo?.trim() || null,
-      identityType: current.identityType || null,
-      emailAddress: current.emailAddress?.trim() || null,
-      physicalAddress: current.physicalAddress?.trim() || null,
-      postalAddress: current.postalAddress?.trim() || null,
-      expiryDate: current.expiryDate || null,
-      uploadDate: current.uploadDate || null,
-      kycStatus: current.kycStatus || null,
-      declaration: current.declaration || new DeclarationDTO(),
-      sourceOfFunds: current.sourceOfFunds || [],
-      sourceOfFundsDetails: current.sourceOfFundsDetails?.trim() || null,
-      documents: current.documents || [],
-      createdAt: current.createdAt,
-      createdBy: current.createdBy,
-      modifiedAt: current.modifiedAt,
-      modifiedBy: current.modifiedBy,
-    } as KycRecordDTO;
+  //   return {
+  //     ...new KycRecordDTO(),
+  //     id: current.id,
+  //     ref: current.ref,
+  //     target: current.target || TargetEntity.INDIVIDUAL,
+  //     targetId: current.targetId,
+  //     name: current.name?.trim() || null,
+  //     identityNo: current.identityNo?.trim() || null,
+  //     identityType: current.identityType || null,
+  //     emailAddress: current.emailAddress?.trim() || null,
+  //     physicalAddress: current.physicalAddress?.trim() || null,
+  //     postalAddress: current.postalAddress?.trim() || null,
+  //     expiryDate: current.expiryDate || null,
+  //     uploadDate: current.uploadDate || null,
+  //     kycStatus: current.kycStatus || null,
+  //     declaration: current.declaration || new DeclarationDTO(),
+  //     sourceOfFunds: current.sourceOfFunds || [],
+  //     sourceOfFundsDetails: current.sourceOfFundsDetails?.trim() || null,
+  //     documents: current.documents || [],
+  //     createdAt: current.createdAt,
+  //     createdBy: current.createdBy,
+  //     modifiedAt: current.modifiedAt,
+  //     modifiedBy: current.modifiedBy,
+  //   } as KycRecordDTO;
+  // }
+
+  organisationSearch(): void {}
+
+  individualSearch(): void {}
+
+  recordOwnerCompare(o1: any, o2: any): boolean {
+    return o1 && o2 && o1.id === o2.id;
+  }
+
+  filterOwners(): void {
+
+    const filterValue = this.editRecordSignal().recordOwnerFilter || '';
+    const target = this.editRecordSignal().target;
+
+    console.log('Filtering owners with value:', filterValue, 'for target:', target);
+
+    if (target === TargetEntity.ORGANISATION) {
+      let criteria = new SearchObject<OrganisationSearchCriteria>();
+      criteria.criteria = {
+        name: filterValue,
+      };
+      this.organisationApiStore.search({ criteria });
+
+    } else if (target === TargetEntity.INDIVIDUAL) {
+
+      let criteria = new SearchObject<IndividualSearchCriteria>(); // Replace 'any' with actual IndividualSearchCriteria if available
+
+      criteria.criteria = {
+        name: filterValue,
+        identityNo: filterValue,
+        emailAddress: filterValue,
+      };
+      this.individualApiStore.search({ criteria });
+    }
+
   }
 }

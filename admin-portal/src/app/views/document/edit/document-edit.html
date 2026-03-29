@@ -68,8 +68,6 @@
 										<ngx-mat-select-search [placeholderLabel]="'search.document.type' | translate"
 											[formField]="editDocumentSignalForm.documentTypeFilter" (keyup.enter)="filterDocumentType()"
 											[noEntriesFoundLabel]="'no.entries.found' | translate">
-											<!-- <button mat-flat-button type="button" color="primary"
-                    (click)="filterDocumentType()">Search</button> -->
 										</ngx-mat-select-search>
 									</mat-option>
 									@for (option of documentTypeOptions(); track option.id) {
