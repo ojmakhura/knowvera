@@ -395,13 +395,29 @@
               <div class="doc-library-meta">
                 <p class="doc-library-name">{{ doc.fileName }}</p>
                 <p class="doc-library-type">{{ getDocumentTypeName(doc.documentTypeId) }}</p>
+                <p class="doc-library-analytics">Analytics: {{ analyticsStatusLabel(doc.analyticsStatus) }}</p>
               </div>
               <div class="doc-library-badge">
                 <mat-icon>check_circle</mat-icon>
               </div>
-              <button mat-icon-button type="button" (click)="deleteDocument(doc.id)" class="doc-remove-btn" aria-label="Delete document">
-                <mat-icon>delete_outline</mat-icon>
-              </button>
+              <div class="doc-library-actions">
+                <button mat-stroked-button type="button" class="doc-action-btn" [routerLink]="['/', 'documents', 'details', doc.id]">
+                  <mat-icon>visibility</mat-icon>
+                  <span>View</span>
+                </button>
+                <button mat-stroked-button type="button" class="doc-action-btn" (click)="downloadDocument(doc)">
+                  <mat-icon>download</mat-icon>
+                  <span>Download</span>
+                </button>
+                <button mat-stroked-button type="button" class="doc-action-btn" [routerLink]="['/', 'documents', 'edit', doc.id]">
+                  <mat-icon>edit</mat-icon>
+                  <span>Edit</span>
+                </button>
+                <button mat-stroked-button type="button" class="doc-action-btn doc-action-btn-danger" (click)="deleteDocument(doc.id)">
+                  <mat-icon>delete_outline</mat-icon>
+                  <span>Delete</span>
+                </button>
+              </div>
             </div>
             }
           </div>
@@ -414,7 +430,7 @@
     <footer class="audit-grid">
       <div class="audit-item">
         <p class="audit-label">Created At</p>
-        <p class="audit-value">{{ editRecordSignal().createdAt || 'Not available' }}</p>
+        <p class="audit-value">{{ (editRecordSignal().createdAt | date: 'dd-MM-yyyy HH:mm:ss' ) || 'Not available' }}</p>
       </div>
 
       <div class="audit-item">
@@ -424,7 +440,7 @@
 
       <div class="audit-item">
         <p class="audit-label">Modified At</p>
-        <p class="audit-value">{{ editRecordSignal().modifiedAt || 'Not available' }}</p>
+        <p class="audit-value">{{ (editRecordSignal().modifiedAt | date: 'dd-MM-yyyy HH:mm:ss' ) || 'Not available' }}</p>
       </div>
 
       <div class="audit-item">

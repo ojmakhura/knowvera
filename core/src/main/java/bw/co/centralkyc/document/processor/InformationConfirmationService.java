@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
+import bw.co.centralkyc.document.DocumentAnalyticsStatus;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
 import bw.co.centralkyc.document.type.DocumentType;
@@ -63,6 +64,8 @@ public class InformationConfirmationService {
             // Add more cases here for different targets as needed
             default -> log.warn("Unknown target type: {}", document.getTarget());
         }
+
+        document.setAnalyticsStatus(DocumentAnalyticsStatus.INFORMATION_CONFIRMATION_COMPLETE);
 
     }
 

@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import bw.co.centralkyc.QueueObject;
+import bw.co.centralkyc.document.DocumentAnalyticsStatus;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
 import bw.co.centralkyc.lmstudio.CompletionResponse;
@@ -117,6 +118,7 @@ public class DocumentProcessorService {
 
                     Map<String, Object> extractedInfo = parseLmStudioResponse(choice.getMessage().getContent());
                     document.setExtractedInformation(extractedInfo);
+                    document.setAnalyticsStatus(DocumentAnalyticsStatus.INFORMATION_EXTRACTION_COMPLETE);
                     documentService.save(document);
 
                     // Send this to the next queue for further processing
@@ -194,6 +196,8 @@ public class DocumentProcessorService {
                         }
                     }
 
+                    document.setAnalyticsStatus(DocumentAnalyticsStatus.TYPE_CONFIRMATION_COMPLETE);
+
                     documentService.save(document);
 
                     this.rabbitTemplate.convertAndSend(
@@ -214,6 +218,7 @@ public class DocumentProcessorService {
             if (choice.getMessage() != null && choice.getMessage().getContent() != null) {
                 String updatedContent = choice.getMessage().getContent();
                 document.setFileContent(updatedContent);
+                document.setAnalyticsStatus(DocumentAnalyticsStatus.TEXT_CLEANUP_COMPLETE);
                 documentService.save(document);
                 log.info("Updated file content for document ID: {}", document.getId());
 

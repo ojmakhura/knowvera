@@ -25,7 +25,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Loader } from '@app/@shared/loader/loader';
 import { disabled, email, form, FormField, readonly, required } from '@angular/forms/signals';
 import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
 import { DeclarationDTO } from '@app/models/bw/co/centralkyc/kyc/declaration-dto';
@@ -47,6 +47,7 @@ import { OwnerDetails } from '@app/models/bw/co/centralkyc/kyc/owner-details';
 import { KycVerificationDTO } from '@app/models/bw/co/centralkyc/kyc/verification/kyc-verification-dto';
 import { EmploymentRecordDTO } from '@app/models/bw/co/centralkyc/individual/employment/employment-record-dto';
 import Swal from 'sweetalert2';
+import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
 
 type QueuedDocumentUpload = {
   file: File;
@@ -103,8 +104,9 @@ export class EditRecordVarsForm {
     MatListModule,
     MatProgressBarModule,
     NgxMatSelectSearchModule,
-    QuillEditorComponent
-  ],
+    QuillEditorComponent,
+    RouterLink
+],
 })
 export class RecordEdit implements OnInit {
 
@@ -131,6 +133,7 @@ export class RecordEdit implements OnInit {
   readonly settingsApiStore = inject(SettingsApiStore);
   readonly organisationApiStore = inject(OrganisationApiStore);
   readonly individualApiStore = inject(IndividualApiStore);
+  readonly documentApi = inject(DocumentApi);
 
   readonly pepStatusOptions = Object.values(PepStatus);
   readonly kycStatusOptions = Object.values(KycComplianceStatus);
@@ -309,7 +312,7 @@ export class RecordEdit implements OnInit {
     console.log('Saving record with data:', this.editRecordSignal());
 
     // this.saveRequested.set(true);
-    this.kycRecordApiStore.save({ 
+    this.kycRecordApiStore.save({
       kycRecord: record,
     });
   }
@@ -501,7 +504,63 @@ export class RecordEdit implements OnInit {
     });
   }
 
-    
+  downloadDocument(document: DocumentDTO): void {
+    const request = document.id
+      ? this.documentApi.downloadFile(document.id)
+      : document.url
+        ? this.documentApi.downloadFileByUrl(document.url)
+        : null;
+
+    if (!request) {
+      this.toaster.error('No downloadable file reference was found for this document.');
+      return;
+    }
+
+    request.subscribe({
+      next: (blob: Blob) => this.saveBlob(blob, document.fileName || 'document-download'),
+      error: () => this.toaster.error('Failed to download document.'),
+    });
+  }
+
+  // viewDocument(document: DocumentDTO): void {
+  //   const value = document.url;
+
+  //   if (value && /^https?:\/\//i.test(value)) {
+  //     window.open(value, '_blank', 'noopener');
+  //     return;
+  //   }
+
+  //   const request = document.id
+  //     ? this.documentApi.downloadFile(document.id)
+  //     : value
+  //       ? this.documentApi.downloadFileByUrl(value)
+  //       : null;
+
+  //   if (!request) {
+  //     this.toaster.error('No document preview source was found for this document.');
+  //     return;
+  //   }
+
+  //   request.subscribe({
+  //     next: (blob: Blob) => {
+  //       const objectUrl = window.URL.createObjectURL(blob);
+  //       window.open(objectUrl, '_blank', 'noopener');
+  //       window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 10000);
+  //     },
+  //     error: () => this.toaster.error('Failed to load document preview.'),
+  //   });
+  // }
+
+  // editUploadedDocument(document: DocumentDTO): void {
+  //   if (!document.id) {
+  //     this.toaster.error('This document cannot be edited because it has no ID.');
+  //     return;
+  //   }
+
+  //   this.router.navigate(['/', 'documents', 'edit', document.id]);
+  // }
+
+
 
   hasDocumentsWithoutType(): boolean {
     return this.editRecordSignal().documentsToUpload.some((entry) => !entry.documentType?.id);
@@ -510,6 +569,28 @@ export class RecordEdit implements OnInit {
   getDocumentTypeName(documentTypeId: string): string {
     const docType = this.allowedDocumentTypes().find((dt) => dt.id === documentTypeId);
     return docType?.name || 'Unknown';
+  }
+
+  analyticsStatusLabel(status: string | null | undefined): string {
+    if (!status) {
+      return 'Unknown';
+    }
+
+    return status
+      .toString()
+      .toLowerCase()
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  private saveBlob(blob: Blob, fileName: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+    window.URL.revokeObjectURL(url);
   }
 
   onQuillEditorCreated(key: string, editor: any): void {
@@ -557,7 +638,7 @@ export class RecordEdit implements OnInit {
   documentTypeCompare(o1: DocumentTypeDTO | any, o2: DocumentTypeDTO | any) {
     return o1 && o2 ? o1.id === o2.id : o1 === o2;
   }
-  
+
   organisationSearch(): void {}
 
   individualSearch(): void {}

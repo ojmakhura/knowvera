@@ -23,6 +23,7 @@ import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto'
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { DocumentAnalyticsStatus } from '@app/models/bw/co/centralkyc/document/document-analytics-status';
 
 class EditDocumentForm {
   id: string | any = null;
@@ -33,6 +34,8 @@ class EditDocumentForm {
   fileName: string | any = null;
   verificationStatus: DocumentVerificationStatus | any = DocumentVerificationStatus.UNVERIFIED;
   url: string | any = null;
+  analyticsStatus: DocumentAnalyticsStatus | any = DocumentAnalyticsStatus.INITIALISED;
+
 }
 
 @Component({
@@ -132,7 +135,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
   }
-  
+
   documentTypeCompare(o1: DocumentTypeDTO | any, o2: DocumentTypeDTO | any): boolean {
     return o1 && o2 ? o1.id === o2.id : o1 === o2;
   }
@@ -259,7 +262,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadDocumentFromRoute(): void {
-    
+
     this.lastLoadedId = this.id;
     this.documentApiStore.findById({ id: this.id });
   }
@@ -277,6 +280,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
       verificationStatus: document.verificationStatus || DocumentVerificationStatus.UNVERIFIED,
       url: document.url,
       documentTypeFilter: null,
+      analyticsStatus: document.analyticsStatus || DocumentAnalyticsStatus.INITIALISED
     });
   }
 

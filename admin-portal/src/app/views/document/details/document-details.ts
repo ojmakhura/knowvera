@@ -28,21 +28,6 @@ import { ToastrService } from 'ngx-toastr';
 import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 
-type DataPoint = {
-  label: string;
-  value: string;
-};
-
-type CoverageItem = {
-  field: string;
-  confidence: string;
-};
-
-type IntegritySignal = {
-  label: string;
-  value: string;
-};
-
 @Component({
   selector: 'app-document-details',
   templateUrl: './document-details.html',
@@ -148,6 +133,20 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
       case TargetEntity.BRANCH: return 'Branch';
       default: return this.document()?.target ?? '—';
     }
+  }
+
+  get analyticsStatusLabel(): string {
+    const status = this.document()?.analyticsStatus;
+
+    if (!status) {
+      return 'Unknown';
+    }
+
+    return status
+      .toString()
+      .toLowerCase()
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (c: string) => c.toUpperCase());
   }
 
   get confidenceSegments(): boolean[] {

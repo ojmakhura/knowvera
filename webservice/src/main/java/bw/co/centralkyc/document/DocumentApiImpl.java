@@ -207,6 +207,8 @@ public class DocumentApiImpl implements DocumentApi {
             String username = jwt.getClaimAsString("preferred_username");
 
             DocumentDTO document = new DocumentDTO();
+            document.setAnalyticsStatus(DocumentAnalyticsStatus.INITIALISED);
+            document.setVerificationStatus(DocumentVerificationStatus.UNVERIFIED);
             document.setCreatedAt(LocalDateTime.now());
             document.setCreatedBy(username);
             document.setTarget(target);

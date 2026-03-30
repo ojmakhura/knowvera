@@ -298,7 +298,7 @@ public class DocumentServiceImpl
             String label = extractTargetLabel(dto.target(), dto.targetId());
 
             dto = new DocumentListDTO(dto.id(), dto.target(), dto.targetId(), label, dto.fileName(), dto.documentTypeId(),
-                    dto.documentType());
+                    dto.documentType(), dto.analyticsStatus());
         }
         return dto;
     }

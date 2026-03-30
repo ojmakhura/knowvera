@@ -5,6 +5,7 @@ import {CompletionRequestMessage} from '@models/bw/co/centralkyc/lmstudio/comple
 import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
 import {DocumentValidationResults} from '@models/bw/co/centralkyc/document/document-validation-results';
+import {DocumentAnalyticsStatus} from '@models/bw/co/centralkyc/document/document-analytics-status';
 
 export class DocumentDTO extends AuditableDTO {
     target: TargetEntity | any;
@@ -39,6 +40,8 @@ export class DocumentDTO extends AuditableDTO {
 
     expectedInformation: any | any;
 
+    analyticsStatus: DocumentAnalyticsStatus | any = DocumentAnalyticsStatus.INITIALISED;
+
     constructor() {
         super();
         this.target = null;
@@ -57,5 +60,6 @@ export class DocumentDTO extends AuditableDTO {
         this.textExtractionPrompts = [];
         this.targetLabel = null;
         this.expectedInformation = null;
+        this.analyticsStatus = DocumentAnalyticsStatus.INITIALISED;
     }
 }

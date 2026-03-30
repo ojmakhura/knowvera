@@ -46,6 +46,10 @@
               <span class="key">Document Type</span>
               <span class="val">{{ document().documentType || '—' }}</span>
             </div>
+            <div class="detail-row">
+              <span class="key">Analytics Status</span>
+              <span class="val">{{ analyticsStatusLabel }}</span>
+            </div>
             @if (document().metadata?.registration) {
               <div class="detail-row">
                 <span class="key">Registration</span>

@@ -12,6 +12,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import bw.co.centralkyc.QueueObject;
+import bw.co.centralkyc.document.DocumentAnalyticsStatus;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
 import bw.co.centralkyc.minio.MinioService;
@@ -65,6 +66,7 @@ public class DocumentQueueProcessor {
             // Proceed with processing
             documentProcessorService.extractText(pdfBytes).thenAccept(text -> {
                 document.setFileContent(text);
+                document.setAnalyticsStatus(DocumentAnalyticsStatus.TEXT_EXTRACTION_COMPLETE);
                 documentService.save(document);
 
                 rabbitTemplate.convertAndSend(rabbitProperties.getTextCleanupQueueExchange(),
