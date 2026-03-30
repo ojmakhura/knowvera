@@ -6,8 +6,13 @@
 package bw.co.centralkyc.document;
 
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
+import bw.co.centralkyc.document.type.ExpectedField;
+
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -30,8 +35,27 @@ public interface DocumentMapper {
     // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String
     @Mapping(target = "documentTypeId", source = "documentType.id")
     @Mapping(target = "documentType", source = "documentType.name")
-    // @Mapping(target = "expectedFields", expression = "java(getExpectedFields(entity))")
+    @Mapping(target = "expectedFields", expression = "java(getExpectedFields(entity))")
     DocumentDTO toDocumentDTO(Document entity);
+
+    default Map<String, Object> getExpectedFields(Document entity) {
+
+        Map<String, Object> expectedInfor = new HashMap<>();
+
+        if (entity.getDocumentType().getExpectedFields() != null) {
+            Collection<ExpectedField> fields = entity.getDocumentType().getExpectedFields();
+            for(ExpectedField field : fields) {
+
+                StringBuilder builder = new StringBuilder();
+                builder.append(field.getFormat() != null ? field.getFormat() : "null");
+
+                expectedInfor.put(field.getField(), builder.toString());
+
+            }
+        }
+
+        return expectedInfor;
+    }
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link DocumentDTO}.

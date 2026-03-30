@@ -101,6 +101,14 @@ public class TextProcessingService {
         }
     }
 
+    private String getExtractionSystemPrompt(DocumentDTO document) {
+        StringBuilder systemPromptBuilder = new StringBuilder();
+        
+        
+
+        return systemPromptBuilder.toString();
+    }
+
     private final String systemCleanUpPrompt = """
                 You are a text normalization and cleaning engine. Your task is to clean and structure raw OCR-extracted text from documents while preserving meaning. Do not add new information or hallucinate content.
             """;

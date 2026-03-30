@@ -119,18 +119,60 @@
 	color: var(--vault-on-surface-variant);
 }
 
-.add-btn,
-.text-action {
-	border-radius: 0.8rem;
+:host ::ng-deep .add-btn.mat-mdc-button,
+:host ::ng-deep .text-action.mat-mdc-button {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.45rem;
+	min-height: 2.65rem;
+	padding-inline: 1rem;
+	border-radius: 999px;
+	border: 1px solid rgb(0 23 53 / 12%);
+	background: linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(242 244 246 / 92%));
 	color: var(--vault-primary) !important;
 	font-weight: 800;
-	letter-spacing: 0.08em;
+	font-size: 0.72rem;
+	letter-spacing: 0.09em;
 	text-transform: uppercase;
+	box-shadow: 0 2px 10px rgb(25 28 30 / 6%);
+
+	.mat-icon {
+		width: 1rem;
+		height: 1rem;
+		font-size: 1rem;
+	}
+
+	&:hover {
+		border-color: rgb(0 23 53 / 24%);
+		background: linear-gradient(180deg, rgb(255 255 255 / 100%), rgb(236 238 240 / 96%));
+		transform: translateY(-1px);
+		box-shadow: 0 8px 18px rgb(25 28 30 / 10%);
+	}
+
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 2px 8px rgb(25 28 30 / 8%);
+	}
 }
 
-.subtle-btn,
-.text-action {
+:host ::ng-deep .add-btn.subtle-btn.mat-mdc-button,
+:host ::ng-deep .text-action.mat-mdc-button {
+	border-color: rgb(67 71 79 / 20%);
+	background: linear-gradient(180deg, rgb(255 255 255 / 92%), rgb(247 249 251 / 88%));
 	color: var(--vault-on-surface-variant) !important;
+
+	.mat-icon {
+		padding: 0.2rem;
+		border-radius: 999px;
+		background: rgb(67 71 79 / 10%);
+	}
+
+	&:hover {
+		border-color: rgb(67 71 79 / 34%);
+		background: linear-gradient(180deg, rgb(255 255 255 / 98%), rgb(242 244 246 / 94%));
+	}
 }
 
 .workspace-shell {

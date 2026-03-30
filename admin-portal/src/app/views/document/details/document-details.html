@@ -74,7 +74,7 @@
               <p>Compliance Assessment</p>
             </div>
             <div class="score">
-              <div class="value">{{ document().validationResults?.score != null ? document().validationResults.score + '%' : '—' }}</div>
+              <div class="value">{{ confidenceScore() | number:'1.0-2' }}%</div>
               <div class="label">Confidence Score</div>
             </div>
           </div>

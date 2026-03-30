@@ -82,7 +82,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
   documentTypeApiStore = inject(DocumentTypeApiStore);
 
-  loading = signal(false);
+  loading = linkedSignal(() => this.documentTypeApiStore.loading());
 
   constructor() {
 
@@ -308,6 +308,10 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.expectedFields = formData.expectedFields || [];
     docType.textExtractionPrompts = formData.textExtractionPrompts || [];
     docType.validationPrompts = formData.validationPrompts || [];
+
+    this.documentTypeApiStore.save({
+      documentType: docType
+    });
 
     // this.documentTypeApi.save(docType).subscribe({
     //   next: (documentType: DocumentTypeDTO) => {

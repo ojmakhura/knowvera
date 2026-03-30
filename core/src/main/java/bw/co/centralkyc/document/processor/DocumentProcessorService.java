@@ -216,7 +216,7 @@ public class DocumentProcessorService {
 
         response.getChoices().forEach(choice -> {
             if (choice.getMessage() != null && choice.getMessage().getContent() != null) {
-                String updatedContent = choice.getMessage().getContent();
+                String updatedContent = removeThinkBlocks(choice.getMessage().getContent());
                 document.setFileContent(updatedContent);
                 document.setAnalyticsStatus(DocumentAnalyticsStatus.TEXT_CLEANUP_COMPLETE);
                 documentService.save(document);

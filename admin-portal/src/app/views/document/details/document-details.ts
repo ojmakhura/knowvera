@@ -15,6 +15,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   Input,
@@ -64,6 +65,9 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   @Input() id!: string;
 
   document = linkedSignal(() => this.documentApiStore.data());
+  confidenceScore = computed(() => {
+    return (this.document()?.validationResults?.score ?? 0) * 100;
+  });
   fileContent = linkedSignal(() => this.document()?.fileContent ?? '');
   fileContentCopied = signal(false);
 
