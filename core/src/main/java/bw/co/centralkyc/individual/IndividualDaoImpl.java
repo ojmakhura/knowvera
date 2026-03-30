@@ -198,7 +198,9 @@ public class IndividualDaoImpl
                 kycStatus,
                 sex,
                 pepStatus,
-                userCreated
+                userCreated,
+                entity.getPhysicalAddress(),
+                entity.getPostalAddress()
         );
     }
 }

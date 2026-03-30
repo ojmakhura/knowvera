@@ -27,17 +27,16 @@ import org.springframework.stereotype.Repository;
  */
 @Repository("organisationDao")
 public class OrganisationDaoImpl
-    extends OrganisationDaoBase
-{
+        extends OrganisationDaoBase {
 
-    
     public OrganisationDaoImpl(DocumentRepository documentRepository, DocumentTypeRepository documentTypeRepository,
             BranchRepository branchRepository, KycSubscriptionRepository kycSubscriptionRepository,
             KycInvoiceRepository kycInvoiceRepository, ClientRequestRepository clientRequestRepository,
             IndividualRepository individualRepository, OrganisationRepository organisationRepository) {
-        super(documentRepository, documentTypeRepository, branchRepository, kycSubscriptionRepository, kycInvoiceRepository,
+        super(documentRepository, documentTypeRepository, branchRepository, kycSubscriptionRepository,
+                kycInvoiceRepository,
                 clientRequestRepository, individualRepository, organisationRepository);
-        //TODO Auto-generated constructor stub
+        // TODO Auto-generated constructor stub
 
     }
 
@@ -46,9 +45,8 @@ public class OrganisationDaoImpl
      */
     @Override
     public void toOrganisationDTO(
-        Organisation source,
-        OrganisationDTO target)
-    {
+            Organisation source,
+            OrganisationDTO target) {
         // TODO verify behavior of toOrganisationDTO
         super.toOrganisationDTO(source, target);
 
@@ -58,35 +56,31 @@ public class OrganisationDaoImpl
      * {@inheritDoc}
      */
     @Override
-    public OrganisationDTO toOrganisationDTO(final Organisation entity)
-    {
+    public OrganisationDTO toOrganisationDTO(final Organisation entity) {
         // TODO verify behavior of toOrganisationDTO
         return super.toOrganisationDTO(entity);
     }
 
     /**
-     * Retrieves the entity object that is associated with the specified value object
+     * Retrieves the entity object that is associated with the specified value
+     * object
      * from the object store. If no such entity object exists in the object store,
      * a new, blank entity is created
      */
-    private Organisation loadOrganisationFromOrganisationDTO(OrganisationDTO organisationDTO)
-    {
-        if (organisationDTO.getId() == null)
-        {
-            return  Organisation.Factory.newInstance();
-        }
-        else
-        {
+    private Organisation loadOrganisationFromOrganisationDTO(OrganisationDTO organisationDTO) {
+        if (organisationDTO.getId() == null) {
+            return Organisation.Factory.newInstance();
+        } else {
             return this.organisationRepository.findById(UUID.fromString(organisationDTO.getId()))
-                .orElseThrow(() -> new EntityNotFoundException("Entity not found for id: " + organisationDTO.getId()));
+                    .orElseThrow(
+                            () -> new EntityNotFoundException("Entity not found for id: " + organisationDTO.getId()));
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public Organisation organisationDTOToEntity(OrganisationDTO organisationDTO)
-    {
+    public Organisation organisationDTOToEntity(OrganisationDTO organisationDTO) {
         // TODO verify behavior of organisationDTOToEntity
         Organisation entity = this.loadOrganisationFromOrganisationDTO(organisationDTO);
         this.organisationDTOToEntity(organisationDTO, entity, true);
@@ -98,44 +92,44 @@ public class OrganisationDaoImpl
      */
     @Override
     public void organisationDTOToEntity(
-        OrganisationDTO source,
-        Organisation target,
-        boolean copyIfNull)
-    {
+            OrganisationDTO source,
+            Organisation target,
+            boolean copyIfNull) {
         // TODO verify behavior of organisationDTOToEntity
         super.organisationDTOToEntity(source, target, copyIfNull);
-        
+
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public OrganisationListDTO toOrganisationListDTO(final Organisation entity)
-    {
+    public OrganisationListDTO toOrganisationListDTO(final Organisation entity) {
 
-        // No conversion for target.id (can't convert entity.getId():java.lang.Long to String)
-        String id = entity.getId().toString(); 
-        String code = entity.getCode(); 
-        String name = entity.getName(); 
-        String registrationNo = entity.getRegistrationNo(); 
-        GeneralStatus status = entity.getStatus(); 
-        String contactEmailAddress = entity.getContactEmailAddress(); 
-        KycComplianceStatus kycStatus = entity.getKycStatus(); 
-        Boolean isClient = entity.getIsClient(); 
+        // No conversion for target.id (can't convert entity.getId():java.lang.Long to
+        // String)
+        String id = entity.getId().toString();
+        String code = entity.getCode();
+        String name = entity.getName();
+        String registrationNo = entity.getRegistrationNo();
+        GeneralStatus status = entity.getStatus();
+        String contactEmailAddress = entity.getContactEmailAddress();
+        KycComplianceStatus kycStatus = entity.getKycStatus();
+        Boolean isClient = entity.getIsClient();
         // No matching property found for target.keycloakId in entity Organisation
         String keycloakId = null;
 
         return new OrganisationListDTO(
-            id, 
-            code, 
-            name, 
-            registrationNo, 
-            status, 
-            contactEmailAddress, 
-            kycStatus, 
-            isClient, 
-            keycloakId
-        );
+                id,
+                code,
+                name,
+                registrationNo,
+                status,
+                contactEmailAddress,
+                kycStatus,
+                isClient,
+                keycloakId,
+                entity.getPhysicalAddress(),
+                entity.getPostalAddress());
     }
 }

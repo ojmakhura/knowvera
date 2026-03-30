@@ -241,9 +241,18 @@
                 <version>8.16.0</version>
             </dependency>
             <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>1.60.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
-                <artifactId>opentelemetry-logback-appender-1.0</artifactId>
+                <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
                 <version>2.26.1-alpha</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
@@ -251,7 +260,7 @@
                 <version>5.3.2</version>
                 <!-- <scope>compile</scope> -->
             </dependency>
-            <dependency> 
+            <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp-jvm</artifactId>
                 <version>5.3.2</version>
@@ -447,7 +456,7 @@
         <!-- Set andromda.xml hibernateVersion=7, sessionFactory and localTransactionManager to
         hibernate4.-->
         <!-- v 9.x only supports JDK7 and you cannot configure jetty.port from maven.-->
-        <!-- v5 migration needed --> 
+        <!-- v5 migration needed -->
         <!-- <spring.version>5.3.2</spring.version> -->
         <spring-boot.version>4.0.1</spring-boot.version>
         <openapi.version>1.6.13</openapi.version>
@@ -664,7 +673,7 @@
                         <enabled>true</enabled>
                     </snapshots>
                 </repository>
-            </repositories> 
+            </repositories>
         </profile>
     </profiles>
     <repositories>

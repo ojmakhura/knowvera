@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   linkedSignal,
@@ -18,7 +19,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
 import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
 import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
@@ -59,7 +60,8 @@ export class SearchRecordsVarsForm {
     MatSelectModule,
     MatTooltipModule,
     MatIconModule,
-  ],
+    RouterLink
+],
 })
 export class Records implements OnInit {
   private readonly kycRecordApiStore = inject(KycRecordApiStore);
@@ -79,11 +81,13 @@ export class Records implements OnInit {
     'ref',
     'name',
     'identityNo',
-    'identityType',
     'kycStatus',
     'expiryDate',
     'actions',
   ];
+
+  readonly currentCount = computed(() => this.rows().filter(r => r.kycStatus === KycComplianceStatus.CURRENT).length);
+  readonly flaggedCount = computed(() => this.rows().filter(r => r.kycStatus === KycComplianceStatus.EXPIRED || r.kycStatus === KycComplianceStatus.ABSENT).length);
 
   readonly identityTypeOptions = [
     { label: 'All Types', value: '' },
@@ -94,6 +98,7 @@ export class Records implements OnInit {
   ];
 
   readonly statusOptions = [
+    { label: 'All Statuses', value: '' },
     { label: 'Current', value: KycComplianceStatus.CURRENT },
     { label: 'Expired', value: KycComplianceStatus.EXPIRED },
     { label: 'Absent', value: KycComplianceStatus.ABSENT },
@@ -108,14 +113,11 @@ export class Records implements OnInit {
         return;
       }
 
-      const serverRows = page.content || [];
-      const filteredRows = this.applyClientSideFilters(serverRows);
-
-      this.rows.set(filteredRows);
-      this.dataSource.data = filteredRows;
+      this.rows.set(page.content || []);
+      this.dataSource.data = page.content || [];
       this.currentPage.set(page.page?.number || 0);
       this.pageSize.set(page.page?.size || 10);
-      this.totalElements.set(page.page?.totalElements || filteredRows.length);
+      this.totalElements.set(page.page?.totalElements || 0);
     });
   }
 
@@ -160,6 +162,32 @@ export class Records implements OnInit {
     this.doSearch();
   }
 
+  updateStatusFilter(value: KycComplianceStatus | ''): void {
+    this.searchRecordsSignal.update((state) => ({
+      ...state,
+      statuses: value ? [value] : [],
+    }));
+  }
+
+  initialsOf(name: string | null | undefined): string {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0].toUpperCase())
+      .join('');
+  }
+
+  avatarTone(index: number): 'tone-secondary' | 'tone-tertiary' | 'tone-primary' {
+    const tones: Array<'tone-secondary' | 'tone-tertiary' | 'tone-primary'> = [
+      'tone-secondary',
+      'tone-primary',
+      'tone-tertiary',
+    ];
+    return tones[index % tones.length];
+  }
+
   doSearch(pageNumber: number = 0, size: number = this.pageSize()): void {
     const value = this.searchRecordsSignal();
     const criteria = new SearchObject<KycRecordSearchCriteria>();
@@ -195,7 +223,7 @@ export class Records implements OnInit {
       return;
     }
 
-    this.router.navigate(['/', 'records', 'details', row.targetId]);
+    this.router.navigate(['/', 'individuals', 'details', row.targetId]);
   }
 
   exportCsv(): void {

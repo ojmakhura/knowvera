@@ -187,7 +187,7 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   subtitle(): string {
-    return 'Veritas Protocol / Compliance Environment';
+    return 'Central KYC / Compliance Environment';
   }
 
   annualCommitment(): string {

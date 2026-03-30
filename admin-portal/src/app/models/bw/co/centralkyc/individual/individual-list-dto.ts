@@ -24,6 +24,10 @@ export class IndividualListDTO {
     
     userCreated: boolean | any = false;
     
+    physicalAddress: string | any;
+    
+    postalAddress: string | any;
+    
     constructor() {
         this.id = null;
         this.name = null;
@@ -34,5 +38,7 @@ export class IndividualListDTO {
         this.sex = null;
         this.pepStatus = null;
         this.userCreated = false;
+        this.physicalAddress = null;
+        this.postalAddress = null;
     }
 }

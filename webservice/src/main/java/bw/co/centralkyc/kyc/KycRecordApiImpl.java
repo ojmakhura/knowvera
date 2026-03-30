@@ -548,15 +548,11 @@ public class KycRecordApiImpl implements KycRecordApi {
             // Ensure all documents are associated with the record and have valid targets before proceeding with uploads
             documents.forEach(doc -> {
 
-                if(doc.getTarget() == null || StringUtils.isBlank(doc.getTargetId())) {
-                    throw new RuntimeException("Document with id: " + doc.getId() + " is not associated with any target");
-                }
-
-                if(doc.getTarget() != TargetEntity.KYC_RECORD) {
+                if(doc.getTarget() != null && doc.getTarget() != TargetEntity.KYC_RECORD) {
                     throw new RuntimeException("Document with id: " + doc.getId() + " is not associated with a KYC record");
                 }   
 
-                if(!doc.getTargetId().equals(id)) {
+                if(StringUtils.isNotBlank(doc.getTargetId()) && !doc.getTargetId().equals(id)) {
 
                     throw new RuntimeException("Document with id: " + doc.getId() + " is not associated with KYC record with id: " + id);
                 }

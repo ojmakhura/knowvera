@@ -14,6 +14,7 @@ import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.SortOrder;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.type.DocumentType;
+import bw.co.centralkyc.document.type.DocumentTypeRepository;
 import bw.co.centralkyc.document.type.ExpectedField;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
@@ -58,12 +59,13 @@ public class DocumentServiceImpl
     private final KycRecordRepository kycRecordRepository;
     private final ClientRequestRepository clientRequestRepository;
     private final KycSubscriptionRepository kycSubscriptionRepository;
+    private final DocumentTypeRepository documentTypeRepository;
 
     public DocumentServiceImpl(DocumentDao documentDao, DocumentRepository documentRepository,
-            OrganisationRepository organisationRepository, IndividualRepository individualRepository,
-            KycRecordRepository kycRecordRepository, ClientRequestRepository clientRequestRepository,
-            KycSubscriptionRepository kycSubscriptionRepository,
-            DocumentMapper documentMapper, MessageSource messageSource) {
+                               OrganisationRepository organisationRepository, IndividualRepository individualRepository,
+                               KycRecordRepository kycRecordRepository, ClientRequestRepository clientRequestRepository,
+                               KycSubscriptionRepository kycSubscriptionRepository,
+                               DocumentMapper documentMapper, MessageSource messageSource, DocumentTypeRepository documentTypeRepository) {
         super(documentDao, documentRepository, documentMapper, messageSource);
         // TODO Auto-generated constructor stub
 
@@ -72,6 +74,7 @@ public class DocumentServiceImpl
         this.kycRecordRepository = kycRecordRepository;
         this.clientRequestRepository = clientRequestRepository;
         this.kycSubscriptionRepository = kycSubscriptionRepository;
+        this.documentTypeRepository = documentTypeRepository;
     }
 
     /**
@@ -467,48 +470,50 @@ public class DocumentServiceImpl
             expectedInformation = new HashMap<>();
         }
 
-        for (ExpectedField expectedField : docType.getExpectedFields()) {
+        if(docType.getExpectedFields() != null) {
+            for (ExpectedField expectedField : docType.getExpectedFields()) {
 
-            switch (expectedField.getKeyField()) {
-                case INDIVIDUAL_FIRST_NAME:
-                    expectedInformation.put(expectedField.getField(), individual.getFirstName());
-                    break;
+                switch (expectedField.getKeyField()) {
+                    case INDIVIDUAL_FIRST_NAME:
+                        expectedInformation.put(expectedField.getField(), individual.getFirstName());
+                        break;
 
-                case INDIVIDUAL_MIDDLE_NAME:
-                    expectedInformation.put(expectedField.getField(), individual.getMiddleName());
+                    case INDIVIDUAL_MIDDLE_NAME:
+                        expectedInformation.put(expectedField.getField(), individual.getMiddleName());
 
-                    break;
-                case INDIVIDUAL_SURNAME:
-                    expectedInformation.put(expectedField.getField(), individual.getSurname());
-                    break;
-                case INDIVIDUAL_IDENTITY_NO:
-                    expectedInformation.put(expectedField.getField(), individual.getIdentityNo());
-                    break;
-                case INDIVIDUAL_IDENTITY_TYPE:
-                    expectedInformation.put(expectedField.getField(), individual.getIdentityType());
-                    break;
-                case INDIVIDUAL_POSTAL_ADDRESS:
-                    expectedInformation.put(expectedField.getField(), individual.getPostalAddress());
-                    break;
-                case INDIVIDUAL_PHYSICAL_ADDRESS:
-                    expectedInformation.put(expectedField.getField(), individual.getPhysicalAddress());
-                    break;
+                        break;
+                    case INDIVIDUAL_SURNAME:
+                        expectedInformation.put(expectedField.getField(), individual.getSurname());
+                        break;
+                    case INDIVIDUAL_IDENTITY_NO:
+                        expectedInformation.put(expectedField.getField(), individual.getIdentityNo());
+                        break;
+                    case INDIVIDUAL_IDENTITY_TYPE:
+                        expectedInformation.put(expectedField.getField(), individual.getIdentityType());
+                        break;
+                    case INDIVIDUAL_POSTAL_ADDRESS:
+                        expectedInformation.put(expectedField.getField(), individual.getPostalAddress());
+                        break;
+                    case INDIVIDUAL_PHYSICAL_ADDRESS:
+                        expectedInformation.put(expectedField.getField(), individual.getPhysicalAddress());
+                        break;
 
-                case INDIVIDUAL_EMAIL_ADDRESS:
-                    expectedInformation.put(expectedField.getField(), individual.getEmailAddress());
-                    break;
+                    case INDIVIDUAL_EMAIL_ADDRESS:
+                        expectedInformation.put(expectedField.getField(), individual.getEmailAddress());
+                        break;
 
-                case INDIVIDUAL_SEX:
-                    expectedInformation.put(expectedField.getField(), individual.getSex());
-                    break;
-                case INDIVIDUAL_NATIONALITY:
-                    expectedInformation.put(expectedField.getField(), individual.getNationality());
-                    break;
+                    case INDIVIDUAL_SEX:
+                        expectedInformation.put(expectedField.getField(), individual.getSex());
+                        break;
+                    case INDIVIDUAL_NATIONALITY:
+                        expectedInformation.put(expectedField.getField(), individual.getNationality());
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
+
             }
-
         }
 
         return expectedInformation;

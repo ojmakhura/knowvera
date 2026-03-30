@@ -4,6 +4,8 @@ import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
 import { IndividualIdentityType } from "../individual/individual-identity-type";
 
 export class OwnerDetails {
+    id: string | any;
+
     phoneNumbers: Array<PhoneNumber> | any;
 
     physicalAddress: string | any;
@@ -26,5 +28,6 @@ export class OwnerDetails {
         this.identityNo = null;
         this.name = null;
         this.identityType = null;
+        this.id = null;
     }
 }

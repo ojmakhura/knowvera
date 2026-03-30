@@ -10,6 +10,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   linkedSignal,
@@ -21,7 +22,6 @@ import {
 import { form } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { Loader } from '@app/@shared/loader/loader';
 import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
 import { SearchObject } from '@app/models/search-object';
@@ -39,7 +39,6 @@ export class SearchOrganisationsVarsForm {
   imports: [
     TranslateModule,
     MatIconModule,
-    Loader,
     MatCardModule,
     MatButtonModule,
     MatTableModule,
@@ -199,5 +198,12 @@ export class Organisations implements OnInit, OnDestroy {
     }
 
     return 'active';
+  }
+
+  clientCount = computed(() => this.organisations().filter(o => o.isClient).length);
+
+  resetSearch(): void {
+    this.searchOrganisationsSignal.set(new SearchOrganisationsVarsForm());
+    this.doSearch(0, this.pageSize());
   }
 }

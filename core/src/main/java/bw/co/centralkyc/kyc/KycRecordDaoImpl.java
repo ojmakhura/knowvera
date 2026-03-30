@@ -94,7 +94,7 @@ public class KycRecordDaoImpl
 
 //            target.setName(builder.toString());
 //            target.setEmailAddress(individual.getEmailAddress());
-            target.setIdentityType(individual.getIdentityType());
+            // target.setIdentityType(individual.getIdentityType());
 //            target.setPhysicalAddress(individual.getPhysicalAddress());
 //            target.setPostalAddress(individual.getPostalAddress());
         }

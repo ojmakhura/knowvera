@@ -131,6 +131,8 @@ public class KycRecordServiceImpl
             kycRecordEntity.setKycVerification(verification);
         }
 
+        this.checkRef(kycRecordEntity);
+
         kycRecordEntity = this.kycRecordRepository.save(kycRecordEntity);
 
         return this.kycRecordDao.toKycRecordDTO(kycRecordEntity);
@@ -393,33 +395,7 @@ public class KycRecordServiceImpl
         return record == null ? null : kycRecordDao.toKycRecordDTO(record);
     }
 
-    @Override
-    protected KycRecordDTO handleCreateNew(KycRecordDTO record, String user)
-            throws Exception {
-
-        if (StringUtils.isBlank(record.getId())) {
-            record.setEmploymentRecord(null);
-        }
-
-        KycRecord kycRecord = this.kycRecordMapper.kycRecordDTOToEntity(record);
-        Collection<Document> docs = kycRecord.getDocuments();
-        kycRecord.setDocuments(new ArrayList<>()); // Detach documents to avoid persistence issues, we'll handle them
-                                                   // after saving the KYC record
-
-        if (kycRecord.getUploadDate() == null) {
-            kycRecord.setUploadDate(LocalDate.now());
-        }
-
-        if(kycRecord.getExpiryDate() == null) {
-            Settings settings = this.settingsRepository.findAll().stream().findFirst()
-                    .orElseThrow(() -> new Exception("Settings not found"));
-
-            int kycDuration = settings.getKycDuration() != null ? settings.getKycDuration() : 2; // Default to 2 years if
-                                                                                                 // not set
-
-            kycRecord.setExpiryDate(kycRecord.getUploadDate().plusYears(kycDuration));
-        }
-
+    private void checkRef(KycRecord kycRecord) {
         if (StringUtils.isBlank(kycRecord.getRef())) {
 
             SequenceGenerator sequenceGenerator = sequenceGeneratorRepository.findByName(SEQUENCE_NAME).orElse(null);
@@ -471,6 +447,36 @@ public class KycRecordServiceImpl
             String nextRef = sequenceGeneratorService.generateNextSequenceValue(SEQUENCE_NAME, true);
             kycRecord.setRef(nextRef);
         }
+    }
+
+    @Override
+    protected KycRecordDTO handleCreateNew(KycRecordDTO record, String user)
+            throws Exception {
+
+        if (StringUtils.isBlank(record.getId())) {
+            record.setEmploymentRecord(null);
+        }
+
+        KycRecord kycRecord = this.kycRecordMapper.kycRecordDTOToEntity(record);
+        Collection<Document> docs = kycRecord.getDocuments();
+        kycRecord.setDocuments(new ArrayList<>()); // Detach documents to avoid persistence issues, we'll handle them
+                                                   // after saving the KYC record
+
+        if (kycRecord.getUploadDate() == null) {
+            kycRecord.setUploadDate(LocalDate.now());
+        }
+
+        if(kycRecord.getExpiryDate() == null) {
+            Settings settings = this.settingsRepository.findAll().stream().findFirst()
+                    .orElseThrow(() -> new Exception("Settings not found"));
+
+            int kycDuration = settings.getKycDuration() != null ? settings.getKycDuration() : 2; // Default to 2 years if
+                                                                                                 // not set
+
+            kycRecord.setExpiryDate(kycRecord.getUploadDate().plusYears(kycDuration));
+        }
+
+        this.checkRef(kycRecord);
 
         kycRecord = this.kycRecordRepository.save(kycRecord);
         if (docs != null && docs.size() > 0) {

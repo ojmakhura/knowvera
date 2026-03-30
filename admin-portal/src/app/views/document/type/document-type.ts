@@ -38,7 +38,6 @@ export class SearchDocumentTypesVarsForm {
     MatInputModule,
     MatPaginatorModule,
     MatTableModule,
-    MatChipsModule,
     MatTooltipModule],
   templateUrl: './document-type.html',
   styleUrls: ['./document-type.scss'],

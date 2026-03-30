@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   linkedSignal,
@@ -34,6 +35,8 @@ import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-ap
 import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
 import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
 import { ToastrService } from 'ngx-toastr';
+import { Loader } from '@app/@shared/loader/loader';
+import { form, FormField } from '@angular/forms/signals';
 
 export class SearchDocumentsVarsForm {
   fileName: string = '';
@@ -64,11 +67,14 @@ export class SearchDocumentsVarsForm {
     MatTooltipModule,
     MatProgressBarModule,
     FormsModule,
+    FormField,
+    Loader
   ],
 })
 export class Documents implements OnInit {
   searchDocumentsVarsForm = new SearchDocumentsVarsForm();
   searchDocumentsSignal = signal(this.searchDocumentsVarsForm);
+  searchDocumentsForm = form(this.searchDocumentsSignal, (path) => {});
 
   readonly documentApiStore = inject(DocumentApiStore);
   readonly documentTypeApiStore = inject(DocumentTypeApiStore);
@@ -118,15 +124,15 @@ export class Documents implements OnInit {
     this.doSearch();
   }
 
-  updateField(
-    field: keyof SearchDocumentsVarsForm,
-    value: string | TargetEntity | DocumentVerificationStatus,
-  ): void {
-    this.searchDocumentsSignal.update((state) => ({
-      ...state,
-      [field]: value,
-    }));
-  }
+  // updateField(
+  //   field: keyof SearchDocumentsVarsForm,
+  //   value: string | TargetEntity | DocumentVerificationStatus,
+  // ): void {
+  //   this.searchDocumentsSignal.update((state) => ({
+  //     ...state,
+  //     [field]: value,
+  //   }));
+  // }
 
   resetSearch(): void {
     this.searchDocumentsSignal.set(new SearchDocumentsVarsForm());
@@ -261,6 +267,12 @@ export class Documents implements OnInit {
   private downloadFileNameOf(row: DocumentDTO): string {
     return row.fileName || 'document-download';
   }
+
+  verifiedCount = computed(
+    () =>
+      this.rows().filter((r) => r.verificationStatus === DocumentVerificationStatus.VERIFIED)
+        .length,
+  );
 
   private saveBlob(blob: Blob, fileName: string): void {
     const url = window.URL.createObjectURL(blob);

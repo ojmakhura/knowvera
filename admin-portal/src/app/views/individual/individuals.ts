@@ -5,7 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
-import { ChangeDetectionStrategy, Component, effect, inject, linkedSignal, OnInit, Signal, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, linkedSignal, OnInit, Signal, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -42,6 +42,8 @@ export class Individuals implements OnInit {
   protected readonly pageSize = signal(10);
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
+  protected readonly verifiedCount = computed(() => this.rows().filter(r => r.kycStatus === 'CURRENT').length);
+  protected readonly flaggedCount = computed(() => this.rows().filter(r => r.kycStatus !== 'CURRENT' && r.kycStatus !== 'INCOMPLETE').length);
   protected readonly router = inject(Router);
   loaderMessage: Signal<string> = signal('');
   messages = linkedSignal(() => this.individualApiStore.messages());

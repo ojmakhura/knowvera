@@ -23,7 +23,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Loader } from '@app/@shared/loader/loader';
-import { disabled, form, FormField, readonly, required } from '@angular/forms/signals';
+import { disabled, email, form, FormField, readonly, required } from '@angular/forms/signals';
 import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -46,10 +46,11 @@ import { QuillEditorComponent, QuillModule } from 'ngx-quill';
 import { OwnerDetails } from '@app/models/bw/co/centralkyc/kyc/owner-details';
 import { KycVerificationDTO } from '@app/models/bw/co/centralkyc/kyc/verification/kyc-verification-dto';
 import { EmploymentRecordDTO } from '@app/models/bw/co/centralkyc/individual/employment/employment-record-dto';
+import Swal from 'sweetalert2';
 
 type QueuedDocumentUpload = {
   file: File;
-  documentTypeId: string | null;
+  documentType: DocumentTypeDTO | null;
 };
 
 export class EditRecordVarsForm {
@@ -59,17 +60,18 @@ export class EditRecordVarsForm {
   modifiedAt: Date | any = null;
   modifiedBy: string | any = null;
   ref: string | any = null;
-  target: TargetEntity | any = TargetEntity.INDIVIDUAL;
+  target: TargetEntity = TargetEntity.INDIVIDUAL;
   targetId: string | any = null;
   ownerDetails: OwnerDetails = new OwnerDetails();
   recordOwnerFilter: any = null;
   expiryDate: Date | any = null;
   uploadDate: Date | any = null;
-  kycStatus: KycComplianceStatus | any = null;
+  kycStatus: KycComplianceStatus = KycComplianceStatus.INCOMPLETE;
   declaration: DeclarationDTO | any = null;
   sourceOfFunds: SourceOfFunds[] | any = [];
   sourceOfFundsDetails: string | any = null;
   documents: DocumentDTO[] | any = [];
+  files: File[] | any = [];
   documentsToUpload: QueuedDocumentUpload[] = [];
   kycVerification: KycVerificationDTO | any = new KycVerificationDTO();
   employmentRecord: EmploymentRecordDTO | any = new EmploymentRecordDTO();
@@ -105,6 +107,7 @@ export class EditRecordVarsForm {
   ],
 })
 export class RecordEdit implements OnInit {
+
   editRecordVarsForm: EditRecordVarsForm = new EditRecordVarsForm();
   editRecordSignal = signal(this.editRecordVarsForm);
   editRecordSignalForm = form(this.editRecordSignal, (path) => {
@@ -112,16 +115,13 @@ export class RecordEdit implements OnInit {
     disabled(path.uploadDate);
     disabled(path.target);
     required(path.ownerDetails.name, { message: 'record.name.required' });
-
-    // Conditionally require identity fields only for individuals
-    // const target = this.editRecordSignal().target;
-    // if (target === TargetEntity.INDIVIDUAL) {
-    //   required(path.identityNo, { message: 'record.identity.required' });
-    //   required(path.identityType, { message: 'record.identity.type.required' });
-    // }
-
+    required(path.ownerDetails, { message: 'record.owner.required' });
     disabled(path.ownerDetails.identityNo);
     disabled(path.ownerDetails.identityType);
+    email(path.ownerDetails.emailAddress, { message: 'email.invalid' });
+    required(path.ownerDetails.emailAddress, { message: 'email.required' });
+    required(path.kycStatus, { message: 'record.kycStatus.required' });
+    required(path.declaration.pepStatus, { message: 'pep.status.required' });
   });
 
   protected route: ActivatedRoute = inject(ActivatedRoute);
@@ -146,7 +146,8 @@ export class RecordEdit implements OnInit {
   private readonly quillEditors = new Map<string, any>();
 
   ownerOptions = linkedSignal(() => {
-    const target = this.editRecordSignal().target;
+    const record = this.editRecordSignal();
+    const target = record.target;
 
     if (target === TargetEntity.ORGANISATION) {
       return (this.organisationApiStore.dataList() || []).map((org) => ({
@@ -154,7 +155,9 @@ export class RecordEdit implements OnInit {
         name: org.name,
         identityNo: org.registrationNo,
         emailAddress: org.contactEmailAddress,
-        identityType: null
+        identityType: null,
+        postalAddress: org.postalAddress,
+        physicalAddress: org.physicalAddress,
       }));
     } else if (target === TargetEntity.INDIVIDUAL) {
       return (this.individualApiStore.dataList() || []).map((ind) => ({
@@ -162,7 +165,9 @@ export class RecordEdit implements OnInit {
         name: ind.name,
         identityNo: ind.identityNo,
         emailAddress: ind.emailAddress,
-        identityType: ind.identityType
+        identityType: ind.identityType,
+        postalAddress: ind.postalAddress,
+        physicalAddress: ind.physicalAddress,
       }));
     }
 
@@ -218,6 +223,7 @@ export class RecordEdit implements OnInit {
       this.setQuillContent('pepDetails', record.declaration?.pepDetails ?? null);
       this.setQuillContent('sanctionsDetails', record.declaration?.sanctionsDetails ?? null);
       this.setQuillContent('sourceOfFundsDetails', record.sourceOfFundsDetails ?? null);
+
     });
 
     this.kycRecordApiStore.reset();
@@ -244,6 +250,15 @@ export class RecordEdit implements OnInit {
           this.router.navigate(['/', 'records', 'edit', savedRecord.id]);
         }
       }
+    });
+
+    effect(() => {
+      let owner = this.editRecordSignalForm.ownerDetails().value();
+
+      this.editRecordSignal.update((form) => ({
+        ...form,
+        targetId: owner?.id || null
+      }));
     });
   }
 
@@ -289,13 +304,14 @@ export class RecordEdit implements OnInit {
       modifiedBy: this.editRecordSignal().modifiedBy,
       employmentRecord: this.editRecordSignal().employmentRecord,
       kycVerification: this.editRecordSignal().kycVerification,
-
     }
 
     console.log('Saving record with data:', this.editRecordSignal());
 
     // this.saveRequested.set(true);
-    this.kycRecordApiStore.save({ kycRecord: record });
+    this.kycRecordApiStore.save({ 
+      kycRecord: record,
+    });
   }
 
   cancel(): void {
@@ -386,6 +402,7 @@ export class RecordEdit implements OnInit {
       ...form,
       target,
       ownerDetails: {
+        id: null,
         name: null,
         identityNo: null,
         identityType: null,
@@ -400,17 +417,27 @@ export class RecordEdit implements OnInit {
   onDocumentSelected(event: any): void {
     const files: FileList = event.target.files;
     if (files && files.length > 0) {
-      const defaultDocumentTypeId = this.allowedDocumentTypes()[0]?.id || null;
+      const defaultDocumentType = this.allowedDocumentTypes()[0] || null;
       const newFiles = Array.from(files).filter((file) =>
         !this.editRecordSignal().documentsToUpload.some((entry) => entry.file.name === file.name)
       );
+
+      let uploads = [...this.editRecordSignal().files, ...newFiles];
+      let docs = newFiles.map((file) => {
+
+        const doc: DocumentDTO = new DocumentDTO();
+        doc.fileName = file.name;
+
+        return doc;
+      });
+
       this.editRecordSignal.update((form) => ({
         ...form,
         documentsToUpload: [
           ...form.documentsToUpload,
           ...newFiles.map((file) => ({
             file,
-            documentTypeId: defaultDocumentTypeId,
+            documentType: defaultDocumentType,
           })),
         ],
       }));
@@ -428,22 +455,56 @@ export class RecordEdit implements OnInit {
     }));
   }
 
-  setUploadDocumentType(index: number, documentTypeId: string | null): void {
+  setUploadDocumentType(index: number, documentType: DocumentTypeDTO | null): void {
     this.editRecordSignal.update((form) => ({
       ...form,
       documentsToUpload: form.documentsToUpload.map((entry, i) =>
         i === index
           ? {
             ...entry,
-            documentTypeId,
+            documentType,
           }
           : entry
       ),
     }));
   }
 
-  private hasDocumentsWithoutType(): boolean {
-    return this.editRecordSignal().documentsToUpload.some((entry) => !entry.documentTypeId);
+  uploadDocuments(): void {
+    if (this.hasDocumentsWithoutType()) {
+      return;
+    }
+    const form = this.editRecordSignal();
+    const documents: DocumentDTO[] = form.documentsToUpload.map((entry) => ({
+      documentTypeId: entry.documentType!.id,
+    } as DocumentDTO));
+    const files: File[] = form.documentsToUpload.map((entry) => entry.file);
+
+    console.log('Uploading documents for record ID:', form.id);
+    console.log('Documents to upload:', documents);
+    console.log('Files to upload:', files);
+    this.kycRecordApiStore.updateRecordFiles({ id: form.id, documents, files });
+  }
+
+  deleteDocument(documentId: string): void {
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will permanently delete the document.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.kycRecordApiStore.removeRecordFile({ id: this.editRecordSignal().id, documentId });
+      }
+    });
+  }
+
+    
+
+  hasDocumentsWithoutType(): boolean {
+    return this.editRecordSignal().documentsToUpload.some((entry) => !entry.documentType?.id);
   }
 
   getDocumentTypeName(documentTypeId: string): string {
@@ -493,35 +554,10 @@ export class RecordEdit implements OnInit {
     }));
   }
 
-  // private buildRecordPayload(): KycRecordDTO {
-  //   const current = this.editRecordSignal();
-
-  //   return {
-  //     ...new KycRecordDTO(),
-  //     id: current.id,
-  //     ref: current.ref,
-  //     target: current.target || TargetEntity.INDIVIDUAL,
-  //     targetId: current.targetId,
-  //     name: current.name?.trim() || null,
-  //     identityNo: current.identityNo?.trim() || null,
-  //     identityType: current.identityType || null,
-  //     emailAddress: current.emailAddress?.trim() || null,
-  //     physicalAddress: current.physicalAddress?.trim() || null,
-  //     postalAddress: current.postalAddress?.trim() || null,
-  //     expiryDate: current.expiryDate || null,
-  //     uploadDate: current.uploadDate || null,
-  //     kycStatus: current.kycStatus || null,
-  //     declaration: current.declaration || new DeclarationDTO(),
-  //     sourceOfFunds: current.sourceOfFunds || [],
-  //     sourceOfFundsDetails: current.sourceOfFundsDetails?.trim() || null,
-  //     documents: current.documents || [],
-  //     createdAt: current.createdAt,
-  //     createdBy: current.createdBy,
-  //     modifiedAt: current.modifiedAt,
-  //     modifiedBy: current.modifiedBy,
-  //   } as KycRecordDTO;
-  // }
-
+  documentTypeCompare(o1: DocumentTypeDTO | any, o2: DocumentTypeDTO | any) {
+    return o1 && o2 ? o1.id === o2.id : o1 === o2;
+  }
+  
   organisationSearch(): void {}
 
   individualSearch(): void {}

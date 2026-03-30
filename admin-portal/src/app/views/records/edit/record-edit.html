@@ -3,23 +3,20 @@
     <div class="page-title-group">
       <div class="title-mark">
         <mat-icon>edit_document</mat-icon>
-        <span>Veritas Protocol</span>
+        <span>Central KYC</span>
       </div>
       <h1>{{ editRecordSignal().id ? 'Update KYC Record' : 'Create KYC Record' }}</h1>
-      <p>
-        Manage compliance identity, declarations, and fund sources for the KYC verification lifecycle.
-      </p>
     </div>
 
     <div class="header-actions">
       <button mat-stroked-button type="button" class="secondary-action" (click)="cancel()">
         <mat-icon>close</mat-icon>
-        Reset
+        <span translate>reset</span>
       </button>
       <button mat-flat-button type="button" class="primary-action"
          (click)="saveRecord()">
         <mat-icon>save</mat-icon>
-        Save
+        <span translate>save</span>
       </button>
     </div>
   </header>
@@ -29,10 +26,11 @@
       <mat-card-content>
         <div class="section-heading">
           <mat-icon>fingerprint</mat-icon>
-          <h2>Record Identity</h2>
+          <h2 translate>Record Information</h2>
         </div>
 
         <!-- Entity Type Selector -->
+        @if(!editRecordSignal().id) {
         <div class="field-group margin-bottom">
           <label class="field-label">Entity Type</label>
           <div class="entity-toggle">
@@ -48,6 +46,7 @@
             </button>
           </div>
         </div>
+        }
 
         <div class="field-grid two-column">
           <div class="field-group">
@@ -58,10 +57,11 @@
             </mat-form-field>
           </div>
 
-          @if(editRecordSignal().target === TargetEntity.ORGANISATION) {
+          <!-- @if(editRecordSignal().target === TargetEntity.ORGANISATION) { -->
           <div class="field-block">
-            <label class="field-label">Organisation</label>
+            <label class="field-label">{{ editRecordSignal().target === TargetEntity.ORGANISATION ? 'Organisation' : 'Individual' }}</label>
             <mat-form-field class="vault-field">
+              @if(!editRecordSignal().id) {
               <mat-select [formField]="editRecordSignalForm.ownerDetails" [compareWith]="recordOwnerCompare">
                 <mat-option>
                   <ngx-mat-select-search [placeholderLabel]="'search.organisations' | translate"
@@ -73,32 +73,21 @@
                   </button>
                 </mat-option>
                 @for (option of ownerOptions(); track option.id) {
-                <mat-option [value]="option">{{ option.name }}</mat-option>
+                <mat-option [value]="option">{{ option.identityNo }} - {{ option.name }}</mat-option>
                 }
               </mat-select>
+              } @else {
+              <input matInput type="text" [value]="editRecordSignal().ownerDetails.name" readonly />
+              }
             </mat-form-field>
+            @if(editRecordSignalForm.ownerDetails().invalid()) {
+            @if(editRecordSignal().target === TargetEntity.ORGANISATION) {
+            <p class="error-message" translate>organisation.required</p>
+            } @else {
+            <p class="error-message" translate>individual.required</p>
+            }
+            }
           </div>
-          } @else {
-          <div class="field-block">
-            <label class="field-label">Individual</label>
-            <mat-form-field class="vault-field">
-              <mat-select [formField]="editRecordSignalForm.ownerDetails" [compareWith]="recordOwnerCompare">
-                <mat-option>
-                  <ngx-mat-select-search [placeholderLabel]="'search.individuals' | translate"
-                    [formField]="editRecordSignalForm.recordOwnerFilter" (keyup.enter)="filterOwners()"
-                    [noEntriesFoundLabel]="'no.entries.found' | translate">
-                  </ngx-mat-select-search>
-                  <button mat-icon-button type="button" aria-label="Search individuals" (click)="filterOwners()">
-                    <mat-icon>search</mat-icon>
-                  </button>
-                </mat-option>
-                @for (option of ownerOptions(); track option.id) {
-                <mat-option [value]="option">{{ option.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-          }
 
           <!-- Individual-Specific Fields -->
 
@@ -119,16 +108,6 @@
             <label class="field-label">Identity Type</label>
             <mat-form-field appearance="outline" class="vault-field">
               <input matInput [value]="editRecordSignal().ownerDetails.identityType" readonly>
-                <!-- <mat-option>
-                  <ngx-mat-select-search [formField]="editRecordSignalForm.identityType">
-                  </ngx-mat-select-search>
-                </mat-option> -->
-                <!-- @for(item of identityTypeOptions; track item) {
-                <mat-option [value]="item">
-                  {{ identityTypeLabel(item) }}
-                </mat-option>
-                } -->
-              <!-- </input> -->
             </mat-form-field>
             @if (editRecordSignalForm.ownerDetails.identityType().touched()) {
             @for (error of editRecordSignalForm.ownerDetails.identityType().errors(); track $index) {
@@ -150,6 +129,33 @@
             <p class="error-message" translate>{{ error.message }}</p>
             }
             }
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="vault-card">
+      <mat-card-content>
+        <div class="section-heading">
+          <mat-icon>location_on</mat-icon>
+          <h2>Address Details</h2>
+        </div>
+
+        <div class="field-grid two-column">
+          <div class="field-group">
+            <label class="field-label">Physical Address</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <textarea matInput placeholder="Physical address"
+                [formField]="editRecordSignalForm.ownerDetails.physicalAddress"></textarea>
+            </mat-form-field>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Postal Address</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <textarea matInput placeholder="Postal address"
+                [formField]="editRecordSignalForm.ownerDetails.postalAddress"></textarea>
+            </mat-form-field>
           </div>
         </div>
       </mat-card-content>
@@ -181,6 +187,11 @@
                     }
                   </mat-select>
                 </mat-form-field>
+                @if(editRecordSignalForm.declaration.pepStatus().touched()) {
+                @for (error of editRecordSignalForm.declaration.pepStatus().errors(); track $index) {
+                <p class="error-message" translate>{{ error.message }}</p>
+                }
+                }
               </div>
 
               <div class="field-group">
@@ -293,6 +304,7 @@
       </mat-card-content>
     </mat-card>
 
+    @if(editRecordSignal().id) {
     <mat-card class="vault-card">
       <mat-card-content>
         <div class="section-heading">
@@ -300,85 +312,104 @@
           <h2>Supporting Documents</h2>
         </div>
 
-        <p class="support-copy context-copy margin-bottom">
-          Upload KYC documents for verification. Allowed file types depend on the selected entity type.
-        </p>
-
-        <div class="field-group margin-bottom">
-          <div class="file-upload-zone">
+        <!-- Drop Zone -->
+        <input #fileInput type="file" (change)="onDocumentSelected($event)" multiple hidden />
+        <div class="upload-dropzone" (click)="fileInput.click()" role="button" tabindex="0"
+          (keydown.enter)="fileInput.click()" (keydown.space)="fileInput.click()">
+          <div class="upload-dropzone-icon">
             <mat-icon>cloud_upload</mat-icon>
-            <p>Drag and drop files here or click to browse</p>
-            <input #fileInput type="file" (change)="onDocumentSelected($event)" multiple hidden />
-            <button mat-stroked-button type="button" (click)="fileInput.click()" class="upload-button">
-              <mat-icon>upload</mat-icon>
-              Choose Files
-            </button>
-            @if (allowedDocumentTypes().length > 0) {
-            <p class="support-copy">
-              Accepted: {{ allowedDocumentTypes().map(dt => dt.name).join(', ') }}
-            </p>
+          </div>
+          <p class="upload-dropzone-title">Drop files here or <span class="upload-link">click to browse</span></p>
+          <p class="upload-dropzone-sub">Multiple files allowed &mdash; one document type per file</p>
+          @if (allowedDocumentTypes().length > 0) {
+          <div class="upload-type-chips">
+            @for (dt of allowedDocumentTypes(); track dt.id) {
+            <span class="upload-type-chip">{{ dt.name }}</span>
             }
           </div>
+          }
         </div>
 
         <!-- Queued Documents -->
         @if (editRecordSignal().documentsToUpload.length > 0) {
-        <div class="field-group margin-bottom">
-          <label class="field-label">Files to Upload ({{ editRecordSignal().documentsToUpload.length }})</label>
-          <div class="upload-list">
-            @for (entry of editRecordSignal().documentsToUpload; track $index) {
-            <div class="upload-row">
-              <div class="upload-meta">
+        <div class="doc-queue">
+          <div class="doc-queue-header">
+            <mat-icon>schedule</mat-icon>
+            <span>Pending upload ({{ editRecordSignal().documentsToUpload.length }})</span>
+          </div>
+          <div class="doc-queue-list">
+            @for (entry of editRecordSignalForm.documentsToUpload; track $index) {
+            <div class="doc-queue-item">
+              <div class="doc-queue-icon">
+                <mat-icon>insert_drive_file</mat-icon>
+              </div>
+              <div class="doc-queue-meta">
+                <p class="doc-queue-name">{{ entry().value().file.name }}</p>
+                <p class="doc-queue-size">{{ (entry().value().file.size / 1024).toFixed(2) }} KB</p>
+              </div>
+              <mat-form-field appearance="outline" class="vault-field doc-type-select">
+                <mat-label>Document type</mat-label>
+                <!-- <mat-select [value]="entry" (valueChange)="setUploadDocumentType($index, $event)" [compareWith]="documentTypeCompare"> -->
+                <mat-select [formField]="entry.documentType" [compareWith]="documentTypeCompare">
+                  @if(editRecordSignal().target === TargetEntity.INDIVIDUAL) {
+                  @for (docType of settingsApiStore.data().indKycDocuments || []; track docType.id) {
+                  <mat-option [value]="docType">{{ docType.name }}</mat-option>
+                  }
+                  } @else {
+                  @for (docType of settingsApiStore.data().orgKycDocuments || []; track docType.id) {
+                  <mat-option [value]="docType">{{ docType.name }}</mat-option>
+                  }
+                  }
+                </mat-select>
+              </mat-form-field>
+              <button mat-icon-button type="button" (click)="removeDocument($index)" class="doc-remove-btn" aria-label="Remove file">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </div>
+            }
+          </div>
+          <div class="doc-queue-actions">
+            <button mat-flat-button type="button" class="primary-action"
+              [disabled]="hasDocumentsWithoutType()"
+              (click)="uploadDocuments()">
+              <mat-icon>cloud_upload</mat-icon>
+              <span>Upload</span>
+            </button>
+          </div>
+        </div>
+        }
+
+        <!-- Uploaded Document Library -->
+        @if (editRecordSignal().documents.length > 0) {
+        <div class="doc-library">
+          <div class="doc-library-header">
+            <mat-icon>task_alt</mat-icon>
+            <span>Uploaded ({{ editRecordSignal().documents.length }})</span>
+          </div>
+          <div class="doc-library-grid">
+            @for (doc of editRecordSignal().documents; track doc.id) {
+            <div class="doc-library-card">
+              <div class="doc-library-icon">
                 <mat-icon>description</mat-icon>
-                <div>
-                  <p class="upload-file-name">{{ entry.file.name }}</p>
-                  <p class="upload-file-size">{{ (entry.file.size / 1024).toFixed(2) }} KB</p>
-                </div>
               </div>
-
-              <div class="field-group">
-                <label class="field-label">Additional Details</label>
-                <mat-form-field appearance="outline" class="vault-field upload-type-field">
-                  <mat-select [value]="entry.documentTypeId" (valueChange)="setUploadDocumentType($index, $event)">
-                    @if(editRecordSignal().target === TargetEntity.INDIVIDUAL) {
-                    @for (docType of settingsApiStore.data().indKycDocuments || []; track docType.id) {
-                    <mat-option [value]="docType.id">{{ docType.name }}</mat-option>
-                    }
-                    } @else {
-                    @for (docType of settingsApiStore.data().orgKycDocuments || []; track docType.id) {
-                    <mat-option [value]="docType.id">{{ docType.name }}</mat-option>
-                    }
-                    }
-                  </mat-select>
-                </mat-form-field>
+              <div class="doc-library-meta">
+                <p class="doc-library-name">{{ doc.fileName }}</p>
+                <p class="doc-library-type">{{ getDocumentTypeName(doc.documentTypeId) }}</p>
               </div>
-
-              <button mat-icon-button type="button" (click)="removeDocument($index)" class="remove-btn">
-                <mat-icon>close</mat-icon>
+              <div class="doc-library-badge">
+                <mat-icon>check_circle</mat-icon>
+              </div>
+              <button mat-icon-button type="button" (click)="deleteDocument(doc.id)" class="doc-remove-btn" aria-label="Delete document">
+                <mat-icon>delete_outline</mat-icon>
               </button>
             </div>
             }
           </div>
         </div>
         }
-
-        <!-- Existing Documents -->
-        @if (editRecordSignal().documents.length > 0) {
-        <div class="field-group">
-          <label class="field-label">Uploaded Documents</label>
-          <mat-list>
-            @for (doc of editRecordSignal().documents; track doc.id) {
-            <mat-list-item>
-              <mat-icon matListItemIcon>check_circle</mat-icon>
-              <div matListItemTitle>{{ doc.fileName }}</div>
-              <div matListItemLine>{{ getDocumentTypeName(doc.documentTypeId) }}</div>
-            </mat-list-item>
-            }
-          </mat-list>
-        </div>
-        }
       </mat-card-content>
     </mat-card>
+    }
 
     <footer class="audit-grid">
       <div class="audit-item">

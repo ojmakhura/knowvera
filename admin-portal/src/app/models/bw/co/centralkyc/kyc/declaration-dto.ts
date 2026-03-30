@@ -12,7 +12,7 @@ export class DeclarationDTO {
     sanctionsDetails: string | any;
     
     constructor() {
-        this.pepStatus = null;
+        this.pepStatus = PepStatus.NOT_PEP;
         this.pepDetails = null;
         this.sanctionsMatch = false;
         this.sanctionsDetails = null;

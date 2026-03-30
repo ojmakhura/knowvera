@@ -125,7 +125,9 @@ public class OrganisationApiImpl implements OrganisationApi {
                     orgDetails.getContactEmailAddress(), 
                     org.kycStatus(), 
                     orgDetails.getIsClient(), 
-                    orgDetails.getKeycloakId()
+                    orgDetails.getKeycloakId(),
+                    orgDetails.getPhysicalAddress(),
+                    orgDetails.getPostalAddress()
                 );
 
                 // org.contactEmailAddress = orgDetails.getContactEmailAddress();

@@ -22,6 +22,10 @@ export class OrganisationListDTO {
     
     keycloakId: string | any;
     
+    postalAddress: string | any;
+    
+    physicalAddress: string | any;
+    
     constructor() {
         this.id = null;
         this.code = null;
@@ -32,5 +36,7 @@ export class OrganisationListDTO {
         this.kycStatus = null;
         this.isClient = false;
         this.keycloakId = null;
+        this.postalAddress = null;
+        this.physicalAddress = null;
     }
 }

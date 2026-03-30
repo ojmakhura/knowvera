@@ -170,7 +170,9 @@ export class InvoiceEdit implements OnInit {
           contactEmailAddress: '',
           isClient: false,
           kycStatus: '',
-          keycloakId: ''
+          keycloakId: '',
+          physicalAddress: '',
+          postalAddress: ''
         }]);
       }
     });
@@ -204,7 +206,9 @@ export class InvoiceEdit implements OnInit {
         contactEmailAddress: org.contactEmailAddress,
         isClient: org.isClient,
         kycStatus: org.kycStatus,
-        keycloakId: org.keycloakId
+        keycloakId: org.keycloakId,
+        physicalAddress: org.physicalAddress,
+        postalAddress: org.postalAddress
       }]);
     });
 

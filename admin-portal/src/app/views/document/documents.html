@@ -1,260 +1,205 @@
-<section class="documents-page" aria-label="Document search">
-	<header class="documents-header">
-		<div class="header-mark" aria-hidden="true">
-			<mat-icon>security</mat-icon>
-		</div>
+<section class="documents-page">
+  <header class="page-header">
+    <div class="page-title-group">
+      <h2 class="page-title">Documents</h2>
+    </div>
 
-		<div>
-			<h1 class="page-title">Document Search</h1>
-			<p class="page-copy">
-				Access the vault search engine to retrieve and verify compliance documentation. All
-				queries are logged for audit purposes under V2.4.0-SECURE.
-			</p>
-		</div>
-	</header>
+    <button mat-flat-button type="button" class="primary-action" (click)="openEdit('')">
+      <mat-icon>upload_file</mat-icon>
+      <span>New Document</span>
+    </button>
+  </header>
+  
+  <div class="page-shell">
+    <mat-card class="vault-card">
+      <mat-card-content>
+        <form class="filter-grid" (submit)="$event.preventDefault(); doSearch()">
+          <div class="field-group">
+            <label class="field-label">File Name</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <input
+                matInput
+                type="text"
+                placeholder="e.g. passport_scan_v1.pdf"
+                [formField]="searchDocumentsForm.fileName"
+                (keyup.enter)="doSearch()"
+              />
+            </mat-form-field>
+          </div>
 
-	<section class="search-grid">
-		<mat-card class="search-panel search-main-panel">
-			<mat-card-content>
-				<div class="search-main">
-					<mat-form-field appearance="outline" class="vault-field field-block field-primary">
-						<mat-label>File Name Search</mat-label>
-						<mat-icon matPrefix>search</mat-icon>
-						<input
-							matInput
-							type="text"
-							placeholder="e.g. passport_scan_v1.pdf"
-							[ngModel]="searchDocumentsSignal().fileName"
-							(ngModelChange)="updateField('fileName', $event)"
-							(keyup.enter)="doSearch()"
-						/>
-					</mat-form-field>
+          <div class="field-group">
+            <label class="field-label">Target Entity</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select
+                [formField]="searchDocumentsForm.target"
+              >
+                <mat-option value="">All Entities</mat-option>
+                @for (target of targetOptions; track target) {
+                  <mat-option [value]="target">{{ targetOptionLabel(target) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-					<div class="dual-fields">
-						<mat-form-field appearance="outline" class="vault-field field-block">
-							<mat-label>Document Type Filter</mat-label>
-							<input
-								matInput
-								type="text"
-								placeholder="Filter by type..."
-								[ngModel]="searchDocumentsSignal().documentType"
-								(ngModelChange)="updateField('documentType', $event)"
-								(keyup.enter)="doSearch()"
-							/>
-						</mat-form-field>
+          <div class="field-group">
+            <label class="field-label">Document Type</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select
+                [formField]="searchDocumentsForm.documentType"
+              >
+                <mat-option value="">All Types</mat-option>
+                @for (documentType of documentTypeOptions(); track documentType.id) {
+                  <mat-option [value]="documentType.name">{{ documentType.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-						<mat-form-field appearance="outline" class="vault-field field-block">
-							<mat-label>Target Object Filter</mat-label>
-							<input
-								matInput
-								type="text"
-								placeholder="Filter by entity..."
-								[ngModel]="searchDocumentsSignal().targetId"
-								(ngModelChange)="updateField('targetId', $event)"
-								(keyup.enter)="doSearch()"
-							/>
-						</mat-form-field>
-					</div>
-				</div>
-			</mat-card-content>
-		</mat-card>
+          <div class="field-group">
+            <label class="field-label">Verification Status</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select
+                [formField]="searchDocumentsForm.verificationStatus"
+              >
+                <mat-option value="">All Statuses</mat-option>
+                @for (status of statusOptions; track status) {
+                  <mat-option [value]="status">{{ statusLabel(status) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-		<mat-card class="search-panel search-side-panel">
-			<mat-card-content>
-				<div class="search-side">
-					<mat-form-field appearance="outline" class="vault-field field-block">
-						<mat-label>Target Entity</mat-label>
-						<mat-select
-							[ngModel]="searchDocumentsSignal().target"
-							(ngModelChange)="updateField('target', $event || '')"
-						>
-							<mat-option value="">All Entities</mat-option>
-							@for (target of targetOptions; track target) {
-								<mat-option [value]="target">{{ targetOptionLabel(target) }}</mat-option>
-							}
-						</mat-select>
-					</mat-form-field>
+          <div class="filter-actions">
+            <button mat-stroked-button type="button" class="secondary-action" (click)="resetSearch()">Reset</button>
+            <button mat-flat-button type="submit" class="primary-action">Search</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
-					<mat-form-field appearance="outline" class="vault-field field-block">
-						<mat-label>Document Type</mat-label>
-						<mat-select
-							[ngModel]="searchDocumentsSignal().documentType"
-							(ngModelChange)="updateField('documentType', $event || '')"
-						>
-							<mat-option value="">Select Category</mat-option>
-							@for (documentType of documentTypeOptions(); track documentType.id) {
-								<mat-option [value]="documentType.name">{{ documentType.name }}</mat-option>
-							}
-						</mat-select>
-					</mat-form-field>
+  <mat-card class="results-card search-results-card">
+    <div class="results-table-wrap search-results-table-wrap">
+      <table mat-table [dataSource]="dataSource" [trackBy]="trackByDocument" class="documents-table search-results-table">
+        <ng-container matColumnDef="fileName">
+          <th mat-header-cell *matHeaderCellDef>File Name</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="file-cell">
+              <div class="entity-icon" [class.flagged]="row.verificationStatus === 'REJECTED'">
+                <mat-icon>{{ documentIcon(row) }}</mat-icon>
+              </div>
+              <div class="entity-copy">
+                <button type="button" class="entity-link" (click)="openDetails(row.id)">
+                  {{ row.fileName || 'Untitled document' }}
+                </button>
+                <p>{{ row.createdBy || row.modifiedBy || 'System' }}</p>
+              </div>
+            </div>
+          </td>
+        </ng-container>
 
-					<mat-form-field appearance="outline" class="vault-field field-block">
-						<mat-label>Verification Status</mat-label>
-						<mat-select
-							[ngModel]="searchDocumentsSignal().verificationStatus"
-							(ngModelChange)="updateField('verificationStatus', $event || '')"
-						>
-							<mat-option value="">Status (All)</mat-option>
-							@for (status of statusOptions; track status) {
-								<mat-option [value]="status">{{ statusLabel(status) }}</mat-option>
-							}
-						</mat-select>
-					</mat-form-field>
+        <ng-container matColumnDef="documentType">
+          <th mat-header-cell *matHeaderCellDef>Document Type</th>
+          <td mat-cell *matCellDef="let row" class="muted-cell">{{ documentTypeLabelOf(row) }}</td>
+        </ng-container>
 
-					<div class="action-row">
-						<button mat-flat-button type="button" class="execute-btn" [disabled]="loading()" (click)="doSearch()">
-							<mat-icon>manage_search</mat-icon>
-							<span>{{ loading() ? 'Searching...' : 'Execute Search' }}</span>
-						</button>
+        <ng-container matColumnDef="target">
+          <th mat-header-cell *matHeaderCellDef>Target</th>
+          <td mat-cell *matCellDef="let row" class="muted-cell">{{ targetLabelOf(row) }}</td>
+        </ng-container>
 
-						<button mat-stroked-button type="button" class="reset-btn" (click)="resetSearch()">
-							Reset
-						</button>
-					</div>
-				</div>
-			</mat-card-content>
-		</mat-card>
-	</section>
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="status-pill" [ngClass]="statusClass(row.verificationStatus)">
+              <span class="status-dot"></span>
+              {{ statusLabel(row.verificationStatus) }}
+            </span>
+          </td>
+        </ng-container>
 
-	<mat-card class="results-card search-results-card">
-		@if (loading()) {
-			<mat-progress-bar mode="indeterminate"></mat-progress-bar>
-		}
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="align-end">Actions</th>
+          <td mat-cell *matCellDef="let row" class="actions-cell align-end">
+            <button mat-icon-button type="button" matTooltip="View details" (click)="openDetails(row.id)">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button type="button" matTooltip="Edit document" (click)="openEdit(row.id)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button type="button" matTooltip="Download document" (click)="downloadDocument(row)">
+              <mat-icon>download</mat-icon>
+            </button>
+          </td>
+        </ng-container>
 
-		<div class="results-head">
-			<div>
-				<h2 class="results-title">Search Results</h2>
-				<p class="muted-text">{{ loaderMessage() || 'Vault results across all registered KYC assets.' }}</p>
-			</div>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        <tr class="mat-row empty-row" *matNoDataRow>
+          <td class="mat-cell" colspan="5">
+            <div class="empty-state">
+              <mat-icon>folder_open</mat-icon>
+              <p>No documents matched the current search.</p>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
 
-			<mat-chip-set>
-				<mat-chip class="results-chip">{{ showingLabel() }}</mat-chip>
-			</mat-chip-set>
-		</div>
+    <div class="results-footer search-results-footer">
+      <p class="results-summary">
+        Showing {{ rows().length }} of {{ totalElements() }} verified documents
+      </p>
 
-		<div class="table-shell search-results-table-wrap">
-			<table mat-table [dataSource]="dataSource" class="documents-table search-results-table">
-				<ng-container matColumnDef="fileName">
-					<th mat-header-cell *matHeaderCellDef>File Name</th>
-					<td mat-cell *matCellDef="let row">
-						<div class="file-cell">
-							<mat-icon [class.file-icon-flagged]="row.verificationStatus === 'REJECTED'">
-								{{ documentIcon(row) }}
-							</mat-icon>
-							<div>
-								<p class="file-name">{{ row.fileName || 'Untitled document' }}</p>
-								<p class="muted-text">{{ row.createdBy || row.modifiedBy || 'System' }}</p>
-							</div>
-						</div>
-					</td>
-				</ng-container>
+      <mat-paginator
+        [length]="totalElements()"
+        [pageIndex]="currentPage()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[10, 25, 50]"
+        showFirstLastButtons
+        (page)="onPageChange($event)"
+      ></mat-paginator>
+    </div>
+  </mat-card>
 
-				<ng-container matColumnDef="documentType">
-					<th mat-header-cell *matHeaderCellDef>Document Type</th>
-					<td mat-cell *matCellDef="let row">
-						<p>{{ documentTypeLabelOf(row) }}</p>
-					</td>
-				</ng-container>
+  <section class="metrics-grid" aria-label="Document metrics">
+    <mat-card class="metric-card hero-card">
+      <span class="metric-label">Visible now</span>
+      <strong>{{ rows().length }}</strong>
+      <p>Documents currently surfaced in the registry view.</p>
+    </mat-card>
 
-				<ng-container matColumnDef="target">
-					<th mat-header-cell *matHeaderCellDef>Target</th>
-					<td mat-cell *matCellDef="let row">
-						<p>{{ targetLabelOf(row) }}</p>
-					</td>
-				</ng-container>
+    <mat-card class="metric-card">
+      <span class="metric-label">Total</span>
+      <strong>{{ totalElements() }}</strong>
+      <p>All documents in the compliance vault.</p>
+    </mat-card>
 
-				<ng-container matColumnDef="status">
-					<th mat-header-cell *matHeaderCellDef>Status</th>
-					<td mat-cell *matCellDef="let row">
-						<span class="status-badge" [ngClass]="statusClass(row.verificationStatus)">
-							{{ statusLabel(row.verificationStatus) }}
-						</span>
-					</td>
-				</ng-container>
+    <mat-card class="metric-card">
+      <span class="metric-label">Verified</span>
+      <strong>{{ verifiedCount() }}</strong>
+      <p>Documents on the current page with verified status.</p>
+    </mat-card>
+  </section>
 
-				<ng-container matColumnDef="actions">
-					<th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
-					<td mat-cell *matCellDef="let row" class="actions-cell">
-						<button
-							mat-icon-button
-							type="button"
-							matTooltip="View details"
-							aria-label="View document details"
-							(click)="openDetails(row.id)"
-						>
-							<mat-icon>visibility</mat-icon>
-						</button>
-						<button
-							mat-icon-button
-							type="button"
-							matTooltip="Edit document"
-							aria-label="Edit document"
-							(click)="openEdit(row.id)"
-						>
-							<mat-icon>edit</mat-icon>
-						</button>
-						<button
-							mat-icon-button
-							type="button"
-							matTooltip="Download document"
-							aria-label="Download document"
-							(click)="downloadDocument(row)"
-						>
-							<mat-icon>download</mat-icon>
-						</button>
-					</td>
-				</ng-container>
+  <section class="insights-grid" aria-label="Registry insights">
+    <mat-card class="insight-card">
+      <mat-icon>lock</mat-icon>
+      <h2>Secure Storage</h2>
+      <p>AES-256 bit encryption active across the archival substrate.</p>
+    </mat-card>
 
-				<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-				<tr mat-row *matRowDef="let row; columns: displayedColumns; trackBy: trackByDocument"></tr>
+    <mat-card class="insight-card">
+      <mat-icon>history</mat-icon>
+      <h2>Immutable Logs</h2>
+      <p>Every search and retrieval event is appended to the compliance ledger.</p>
+    </mat-card>
 
-				<tr class="mat-row empty-row" *matNoDataRow>
-					<td class="mat-cell" colspan="5">
-						<div class="empty-state">
-							<mat-icon>folder_open</mat-icon>
-							<h3>No documents found</h3>
-							<p>Try broadening the search criteria or resetting the vault filters.</p>
-						</div>
-					</td>
-				</tr>
-			</table>
-		</div>
-
-		<div class="results-footer search-results-footer">
-			<p class="footer-note search-results-summary">{{ pageReport() }}</p>
-
-			<mat-paginator
-				[length]="totalElements()"
-				[pageIndex]="currentPage()"
-				[pageSize]="pageSize()"
-				[pageSizeOptions]="[10, 25, 50]"
-				[hidePageSize]="false"
-				showFirstLastButtons
-				(page)="onPageChange($event)"
-			></mat-paginator>
-		</div>
-	</mat-card>
-
-	<section class="vault-grid" aria-label="Operational insights">
-		<mat-card class="vault-card vault-card-primary">
-			<mat-card-content class="vault-content">
-				<h3>Secure Storage</h3>
-				<p>AES-256 bit encryption active across the archival substrate.</p>
-			</mat-card-content>
-		</mat-card>
-
-		<mat-card class="vault-card vault-card-alt">
-			<mat-card-content class="vault-content">
-				<h3>Immutable Logs</h3>
-				<p>Every search and retrieval event is appended to the compliance ledger.</p>
-			</mat-card-content>
-		</mat-card>
-
-		<mat-card class="vault-card vault-card-portrait">
-			<mat-card-content class="vault-content">
-				<h3>Identity Vault</h3>
-				<p>Cross-reference target entities, OCR outputs, and registry metadata in one pass.</p>
-			</mat-card-content>
-		</mat-card>
-	</section>
+    <mat-card class="insight-card">
+      <mat-icon>fingerprint</mat-icon>
+      <h2>Identity Vault</h2>
+      <p>Cross-reference target entities, OCR outputs, and registry metadata in one pass.</p>
+    </mat-card>
+  </section>
 </section>
+<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>

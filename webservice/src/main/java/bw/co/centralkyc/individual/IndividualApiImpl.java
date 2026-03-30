@@ -106,7 +106,9 @@ public class IndividualApiImpl implements IndividualApi {
                         org.getContactEmailAddress(), 
                         org.getKycStatus(), 
                         org.getIsClient(), 
-                        org.getKeycloakId()
+                        org.getKeycloakId(),
+                        org.getPhysicalAddress(),
+                        org.getPostalAddress()
                     );
 
                     data.setOrganisation(o);

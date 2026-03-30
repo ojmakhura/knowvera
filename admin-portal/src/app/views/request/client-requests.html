@@ -2,7 +2,7 @@
 	<header class="page-header">
 		<div class="page-title-group">
 			<h1 class="page-title">Client Requests</h1>
-			<p class="page-subtitle">Veritas Protocol / Audit Environment</p>
+			<p class="page-subtitle">Central KYC / Audit Environment</p>
 		</div>
 
 		<button mat-flat-button type="button" class="new-request-btn" [routerLink]="['/client-request/edit']">
@@ -182,7 +182,7 @@
 				</ng-container>
 
 				<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-				<tr mat-row *matRowDef="let row; columns: displayedColumns; trackBy: trackByRequest"></tr>
+				<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
 				<tr class="mat-row empty-row" *matNoDataRow>
 					<td class="mat-cell" colspan="7">
@@ -211,6 +211,6 @@
 	</mat-card>
 
 	<footer class="security-footer">
-		<p>Veritas Protocol Secure Search Interface • End-to-End Encrypted Data Access</p>
+		<p>Central KYC Secure Search Interface • End-to-End Encrypted Data Access</p>
 	</footer>
 </section>

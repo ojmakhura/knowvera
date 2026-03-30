@@ -6,9 +6,11 @@
       <nav class="breadcrumb" aria-label="Breadcrumb">
         <a routerLink="/organisation">{{ breadcrumbLabel }}</a>
         <mat-icon>chevron_right</mat-icon>
+        @if(editOrganisationFormSignal().name) {
         <span>{{ editOrganisationFormSignal().name || 'Organisation' }}</span>
         <mat-icon>chevron_right</mat-icon>
-        <span class="crumb-current">Edit</span>
+        }
+        <span class="crumb-current" translate>{{ editOrganisationFormSignal().id ? 'edit' : 'create' }}</span>
       </nav>
       <h1 class="page-title">Edit Organisation</h1>
     </div>
@@ -43,7 +45,7 @@
 
         <div class="field-grid two-column mt-field">
           <div class="field-group">
-            <label class="field-label" for="organisationCode">Internal Code</label>
+            <label class="field-label" for="organisationCode" translate>abbreviation</label>
             <mat-form-field appearance="outline" class="vault-field">
               <input id="organisationCode" matInput [formField]="editOrganisationFormSignalForm.code" />
             </mat-form-field>
