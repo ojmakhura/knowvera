@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import bw.co.centralkyc.kyc.verification.KycVerification;
+import bw.co.centralkyc.kyc.verification.VerificationStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
@@ -165,11 +167,12 @@ public class InformationConfirmationService {
                         () -> new RuntimeException("Document Type not found for ID: " + document.getDocumentTypeId()));
 
         Map<KeyField, List<String>> matched = createMatchMap();
+        final String targetId = kycRecord.getTargetId();
 
         if (kycRecord.getTarget() == TargetEntity.INDIVIDUAL) {
 
             Individual individual = individualRepository.findById(UUID.fromString(kycRecord.getTargetId()))
-                    .orElseThrow(() -> new RuntimeException("Individual not found for ID: " + kycRecord.getTargetId()));
+                    .orElseThrow(() -> new RuntimeException("Individual not found for ID: " + targetId));
 
             this.readIndividualMatches(individual, matched);
 
@@ -177,7 +180,7 @@ public class InformationConfirmationService {
 
             Organisation organisation = organisationRepository.findById(UUID.fromString(kycRecord.getTargetId()))
                     .orElseThrow(
-                            () -> new RuntimeException("Organisation not found for ID: " + kycRecord.getTargetId()));
+                            () -> new RuntimeException("Organisation not found for ID: " + targetId));
             this.readOrganisationMatches(organisation, matched);
 
         }
@@ -424,7 +427,10 @@ public class InformationConfirmationService {
 
         });
 
-        System.out.println(jsonMapper.writeValueAsString(kycRecord));
+        // this.readIndividualMatches
+        this.updateKycRecordWithMatches(kycRecord, document, matched);
+
+        kycRecord = kycRecordRepository.saveAndFlush(kycRecord);
     }
 
     private VerificationTagResult getIndividualIdentityVerificationResult(VerificationTag tag, Map<KeyField, List<String>> matched) {
@@ -438,8 +444,6 @@ public class InformationConfirmationService {
         List<String> foundIdentityNos = matched.get(KeyField.INDIVIDUAL_IDENTITY_NO);
 
         double idSimilarity = 0.0;
-                // ? stringMatcher.calculateSimilarity(foundIdentityNos.get(0), foundIdentityNos.get(1))
-                // : 0.0;
 
         if(foundIdentityNos != null && foundIdentityNos.size() == 2) {
             expectedValues.append(foundIdentityNos.get(0));
@@ -503,8 +507,6 @@ public class InformationConfirmationService {
         if (idSimilarity > 0.8 &&  firstNameSimilarity > 0.8 && surnameSimilarity > 0.8) {
             verificationTagResults.setVerificationTagStatus(VerificationTagStatus.SUCCESSFUL);
 
-            
-
         } else {
             verificationTagResults.setVerificationTagStatus(VerificationTagStatus.FAILED);
         }
@@ -519,7 +521,7 @@ public class InformationConfirmationService {
         return verificationTagResults;
     }
 
-    VerificationTagResult getEmployemeVerificationTagResult(VerificationTag tag, Map<KeyField, List<String>> matched) {
+    private VerificationTagResult getEmploymentVerificationTagResult(VerificationTag tag, Map<KeyField, List<String>> matched) {
 
         StringBuilder expectedValues = new StringBuilder();
         StringBuilder extractedValues = new StringBuilder();
@@ -596,9 +598,16 @@ public class InformationConfirmationService {
 
                 case IDENTITY_VERIFICATION:
 
-                    VerificationTagResult identityVerificationResult = this.getIndividualIdentityVerificationResult(tag, matched);
-                    document.getVerificationTagResults().add(identityVerificationResult);
+                    if(kycRecord.getTarget() == TargetEntity.INDIVIDUAL) {
 
+                        VerificationTagResult identityVerificationResult = this.getIndividualIdentityVerificationResult(tag, matched);
+                        document.getVerificationTagResults().add(identityVerificationResult);
+                        
+                    } else if(kycRecord.getTarget() == TargetEntity.ORGANISATION) {
+
+                        // VerificationTagResult employemeVerificationTagResult = this.getEmploymentVerificationTagResult(tag, matched);
+                        // document.getVerificationTagResults().add(employemeVerificationTagResult);
+                    }
                     break;
                 case SANCTIONS_DETAILS_VERIFICATION:
                     break;
@@ -615,6 +624,32 @@ public class InformationConfirmationService {
             }
         });
 
+        KycVerification verification = kycRecord.getKycVerification();
+
+        document.getVerificationTagResults().forEach(tag -> {
+
+           switch(tag.getVerificationTag()) {
+               case IDENTITY_VERIFICATION:
+
+                   if(tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
+                       verification.setIdentityVerification(VerificationStatus.VERIFICATION_FAILED);
+                   } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
+                       verification.setIdentityVerification(VerificationStatus.VERIFIED);
+
+                   } else {
+                       verification.setIdentityVerification(VerificationStatus.UNVERIFIED);
+                   }
+
+                   verification.setIdentityVerificationBy("AI-AGENT");
+                   StringBuilder builder = new StringBuilder();
+                   builder.append(tag.getScore())
+                           .append("\n")
+                           .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
+                   verification.setIdentityVerificationReport(builder.toString());
+                   break;
+           }
+
+        });
     }
 
     private void processIndividualInformation(DocumentDTO document) {

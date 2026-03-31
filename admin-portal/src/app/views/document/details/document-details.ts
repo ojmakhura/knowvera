@@ -31,6 +31,10 @@ import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { VerificationTagStatus } from '@app/models/bw/co/centralkyc/document/verification-tag-status';
 import { VerificationTag } from '@app/models/bw/co/centralkyc/kyc/verification/verification-tag';
+import { VerificationTagResult } from '@app/models/bw/co/centralkyc/document/verification-tag-result';
+import { form, FormField, readonly } from '@angular/forms/signals';
+import { MatSelectModule } from '@angular/material/select';
+import Swal from 'sweetalert2';
 
 type EditableVerificationTagResult = {
   verificationTag: VerificationTag | null;
@@ -59,8 +63,10 @@ type EditableVerificationTagResult = {
     MatFormFieldModule,
     MatTooltipModule,
     MatTabsModule,
+    MatSelectModule,
     TranslateModule,
     Loader,
+    FormField,
   ],
 })
 export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
@@ -87,38 +93,20 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     return 'No Match';
   });
 
-  fileContent = linkedSignal(() => this.document()?.fileContent ?? '');
+  // fileContent = linkedSignal(() => this.document()?.fileContent ?? '');
   fileContentCopied = signal(false);
-  verificationTagResults = signal<EditableVerificationTagResult[]>([]);
+  verificationTagResults = linkedSignal(() => this.document().verificationTagResults ?? []);
   readonly verificationTagOptions: VerificationTag[] = Object.values(VerificationTag);
-  readonly verificationTagStatusOptions: VerificationTagStatus[] = Object.values(VerificationTagStatus);
+  readonly verificationTagStatusOptions: VerificationTagStatus[] =
+    Object.values(VerificationTagStatus);
 
-  saveDocument(): void {
-    const currentDocument = this.document();
-    if (!currentDocument?.id) {
-      return;
-    }
-
-    this.documentApiStore.save({
-      document: {
-        ...currentDocument,
-        fileContent: this.fileContent(),
-        verificationTagResults: this.verificationTagResults().map((result) => ({
-          verificationTag: result.verificationTag,
-          verificationTagStatus: result.verificationTagStatus,
-          score: result.score ?? 0,
-          values: result.values,
-        })),
-      },
-    });
-  }
-
-  analyseDocument(): void {
-    const documentId = this.document()?.id;
-    if (!documentId) return;
-
-    this.documentApiStore.analyseDocument({ id: documentId });
-  }
+  documentForm = form(this.document, (path) => {
+    readonly(path.id);
+    readonly(path.target);
+    readonly(path.targetId);
+    readonly(path.url);
+    readonly(path.documentType);
+  });
 
   constructor() {
     effect(() => {
@@ -127,9 +115,12 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
         results.map((result: any) => ({
           verificationTag: (result?.verificationTag as VerificationTag) ?? null,
           verificationTagStatus:
-            (result?.verificationTagStatus as VerificationTagStatus) ?? VerificationTagStatus.UNCHECKED,
+            (result?.verificationTagStatus as VerificationTagStatus) ??
+            VerificationTagStatus.UNCHECKED,
           score: typeof result?.score === 'number' ? result.score : null,
-          values: Array.isArray(result?.values) ? result.values.map((value: any) => String(value)) : [],
+          values: Array.isArray(result?.values)
+            ? result.values.map((value: any) => String(value))
+            : [],
         })),
       );
     });
@@ -148,61 +139,48 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   addVerificationTagResult(): void {
-    this.verificationTagResults.update((results) => [
-      ...results,
-      {
+    this.document.update((doc) => {
+      if (!doc) return doc;
+      const newResult: VerificationTagResult = {
         verificationTag: null,
         verificationTagStatus: VerificationTagStatus.UNCHECKED,
-        score: null,
+        score: 0,
         values: [],
-      },
-    ]);
-  }
-
-  removeVerificationTagResult(index: number): void {
-    this.verificationTagResults.update((results) => results.filter((_, i) => i !== index));
-  }
-
-  updateVerificationTag(index: number, verificationTag: VerificationTag | null): void {
-    this.updateVerificationTagResult(index, { verificationTag });
-  }
-
-  updateVerificationTagStatus(index: number, verificationTagStatus: VerificationTagStatus): void {
-    this.updateVerificationTagResult(index, { verificationTagStatus });
-  }
-
-  updateVerificationTagScore(index: number, rawScore: string): void {
-    const score = rawScore === '' ? null : Number(rawScore);
-    this.updateVerificationTagResult(index, {
-      score: Number.isNaN(score as number) ? null : score,
+      };
+      const updatedResults = [newResult, ...(doc.verificationTagResults ?? [])];
+      return {
+        ...doc,
+        verificationTagResults: updatedResults,
+      };
     });
   }
 
-  updateVerificationTagValues(index: number, rawValues: string): void {
-    const values = rawValues
-      .split(',')
-      .map((value) => value.trim())
-      .filter((value) => value.length > 0);
-
-    this.updateVerificationTagResult(index, { values });
-  }
-
-  verificationTagValuesText(values: string[]): string {
-    return values.join(', ');
-  }
-
-  private updateVerificationTagResult(
-    index: number,
-    changes: Partial<EditableVerificationTagResult>,
-  ): void {
-    this.verificationTagResults.update((results) =>
-      results.map((result, i) => (i === index ? { ...result, ...changes } : result)),
-    );
+  removeVerificationTagResult(index: number): void {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.document.update((doc) => {
+          if (!doc) return doc;
+          const updatedResults = [...(doc.verificationTagResults ?? [])];
+          updatedResults.splice(index, 1);
+          return {
+            ...doc,
+            verificationTagResults: updatedResults,
+          };
+        });
+      }
+    });
   }
 
   ngOnInit(): void {
-    if(this.id) {
-      this.documentApiStore.findById({id: this.id});
+    if (this.id) {
+      this.documentApiStore.findById({ id: this.id });
     }
   }
 
@@ -212,10 +190,14 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
   get statusIcon(): string {
     switch (this.document()?.verificationStatus) {
-      case 'VERIFIED': return 'check_circle';
-      case 'REJECTED': return 'cancel';
-      case 'MANUAL_REVIEW': return 'pending_actions';
-      default: return 'radio_button_unchecked';
+      case 'VERIFIED':
+        return 'check_circle';
+      case 'REJECTED':
+        return 'cancel';
+      case 'MANUAL_REVIEW':
+        return 'pending_actions';
+      default:
+        return 'radio_button_unchecked';
     }
   }
 
@@ -233,10 +215,14 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
   entityTypeLabel = computed(() => {
     switch (this.document()?.target) {
-      case TargetEntity.INDIVIDUAL: return 'Natural Person';
-      case TargetEntity.ORGANISATION: return 'Organisation';
-      case TargetEntity.BRANCH: return 'Branch';
-      default: return this.document()?.target ?? '—';
+      case TargetEntity.INDIVIDUAL:
+        return 'Natural Person';
+      case TargetEntity.ORGANISATION:
+        return 'Organisation';
+      case TargetEntity.BRANCH:
+        return 'Branch';
+      default:
+        return this.document()?.target ?? '—';
     }
   });
 
@@ -265,7 +251,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     const expected = doc.expectedInformation ?? {};
     const extracted = doc.extractedInformation ?? {};
     const fields = Array.from(new Set([...Object.keys(expected), ...Object.keys(extracted)]));
-    return fields.map(field => ({
+    return fields.map((field) => ({
       field,
       expected: expected[field] ?? '—',
       extracted: extracted[field] ?? '—',
@@ -278,19 +264,19 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     if (!scores) return [];
     return Object.entries(scores).map(([key, value]: [string, any]) => ({
       key,
-      label: key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()),
+      label: key.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase()),
       value,
       isBoolean: typeof value === 'boolean',
     }));
   }
 
   copyFileContent(): void {
-    const content = this.fileContent();
-    if (!content) return;
-    navigator.clipboard.writeText(content).then(() => {
-      this.fileContentCopied.set(true);
-      setTimeout(() => this.fileContentCopied.set(false), 2000);
-    });
+    // const content = this.fileContent();
+    // if (!content) return;
+    // navigator.clipboard.writeText(content).then(() => {
+    //   this.fileContentCopied.set(true);
+    //   setTimeout(() => this.fileContentCopied.set(false), 2000);
+    // });
   }
 
   signalIcon(key: string): string {
@@ -314,5 +300,24 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
         return 'Unchecked';
     }
   }
-}
 
+  saveDocument(): void {
+    const currentDocument = this.document();
+    if (!currentDocument?.id) {
+      return;
+    }
+
+    console.log('Saving document with updated verification tag results:', this.document());
+
+    this.documentApiStore.save({
+      document: currentDocument,
+    });
+  }
+
+  analyseDocument(): void {
+    const documentId = this.document()?.id;
+    if (!documentId) return;
+
+    this.documentApiStore.analyseDocument({ id: documentId });
+  }
+}

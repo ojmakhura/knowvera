@@ -51,16 +51,16 @@
               <span class="val">{{ analyticsStatusLabel() }}</span>
             </div>
             @if (document().metadata?.registration) {
-              <div class="detail-row">
-                <span class="key">Registration</span>
-                <span class="val">{{ document().metadata.registration }}</span>
-              </div>
+            <div class="detail-row">
+              <span class="key">Registration</span>
+              <span class="val">{{ document().metadata.registration }}</span>
+            </div>
             }
             @if (document().metadata?.riskProfile) {
-              <div class="detail-row">
-                <span class="key">Risk Profile</span>
-                <span class="val-low">{{ document().metadata.riskProfile }}</span>
-              </div>
+            <div class="detail-row">
+              <span class="key">Risk Profile</span>
+              <span class="val-low">{{ document().metadata.riskProfile }}</span>
+            </div>
             }
           </div>
         </mat-card-content>
@@ -103,16 +103,16 @@
             </div>
             <div class="segmented-progress">
               @for (filled of confidenceSegments(); track $index) {
-                <div class="segment" [class.off]="!filled"></div>
+              <div class="segment" [class.off]="!filled"></div>
               }
             </div>
           </div>
 
           @if (document().validationResults?.reason) {
-            <div class="info-alert mt-4">
-              <mat-icon inline style="color: #001735;">info</mat-icon>
-              <div>{{ document().validationResults.reason }}</div>
-            </div>
+          <div class="info-alert mt-4">
+            <mat-icon inline style="color: #001735;">info</mat-icon>
+            <div>{{ document().validationResults.reason }}</div>
+          </div>
           }
         </mat-card-content>
       </mat-card>
@@ -123,24 +123,24 @@
             <mat-tab label="Integrity Signals">
               <div class="tab-pane-content">
                 @if (integritySignalRows.length > 0) {
-                  <div class="integrity-list">
-                    @for (signal of integritySignalRows; track signal.key) {
-                      <div class="integrity-item">
-                        <div class="left">
-                          <mat-icon inline>{{ signalIcon(signal.key) }}</mat-icon> {{ signal.label }}
-                        </div>
-                        <div class="right">
-                          @if (signal.isBoolean) {
-                            <mat-icon inline>{{ signal.value ? 'check_circle' : 'cancel' }}</mat-icon>
-                          } @else {
-                            {{ signal.value }}
-                          }
-                        </div>
-                      </div>
-                    }
+                <div class="integrity-list">
+                  @for (signal of integritySignalRows; track signal.key) {
+                  <div class="integrity-item">
+                    <div class="left">
+                      <mat-icon inline>{{ signalIcon(signal.key) }}</mat-icon> {{ signal.label }}
+                    </div>
+                    <div class="right">
+                      @if (signal.isBoolean) {
+                      <mat-icon inline>{{ signal.value ? 'check_circle' : 'cancel' }}</mat-icon>
+                      } @else {
+                      {{ signal.value }}
+                      }
+                    </div>
                   </div>
+                  }
+                </div>
                 } @else {
-                  <p class="tab-empty">No signal data available</p>
+                <p class="tab-empty">No signal data available</p>
                 }
               </div>
             </mat-tab>
@@ -159,24 +159,25 @@
                     </thead>
                     <tbody>
                       @if (extractionRows.length > 0) {
-                        @for (row of extractionRows; track row.field) {
-                          <tr>
-                            <td class="label-col">{{ row.field }}</td>
-                            <td [class.text-error]="!row.matches">{{ row.expected }}</td>
-                            <td [class.text-error]="!row.matches">{{ row.extracted }}</td>
-                            <td>
-                              @if (row.matches) {
-                                <span class="badge-valid">Valid</span>
-                              } @else {
-                                <span class="badge-expired">Mismatch</span>
-                              }
-                            </td>
-                          </tr>
-                        }
+                      @for (row of extractionRows; track row.field) {
+                      <tr>
+                        <td class="label-col">{{ row.field }}</td>
+                        <td [class.text-error]="!row.matches">{{ row.expected }}</td>
+                        <td [class.text-error]="!row.matches">{{ row.extracted }}</td>
+                        <td>
+                          @if (row.matches) {
+                          <span class="badge-valid">Valid</span>
+                          } @else {
+                          <span class="badge-expired">Mismatch</span>
+                          }
+                        </td>
+                      </tr>
+                      }
                       } @else {
-                        <tr>
-                          <td colspan="4" style="text-align: center; color: #9aa0a6; padding: 2rem;">No extraction data available</td>
-                        </tr>
+                      <tr>
+                        <td colspan="4" style="text-align: center; color: #9aa0a6; padding: 2rem;">No extraction data
+                          available</td>
+                      </tr>
                       }
                     </tbody>
                   </table>
@@ -194,19 +195,13 @@
                     </h2>
                     <p>Raw extracted text from the document</p>
                   </div>
-                  <button mat-icon-button
-                    [matTooltip]="fileContentCopied() ? 'Copied!' : 'Copy to clipboard'"
+                  <button mat-icon-button [matTooltip]="fileContentCopied() ? 'Copied!' : 'Copy to clipboard'"
                     (click)="copyFileContent()">
                     <mat-icon>{{ fileContentCopied() ? 'check' : 'content_copy' }}</mat-icon>
                   </button>
                 </div>
-                <textarea
-                  class="file-content-area"
-                  [ngModel]="fileContent()"
-                  (ngModelChange)="fileContent.set($event)"
-                  placeholder="No file content available..."
-                  spellcheck="false"
-                ></textarea>
+                <textarea class="file-content-area" [formField]="documentForm.fileContent"
+                  placeholder="No file content available..." spellcheck="false"></textarea>
                 <div class="file-content-actions">
                   <button mat-stroked-button (click)="analyseDocument()" [disabled]="loading() || !document().id">
                     <mat-icon>analytics</mat-icon>
@@ -222,101 +217,109 @@
 
             <mat-tab label="Verification Tag Results">
               <div class="tab-pane-content">
-                <div class="verification-tag-toolbar">
+                <!-- <div class="verification-tag-toolbar">
                   <button mat-stroked-button type="button" (click)="addVerificationTagResult()">
                     <mat-icon>add</mat-icon>
                     Add Tag Result
                   </button>
+                  <button mat-stroked-button type="button" (click)="saveDocument()">
+                    <mat-icon>save</mat-icon>
+                    Update
+                  </button>
+                </div> -->
+                <div class="verification-tag-toolbar file-content-actions">
+                  <button mat-stroked-button (click)="addVerificationTagResult()"
+                    [disabled]="loading() || !document().id">
+                    <mat-icon>add</mat-icon>
+                    Add Tag Result
+                  </button>
+                  <button mat-flat-button color="primary" (click)="saveDocument()" [disabled]="loading()">
+                    <mat-icon>save</mat-icon>
+                    Update Document
+                  </button>
                 </div>
 
                 @if (verificationTagResults().length > 0) {
-                  <div class="verification-tag-editor-list">
-                    @for (result of verificationTagResults(); track $index) {
-                      <div class="verification-tag-editor-item">
-                        <div class="verification-tag-editor-header">
-                          <strong>{{ result.verificationTag ? (('verification.tag.' + result.verificationTag) | translate) : 'New verification tag' }}</strong>
-                          <button
-                            mat-icon-button
-                            type="button"
-                            color="warn"
-                            (click)="removeVerificationTagResult($index)"
-                            matTooltip="Remove tag result"
-                          >
-                            <mat-icon>delete</mat-icon>
-                          </button>
-                        </div>
+                <div class="verification-tag-editor-list">
+                  @for (result of documentForm.verificationTagResults; track $index) {
+                  @let resultValue = result().value();
+                  <!-- {{ resultValue | json }} 22
+                      {{document().verificationTags | json}} -->
+                  <div class="verification-tag-editor-item">
+                    <div class="verification-tag-editor-header">
+                      <strong translate>{{ resultValue.verificationTag ? (('verification.tag.' +
+                        resultValue.verificationTag) ) :
+                        'New verification tag' }}</strong>
+                      <button mat-icon-button type="button" color="warn" (click)="removeVerificationTagResult($index)"
+                        matTooltip="Remove tag result">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
 
-                        <div class="verification-tag-grid">
-                          <div class="verification-field">
-                            <label>Tag</label>
-                            <select
-                              [ngModel]="result.verificationTag"
-                              (ngModelChange)="updateVerificationTag($index, $event)"
-                            >
-                              <option [ngValue]="null">Select tag</option>
-                              @for (tag of document().verificationTags; track tag) {
-                                <option [ngValue]="tag">{{ ('verification.tag.' + tag) | translate }}</option>
-                              }
-                            </select>
-                          </div>
+                    <div class="verification-tag-grid">
+                      <div class="verification-field">
+                        <label>Tag</label>
+                        <mat-form-field class="vault-field">
+                          <mat-select [formField]="result.verificationTag">
+                            <mat-option [value]="null">Select tag</mat-option>
+                            @for (tag of document().verificationTags; track tag) {
+                            <mat-option [value]="tag" translate>
+                              <span translate>{{ ('verification.tag.' + tag) }} </span>
 
-                          <div class="verification-field">
-                            <label>Status</label>
-                            <select
-                              [ngModel]="result.verificationTagStatus"
-                              (ngModelChange)="updateVerificationTagStatus($index, $event)"
-                            >
-                              @for (status of verificationTagStatusOptions; track status) {
-                                <option [ngValue]="status">{{ verificationTagStatusLabel(status) }}</option>
-                              }
-                            </select>
-                          </div>
+                            </mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
 
-                          <div class="verification-field">
-                            <label>Score</label>
-                            <input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              max="100"
-                              [ngModel]="result.score"
-                              (ngModelChange)="updateVerificationTagScore($index, $event)"
-                              placeholder="0.00"
-                            />
-                          </div>
+                      <div class="verification-field">
+                        <label>Status</label>
+                        <mat-form-field class="vault-field">
+                          <mat-select [formField]="result.verificationTagStatus">
+                            @for (status of verificationTagStatusOptions; track status) {
+                            <mat-option [value]="status">{{ verificationTagStatusLabel(status) }}</mat-option>
+                            }
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
 
-                          <div class="verification-field verification-field-wide">
-                            <label>Values (comma separated)</label>
-                            <input
-                              type="text"
-                              [ngModel]="verificationTagValuesText(result.values)"
-                              (ngModelChange)="updateVerificationTagValues($index, $event)"
-                              placeholder="Value A, Value B"
-                            />
-                          </div>
-                        </div>
+                      <div class="field-group">
+                        <label class="field-label">Score</label>
+                        <mat-form-field class="vault-field">
+                          <input matInput type="number" step="0.01" [formField]="result.score" placeholder="0.00" />
+                        </mat-form-field>
+                      </div>
 
-                        <div class="verification-tag-preview-row">
+                      <div class=" verification-field-wide">
+                        <label>Values (comma separated)</label>
+                        <mat-form-field class="vault-field">
+                          <input matInput type="text" [formField]="result.values" placeholder="Value A, Value B" />
+                        </mat-form-field>
+                      </div>
+                      
+                    </div>
+
+                    <!-- <div class="verification-tag-preview-row">
                           <span [ngClass]="'status-badge status-' + (result.verificationTagStatus | lowercase)">
                             {{ verificationTagStatusLabel(result.verificationTagStatus) }}
                           </span>
                           <span class="verification-tag-score-preview">
                             {{ result.score !== null ? (result.score | number: '1.0-2') : 'N/A' }}
                           </span>
-                        </div>
+                        </div> -->
 
-                        @if (result.values.length > 0) {
+                    <!-- @if (result.values.length > 0) {
                           <div class="values-list" style="margin-top: 0.5rem;">
                             @for (value of result.values; track $index) {
                               <span class="value-tag">{{ value }}</span>
                             }
                           </div>
-                        }
-                      </div>
-                    }
+                        } -->
                   </div>
+                  }
+                </div>
                 } @else {
-                  <p class="tab-empty">No verification tag results yet. Add one to begin.</p>
+                <p class="tab-empty">No verification tag results yet. Add one to begin.</p>
                 }
               </div>
             </mat-tab>
@@ -328,13 +331,13 @@
     <div class="col-12 col-lg-4">
       <div class="action-buttons sticky-actions">
         @if (document().url) {
-          <a mat-button class="btn-download-archive" [href]="document().url" target="_blank" rel="noopener noreferrer">
-            <mat-icon inline>download</mat-icon> Download Archive
-          </a>
+        <a mat-button class="btn-download-archive" [href]="document().url" target="_blank" rel="noopener noreferrer">
+          <mat-icon inline>download</mat-icon> Download Archive
+        </a>
         } @else {
-          <button mat-button class="btn-download-archive" disabled>
-            <mat-icon inline>download</mat-icon> Download Archive
-          </button>
+        <button mat-button class="btn-download-archive" disabled>
+          <mat-icon inline>download</mat-icon> Download Archive
+        </button>
         }
         <div class="sub-actions">
           <button mat-button>
