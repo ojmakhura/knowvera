@@ -40,7 +40,7 @@
           <div class="id-details">
             <div class="detail-row">
               <span class="key">Entity Type</span>
-              <span class="val">{{ entityTypeLabel }}</span>
+              <span class="val">{{ entityTypeLabel() }}</span>
             </div>
             <div class="detail-row">
               <span class="key">Document Type</span>
@@ -48,7 +48,7 @@
             </div>
             <div class="detail-row">
               <span class="key">Analytics Status</span>
-              <span class="val">{{ analyticsStatusLabel }}</span>
+              <span class="val">{{ analyticsStatusLabel() }}</span>
             </div>
             @if (document().metadata?.registration) {
               <div class="detail-row">
@@ -91,7 +91,7 @@
             <div class="meta-box highlight">
               <div class="meta-label">Match Status</div>
               <div class="meta-value">
-                <mat-icon inline>{{ matchIcon }}</mat-icon> {{ matchLabel }}
+                <mat-icon inline>{{ matchIcon }}</mat-icon> {{ matchLabel() }}
               </div>
             </div>
           </div>
@@ -102,7 +102,7 @@
               <span>{{ thresholdLabel }}</span>
             </div>
             <div class="segmented-progress">
-              @for (filled of confidenceSegments; track $index) {
+              @for (filled of confidenceSegments(); track $index) {
                 <div class="segment" [class.off]="!filled"></div>
               }
             </div>
@@ -220,30 +220,106 @@
               </div>
             </mat-tab>
 
-            <!-- @if (document().verificationTagResults && document().verificationTagResults.length > 0) { -->
             <mat-tab label="Verification Tag Results">
               <div class="tab-pane-content">
-                @for (result of document().verificationTagResults; track $index) {
-                <div style="padding: 0.75rem 0; border-bottom: 1px solid #f0f2f5;">
-                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-                    <strong>{{ ('verification.tag.' + result.verificationTag) | translate }}</strong>
-                    <span [ngClass]="'status-badge status-' + (result.verificationTagStatus | lowercase)">
-                      {{ verificationTagStatusLabel(result.verificationTagStatus) }}
-                    </span>
-                    <span style="font-weight: 600; color: #001735;">{{ result.score ? (result.score | number: '1.0-2') : 'N/A' }}</span>
-                  </div>
-                  @if (result.values && result.values.length > 0) {
-                  <div class="values-list" style="margin-top: 0.5rem;">
-                    @for (value of result.values; track $index) {
-                    <span class="value-tag">{{ value }}</span>
+                <div class="verification-tag-toolbar">
+                  <button mat-stroked-button type="button" (click)="addVerificationTagResult()">
+                    <mat-icon>add</mat-icon>
+                    Add Tag Result
+                  </button>
+                </div>
+
+                @if (verificationTagResults().length > 0) {
+                  <div class="verification-tag-editor-list">
+                    @for (result of verificationTagResults(); track $index) {
+                      <div class="verification-tag-editor-item">
+                        <div class="verification-tag-editor-header">
+                          <strong>{{ result.verificationTag ? (('verification.tag.' + result.verificationTag) | translate) : 'New verification tag' }}</strong>
+                          <button
+                            mat-icon-button
+                            type="button"
+                            color="warn"
+                            (click)="removeVerificationTagResult($index)"
+                            matTooltip="Remove tag result"
+                          >
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
+
+                        <div class="verification-tag-grid">
+                          <div class="verification-field">
+                            <label>Tag</label>
+                            <select
+                              [ngModel]="result.verificationTag"
+                              (ngModelChange)="updateVerificationTag($index, $event)"
+                            >
+                              <option [ngValue]="null">Select tag</option>
+                              @for (tag of document().verificationTags; track tag) {
+                                <option [ngValue]="tag">{{ ('verification.tag.' + tag) | translate }}</option>
+                              }
+                            </select>
+                          </div>
+
+                          <div class="verification-field">
+                            <label>Status</label>
+                            <select
+                              [ngModel]="result.verificationTagStatus"
+                              (ngModelChange)="updateVerificationTagStatus($index, $event)"
+                            >
+                              @for (status of verificationTagStatusOptions; track status) {
+                                <option [ngValue]="status">{{ verificationTagStatusLabel(status) }}</option>
+                              }
+                            </select>
+                          </div>
+
+                          <div class="verification-field">
+                            <label>Score</label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              max="100"
+                              [ngModel]="result.score"
+                              (ngModelChange)="updateVerificationTagScore($index, $event)"
+                              placeholder="0.00"
+                            />
+                          </div>
+
+                          <div class="verification-field verification-field-wide">
+                            <label>Values (comma separated)</label>
+                            <input
+                              type="text"
+                              [ngModel]="verificationTagValuesText(result.values)"
+                              (ngModelChange)="updateVerificationTagValues($index, $event)"
+                              placeholder="Value A, Value B"
+                            />
+                          </div>
+                        </div>
+
+                        <div class="verification-tag-preview-row">
+                          <span [ngClass]="'status-badge status-' + (result.verificationTagStatus | lowercase)">
+                            {{ verificationTagStatusLabel(result.verificationTagStatus) }}
+                          </span>
+                          <span class="verification-tag-score-preview">
+                            {{ result.score !== null ? (result.score | number: '1.0-2') : 'N/A' }}
+                          </span>
+                        </div>
+
+                        @if (result.values.length > 0) {
+                          <div class="values-list" style="margin-top: 0.5rem;">
+                            @for (value of result.values; track $index) {
+                              <span class="value-tag">{{ value }}</span>
+                            }
+                          </div>
+                        }
+                      </div>
                     }
                   </div>
-                  }
-                </div>
+                } @else {
+                  <p class="tab-empty">No verification tag results yet. Add one to begin.</p>
                 }
               </div>
             </mat-tab>
-            <!-- } -->
           </mat-tab-group>
         </mat-card-content>
       </mat-card>

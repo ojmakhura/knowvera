@@ -30,6 +30,14 @@ import { ToastrService } from 'ngx-toastr';
 import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { VerificationTagStatus } from '@app/models/bw/co/centralkyc/document/verification-tag-status';
+import { VerificationTag } from '@app/models/bw/co/centralkyc/kyc/verification/verification-tag';
+
+type EditableVerificationTagResult = {
+  verificationTag: VerificationTag | null;
+  verificationTagStatus: VerificationTagStatus;
+  score: number | null;
+  values: string[];
+};
 
 @Component({
   selector: 'app-document-details',
@@ -71,14 +79,38 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   confidenceScore = computed(() => {
     return (this.document()?.validationResults?.score ?? 0) * 100;
   });
+  matchLabel = computed(() => {
+    const results = this.document()?.validationResults;
+    if (!results) return '—';
+    if (results.match) return 'Match';
+    if (results.typeMatch) return 'Type Mismatch';
+    return 'No Match';
+  });
+
   fileContent = linkedSignal(() => this.document()?.fileContent ?? '');
   fileContentCopied = signal(false);
+  verificationTagResults = signal<EditableVerificationTagResult[]>([]);
+  readonly verificationTagOptions: VerificationTag[] = Object.values(VerificationTag);
+  readonly verificationTagStatusOptions: VerificationTagStatus[] = Object.values(VerificationTagStatus);
 
   saveDocument(): void {
-    this.documentApiStore.updateFileContent({
-      id: this.document().id,
-      content: this.fileContent(),
-    })
+    const currentDocument = this.document();
+    if (!currentDocument?.id) {
+      return;
+    }
+
+    this.documentApiStore.save({
+      document: {
+        ...currentDocument,
+        fileContent: this.fileContent(),
+        verificationTagResults: this.verificationTagResults().map((result) => ({
+          verificationTag: result.verificationTag,
+          verificationTagStatus: result.verificationTagStatus,
+          score: result.score ?? 0,
+          values: result.values,
+        })),
+      },
+    });
   }
 
   analyseDocument(): void {
@@ -90,6 +122,19 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
   constructor() {
     effect(() => {
+      const results = this.document()?.verificationTagResults ?? [];
+      this.verificationTagResults.set(
+        results.map((result: any) => ({
+          verificationTag: (result?.verificationTag as VerificationTag) ?? null,
+          verificationTagStatus:
+            (result?.verificationTagStatus as VerificationTagStatus) ?? VerificationTagStatus.UNCHECKED,
+          score: typeof result?.score === 'number' ? result.score : null,
+          values: Array.isArray(result?.values) ? result.values.map((value: any) => String(value)) : [],
+        })),
+      );
+    });
+
+    effect(() => {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
@@ -100,6 +145,59 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
         this.toaster.error(messages[0]);
       }
     });
+  }
+
+  addVerificationTagResult(): void {
+    this.verificationTagResults.update((results) => [
+      ...results,
+      {
+        verificationTag: null,
+        verificationTagStatus: VerificationTagStatus.UNCHECKED,
+        score: null,
+        values: [],
+      },
+    ]);
+  }
+
+  removeVerificationTagResult(index: number): void {
+    this.verificationTagResults.update((results) => results.filter((_, i) => i !== index));
+  }
+
+  updateVerificationTag(index: number, verificationTag: VerificationTag | null): void {
+    this.updateVerificationTagResult(index, { verificationTag });
+  }
+
+  updateVerificationTagStatus(index: number, verificationTagStatus: VerificationTagStatus): void {
+    this.updateVerificationTagResult(index, { verificationTagStatus });
+  }
+
+  updateVerificationTagScore(index: number, rawScore: string): void {
+    const score = rawScore === '' ? null : Number(rawScore);
+    this.updateVerificationTagResult(index, {
+      score: Number.isNaN(score as number) ? null : score,
+    });
+  }
+
+  updateVerificationTagValues(index: number, rawValues: string): void {
+    const values = rawValues
+      .split(',')
+      .map((value) => value.trim())
+      .filter((value) => value.length > 0);
+
+    this.updateVerificationTagResult(index, { values });
+  }
+
+  verificationTagValuesText(values: string[]): string {
+    return values.join(', ');
+  }
+
+  private updateVerificationTagResult(
+    index: number,
+    changes: Partial<EditableVerificationTagResult>,
+  ): void {
+    this.verificationTagResults.update((results) =>
+      results.map((result, i) => (i === index ? { ...result, ...changes } : result)),
+    );
   }
 
   ngOnInit(): void {
@@ -125,24 +223,24 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     return this.document()?.validationResults?.match ? 'check_circle' : 'cancel';
   }
 
-  get matchLabel(): string {
-    return this.document()?.validationResults?.typeMatch ? 'Verified Match' : 'Type Mismatch';
-  }
+  // get matchLabel(): string {
+  //   return this.document()?.validationResults?.typeMatch ? 'Verified Match' : 'Type Mismatch';
+  // }
 
   get thresholdLabel(): string {
     return this.document()?.validationResults?.match ? 'Pass' : 'Fail';
   }
 
-  get entityTypeLabel(): string {
+  entityTypeLabel = computed(() => {
     switch (this.document()?.target) {
       case TargetEntity.INDIVIDUAL: return 'Natural Person';
       case TargetEntity.ORGANISATION: return 'Organisation';
       case TargetEntity.BRANCH: return 'Branch';
       default: return this.document()?.target ?? '—';
     }
-  }
+  });
 
-  get analyticsStatusLabel(): string {
+  analyticsStatusLabel = computed(() => {
     const status = this.document()?.analyticsStatus;
 
     if (!status) {
@@ -154,12 +252,12 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
       .toLowerCase()
       .replace(/_/g, ' ')
       .replace(/\b\w/g, (c: string) => c.toUpperCase());
-  }
+  });
 
-  get confidenceSegments(): boolean[] {
+  confidenceSegments = computed(() => {
     const score = this.document()?.validationResults?.score ?? 0;
     return Array.from({ length: 10 }, (_, i) => i < Math.round(score / 10));
-  }
+  });
 
   get extractionRows(): Array<{ field: string; expected: any; extracted: any; matches: boolean }> {
     const doc = this.document();
