@@ -1,8 +1,8 @@
-import { FormBuilder } from "@angular/forms";
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {CompletionRequestMessage} from '@models/bw/co/centralkyc/lmstudio/completion-request-message';
 import {ExpectedField} from '@models/bw/co/centralkyc/document/type/expected-field';
+import {CompletionRequestMessage} from '@models/bw/co/centralkyc/lmstudio/completion-request-message';
+import {VerificationTag} from '@models/bw/co/centralkyc/kyc/verification/verification-tag';
 
 export class DocumentTypeDTO extends AuditableDTO {
     code: string | any;
@@ -17,6 +17,8 @@ export class DocumentTypeDTO extends AuditableDTO {
     
     textExtractionPrompts: Array<CompletionRequestMessage> | any;
     
+    verificationTags: Array<VerificationTag> | any;
+    
     constructor() {
         super();
         this.code = null;
@@ -25,5 +27,6 @@ export class DocumentTypeDTO extends AuditableDTO {
         this.expectedFields = [];
         this.validationPrompts = [];
         this.textExtractionPrompts = [];
+        this.verificationTags = [];
     }
 }

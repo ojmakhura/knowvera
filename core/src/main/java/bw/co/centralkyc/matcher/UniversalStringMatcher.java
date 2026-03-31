@@ -1,0 +1,54 @@
+package bw.co.centralkyc.matcher;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class UniversalStringMatcher {
+
+    /**
+     * Cleans and splits a string into a set of unique words.
+     */
+    private Set<String> getTokens(String input) {
+        if (input == null || input.isBlank()) {
+            return new HashSet<>();
+        }
+        
+        // 1. Lowercase
+        // 2. Remove non-alphanumeric characters (keeps only letters and numbers)
+        // 3. Split by whitespace
+        String cleaned = input.toLowerCase().replaceAll("[^a-z0-9\\s]", "");
+        String[] tokens = cleaned.split("\\s+");
+        
+        return new HashSet<>(Arrays.asList(tokens));
+    }
+
+    /**
+     * Calculates Jaccard Similarity: (A ∩ B) / (A ∪ B)
+     */
+    public double calculateSimilarity(String str1, String str2) {
+        Set<String> set1 = getTokens(str1);
+        Set<String> set2 = getTokens(str2);
+
+        if (set1.isEmpty() && set2.isEmpty()) return 1.0;
+        if (set1.isEmpty() || set2.isEmpty()) return 0.0;
+
+        // Find Intersection
+        Set<String> intersection = new HashSet<>(set1);
+        intersection.retainAll(set2);
+
+        // Find Union
+        Set<String> union = new HashSet<>(set1);
+        union.addAll(set2);
+
+        return (double) intersection.size() / union.size();
+    }
+
+    public boolean isMatch(String str1, String str2, double threshold) {
+        return calculateSimilarity(str1, str2) >= threshold;
+    }
+    
+}

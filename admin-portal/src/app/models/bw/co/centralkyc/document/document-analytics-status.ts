@@ -16,5 +16,7 @@ export enum DocumentAnalyticsStatus {
     /** TODO: Model Documentation for Enumeration Literal INFORMATION_EXTRACTION_COMPLETE value "INFORMATION_EXTRACTION_COMPLETE": $literal.enumerationLiteralDisplay */
     INFORMATION_EXTRACTION_COMPLETE = "INFORMATION_EXTRACTION_COMPLETE",
     /** TODO: Model Documentation for Enumeration Literal INFORMATION_CONFIRMATION_COMPLETE value "INFORMATION_CONFIRMATION_COMPLETE": $literal.enumerationLiteralDisplay */
-    INFORMATION_CONFIRMATION_COMPLETE = "INFORMATION_CONFIRMATION_COMPLETE"
+    INFORMATION_CONFIRMATION_COMPLETE = "INFORMATION_CONFIRMATION_COMPLETE",
+    /** TODO: Model Documentation for Enumeration Literal TEXT_CLEANUP_COMPLETE value "TEXT_CLEANUP_COMPLETE": $literal.enumerationLiteralDisplay */
+    TEXT_CLEANUP_COMPLETE = "TEXT_CLEANUP_COMPLETE"
 }

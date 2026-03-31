@@ -148,10 +148,6 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
     return (documentType.validationPrompts?.length || 0) + (documentType.textExtractionPrompts?.length || 0);
   }
 
-  openDetails(id: string): void {
-    this.router.navigate(['/', 'document', 'type', 'edit', id]);
-  }
-
   openCreate(): void {
     this.router.navigate(['/', 'document', 'type', 'edit']);
   }

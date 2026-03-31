@@ -75,6 +75,12 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
   editDocumentSignal = signal(new EditDocumentForm());
   editDocumentSignalForm = form(this.editDocumentSignal, (path) => {
     readonly(path.id);
+    if(path.id) {
+      // readonly(path.documentType);
+      readonly(path.target);
+      readonly(path.targetId);
+      readonly(path.url);
+    }
   });
   isSaving = signal(false);
   lastLoadedId: string | null = null;

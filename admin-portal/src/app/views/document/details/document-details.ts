@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -28,6 +29,7 @@ import { Loader } from '@app/@shared/loader/loader';
 import { ToastrService } from 'ngx-toastr';
 import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
+import { VerificationTagStatus } from '@app/models/bw/co/centralkyc/document/verification-tag-status';
 
 @Component({
   selector: 'app-document-details',
@@ -49,6 +51,7 @@ import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
     MatFormFieldModule,
     MatTooltipModule,
     MatTabsModule,
+    TranslateModule,
     Loader,
   ],
 })
@@ -200,6 +203,18 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
       hologramCheck: 'security',
     };
     return icons[key] ?? 'check_circle';
+  }
+
+  verificationTagStatusLabel(status: VerificationTagStatus | string | null | undefined): string {
+    switch (status) {
+      case VerificationTagStatus.SUCCESSFUL:
+        return 'Successful';
+      case VerificationTagStatus.FAILED:
+        return 'Failed';
+      case VerificationTagStatus.UNCHECKED:
+      default:
+        return 'Unchecked';
+    }
   }
 }
 

@@ -28,6 +28,7 @@ import net.sourceforge.tess4j.TesseractException;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
@@ -149,6 +150,15 @@ public class DocumentProcessorService {
 
                 // Optional: parse into a Map
                 Map<String, Object> jsonMap = jsonMapper.readValue(jsonString, Map.class);
+
+                if(!jsonMap.containsKey("score") && jsonMap.containsKey("signalScores")) {
+                    Map<String, Integer> signalScores = (Map<String, Integer>) jsonMap.get("signalScores");
+                    double score = signalScores.values().stream()
+                            .mapToInt(Integer::intValue)
+                            .sum() / (double) signalScores.size();
+                    jsonMap.put("score", score);
+                }
+
                 System.out.println("\nParsed JSON Map:\n" + jsonMap);
 
                 return jsonMap;

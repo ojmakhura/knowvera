@@ -88,7 +88,15 @@ public class DocumentValidationService {
             systemPromptBuilder.append("\t").append(type.getName()).append('\n');
 
             type.getExpectedFields().forEach(field -> {
-                systemPromptBuilder.append("\t\t-").append(field.getField()).append('\n');
+                systemPromptBuilder
+                    .append("\t\t-")
+                    .append(field.getField());
+
+                if(field.getMandatory() != null && field.getMandatory()) {
+                    systemPromptBuilder.append(" (mandatory)");
+                }
+
+                systemPromptBuilder.append('\n');
             });
             systemPromptBuilder.append('\n');
         }
@@ -135,13 +143,24 @@ public class DocumentValidationService {
                         Your task is to verify whether the OCR document content matches the expected document type using signal scoring.
 
                         Expected document types and their signals:
+                        
                         """);
 
         for (DocumentTypeDTO type : documentTypes) {
             systemPromptBuilder.append("\t").append(type.getName()).append('\n');
 
             type.getExpectedFields().forEach(field -> {
-                systemPromptBuilder.append("\t\t-").append(field.getField()).append('\n');
+                
+                systemPromptBuilder
+                    .append("\t\t-")
+                    .append(field.getField());
+
+                if(field.getMandatory() != null && field.getMandatory()) {
+                    systemPromptBuilder.append(" (mandatory)");
+
+                }
+
+                systemPromptBuilder.append('\n');
             });
             systemPromptBuilder.append('\n');
         }

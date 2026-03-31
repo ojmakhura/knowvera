@@ -35,38 +35,44 @@
 					<div class="field-grid two-column">
 						<div class="field-group">
 							<label class="field-label">Document ID</label>
-							<mat-form-field class="vault-field locked-field">
+							<mat-form-field class="vault-field">
 								<mat-icon matPrefix>lock</mat-icon>
 								<input matInput [value]="editDocumentSignal().id || ''" readonly />
 							</mat-form-field>
-							<p class="field-note">This unique identifier is immutable.</p>
+							<!-- <p class="field-note">This unique identifier is immutable.</p> -->
 						</div>
 
 						<div class="field-group">
 							<label class="field-label">Target Entity</label>
 							<mat-form-field class="vault-field">
+								@if(!editDocumentSignal().id) {
 								<mat-select [formField]="editDocumentSignalForm.target">
 									@for (option of TargetEntityOptions; track option) {
 									<mat-option [value]="option">{{ targetEntityLabel(option) }}</mat-option>
 									}
 								</mat-select>
+								}
+								<input matInput [formField]="editDocumentSignalForm.target" placeholder="Select target entity" />	
 							</mat-form-field>
 						</div>
 
 						<div class="field-group">
 							<label class="field-label">Target ID</label>
 							<mat-form-field class="vault-field">
-								<input matInput [formField]="editDocumentSignalForm.targetId" placeholder="Enter entity reference" />
+								<input matInput [formField]="editDocumentSignalForm.targetId"
+									placeholder="Enter entity reference" />
 							</mat-form-field>
 						</div>
 
 						<div class="field-group">
 							<label class="field-label">Document Type</label>
 							<mat-form-field class="vault-field">
-								<mat-select [formField]="editDocumentSignalForm.documentType" [compareWith]="documentTypeCompare">
+								<mat-select [formField]="editDocumentSignalForm.documentType"
+									[compareWith]="documentTypeCompare">
 									<mat-option>
 										<ngx-mat-select-search [placeholderLabel]="'search.document.type' | translate"
-											[formField]="editDocumentSignalForm.documentTypeFilter" (keyup.enter)="filterDocumentType()"
+											[formField]="editDocumentSignalForm.documentTypeFilter"
+											(keyup.enter)="filterDocumentType()"
 											[noEntriesFoundLabel]="'no.entries.found' | translate">
 										</ngx-mat-select-search>
 									</mat-option>
@@ -114,8 +120,9 @@
 									<input matInput [formField]="editDocumentSignalForm.url" />
 								</mat-form-field>
 
-								<button mat-stroked-button type="button" class="view-btn" [disabled]="!canViewDocument()"
-									(click)="viewDocument()" matTooltip="Open document preview">
+								<button mat-stroked-button type="button" class="view-btn"
+									[disabled]="!canViewDocument()" (click)="viewDocument()"
+									matTooltip="Open document preview">
 									<mat-icon>visibility</mat-icon>
 									View Document
 								</button>

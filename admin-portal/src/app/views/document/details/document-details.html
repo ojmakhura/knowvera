@@ -219,6 +219,31 @@
                 </div>
               </div>
             </mat-tab>
+
+            <!-- @if (document().verificationTagResults && document().verificationTagResults.length > 0) { -->
+            <mat-tab label="Verification Tag Results">
+              <div class="tab-pane-content">
+                @for (result of document().verificationTagResults; track $index) {
+                <div style="padding: 0.75rem 0; border-bottom: 1px solid #f0f2f5;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                    <strong>{{ ('verification.tag.' + result.verificationTag) | translate }}</strong>
+                    <span [ngClass]="'status-badge status-' + (result.verificationTagStatus | lowercase)">
+                      {{ verificationTagStatusLabel(result.verificationTagStatus) }}
+                    </span>
+                    <span style="font-weight: 600; color: #001735;">{{ result.score ? (result.score | number: '1.0-2') : 'N/A' }}</span>
+                  </div>
+                  @if (result.values && result.values.length > 0) {
+                  <div class="values-list" style="margin-top: 0.5rem;">
+                    @for (value of result.values; track $index) {
+                    <span class="value-tag">{{ value }}</span>
+                    }
+                  </div>
+                  }
+                </div>
+                }
+              </div>
+            </mat-tab>
+            <!-- } -->
           </mat-tab-group>
         </mat-card-content>
       </mat-card>
@@ -261,7 +286,7 @@
   <h3 class="inspection-title">Secure Rendering Engine v4.0</h3>
 </div>
 
-<div class="mt-5 d-flex justify-content-between align-items-center"
+<!-- <div class="mt-5 d-flex justify-content-between align-items-center"
   style="opacity: 0.6; font-size: 0.625rem; font-weight: 700; text-transform: uppercase;">
   <div class="d-flex align-items-center gap-2">
     <div style="background: #001735; color: white; padding: 0.25rem; border-radius: 4px; display: inline-flex;">
@@ -275,5 +300,5 @@
   <div style="letter-spacing: 0.1em; color: #43474f;">
     CENTRAL KYC © 2024
   </div>
-</div>
+</div> -->
 <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>

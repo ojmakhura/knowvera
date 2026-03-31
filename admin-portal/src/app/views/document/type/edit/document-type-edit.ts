@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTabsModule } from '@angular/material/tabs';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -24,6 +25,7 @@ import { form, required, applyEach, FormField } from '@angular/forms/signals';
 import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
 import { ExpectedField } from '@app/models/bw/co/centralkyc/document/type/expected-field';
 import { KeyField } from '@app/models/bw/co/centralkyc/key-field';
+import { VerificationTag } from '@app/models/bw/co/centralkyc/kyc/verification/verification-tag';
 import { CompletionRequestMessage } from '@app/models/bw/co/centralkyc/lmstudio/completion-request-message';
 import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
 import Swal from 'sweetalert2';
@@ -42,6 +44,7 @@ export class EditDocumentTypeVarsForm {
   expectedFields: Array<ExpectedField> = [];
   validationPrompts: Array<CompletionRequestMessage> = [];
   textExtractionPrompts: Array<CompletionRequestMessage> = [];
+  verificationTags: Array<VerificationTag> = [];
 }
 
 @Component({
@@ -58,6 +61,7 @@ export class EditDocumentTypeVarsForm {
     MatIconModule,
     MatTooltipModule,
     MatCheckboxModule,
+    MatTabsModule,
     Loader,
     FormField,
     TranslateModule
@@ -67,6 +71,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   @Input() id: string = '';
   protected readonly keyFieldOptions = Object.values(KeyField);
   protected readonly promptRoleOptions = ['system', 'user', 'assistant'];
+  protected readonly verificationTagOptions = Object.values(VerificationTag);
 
   editDocumentTypeVarsForm: EditDocumentTypeVarsForm = new EditDocumentTypeVarsForm();
   editDocumentTypeSignal = signal(this.editDocumentTypeVarsForm);
@@ -239,6 +244,25 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     }))
   }
 
+  isVerificationTagSelected(tag: VerificationTag): boolean {
+    return this.editDocumentTypeSignal().verificationTags.includes(tag);
+  }
+
+  toggleVerificationTag(tag: VerificationTag, checked: boolean): void {
+    this.editDocumentTypeSignal.update((state) => {
+      const verificationTags = checked
+        ? state.verificationTags.includes(tag)
+          ? state.verificationTags
+          : [...state.verificationTags, tag]
+        : state.verificationTags.filter((item) => item !== tag);
+
+      return {
+        ...state,
+        verificationTags,
+      };
+    });
+  }
+
   textExtractionPromptsRemove(i: number, selected: CompletionRequestMessage) {
     Swal.fire({
       title: 'Are you sure?',
@@ -289,6 +313,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       expectedFields: documentType.expectedFields || [],
       textExtractionPrompts: documentType.textExtractionPrompts || [],
       validationPrompts: documentType.validationPrompts || [],
+      verificationTags: documentType.verificationTags || [],
     };
   }
 
@@ -308,6 +333,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.expectedFields = formData.expectedFields || [];
     docType.textExtractionPrompts = formData.textExtractionPrompts || [];
     docType.validationPrompts = formData.validationPrompts || [];
+    docType.verificationTags = formData.verificationTags || [];
 
     this.documentTypeApiStore.save({
       documentType: docType

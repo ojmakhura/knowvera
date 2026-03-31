@@ -478,6 +478,46 @@ mat-card.identity-card {
   padding: 1.5rem 0 0.5rem;
 }
 
+.status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-successful {
+  background: rgba(76, 175, 80, 0.15);
+  color: #2e7d32;
+}
+
+.status-failed {
+  background: rgba(244, 67, 54, 0.15);
+  color: #c62828;
+}
+
+.status-unchecked {
+  background: rgba(158, 158, 158, 0.15);
+  color: #5a5a5a;
+}
+
+.values-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.value-tag {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  background: rgba(13, 71, 161, 0.1);
+  color: #0d47a1;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
 .tab-table-pane {
   padding-top: 1rem;
 
