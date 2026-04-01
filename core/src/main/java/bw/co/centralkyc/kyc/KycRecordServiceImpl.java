@@ -91,7 +91,7 @@ public class KycRecordServiceImpl
         KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new Exception("KycRecord not found for id: " + id));
 
-        return this.kycRecordDao.toKycRecordDTO(kycRecord);
+        return this.kycRecordMapper.toKycRecordDTO(kycRecord);
     }
 
     /**

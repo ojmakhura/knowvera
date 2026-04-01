@@ -150,6 +150,20 @@
 	box-shadow: 0 16px 32px rgba(0, 23, 53, 0.05);
 }
 
+.record-tabs-card {
+	padding: 0.5rem;
+
+	.tab-pane {
+		display: grid;
+		gap: 1rem;
+		padding-top: 1rem;
+	}
+}
+
+:host ::ng-deep .mat-mdc-tab-body-content {
+	overflow: visible;
+}
+
 .status-summary-panel {
 	gap: 1.5rem;
 }
@@ -404,6 +418,183 @@
 	margin-top: 0.3rem;
 }
 
+.documents-tab-pane {
+	gap: 1rem;
+}
+
+.document-nav-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+
+	h3 {
+		margin: 0.25rem 0 0;
+		font-size: 1.1rem;
+		color: #001735;
+	}
+}
+
+.document-nav-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+
+	button {
+		border-radius: 12px;
+	}
+}
+
+.doc-position {
+	font-size: 0.8rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: #5f6368;
+	min-width: 4.5rem;
+	text-align: center;
+}
+
+.document-index-row {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+.doc-chip {
+	border: 1px solid #c9d2dd;
+	background: #f5f8fb;
+	color: #284061;
+	padding: 0.35rem 0.7rem;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	cursor: pointer;
+
+	&.active {
+		background: #001735;
+		border-color: #001735;
+		color: #fff;
+	}
+}
+
+.document-info-panel,
+.comparison-panel,
+.empty-documents-panel {
+	margin-top: 0;
+	box-shadow: none;
+	background: #fafbfc;
+	border: 1px solid rgba(196, 198, 208, 0.45);
+}
+
+.document-info-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+	margin-top: 0.8rem;
+}
+
+.document-action-row {
+	display: flex;
+	gap: 0.75rem;
+	margin-top: 1rem;
+	flex-wrap: wrap;
+}
+
+.comparison-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	margin-bottom: 0.7rem;
+}
+
+.comparison-table-wrap {
+	overflow-x: auto;
+}
+
+.comparison-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.86rem;
+
+	thead th {
+		text-align: left;
+		padding: 0.7rem;
+		color: #5f6368;
+		text-transform: uppercase;
+		font-size: 0.68rem;
+		letter-spacing: 0.08em;
+	}
+
+	tbody td {
+		padding: 0.7rem;
+		border-top: 1px solid rgba(196, 198, 208, 0.4);
+		color: #1a2028;
+	}
+}
+
+.text-error {
+	color: #b91c1c !important;
+	font-weight: 600;
+}
+
+.badge-valid,
+.badge-expired {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.2rem 0.55rem;
+	border-radius: 999px;
+	font-size: 0.7rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.badge-valid {
+	color: #166534;
+	background: #dcfce7;
+	border: 1px solid #86efac;
+}
+
+.badge-expired {
+	color: #b91c1c;
+	background: #fee2e2;
+	border: 1px solid #fca5a5;
+}
+
+.no-comparison-data {
+	text-align: center;
+	color: #7a8189 !important;
+}
+
+.empty-documents-panel {
+	display: grid;
+	justify-items: center;
+	text-align: center;
+	gap: 0.5rem;
+	padding: 2rem;
+
+	mat-icon {
+		font-size: 2rem;
+		width: 2rem;
+		height: 2rem;
+		color: #5f6368;
+	}
+
+	h3 {
+		margin: 0;
+		color: #001735;
+	}
+
+	p {
+		margin: 0;
+		font-size: 0.88rem;
+		color: #5f6368;
+	}
+}
+
 .meta-panel {
 	background: #eceef0;
 }
@@ -505,29 +696,6 @@
 	font-weight: 800;
 }
 
-:host ::ng-deep mat-list {
-	padding: 0;
-	margin: 0;
-
-	mat-list-item {
-		height: auto;
-		padding: 0.75rem 0;
-
-		&:not(:last-child) {
-			border-bottom: 1px solid rgba(196, 198, 208, 0.2);
-		}
-
-		mat-icon {
-			color: #001735;
-		}
-
-		.doc-type {
-			font-size: 0.75rem !important;
-			color: #5f6368 !important;
-		}
-	}
-}
-
 .loading-panel {
 	display: flex;
 	align-items: center;
@@ -577,6 +745,10 @@
 	.verification-grid {
 		grid-template-columns: 1fr;
 	}
+
+	.document-info-grid {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media (max-width: 640px) {
@@ -623,6 +795,30 @@
 
 	.verification-grid {
 		grid-template-columns: 1fr;
+	}
+
+	.document-nav-row,
+	.document-nav-actions {
+		align-items: stretch;
+	}
+
+	.document-nav-actions {
+		width: 100%;
+
+		button {
+			flex: 1;
+		}
+	}
+
+	.doc-position {
+		order: 3;
+		width: 100%;
+	}
+
+	.document-action-row {
+		button {
+			flex: 1;
+		}
 	}
 
 	.section-head h2 {

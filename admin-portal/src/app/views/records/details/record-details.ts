@@ -2,9 +2,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatListModule } from '@angular/material/list';
+import { MatTabsModule } from '@angular/material/tabs';
 import { ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -24,6 +24,7 @@ import { VerificationStatus } from '@app/models/bw/co/centralkyc/kyc/verificatio
   templateUrl: './record-details.html',
   styleUrls: ['./record-details.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [DatePipe],
   imports: [
     CommonModule,
     MatIconModule,
@@ -31,7 +32,7 @@ import { VerificationStatus } from '@app/models/bw/co/centralkyc/kyc/verificatio
     TranslateModule,
     MatCardModule,
     MatTooltipModule,
-    MatListModule,
+    MatTabsModule,
   ],
 })
 export class RecordDetails implements OnInit {
@@ -41,6 +42,7 @@ export class RecordDetails implements OnInit {
   readonly documentApi = inject(DocumentApi);
   readonly kycRecordApiStore = inject(KycRecordApiStore);
   protected appEnvState = inject(AppEnvStore);
+  datePipe = inject(DatePipe);
 
   readonly loading = linkedSignal(() => this.kycRecordApiStore.loading());
   readonly loaderMessage = linkedSignal(() => this.kycRecordApiStore.loaderMessage());
@@ -55,6 +57,9 @@ export class RecordDetails implements OnInit {
   readonly IndividualIdentityType = IndividualIdentityType;
   readonly SourceOfFunds = SourceOfFunds;
   readonly VerificationStatus = VerificationStatus;
+
+  selectedSectionTabIndex = 0;
+  currentDocumentIndex = 0;
 
   private lastErrorMessage = '';
 
@@ -73,6 +78,19 @@ export class RecordDetails implements OnInit {
     effect(() => {
       const record = this.kycRecordApiStore.data();
       console.log('Record data updated:', record);
+    });
+
+    effect(() => {
+      const documents = this.record()?.documents || [];
+
+      if (documents.length === 0) {
+        this.currentDocumentIndex = 0;
+        return;
+      }
+
+      if (this.currentDocumentIndex >= documents.length) {
+        this.currentDocumentIndex = documents.length - 1;
+      }
     });
   }
 
@@ -359,6 +377,132 @@ export class RecordDetails implements OnInit {
     this.downloadDocument(doc);
   }
 
+  setSectionTab(index: number): void {
+    this.selectedSectionTabIndex = index;
+  }
+
+  documentsList(): DocumentDTO[] {
+    return this.record()?.documents || [];
+  }
+
+  currentDocument(): DocumentDTO | null {
+    const documents = this.documentsList();
+
+    if (documents.length === 0) {
+      return null;
+    }
+
+    return documents[this.currentDocumentIndex] || null;
+  }
+
+  hasPreviousDocument(): boolean {
+    return this.currentDocumentIndex > 0;
+  }
+
+  hasNextDocument(): boolean {
+    return this.currentDocumentIndex < this.documentsList().length - 1;
+  }
+
+  showPreviousDocument(): void {
+    if (!this.hasPreviousDocument()) {
+      return;
+    }
+
+    this.currentDocumentIndex -= 1;
+  }
+
+  showNextDocument(): void {
+    if (!this.hasNextDocument()) {
+      return;
+    }
+
+    this.currentDocumentIndex += 1;
+  }
+
+  selectDocument(index: number): void {
+    const documents = this.documentsList();
+    if (index < 0 || index >= documents.length) {
+      return;
+    }
+
+    this.currentDocumentIndex = index;
+  }
+
+  currentDocumentPositionLabel(): string {
+    const total = this.documentsList().length;
+    if (total === 0) {
+      return '0 / 0';
+    }
+
+    return `${this.currentDocumentIndex + 1} / ${total}`;
+  }
+
+  documentTypeLabel(document: DocumentDTO | null): string {
+    if (!document) {
+      return 'Not available';
+    }
+
+    return document.documentType || document.documentTypeId || 'Not available';
+  }
+
+  documentCreatedAtLabel(document: DocumentDTO | null): string {
+    return this.formatDate(document?.createdAt || null);
+  }
+
+  documentStatusLabel(document: DocumentDTO | null): string {
+    return document?.verificationStatus || 'Unverified';
+  }
+
+  dataComparisons(document: DocumentDTO | null): Array<{ field: string; expected: string; extracted: string; matches: boolean }> {
+    if (!document?.dataComparisons || !Array.isArray(document.dataComparisons)) {
+      return [];
+    }
+
+    return document.dataComparisons.map((row: any) => ({
+      field: row?.field || 'Unknown Field',
+      expected: row?.expected || '—',
+      extracted: row?.extracted || '—',
+      matches: !!row?.matches,
+    }));
+  }
+
+  openDocumentView(document: DocumentDTO | null): void {
+    if (!document) {
+      return;
+    }
+
+    if (document.id) {
+      this.router.navigate(['/documents', 'details', document.id]);
+      return;
+    }
+
+    if (document.url) {
+      window.open(document.url, '_blank', 'noopener');
+      return;
+    }
+
+    this.toaster.error('No document view is available.');
+  }
+
+  openDocumentEdit(document: DocumentDTO | null): void {
+    if (!document?.id) {
+      this.toaster.error('This document cannot be edited yet.');
+      return;
+    }
+
+    this.router.navigate(['/documents', 'edit', document.id]);
+  }
+
+  downloadCurrentDocument(): void {
+    const document = this.currentDocument();
+    if (!document) {
+      this.toaster.error('No document selected to download.');
+      return;
+    }
+
+    this.downloadDocument(document);
+  }
+
   private downloadDocument(document: DocumentDTO): void {
     const request = document.id
       ? this.documentApi.downloadFile(document.id)
@@ -394,11 +538,7 @@ export class RecordDetails implements OnInit {
       return 'Not recorded';
     }
 
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(date);
+    return this.datePipe.transform(date, 'dd-MM-yyyy') || 'Invalid date';
   }
 
   private formatDateTime(value: Date | string | null | undefined): string {
@@ -408,13 +548,7 @@ export class RecordDetails implements OnInit {
       return 'Not recorded';
     }
 
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
+    return this.datePipe.transform(date, 'dd-MM-yyyy HH:mm') || 'Invalid date';
   }
 
   private dateValue(value: Date | string | null | undefined): Date | null {
