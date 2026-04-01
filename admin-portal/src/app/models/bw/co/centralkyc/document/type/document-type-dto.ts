@@ -1,8 +1,9 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {ExpectedField} from '@models/bw/co/centralkyc/document/type/expected-field';
-import {CompletionRequestMessage} from '@models/bw/co/centralkyc/lmstudio/completion-request-message';
+import {VerificationDataConfigDTO} from '@models/bw/co/centralkyc/document/type/verification/verification-data-config-dto';
+import {ExpectedFieldDTO} from '@models/bw/co/centralkyc/document/type/field/expected-field-dto';
 import {VerificationTag} from '@models/bw/co/centralkyc/kyc/verification/verification-tag';
+import {CompletionRequestMessage} from '@models/bw/co/centralkyc/lmstudio/completion-request-message';
 
 export class DocumentTypeDTO extends AuditableDTO {
     code: string | any;
@@ -11,13 +12,15 @@ export class DocumentTypeDTO extends AuditableDTO {
     
     description: string | any;
     
-    expectedFields: Array<ExpectedField> | any;
+    expectedFields: Array<ExpectedFieldDTO> | any;
     
     validationPrompts: Array<CompletionRequestMessage> | any;
     
     textExtractionPrompts: Array<CompletionRequestMessage> | any;
     
     verificationTags: Array<VerificationTag> | any;
+    
+    verificationDataConfigs: Array<VerificationDataConfigDTO> | any;
     
     constructor() {
         super();
@@ -28,5 +31,6 @@ export class DocumentTypeDTO extends AuditableDTO {
         this.validationPrompts = [];
         this.textExtractionPrompts = [];
         this.verificationTags = [];
+        this.verificationDataConfigs = [];
     }
 }

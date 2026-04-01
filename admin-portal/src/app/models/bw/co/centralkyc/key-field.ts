@@ -70,5 +70,21 @@ export enum KeyField {
     /** TODO: Model Documentation for Enumeration Literal ORGANISATION_ABBREVIATION value "ORGANISATION_ABBREVIATION": $literal.enumerationLiteralDisplay */
     ORGANISATION_ABBREVIATION = "ORGANISATION_ABBREVIATION",
     /** TODO: Model Documentation for Enumeration Literal DOCUMENT_DATE value "DOCUMENT_DATE": $literal.enumerationLiteralDisplay */
-    DOCUMENT_DATE = "DOCUMENT_DATE"
+    DOCUMENT_DATE = "DOCUMENT_DATE",
+    /** TODO: Model Documentation for Enumeration Literal INDIVIDUAL_MONTHLY_RENUMERATIONS value "INDIVIDUAL_MONTHLY_RENUMERATIONS": $literal.enumerationLiteralDisplay */
+    INDIVIDUAL_MONTHLY_RENUMERATIONS = "INDIVIDUAL_MONTHLY_RENUMERATIONS",
+    /** TODO: Model Documentation for Enumeration Literal INDIVIDUAL_ANNUAL_RENUMERATIONS value "INDIVIDUAL_ANNUAL_RENUMERATIONS": $literal.enumerationLiteralDisplay */
+    INDIVIDUAL_ANNUAL_RENUMERATIONS = "INDIVIDUAL_ANNUAL_RENUMERATIONS",
+    /** TODO: Model Documentation for Enumeration Literal ACCOUNT_NUMBER value "ACCOUNT_NUMBER": $literal.enumerationLiteralDisplay */
+    ACCOUNT_NUMBER = "ACCOUNT_NUMBER",
+    /** TODO: Model Documentation for Enumeration Literal ACCOUNT_NAME value "ACCOUNT_NAME": $literal.enumerationLiteralDisplay */
+    ACCOUNT_NAME = "ACCOUNT_NAME",
+    /** TODO: Model Documentation for Enumeration Literal BRANCH_CODE value "BRANCH_CODE": $literal.enumerationLiteralDisplay */
+    BRANCH_CODE = "BRANCH_CODE",
+    /** TODO: Model Documentation for Enumeration Literal BRANCH_NAME value "BRANCH_NAME": $literal.enumerationLiteralDisplay */
+    BRANCH_NAME = "BRANCH_NAME",
+    /** TODO: Model Documentation for Enumeration Literal BANK_NAME value "BANK_NAME": $literal.enumerationLiteralDisplay */
+    BANK_NAME = "BANK_NAME",
+    /** TODO: Model Documentation for Enumeration Literal SWIFT_CODE value "SWIFT_CODE": $literal.enumerationLiteralDisplay */
+    SWIFT_CODE = "SWIFT_CODE"
 }

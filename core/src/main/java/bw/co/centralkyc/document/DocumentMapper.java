@@ -6,7 +6,6 @@
 package bw.co.centralkyc.document;
 
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
-import bw.co.centralkyc.document.type.ExpectedField;
 import bw.co.centralkyc.matcher.UniversalStringMatcher;
 
 import java.util.Arrays;
@@ -43,68 +42,68 @@ public interface DocumentMapper {
     @Mapping(target = "documentTypeId", source = "documentType.id")
     @Mapping(target = "documentType", source = "documentType.name")
     @Mapping(target = "verificationTags", source = "documentType.verificationTags")
-    @Mapping(target = "expectedFields", expression = "java(getExpectedFields(entity))")
-    @Mapping(target = "dataComparisons", expression = "java(getDataComparisons(entity))")
+    // @Mapping(target = "expectedFields", expression = "java(getExpectedFields(entity))")
+    // @Mapping(target = "dataComparisons", expression = "java(getDataComparisons(entity))")
     DocumentDTO toDocumentDTO(Document entity);
 
-    default Map<String, Object> getExpectedFields(Document entity) {
+    // default Map<String, Object> getExpectedFields(Document entity) {
 
-        Map<String, Object> expectedInfor = new HashMap<>();
+    //     Map<String, Object> expectedInfor = new HashMap<>();
 
-        if (entity.getDocumentType().getExpectedFields() != null) {
-            Collection<ExpectedField> fields = entity.getDocumentType().getExpectedFields();
-            for (ExpectedField field : fields) {
+    //     if (entity.getDocumentType().getExpectedFields() != null) {
+    //         Collection<ExpectedField> fields = entity.getDocumentType().getExpectedFields();
+    //         for (ExpectedField field : fields) {
 
-                StringBuilder builder = new StringBuilder();
-                builder.append(field.getFormat() != null ? field.getFormat() : "null");
+    //             StringBuilder builder = new StringBuilder();
+    //             builder.append(field.getFormat() != null ? field.getFormat() : "null");
 
-                expectedInfor.put(field.getField(), builder.toString());
+    //             expectedInfor.put(field.getField(), builder.toString());
 
-            }
-        }
+    //         }
+    //     }
 
-        return expectedInfor;
-    }
+    //     return expectedInfor;
+    // }
 
-    default Collection<DataComparisons> getDataComparisons(Document entity) {
-        Collection<DataComparisons> expectedFieldsCollection = new java.util.ArrayList<>();
-        if (entity.getDocumentType().getExpectedFields() != null) {
-            Collection<ExpectedField> fields = entity.getDocumentType().getExpectedFields();
-            Map expectedInformation = entity.getExpectedInformation();
-            Map extractedInformation = entity.getExtractedInformation();
+    // default Collection<DataComparisons> getDataComparisons(Document entity) {
+    //     Collection<DataComparisons> expectedFieldsCollection = new java.util.ArrayList<>();
+    //     if (entity.getDocumentType().getExpectedFields() != null) {
+    //         Collection<ExpectedField> fields = entity.getDocumentType().getExpectedFields();
+    //         Map expectedInformation = entity.getExpectedInformation();
+    //         Map extractedInformation = entity.getExtractedInformation();
 
-            for (ExpectedField field : fields) {
+    //         for (ExpectedField field : fields) {
 
-                String fieldName = field.getField();
-                String expected = expectedInformation.get(fieldName) != null ? expectedInformation.get(fieldName).toString() : null;
-                String extracted = extractedInformation.get(fieldName) != null ? extractedInformation.get(fieldName).toString() : null;
+    //             String fieldName = field.getField();
+    //             String expected = expectedInformation.get(fieldName) != null ? expectedInformation.get(fieldName).toString() : null;
+    //             String extracted = extractedInformation.get(fieldName) != null ? extractedInformation.get(fieldName).toString() : null;
 
-                double similarity = 0.0;
+    //             double similarity = 0.0;
 
-                boolean expectedNotBlank = StringUtils.isNotBlank(expected);
-                boolean extractedNotBlank = StringUtils.isNotBlank(extracted);
+    //             boolean expectedNotBlank = StringUtils.isNotBlank(expected);
+    //             boolean extractedNotBlank = StringUtils.isNotBlank(extracted);
 
-                if(expectedNotBlank && extractedNotBlank) {
-                    similarity = calculateFilteredSimilarity(expected, extracted);
-                } else if(expectedNotBlank) {
-                    similarity = 0.0;
-                } else if(extractedNotBlank) {
-                    similarity = 1.0;
-                } else {
-                    similarity = 1.0; // Both are blank, consider it a perfect match
-                }
+    //             if(expectedNotBlank && extractedNotBlank) {
+    //                 similarity = calculateFilteredSimilarity(expected, extracted);
+    //             } else if(expectedNotBlank) {
+    //                 similarity = 0.0;
+    //             } else if(extractedNotBlank) {
+    //                 similarity = 1.0;
+    //             } else {
+    //                 similarity = 1.0; // Both are blank, consider it a perfect match
+    //             }
 
-                expectedFieldsCollection.add(new DataComparisons(
-                        field.getField(),
-                        (String) expectedInformation.get(field.getField()),
-                        (String) extractedInformation.get(field.getField()),
-                        similarity >= 0.8));
+    //             expectedFieldsCollection.add(new DataComparisons(
+    //                     field.getField(),
+    //                     (String) expectedInformation.get(field.getField()),
+    //                     (String) extractedInformation.get(field.getField()),
+    //                     similarity >= 0.8));
 
-            }
-        }
+    //         }
+    //     }
 
-        return expectedFieldsCollection;
-    }
+    //     return expectedFieldsCollection;
+    // }
 
     default Set<String> getTokens(String input) {
         if (input == null || input.isBlank()) {

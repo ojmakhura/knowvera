@@ -102,6 +102,21 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             AuditTracker.auditTrail(documentType, authentication);
+
+            if(documentType.getExpectedFields() != null) {
+
+                documentType.getExpectedFields().forEach(field -> {
+                    AuditTracker.auditTrail(field, authentication);
+                });
+            }
+
+            if(documentType.getVerificationDataConfigs() != null) {
+
+                documentType.getVerificationDataConfigs().forEach(config -> {
+                    AuditTracker.auditTrail(config, authentication);
+                });
+            }
+
             return ResponseEntity.ok(documentTypeService.save(documentType));
 
         } catch (Exception e) {

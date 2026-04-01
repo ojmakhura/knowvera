@@ -15,7 +15,6 @@ import bw.co.centralkyc.SortOrder;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.type.DocumentType;
 import bw.co.centralkyc.document.type.DocumentTypeRepository;
-import bw.co.centralkyc.document.type.ExpectedField;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.kyc.KycRecord;
@@ -429,35 +428,35 @@ public class DocumentServiceImpl
             expectedInformation = new HashMap<>();
         }
 
-        for (ExpectedField expectedField : docType.getExpectedFields()) {
+        // for (ExpectedField expectedField : docType.getExpectedFields()) {
 
-            switch (expectedField.getKeyField()) {
-                case ORGANISATION_NAME:
-                    expectedInformation.put(expectedField.getField(), organisation.getName());
-                    break;
+        //     switch (expectedField.getKeyField()) {
+        //         case ORGANISATION_NAME:
+        //             expectedInformation.put(expectedField.getField(), organisation.getName());
+        //             break;
 
-                case ORGANISATION_REGISTRATION_NO:
-                    expectedInformation.put(expectedField.getField(), organisation.getRegistrationNo());
-                    break;
-                case ORGANISATION_PHONE_NUMBER:
-                    expectedInformation.put(expectedField.getField(), organisation.getPhoneNumbers());
-                    break;
-                case ORGANISATION_PHYSICAL_ADDRESS:
-                    expectedInformation.put(expectedField.getField(), organisation.getPhysicalAddress());
-                    break;
-                case ORGANISATION_POSTAL_ADDRESS:
-                    expectedInformation.put(expectedField.getField(), organisation.getPostalAddress());
-                    break;
+        //         case ORGANISATION_REGISTRATION_NO:
+        //             expectedInformation.put(expectedField.getField(), organisation.getRegistrationNo());
+        //             break;
+        //         case ORGANISATION_PHONE_NUMBER:
+        //             expectedInformation.put(expectedField.getField(), organisation.getPhoneNumbers());
+        //             break;
+        //         case ORGANISATION_PHYSICAL_ADDRESS:
+        //             expectedInformation.put(expectedField.getField(), organisation.getPhysicalAddress());
+        //             break;
+        //         case ORGANISATION_POSTAL_ADDRESS:
+        //             expectedInformation.put(expectedField.getField(), organisation.getPostalAddress());
+        //             break;
 
-                case ORGANISATION_EMAIL_ADDRESS:
-                    expectedInformation.put(expectedField.getField(), organisation.getContactEmailAddress());
-                    break;
+        //         case ORGANISATION_EMAIL_ADDRESS:
+        //             expectedInformation.put(expectedField.getField(), organisation.getContactEmailAddress());
+        //             break;
 
-                default:
-                    break;
-            }
+        //         default:
+        //             break;
+        //     }
 
-        }
+        // }
 
         return expectedInformation;
 
@@ -471,49 +470,49 @@ public class DocumentServiceImpl
         }
 
         if(docType.getExpectedFields() != null) {
-            for (ExpectedField expectedField : docType.getExpectedFields()) {
+            // for (ExpectedField expectedField : docType.getExpectedFields()) {
 
-                switch (expectedField.getKeyField()) {
-                    case INDIVIDUAL_FIRST_NAME:
-                        expectedInformation.put(expectedField.getField(), individual.getFirstName());
-                        break;
+            //     switch (expectedField.getKeyField()) {
+            //         case INDIVIDUAL_FIRST_NAME:
+            //             expectedInformation.put(expectedField.getField(), individual.getFirstName());
+            //             break;
 
-                    case INDIVIDUAL_MIDDLE_NAME:
-                        expectedInformation.put(expectedField.getField(), individual.getMiddleName());
+            //         case INDIVIDUAL_MIDDLE_NAME:
+            //             expectedInformation.put(expectedField.getField(), individual.getMiddleName());
 
-                        break;
-                    case INDIVIDUAL_SURNAME:
-                        expectedInformation.put(expectedField.getField(), individual.getSurname());
-                        break;
-                    case INDIVIDUAL_IDENTITY_NO:
-                        expectedInformation.put(expectedField.getField(), individual.getIdentityNo());
-                        break;
-                    case INDIVIDUAL_IDENTITY_TYPE:
-                        expectedInformation.put(expectedField.getField(), individual.getIdentityType());
-                        break;
-                    case INDIVIDUAL_POSTAL_ADDRESS:
-                        expectedInformation.put(expectedField.getField(), individual.getPostalAddress());
-                        break;
-                    case INDIVIDUAL_PHYSICAL_ADDRESS:
-                        expectedInformation.put(expectedField.getField(), individual.getPhysicalAddress());
-                        break;
+            //             break;
+            //         case INDIVIDUAL_SURNAME:
+            //             expectedInformation.put(expectedField.getField(), individual.getSurname());
+            //             break;
+            //         case INDIVIDUAL_IDENTITY_NO:
+            //             expectedInformation.put(expectedField.getField(), individual.getIdentityNo());
+            //             break;
+            //         case INDIVIDUAL_IDENTITY_TYPE:
+            //             expectedInformation.put(expectedField.getField(), individual.getIdentityType());
+            //             break;
+            //         case INDIVIDUAL_POSTAL_ADDRESS:
+            //             expectedInformation.put(expectedField.getField(), individual.getPostalAddress());
+            //             break;
+            //         case INDIVIDUAL_PHYSICAL_ADDRESS:
+            //             expectedInformation.put(expectedField.getField(), individual.getPhysicalAddress());
+            //             break;
 
-                    case INDIVIDUAL_EMAIL_ADDRESS:
-                        expectedInformation.put(expectedField.getField(), individual.getEmailAddress());
-                        break;
+            //         case INDIVIDUAL_EMAIL_ADDRESS:
+            //             expectedInformation.put(expectedField.getField(), individual.getEmailAddress());
+            //             break;
 
-                    case INDIVIDUAL_SEX:
-                        expectedInformation.put(expectedField.getField(), individual.getSex());
-                        break;
-                    case INDIVIDUAL_NATIONALITY:
-                        expectedInformation.put(expectedField.getField(), individual.getNationality());
-                        break;
+            //         case INDIVIDUAL_SEX:
+            //             expectedInformation.put(expectedField.getField(), individual.getSex());
+            //             break;
+            //         case INDIVIDUAL_NATIONALITY:
+            //             expectedInformation.put(expectedField.getField(), individual.getNationality());
+            //             break;
 
-                    default:
-                        break;
-                }
+            //         default:
+            //             break;
+            //     }
 
-            }
+            // }
         }
 
         return expectedInformation;
@@ -529,35 +528,35 @@ public class DocumentServiceImpl
         Organisation organisation = organisationRepository.findById(UUID.fromString(individualId))
                 .orElseThrow(() -> new DocumentServiceException("No organisation found for document target"));
 
-        for (ExpectedField expectedField : docType.getExpectedFields()) {
+        // for (ExpectedField expectedField : docType.getExpectedFields()) {
 
-            switch (expectedField.getKeyField()) {
-                case ORGANISATION_NAME:
-                    expectedInformation.put(expectedField.getField(), organisation.getName());
-                    break;
+        //     switch (expectedField.getKeyField()) {
+        //         case ORGANISATION_NAME:
+        //             expectedInformation.put(expectedField.getField(), organisation.getName());
+        //             break;
 
-                case ORGANISATION_REGISTRATION_NO:
-                    expectedInformation.put(expectedField.getField(), organisation.getRegistrationNo());
-                    break;
-                case ORGANISATION_PHONE_NUMBER:
-                    expectedInformation.put(expectedField.getField(), organisation.getPhoneNumbers());
-                    break;
-                case ORGANISATION_PHYSICAL_ADDRESS:
-                    expectedInformation.put(expectedField.getField(), organisation.getPhysicalAddress());
-                    break;
-                case ORGANISATION_POSTAL_ADDRESS:
-                    expectedInformation.put(expectedField.getField(), organisation.getPostalAddress());
-                    break;
+        //         case ORGANISATION_REGISTRATION_NO:
+        //             expectedInformation.put(expectedField.getField(), organisation.getRegistrationNo());
+        //             break;
+        //         case ORGANISATION_PHONE_NUMBER:
+        //             expectedInformation.put(expectedField.getField(), organisation.getPhoneNumbers());
+        //             break;
+        //         case ORGANISATION_PHYSICAL_ADDRESS:
+        //             expectedInformation.put(expectedField.getField(), organisation.getPhysicalAddress());
+        //             break;
+        //         case ORGANISATION_POSTAL_ADDRESS:
+        //             expectedInformation.put(expectedField.getField(), organisation.getPostalAddress());
+        //             break;
 
-                case ORGANISATION_EMAIL_ADDRESS:
-                    expectedInformation.put(expectedField.getField(), organisation.getContactEmailAddress());
-                    break;
+        //         case ORGANISATION_EMAIL_ADDRESS:
+        //             expectedInformation.put(expectedField.getField(), organisation.getContactEmailAddress());
+        //             break;
 
-                default:
-                    break;
-            }
+        //         default:
+        //             break;
+        //     }
 
-        }
+        // }
 
         return expectedInformation;
 

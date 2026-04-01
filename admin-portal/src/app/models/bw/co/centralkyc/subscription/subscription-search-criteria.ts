@@ -1,22 +1,26 @@
+
 import {TimePeriod} from '@models/bw/co/centralkyc/time-period';
+import {KycSubsciptionStatus} from '@models/bw/co/centralkyc/subscription/kyc-subsciption-status';
 
 export class SubscriptionSearchCriteria {
     ref: string | any;
-
+    
     organisatonId: string | any;
-
+    
     organisatonCode: string | any;
-
+    
     organisationName: string | any;
-
+    
     organisationRegistrationNo: string | any;
-
+    
     period: TimePeriod | any;
-
+    
     startDate: Date | any;
-
+    
     endDate: Date | any;
-
+    
+    status: KycSubsciptionStatus | any;
+    
     constructor() {
         this.ref = null;
         this.organisatonId = null;
@@ -26,5 +30,6 @@ export class SubscriptionSearchCriteria {
         this.period = null;
         this.startDate = null;
         this.endDate = null;
+        this.status = null;
     }
 }

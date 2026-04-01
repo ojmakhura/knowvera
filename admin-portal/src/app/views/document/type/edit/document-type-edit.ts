@@ -23,7 +23,6 @@ import {
 } from '@angular/core';
 import { form, required, applyEach, FormField } from '@angular/forms/signals';
 import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
-import { ExpectedField } from '@app/models/bw/co/centralkyc/document/type/expected-field';
 import { KeyField } from '@app/models/bw/co/centralkyc/key-field';
 import { VerificationTag } from '@app/models/bw/co/centralkyc/kyc/verification/verification-tag';
 import { CompletionRequestMessage } from '@app/models/bw/co/centralkyc/lmstudio/completion-request-message';
@@ -31,6 +30,8 @@ import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/
 import Swal from 'sweetalert2';
 import { Loader } from '@app/@shared/loader/loader';
 import { TranslateModule } from '@ngx-translate/core';
+import { ExpectedFieldDTO } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-dto';
+import { VerificationDataConfigDTO } from '@app/models/bw/co/centralkyc/document/type/verification/verification-data-config-dto';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -41,10 +42,11 @@ export class EditDocumentTypeVarsForm {
   code: string | any = null;
   name: string | any = null;
   description: string | any = null;
-  expectedFields: Array<ExpectedField> = [];
+  expectedFields: Array<ExpectedFieldDTO> = [];
   validationPrompts: Array<CompletionRequestMessage> = [];
   textExtractionPrompts: Array<CompletionRequestMessage> = [];
   verificationTags: Array<VerificationTag> = [];
+  verificationDataConfigs: VerificationDataConfigDTO[] = [];
 }
 
 @Component({
@@ -72,6 +74,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   protected readonly keyFieldOptions = Object.values(KeyField);
   protected readonly promptRoleOptions = ['system', 'user', 'assistant'];
   protected readonly verificationTagOptions = Object.values(VerificationTag);
+  protected readonly verificationDataConfigIndex = signal(0);
 
   editDocumentTypeVarsForm: EditDocumentTypeVarsForm = new EditDocumentTypeVarsForm();
   editDocumentTypeSignal = signal(this.editDocumentTypeVarsForm);
@@ -88,6 +91,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   documentTypeApiStore = inject(DocumentTypeApiStore);
 
   loading = linkedSignal(() => this.documentTypeApiStore.loading());
+
+  protected readonly documentTypeKeyFields = linkedSignal(() => this.editDocumentTypeSignal().expectedFields.map((field) => field.keyField).filter((keyField): keyField is KeyField => !!keyField));
 
   constructor() {
 
@@ -132,9 +137,11 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     }));
   }
 
-
-  createNewExpectedFields(): ExpectedField {
-    return new ExpectedField();
+  createNewExpectedFields(): ExpectedFieldDTO {
+    let field = new ExpectedFieldDTO();
+    field.documentTypeId = this.editDocumentTypeSignal().id;
+    field.documentType = this.editDocumentTypeSignal().name;
+    return field;
   }
 
   expectedFieldsAdd() {
@@ -142,13 +149,13 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     this.editDocumentTypeSignal.update((value) => ({
       ...value,
       expectedFields: [
+        this.createNewExpectedFields(),
         ...value.expectedFields,
-        this.createNewExpectedFields()
       ]
     }))
   }
 
-  expectedFieldsRemove(i: number, selected: ExpectedField) {
+  expectedFieldsRemove(i: number, selected: ExpectedFieldDTO) {
 
     Swal.fire({
       title: 'Are you sure?',
@@ -170,7 +177,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  updateExpectedField(index: number, field: keyof ExpectedField, value: any): void {
+  updateExpectedField(index: number, field: keyof ExpectedFieldDTO, value: any): void {
     this.editDocumentTypeSignal.update((state) => ({
       ...state,
       expectedFields: state.expectedFields.map((item, itemIndex) => {
@@ -244,6 +251,130 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     }))
   }
 
+  createNewVerificationDataConfig(): VerificationDataConfigDTO {
+    const config = new VerificationDataConfigDTO();
+    config.documentTypeId = this.editDocumentTypeSignal().id;
+    config.documentType = this.editDocumentTypeSignal().name;
+    return config;
+  }
+
+  verificationDataConfigsAdd(): void {
+    this.editDocumentTypeSignal.update((value) => ({
+      ...value,
+      verificationDataConfigs: [
+        this.createNewVerificationDataConfig(),
+        ...value.verificationDataConfigs,
+      ],
+    }));
+
+    this.verificationDataConfigIndex.set(0);
+  }
+
+  verificationDataConfigsRemove(i: number, selected: VerificationDataConfigDTO): void {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: `This will remove the verification data config "${selected.name || 'Untitled'}".`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, remove it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.editDocumentTypeSignal.update((value) => {
+          const verificationDataConfigs = value.verificationDataConfigs.filter((_: any, index: number) => index !== i);
+
+          const nextIndex = Math.max(0, Math.min(this.verificationDataConfigIndex(), verificationDataConfigs.length - 1));
+          this.verificationDataConfigIndex.set(nextIndex);
+
+          return {
+            ...value,
+            verificationDataConfigs,
+          };
+        });
+      }
+    });
+  }
+
+  // updateVerificationDataConfig(index: number, field: keyof VerificationDataConfigDTO, value: any): void {
+  //   this.editDocumentTypeSignal.update((state) => ({
+  //     ...state,
+  //     verificationDataConfigs: state.verificationDataConfigs.map((item, itemIndex) => {
+  //       if (itemIndex !== index) {
+  //         return item;
+  //       }
+
+  //       return {
+  //         ...item,
+  //         [field]: value,
+  //       };
+  //     }),
+  //   }));
+  // }
+
+  isVerificationDataConfigKeySelected(configIndex: number, keyField: KeyField): boolean {
+    return this.editDocumentTypeSignal().verificationDataConfigs[configIndex]?.keyFields?.includes(keyField) ?? false;
+  }
+
+  verificationDataConfigCount(): number {
+    return this.editDocumentTypeSignal().verificationDataConfigs.length;
+  }
+
+  currentVerificationDataConfigIndex(): number {
+    const count = this.verificationDataConfigCount();
+
+    if (count === 0) {
+      return 0;
+    }
+
+    return Math.max(0, Math.min(this.verificationDataConfigIndex(), count - 1));
+  }
+
+  canGoToPreviousVerificationDataConfig(): boolean {
+    return this.currentVerificationDataConfigIndex() > 0;
+  }
+
+  canGoToNextVerificationDataConfig(): boolean {
+    return this.currentVerificationDataConfigIndex() < this.verificationDataConfigCount() - 1;
+  }
+
+  goToPreviousVerificationDataConfig(): void {
+    if (!this.canGoToPreviousVerificationDataConfig()) {
+      return;
+    }
+
+    this.verificationDataConfigIndex.update((index) => Math.max(0, index - 1));
+  }
+
+  goToNextVerificationDataConfig(): void {
+    if (!this.canGoToNextVerificationDataConfig()) {
+      return;
+    }
+
+    this.verificationDataConfigIndex.update((index) => Math.min(this.verificationDataConfigCount() - 1, index + 1));
+  }
+
+  toggleVerificationDataConfigKey(configIndex: number, keyField: KeyField, checked: boolean): void {
+    this.editDocumentTypeSignal.update((state) => ({
+      ...state,
+      verificationDataConfigs: state.verificationDataConfigs.map((config, index) => {
+        if (index !== configIndex) {
+          return config;
+        }
+
+        const selectedKeyFields = Array.isArray(config.keyFields) ? config.keyFields : [];
+        const keyFields = checked
+          ? selectedKeyFields.includes(keyField)
+            ? selectedKeyFields
+            : [...selectedKeyFields, keyField]
+          : selectedKeyFields.filter((item: KeyField) => item !== keyField);
+
+        return {
+          ...config,
+          keyFields,
+        };
+      }),
+    }));
+  }
+
   isVerificationTagSelected(tag: VerificationTag): boolean {
     return this.editDocumentTypeSignal().verificationTags.includes(tag);
   }
@@ -314,11 +445,11 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       textExtractionPrompts: documentType.textExtractionPrompts || [],
       validationPrompts: documentType.validationPrompts || [],
       verificationTags: documentType.verificationTags || [],
+      verificationDataConfigs: documentType.verificationDataConfigs || [],
     };
   }
 
   saveDocumentType(): void {
-    this.loading.set(true);
 
     let formData: EditDocumentTypeVarsForm = this.editDocumentTypeSignal();
     let docType = new DocumentTypeDTO();
@@ -334,26 +465,11 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.textExtractionPrompts = formData.textExtractionPrompts || [];
     docType.validationPrompts = formData.validationPrompts || [];
     docType.verificationTags = formData.verificationTags || [];
+    docType.verificationDataConfigs = formData.verificationDataConfigs || [];
 
     this.documentTypeApiStore.save({
       documentType: docType
     });
-
-    // this.documentTypeApi.save(docType).subscribe({
-    //   next: (documentType: DocumentTypeDTO) => {
-    //     this.editDocumentTypeSignal.set(this.updateDocumentTypeSignal(documentType));
-    //     this.loading.set(false);
-    //   },
-    //   error: (error) => {
-    //     console.log(error);
-    //     this.toaster.error(
-    //       error.error?.message ? error.error.message : error.message
-    //     )
-    //     this.loading.set(false);
-    //   }
-    // });
-
-    this.loading.set(false);
   }
 
   trackByIndex(index: number): number {

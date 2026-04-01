@@ -14,12 +14,16 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import bw.co.centralkyc.document.type.field.ExpectedFieldMapper;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfigMapper;
 import bw.co.centralkyc.utils.MappingUtils;
 
 @Mapper(
     componentModel = "spring",
     uses = {
-        MappingUtils.class
+        MappingUtils.class,
+        ExpectedFieldMapper.class,
+        VerificationDataConfigMapper.class
     }
 )
 public interface DocumentTypeMapper {

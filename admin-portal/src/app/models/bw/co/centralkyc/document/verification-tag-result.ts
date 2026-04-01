@@ -1,6 +1,6 @@
 
-import {VerificationTagStatus} from '@models/bw/co/centralkyc/document/verification-tag-status';
 import {VerificationTag} from '@models/bw/co/centralkyc/kyc/verification/verification-tag';
+import {VerificationTagStatus} from '@models/bw/co/centralkyc/document/verification-tag-status';
 
 export class VerificationTagResult {
     verificationTag: VerificationTag | any;

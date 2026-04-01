@@ -1,4 +1,3 @@
-import { FormBuilder } from "@angular/forms";
 
 import {GeneralStatus} from '@models/bw/co/centralkyc/general-status';
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';

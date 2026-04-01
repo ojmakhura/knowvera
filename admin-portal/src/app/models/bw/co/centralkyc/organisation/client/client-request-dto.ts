@@ -1,8 +1,7 @@
-import { FormBuilder } from "@angular/forms";
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
 import {ClientRequestStatus} from '@models/bw/co/centralkyc/organisation/client/client-request-status';
+import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
 import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
 

@@ -1,13 +1,13 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {DeclarationDTO} from '@models/bw/co/centralkyc/kyc/declaration-dto';
+import {OwnerDetails} from '@models/bw/co/centralkyc/kyc/owner-details';
+import {EmploymentRecordDTO} from '@models/bw/co/centralkyc/individual/employment/employment-record-dto';
 import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
 import {KycVerificationDTO} from '@models/bw/co/centralkyc/kyc/verification/kyc-verification-dto';
 import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
-import {OwnerDetails} from '@models/bw/co/centralkyc/kyc/owner-details';
-import {SourceOfFunds} from '@models/bw/co/centralkyc/source-of-funds';
-import {EmploymentRecordDTO} from '@models/bw/co/centralkyc/individual/employment/employment-record-dto';
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
+import {SourceOfFunds} from '@models/bw/co/centralkyc/source-of-funds';
+import {DeclarationDTO} from '@models/bw/co/centralkyc/kyc/declaration-dto';
 
 export class KycRecordDTO extends AuditableDTO {
     expiryDate: Date | any;

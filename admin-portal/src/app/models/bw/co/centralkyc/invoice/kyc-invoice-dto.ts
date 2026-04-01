@@ -1,4 +1,3 @@
-import { FormBuilder } from "@angular/forms";
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
 import {TimePeriod} from '@models/bw/co/centralkyc/time-period';
@@ -6,43 +5,43 @@ import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
 
 export class KycInvoiceDTO extends AuditableDTO {
     amount: number | any;
-
+    
     ref: string | any;
-
+    
     issueDate: Date | any;
-
+    
     organisationId: string | any;
-
+    
     organisationCode: string | any;
-
+    
     organisationName: string | any;
-
+    
     organisationRegistrationNo: string | any;
-
+    
     paid: boolean | any = false;
-
+    
     paymentDate: Date | any;
-
+    
 
     invoiceDocument: DocumentDTO | any;
 
     proofOfPayment: DocumentDTO | any;
     paymentReference: string | any;
-
+    
     subscriptionRef: string | any;
-
+    
     subscriptionId: string | any;
-
+    
     startDate: Date | any;
-
+    
     endDate: Date | any;
-
+    
     subscriptionPeriod: TimePeriod | any;
-
+    
     vat: number | any;
-
+    
     totalAmount: number | any;
-
+    
     constructor() {
         super();
         this.amount = null;

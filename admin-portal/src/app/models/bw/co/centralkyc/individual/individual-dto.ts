@@ -1,17 +1,16 @@
-import { FormBuilder } from "@angular/forms";
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
-import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
-import {EmploymentStatus} from '@models/bw/co/centralkyc/individual/employment-status';
-import {KycRecordDTO} from '@models/bw/co/centralkyc/kyc/kyc-record-dto';
-import {EmploymentRecordDTO} from '@models/bw/co/centralkyc/individual/employment/employment-record-dto';
-import {Sex} from '@models/bw/co/centralkyc/individual/sex';
-import {PepStatus} from '@models/bw/co/centralkyc/individual/pep-status';
 import {BranchDTO} from '@models/bw/co/centralkyc/organisation/branch/branch-dto';
-import {OrganisationListDTO} from '@models/bw/co/centralkyc/organisation/organisation-list-dto';
+import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
+import {EmploymentRecordDTO} from '@models/bw/co/centralkyc/individual/employment/employment-record-dto';
 import {MaritalStatus} from '@models/bw/co/centralkyc/individual/marital-status';
+import {PepStatus} from '@models/bw/co/centralkyc/individual/pep-status';
+import {EmploymentStatus} from '@models/bw/co/centralkyc/individual/employment-status';
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
+import {KycRecordDTO} from '@models/bw/co/centralkyc/kyc/kyc-record-dto';
+import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
+import {OrganisationListDTO} from '@models/bw/co/centralkyc/organisation/organisation-list-dto';
+import {Sex} from '@models/bw/co/centralkyc/individual/sex';
 
 export class IndividualDTO extends AuditableDTO {
     firstName: string | any;
