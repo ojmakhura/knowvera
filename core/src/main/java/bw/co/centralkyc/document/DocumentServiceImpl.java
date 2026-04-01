@@ -14,7 +14,12 @@ import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.SortOrder;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.type.DocumentType;
+import bw.co.centralkyc.document.type.DocumentTypeDTO;
+import bw.co.centralkyc.document.type.DocumentTypeMapper;
 import bw.co.centralkyc.document.type.DocumentTypeRepository;
+import bw.co.centralkyc.document.type.field.ExpectedField;
+import bw.co.centralkyc.document.type.field.ExpectedFieldDTO;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfig;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.kyc.KycRecord;
@@ -59,12 +64,13 @@ public class DocumentServiceImpl
     private final ClientRequestRepository clientRequestRepository;
     private final KycSubscriptionRepository kycSubscriptionRepository;
     private final DocumentTypeRepository documentTypeRepository;
+    private final DocumentTypeMapper documentTypeMapper;
 
     public DocumentServiceImpl(DocumentDao documentDao, DocumentRepository documentRepository,
-                               OrganisationRepository organisationRepository, IndividualRepository individualRepository,
-                               KycRecordRepository kycRecordRepository, ClientRequestRepository clientRequestRepository,
-                               KycSubscriptionRepository kycSubscriptionRepository,
-                               DocumentMapper documentMapper, MessageSource messageSource, DocumentTypeRepository documentTypeRepository) {
+            OrganisationRepository organisationRepository, IndividualRepository individualRepository,
+            KycRecordRepository kycRecordRepository, ClientRequestRepository clientRequestRepository,
+            KycSubscriptionRepository kycSubscriptionRepository, DocumentTypeMapper documentTypeMapper,
+            DocumentMapper documentMapper, MessageSource messageSource, DocumentTypeRepository documentTypeRepository) {
         super(documentDao, documentRepository, documentMapper, messageSource);
         // TODO Auto-generated constructor stub
 
@@ -74,6 +80,7 @@ public class DocumentServiceImpl
         this.clientRequestRepository = clientRequestRepository;
         this.kycSubscriptionRepository = kycSubscriptionRepository;
         this.documentTypeRepository = documentTypeRepository;
+        this.documentTypeMapper = documentTypeMapper;
     }
 
     /**
@@ -149,7 +156,7 @@ public class DocumentServiceImpl
 
         return page.map(doc -> {
             DocumentListDTO dto = documentMapper.toDocumentListDTO(doc);
-             setTargetLabel(dto);
+            setTargetLabel(dto);
             return dto;
         });
     }
@@ -296,7 +303,8 @@ public class DocumentServiceImpl
 
             String label = extractTargetLabel(dto.target(), dto.targetId());
 
-            dto = new DocumentListDTO(dto.id(), dto.target(), dto.targetId(), label, dto.fileName(), dto.documentTypeId(),
+            dto = new DocumentListDTO(dto.id(), dto.target(), dto.targetId(), label, dto.fileName(),
+                    dto.documentTypeId(),
                     dto.documentType(), dto.analyticsStatus());
         }
         return dto;
@@ -345,7 +353,8 @@ public class DocumentServiceImpl
 
         Document doc = documentRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new Exception("Document not found"));
-
+        Collection<ExpectedField> fields = doc.getDocumentType().getExpectedFields();
+        Collection<VerificationDataConfig> dataConfigs = doc.getDocumentType().getVerificationDataConfigs();
         doc.setFileContent(content);
         extractExpectedInformation(doc);
         doc = documentRepository.save(doc);
@@ -374,7 +383,8 @@ public class DocumentServiceImpl
                         .orElseThrow(() -> new DocumentServiceException("No individual found for document target"));
 
                 doc.setExpectedInformation(
-                        this.getIndividualExpectedInformation(individual, doc.getDocumentType(), null));
+                        this.getIndividualExpectedInformation(individual,
+                                documentTypeMapper.toDocumentTypeDTO(doc.getDocumentType()), null));
 
                 break;
 
@@ -382,7 +392,8 @@ public class DocumentServiceImpl
                 Organisation org = organisationRepository.findById(targetId)
                         .orElseThrow(() -> new DocumentServiceException("No organisation found for document target"));
 
-                doc.setExpectedInformation(this.getOrganisationExpectedInformation(org, doc.getDocumentType(), null));
+                doc.setExpectedInformation(this.getOrganisationExpectedInformation(org,
+                        documentTypeMapper.toDocumentTypeDTO(doc.getDocumentType()), null));
                 break;
             case KYC_RECORD:
                 KycRecord record = kycRecordRepository.findById(targetId)
@@ -405,120 +416,129 @@ public class DocumentServiceImpl
     private Map<String, Object> extractKycRecordExpectedInformation(Document document, KycRecord record) {
 
         Map<String, Object> extractedInfo = new HashMap<>();
+        DocumentType dt = documentTypeRepository.findById(document.getDocumentType().getId())
+                .orElseThrow(() -> new DocumentServiceException("Document type not found"));
+
+        Collection<ExpectedField> fields = dt.getExpectedFields();
+        Collection<VerificationDataConfig> dataConfigs = dt.getVerificationDataConfigs();
+
+        DocumentTypeDTO dto = documentTypeMapper.toDocumentTypeDTO(dt);
 
         if (record.getTarget() == TargetEntity.INDIVIDUAL) {
 
             Individual individual = individualRepository.findById(UUID.fromString(record.getTargetId()))
                     .orElseThrow(() -> new DocumentServiceException("No individual found for document target"));
 
-            extractedInfo = getIndividualExpectedInformation(individual, document.getDocumentType(), extractedInfo);
+            extractedInfo = getIndividualExpectedInformation(individual,
+                    dto, extractedInfo);
 
         } else if (record.getTarget() == TargetEntity.ORGANISATION) {
-            extractedInfo = getOrganisationExpectedInformation(record.getTargetId(), document.getDocumentType(),
+            extractedInfo = getOrganisationExpectedInformation(record.getTargetId(),
+                    dto,
                     extractedInfo);
         }
 
         return extractedInfo;
     }
 
-    private Map<String, Object> getOrganisationExpectedInformation(Organisation organisation, DocumentType docType,
+    private Map<String, Object> getOrganisationExpectedInformation(Organisation organisation, DocumentTypeDTO docType,
             Map<String, Object> expectedInformation) {
 
         if (expectedInformation == null) {
             expectedInformation = new HashMap<>();
         }
 
-        // for (ExpectedField expectedField : docType.getExpectedFields()) {
+        for (ExpectedFieldDTO expectedField : docType.getExpectedFields()) {
 
-        //     switch (expectedField.getKeyField()) {
-        //         case ORGANISATION_NAME:
-        //             expectedInformation.put(expectedField.getField(), organisation.getName());
-        //             break;
+            switch (expectedField.getKeyField()) {
+                case ORGANISATION_NAME:
+                    expectedInformation.put(expectedField.getField(), organisation.getName());
+                    break;
 
-        //         case ORGANISATION_REGISTRATION_NO:
-        //             expectedInformation.put(expectedField.getField(), organisation.getRegistrationNo());
-        //             break;
-        //         case ORGANISATION_PHONE_NUMBER:
-        //             expectedInformation.put(expectedField.getField(), organisation.getPhoneNumbers());
-        //             break;
-        //         case ORGANISATION_PHYSICAL_ADDRESS:
-        //             expectedInformation.put(expectedField.getField(), organisation.getPhysicalAddress());
-        //             break;
-        //         case ORGANISATION_POSTAL_ADDRESS:
-        //             expectedInformation.put(expectedField.getField(), organisation.getPostalAddress());
-        //             break;
+                case ORGANISATION_REGISTRATION_NO:
+                    expectedInformation.put(expectedField.getField(), organisation.getRegistrationNo());
+                    break;
+                case ORGANISATION_PHONE_NUMBER:
+                    expectedInformation.put(expectedField.getField(), organisation.getPhoneNumbers());
+                    break;
+                case ORGANISATION_PHYSICAL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), organisation.getPhysicalAddress());
+                    break;
+                case ORGANISATION_POSTAL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), organisation.getPostalAddress());
+                    break;
 
-        //         case ORGANISATION_EMAIL_ADDRESS:
-        //             expectedInformation.put(expectedField.getField(), organisation.getContactEmailAddress());
-        //             break;
+                case ORGANISATION_EMAIL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), organisation.getContactEmailAddress());
+                    break;
 
-        //         default:
-        //             break;
-        //     }
+                default:
+                    break;
+            }
 
-        // }
+        }
 
         return expectedInformation;
 
     }
 
-    private Map<String, Object> getIndividualExpectedInformation(Individual individual, DocumentType docType,
+    private Map<String, Object> getIndividualExpectedInformation(Individual individual, DocumentTypeDTO docType,
             Map<String, Object> expectedInformation) {
 
         if (expectedInformation == null) {
             expectedInformation = new HashMap<>();
         }
 
-        if(docType.getExpectedFields() != null) {
-            // for (ExpectedField expectedField : docType.getExpectedFields()) {
+        if (docType.getExpectedFields() != null) {
+            for (ExpectedFieldDTO expectedField : docType.getExpectedFields()) {
 
-            //     switch (expectedField.getKeyField()) {
-            //         case INDIVIDUAL_FIRST_NAME:
-            //             expectedInformation.put(expectedField.getField(), individual.getFirstName());
-            //             break;
+                switch (expectedField.getKeyField()) {
+                    case INDIVIDUAL_FIRST_NAME:
+                        expectedInformation.put(expectedField.getField(), individual.getFirstName());
+                        break;
 
-            //         case INDIVIDUAL_MIDDLE_NAME:
-            //             expectedInformation.put(expectedField.getField(), individual.getMiddleName());
+                    case INDIVIDUAL_MIDDLE_NAME:
+                        expectedInformation.put(expectedField.getField(), individual.getMiddleName());
 
-            //             break;
-            //         case INDIVIDUAL_SURNAME:
-            //             expectedInformation.put(expectedField.getField(), individual.getSurname());
-            //             break;
-            //         case INDIVIDUAL_IDENTITY_NO:
-            //             expectedInformation.put(expectedField.getField(), individual.getIdentityNo());
-            //             break;
-            //         case INDIVIDUAL_IDENTITY_TYPE:
-            //             expectedInformation.put(expectedField.getField(), individual.getIdentityType());
-            //             break;
-            //         case INDIVIDUAL_POSTAL_ADDRESS:
-            //             expectedInformation.put(expectedField.getField(), individual.getPostalAddress());
-            //             break;
-            //         case INDIVIDUAL_PHYSICAL_ADDRESS:
-            //             expectedInformation.put(expectedField.getField(), individual.getPhysicalAddress());
-            //             break;
+                        break;
+                    case INDIVIDUAL_SURNAME:
+                        expectedInformation.put(expectedField.getField(), individual.getSurname());
+                        break;
+                    case INDIVIDUAL_IDENTITY_NO:
+                        expectedInformation.put(expectedField.getField(), individual.getIdentityNo());
+                        break;
+                    case INDIVIDUAL_IDENTITY_TYPE:
+                        expectedInformation.put(expectedField.getField(), individual.getIdentityType());
+                        break;
+                    case INDIVIDUAL_POSTAL_ADDRESS:
+                        expectedInformation.put(expectedField.getField(), individual.getPostalAddress());
+                        break;
+                    case INDIVIDUAL_PHYSICAL_ADDRESS:
+                        expectedInformation.put(expectedField.getField(), individual.getPhysicalAddress());
+                        break;
 
-            //         case INDIVIDUAL_EMAIL_ADDRESS:
-            //             expectedInformation.put(expectedField.getField(), individual.getEmailAddress());
-            //             break;
+                    case INDIVIDUAL_EMAIL_ADDRESS:
+                        expectedInformation.put(expectedField.getField(), individual.getEmailAddress());
+                        break;
 
-            //         case INDIVIDUAL_SEX:
-            //             expectedInformation.put(expectedField.getField(), individual.getSex());
-            //             break;
-            //         case INDIVIDUAL_NATIONALITY:
-            //             expectedInformation.put(expectedField.getField(), individual.getNationality());
-            //             break;
+                    case INDIVIDUAL_SEX:
+                        expectedInformation.put(expectedField.getField(), individual.getSex());
+                        break;
+                    case INDIVIDUAL_NATIONALITY:
+                        expectedInformation.put(expectedField.getField(), individual.getNationality());
+                        break;
 
-            //         default:
-            //             break;
-            //     }
+                    default:
+                        break;
+                }
 
-            // }
+            }
         }
 
         return expectedInformation;
     }
 
-    private Map<String, Object> getOrganisationExpectedInformation(String individualId, DocumentType docType,
+    private Map<String, Object> getOrganisationExpectedInformation(String individualId, DocumentTypeDTO docType,
             Map<String, Object> expectedInformation) {
 
         if (expectedInformation == null) {
@@ -528,35 +548,35 @@ public class DocumentServiceImpl
         Organisation organisation = organisationRepository.findById(UUID.fromString(individualId))
                 .orElseThrow(() -> new DocumentServiceException("No organisation found for document target"));
 
-        // for (ExpectedField expectedField : docType.getExpectedFields()) {
+        for (ExpectedFieldDTO expectedField : docType.getExpectedFields()) {
 
-        //     switch (expectedField.getKeyField()) {
-        //         case ORGANISATION_NAME:
-        //             expectedInformation.put(expectedField.getField(), organisation.getName());
-        //             break;
+            switch (expectedField.getKeyField()) {
+                case ORGANISATION_NAME:
+                    expectedInformation.put(expectedField.getField(), organisation.getName());
+                    break;
 
-        //         case ORGANISATION_REGISTRATION_NO:
-        //             expectedInformation.put(expectedField.getField(), organisation.getRegistrationNo());
-        //             break;
-        //         case ORGANISATION_PHONE_NUMBER:
-        //             expectedInformation.put(expectedField.getField(), organisation.getPhoneNumbers());
-        //             break;
-        //         case ORGANISATION_PHYSICAL_ADDRESS:
-        //             expectedInformation.put(expectedField.getField(), organisation.getPhysicalAddress());
-        //             break;
-        //         case ORGANISATION_POSTAL_ADDRESS:
-        //             expectedInformation.put(expectedField.getField(), organisation.getPostalAddress());
-        //             break;
+                case ORGANISATION_REGISTRATION_NO:
+                    expectedInformation.put(expectedField.getField(), organisation.getRegistrationNo());
+                    break;
+                case ORGANISATION_PHONE_NUMBER:
+                    expectedInformation.put(expectedField.getField(), organisation.getPhoneNumbers());
+                    break;
+                case ORGANISATION_PHYSICAL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), organisation.getPhysicalAddress());
+                    break;
+                case ORGANISATION_POSTAL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), organisation.getPostalAddress());
+                    break;
 
-        //         case ORGANISATION_EMAIL_ADDRESS:
-        //             expectedInformation.put(expectedField.getField(), organisation.getContactEmailAddress());
-        //             break;
+                case ORGANISATION_EMAIL_ADDRESS:
+                    expectedInformation.put(expectedField.getField(), organisation.getContactEmailAddress());
+                    break;
 
-        //         default:
-        //             break;
-        //     }
+                default:
+                    break;
+            }
 
-        // }
+        }
 
         return expectedInformation;
 
