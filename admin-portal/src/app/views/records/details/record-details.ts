@@ -17,6 +17,7 @@ import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
 import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
 import { SourceOfFunds } from '@app/models/bw/co/centralkyc/source-of-funds';
+import { VerificationStatus } from '@app/models/bw/co/centralkyc/kyc/verification/verification-status';
 
 @Component({
   selector: 'app-record-details',
@@ -53,6 +54,7 @@ export class RecordDetails implements OnInit {
   readonly KycComplianceStatus = KycComplianceStatus;
   readonly IndividualIdentityType = IndividualIdentityType;
   readonly SourceOfFunds = SourceOfFunds;
+  readonly VerificationStatus = VerificationStatus;
 
   private lastErrorMessage = '';
 
@@ -265,6 +267,38 @@ export class RecordDetails implements OnInit {
     };
 
     return sources.map((s: SourceOfFunds) => labels[s] || s).join(', ');
+  }
+
+  verificationStatusLabel(status: VerificationStatus | null | undefined): string {
+    switch (status) {
+      case VerificationStatus.VERIFIED:
+        return 'Verified';
+      case VerificationStatus.VERIFICATION_FAILED:
+        return 'Failed';
+      case VerificationStatus.UNVERIFIED:
+      default:
+        return 'Unverified';
+    }
+  }
+
+  verificationStatusClass(status: VerificationStatus | null | undefined): string {
+    switch (status) {
+      case VerificationStatus.VERIFIED:
+        return 'verified';
+      case VerificationStatus.VERIFICATION_FAILED:
+        return 'failed';
+      case VerificationStatus.UNVERIFIED:
+      default:
+        return 'unverified';
+    }
+  }
+
+  verificationByLabel(value: string | null | undefined): string {
+    return value || 'Not assigned';
+  }
+
+  verificationReportLabel(value: string | null | undefined): string {
+    return value || 'No report provided';
   }
 
   complianceDateLabel(): string {

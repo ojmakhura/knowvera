@@ -158,12 +158,12 @@
                       </tr>
                     </thead>
                     <tbody>
-                      @if (extractionRows.length > 0) {
-                      @for (row of extractionRows; track row.field) {
+                      @if (document().dataComparisons.length > 0) {
+                      @for (row of document().dataComparisons; track row.field) {
                       <tr>
                         <td class="label-col">{{ row.field }}</td>
-                        <td [class.text-error]="!row.matches">{{ row.expected }}</td>
-                        <td [class.text-error]="!row.matches">{{ row.extracted }}</td>
+                        <td [class.text-error]="!row.matches">{{ row.expected ? row.expected : '—' }}</td>
+                        <td [class.text-error]="!row.matches">{{ row.extracted ? row.extracted : '—' }}</td>
                         <td>
                           @if (row.matches) {
                           <span class="badge-valid">Valid</span>

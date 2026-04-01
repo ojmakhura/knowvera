@@ -7,12 +7,17 @@ package bw.co.centralkyc.document;
 
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
 import bw.co.centralkyc.document.type.ExpectedField;
+import bw.co.centralkyc.matcher.UniversalStringMatcher;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -20,23 +25,26 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(
-    componentModel = "spring"
-    , uses = {
-        DocumentTypeMapper.class    }
-)
+@Mapper(componentModel = "spring", uses = {
+        DocumentTypeMapper.class,
+        UniversalStringMatcher.class
+})
 public interface DocumentMapper {
-    
+
     /**
      * Converts this entity to an object of type {@link DocumentDTO}.
+     * 
      * @param entity
      * @return DocumentDTO
      */
-    // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String
+    // WARNING! No conversion for target.documentType (can't convert
+    // source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to
+    // java.lang.String
     @Mapping(target = "documentTypeId", source = "documentType.id")
     @Mapping(target = "documentType", source = "documentType.name")
     @Mapping(target = "verificationTags", source = "documentType.verificationTags")
     @Mapping(target = "expectedFields", expression = "java(getExpectedFields(entity))")
+    @Mapping(target = "dataComparisons", expression = "java(getDataComparisons(entity))")
     DocumentDTO toDocumentDTO(Document entity);
 
     default Map<String, Object> getExpectedFields(Document entity) {
@@ -45,7 +53,7 @@ public interface DocumentMapper {
 
         if (entity.getDocumentType().getExpectedFields() != null) {
             Collection<ExpectedField> fields = entity.getDocumentType().getExpectedFields();
-            for(ExpectedField field : fields) {
+            for (ExpectedField field : fields) {
 
                 StringBuilder builder = new StringBuilder();
                 builder.append(field.getFormat() != null ? field.getFormat() : "null");
@@ -58,14 +66,97 @@ public interface DocumentMapper {
         return expectedInfor;
     }
 
-     /**
-     * Converts this DAO's entity to a Collection of instances of type {@link DocumentDTO}.
+    default Collection<DataComparisons> getDataComparisons(Document entity) {
+        Collection<DataComparisons> expectedFieldsCollection = new java.util.ArrayList<>();
+        if (entity.getDocumentType().getExpectedFields() != null) {
+            Collection<ExpectedField> fields = entity.getDocumentType().getExpectedFields();
+            Map expectedInformation = entity.getExpectedInformation();
+            Map extractedInformation = entity.getExtractedInformation();
+
+            for (ExpectedField field : fields) {
+
+                String fieldName = field.getField();
+                String expected = expectedInformation.get(fieldName) != null ? expectedInformation.get(fieldName).toString() : null;
+                String extracted = extractedInformation.get(fieldName) != null ? extractedInformation.get(fieldName).toString() : null;
+
+                double similarity = 0.0;
+
+                boolean expectedNotBlank = StringUtils.isNotBlank(expected);
+                boolean extractedNotBlank = StringUtils.isNotBlank(extracted);
+
+                if(expectedNotBlank && extractedNotBlank) {
+                    similarity = calculateFilteredSimilarity(expected, extracted);
+                } else if(expectedNotBlank) {
+                    similarity = 0.0;
+                } else if(extractedNotBlank) {
+                    similarity = 1.0;
+                } else {
+                    similarity = 1.0; // Both are blank, consider it a perfect match
+                }
+
+                expectedFieldsCollection.add(new DataComparisons(
+                        field.getField(),
+                        (String) expectedInformation.get(field.getField()),
+                        (String) extractedInformation.get(field.getField()),
+                        similarity >= 0.8));
+
+            }
+        }
+
+        return expectedFieldsCollection;
+    }
+
+    default Set<String> getTokens(String input) {
+        if (input == null || input.isBlank()) {
+            return new HashSet<>();
+        }
+
+        // 1. Lowercase
+        // 2. Remove non-alphanumeric characters (keeps only letters and numbers)
+        // 3. Split by whitespace
+        String cleaned = input.toLowerCase().replaceAll("[^a-z0-9\\s]", "");
+        String[] tokens = cleaned.split("\\s+");
+
+        return new HashSet<>(Arrays.asList(tokens));
+    }
+
+    default double calculateFilteredSimilarity(String shortAddr, String longAddr) {
+        Set<String> smallSet = getTokens(shortAddr);
+        Set<String> largeSet = getTokens(longAddr);
+
+        // Swap if user put them in the wrong order
+        if (smallSet.size() > largeSet.size()) {
+            Set<String> temp = smallSet;
+            smallSet = largeSet;
+            largeSet = temp;
+        }
+
+        // This is your logic: keep only tokens in the large set that exist in the small
+        // set
+        Set<String> filteredLargeSet = new HashSet<>(largeSet);
+        filteredLargeSet.retainAll(smallSet);
+
+        // Now compare the small set to the filtered version
+        if (smallSet.isEmpty())
+            return 0.0;
+
+        // This will return 1.0 if all tokens in the smaller string
+        // are found somewhere in the larger string.
+        return (double) filteredLargeSet.size() / smallSet.size();
+    }
+
+    /**
+     * Converts this DAO's entity to a Collection of instances of type
+     * {@link DocumentDTO}.
+     * 
      * @param entities
-     * @return Collection<DocumentDTO>     */
+     * @return Collection<DocumentDTO>
+     */
     List<DocumentDTO> toDocumentDTOCollection(Collection<Document> entities);
 
     /**
      * Converts an instance of type {@link DocumentDTO} to this DAO's entity.
+     * 
      * @param documentDTO
      * @return Document
      */
@@ -78,22 +169,29 @@ public interface DocumentMapper {
 
     /**
      * Converts this entity to an object of type {@link DocumentListDTO}.
+     * 
      * @param entity
      * @return DocumentListDTO
      */
-    // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String
+    // WARNING! No conversion for target.documentType (can't convert
+    // source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to
+    // java.lang.String
     @Mapping(target = "documentTypeId", source = "documentType.id")
     @Mapping(target = "documentType", source = "documentType.name")
     DocumentListDTO toDocumentListDTO(Document entity);
 
-     /**
-     * Converts this DAO's entity to a Collection of instances of type {@link DocumentListDTO}.
+    /**
+     * Converts this DAO's entity to a Collection of instances of type
+     * {@link DocumentListDTO}.
+     * 
      * @param entities
-     * @return Collection<DocumentListDTO>     */
+     * @return Collection<DocumentListDTO>
+     */
     List<DocumentListDTO> toDocumentListDTOCollection(Collection<Document> entities);
 
     /**
      * Converts an instance of type {@link DocumentListDTO} to this DAO's entity.
+     * 
      * @param documentListDTO
      * @return Document
      */

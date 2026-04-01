@@ -152,6 +152,96 @@
 				}
 			</mat-card>
 
+			<!-- KYC Verification Breakdown -->
+			<mat-card class="panel verification-panel">
+				<h3 class="section-label">KYC Verification</h3>
+				<div class="verification-grid">
+					<div class="verification-item">
+						<div class="verification-head">
+							<span>Identity</span>
+							<span class="verification-status"
+								[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.identityVerification)">
+								{{ verificationStatusLabel(record()?.kycVerification?.identityVerification) }}
+							</span>
+						</div>
+						<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.identityVerificationBy) }}</p>
+						<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.identityVerificationReport) }}</p>
+					</div>
+
+					<div class="verification-item">
+						<div class="verification-head">
+							<span>Address</span>
+							<span class="verification-status"
+								[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.addressVerification)">
+								{{ verificationStatusLabel(record()?.kycVerification?.addressVerification) }}
+							</span>
+						</div>
+						<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.addressVerificationBy) }}</p>
+						<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.addressVerificationReport) }}</p>
+					</div>
+
+					<div class="verification-item">
+						<div class="verification-head">
+							<span>Employment</span>
+							<span class="verification-status"
+								[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.employmentVerification)">
+								{{ verificationStatusLabel(record()?.kycVerification?.employmentVerification) }}
+							</span>
+						</div>
+						<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.employmentVerificationBy) }}</p>
+						<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.employmentVerificationReport) }}</p>
+					</div>
+
+					<div class="verification-item">
+						<div class="verification-head">
+							<span>Source of Funds</span>
+							<span class="verification-status"
+								[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.sourceOfFundsVerification)">
+								{{ verificationStatusLabel(record()?.kycVerification?.sourceOfFundsVerification) }}
+							</span>
+						</div>
+						<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.sourceOfFundsVerificationBy) }}</p>
+						<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.sourceOfFundsVerificationReport) }}</p>
+					</div>
+
+					<div class="verification-item">
+						<div class="verification-head">
+							<span>PEP Status</span>
+							<span class="verification-status"
+								[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.pepStatusVerification)">
+								{{ verificationStatusLabel(record()?.kycVerification?.pepStatusVerification) }}
+							</span>
+						</div>
+						<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.pepStatusVerificationBy) }}</p>
+						<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.pepStatusVerificationReport) }}</p>
+					</div>
+
+					<div class="verification-item">
+						<div class="verification-head">
+							<span>Sanctions Details</span>
+							<span class="verification-status"
+								[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.sanctionsDetailsVerification)">
+								{{ verificationStatusLabel(record()?.kycVerification?.sanctionsDetailsVerification) }}
+							</span>
+						</div>
+						<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.sanctionsDetailsVerificationBy) }}</p>
+						<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.sanctionsDetailsVerificationReport) }}</p>
+					</div>
+
+					<div class="verification-item">
+						<div class="verification-head">
+							<span>Sanctions Match</span>
+							<span class="verification-status"
+								[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.sanctionsMatchVerification)">
+								{{ verificationStatusLabel(record()?.kycVerification?.sanctionsMatchVerification) }}
+							</span>
+						</div>
+						<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.sanctionsMatchVerificationBy) }}</p>
+						<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.sanctionsMatchVerificationReport) }}</p>
+					</div>
+				</div>
+			</mat-card>
+
 			<!-- Audit Trail -->
 			<section class="meta-grid">
 				<mat-card class="panel meta-panel">

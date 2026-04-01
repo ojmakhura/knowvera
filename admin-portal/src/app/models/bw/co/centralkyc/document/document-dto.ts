@@ -7,6 +7,7 @@ import {CompletionRequestMessage} from '@models/bw/co/centralkyc/lmstudio/comple
 import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {DocumentAnalyticsStatus} from '@models/bw/co/centralkyc/document/document-analytics-status';
 import { VerificationTag } from '../kyc/verification/verification-tag';
+import { DataComparisons } from './data-comparisons';
 
 export class DocumentDTO extends AuditableDTO {
     target: TargetEntity | any;
@@ -44,7 +45,10 @@ export class DocumentDTO extends AuditableDTO {
     analyticsStatus: DocumentAnalyticsStatus | any = DocumentAnalyticsStatus.INITIALISED;
     
     verificationTagResults: Array<VerificationTagResult> | any;
+    
     verificationTags: Array<VerificationTag> | any;
+    
+    dataComparisons: Array<DataComparisons> | any;
     
     constructor() {
         super();
@@ -67,5 +71,6 @@ export class DocumentDTO extends AuditableDTO {
         this.analyticsStatus = DocumentAnalyticsStatus.INITIALISED;
         this.verificationTagResults = [];
         this.verificationTags = [];
+        this.dataComparisons = [];
     }
 }

@@ -245,19 +245,19 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     return Array.from({ length: 10 }, (_, i) => i < Math.round(score / 10));
   });
 
-  get extractionRows(): Array<{ field: string; expected: any; extracted: any; matches: boolean }> {
-    const doc = this.document();
-    if (!doc) return [];
-    const expected = doc.expectedInformation ?? {};
-    const extracted = doc.extractedInformation ?? {};
-    const fields = Array.from(new Set([...Object.keys(expected), ...Object.keys(extracted)]));
-    return fields.map((field) => ({
-      field,
-      expected: expected[field] ?? '—',
-      extracted: extracted[field] ?? '—',
-      matches: String(expected[field]) === String(extracted[field]),
-    }));
-  }
+  // get extractionRows(): Array<{ field: string; expected: any; extracted: any; matches: boolean }> {
+  //   const doc = this.document();
+  //   if (!doc) return [];
+  //   const expected = doc.expectedInformation ?? {};
+  //   const extracted = doc.extractedInformation ?? {};
+  //   const fields = Array.from(new Set([...Object.keys(expected), ...Object.keys(extracted)]));
+  //   return fields.map((field) => ({
+  //     field,
+  //     expected: expected[field] ?? '—',
+  //     extracted: extracted[field] ?? '—',
+  //     matches: String(expected[field]) === String(extracted[field]),
+  //   }));
+  // }
 
   get integritySignalRows(): Array<{ key: string; label: string; value: any; isBoolean: boolean }> {
     const scores = this.document()?.validationResults?.signalScores;

@@ -50,5 +50,27 @@ public class UniversalStringMatcher {
     public boolean isMatch(String str1, String str2, double threshold) {
         return calculateSimilarity(str1, str2) >= threshold;
     }
-    
+
+    public double calculateFilteredSimilarity(String shortAddr, String longAddr) {
+        Set<String> smallSet = getTokens(shortAddr);
+        Set<String> largeSet = getTokens(longAddr);
+
+        // Swap if user put them in the wrong order
+        if (smallSet.size() > largeSet.size()) {
+            Set<String> temp = smallSet;
+            smallSet = largeSet;
+            largeSet = temp;
+        }
+
+        // This is your logic: keep only tokens in the large set that exist in the small set
+        Set<String> filteredLargeSet = new HashSet<>(largeSet);
+        filteredLargeSet.retainAll(smallSet);
+
+        // Now compare the small set to the filtered version
+        if (smallSet.isEmpty()) return 0.0;
+
+        // This will return 1.0 if all tokens in the smaller string
+        // are found somewhere in the larger string.
+        return (double) filteredLargeSet.size() / smallSet.size();
+    }
 }

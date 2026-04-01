@@ -19,6 +19,7 @@ import bw.co.centralkyc.document.DocumentAnalyticsStatus;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
 import bw.co.centralkyc.lmstudio.CompletionResponse;
+import bw.co.centralkyc.matcher.UniversalStringMatcher;
 import bw.co.centralkyc.properties.RabbitProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,6 @@ import net.sourceforge.tess4j.TesseractException;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
@@ -49,6 +49,7 @@ public class DocumentProcessorService {
     private final RabbitProperties rabbitProperties;
     private final DocumentService documentService;
     private final JsonMapper jsonMapper;
+    private final UniversalStringMatcher stringMatcher;
 
     @Async("virtualThreadExecutor")
     public CompletableFuture<String> extractText(byte[] pdfBytes) {
@@ -187,6 +188,15 @@ public class DocumentProcessorService {
                     log.info("Document Confirmation for Document ID {}: {}", document.getId(), extractedInfo);
                     DocumentValidationResults results = jsonMapper.convertValue(extractedInfo,
                             DocumentValidationResults.class);
+
+                    double typeSimilarity = stringMatcher.calculateSimilarity(results.getDetectedType(), results.getExpectedType());
+
+                    if(typeSimilarity >= 0.8) {
+                        results.setTypeMatch(true);
+                    } else {
+                        results.setTypeMatch(false);
+                    }
+
                     document.setValidationResults(results);
 
                     if (results.getMatch()) {
