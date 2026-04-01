@@ -124,6 +124,7 @@ public class KycRecordServiceImpl
             verification.setCreatedBy(kycRecordEntity.getCreatedBy());
             verification.setKycRecord(kycRecordEntity);
             verification.setEmploymentVerification(VerificationStatus.UNVERIFIED);
+
             verification.setPepStatusVerification(VerificationStatus.UNVERIFIED);
             verification.setSanctionsDetailsVerification(VerificationStatus.UNVERIFIED);
             verification.setSanctionsMatchVerification(VerificationStatus.UNVERIFIED);
