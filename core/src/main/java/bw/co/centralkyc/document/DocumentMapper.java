@@ -7,6 +7,7 @@ package bw.co.centralkyc.document;
 
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
 import bw.co.centralkyc.document.type.field.ExpectedField;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfigMapper;
 import bw.co.centralkyc.matcher.UniversalStringMatcher;
 
 import java.util.Arrays;
@@ -27,7 +28,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring", uses = {
         DocumentTypeMapper.class,
-        UniversalStringMatcher.class
+        UniversalStringMatcher.class,
+        VerificationDataConfigMapper.class
 })
 public interface DocumentMapper {
 
@@ -42,7 +44,6 @@ public interface DocumentMapper {
     // java.lang.String
     @Mapping(target = "documentTypeId", source = "documentType.id")
     @Mapping(target = "documentType", source = "documentType.name")
-    @Mapping(target = "verificationTags", source = "documentType.verificationTags")
     @Mapping(target = "expectedFields", expression = "java(getExpectedFields(entity))")
     @Mapping(target = "dataComparisons", expression = "java(getDataComparisons(entity))")
     DocumentDTO toDocumentDTO(Document entity);

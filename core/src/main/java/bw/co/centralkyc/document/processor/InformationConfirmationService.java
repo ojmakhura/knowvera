@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import bw.co.centralkyc.kyc.verification.KycVerification;
-import bw.co.centralkyc.kyc.verification.VerificationStatus;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
@@ -23,11 +22,12 @@ import bw.co.centralkyc.document.VerificationTagResult;
 import bw.co.centralkyc.document.VerificationTagStatus;
 import bw.co.centralkyc.document.type.DocumentType;
 import bw.co.centralkyc.document.type.DocumentTypeRepository;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfigDTO;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
+import bw.co.centralkyc.kyc.DataVerification;
 import bw.co.centralkyc.kyc.KycRecord;
 import bw.co.centralkyc.kyc.KycRecordRepository;
-import bw.co.centralkyc.kyc.verification.VerificationTag;
 import bw.co.centralkyc.matcher.UniversalStringMatcher;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
@@ -46,7 +46,7 @@ public class InformationConfirmationService {
   private final DocumentTypeRepository documentTypeRepository;
   private final DocumentService documentService;
   private final JsonMapper jsonMapper;
-  private final VerificationTagResultService verificationTagResultService;
+  private final DataVerificationService verificationTagResultService;
 
   @RabbitListener(queues = "${app.rabbitmq.informationConfirmationQueue}")
   public void handleInformationConfirmation(QueueObject queueObject) {
@@ -433,6 +433,25 @@ public class InformationConfirmationService {
     kycRecord = kycRecordRepository.saveAndFlush(kycRecord);
   }
 
+  DataVerification createVerificationForTag(DocumentDTO document, VerificationDataConfigDTO config) {
+
+    DataVerification verification = new DataVerification();
+    
+    verification.setVerificationDataConfigId(config.getId());
+    verification.setVerificationDataName(config.getName());
+    // verification.set
+
+    config.getKeyFields().forEach(keyField -> {
+        switch (keyField) {
+
+          default:
+            break;
+        }
+    });
+
+    return verification;
+  }
+
   private void updateKycRecordWithMatches(KycRecord kycRecord, DocumentDTO document,
       Map<KeyField, List<String>> matched) {
 
@@ -440,117 +459,120 @@ public class InformationConfirmationService {
       document.setVerificationTagResults(new ArrayList<>());
     }
 
-    document.getVerificationTags().forEach(tag -> {
+    document.getVerificationDataConfigs().forEach(config -> {
 
-      VerificationTagResult existing = null;
+      
 
-      switch (tag) {
+    //   VerificationTagResult existing = null;
+    DataVerification verification = null;
 
-        case IDENTITY_VERIFICATION:
+    //   switch (tag) {
 
-          if (kycRecord.getTarget() == TargetEntity.INDIVIDUAL) {
+    //     case IDENTITY_VERIFICATION:
 
-            VerificationTagResult identityVerificationResult = verificationTagResultService
-                .getIndividualIdentityVerificationResult(tag, matched);
-            existing = document.getVerificationTagResults().stream()
-                .filter(result -> result.getVerificationTag() == tag)
-                .findFirst()
-                .orElse(null);
+    //       if (kycRecord.getTarget() == TargetEntity.INDIVIDUAL) {
 
-            if (existing != null) {
-              existing.setScore(identityVerificationResult.getScore());
-              existing.setValues(identityVerificationResult.getValues());
-              existing.setVerificationTagStatus(identityVerificationResult.getVerificationTagStatus());
-              existing.setValues(identityVerificationResult.getValues());
-            } else {
-              document.getVerificationTagResults().add(identityVerificationResult);
-            }
+    //         VerificationTagResult identityVerificationResult = verificationTagResultService
+    //             .getIndividualIdentityVerificationResult(tag, matched);
+    //         existing = document.getVerificationTagResults().stream()
+    //             .filter(result -> result.getVerificationTag() == tag)
+    //             .findFirst()
+    //             .orElse(null);
 
-          } else if (kycRecord.getTarget() == TargetEntity.ORGANISATION) {
+    //         if (existing != null) {
+    //           existing.setScore(identityVerificationResult.getScore());
+    //           existing.setValues(identityVerificationResult.getValues());
+    //           existing.setVerificationTagStatus(identityVerificationResult.getVerificationTagStatus());
+    //           existing.setValues(identityVerificationResult.getValues());
+    //         } else {
+    //           document.getVerificationTagResults().add(identityVerificationResult);
+    //         }
 
-            VerificationTagResult organisationVerificationTagResult = verificationTagResultService
-                .getOrganisationVerificationResult(tag, matched);
-            existing = document.getVerificationTagResults().stream()
-                .filter(result -> result.getVerificationTag() == tag)
-                .findFirst()
-                .orElse(null);
+    //       } else if (kycRecord.getTarget() == TargetEntity.ORGANISATION) {
 
-            if (existing != null) {
-              existing.setScore(organisationVerificationTagResult.getScore());
-              existing.setValues(organisationVerificationTagResult.getValues());
-              existing.setVerificationTagStatus(organisationVerificationTagResult.getVerificationTagStatus());
-              existing.setValues(organisationVerificationTagResult.getValues());
-            } else {
-              document.getVerificationTagResults().add(organisationVerificationTagResult);
-            }
-          }
-          break;
-        case SANCTIONS_DETAILS_VERIFICATION:
-          break;
-        case PEP_VERIFICATION:
-          break;
-        case SOURCE_OF_FUNDS_VERIFICATION:
-          break;
-        case EMPLOYMENT_VERIFICATION:
-          VerificationTagResult employmentVerificationTagResult = verificationTagResultService
-              .getEmploymentVerificationTagResult(tag, matched);
-          existing = document.getVerificationTagResults().stream()
-              .filter(result -> result.getVerificationTag() == tag)
-              .findFirst()
-              .orElse(null);
+    //         VerificationTagResult organisationVerificationTagResult = verificationTagResultService
+    //             .getOrganisationVerificationResult(tag, matched);
+    //         existing = document.getVerificationTagResults().stream()
+    //             .filter(result -> result.getVerificationTag() == tag)
+    //             .findFirst()
+    //             .orElse(null);
 
-          if (existing != null) {
-            existing.setScore(employmentVerificationTagResult.getScore());
-            existing.setValues(employmentVerificationTagResult.getValues());
-            existing.setVerificationTagStatus(employmentVerificationTagResult.getVerificationTagStatus());
-            existing.setValues(employmentVerificationTagResult.getValues());
-          } else {
-            document.getVerificationTagResults().add(employmentVerificationTagResult);
-          }
-          break;
-        case ADDRESS_VERIFICATION:
+    //         if (existing != null) {
+    //           existing.setScore(organisationVerificationTagResult.getScore());
+    //           existing.setValues(organisationVerificationTagResult.getValues());
+    //           existing.setVerificationTagStatus(organisationVerificationTagResult.getVerificationTagStatus());
+    //           existing.setValues(organisationVerificationTagResult.getValues());
+    //         } else {
+    //           document.getVerificationTagResults().add(organisationVerificationTagResult);
+    //         }
+    //       }
+    //       break;
+    //     case SANCTIONS_DETAILS_VERIFICATION:
+    //       break;
+    //     case PEP_VERIFICATION:
+    //       break;
+    //     case SOURCE_OF_FUNDS_VERIFICATION:
+    //       break;
+    //     case EMPLOYMENT_VERIFICATION:
+    //       VerificationTagResult employmentVerificationTagResult = verificationTagResultService
+    //           .getEmploymentVerificationTagResult(tag, matched);
+    //       existing = document.getVerificationTagResults().stream()
+    //           .filter(result -> result.getVerificationTag() == tag)
+    //           .findFirst()
+    //           .orElse(null);
 
-          if (kycRecord.getTarget() == TargetEntity.INDIVIDUAL) {
+    //       if (existing != null) {
+    //         existing.setScore(employmentVerificationTagResult.getScore());
+    //         existing.setValues(employmentVerificationTagResult.getValues());
+    //         existing.setVerificationTagStatus(employmentVerificationTagResult.getVerificationTagStatus());
+    //         existing.setValues(employmentVerificationTagResult.getValues());
+    //       } else {
+    //         document.getVerificationTagResults().add(employmentVerificationTagResult);
+    //       }
+    //       break;
+    //     case ADDRESS_VERIFICATION:
 
-            VerificationTagResult addressVerificationResult = verificationTagResultService
-                .getIndividualAddressVerificationTagResult(tag, matched);
-            existing = document.getVerificationTagResults().stream()
-                .filter(result -> result.getVerificationTag() == tag)
-                .findFirst()
-                .orElse(null);
+    //       if (kycRecord.getTarget() == TargetEntity.INDIVIDUAL) {
 
-            if (existing != null) {
-              existing.setScore(addressVerificationResult.getScore());
-              existing.setValues(addressVerificationResult.getValues());
-              existing.setVerificationTagStatus(addressVerificationResult.getVerificationTagStatus());
-              existing.setValues(addressVerificationResult.getValues());
-            } else {
-              document.getVerificationTagResults().add(addressVerificationResult);
-            }
+    //         VerificationTagResult addressVerificationResult = verificationTagResultService
+    //             .getIndividualAddressVerificationTagResult(tag, matched);
+    //         existing = document.getVerificationTagResults().stream()
+    //             .filter(result -> result.getVerificationTag() == tag)
+    //             .findFirst()
+    //             .orElse(null);
 
-          } else if (kycRecord.getTarget() == TargetEntity.ORGANISATION) {
+    //         if (existing != null) {
+    //           existing.setScore(addressVerificationResult.getScore());
+    //           existing.setValues(addressVerificationResult.getValues());
+    //           existing.setVerificationTagStatus(addressVerificationResult.getVerificationTagStatus());
+    //           existing.setValues(addressVerificationResult.getValues());
+    //         } else {
+    //           document.getVerificationTagResults().add(addressVerificationResult);
+    //         }
 
-            VerificationTagResult organisationAddressVerificationResult = verificationTagResultService
-                .getOrganisationAddressTagResult(tag, matched);
-            existing = document.getVerificationTagResults().stream()
-                .filter(result -> result.getVerificationTag() == tag)
-                .findFirst()
-                .orElse(null);
+    //       } else if (kycRecord.getTarget() == TargetEntity.ORGANISATION) {
 
-            if (existing != null) {
-              existing.setScore(organisationAddressVerificationResult.getScore());
-              existing.setValues(organisationAddressVerificationResult.getValues());
-              existing.setVerificationTagStatus(organisationAddressVerificationResult.getVerificationTagStatus());
-              existing.setValues(organisationAddressVerificationResult.getValues());
-            } else {
-              document.getVerificationTagResults().add(organisationAddressVerificationResult);
-            }
-          }
+    //         VerificationTagResult organisationAddressVerificationResult = verificationTagResultService
+    //             .getOrganisationAddressTagResult(tag, matched);
+    //         existing = document.getVerificationTagResults().stream()
+    //             .filter(result -> result.getVerificationTag() == tag)
+    //             .findFirst()
+    //             .orElse(null);
 
-          break;
-        case SANCTIONS_MATCH_VERIFICATION:
-          break;
-      }
+    //         if (existing != null) {
+    //           existing.setScore(organisationAddressVerificationResult.getScore());
+    //           existing.setValues(organisationAddressVerificationResult.getValues());
+    //           existing.setVerificationTagStatus(organisationAddressVerificationResult.getVerificationTagStatus());
+    //           existing.setValues(organisationAddressVerificationResult.getValues());
+    //         } else {
+    //           document.getVerificationTagResults().add(organisationAddressVerificationResult);
+    //         }
+    //       }
+
+    //       break;
+    //     case SANCTIONS_MATCH_VERIFICATION:
+    //       break;
+    //   }
     });
 
     this.updateRecordVerification(kycRecord, document);
@@ -558,146 +580,146 @@ public class InformationConfirmationService {
 
   private void updateRecordVerification(KycRecord kycRecord, DocumentDTO document) {
 
-    KycVerification verification = kycRecord.getKycVerification();
+    // KycVerification verification = kycRecord.getKycVerification();
 
-    document.getVerificationTagResults().forEach(tag -> {
+    // document.getVerificationTagResults().forEach(tag -> {
 
-      switch (tag.getVerificationTag()) {
-        case IDENTITY_VERIFICATION:
+    //   switch (tag.getVerificationTag()) {
+    //     case IDENTITY_VERIFICATION:
 
-          if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
-            verification.setIdentityVerification(VerificationStatus.VERIFICATION_FAILED);
-          } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
-            verification.setIdentityVerification(VerificationStatus.VERIFIED);
+    //       if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
+    //         verification.setIdentityVerification(VerificationStatus.VERIFICATION_FAILED);
+    //       } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
+    //         verification.setIdentityVerification(VerificationStatus.VERIFIED);
 
-          } else {
-            verification.setIdentityVerification(VerificationStatus.UNVERIFIED);
-          }
+    //       } else {
+    //         verification.setIdentityVerification(VerificationStatus.UNVERIFIED);
+    //       }
 
-          verification.setIdentityVerificationBy("AI-AGENT");
-          StringBuilder builder = new StringBuilder();
-          builder.append(tag.getScore())
-              .append("\n")
-              .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
-          verification.setIdentityVerificationReport(builder.toString());
-          break;
+    //       verification.setIdentityVerificationBy("AI-AGENT");
+    //       StringBuilder builder = new StringBuilder();
+    //       builder.append(tag.getScore())
+    //           .append("\n")
+    //           .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
+    //       verification.setIdentityVerificationReport(builder.toString());
+    //       break;
 
-        case EMPLOYMENT_VERIFICATION:
+    //     case EMPLOYMENT_VERIFICATION:
 
-          if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
-            verification.setEmploymentVerification(VerificationStatus.VERIFICATION_FAILED);
-          } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
-            verification.setEmploymentVerification(VerificationStatus.VERIFIED);
+    //       if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
+    //         verification.setEmploymentVerification(VerificationStatus.VERIFICATION_FAILED);
+    //       } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
+    //         verification.setEmploymentVerification(VerificationStatus.VERIFIED);
 
-          } else {
-            verification.setEmploymentVerification(VerificationStatus.UNVERIFIED);
-          }
+    //       } else {
+    //         verification.setEmploymentVerification(VerificationStatus.UNVERIFIED);
+    //       }
 
-          verification.setEmploymentVerificationBy("AI-AGENT");
-          StringBuilder employmentBuilder = new StringBuilder();
-          employmentBuilder.append(tag.getScore())
-              .append("\n")
-              .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
-          verification.setEmploymentVerificationReport(employmentBuilder.toString());
-          break;
+    //       verification.setEmploymentVerificationBy("AI-AGENT");
+    //       StringBuilder employmentBuilder = new StringBuilder();
+    //       employmentBuilder.append(tag.getScore())
+    //           .append("\n")
+    //           .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
+    //       verification.setEmploymentVerificationReport(employmentBuilder.toString());
+    //       break;
 
-        case ADDRESS_VERIFICATION:
+    //     case ADDRESS_VERIFICATION:
 
-          if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
-            verification.setAddressVerification(VerificationStatus.VERIFICATION_FAILED);
-          } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
-            verification.setAddressVerification(VerificationStatus.VERIFIED);
+    //       if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
+    //         verification.setAddressVerification(VerificationStatus.VERIFICATION_FAILED);
+    //       } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
+    //         verification.setAddressVerification(VerificationStatus.VERIFIED);
 
-          } else {
-            verification.setAddressVerification(VerificationStatus.UNVERIFIED);
-          }
+    //       } else {
+    //         verification.setAddressVerification(VerificationStatus.UNVERIFIED);
+    //       }
 
-          verification.setAddressVerificationBy("AI-AGENT");
-          StringBuilder addressBuilder = new StringBuilder();
-          addressBuilder.append(tag.getScore())
-              .append("\n")
-              .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
-          verification.setAddressVerificationReport(addressBuilder.toString());
-          break;
+    //       verification.setAddressVerificationBy("AI-AGENT");
+    //       StringBuilder addressBuilder = new StringBuilder();
+    //       addressBuilder.append(tag.getScore())
+    //           .append("\n")
+    //           .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
+    //       verification.setAddressVerificationReport(addressBuilder.toString());
+    //       break;
 
-        case SOURCE_OF_FUNDS_VERIFICATION:
+    //     case SOURCE_OF_FUNDS_VERIFICATION:
 
-          if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
-            verification.setSourceOfFundsVerification(VerificationStatus.VERIFICATION_FAILED);
-          } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
-            verification.setSourceOfFundsVerification(VerificationStatus.VERIFIED);
+    //       if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
+    //         verification.setSourceOfFundsVerification(VerificationStatus.VERIFICATION_FAILED);
+    //       } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
+    //         verification.setSourceOfFundsVerification(VerificationStatus.VERIFIED);
 
-          } else {
-            verification.setSourceOfFundsVerification(VerificationStatus.UNVERIFIED);
-          }
+    //       } else {
+    //         verification.setSourceOfFundsVerification(VerificationStatus.UNVERIFIED);
+    //       }
 
-          verification.setSourceOfFundsVerificationBy("AI-AGENT");
-          StringBuilder sourceOfFundsBuilder = new StringBuilder();
-          sourceOfFundsBuilder.append(tag.getScore())
-              .append("\n")
-              .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
-          verification.setSourceOfFundsVerificationReport(sourceOfFundsBuilder.toString());
-          break;
+    //       verification.setSourceOfFundsVerificationBy("AI-AGENT");
+    //       StringBuilder sourceOfFundsBuilder = new StringBuilder();
+    //       sourceOfFundsBuilder.append(tag.getScore())
+    //           .append("\n")
+    //           .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
+    //       verification.setSourceOfFundsVerificationReport(sourceOfFundsBuilder.toString());
+    //       break;
 
-        case PEP_VERIFICATION:
+    //     case PEP_VERIFICATION:
 
-          if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
-            verification.setPepStatusVerification(VerificationStatus.VERIFICATION_FAILED);
-          } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
-            verification.setPepStatusVerification(VerificationStatus.VERIFIED);
+    //       if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
+    //         verification.setPepStatusVerification(VerificationStatus.VERIFICATION_FAILED);
+    //       } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
+    //         verification.setPepStatusVerification(VerificationStatus.VERIFIED);
 
-          } else {
-            verification.setPepStatusVerification(VerificationStatus.UNVERIFIED);
-          }
+    //       } else {
+    //         verification.setPepStatusVerification(VerificationStatus.UNVERIFIED);
+    //       }
 
-          verification.setPepStatusVerificationBy("AI-AGENT");
-          StringBuilder pepBuilder = new StringBuilder();
-          pepBuilder.append(tag.getScore())
-              .append("\n")
-              .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
-          verification.setPepStatusVerificationReport(pepBuilder.toString());
-          break;
+    //       verification.setPepStatusVerificationBy("AI-AGENT");
+    //       StringBuilder pepBuilder = new StringBuilder();
+    //       pepBuilder.append(tag.getScore())
+    //           .append("\n")
+    //           .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
+    //       verification.setPepStatusVerificationReport(pepBuilder.toString());
+    //       break;
 
-        case SANCTIONS_DETAILS_VERIFICATION:
+    //     case SANCTIONS_DETAILS_VERIFICATION:
 
-          if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
-            verification.setSanctionsDetailsVerification(VerificationStatus.VERIFICATION_FAILED);
-          } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
-            verification.setSanctionsDetailsVerification(VerificationStatus.VERIFIED);
+    //       if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
+    //         verification.setSanctionsDetailsVerification(VerificationStatus.VERIFICATION_FAILED);
+    //       } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
+    //         verification.setSanctionsDetailsVerification(VerificationStatus.VERIFIED);
 
-          } else {
-            verification.setSanctionsDetailsVerification(VerificationStatus.UNVERIFIED);
-          }
+    //       } else {
+    //         verification.setSanctionsDetailsVerification(VerificationStatus.UNVERIFIED);
+    //       }
 
-          verification.setSanctionsDetailsVerificationBy("AI-AGENT");
-          StringBuilder sanctionsDetailsBuilder = new StringBuilder();
-          sanctionsDetailsBuilder.append(tag.getScore())
-              .append("\n")
-              .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
-          verification.setSanctionsDetailsVerificationReport(sanctionsDetailsBuilder.toString());
-          break;
+    //       verification.setSanctionsDetailsVerificationBy("AI-AGENT");
+    //       StringBuilder sanctionsDetailsBuilder = new StringBuilder();
+    //       sanctionsDetailsBuilder.append(tag.getScore())
+    //           .append("\n")
+    //           .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
+    //       verification.setSanctionsDetailsVerificationReport(sanctionsDetailsBuilder.toString());
+    //       break;
           
-        case SANCTIONS_MATCH_VERIFICATION:
+    //     case SANCTIONS_MATCH_VERIFICATION:
 
-          if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
-            verification.setSanctionsMatchVerification(VerificationStatus.VERIFICATION_FAILED);
-          } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
-            verification.setSanctionsMatchVerification(VerificationStatus.VERIFIED);
+    //       if (tag.getVerificationTagStatus() == VerificationTagStatus.FAILED) {
+    //         verification.setSanctionsMatchVerification(VerificationStatus.VERIFICATION_FAILED);
+    //       } else if (tag.getVerificationTagStatus() == VerificationTagStatus.SUCCESSFUL) {
+    //         verification.setSanctionsMatchVerification(VerificationStatus.VERIFIED);
 
-          } else {
-            verification.setSanctionsMatchVerification(VerificationStatus.UNVERIFIED);
-          }
+    //       } else {
+    //         verification.setSanctionsMatchVerification(VerificationStatus.UNVERIFIED);
+    //       }
 
-          verification.setSanctionsMatchVerificationBy("AI-AGENT");
-          StringBuilder sanctionsMatchBuilder = new StringBuilder();
-          sanctionsMatchBuilder.append(tag.getScore())
-              .append("\n")
-              .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
-          verification.setSanctionsMatchVerificationReport(sanctionsMatchBuilder.toString());
-          break;
-      }
+    //       verification.setSanctionsMatchVerificationBy("AI-AGENT");
+    //       StringBuilder sanctionsMatchBuilder = new StringBuilder();
+    //       sanctionsMatchBuilder.append(tag.getScore())
+    //           .append("\n")
+    //           .append(tag.getValues().stream().reduce((a, b) -> a + " | " + b).orElse(""));
+    //       verification.setSanctionsMatchVerificationReport(sanctionsMatchBuilder.toString());
+    //       break;
+    //   }
 
-    });
+    // });
 
   }
 

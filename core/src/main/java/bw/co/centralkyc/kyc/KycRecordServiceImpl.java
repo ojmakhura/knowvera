@@ -34,7 +34,6 @@ import bw.co.centralkyc.document.DocumentVerificationStatus;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.kyc.verification.KycVerification;
-import bw.co.centralkyc.kyc.verification.VerificationStatus;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
 import bw.co.centralkyc.sequence.SequenceGenerator;
@@ -120,17 +119,17 @@ public class KycRecordServiceImpl
 
         if (kycRecordEntity.getId() == null) {
 
-            KycVerification verification = KycVerification.Factory.newInstance();
-            verification.setCreatedAt(kycRecordEntity.getCreatedAt());
-            verification.setCreatedBy(kycRecordEntity.getCreatedBy());
-            verification.setKycRecord(kycRecordEntity);
-            verification.setEmploymentVerification(VerificationStatus.UNVERIFIED);
+            // KycVerification verification = KycVerification.Factory.newInstance();
+            // verification.setCreatedAt(kycRecordEntity.getCreatedAt());
+            // verification.setCreatedBy(kycRecordEntity.getCreatedBy());
+            // verification.setKycRecord(kycRecordEntity);
+            // verification.setEmploymentVerification(VerificationStatus.UNVERIFIED);
 
-            verification.setPepStatusVerification(VerificationStatus.UNVERIFIED);
-            verification.setSanctionsDetailsVerification(VerificationStatus.UNVERIFIED);
-            verification.setSanctionsMatchVerification(VerificationStatus.UNVERIFIED);
+            // verification.setPepStatusVerification(VerificationStatus.UNVERIFIED);
+            // verification.setSanctionsDetailsVerification(VerificationStatus.UNVERIFIED);
+            // verification.setSanctionsMatchVerification(VerificationStatus.UNVERIFIED);
 
-            kycRecordEntity.setKycVerification(verification);
+            // kycRecordEntity.setKycVerification(verification);
         }
 
         this.checkRef(kycRecordEntity);

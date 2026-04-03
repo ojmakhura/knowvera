@@ -41,7 +41,7 @@ public interface KycRecordMapper {
      */
     @Mapping(source = "documents", target = "documents")
     @Mapping(source = "employmentRecord", target = "employmentRecord")
-    @Mapping(source = "kycVerification", target = "kycVerification")
+    // @Mapping(source = "kycVerification", target = "kycVerification")
     @Mapping(source = "pepStatus", target = "declaration.pepStatus")
     @Mapping(source = "pepDetails", target = "declaration.pepDetails")
     @Mapping(source = "sanctionsMatch", target = "declaration.sanctionsMatch")

@@ -112,11 +112,11 @@ public class KycRecordDaoImpl
             target.setEmploymentRecord(employmentRecordDTO);
         }
 
-        if(source.getKycVerification() != null) {
+        // if(source.getKycVerification() != null) {
 
-            KycVerificationDTO kycVerificationDTO = this.kycVerificationMapper.toKycVerificationDTO(source.getKycVerification());
-            target.setKycVerification(kycVerificationDTO);
-        }
+        //     KycVerificationDTO kycVerificationDTO = this.kycVerificationMapper.toKycVerificationDTO(source.getKycVerification());
+        //     target.setKycVerification(kycVerificationDTO);
+        // }
 
     }
 
@@ -189,5 +189,11 @@ public class KycRecordDaoImpl
             Organisation organisation = organisationRepository.getReferenceById(UUID.fromString(source.getTargetId()));
             target.setTargetId(organisation.getId().toString());
         }
+    }
+
+    @Override
+    public KycRecord kycRecordSummaryToEntity(KycRecordSummary kycRecordSummary) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'kycRecordSummaryToEntity'");
     }
 }
