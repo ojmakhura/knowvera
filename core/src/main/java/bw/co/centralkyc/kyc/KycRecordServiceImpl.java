@@ -30,6 +30,7 @@ import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.Document;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentRepository;
+import bw.co.centralkyc.document.DocumentVerificationStatus;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.kyc.verification.KycVerification;
@@ -543,6 +544,12 @@ public class KycRecordServiceImpl
                 record.addDocuments(document);
             } 
         }
+
+        // record.getDocuments().forEach(doc -> {
+        //     if(doc.getVerificationStatus() == DocumentVerificationStatus.REJECTED) {
+        //         // record.setKycStatus(KycComplianceStatus.);
+        //     }
+        // });
 
         record = this.kycRecordRepository.save(record);
 

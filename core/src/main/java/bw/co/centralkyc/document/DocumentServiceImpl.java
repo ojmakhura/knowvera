@@ -384,7 +384,7 @@ public class DocumentServiceImpl
 
                 doc.setExpectedInformation(
                         this.getIndividualExpectedInformation(individual,
-                                documentTypeMapper.toDocumentTypeDTO(doc.getDocumentType()), null));
+                                doc.getDocumentType(), null));
 
                 break;
 
@@ -393,7 +393,7 @@ public class DocumentServiceImpl
                         .orElseThrow(() -> new DocumentServiceException("No organisation found for document target"));
 
                 doc.setExpectedInformation(this.getOrganisationExpectedInformation(org,
-                        documentTypeMapper.toDocumentTypeDTO(doc.getDocumentType()), null));
+                        doc.getDocumentType(), null));
                 break;
             case KYC_RECORD:
                 KycRecord record = kycRecordRepository.findById(targetId)
@@ -422,7 +422,6 @@ public class DocumentServiceImpl
         Collection<ExpectedField> fields = dt.getExpectedFields();
         Collection<VerificationDataConfig> dataConfigs = dt.getVerificationDataConfigs();
 
-        DocumentTypeDTO dto = documentTypeMapper.toDocumentTypeDTO(dt);
 
         if (record.getTarget() == TargetEntity.INDIVIDUAL) {
 
@@ -430,25 +429,29 @@ public class DocumentServiceImpl
                     .orElseThrow(() -> new DocumentServiceException("No individual found for document target"));
 
             extractedInfo = getIndividualExpectedInformation(individual,
-                    dto, extractedInfo);
+                    dt, extractedInfo);
 
         } else if (record.getTarget() == TargetEntity.ORGANISATION) {
-            extractedInfo = getOrganisationExpectedInformation(record.getTargetId(),
-                    dto,
+
+            Organisation organisation = organisationRepository.findById(UUID.fromString(record.getTargetId()))
+                    .orElseThrow(() -> new DocumentServiceException("No organisation found for document target"));
+                    
+            extractedInfo = getOrganisationExpectedInformation(organisation,
+                    dt,
                     extractedInfo);
         }
 
         return extractedInfo;
     }
 
-    private Map<String, Object> getOrganisationExpectedInformation(Organisation organisation, DocumentTypeDTO docType,
+    private Map<String, Object> getOrganisationExpectedInformation(Organisation organisation, DocumentType docType,
             Map<String, Object> expectedInformation) {
 
         if (expectedInformation == null) {
             expectedInformation = new HashMap<>();
         }
 
-        for (ExpectedFieldDTO expectedField : docType.getExpectedFields()) {
+        for (ExpectedField expectedField : docType.getExpectedFields()) {
 
             switch (expectedField.getKeyField()) {
                 case ORGANISATION_NAME:
@@ -482,7 +485,7 @@ public class DocumentServiceImpl
 
     }
 
-    private Map<String, Object> getIndividualExpectedInformation(Individual individual, DocumentTypeDTO docType,
+    private Map<String, Object> getIndividualExpectedInformation(Individual individual, DocumentType docType,
             Map<String, Object> expectedInformation) {
 
         if (expectedInformation == null) {
@@ -490,7 +493,7 @@ public class DocumentServiceImpl
         }
 
         if (docType.getExpectedFields() != null) {
-            for (ExpectedFieldDTO expectedField : docType.getExpectedFields()) {
+            for (ExpectedField expectedField : docType.getExpectedFields()) {
 
                 switch (expectedField.getKeyField()) {
                     case INDIVIDUAL_FIRST_NAME:

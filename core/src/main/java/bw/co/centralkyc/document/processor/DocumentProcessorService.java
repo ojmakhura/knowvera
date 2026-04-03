@@ -201,12 +201,6 @@ public class DocumentProcessorService {
 
                     if (results.getMatch()) {
                         document.setVerificationStatus(DocumentVerificationStatus.VERIFIED);
-
-                        // Send this to the next queue for further processing
-                        rabbitTemplate.convertAndSend(
-                                rabbitProperties.getInformationConfirmationQueueExchange(),
-                                rabbitProperties.getInformationConfirmationQueueRoutingKey(),
-                                new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
                     } else {
 
                         if (results.getScore() < 0.3) {
@@ -215,6 +209,12 @@ public class DocumentProcessorService {
                             document.setVerificationStatus(DocumentVerificationStatus.MANUAL_REVIEW);
                         }
                     }
+
+                    // Send this to the next queue for further processing
+                    rabbitTemplate.convertAndSend(
+                            rabbitProperties.getInformationConfirmationQueueExchange(),
+                            rabbitProperties.getInformationConfirmationQueueRoutingKey(),
+                            new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
 
                     document.setAnalyticsStatus(DocumentAnalyticsStatus.TYPE_CONFIRMATION_COMPLETE);
 
