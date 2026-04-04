@@ -29,26 +29,16 @@ import { Loader } from '@app/@shared/loader/loader';
 import { ToastrService } from 'ngx-toastr';
 import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
-import { VerificationTagStatus } from '@app/models/bw/co/centralkyc/document/verification-tag-status';
-import { VerificationTag } from '@app/models/bw/co/centralkyc/kyc/verification/verification-tag';
-import { VerificationTagResult } from '@app/models/bw/co/centralkyc/document/verification-tag-result';
 import { form, FormField, readonly } from '@angular/forms/signals';
 import { MatSelectModule } from '@angular/material/select';
 import Swal from 'sweetalert2';
-
-type EditableVerificationTagResult = {
-  verificationTag: VerificationTag | null;
-  verificationTagStatus: VerificationTagStatus;
-  score: number | null;
-  values: string[];
-};
 
 @Component({
   selector: 'app-document-details',
   templateUrl: './document-details.html',
   styleUrls: ['./document-details.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
+  providers: [ToastrService],
   imports: [
     CommonModule,
     FormsModule,
@@ -95,10 +85,10 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
   // fileContent = linkedSignal(() => this.document()?.fileContent ?? '');
   fileContentCopied = signal(false);
-  verificationTagResults = linkedSignal(() => this.document().verificationTagResults ?? []);
-  readonly verificationTagOptions: VerificationTag[] = Object.values(VerificationTag);
-  readonly verificationTagStatusOptions: VerificationTagStatus[] =
-    Object.values(VerificationTagStatus);
+  // verificationTagResults = linkedSignal(() => this.document().verificationTagResults ?? []);
+  // readonly verificationTagOptions: VerificationTag[] = Object.values(VerificationTag);
+  // readonly verificationTagStatusOptions: VerificationTagStatus[] =
+  //   Object.values(VerificationTagStatus);
 
   documentForm = form(this.document, (path) => {
     readonly(path.id);
@@ -109,21 +99,21 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   });
 
   constructor() {
-    effect(() => {
-      const results = this.document()?.verificationTagResults ?? [];
-      this.verificationTagResults.set(
-        results.map((result: any) => ({
-          verificationTag: (result?.verificationTag as VerificationTag) ?? null,
-          verificationTagStatus:
-            (result?.verificationTagStatus as VerificationTagStatus) ??
-            VerificationTagStatus.UNCHECKED,
-          score: typeof result?.score === 'number' ? result.score : null,
-          values: Array.isArray(result?.values)
-            ? result.values.map((value: any) => String(value))
-            : [],
-        })),
-      );
-    });
+    // effect(() => {
+    //   const results = this.document()?.verificationTagResults ?? [];
+    //   this.verificationTagResults.set(
+    //     results.map((result: any) => ({
+    //       verificationTag: (result?.verificationTag as VerificationTag) ?? null,
+    //       verificationTagStatus:
+    //         (result?.verificationTagStatus as VerificationTagStatus) ??
+    //         VerificationTagStatus.UNCHECKED,
+    //       score: typeof result?.score === 'number' ? result.score : null,
+    //       values: Array.isArray(result?.values)
+    //         ? result.values.map((value: any) => String(value))
+    //         : [],
+    //     })),
+    //   );
+    // });
 
     effect(() => {
       let messages = this.messages();
@@ -136,23 +126,30 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
         this.toaster.error(messages[0]);
       }
     });
+
+    effect(() => {
+
+      const error = this.error();
+      console.log('Error state changed:', error);
+
+    });
   }
 
   addVerificationTagResult(): void {
-    this.document.update((doc) => {
-      if (!doc) return doc;
-      const newResult: VerificationTagResult = {
-        verificationTag: null,
-        verificationTagStatus: VerificationTagStatus.UNCHECKED,
-        score: 0,
-        values: [],
-      };
-      const updatedResults = [newResult, ...(doc.verificationTagResults ?? [])];
-      return {
-        ...doc,
-        verificationTagResults: updatedResults,
-      };
-    });
+    // this.document.update((doc) => {
+    //   if (!doc) return doc;
+    //   const newResult: VerificationTagResult = {
+    //     verificationTag: null,
+    //     verificationTagStatus: VerificationTagStatus.UNCHECKED,
+    //     score: 0,
+    //     values: [],
+    //   };
+    //   const updatedResults = [newResult, ...(doc.verificationTagResults ?? [])];
+    //   return {
+    //     ...doc,
+    //     verificationTagResults: updatedResults,
+    //   };
+    // });
   }
 
   removeVerificationTagResult(index: number): void {
@@ -167,11 +164,11 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
       if (result.isConfirmed) {
         this.document.update((doc) => {
           if (!doc) return doc;
-          const updatedResults = [...(doc.verificationTagResults ?? [])];
+          const updatedResults = [...(doc.dataVerifications ?? [])];
           updatedResults.splice(index, 1);
           return {
             ...doc,
-            verificationTagResults: updatedResults,
+            dataVerifications: updatedResults,
           };
         });
       }
@@ -289,17 +286,17 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     return icons[key] ?? 'check_circle';
   }
 
-  verificationTagStatusLabel(status: VerificationTagStatus | string | null | undefined): string {
-    switch (status) {
-      case VerificationTagStatus.SUCCESSFUL:
-        return 'Successful';
-      case VerificationTagStatus.FAILED:
-        return 'Failed';
-      case VerificationTagStatus.UNCHECKED:
-      default:
-        return 'Unchecked';
-    }
-  }
+  // verificationTagStatusLabel(status: VerificationTagStatus | string | null | undefined): string {
+  //   switch (status) {
+  //     case VerificationTagStatus.SUCCESSFUL:
+  //       return 'Successful';
+  //     case VerificationTagStatus.FAILED:
+  //       return 'Failed';
+  //     case VerificationTagStatus.UNCHECKED:
+  //     default:
+  //       return 'Unchecked';
+  //   }
+  // }
 
   saveDocument(): void {
     const currentDocument = this.document();
@@ -319,5 +316,12 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     if (!documentId) return;
 
     this.documentApiStore.analyseDocument({ id: documentId });
+  }
+
+  verifyData(): void {
+    const documentId = this.document()?.id;
+    if (!documentId) return;
+
+    this.documentApiStore.verifyData({ id: documentId });
   }
 }

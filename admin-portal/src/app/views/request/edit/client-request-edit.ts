@@ -183,6 +183,8 @@ export class ClientRequestEdit {
         return 'Flagged';
       case KycComplianceStatus.EXPIRED:
         return 'Expired';
+      default:
+        return 'Unverified';
     }
   }
 
@@ -208,6 +210,8 @@ export class ClientRequestEdit {
         return 'flagged';
       case KycComplianceStatus.EXPIRED:
         return 'expired';
+      default:
+        return 'underified';
     }
   }
 

@@ -6,10 +6,8 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import bw.co.centralkyc.KeyField;
-import bw.co.centralkyc.document.VerificationTagResult;
-import bw.co.centralkyc.document.VerificationTagStatus;
+import bw.co.centralkyc.document.DataVerification;
 import bw.co.centralkyc.document.type.verification.VerificationDataConfigDTO;
-import bw.co.centralkyc.kyc.DataVerification;
 import bw.co.centralkyc.matcher.UniversalStringMatcher;
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;

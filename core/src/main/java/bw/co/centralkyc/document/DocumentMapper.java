@@ -8,7 +8,10 @@ package bw.co.centralkyc.document;
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
 import bw.co.centralkyc.document.type.field.ExpectedField;
 import bw.co.centralkyc.document.type.verification.VerificationDataConfigMapper;
+import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.matcher.UniversalStringMatcher;
+import bw.co.centralkyc.settings.SalaryRangeMapper;
+import bw.co.centralkyc.utils.MappingUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,29 +29,30 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring", uses = {
+@Mapper(
+    componentModel = "spring",
+    uses = {
+        MappingUtils.class,
         DocumentTypeMapper.class,
         UniversalStringMatcher.class,
         VerificationDataConfigMapper.class
-})
-public interface DocumentMapper {
-
+    }
+)
+public abstract class DocumentMapper {
+    
     /**
      * Converts this entity to an object of type {@link DocumentDTO}.
-     * 
      * @param entity
      * @return DocumentDTO
      */
-    // WARNING! No conversion for target.documentType (can't convert
-    // source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to
-    // java.lang.String
-    @Mapping(target = "documentTypeId", source = "documentType.id")
+    // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String)
     @Mapping(target = "documentType", source = "documentType.name")
+    @Mapping(source = "documentType.id", target = "documentTypeId")
     @Mapping(target = "expectedFields", expression = "java(getExpectedFields(entity))")
     @Mapping(target = "dataComparisons", expression = "java(getDataComparisons(entity))")
-    DocumentDTO toDocumentDTO(Document entity);
+    public abstract DocumentDTO toDocumentDTO(Document entity);
 
-    default Map<String, Object> getExpectedFields(Document entity) {
+    Map<String, Object> getExpectedFields(Document entity) {
 
         Map<String, Object> expectedInfor = new HashMap<>();
 
@@ -67,7 +71,7 @@ public interface DocumentMapper {
         return expectedInfor;
     }
 
-    default Collection<DataComparisons> getDataComparisons(Document entity) {
+    protected Collection<DataComparisons> getDataComparisons(Document entity) {
         Collection<DataComparisons> expectedFieldsCollection = new java.util.ArrayList<>();
         if (entity.getDocumentType().getExpectedFields() != null) {
             Collection<ExpectedField> fields = entity.getDocumentType().getExpectedFields();
@@ -95,11 +99,15 @@ public interface DocumentMapper {
                     similarity = 1.0; // Both are blank, consider it a perfect match
                 }
 
-                expectedFieldsCollection.add(new DataComparisons(
-                        field.getField(),
-                        (String) expectedInformation.get(field.getField()),
-                        (String) extractedInformation.get(field.getField()),
-                        similarity >= 0.8));
+                Object exp = extractedInformation.get(field.getField());
+
+                if(exp != null) {
+                    expectedFieldsCollection.add(new DataComparisons(
+                            field.getField(),
+                            (String) expectedInformation.get(field.getField()),
+                            exp.toString(),
+                            similarity >= 0.8));
+                }
 
             }
         }
@@ -107,7 +115,7 @@ public interface DocumentMapper {
         return expectedFieldsCollection;
     }
 
-    default Set<String> getTokens(String input) {
+    protected Set<String> getTokens(String input) {
         if (input == null || input.isBlank()) {
             return new HashSet<>();
         }
@@ -121,7 +129,7 @@ public interface DocumentMapper {
         return new HashSet<>(Arrays.asList(tokens));
     }
 
-    default double calculateFilteredSimilarity(String shortAddr, String longAddr) {
+    protected double calculateFilteredSimilarity(String shortAddr, String longAddr) {
         Set<String> smallSet = getTokens(shortAddr);
         Set<String> largeSet = getTokens(longAddr);
 
@@ -146,61 +154,50 @@ public interface DocumentMapper {
         return (double) filteredLargeSet.size() / smallSet.size();
     }
 
-    /**
-     * Converts this DAO's entity to a Collection of instances of type
-     * {@link DocumentDTO}.
-     * 
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link DocumentDTO}.
      * @param entities
-     * @return Collection<DocumentDTO>
-     */
-    List<DocumentDTO> toDocumentDTOCollection(Collection<Document> entities);
+     * @return Collection<DocumentDTO>     */
+    public abstract List<DocumentDTO> toDocumentDTOCollection(Collection<Document> entities);
 
     /**
      * Converts an instance of type {@link DocumentDTO} to this DAO's entity.
-     * 
      * @param documentDTO
      * @return Document
      */
     @InheritInverseConfiguration
-    Document documentDTOToEntity(DocumentDTO documentDTO);
+    public abstract Document documentDTOToEntity(DocumentDTO documentDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
-    void updateDocumentFromDocumentDTO(DocumentDTO documentDTO, @MappingTarget Document entity);
+    public abstract void updateDocumentFromDocumentDTO(DocumentDTO documentDTO, @MappingTarget Document entity);
 
     /**
      * Converts this entity to an object of type {@link DocumentListDTO}.
-     * 
      * @param entity
      * @return DocumentListDTO
      */
-    // WARNING! No conversion for target.documentType (can't convert
-    // source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to
-    // java.lang.String
-    @Mapping(target = "documentTypeId", source = "documentType.id")
+    // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String)
     @Mapping(target = "documentType", source = "documentType.name")
-    DocumentListDTO toDocumentListDTO(Document entity);
+    @Mapping(source = "documentType.id", target = "documentTypeId")
+    public abstract DocumentListDTO toDocumentListDTO(Document entity);
 
-    /**
-     * Converts this DAO's entity to a Collection of instances of type
-     * {@link DocumentListDTO}.
-     * 
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link DocumentListDTO}.
      * @param entities
-     * @return Collection<DocumentListDTO>
-     */
-    List<DocumentListDTO> toDocumentListDTOCollection(Collection<Document> entities);
+     * @return Collection<DocumentListDTO>     */
+    public abstract List<DocumentListDTO> toDocumentListDTOCollection(Collection<Document> entities);
 
     /**
      * Converts an instance of type {@link DocumentListDTO} to this DAO's entity.
-     * 
      * @param documentListDTO
      * @return Document
      */
     @InheritInverseConfiguration
-    Document documentListDTOToEntity(DocumentListDTO documentListDTO);
+    public abstract Document documentListDTOToEntity(DocumentListDTO documentListDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
-    void updateDocumentFromDocumentListDTO(DocumentListDTO documentListDTO, @MappingTarget Document entity);
+    public abstract void updateDocumentFromDocumentListDTO(DocumentListDTO documentListDTO, @MappingTarget Document entity);
 
 }

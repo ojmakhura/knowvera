@@ -1,6 +1,6 @@
 
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
+import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 
 export class KycRecordSearchCriteria {
     name: string | any;

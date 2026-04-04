@@ -18,32 +18,34 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(
-    componentModel = "spring"
-    , uses = {
+    componentModel = "spring",
+    uses = {
         DocumentMapper.class,
         IndividualMapper.class,
         OrganisationMapper.class,
         MappingUtils.class
     }
 )
-public interface BranchMapper {
+public abstract class BranchMapper {   
     
     /**
      * Converts this entity to an object of type {@link BranchDTO}.
      * @param entity
      * @return BranchDTO
      */
+    // WARNING! No conversion for target.organisation (can't convert source.getOrganisation():bw.co.centralkyc.organisation.Organisation to java.lang.String)
     @Mapping(target = "organisation", source = "organisation.name")
     @Mapping(target = "organisationId", source = "organisation.id")
-    BranchDTO toBranchDTO(Branch entity);
+    public abstract BranchDTO toBranchDTO(Branch entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link BranchDTO}.
      * @param entities
      * @return Collection<BranchDTO>     */
-    List<BranchDTO> toBranchDTOCollection(Collection<Branch> entities);
+    public abstract List<BranchDTO> toBranchDTOCollection(Collection<Branch> entities);
 
     /**
      * Converts an instance of type {@link BranchDTO} to this DAO's entity.
@@ -51,11 +53,10 @@ public interface BranchMapper {
      * @return Branch
      */
     @InheritInverseConfiguration
-    @Mapping(target = "organisation", ignore = true)
-    Branch branchDTOToEntity(BranchDTO branchDTO);
+    public abstract Branch branchDTOToEntity(BranchDTO branchDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "organisation", ignore = true)
-    void updateBranchFromBranchDTO(BranchDTO branchDTO, @MappingTarget Branch entity);
+    @InheritInverseConfiguration
+    public abstract void updateBranchFromBranchDTO(BranchDTO branchDTO, @MappingTarget Branch entity);
 
 }

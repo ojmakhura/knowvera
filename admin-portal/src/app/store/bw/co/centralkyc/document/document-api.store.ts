@@ -482,6 +482,38 @@ export const DocumentApiStore = signalStore(
           );
         }),
       ),
+      verifyData: rxMethod<{id: string }>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Verifying ...' });
+          return documentApi.verifyData(data.id, ).pipe(
+            tapResponse({
+              next: (response: DocumentDTO) => {
+                patchState(
+                  store,
+                  {
+                    data: response,
+                    loading: false,
+                    success: true,
+                    messages: ['Verification successful!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
+                    success: false,
+                    error: true,
+                    messages: [error?.error?.message || 'An error occurred during verification'],
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      )
     }
   }),
 );

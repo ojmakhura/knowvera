@@ -215,7 +215,7 @@
               </div>
             </mat-tab>
 
-            <mat-tab label="Verification Tag Results">
+            <mat-tab label="Data Verification">
               <div class="tab-pane-content">
                 <!-- <div class="verification-tag-toolbar">
                   <button mat-stroked-button type="button" (click)="addVerificationTagResult()">
@@ -233,18 +233,20 @@
                     <mat-icon>add</mat-icon>
                     Add Tag Result
                   </button>
+                  <button mat-stroked-button (click)="verifyData()" [disabled]="loading() || !document().id">
+                    <mat-icon>fact_check</mat-icon>
+                    Verify Data
+                  </button>
                   <button mat-flat-button color="primary" (click)="saveDocument()" [disabled]="loading()">
                     <mat-icon>save</mat-icon>
                     Update Document
                   </button>
                 </div>
 
-                @if (verificationTagResults().length > 0) {
-                <div class="verification-tag-editor-list">
-                  @for (result of documentForm.verificationTagResults; track $index) {
+                <!-- @if (verificationTagResults().length > 0) {
+                <div class="verification-tag-editor-list"> -->
+                  <!-- @for (result of documentForm.verificationTagResults; track $index) {
                   @let resultValue = result().value();
-                  <!-- {{ resultValue | json }} 22
-                      {{document().verificationTags | json}} -->
                   <div class="verification-tag-editor-item">
                     <div class="verification-tag-editor-header">
                       <strong translate>{{ resultValue.verificationTag ? (('verification.tag.' +
@@ -296,31 +298,14 @@
                           <input matInput type="text" [formField]="result.values" placeholder="Value A, Value B" />
                         </mat-form-field>
                       </div>
-                      
+
                     </div>
-
-                    <!-- <div class="verification-tag-preview-row">
-                          <span [ngClass]="'status-badge status-' + (result.verificationTagStatus | lowercase)">
-                            {{ verificationTagStatusLabel(result.verificationTagStatus) }}
-                          </span>
-                          <span class="verification-tag-score-preview">
-                            {{ result.score !== null ? (result.score | number: '1.0-2') : 'N/A' }}
-                          </span>
-                        </div> -->
-
-                    <!-- @if (result.values.length > 0) {
-                          <div class="values-list" style="margin-top: 0.5rem;">
-                            @for (value of result.values; track $index) {
-                              <span class="value-tag">{{ value }}</span>
-                            }
-                          </div>
-                        } -->
                   </div>
-                  }
-                </div>
+                  } -->
+                <!-- </div>
                 } @else {
                 <p class="tab-empty">No verification tag results yet. Add one to begin.</p>
-                }
+                } -->
               </div>
             </mat-tab>
           </mat-tab-group>

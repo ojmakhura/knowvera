@@ -6,6 +6,7 @@
 package bw.co.centralkyc.organisation.client;
 
 import bw.co.centralkyc.document.DocumentMapper;
+import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.organisation.OrganisationMapper;
 import bw.co.centralkyc.utils.MappingUtils;
 
@@ -17,32 +18,32 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(
-    componentModel = "spring"
-    , uses = {
+    componentModel = "spring",
+    uses = {
         DocumentMapper.class,
         OrganisationMapper.class,
         MappingUtils.class
     }
 )
-public interface ClientRequestMapper {
+public abstract class ClientRequestMapper {
     
     /**
      * Converts this entity to an object of type {@link ClientRequestDTO}.
      * @param entity
      * @return ClientRequestDTO
      */
-    @Mapping(target = "organisation", source = "organisation.name")
-    @Mapping(target = "organisationRegistrationNo", source = "organisation.registrationNo")
-    @Mapping(target = "organisationId", source = "organisation.id")
-    ClientRequestDTO toClientRequestDTO(ClientRequest entity);
+    // WARNING! No conversion for target.organisation (can't convert source.getOrganisation():bw.co.centralkyc.organisation.Organisation to java.lang.String)
+    @Mapping(target = "organisation", ignore = true)
+    public abstract ClientRequestDTO toClientRequestDTO(ClientRequest entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link ClientRequestDTO}.
      * @param entities
      * @return Collection<ClientRequestDTO>     */
-    List<ClientRequestDTO> toClientRequestDTOCollection(Collection<ClientRequest> entities);
+    public abstract List<ClientRequestDTO> toClientRequestDTOCollection(Collection<ClientRequest> entities);
 
     /**
      * Converts an instance of type {@link ClientRequestDTO} to this DAO's entity.
@@ -51,10 +52,11 @@ public interface ClientRequestMapper {
      */
     @InheritInverseConfiguration
     @Mapping(target = "organisation", ignore = true)
-    ClientRequest clientRequestDTOToEntity(ClientRequestDTO clientRequestDTO);
+    public abstract ClientRequest clientRequestDTOToEntity(ClientRequestDTO clientRequestDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @InheritInverseConfiguration
     @Mapping(target = "organisation", ignore = true)
-    void updateClientRequestFromClientRequestDTO(ClientRequestDTO clientRequestDTO, @MappingTarget ClientRequest entity);
+    public abstract void updateClientRequestFromClientRequestDTO(ClientRequestDTO clientRequestDTO, @MappingTarget ClientRequest entity);
 
 }

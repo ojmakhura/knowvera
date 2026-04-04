@@ -14,12 +14,16 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import bw.co.centralkyc.utils.MappingUtils;
+
 @Mapper(
-    componentModel = "spring"
-    , uses = {
-        SequencePartMapper.class    }
+    componentModel = "spring",
+    uses = {
+        SequencePartMapper.class,
+        MappingUtils.class
+    }
 )
-public interface SequenceGeneratorMapper {
+public abstract class SequenceGeneratorMapper {
     
     /**
      * Converts this entity to an object of type {@link SequenceGeneratorDTO}.
@@ -27,13 +31,13 @@ public interface SequenceGeneratorMapper {
      * @return SequenceGeneratorDTO
      */
     @Mapping(source = "sequenceParts", target = "sequenceParts")
-    SequenceGeneratorDTO toSequenceGeneratorDTO(SequenceGenerator entity);
+    public abstract SequenceGeneratorDTO toSequenceGeneratorDTO(SequenceGenerator entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link SequenceGeneratorDTO}.
      * @param entities
      * @return Collection<SequenceGeneratorDTO>     */
-    List<SequenceGeneratorDTO> toSequenceGeneratorDTOCollection(Collection<SequenceGenerator> entities);
+    public abstract List<SequenceGeneratorDTO> toSequenceGeneratorDTOCollection(Collection<SequenceGenerator> entities);
 
     /**
      * Converts an instance of type {@link SequenceGeneratorDTO} to this DAO's entity.
@@ -41,10 +45,10 @@ public interface SequenceGeneratorMapper {
      * @return SequenceGenerator
      */
     @InheritInverseConfiguration
-    SequenceGenerator sequenceGeneratorDTOToEntity(SequenceGeneratorDTO sequenceGeneratorDTO);
+    public abstract SequenceGenerator sequenceGeneratorDTOToEntity(SequenceGeneratorDTO sequenceGeneratorDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
-    void updateSequenceGeneratorFromSequenceGeneratorDTO(SequenceGeneratorDTO sequenceGeneratorDTO, @MappingTarget SequenceGenerator entity);
+    public abstract void updateSequenceGeneratorFromSequenceGeneratorDTO(SequenceGeneratorDTO sequenceGeneratorDTO, @MappingTarget SequenceGenerator entity);
 
 }

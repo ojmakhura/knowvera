@@ -42,6 +42,7 @@ export class SearchDocumentTypesVarsForm {
   templateUrl: './document-type.html',
   styleUrls: ['./document-type.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ToastrService],
 })
 export class DocumentTypeComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['code', 'name', 'description', 'fields', 'prompts', 'actions'];
@@ -94,6 +95,7 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
         this.totalPages.set(page.page?.totalPages || 0);
       }
     });
+
   }
 
   ngOnInit(): void {

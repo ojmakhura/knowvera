@@ -12,26 +12,31 @@ import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import bw.co.centralkyc.utils.MappingUtils;
 
 @Mapper(
-    componentModel = "spring"
-    , uses = {
-        SettingsMapper.class    }
+    componentModel = "spring",
+    uses = {
+        SettingsMapper.class,
+        MappingUtils.class
+    }
 )
-public interface SalaryRangeMapper {
+public abstract class SalaryRangeMapper {
     
     /**
      * Converts this entity to an object of type {@link SalaryRangeDTO}.
      * @param entity
      * @return SalaryRangeDTO
      */
-    SalaryRangeDTO toSalaryRangeDTO(SalaryRange entity);
+    public abstract SalaryRangeDTO toSalaryRangeDTO(SalaryRange entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link SalaryRangeDTO}.
      * @param entities
      * @return Collection<SalaryRangeDTO>     */
-    List<SalaryRangeDTO> toSalaryRangeDTOCollection(Collection<SalaryRange> entities);
+    public abstract List<SalaryRangeDTO> toSalaryRangeDTOCollection(Collection<SalaryRange> entities);
 
     /**
      * Converts an instance of type {@link SalaryRangeDTO} to this DAO's entity.
@@ -39,9 +44,10 @@ public interface SalaryRangeMapper {
      * @return SalaryRange
      */
     @InheritInverseConfiguration
-    SalaryRange salaryRangeDTOToEntity(SalaryRangeDTO salaryRangeDTO);
+    public abstract SalaryRange salaryRangeDTOToEntity(SalaryRangeDTO salaryRangeDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateSalaryRangeFromSalaryRangeDTO(SalaryRangeDTO salaryRangeDTO, @MappingTarget SalaryRange entity);
+    @InheritInverseConfiguration
+    public abstract void updateSalaryRangeFromSalaryRangeDTO(SalaryRangeDTO salaryRangeDTO, @MappingTarget SalaryRange entity);
 
 }

@@ -6,8 +6,6 @@
 package bw.co.centralkyc.document.type.verification;
 
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
-import bw.co.centralkyc.utils.MappingUtils;
-
 import java.util.Collection;
 import java.util.List;
 import org.mapstruct.BeanMapping;
@@ -16,32 +14,29 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(
-    componentModel = "spring",
-    uses = {
-        MappingUtils.class,
-        DocumentTypeMapper.class
-    }
+    componentModel = "spring"
+    , uses = {
+        DocumentTypeMapper.class    }
 )
-public abstract class VerificationDataConfigMapper {    
+public interface VerificationDataConfigMapper {
     
     /**
      * Converts this entity to an object of type {@link VerificationDataConfigDTO}.
      * @param entity
      * @return VerificationDataConfigDTO
      */
-    // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String)
+    // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String
     @Mapping(target = "documentType", source = "documentType.name")
     @Mapping(source = "documentType.id", target = "documentTypeId")
-    public abstract VerificationDataConfigDTO toVerificationDataConfigDTO(VerificationDataConfig entity);
+    VerificationDataConfigDTO toVerificationDataConfigDTO(VerificationDataConfig entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link VerificationDataConfigDTO}.
      * @param entities
      * @return Collection<VerificationDataConfigDTO>     */
-    public abstract List<VerificationDataConfigDTO> toVerificationDataConfigDTOCollection(Collection<VerificationDataConfig> entities);
+    List<VerificationDataConfigDTO> toVerificationDataConfigDTOCollection(Collection<VerificationDataConfig> entities);
 
     /**
      * Converts an instance of type {@link VerificationDataConfigDTO} to this DAO's entity.
@@ -49,10 +44,10 @@ public abstract class VerificationDataConfigMapper {
      * @return VerificationDataConfig
      */
     @InheritInverseConfiguration
-    public abstract VerificationDataConfig verificationDataConfigDTOToEntity(VerificationDataConfigDTO verificationDataConfigDTO);
+    VerificationDataConfig verificationDataConfigDTOToEntity(VerificationDataConfigDTO verificationDataConfigDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
-    public abstract void updateVerificationDataConfigFromVerificationDataConfigDTO(VerificationDataConfigDTO verificationDataConfigDTO, @MappingTarget VerificationDataConfig entity);
+    void updateVerificationDataConfigFromVerificationDataConfigDTO(VerificationDataConfigDTO verificationDataConfigDTO, @MappingTarget VerificationDataConfig entity);
 
 }

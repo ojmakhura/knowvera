@@ -5,11 +5,11 @@
 //
 package bw.co.centralkyc.kyc;
 
+import bw.co.centralkyc.KeyValue;
 import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.individual.employment.EmploymentRecordMapper;
-import bw.co.centralkyc.kyc.verification.KycVerificationMapper;
 import bw.co.centralkyc.utils.MappingUtils;
 
 import java.util.Collection;
@@ -22,17 +22,16 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(
-    componentModel = "spring"
-    , uses = {
+    componentModel = "spring",
+    uses = {
         DocumentMapper.class,
         EmploymentRecordMapper.class,
-        KycVerificationMapper.class,
         IndividualRepository.class,
         IndividualMapper.class,
         MappingUtils.class    
     }
 )
-public interface KycRecordMapper {
+public abstract class KycRecordMapper {   
     
     /**
      * Converts this entity to an object of type {@link KycRecordDTO}.
@@ -46,13 +45,13 @@ public interface KycRecordMapper {
     @Mapping(source = "pepDetails", target = "declaration.pepDetails")
     @Mapping(source = "sanctionsMatch", target = "declaration.sanctionsMatch")
     @Mapping(source = "sanctionsDetails", target = "declaration.sanctionsDetails")
-    KycRecordDTO toKycRecordDTO(KycRecord entity);
+    public abstract KycRecordDTO toKycRecordDTO(KycRecord entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link KycRecordDTO}.
      * @param entities
      * @return Collection<KycRecordDTO>     */
-    List<KycRecordDTO> toKycRecordDTOCollection(Collection<KycRecord> entities);
+    public abstract List<KycRecordDTO> toKycRecordDTOCollection(Collection<KycRecord> entities);
 
     /**
      * Converts an instance of type {@link KycRecordDTO} to this DAO's entity.
@@ -60,9 +59,80 @@ public interface KycRecordMapper {
      * @return KycRecord
      */
     @InheritInverseConfiguration
-    KycRecord kycRecordDTOToEntity(KycRecordDTO kycRecordDTO);
+    public abstract KycRecord kycRecordDTOToEntity(KycRecordDTO kycRecordDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateKycRecordFromKycRecordDTO(KycRecordDTO kycRecordDTO, @MappingTarget KycRecord entity);
+    @InheritInverseConfiguration
+    public abstract void updateKycRecordFromKycRecordDTO(KycRecordDTO kycRecordDTO, @MappingTarget KycRecord entity);
+
+    /**
+     * Converts this entity to an object of type {@link KycRecordSummary}.
+     * @param entity
+     * @return KycRecordSummary
+     */
+    @Mapping(target = "documents", expression = "java(mapDocumentsToKeyValueList(entity))")
+    public abstract KycRecordSummary toKycRecordSummary(KycRecord entity);
+
+    protected List<KeyValue> mapDocumentsToKeyValueList(KycRecord entity) {
+        if (entity == null || entity.getDocuments() == null) {
+            return null;
+        }
+        return entity.getDocuments().stream()
+                .map(doc -> new KeyValue(doc.getFileName(), doc.getVerificationStatus() != null ? doc.getVerificationStatus().value() : null))
+                .toList();
+    }
+
+    // protected List<KeyValue> mapDataVerifications(KycRecord entity) {
+    //     if (entity == null || entity.getDataVerificationSummaries() == null) {
+    //         return null;
+    //     }
+    //     return entity.getDataVerificationSummaries().stream()
+    //             .map(dv -> new KeyValue(dv.verificationParameter(), dv.verificationStatus().value()))
+    //             .toList();
+
+    // }
+
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link KycRecordSummary}.
+     * @param entities
+     * @return Collection<KycRecordSummary>     */
+    public abstract List<KycRecordSummary> toKycRecordSummaryCollection(Collection<KycRecord> entities);
+
+    /**
+     * Converts an instance of type {@link KycRecordSummary} to this DAO's entity.
+     * @param kycRecordSummary
+     * @return KycRecord
+     */
+    @InheritInverseConfiguration
+    public abstract KycRecord kycRecordSummaryToEntity(KycRecordSummary kycRecordSummary);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @InheritInverseConfiguration
+    public abstract void updateKycRecordFromKycRecordSummary(KycRecordSummary kycRecordSummary, @MappingTarget KycRecord entity);
+
+    /**
+     * Converts this entity to an object of type {@link KycRecordListDTO}.
+     * @param entity
+     * @return KycRecordListDTO
+     */
+    public abstract KycRecordListDTO toKycRecordListDTO(KycRecord entity);
+
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link KycRecordListDTO}.
+     * @param entities
+     * @return Collection<KycRecordListDTO>     */
+    public abstract List<KycRecordListDTO> toKycRecordListDTOCollection(Collection<KycRecord> entities);
+
+    /**
+     * Converts an instance of type {@link KycRecordListDTO} to this DAO's entity.
+     * @param kycRecordListDTO
+     * @return KycRecord
+     */
+    @InheritInverseConfiguration
+    public abstract KycRecord kycRecordListDTOToEntity(KycRecordListDTO kycRecordListDTO);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @InheritInverseConfiguration
+    public abstract void updateKycRecordFromKycRecordListDTO(KycRecordListDTO kycRecordListDTO, @MappingTarget KycRecord entity);
 
 }

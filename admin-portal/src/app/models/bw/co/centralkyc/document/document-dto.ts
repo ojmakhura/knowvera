@@ -1,13 +1,13 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
-import {VerificationTagResult} from '@models/bw/co/centralkyc/document/verification-tag-result';
-import {DocumentValidationResults} from '@models/bw/co/centralkyc/document/document-validation-results';
-import {VerificationTag} from '@models/bw/co/centralkyc/kyc/verification/verification-tag';
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {DataComparisons} from '@models/bw/co/centralkyc/document/data-comparisons';
-import {CompletionRequestMessage} from '@models/bw/co/centralkyc/lmstudio/completion-request-message';
 import {DocumentAnalyticsStatus} from '@models/bw/co/centralkyc/document/document-analytics-status';
+import {DataVerification} from '@models/bw/co/centralkyc/document/data-verification';
+import {DocumentValidationResults} from '@models/bw/co/centralkyc/document/document-validation-results';
+import {CompletionRequestMessage} from '@models/bw/co/centralkyc/lmstudio/completion-request-message';
+import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
+import {VerificationDataConfigDTO} from '@models/bw/co/centralkyc/document/type/verification/verification-data-config-dto';
+import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
 
 export class DocumentDTO extends AuditableDTO {
     target: TargetEntity | any;
@@ -44,11 +44,11 @@ export class DocumentDTO extends AuditableDTO {
     
     analyticsStatus: DocumentAnalyticsStatus | any = DocumentAnalyticsStatus.INITIALISED;
     
-    verificationTagResults: Array<VerificationTagResult> | any;
-    
-    verificationTags: Array<VerificationTag> | any;
+    dataVerifications: Array<DataVerification> | any;
     
     dataComparisons: Array<DataComparisons> | any;
+    
+    verificationDataConfigs: Array<VerificationDataConfigDTO> | any;
     
     constructor() {
         super();
@@ -69,8 +69,8 @@ export class DocumentDTO extends AuditableDTO {
         this.targetLabel = null;
         this.expectedInformation = null;
         this.analyticsStatus = DocumentAnalyticsStatus.INITIALISED;
-        this.verificationTagResults = [];
-        this.verificationTags = [];
+        this.dataVerifications = [];
         this.dataComparisons = [];
+        this.verificationDataConfigs = [];
     }
 }

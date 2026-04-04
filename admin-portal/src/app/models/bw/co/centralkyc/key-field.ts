@@ -86,5 +86,7 @@ export enum KeyField {
     /** TODO: Model Documentation for Enumeration Literal BANK_NAME value "BANK_NAME": $literal.enumerationLiteralDisplay */
     BANK_NAME = "BANK_NAME",
     /** TODO: Model Documentation for Enumeration Literal SWIFT_CODE value "SWIFT_CODE": $literal.enumerationLiteralDisplay */
-    SWIFT_CODE = "SWIFT_CODE"
+    SWIFT_CODE = "SWIFT_CODE",
+    /** TODO: Model Documentation for Enumeration Literal EMPLOYMENT_START value "EMPLOYMENT_START": $literal.enumerationLiteralDisplay */
+    EMPLOYMENT_START = "EMPLOYMENT_START"
 }

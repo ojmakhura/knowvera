@@ -411,4 +411,21 @@ public class DocumentApiImpl implements DocumentApi {
         }
 
     }
+
+    @Override
+    public ResponseEntity<DocumentDTO> verifyData(String id) throws Exception {
+       
+        try {
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+
+            String username = jwt.getClaimAsString("preferred_username");
+            
+            return ResponseEntity.ok(documentService.verifyData(id, username));
+        } catch (Exception e) {
+            throw e;
+        }
+
+    }
 }

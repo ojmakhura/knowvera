@@ -1,8 +1,8 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {TimePeriod} from '@models/bw/co/centralkyc/time-period';
 import {KycSubsciptionStatus} from '@models/bw/co/centralkyc/subscription/kyc-subsciption-status';
 import {KycInvoiceDTO} from '@models/bw/co/centralkyc/invoice/kyc-invoice-dto';
+import {TimePeriod} from '@models/bw/co/centralkyc/time-period';
 
 export class KycSubscriptionDTO extends AuditableDTO {
     startDate: Date | any;

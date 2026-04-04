@@ -16,31 +16,32 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(
-    componentModel = "spring"
-    , uses = {
+    componentModel = "spring",
+    uses = {
         DocumentTypeMapper.class,
-        MappingUtils.class    
+        MappingUtils.class
     }
 )
-public interface OrganisationDocumentMapper {
+public abstract class OrganisationDocumentMapper {
     
     /**
      * Converts this entity to an object of type {@link OrganisationDocumentDTO}.
      * @param entity
      * @return OrganisationDocumentDTO
      */
-    // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String
+    // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String)
     @Mapping(target = "documentTypeId", source = "documentType.id")
     @Mapping(target = "documentType", source = "documentType.name")
-    OrganisationDocumentDTO toOrganisationDocumentDTO(OrganisationDocument entity);
+    public abstract OrganisationDocumentDTO toOrganisationDocumentDTO(OrganisationDocument entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link OrganisationDocumentDTO}.
      * @param entities
      * @return Collection<OrganisationDocumentDTO>     */
-    List<OrganisationDocumentDTO> toOrganisationDocumentDTOCollection(Collection<OrganisationDocument> entities);
+    public abstract List<OrganisationDocumentDTO> toOrganisationDocumentDTOCollection(Collection<OrganisationDocument> entities);
 
     /**
      * Converts an instance of type {@link OrganisationDocumentDTO} to this DAO's entity.
@@ -48,10 +49,10 @@ public interface OrganisationDocumentMapper {
      * @return OrganisationDocument
      */
     @InheritInverseConfiguration
-    OrganisationDocument organisationDocumentDTOToEntity(OrganisationDocumentDTO organisationDocumentDTO);
+    public abstract OrganisationDocument organisationDocumentDTOToEntity(OrganisationDocumentDTO organisationDocumentDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
-    void updateOrganisationDocumentFromOrganisationDocumentDTO(OrganisationDocumentDTO organisationDocumentDTO, @MappingTarget OrganisationDocument entity);
+    public abstract void updateOrganisationDocumentFromOrganisationDocumentDTO(OrganisationDocumentDTO organisationDocumentDTO, @MappingTarget OrganisationDocument entity);
 
 }

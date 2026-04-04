@@ -7,8 +7,6 @@ package bw.co.centralkyc.settings;
 
 import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
-import bw.co.centralkyc.utils.MappingUtils;
-
 import java.util.Collection;
 import java.util.List;
 import org.mapstruct.BeanMapping;
@@ -23,11 +21,10 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
     , uses = {
         DocumentTypeMapper.class,
         DocumentMapper.class,
-        SalaryRangeMapper.class,
-        MappingUtils.class    
+        SalaryRangeMapper.class    
     }
 )
-public interface SettingsMapper {
+public abstract class SettingsMapper {
     
     /**
      * Converts this entity to an object of type {@link SettingsDTO}.
@@ -46,13 +43,13 @@ public interface SettingsMapper {
     @Mapping(source = "quotationTemplate", target = "quotationTemplate")
     @Mapping(source = "clientRequestFileType", target = "clientRequestFileType")
     @Mapping(source = "salaryRanges", target = "salaryRanges")
-    SettingsDTO toSettingsDTO(Settings entity);
+    public abstract SettingsDTO toSettingsDTO(Settings entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link SettingsDTO}.
      * @param entities
      * @return Collection<SettingsDTO>     */
-    List<SettingsDTO> toSettingsDTOCollection(Collection<Settings> entities);
+    public abstract List<SettingsDTO> toSettingsDTOCollection(Collection<Settings> entities);
 
     /**
      * Converts an instance of type {@link SettingsDTO} to this DAO's entity.
@@ -60,9 +57,10 @@ public interface SettingsMapper {
      * @return Settings
      */
     @InheritInverseConfiguration
-    Settings settingsDTOToEntity(SettingsDTO settingsDTO);
+    public abstract Settings settingsDTOToEntity(SettingsDTO settingsDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateSettingsFromSettingsDTO(SettingsDTO settingsDTO, @MappingTarget Settings entity);
+    @InheritInverseConfiguration
+    public abstract void updateSettingsFromSettingsDTO(SettingsDTO settingsDTO, @MappingTarget Settings entity);
 
 }

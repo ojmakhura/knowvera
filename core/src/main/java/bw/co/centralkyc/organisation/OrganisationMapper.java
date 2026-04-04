@@ -7,9 +7,13 @@ package bw.co.centralkyc.organisation;
 
 import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
+import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.invoice.KycInvoiceMapper;
 import bw.co.centralkyc.organisation.branch.BranchMapper;
+import bw.co.centralkyc.organisation.client.ClientRequestMapper;
 import bw.co.centralkyc.subscription.KycSubscriptionMapper;
+import bw.co.centralkyc.utils.MappingUtils;
+
 import java.util.Collection;
 import java.util.List;
 import org.mapstruct.BeanMapping;
@@ -18,6 +22,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(
     componentModel = "spring"
@@ -29,7 +34,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         KycInvoiceMapper.class
     }
 )
-public interface OrganisationMapper {
+public abstract class OrganisationMapper {
     
     /**
      * Converts this entity to an object of type {@link OrganisationDTO}.
@@ -37,47 +42,41 @@ public interface OrganisationMapper {
      * @return OrganisationDTO
      */
     @Mapping(source = "documents", target = "documents")
-    // WARNING! No conversion for target.phoneNumbers (can't convert source.getPhoneNumbers():java.util.Map to bw.co.centralkyc.PhoneNumber
-    @Mapping(source = "phoneNumbers", target = "phoneNumbers")
     @Mapping(source = "clientKycDocuments", target = "clientKycDocuments")
     @Mapping(source = "clientRequestsFiles", target = "clientRequestsFiles")
-    // WARNING! No conversion for target.domains (can't convert source.getDomains():java.util.Map to bw.co.centralkyc.organisation.OrganisationDomain
-    OrganisationDTO toOrganisationDTO(Organisation entity);
+    @Mapping(source = "phoneNumbers", target = "phoneNumbers")
+    public abstract OrganisationDTO toOrganisationDTO(Organisation entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link OrganisationDTO}.
      * @param entities
      * @return Collection<OrganisationDTO>     */
-    List<OrganisationDTO> toOrganisationDTOCollection(Collection<Organisation> entities);
+    public abstract List<OrganisationDTO> toOrganisationDTOCollection(Collection<Organisation> entities);
 
     /**
      * Converts an instance of type {@link OrganisationDTO} to this DAO's entity.
      * @param organisationDTO
      * @return Organisation
      */
-    // No conversion for target.phoneNumbers (can't convert source.getPhoneNumbers():bw.co.centralkyc.PhoneNumber to java.util.Map
-    // No conversion for target.domains (can't convert source.getDomains():bw.co.centralkyc.organisation.OrganisationDomain to java.util.Map
     @InheritInverseConfiguration
-    Organisation organisationDTOToEntity(OrganisationDTO organisationDTO);
+    public abstract Organisation organisationDTOToEntity(OrganisationDTO organisationDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    // No conversion for target.phoneNumbers (can't convert source.getPhoneNumbers():bw.co.centralkyc.PhoneNumber to java.util.Map
-    // No conversion for target.domains (can't convert source.getDomains():bw.co.centralkyc.organisation.OrganisationDomain to java.util.Map
     @InheritInverseConfiguration
-    void updateOrganisationFromOrganisationDTO(OrganisationDTO organisationDTO, @MappingTarget Organisation entity);
+    public abstract void updateOrganisationFromOrganisationDTO(OrganisationDTO organisationDTO, @MappingTarget Organisation entity);
 
     /**
      * Converts this entity to an object of type {@link OrganisationListDTO}.
      * @param entity
      * @return OrganisationListDTO
      */
-    OrganisationListDTO toOrganisationListDTO(Organisation entity);
+    public abstract OrganisationListDTO toOrganisationListDTO(Organisation entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link OrganisationListDTO}.
      * @param entities
      * @return Collection<OrganisationListDTO>     */
-    List<OrganisationListDTO> toOrganisationListDTOCollection(Collection<Organisation> entities);
+    public abstract List<OrganisationListDTO> toOrganisationListDTOCollection(Collection<Organisation> entities);
 
     /**
      * Converts an instance of type {@link OrganisationListDTO} to this DAO's entity.
@@ -85,10 +84,10 @@ public interface OrganisationMapper {
      * @return Organisation
      */
     @InheritInverseConfiguration
-    Organisation organisationListDTOToEntity(OrganisationListDTO organisationListDTO);
+    public abstract Organisation organisationListDTOToEntity(OrganisationListDTO organisationListDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
-    void updateOrganisationFromOrganisationListDTO(OrganisationListDTO organisationListDTO, @MappingTarget Organisation entity);
+    public abstract void updateOrganisationFromOrganisationListDTO(OrganisationListDTO organisationListDTO, @MappingTarget Organisation entity);
 
 }

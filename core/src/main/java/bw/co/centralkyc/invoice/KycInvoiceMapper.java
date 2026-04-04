@@ -6,6 +6,8 @@
 package bw.co.centralkyc.invoice;
 
 import bw.co.centralkyc.document.DocumentMapper;
+import bw.co.centralkyc.document.type.DocumentTypeMapper;
+import bw.co.centralkyc.organisation.OrganisationMapper;
 import bw.co.centralkyc.subscription.KycSubscriptionMapper;
 import bw.co.centralkyc.utils.MappingUtils;
 
@@ -17,44 +19,46 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(
-    componentModel = "spring"
-    , uses = {
+    componentModel = "spring",
+    uses = {
         DocumentMapper.class,
         KycSubscriptionMapper.class,
         MappingUtils.class
     }
 )
-public interface KycInvoiceMapper {
-    
+public abstract class KycInvoiceMapper {
+
     /**
      * Converts this entity to an object of type {@link KycInvoiceDTO}.
      * @param entity
      * @return KycInvoiceDTO
      */
-    // WARNING! No conversion for target.issueDate (can't convert source.getIssueDate():java.util.Date to java.util.Date
+    // WARNING! No conversion for target.issueDate (can't convert source.getIssueDate():java.util.Date to java.util.Date)
     @Mapping(source = "invoiceDocument", target = "invoiceDocument")
     @Mapping(source = "proofOfPayment", target = "proofOfPayment")
-    KycInvoiceDTO toKycInvoiceDTO(KycInvoice entity);
+    public abstract KycInvoiceDTO toKycInvoiceDTO(KycInvoice entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link KycInvoiceDTO}.
      * @param entities
      * @return Collection<KycInvoiceDTO>     */
-    List<KycInvoiceDTO> toKycInvoiceDTOCollection(Collection<KycInvoice> entities);
+    public abstract List<KycInvoiceDTO> toKycInvoiceDTOCollection(Collection<KycInvoice> entities);
 
     /**
      * Converts an instance of type {@link KycInvoiceDTO} to this DAO's entity.
      * @param kycInvoiceDTO
      * @return KycInvoice
      */
-    // No conversion for target.issueDate (can't convert source.getIssueDate():java.util.Date to java.util.Date
+    // No conversion for target.issueDate (can't convert source.getIssueDate():java.util.Date to java.util.Date)
     @InheritInverseConfiguration
-    KycInvoice kycInvoiceDTOToEntity(KycInvoiceDTO kycInvoiceDTO);
+    public abstract KycInvoice kycInvoiceDTOToEntity(KycInvoiceDTO kycInvoiceDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     // No conversion for target.issueDate (can't convert source.getIssueDate():java.util.Date to java.util.Date
-    void updateKycInvoiceFromKycInvoiceDTO(KycInvoiceDTO kycInvoiceDTO, @MappingTarget KycInvoice entity);
+    @InheritInverseConfiguration
+    public abstract void updateKycInvoiceFromKycInvoiceDTO(KycInvoiceDTO kycInvoiceDTO, @MappingTarget KycInvoice entity);
 
 }

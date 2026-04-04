@@ -12,6 +12,7 @@ import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
 import { KycRecordApi } from '@app/services/bw/co/centralkyc/kyc/kyc-record-api';
 import { KycRecordSearchCriteria } from '@app/models/bw/co/centralkyc/kyc/kyc-record-search-criteria';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
+import { KycRecordListDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-list-dto';
 
 export type KycRecordApiState = AppState<KycRecordDTO, KycRecordDTO> & {
   currentIndividualRecord: KycRecordDTO | null;
@@ -127,7 +128,7 @@ export const KycRecordApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycRecordApi.findByIdentityNo(data.identityNo).pipe(
             tapResponse({
-              next: (response: KycRecordDTO[]) => {
+              next: (response: KycRecordListDTO[]) => {
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -156,7 +157,7 @@ export const KycRecordApiStore = signalStore(
             .findByIdentityNoPaged(data.identityNo, data.pageNumber, data.pageSize)
             .pipe(
               tapResponse({
-                next: (response: Page<KycRecordDTO>) => {
+                next: (response: Page<KycRecordListDTO>) => {
                   patchState(store, {
                     dataPage: response,
                     loading: false,
@@ -183,7 +184,7 @@ export const KycRecordApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycRecordApi.findByIndividual(data.individualId).pipe(
             tapResponse({
-              next: (response: KycRecordDTO[]) => {
+              next: (response: KycRecordListDTO[]) => {
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -216,7 +217,7 @@ export const KycRecordApiStore = signalStore(
             .findByIndividualPaged(data.individualId, data.pageNumber, data.pageSize)
             .pipe(
               tapResponse({
-                next: (response: Page<KycRecordDTO>) => {
+                next: (response: Page<KycRecordListDTO>) => {
                   patchState(store, {
                     dataPage: response,
                     loading: false,
@@ -243,7 +244,7 @@ export const KycRecordApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycRecordApi.findByOrganisation(data.organisationId).pipe(
             tapResponse({
-              next: (response: KycRecordDTO[]) => {
+              next: (response: KycRecordListDTO[]) => {
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -270,7 +271,7 @@ export const KycRecordApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycRecordApi.findByOrganisationRegistration(data.registrationNo).pipe(
             tapResponse({
-              next: (response: KycRecordDTO[]) => {
+              next: (response: KycRecordListDTO[]) => {
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -307,7 +308,7 @@ export const KycRecordApiStore = signalStore(
             )
             .pipe(
               tapResponse({
-                next: (response: Page<KycRecordDTO>) => {
+                next: (response: Page<KycRecordListDTO>) => {
                   patchState(store, {
                     dataPage: response,
                     loading: false,
@@ -334,7 +335,7 @@ export const KycRecordApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycRecordApi.getAll().pipe(
             tapResponse({
-              next: (response: KycRecordDTO[]) => {
+              next: (response: KycRecordListDTO[]) => {
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -361,7 +362,7 @@ export const KycRecordApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycRecordApi.getAllPaged(data.pageNumber, data.pageSize).pipe(
             tapResponse({
-              next: (response: Page<KycRecordDTO>) => {
+              next: (response: Page<KycRecordListDTO>) => {
                 patchState(store, {
                   dataPage: response,
                   loading: false,
@@ -388,7 +389,7 @@ export const KycRecordApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycRecordApi.pagedSearch(data.criteria).pipe(
             tapResponse({
-              next: (response: Page<KycRecordDTO>) => {
+              next: (response: Page<KycRecordListDTO>) => {
                 patchState(store, {
                   dataPage: response,
                   loading: false,
@@ -469,7 +470,7 @@ export const KycRecordApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycRecordApi.search(data.criteria).pipe(
             tapResponse({
-              next: (response: KycRecordDTO[]) => {
+              next: (response: KycRecordListDTO[]) => {
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -550,7 +551,7 @@ export const KycRecordApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycRecordApi.findMyRecords().pipe(
             tapResponse({
-              next: (response: KycRecordDTO[]) => {
+              next: (response: KycRecordListDTO[]) => {
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -606,7 +607,7 @@ export const KycRecordApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycRecordApi.findMyRecordsPaged(data.pageNumber, data.pageSize).pipe(
             tapResponse({
-              next: (response: Page<KycRecordDTO>) => {
+              next: (response: Page<KycRecordListDTO>) => {
                 patchState(store, {
                   dataPage: response,
                   loading: false,

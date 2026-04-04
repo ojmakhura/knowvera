@@ -51,9 +51,9 @@ public class UniversalStringMatcher {
         return calculateSimilarity(str1, str2) >= threshold;
     }
 
-    public double calculateFilteredSimilarity(String shortAddr, String longAddr) {
-        Set<String> smallSet = getTokens(shortAddr);
-        Set<String> largeSet = getTokens(longAddr);
+    public double calculateFilteredSimilarity(String shortStr, String longStr) {
+        Set<String> smallSet = getTokens(shortStr);
+        Set<String> largeSet = getTokens(longStr);
 
         // Swap if user put them in the wrong order
         if (smallSet.size() > largeSet.size()) {

@@ -6,6 +6,7 @@
 package bw.co.centralkyc.subscription;
 
 import bw.co.centralkyc.invoice.KycInvoiceMapper;
+import bw.co.centralkyc.organisation.OrganisationMapper;
 import bw.co.centralkyc.utils.MappingUtils;
 
 import java.util.Collection;
@@ -13,46 +14,55 @@ import java.util.List;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(
-    componentModel = "spring"
-    , uses = {
-        KycInvoiceMapper.class,
+    componentModel = "spring",
+    uses = {
         MappingUtils.class
     }
 )
-public interface KycSubscriptionMapper {
+public abstract class KycSubscriptionMapper {
+
+    @Autowired
+    protected KycInvoiceMapper kycInvoiceMapper;
+    
+    @Autowired
+    protected OrganisationMapper organisationMapper;
+    
     
     /**
      * Converts this entity to an object of type {@link KycSubscriptionDTO}.
      * @param entity
      * @return KycSubscriptionDTO
      */
-    // WARNING! No conversion for target.startDate (can't convert source.getStartDate():java.util.Date to java.util.Date
-    // WARNING! No conversion for target.endDate (can't convert source.getEndDate():java.util.Date to java.util.Date
-    KycSubscriptionDTO toKycSubscriptionDTO(KycSubscription entity);
+    // WARNING! No conversion for target.startDate (can't convert source.getStartDate():java.util.Date to java.util.Date)
+    // WARNING! No conversion for target.endDate (can't convert source.getEndDate():java.util.Date to java.util.Date)
+    public abstract KycSubscriptionDTO toKycSubscriptionDTO(KycSubscription entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link KycSubscriptionDTO}.
      * @param entities
      * @return Collection<KycSubscriptionDTO>     */
-    List<KycSubscriptionDTO> toKycSubscriptionDTOCollection(Collection<KycSubscription> entities);
+    public abstract List<KycSubscriptionDTO> toKycSubscriptionDTOCollection(Collection<KycSubscription> entities);
 
     /**
      * Converts an instance of type {@link KycSubscriptionDTO} to this DAO's entity.
      * @param kycSubscriptionDTO
      * @return KycSubscription
      */
-    // No conversion for target.startDate (can't convert source.getStartDate():java.util.Date to java.util.Date
-    // No conversion for target.endDate (can't convert source.getEndDate():java.util.Date to java.util.Date
+    // No conversion for target.startDate (can't convert source.getStartDate():java.util.Date to java.util.Date)
+    // No conversion for target.endDate (can't convert source.getEndDate():java.util.Date to java.util.Date)
     @InheritInverseConfiguration
-    KycSubscription kycSubscriptionDTOToEntity(KycSubscriptionDTO kycSubscriptionDTO);
+    public abstract KycSubscription kycSubscriptionDTOToEntity(KycSubscriptionDTO kycSubscriptionDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     // No conversion for target.startDate (can't convert source.getStartDate():java.util.Date to java.util.Date
     // No conversion for target.endDate (can't convert source.getEndDate():java.util.Date to java.util.Date
-    void updateKycSubscriptionFromKycSubscriptionDTO(KycSubscriptionDTO kycSubscriptionDTO, @MappingTarget KycSubscription entity);
+    @InheritInverseConfiguration
+    public abstract void updateKycSubscriptionFromKycSubscriptionDTO(KycSubscriptionDTO kycSubscriptionDTO, @MappingTarget KycSubscription entity);
 
 }

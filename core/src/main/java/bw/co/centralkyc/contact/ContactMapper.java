@@ -13,23 +13,28 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import bw.co.centralkyc.utils.MappingUtils;
+
 @Mapper(
-    componentModel = "spring"
+    componentModel = "spring",
+    uses = {
+        MappingUtils.class
+    }
 )
-public interface ContactMapper {
+public abstract class ContactMapper {
     
     /**
      * Converts this entity to an object of type {@link ContactDTO}.
      * @param entity
      * @return ContactDTO
      */
-    ContactDTO toContactDTO(Contact entity);
+    public abstract ContactDTO toContactDTO(Contact entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link ContactDTO}.
      * @param entities
      * @return Collection<ContactDTO>     */
-    List<ContactDTO> toContactDTOCollection(Collection<Contact> entities);
+    public abstract List<ContactDTO> toContactDTOCollection(Collection<Contact> entities);
 
     /**
      * Converts an instance of type {@link ContactDTO} to this DAO's entity.
@@ -37,10 +42,10 @@ public interface ContactMapper {
      * @return Contact
      */
     @InheritInverseConfiguration
-    Contact contactDTOToEntity(ContactDTO contactDTO);
+    public abstract Contact contactDTOToEntity(ContactDTO contactDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
-    void updateContactFromContactDTO(ContactDTO contactDTO, @MappingTarget Contact entity);
+    public abstract void updateContactFromContactDTO(ContactDTO contactDTO, @MappingTarget Contact entity);
 
 }

@@ -1,6 +1,6 @@
 
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {DocumentAnalyticsStatus} from '@models/bw/co/centralkyc/document/document-analytics-status';
+import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 
 export class DocumentListDTO {
     id: string | any;

@@ -339,7 +339,7 @@
           </div>
           <div class="doc-queue-list">
             @for (entry of editRecordSignalForm.documentsToUpload; track $index) {
-            <div class="doc-queue-item">
+            <!-- <div class="doc-queue-item">
               <div class="doc-queue-icon">
                 <mat-icon>insert_drive_file</mat-icon>
               </div>
@@ -349,7 +349,6 @@
               </div>
               <mat-form-field appearance="outline" class="vault-field doc-type-select">
                 <mat-label>Document type</mat-label>
-                <!-- <mat-select [value]="entry" (valueChange)="setUploadDocumentType($index, $event)" [compareWith]="documentTypeCompare"> -->
                 <mat-select [formField]="entry.documentType" [compareWith]="documentTypeCompare">
                   @if(editRecordSignal().target === TargetEntity.INDIVIDUAL) {
                   @for (docType of settingsApiStore.data().indKycDocuments || []; track docType.id) {
@@ -365,7 +364,7 @@
               <button mat-icon-button type="button" (click)="removeDocument($index)" class="doc-remove-btn" aria-label="Remove file">
                 <mat-icon>delete_outline</mat-icon>
               </button>
-            </div>
+            </div> -->
             }
           </div>
           <div class="doc-queue-actions">

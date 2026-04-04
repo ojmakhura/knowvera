@@ -1,8 +1,8 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {SalaryRangeDTO} from '@models/bw/co/centralkyc/settings/salary-range-dto';
-import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
 import {DocumentTypeDTO} from '@models/bw/co/centralkyc/document/type/document-type-dto';
+import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
+import {SalaryRangeDTO} from '@models/bw/co/centralkyc/settings/salary-range-dto';
 
 export class SettingsDTO extends AuditableDTO {
     kycDuration: number | any;
@@ -47,6 +47,12 @@ export class SettingsDTO extends AuditableDTO {
     
     vat: number | any;
     
+    documentDurationLimit: number | any;
+    
+    dataVerificationThreshold: number | any;
+    
+    maxDataVerificationFailureThreshold: number | any;
+    
     constructor() {
         super();
         this.kycDuration = null;
@@ -70,5 +76,8 @@ export class SettingsDTO extends AuditableDTO {
         this.normalUserRole = null;
         this.timeToAccountCreation = null;
         this.vat = null;
+        this.documentDurationLimit = null;
+        this.dataVerificationThreshold = null;
+        this.maxDataVerificationFailureThreshold = null;
     }
 }

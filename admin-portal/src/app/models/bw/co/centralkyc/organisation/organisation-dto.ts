@@ -1,11 +1,11 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {GeneralStatus} from '@models/bw/co/centralkyc/general-status';
-import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
-import {OrganisationDomain} from '@models/bw/co/centralkyc/organisation/organisation-domain';
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
+import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
 import {DocumentTypeDTO} from '@models/bw/co/centralkyc/document/type/document-type-dto';
+import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
+import {OrganisationDomain} from '@models/bw/co/centralkyc/organisation/organisation-domain';
+import {GeneralStatus} from '@models/bw/co/centralkyc/general-status';
 
 export class OrganisationDTO extends AuditableDTO {
     code: string | any;

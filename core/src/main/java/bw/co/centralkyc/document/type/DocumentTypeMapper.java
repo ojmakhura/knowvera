@@ -5,6 +5,10 @@
 //
 package bw.co.centralkyc.document.type;
 
+import bw.co.centralkyc.document.type.field.ExpectedFieldMapper;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfigMapper;
+import bw.co.centralkyc.utils.MappingUtils;
+
 import java.util.Collection;
 import java.util.List;
 import org.mapstruct.BeanMapping;
@@ -13,34 +17,33 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-
-import bw.co.centralkyc.document.type.field.ExpectedFieldMapper;
-import bw.co.centralkyc.document.type.verification.VerificationDataConfigMapper;
-import bw.co.centralkyc.utils.MappingUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(
     componentModel = "spring",
     uses = {
         MappingUtils.class,
-        ExpectedFieldMapper.class,
-        VerificationDataConfigMapper.class
+        VerificationDataConfigMapper.class,
+        ExpectedFieldMapper.class
     }
 )
-public interface DocumentTypeMapper {
+public abstract class DocumentTypeMapper {
+    
     
     /**
      * Converts this entity to an object of type {@link DocumentTypeDTO}.
      * @param entity
      * @return DocumentTypeDTO
      */
-    // @Mapping(target = "expectedInformation", source = "expectedInformation")
-    DocumentTypeDTO toDocumentTypeDTO(DocumentType entity);
+    @Mapping(source = "expectedFields", target = "expectedFields")
+    @Mapping(source = "verificationDataConfigs", target = "verificationDataConfigs")
+    public abstract DocumentTypeDTO toDocumentTypeDTO(DocumentType entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link DocumentTypeDTO}.
      * @param entities
      * @return Collection<DocumentTypeDTO>     */
-    List<DocumentTypeDTO> toDocumentTypeDTOCollection(Collection<DocumentType> entities);
+    public abstract List<DocumentTypeDTO> toDocumentTypeDTOCollection(Collection<DocumentType> entities);
 
     /**
      * Converts an instance of type {@link DocumentTypeDTO} to this DAO's entity.
@@ -48,12 +51,10 @@ public interface DocumentTypeMapper {
      * @return DocumentType
      */
     @InheritInverseConfiguration
-    @Mapping(target = "documents", ignore = true)
-    DocumentType documentTypeDTOToEntity(DocumentTypeDTO documentTypeDTO);
+    public abstract DocumentType documentTypeDTOToEntity(DocumentTypeDTO documentTypeDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
-    @Mapping(target = "documents", ignore = true)
-    void updateDocumentTypeFromDocumentTypeDTO(DocumentTypeDTO documentTypeDTO, @MappingTarget DocumentType entity);
+    public abstract void updateDocumentTypeFromDocumentTypeDTO(DocumentTypeDTO documentTypeDTO, @MappingTarget DocumentType entity);
 
 }

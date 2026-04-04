@@ -24,7 +24,6 @@ import {
 import { form, required, applyEach, FormField } from '@angular/forms/signals';
 import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
 import { KeyField } from '@app/models/bw/co/centralkyc/key-field';
-import { VerificationTag } from '@app/models/bw/co/centralkyc/kyc/verification/verification-tag';
 import { CompletionRequestMessage } from '@app/models/bw/co/centralkyc/lmstudio/completion-request-message';
 import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
 import Swal from 'sweetalert2';
@@ -32,6 +31,7 @@ import { Loader } from '@app/@shared/loader/loader';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExpectedFieldDTO } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-dto';
 import { VerificationDataConfigDTO } from '@app/models/bw/co/centralkyc/document/type/verification/verification-data-config-dto';
+import { ToastrService } from 'ngx-toastr';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -45,7 +45,6 @@ export class EditDocumentTypeVarsForm {
   expectedFields: Array<ExpectedFieldDTO> = [];
   validationPrompts: Array<CompletionRequestMessage> = [];
   textExtractionPrompts: Array<CompletionRequestMessage> = [];
-  verificationTags: Array<VerificationTag> = [];
   verificationDataConfigs: VerificationDataConfigDTO[] = [];
 }
 
@@ -73,7 +72,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   @Input() id: string = '';
   protected readonly keyFieldOptions = Object.values(KeyField);
   protected readonly promptRoleOptions = ['system', 'user', 'assistant'];
-  protected readonly verificationTagOptions = Object.values(VerificationTag);
+  // protected readonly verificationTagOptions = Object.values(VerificationTag);
   protected readonly verificationDataConfigIndex = signal(0);
 
   editDocumentTypeVarsForm: EditDocumentTypeVarsForm = new EditDocumentTypeVarsForm();
@@ -91,6 +90,12 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   documentTypeApiStore = inject(DocumentTypeApiStore);
 
   loading = linkedSignal(() => this.documentTypeApiStore.loading());
+  loaderMessage = linkedSignal(() => this.documentTypeApiStore.loaderMessage());
+  success = linkedSignal(() => this.documentTypeApiStore.success());
+  error = linkedSignal(() => this.documentTypeApiStore.error());
+  messages = linkedSignal(() => this.documentTypeApiStore.messages());
+
+  toastr = inject(ToastrService);
 
   protected readonly documentTypeKeyFields = linkedSignal(() => this.editDocumentTypeSignal().expectedFields.map((field) => field.keyField).filter((keyField): keyField is KeyField => !!keyField));
 
@@ -103,6 +108,18 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       if(docType) {
         this.editDocumentTypeSignal.set(this.updateDocumentTypeSignal(docType));
       }
+    });
+
+    effect(() => {
+
+      const error = this.error();
+      console.log('Error state changed:', error);
+
+      if(error) {
+        console.log('Error messages:', this.messages());
+        this.toastr.error(this.messages()[0] || 'An error occurred while saving the document type.');
+      }
+
     });
   }
 
@@ -375,24 +392,24 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     }));
   }
 
-  isVerificationTagSelected(tag: VerificationTag): boolean {
-    return this.editDocumentTypeSignal().verificationTags.includes(tag);
-  }
+  // isVerificationTagSelected(tag: VerificationTag): boolean {
+  //   return this.editDocumentTypeSignal().verificationTags.includes(tag);
+  // }
 
-  toggleVerificationTag(tag: VerificationTag, checked: boolean): void {
-    this.editDocumentTypeSignal.update((state) => {
-      const verificationTags = checked
-        ? state.verificationTags.includes(tag)
-          ? state.verificationTags
-          : [...state.verificationTags, tag]
-        : state.verificationTags.filter((item) => item !== tag);
+  // toggleVerificationTag(tag: VerificationTag, checked: boolean): void {
+  //   this.editDocumentTypeSignal.update((state) => {
+  //     const verificationTags = checked
+  //       ? state.verificationTags.includes(tag)
+  //         ? state.verificationTags
+  //         : [...state.verificationTags, tag]
+  //       : state.verificationTags.filter((item) => item !== tag);
 
-      return {
-        ...state,
-        verificationTags,
-      };
-    });
-  }
+  //     return {
+  //       ...state,
+  //       verificationTags,
+  //     };
+  //   });
+  // }
 
   textExtractionPromptsRemove(i: number, selected: CompletionRequestMessage) {
     Swal.fire({
@@ -444,7 +461,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       expectedFields: documentType.expectedFields || [],
       textExtractionPrompts: documentType.textExtractionPrompts || [],
       validationPrompts: documentType.validationPrompts || [],
-      verificationTags: documentType.verificationTags || [],
       verificationDataConfigs: documentType.verificationDataConfigs || [],
     };
   }
@@ -464,7 +480,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.expectedFields = formData.expectedFields || [];
     docType.textExtractionPrompts = formData.textExtractionPrompts || [];
     docType.validationPrompts = formData.validationPrompts || [];
-    docType.verificationTags = formData.verificationTags || [];
     docType.verificationDataConfigs = formData.verificationDataConfigs || [];
 
     this.documentTypeApiStore.save({

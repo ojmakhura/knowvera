@@ -19,34 +19,33 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(
-    componentModel = "spring"
-    , uses = {
+    componentModel = "spring",
+    uses = {
         DocumentMapper.class,
-        KycRecordMapper.class,
         IndividualMapper.class,
         SalaryRangeMapper.class,
         MappingUtils.class
     }
 )
-public interface EmploymentRecordMapper {
+public abstract class EmploymentRecordMapper {
     
     /**
      * Converts this entity to an object of type {@link EmploymentRecordDTO}.
      * @param entity
      * @return EmploymentRecordDTO
      */
-    @Mapping(source = "salaryRange", target = "salaryRange")
     @Mapping(target = "kycRecords", ignore = true)
-    EmploymentRecordDTO toEmploymentRecordDTO(EmploymentRecord entity);
+    @Mapping(source = "salaryRange", target = "salaryRange")
+    public abstract EmploymentRecordDTO toEmploymentRecordDTO(EmploymentRecord entity);
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link EmploymentRecordDTO}.
      * @param entities
      * @return Collection<EmploymentRecordDTO>     */
-    @Mapping(target = "kycRecords", ignore = true)
-    List<EmploymentRecordDTO> toEmploymentRecordDTOCollection(Collection<EmploymentRecord> entities);
+    public abstract List<EmploymentRecordDTO> toEmploymentRecordDTOCollection(Collection<EmploymentRecord> entities);
 
     /**
      * Converts an instance of type {@link EmploymentRecordDTO} to this DAO's entity.
@@ -55,10 +54,11 @@ public interface EmploymentRecordMapper {
      */
     @InheritInverseConfiguration
     @Mapping(target = "kycRecords", ignore = true)
-    EmploymentRecord employmentRecordDTOToEntity(EmploymentRecordDTO employmentRecordDTO);
+    public abstract EmploymentRecord employmentRecordDTOToEntity(EmploymentRecordDTO employmentRecordDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @InheritInverseConfiguration
     @Mapping(target = "kycRecords", ignore = true)
-    void updateEmploymentRecordFromEmploymentRecordDTO(EmploymentRecordDTO employmentRecordDTO, @MappingTarget EmploymentRecord entity);
+    public abstract void updateEmploymentRecordFromEmploymentRecordDTO(EmploymentRecordDTO employmentRecordDTO, @MappingTarget EmploymentRecord entity);
 
 }

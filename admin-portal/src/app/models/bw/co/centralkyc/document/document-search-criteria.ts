@@ -1,6 +1,6 @@
 
-import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
 import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
+import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
 
 export class DocumentSearchCriteria {
     target: TargetEntity | any;

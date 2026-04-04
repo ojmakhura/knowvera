@@ -136,9 +136,9 @@
           <th mat-header-cell *matHeaderCellDef>Name</th>
           <td mat-cell *matCellDef="let row; let index = index">
             <div class="identity-cell">
-              <span class="avatar" [class]="avatarTone(index)">{{ initialsOf(row.ownerDetails.name) }}</span>
+              <span class="avatar" [class]="avatarTone(index)">{{ initialsOf(row.name) }}</span>
               <button type="button" class="entity-link" (click)="openDetails(row)">
-                {{ row.ownerDetails.name || 'Unknown target' }}
+                {{ row.name || 'Unknown target' }}
               </button>
             </div>
           </td>
@@ -146,10 +146,10 @@
 
         <ng-container matColumnDef="identityNo">
           <th mat-header-cell *matHeaderCellDef>Identity No.</th>
-          <td mat-cell *matCellDef="let row" class="mono-cell">{{ row.ownerDetails.identityNo || '—' }}</td>
+          <td mat-cell *matCellDef="let row" class="mono-cell">{{ row.identityNo || '—' }}</td>
         </ng-container>
 
-        
+
 
         <ng-container matColumnDef="kycStatus">
           <th mat-header-cell *matHeaderCellDef>KYC Status</th>

@@ -24,6 +24,7 @@ import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.kyc.KycRecord;
 import bw.co.centralkyc.kyc.KycRecordRepository;
+import bw.co.centralkyc.matcher.UniversalStringMatcher;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
 import bw.co.centralkyc.organisation.client.ClientRequestRepository;
@@ -31,12 +32,19 @@ import bw.co.centralkyc.subscription.KycSubscriptionRepository;
 import jakarta.validation.Valid;
 
 import java.io.File;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -65,11 +73,13 @@ public class DocumentServiceImpl
     private final KycSubscriptionRepository kycSubscriptionRepository;
     private final DocumentTypeRepository documentTypeRepository;
     private final DocumentTypeMapper documentTypeMapper;
+    private final UniversalStringMatcher stringMatcher;
 
     public DocumentServiceImpl(DocumentDao documentDao, DocumentRepository documentRepository,
             OrganisationRepository organisationRepository, IndividualRepository individualRepository,
             KycRecordRepository kycRecordRepository, ClientRequestRepository clientRequestRepository,
             KycSubscriptionRepository kycSubscriptionRepository, DocumentTypeMapper documentTypeMapper,
+            UniversalStringMatcher stringMatcher,
             DocumentMapper documentMapper, MessageSource messageSource, DocumentTypeRepository documentTypeRepository) {
         super(documentDao, documentRepository, documentMapper, messageSource);
         // TODO Auto-generated constructor stub
@@ -81,6 +91,7 @@ public class DocumentServiceImpl
         this.kycSubscriptionRepository = kycSubscriptionRepository;
         this.documentTypeRepository = documentTypeRepository;
         this.documentTypeMapper = documentTypeMapper;
+        this.stringMatcher = stringMatcher;
     }
 
     /**
@@ -363,12 +374,6 @@ public class DocumentServiceImpl
         return dto;
     }
 
-    @Override
-    protected DocumentDTO handleAnalyseDocument(String id) throws Exception {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'handleAnalyseDocument'");
-    }
-
     private void extractExpectedInformation(Document doc) {
         // Placeholder for document analysis logic, e.g., using OCR or metadata
         // extraction
@@ -422,7 +427,6 @@ public class DocumentServiceImpl
         Collection<ExpectedField> fields = dt.getExpectedFields();
         Collection<VerificationDataConfig> dataConfigs = dt.getVerificationDataConfigs();
 
-
         if (record.getTarget() == TargetEntity.INDIVIDUAL) {
 
             Individual individual = individualRepository.findById(UUID.fromString(record.getTargetId()))
@@ -435,7 +439,7 @@ public class DocumentServiceImpl
 
             Organisation organisation = organisationRepository.findById(UUID.fromString(record.getTargetId()))
                     .orElseThrow(() -> new DocumentServiceException("No organisation found for document target"));
-                    
+
             extractedInfo = getOrganisationExpectedInformation(organisation,
                     dt,
                     extractedInfo);
@@ -585,4 +589,196 @@ public class DocumentServiceImpl
 
     }
 
+    @Override
+    protected DocumentDTO handleVerifyData(String id, String user) throws Exception {
+
+        Document document = documentRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new Exception("Document not found"));
+
+        if (MapUtils.isEmpty(document.getExtractedInformation())) {
+
+            return documentMapper.toDocumentDTO(document);
+        }
+
+        DocumentType docType = document.getDocumentType();
+        Map<KeyField, String> fielNameMap = docType.getExpectedFields().stream()
+                .collect(Collectors.toMap(ExpectedField::getKeyField, ExpectedField::getField));
+
+        document.setVerificationStatus(DocumentVerificationStatus.UNVERIFIED);
+
+        List<DataVerification> verifications = new ArrayList<>();
+
+        for (VerificationDataConfig config : docType.getVerificationDataConfigs()) {
+
+            DataVerification verification = new DataVerification();
+            verification.setVerificationDataConfigId(config.getId().toString());
+            verification.setVerificationDataName(config.getName());
+
+            StringBuilder expectedBuilder = new StringBuilder();
+            StringBuilder extractedBuilder = new StringBuilder();
+
+            for (KeyField keyField : config.getKeyFields()) {
+
+                String fieldName = fielNameMap.get(keyField);
+
+                String extracted = document.getExpectedInformation() != null
+                        ? document.getExpectedInformation().toString()
+                        : null;
+
+                if (document.getExtractedInformation().containsKey(fieldName)) {
+
+                    if (extractedBuilder.length() > 0) {
+                        extractedBuilder.append(" ");
+                    }
+
+                    Object info = document.getExtractedInformation().get(fieldName);
+
+                    if (info != null) {
+                        extractedBuilder.append(info.toString());
+                    }
+
+                }
+
+                String expected = document.getExpectedInformation() != null
+                        ? document.getExpectedInformation().toString()
+                        : null;
+
+                if (document.getExpectedInformation().containsKey(fieldName)) {
+
+                    if (expectedBuilder.length() > 0) {
+                        expectedBuilder.append(" ");
+                    }
+
+                    Object info = document.getExpectedInformation().get(fieldName);
+
+                    if (info != null) {
+
+                        expectedBuilder.append(document.getExpectedInformation().get(fieldName).toString());
+                    }
+                }
+
+                boolean continueProcessing = continueProcessing(keyField,
+                        expected,
+                        extracted);
+
+                if (!continueProcessing) {
+                    document.setVerificationStatus(DocumentVerificationStatus.REJECTED);
+                }
+            }
+
+            verification.setValues(
+                    List.of(
+                            expectedBuilder.toString(),
+                            extractedBuilder.toString()));
+
+            double similarity = 0.0;
+
+            if (extractedBuilder.length() > 0 && expectedBuilder.length() > 0) {
+                similarity = stringMatcher.calculateFilteredSimilarity(extractedBuilder.toString(),
+                        expectedBuilder.toString());
+
+            } else if (expectedBuilder.length() == 0 && extractedBuilder.length() > 0) {
+                similarity = 1.0;
+            } else if (expectedBuilder.length() > 0 && extractedBuilder.length() == 0) {
+                similarity = 0.0;
+            } else {
+
+                similarity = 1.0;
+            }
+
+            verification.setScore(similarity);
+
+            if (similarity >= 0.8) {
+
+                verification.setVerificationStatus(DataVerificationStatus.VERIFIED);
+            } else if (similarity >= 0.4) {
+                verification.setVerificationStatus(DataVerificationStatus.UNVERIFIED);
+            } else {
+                verification.setVerificationStatus(DataVerificationStatus.VERIFICATION_FAILED);
+            }
+
+            verifications.add(verification);
+        }
+
+        document.setDataVerifications(verifications);
+
+        if (document.getVerificationStatus() != DocumentVerificationStatus.REJECTED) {
+
+            boolean hasManualReview = verifications.stream()
+                    .anyMatch(
+                            verification -> verification.getVerificationStatus() == DataVerificationStatus.UNVERIFIED);
+
+            if (!hasManualReview) {
+                double score = verifications.stream()
+                        .mapToDouble(DataVerification::getScore)
+                        .average()
+                        .orElse(0.0);
+
+                if(score >= 0.8) {
+                    document.setVerificationStatus(DocumentVerificationStatus.VERIFIED);
+                } else if(score >= 0.4) {
+                    document.setVerificationStatus(DocumentVerificationStatus.MANUAL_REVIEW);
+                } else {
+                    document.setVerificationStatus(DocumentVerificationStatus.REJECTED);
+                }
+
+            } else {
+
+                document.setVerificationStatus(DocumentVerificationStatus.MANUAL_REVIEW);
+            }
+
+        }
+
+        document.setModifiedAt(LocalDateTime.now());
+        document.setModifiedBy(user);
+        document = documentRepository.save(document);
+
+        DocumentDTO dto = documentMapper.toDocumentDTO(document);
+        setTargetLabel(dto);
+        return dto;
+
+    }
+
+    private boolean continueProcessing(KeyField keyField, String expected, Object extracted) {
+
+        if (StringUtils.isBlank(expected)) {
+
+            return true;
+        }
+
+        boolean isExpectedString = expected instanceof String;
+        boolean isExtractedString = extracted instanceof String;
+
+        String expectedStr = ((String) expected).toLowerCase();
+        String extractedStr = ((String) extracted).toLowerCase();
+
+        switch (keyField) {
+            case INDIVIDUAL_IDENTITY_NO, ORGANISATION_REGISTRATION_NO:
+                if (isExpectedString && isExtractedString) {
+
+                    return expectedStr.equals(extractedStr);
+                }
+                break;
+
+            case INDIVIDUAL_FIRST_NAME, INDIVIDUAL_SURNAME, ORGANISATION_NAME:
+                if (isExpectedString && isExtractedString) {
+
+                    return stringMatcher.calculateFilteredSimilarity(expectedStr, extractedStr) < 0.8;
+                }
+                break;
+
+            case DOCUMENT_DATE:
+
+                LocalDate documentDate = LocalDate.parse(expectedStr);
+
+                LocalDate expiryDate = documentDate.plusMonths(3);
+
+                return LocalDate.now().isBefore(expiryDate);
+
+            default:
+                break;
+        }
+
+        return true;
+    }
 }

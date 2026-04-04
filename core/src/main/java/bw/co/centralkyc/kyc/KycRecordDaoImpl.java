@@ -16,9 +16,6 @@ import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.individual.employment.EmploymentRecordDTO;
 import bw.co.centralkyc.individual.employment.EmploymentRecordMapper;
 import bw.co.centralkyc.individual.employment.EmploymentRecordRepository;
-import bw.co.centralkyc.kyc.verification.KycVerificationDTO;
-import bw.co.centralkyc.kyc.verification.KycVerificationMapper;
-import bw.co.centralkyc.kyc.verification.KycVerificationRepository;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -39,20 +36,17 @@ public class KycRecordDaoImpl
     private final IndividualRepository individualRepository;
     private final OrganisationRepository organisationRepository;
     private final EmploymentRecordMapper employmentRecordMapper;
-    private final KycVerificationMapper kycVerificationMapper;
     private final DocumentMapper documentMapper;
 
     public KycRecordDaoImpl(DocumentRepository documentRepository, IndividualRepository individualRepository,
-            EmploymentRecordMapper employmentRecordMapper, KycVerificationMapper kycVerificationMapper, DocumentMapper documentMapper,
-            EmploymentRecordRepository employmentRecordRepository, KycVerificationRepository kycVerificationRepository,
-            KycRecordRepository kycRecordRepository, OrganisationRepository organisationRepository) {
-        super(documentRepository, employmentRecordRepository, kycVerificationRepository, kycRecordRepository);
+            EmploymentRecordMapper employmentRecordMapper, DocumentMapper documentMapper,
+            EmploymentRecordRepository employmentRecordRepository, KycRecordRepository kycRecordRepository, OrganisationRepository organisationRepository) {
+        super(documentRepository, employmentRecordRepository, kycRecordRepository);
         // TODO Auto-generated constructor stub
 
         this.individualRepository = individualRepository;
         this.organisationRepository = organisationRepository;
         this.employmentRecordMapper = employmentRecordMapper;
-        this.kycVerificationMapper = kycVerificationMapper;
         this.documentMapper = documentMapper;
     }
 
@@ -195,5 +189,11 @@ public class KycRecordDaoImpl
     public KycRecord kycRecordSummaryToEntity(KycRecordSummary kycRecordSummary) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'kycRecordSummaryToEntity'");
+    }
+
+    @Override
+    public KycRecordListDTO toKycRecordListDTO(KycRecord entity) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'toKycRecordListDTO'");
     }
 }

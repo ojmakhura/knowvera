@@ -21,106 +21,99 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring", uses = {
+@Mapper(
+    componentModel = "spring", uses = {
         DocumentMapper.class,
         EmploymentRecordMapper.class,
         BranchMapper.class,
         OrganisationMapper.class,
         MappingUtils.class
 })
-public interface IndividualMapper {
-
+public abstract class IndividualMapper {
+    
     /**
      * Converts this entity to an object of type {@link IndividualDTO}.
-     * 
      * @param entity
      * @return IndividualDTO
      */
+    @Mapping(target = "organisation", ignore = true)
     @Mapping(source = "branch", target = "branch")
-    @Mapping(source = "employmentRecords", target = "employmentRecords")
-    @Mapping(source = "phoneNumbers", target = "phoneNumbers")
-    IndividualDTO toIndividualDTO(Individual individual);
+    @Mapping(source = "branch.organisation.name", target = "branch.organisation")
+    @Mapping(source = "branch.organisation.id", target = "branch.organisationId")
+    @Mapping(target = "employmentRecords", ignore = true)
+    public abstract IndividualDTO toIndividualDTO(Individual entity);
 
-    /**
-     * Converts this DAO's entity to a Collection of instances of type
-     * {@link IndividualDTO}.
-     * 
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link IndividualDTO}.
      * @param entities
-     * @return Collection<IndividualDTO>
-     */
-    List<IndividualDTO> toIndividualDTOCollection(Collection<Individual> entities);
+     * @return Collection<IndividualDTO>     */
+    public abstract List<IndividualDTO> toIndividualDTOCollection(Collection<Individual> entities);
 
     /**
      * Converts an instance of type {@link IndividualDTO} to this DAO's entity.
-     * 
      * @param individualDTO
      * @return Individual
      */
-    // source.getPhoneNumbers():bw.co.centralkyc.PhoneNumber to java.util.Map
     @InheritInverseConfiguration
     @Mapping(target = "branch", ignore = true)
     @Mapping(target = "employmentRecords", ignore = true)
     @Mapping(target = "documents", ignore = true)
-    Individual individualDTOToEntity(IndividualDTO individualDTO);
+    public abstract Individual individualDTOToEntity(IndividualDTO individualDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    // No conversion for target.phoneNumbers (can't convert
-    // source.getPhoneNumbers():bw.co.centralkyc.PhoneNumber to java.util.Map
-    void updateIndividualFromIndividualDTO(IndividualDTO individualDTO, @MappingTarget Individual individual);
+    @InheritInverseConfiguration
+    public abstract void updateIndividualFromIndividualDTO(IndividualDTO individualDTO, @MappingTarget Individual entity);
 
     /**
      * Converts this entity to an object of type {@link IndividualListDTO}.
-     * 
      * @param entity
      * @return IndividualListDTO
      */
-    @Mapping(target = "name", expression = "java(getIndividualName(individual))")
-    IndividualListDTO toIndividualListDTO(Individual individual);
+    @Mapping(target = "name", expression = "java(getIndividualName(entity))")
+    public abstract IndividualListDTO toIndividualListDTO(Individual entity);
 
-    default String getIndividualName(Individual individual) {
+    protected String getIndividualName(Individual entity) {
 
         StringBuilder nameBuilder = new StringBuilder();
-        if (StringUtils.isNotBlank(individual.getFirstName())) {
-            nameBuilder.append(individual.getFirstName());
+        if (StringUtils.isNotBlank(entity.getFirstName())) {
+            nameBuilder.append(entity.getFirstName());
         }
 
-        if(StringUtils.isNotBlank(individual.getMiddleName())) {
+        if(StringUtils.isNotBlank(entity.getMiddleName())) {
             if (nameBuilder.length() > 0) {
                 nameBuilder.append(" ");
             }
-            nameBuilder.append(individual.getMiddleName());
+            nameBuilder.append(entity.getMiddleName());
         }
 
-        if (StringUtils.isNotBlank(individual.getSurname())) {
+        if (StringUtils.isNotBlank(entity.getSurname())) {
             if (nameBuilder.length() > 0) {
                 nameBuilder.append(" ");
             }
-            nameBuilder.append(individual.getSurname());
+            nameBuilder.append(entity.getSurname());
         }
 
         return nameBuilder.toString();
     }
 
-    /**
-     * Converts this DAO's entity to a Collection of instances of type
-     * {@link IndividualListDTO}.
-     * 
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link IndividualListDTO}.
      * @param entities
-     * @return Collection<IndividualListDTO>
-     */
-    List<IndividualListDTO> toIndividualListDTOCollection(Collection<Individual> entities);
+     * @return Collection<IndividualListDTO>     */
+    public abstract List<IndividualListDTO> toIndividualListDTOCollection(Collection<Individual> entities);
 
     /**
      * Converts an instance of type {@link IndividualListDTO} to this DAO's entity.
-     * 
      * @param individualListDTO
      * @return Individual
      */
     @InheritInverseConfiguration
-    Individual individualListDTOToEntity(IndividualListDTO individualListDTO);
+    public abstract Individual individualListDTOToEntity(IndividualListDTO individualListDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateIndividualFromIndividualListDTO(IndividualListDTO individualListDTO, @MappingTarget Individual entity);
+    @InheritInverseConfiguration
+    public abstract void updateIndividualFromIndividualListDTO(IndividualListDTO individualListDTO, @MappingTarget Individual entity);
 
 }

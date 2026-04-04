@@ -1,6 +1,6 @@
 
-import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
+import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
 
 export class IndividualSearchCriteria {
     emailAddress: string | any;

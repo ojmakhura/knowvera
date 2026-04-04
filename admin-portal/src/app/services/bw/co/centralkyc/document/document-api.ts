@@ -97,4 +97,8 @@ export class DocumentApi {
   public analyseDocument(id: string): Observable<DocumentDTO> {
     return this.http.get<DocumentDTO>(`${this.path}/${id}/analysis`);
   }
+
+  public verifyData(id: string): Observable<DocumentDTO> {
+    return this.http.get<DocumentDTO>(`${this.path}/${id}/data-verification`);
+  }
 }

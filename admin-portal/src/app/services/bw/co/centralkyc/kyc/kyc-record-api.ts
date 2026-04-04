@@ -9,6 +9,7 @@ import { SearchObject } from '@models/search-object';
 import { KycRecordSearchCriteria } from '@app/models/bw/co/centralkyc/kyc/kyc-record-search-criteria';
 import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
+import { KycRecordListDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-list-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -34,50 +35,50 @@ export class KycRecordApi {
     return this.http.get<KycRecordDTO>(`${this.path}/${id}`);
   }
 
-  public findByIdentityNo(identityNo: string): Observable<KycRecordDTO[]> {
+  public findByIdentityNo(identityNo: string): Observable<KycRecordListDTO[]> {
 
-    return this.http.get<KycRecordDTO[]>(`${this.path}/by-identity/${identityNo}`);
+    return this.http.get<KycRecordListDTO[]>(`${this.path}/by-identity/${identityNo}`);
   }
 
-  public findByIdentityNoPaged(identityNo: string, pageNumber: number, pageSize: number): Observable<Page<KycRecordDTO>> {
+  public findByIdentityNoPaged(identityNo: string, pageNumber: number, pageSize: number): Observable<Page<KycRecordListDTO>> {
 
 
-    return this.http.get<Page<KycRecordDTO>>(`${this.path}/by-identity/${identityNo}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    return this.http.get<Page<KycRecordListDTO>>(`${this.path}/by-identity/${identityNo}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
   }
 
-  public findByIndividual(individualId: string): Observable<KycRecordDTO[]> {
-    return this.http.get<KycRecordDTO[]>(`${this.path}/by-individual/${individualId}`);
+  public findByIndividual(individualId: string): Observable<KycRecordListDTO[]> {
+    return this.http.get<KycRecordListDTO[]>(`${this.path}/by-individual/${individualId}`);
   }
 
-  public findByIndividualPaged(individualId: string, pageNumber: number, pageSize: number): Observable<Page<KycRecordDTO>> {
-    return this.http.get<Page<KycRecordDTO>>(`${this.path}/by-individual/${individualId}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  public findByIndividualPaged(individualId: string, pageNumber: number, pageSize: number): Observable<Page<KycRecordListDTO>> {
+    return this.http.get<Page<KycRecordListDTO>>(`${this.path}/by-individual/${individualId}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
   }
 
-  public findByOrganisation(organisationId: string): Observable<KycRecordDTO[]> {
-    return this.http.get<KycRecordDTO[]>(`${this.path}/by-organisation/${organisationId}`);
+  public findByOrganisation(organisationId: string): Observable<KycRecordListDTO[]> {
+    return this.http.get<KycRecordListDTO[]>(`${this.path}/by-organisation/${organisationId}`);
   }
 
-  public findByOrganisationRegistration(registrationNo: string): Observable<KycRecordDTO[]> {
-    return this.http.get<KycRecordDTO[]>(`${this.path}/by-organisation-registration/${registrationNo}`);
+  public findByOrganisationRegistration(registrationNo: string): Observable<KycRecordListDTO[]> {
+    return this.http.get<KycRecordListDTO[]>(`${this.path}/by-organisation-registration/${registrationNo}`);
   }
 
-  public findByOrganisationRegistrationPaged(registrationNo: string, pageNumber: number, pageSize: number): Observable<Page<KycRecordDTO>> {
-    return this.http.get<Page<KycRecordDTO>>(`${this.path}/by-organisation_registration/${registrationNo}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  public findByOrganisationRegistrationPaged(registrationNo: string, pageNumber: number, pageSize: number): Observable<Page<KycRecordListDTO>> {
+    return this.http.get<Page<KycRecordListDTO>>(`${this.path}/by-organisation_registration/${registrationNo}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
   }
 
-  public getAll(): Observable<KycRecordDTO[]> {
+  public getAll(): Observable<KycRecordListDTO[]> {
 
-    return this.http.get<KycRecordDTO[]>(`${this.path}`);
+    return this.http.get<KycRecordListDTO[]>(`${this.path}`);
   }
 
-  public getAllPaged(pageNumber: number, pageSize: number): Observable<Page<KycRecordDTO>> {
+  public getAllPaged(pageNumber: number, pageSize: number): Observable<Page<KycRecordListDTO>> {
 
-    return this.http.get<Page<KycRecordDTO>>(`${this.path}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    return this.http.get<Page<KycRecordListDTO>>(`${this.path}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
   }
 
-  public pagedSearch(criteria: SearchObject<KycRecordSearchCriteria>): Observable<Page<KycRecordDTO>> {
+  public pagedSearch(criteria: SearchObject<KycRecordSearchCriteria>): Observable<Page<KycRecordListDTO>> {
 
-    return this.http.post<Page<KycRecordDTO>>(`${this.path}/search/paged`, criteria);
+    return this.http.post<Page<KycRecordListDTO>>(`${this.path}/search/paged`, criteria);
   }
 
   public remove(id: string): Observable<boolean> {
@@ -90,9 +91,9 @@ export class KycRecordApi {
     return this.http.post<KycRecordDTO>(`${this.path}`, kycRecord);
   }
 
-  public search(criteria: KycRecordSearchCriteria): Observable<KycRecordDTO[]> {
+  public search(criteria: KycRecordSearchCriteria): Observable<KycRecordListDTO[]> {
 
-    return this.http.post<KycRecordDTO[]>(`${this.path}/search`, criteria);
+    return this.http.post<KycRecordListDTO[]>(`${this.path}/search`, criteria);
   }
 
   public findMyCurrentRecord(ownerType: TargetEntity): Observable<KycRecordDTO> {
@@ -100,14 +101,14 @@ export class KycRecordApi {
     return this.http.get<KycRecordDTO>(`${this.path}/my_current?ownerType=${ownerType}`);
   }
 
-  public findMyRecords(): Observable<KycRecordDTO[]> {
+  public findMyRecords(): Observable<KycRecordListDTO[]> {
 
-    return this.http.get<KycRecordDTO[]>(`${this.path}/mine`);
+    return this.http.get<KycRecordListDTO[]>(`${this.path}/mine`);
   }
 
-  public findMyRecordsPaged(pageNumber: number, pageSize: number): Observable<Page<KycRecordDTO>> {
+  public findMyRecordsPaged(pageNumber: number, pageSize: number): Observable<Page<KycRecordListDTO>> {
 
-    return this.http.get<Page<KycRecordDTO>>(`${this.path}/mine/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    return this.http.get<Page<KycRecordListDTO>>(`${this.path}/mine/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
   }
 
   public createNew(record: KycRecordDTO, files: File[]): Observable<KycRecordDTO> {
@@ -130,7 +131,7 @@ export class KycRecordApi {
     files.forEach((file, index) => {
       formData.append(`files`, file);
     });
-    
+
     return this.http.post<KycRecordDTO>(`${this.path}/${id}/update-files`, formData);
 
   }

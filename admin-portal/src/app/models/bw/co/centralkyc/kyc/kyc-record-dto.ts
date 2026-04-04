@@ -1,13 +1,13 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {OwnerDetails} from '@models/bw/co/centralkyc/kyc/owner-details';
-import {EmploymentRecordDTO} from '@models/bw/co/centralkyc/individual/employment/employment-record-dto';
-import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
-import {KycVerificationDTO} from '@models/bw/co/centralkyc/kyc/verification/kyc-verification-dto';
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import {SourceOfFunds} from '@models/bw/co/centralkyc/source-of-funds';
+import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
+import {EmploymentRecordDTO} from '@models/bw/co/centralkyc/individual/employment/employment-record-dto';
 import {DeclarationDTO} from '@models/bw/co/centralkyc/kyc/declaration-dto';
+import {SourceOfFunds} from '@models/bw/co/centralkyc/source-of-funds';
+import {OwnerDetails} from '@models/bw/co/centralkyc/kyc/owner-details';
+import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
+import {VerificationSummaryEntry} from '@models/bw/co/centralkyc/kyc/verification-summary-entry';
 
 export class KycRecordDTO extends AuditableDTO {
     expiryDate: Date | any;
@@ -30,12 +30,14 @@ export class KycRecordDTO extends AuditableDTO {
     
     sourceOfFundsDetails: string | any;
     
-
-    kycVerification: KycVerificationDTO | any;
     ref: string | any;
     
 
     ownerDetails: OwnerDetails | any;
+    recordSummary: string | any;
+    
+    dataVerificationSummaries: Array<VerificationSummaryEntry> | any;
+    
     constructor() {
         super();
         this.expiryDate = null;
@@ -48,8 +50,9 @@ export class KycRecordDTO extends AuditableDTO {
         this.declaration = null;
         this.sourceOfFunds = [];
         this.sourceOfFundsDetails = null;
-        this.kycVerification = null;
         this.ref = null;
         this.ownerDetails = null;
+        this.recordSummary = null;
+        this.dataVerificationSummaries = [];
     }
 }

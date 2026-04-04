@@ -1,3 +1,4 @@
+import { VerificationSummaryEntry } from './../../../models/bw/co/centralkyc/kyc/verification-summary-entry';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -44,7 +45,6 @@ import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organis
 import { IndividualSearchCriteria } from '@app/models/bw/co/centralkyc/individual/individual-search-criteria';
 import { QuillEditorComponent, QuillModule } from 'ngx-quill';
 import { OwnerDetails } from '@app/models/bw/co/centralkyc/kyc/owner-details';
-import { KycVerificationDTO } from '@app/models/bw/co/centralkyc/kyc/verification/kyc-verification-dto';
 import { EmploymentRecordDTO } from '@app/models/bw/co/centralkyc/individual/employment/employment-record-dto';
 import Swal from 'sweetalert2';
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
@@ -74,8 +74,9 @@ export class EditRecordVarsForm {
   documents: DocumentDTO[] | any = [];
   files: File[] | any = [];
   documentsToUpload: QueuedDocumentUpload[] = [];
-  kycVerification: KycVerificationDTO | any = new KycVerificationDTO();
+  dataVerificationSummaries: VerificationSummaryEntry[] = [];
   employmentRecord: EmploymentRecordDTO | any = new EmploymentRecordDTO();
+  recordSummary: string | any = null;
 
   constructor() {
     this.declaration = new DeclarationDTO();
@@ -306,7 +307,8 @@ export class RecordEdit implements OnInit {
       modifiedAt: this.editRecordSignal().modifiedAt,
       modifiedBy: this.editRecordSignal().modifiedBy,
       employmentRecord: this.editRecordSignal().employmentRecord,
-      kycVerification: this.editRecordSignal().kycVerification,
+      dataVerificationSummaries: this.editRecordSignal().dataVerificationSummaries,
+      recordSummary: this.editRecordSignal().recordSummary,
     }
 
     console.log('Saving record with data:', this.editRecordSignal());
@@ -367,6 +369,7 @@ export class RecordEdit implements OnInit {
       [KycComplianceStatus.EXPIRED]: 'Expired',
       [KycComplianceStatus.ABSENT]: 'Absent',
       [KycComplianceStatus.INCOMPLETE]: 'Incomplete',
+      [KycComplianceStatus.DOCUMENT_VERIFICATION_FAILED]: 'Rejected',
     };
     return labels[value] || value;
   }
