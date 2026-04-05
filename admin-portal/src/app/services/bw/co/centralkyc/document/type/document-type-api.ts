@@ -11,7 +11,7 @@ import { SearchObject } from '@models/search-object';
 })
 export class DocumentTypeApi {
 
-    protected path = '/document/type';
+    protected path = '/document-type';
 
     private http = inject(HttpClient);
 

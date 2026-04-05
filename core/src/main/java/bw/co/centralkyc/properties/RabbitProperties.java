@@ -36,6 +36,10 @@ public class RabbitProperties {
     private final String textCleanupQueue;
     private final String textCleanupQueueRoutingKey;
 
+    private final String kycVerificationQueueExchange;
+    private final String kycVerificationQueue;
+    private final String kycVerificationQueueRoutingKey;
+
     public String getHost() {
         return host;
     }
@@ -122,5 +126,17 @@ public class RabbitProperties {
 
     public String getTextCleanupQueueRoutingKey() {
         return textCleanupQueueRoutingKey;
+    }
+
+    public String getKycVerificationQueueExchange() {
+        return kycVerificationQueueExchange;
+    }
+
+    public String getKycVerificationQueue() {
+        return kycVerificationQueue;
+    }
+
+    public String getKycVerificationQueueRoutingKey() {
+        return kycVerificationQueueRoutingKey;
     }
 }

@@ -4,6 +4,9 @@ import java.io.IOException;
 
 import bw.co.centralkyc.document.DocumentValidationResults;
 import bw.co.centralkyc.document.DocumentVerificationStatus;
+import bw.co.centralkyc.kyc.KycRecord;
+import bw.co.centralkyc.kyc.KycRecordRepository;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -30,6 +33,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +49,7 @@ public class DocumentProcessorService {
     @Value("${app.tessdata-langs}")
     private String tessdataLangs;
 
+    private final KycRecordRepository kycRecordRepository;
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
     private final DocumentService documentService;
@@ -195,10 +200,20 @@ public class DocumentProcessorService {
                         results.setTypeMatch(true);
                     } else {
                         results.setTypeMatch(false);
+                        document.setVerificationStatus(DocumentVerificationStatus.REJECTED);
                     }
 
                     document.setValidationResults(results);
+                    document.setAnalyticsStatus(DocumentAnalyticsStatus.TYPE_CONFIRMATION_COMPLETE);
 
+                    if(document.getVerificationStatus() == DocumentVerificationStatus.REJECTED) {
+                        log.info("Document ID {} rejected due to type mismatch (similarity: {})",
+                                document.getId(), typeSimilarity);
+
+                        // TODO: Send a notification to the user about the rejection and the reason for it
+                        return; // Skip further processing for this document
+
+                    }
                     if (results.getMatch()) {
                         document.setVerificationStatus(DocumentVerificationStatus.VERIFIED);
                     } else {
@@ -210,15 +225,18 @@ public class DocumentProcessorService {
                         }
                     }
 
-                    // Send this to the next queue for further processing
-                    rabbitTemplate.convertAndSend(
-                            rabbitProperties.getInformationConfirmationQueueExchange(),
-                            rabbitProperties.getInformationConfirmationQueueRoutingKey(),
-                            new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
-
-                    document.setAnalyticsStatus(DocumentAnalyticsStatus.TYPE_CONFIRMATION_COMPLETE);
-
                     documentService.save(document);
+
+                    if(document.getVerificationStatus() == DocumentVerificationStatus.REJECTED || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
+                        log.info("Document ID {} requires manual review or has been rejected (verification status: {})",
+                                document.getId(), document.getVerificationStatus());
+
+                        KycRecord record = kycRecordRepository.getReferenceById(UUID.fromString(document.getTargetId()));
+                        this.rabbitTemplate.convertAndSend(
+                            rabbitProperties.getKycVerificationQueueExchange(),
+                            rabbitProperties.getKycVerificationQueueRoutingKey(),
+                            new QueueObject(document.getTargetId(), record.getTarget(), record.getTargetId()));
+                    }
 
                     this.rabbitTemplate.convertAndSend(
                             rabbitProperties.getInformationConfirmationQueueExchange(),

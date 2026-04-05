@@ -83,12 +83,10 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     return 'No Match';
   });
 
-  // fileContent = linkedSignal(() => this.document()?.fileContent ?? '');
   fileContentCopied = signal(false);
-  // verificationTagResults = linkedSignal(() => this.document().verificationTagResults ?? []);
-  // readonly verificationTagOptions: VerificationTag[] = Object.values(VerificationTag);
-  // readonly verificationTagStatusOptions: VerificationTagStatus[] =
-  //   Object.values(VerificationTagStatus);
+
+  metadataEditing = signal(false);
+  metadataFields = signal<Array<{ key: string; value: string }>>([]);
 
   documentForm = form(this.document, (path) => {
     readonly(path.id);
@@ -99,22 +97,6 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   });
 
   constructor() {
-    // effect(() => {
-    //   const results = this.document()?.verificationTagResults ?? [];
-    //   this.verificationTagResults.set(
-    //     results.map((result: any) => ({
-    //       verificationTag: (result?.verificationTag as VerificationTag) ?? null,
-    //       verificationTagStatus:
-    //         (result?.verificationTagStatus as VerificationTagStatus) ??
-    //         VerificationTagStatus.UNCHECKED,
-    //       score: typeof result?.score === 'number' ? result.score : null,
-    //       values: Array.isArray(result?.values)
-    //         ? result.values.map((value: any) => String(value))
-    //         : [],
-    //     })),
-    //   );
-    // });
-
     effect(() => {
       let messages = this.messages();
 
@@ -133,23 +115,6 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
       console.log('Error state changed:', error);
 
     });
-  }
-
-  addVerificationTagResult(): void {
-    // this.document.update((doc) => {
-    //   if (!doc) return doc;
-    //   const newResult: VerificationTagResult = {
-    //     verificationTag: null,
-    //     verificationTagStatus: VerificationTagStatus.UNCHECKED,
-    //     score: 0,
-    //     values: [],
-    //   };
-    //   const updatedResults = [newResult, ...(doc.verificationTagResults ?? [])];
-    //   return {
-    //     ...doc,
-    //     verificationTagResults: updatedResults,
-    //   };
-    // });
   }
 
   removeVerificationTagResult(index: number): void {
@@ -242,20 +207,6 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     return Array.from({ length: 10 }, (_, i) => i < Math.round(score / 10));
   });
 
-  // get extractionRows(): Array<{ field: string; expected: any; extracted: any; matches: boolean }> {
-  //   const doc = this.document();
-  //   if (!doc) return [];
-  //   const expected = doc.expectedInformation ?? {};
-  //   const extracted = doc.extractedInformation ?? {};
-  //   const fields = Array.from(new Set([...Object.keys(expected), ...Object.keys(extracted)]));
-  //   return fields.map((field) => ({
-  //     field,
-  //     expected: expected[field] ?? '—',
-  //     extracted: extracted[field] ?? '—',
-  //     matches: String(expected[field]) === String(extracted[field]),
-  //   }));
-  // }
-
   get integritySignalRows(): Array<{ key: string; label: string; value: any; isBoolean: boolean }> {
     const scores = this.document()?.validationResults?.signalScores;
     if (!scores) return [];
@@ -286,17 +237,72 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     return icons[key] ?? 'check_circle';
   }
 
-  // verificationTagStatusLabel(status: VerificationTagStatus | string | null | undefined): string {
-  //   switch (status) {
-  //     case VerificationTagStatus.SUCCESSFUL:
-  //       return 'Successful';
-  //     case VerificationTagStatus.FAILED:
-  //       return 'Failed';
-  //     case VerificationTagStatus.UNCHECKED:
-  //     default:
-  //       return 'Unchecked';
-  //   }
-  // }
+  formatVerificationValues(values: unknown): string {
+    if (!Array.isArray(values)) {
+      return '—';
+    }
+
+    const normalizedValues = values
+      .map((value: unknown) => String(value ?? '').trim())
+      .filter((value: string) => value.length > 0);
+
+    return normalizedValues.length > 0 ? normalizedValues.join(', ') : '—';
+  }
+
+  openMetadataEdit(): void {
+    const existing = this.document()?.metadata ?? {};
+    this.metadataFields.set(
+      Object.entries(existing).map(([key, value]) => ({
+        key,
+        value: value != null ? String(value) : '',
+      })),
+    );
+    this.metadataEditing.set(true);
+  }
+
+  cancelMetadataEdit(): void {
+    this.metadataEditing.set(false);
+  }
+
+  addMetadataField(): void {
+    this.metadataFields.update((fields) => [...fields, { key: '', value: '' }]);
+  }
+
+  removeMetadataField(index: number): void {
+    this.metadataFields.update((fields) => fields.filter((_, i) => i !== index));
+  }
+
+  updateMetadataKey(index: number, key: string): void {
+    this.metadataFields.update((fields) =>
+      fields.map((field, i) => (i === index ? { ...field, key } : field)),
+    );
+  }
+
+  updateMetadataValue(index: number, value: string): void {
+    this.metadataFields.update((fields) =>
+      fields.map((field, i) => (i === index ? { ...field, value } : field)),
+    );
+  }
+
+  saveMetadata(): void {
+    const currentDocument = this.document();
+    if (!currentDocument?.id) return;
+
+    const metadata = this.metadataFields().reduce(
+      (acc: Record<string, string>, { key, value }) => {
+        const trimmedKey = key.trim();
+        if (trimmedKey.length > 0) {
+          acc[trimmedKey] = value;
+        }
+        return acc;
+      },
+      {},
+    );
+
+    this.document.update((doc) => ({ ...doc, metadata }));
+    this.metadataEditing.set(false);
+    this.documentApiStore.save({ document: { ...currentDocument, metadata } });
+  }
 
   saveDocument(): void {
     const currentDocument = this.document();

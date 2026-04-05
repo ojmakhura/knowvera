@@ -10,6 +10,7 @@ package bw.co.centralkyc.document;
 
 import bw.co.centralkyc.KeyField;
 import bw.co.centralkyc.PropertySearchOrder;
+import bw.co.centralkyc.QueueObject;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.SortOrder;
 import bw.co.centralkyc.TargetEntity;
@@ -28,8 +29,10 @@ import bw.co.centralkyc.matcher.UniversalStringMatcher;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
 import bw.co.centralkyc.organisation.client.ClientRequestRepository;
+import bw.co.centralkyc.properties.RabbitProperties;
 import bw.co.centralkyc.subscription.KycSubscriptionRepository;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -46,6 +49,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -63,6 +67,7 @@ import org.springframework.validation.annotation.Validated;
 @Service("documentService")
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 @Validated
+@Slf4j
 public class DocumentServiceImpl
         extends DocumentServiceBase {
 
@@ -74,12 +79,14 @@ public class DocumentServiceImpl
     private final DocumentTypeRepository documentTypeRepository;
     private final DocumentTypeMapper documentTypeMapper;
     private final UniversalStringMatcher stringMatcher;
+    private final RabbitTemplate rabbitTemplate;
+    private final RabbitProperties rabbitProperties;
 
     public DocumentServiceImpl(DocumentDao documentDao, DocumentRepository documentRepository,
             OrganisationRepository organisationRepository, IndividualRepository individualRepository,
             KycRecordRepository kycRecordRepository, ClientRequestRepository clientRequestRepository,
             KycSubscriptionRepository kycSubscriptionRepository, DocumentTypeMapper documentTypeMapper,
-            UniversalStringMatcher stringMatcher,
+            UniversalStringMatcher stringMatcher, RabbitProperties rabbitProperties, RabbitTemplate rabbitTemplate,
             DocumentMapper documentMapper, MessageSource messageSource, DocumentTypeRepository documentTypeRepository) {
         super(documentDao, documentRepository, documentMapper, messageSource);
         // TODO Auto-generated constructor stub
@@ -92,6 +99,8 @@ public class DocumentServiceImpl
         this.documentTypeRepository = documentTypeRepository;
         this.documentTypeMapper = documentTypeMapper;
         this.stringMatcher = stringMatcher;
+        this.rabbitProperties = rabbitProperties;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     /**
@@ -545,50 +554,6 @@ public class DocumentServiceImpl
         return expectedInformation;
     }
 
-    private Map<String, Object> getOrganisationExpectedInformation(String individualId, DocumentTypeDTO docType,
-            Map<String, Object> expectedInformation) {
-
-        if (expectedInformation == null) {
-            expectedInformation = new HashMap<>();
-        }
-
-        Organisation organisation = organisationRepository.findById(UUID.fromString(individualId))
-                .orElseThrow(() -> new DocumentServiceException("No organisation found for document target"));
-
-        for (ExpectedFieldDTO expectedField : docType.getExpectedFields()) {
-
-            switch (expectedField.getKeyField()) {
-                case ORGANISATION_NAME:
-                    expectedInformation.put(expectedField.getField(), organisation.getName());
-                    break;
-
-                case ORGANISATION_REGISTRATION_NO:
-                    expectedInformation.put(expectedField.getField(), organisation.getRegistrationNo());
-                    break;
-                case ORGANISATION_PHONE_NUMBER:
-                    expectedInformation.put(expectedField.getField(), organisation.getPhoneNumbers());
-                    break;
-                case ORGANISATION_PHYSICAL_ADDRESS:
-                    expectedInformation.put(expectedField.getField(), organisation.getPhysicalAddress());
-                    break;
-                case ORGANISATION_POSTAL_ADDRESS:
-                    expectedInformation.put(expectedField.getField(), organisation.getPostalAddress());
-                    break;
-
-                case ORGANISATION_EMAIL_ADDRESS:
-                    expectedInformation.put(expectedField.getField(), organisation.getContactEmailAddress());
-                    break;
-
-                default:
-                    break;
-            }
-
-        }
-
-        return expectedInformation;
-
-    }
-
     @Override
     protected DocumentDTO handleVerifyData(String id, String user) throws Exception {
 
@@ -666,10 +631,17 @@ public class DocumentServiceImpl
                 }
             }
 
-            verification.setValues(
-                    List.of(
-                            expectedBuilder.toString(),
-                            extractedBuilder.toString()));
+            List<String> values = new ArrayList<>();
+
+            if (expectedBuilder.length() > 0) {
+                values.add(expectedBuilder.toString());
+            }
+
+            if (extractedBuilder.length() > 0) {
+                values.add(extractedBuilder.toString());
+            }
+
+            verification.setValues(values);
 
             double similarity = 0.0;
 
@@ -714,9 +686,9 @@ public class DocumentServiceImpl
                         .average()
                         .orElse(0.0);
 
-                if(score >= 0.8) {
+                if (score >= 0.8) {
                     document.setVerificationStatus(DocumentVerificationStatus.VERIFIED);
-                } else if(score >= 0.4) {
+                } else if (score >= 0.4) {
                     document.setVerificationStatus(DocumentVerificationStatus.MANUAL_REVIEW);
                 } else {
                     document.setVerificationStatus(DocumentVerificationStatus.REJECTED);
@@ -732,6 +704,18 @@ public class DocumentServiceImpl
         document.setModifiedAt(LocalDateTime.now());
         document.setModifiedBy(user);
         document = documentRepository.save(document);
+
+        if (document.getVerificationStatus() == DocumentVerificationStatus.REJECTED
+                || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
+            log.info("Document ID {} requires manual review or has been rejected (verification status: {})",
+                    document.getId(), document.getVerificationStatus());
+
+            KycRecord record = kycRecordRepository.getReferenceById(UUID.fromString(document.getTargetId()));
+            this.rabbitTemplate.convertAndSend(
+                    rabbitProperties.getKycVerificationQueueExchange(),
+                    rabbitProperties.getKycVerificationQueueRoutingKey(),
+                    new QueueObject(document.getTargetId(), record.getTarget(), record.getTargetId()));
+        }
 
         DocumentDTO dto = documentMapper.toDocumentDTO(document);
         setTargetLabel(dto);

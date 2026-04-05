@@ -76,7 +76,18 @@ public abstract class DocumentMapper {
         if (entity.getDocumentType().getExpectedFields() != null) {
             Collection<ExpectedField> fields = entity.getDocumentType().getExpectedFields();
             Map expectedInformation = entity.getExpectedInformation();
+
+            if(expectedInformation == null) {
+
+                expectedInformation = new HashMap<>();
+            }
+
             Map extractedInformation = entity.getExtractedInformation();
+
+            if(extractedInformation == null) {
+
+                extractedInformation = new HashMap<>();
+            }
 
             for (ExpectedField field : fields) {
 
