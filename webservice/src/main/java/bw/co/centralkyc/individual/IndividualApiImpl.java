@@ -74,7 +74,8 @@ public class IndividualApiImpl implements IndividualApi {
             CentralKYC Team
             """;
 
-    public IndividualApiImpl(IndividualService individualService, KeycloakUserService keycloakUserService, OrganisationService organisationService,
+    public IndividualApiImpl(IndividualService individualService, KeycloakUserService keycloakUserService,
+            OrganisationService organisationService,
             BranchService branchService, EmailService emailService, KeycloakOrganisationService keycloakOrgService) {
 
         this.individualService = individualService;
@@ -94,22 +95,21 @@ public class IndividualApiImpl implements IndividualApi {
 
             if (data.getHasUser()) {
 
-                if(data.getOrganisation() != null && StringUtils.isNotBlank(data.getOrganisation().id())) {
+                if (data.getOrganisation() != null && StringUtils.isNotBlank(data.getOrganisation().id())) {
 
                     OrganisationDTO org = organisationService.findById(data.getOrganisation().id());
                     OrganisationListDTO o = new OrganisationListDTO(
-                        org.getId(), 
-                        org.getCode(), 
-                        org.getName(), 
-                        org.getRegistrationNo(), 
-                        org.getStatus(), 
-                        org.getContactEmailAddress(), 
-                        org.getKycStatus(), 
-                        org.getIsClient(), 
-                        org.getKeycloakId(),
-                        org.getPhysicalAddress(),
-                        org.getPostalAddress()
-                    );
+                            org.getId(),
+                            org.getCode(),
+                            org.getName(),
+                            org.getRegistrationNo(),
+                            org.getStatus(),
+                            org.getContactEmailAddress(),
+                            org.getKycStatus(),
+                            org.getIsClient(),
+                            org.getKeycloakId(),
+                            org.getPhysicalAddress(),
+                            org.getPostalAddress());
 
                     data.setOrganisation(o);
                 }
@@ -170,7 +170,6 @@ public class IndividualApiImpl implements IndividualApi {
 
     }
 
-
     private CommMessageDTO newUserMessage(IndividualDTO individual, UserDTO user) {
 
         // OrganisationDTO org = keycloakOrgService.
@@ -199,12 +198,12 @@ public class IndividualApiImpl implements IndividualApi {
 
         OrganisationDTO org = keycloakOrgService.findById(individual.getOrganisation().id());
 
-        if(org != null) {
+        if (org != null) {
 
-            if(StringUtils.isNotBlank(org.getContactEmailAddress())) {
+            if (StringUtils.isNotBlank(org.getContactEmailAddress())) {
                 message.setCcs(List.of(org.getContactEmailAddress()));
             }
-            
+
         }
 
         return message;
@@ -226,7 +225,8 @@ public class IndividualApiImpl implements IndividualApi {
 
                 UserDTO existing = keycloakUserService.getUserByEmail(individual.getEmailAddress());
 
-                boolean createUser = isNewUser = (existing == null) && (individual.getHasUser() != null && individual.getHasUser());
+                boolean createUser = isNewUser = (existing == null)
+                        && (individual.getHasUser() != null && individual.getHasUser());
 
                 if (createUser) {
 
@@ -243,7 +243,7 @@ public class IndividualApiImpl implements IndividualApi {
 
                     OrganisationDTO org = null;
 
-                    if(individual.getOrganisation() != null) {
+                    if (individual.getOrganisation() != null) {
                         org = new OrganisationDTO();
                         org.setId(individual.getOrganisation().id());
                         org.setName(individual.getOrganisation().name());
@@ -253,10 +253,12 @@ public class IndividualApiImpl implements IndividualApi {
                     }
 
                     user = keycloakUserService.registerUser(individual, org);
+                } else if(existing != null) {
+                    user = existing;
                 }
             }
 
-            if(user != null && StringUtils.isNotBlank(user.getUserId())) {
+            if (user != null && StringUtils.isNotBlank(user.getUserId())) {
                 individual.setHasUser(true);
                 individual.setUserId(user.getUserId());
             }
@@ -289,7 +291,7 @@ public class IndividualApiImpl implements IndividualApi {
 
             Set<PropertySearchOrder> sortings = new java.util.HashSet<>();
 
-            if(criteria.getSortings() != null) {
+            if (criteria.getSortings() != null) {
 
                 sortings.addAll(criteria.getSortings());
             }
@@ -334,7 +336,7 @@ public class IndividualApiImpl implements IndividualApi {
     @Override
     public ResponseEntity<IndividualDTO> loadRequestIndividual(String requestId, String identityConfirmationToken,
             String identityNo) throws Exception {
-        
+
         try {
             IndividualDTO individual = individualService.loadRequestIndividual(requestId, identityConfirmationToken,
                     identityNo);
@@ -348,11 +350,11 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     public ResponseEntity<IndividualDTO> loadMe() throws Exception {
-        
+
         try {
-            
+
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if(!authentication.isAuthenticated()) {
+            if (!authentication.isAuthenticated()) {
                 throw new IndividualServiceException("Unauthenticated");
             }
 

@@ -401,6 +401,22 @@ body {
     color: var(--vault-error) !important;
 }
 
+.vault-field .mat-mdc-form-field-subscript-wrapper,
+.compact-field .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}
+
+.emphasis-field .mat-mdc-text-field-wrapper {
+    background: rgba(213, 227, 252, 0.3) !important;
+}
+
+.emphasis-field .mdc-notched-outline__leading,
+.emphasis-field .mdc-notched-outline__notch,
+.emphasis-field .mdc-notched-outline__trailing {
+    border-color: #d5e3fc !important;
+    border-width: 2px !important;
+}
+
 .edit-page,
 .edit-page .editor-canvas,
 .edit-page .section-nav,

@@ -34,12 +34,12 @@
             <label class="field-label" for="organisationName">Organisation Name</label>
             <mat-form-field appearance="outline" class="vault-field">
               <input id="organisationName" matInput [formField]="editOrganisationFormSignalForm.name" />
+              @if(editOrganisationFormSignalForm.name().touched()) {
+              @for (error of editOrganisationFormSignalForm.name().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
             </mat-form-field>
-            @if(editOrganisationFormSignalForm.name().touched()) {
-            @for (error of editOrganisationFormSignalForm.name().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
-            }
           </div>
         </div>
 
@@ -48,12 +48,12 @@
             <label class="field-label" for="organisationCode" translate>abbreviation</label>
             <mat-form-field appearance="outline" class="vault-field">
               <input id="organisationCode" matInput [formField]="editOrganisationFormSignalForm.code" />
+              @if(editOrganisationFormSignalForm.code().touched()) {
+              @for (error of editOrganisationFormSignalForm.code().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
             </mat-form-field>
-            @if(editOrganisationFormSignalForm.code().touched()) {
-            @for (error of editOrganisationFormSignalForm.code().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
-            }
           </div>
 
           <div class="field-group">
@@ -61,12 +61,12 @@
             <mat-form-field appearance="outline" class="vault-field">
               <input id="organisationRegistrationNo" matInput
                 [formField]="editOrganisationFormSignalForm.registrationNo" />
+              @if(editOrganisationFormSignalForm.registrationNo().touched()) {
+              @for (error of editOrganisationFormSignalForm.registrationNo().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
             </mat-form-field>
-            @if(editOrganisationFormSignalForm.registrationNo().touched()) {
-            @for (error of editOrganisationFormSignalForm.registrationNo().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
-            }
           </div>
         </div>
 
@@ -80,12 +80,12 @@
                 <mat-option [value]="country">{{ country }}</mat-option>
                 }
               </mat-select>
+              @if(editOrganisationFormSignalForm.countryOfRegistration().touched()) {
+              @for (error of editOrganisationFormSignalForm.countryOfRegistration().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
             </mat-form-field>
-            @if(editOrganisationFormSignalForm.countryOfRegistration().touched()) {
-            @for (error of editOrganisationFormSignalForm.countryOfRegistration().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
-            }
           </div>
 
           <div class="client-toggle">
@@ -110,12 +110,12 @@
                 <mat-option [value]="status">{{ status }}</mat-option>
                 }
               </mat-select>
+              @if(editOrganisationFormSignalForm.status().touched()) {
+              @for (error of editOrganisationFormSignalForm.status().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
             </mat-form-field>
-            @if(editOrganisationFormSignalForm.status().touched()) {
-            @for (error of editOrganisationFormSignalForm.status().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
-            }
           </div>
 
           <div class="field-group">
@@ -126,12 +126,12 @@
                 <mat-option [value]="status">{{ status }}</mat-option>
                 }
               </mat-select>
+              @if(editOrganisationFormSignalForm.kycStatus().touched()) {
+              @for (error of editOrganisationFormSignalForm.kycStatus().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
             </mat-form-field>
-            @if(editOrganisationFormSignalForm.kycStatus().touched()) {
-            @for (error of editOrganisationFormSignalForm.kycStatus().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
-            }
           </div>
         </div>
 
@@ -199,12 +199,12 @@
           <mat-form-field class="vault-field">
             <input id="organisationEmail" matInput type="email"
               [formField]="editOrganisationFormSignalForm.contactEmailAddress" />
+            @if (editOrganisationFormSignalForm.contactEmailAddress().touched()) {
+            @for (error of editOrganisationFormSignalForm.contactEmailAddress().errors(); track $index) {
+            <p class="error-message" translate>{{ error.message }}</p>
+            }
+            }
           </mat-form-field>
-          @if (editOrganisationFormSignalForm.contactEmailAddress().touched()) {
-          @for (error of editOrganisationFormSignalForm.contactEmailAddress().errors(); track $index) {
-          <p class="error-message" translate>{{ error.message }}</p>
-          }
-          }
         </div>
 
         <div class="phones-section">
@@ -258,12 +258,12 @@
           <mat-form-field appearance="outline" class="vault-field vault-textarea compact-textarea">
             <textarea id="organisationPhysicalAddress" matInput rows="3"
               [formField]="editOrganisationFormSignalForm.physicalAddress"></textarea>
+            @if(editOrganisationFormSignalForm.physicalAddress().touched()) {
+            @for (error of editOrganisationFormSignalForm.physicalAddress().errors(); track $index) {
+            <p class="error-message" translate>{{ error.message }}</p>
+            }
+            }
           </mat-form-field>
-          @if(editOrganisationFormSignalForm.physicalAddress().touched()) {
-          @for (error of editOrganisationFormSignalForm.physicalAddress().errors(); track $index) {
-          <p class="error-message" translate>{{ error.message }}</p>
-          }
-          }
         </div>
 
         <div class="field-group mt-field">
@@ -271,12 +271,12 @@
           <mat-form-field appearance="outline" class="vault-field vault-textarea compact-textarea">
             <textarea id="organisationPostalAddress" matInput rows="3"
               [formField]="editOrganisationFormSignalForm.postalAddress"></textarea>
+            @if(editOrganisationFormSignalForm.postalAddress().touched()) {
+            @for (error of editOrganisationFormSignalForm.postalAddress().errors(); track $index) {
+            <p class="error-message" translate>{{ error.message }}</p>
+            }
+            }
           </mat-form-field>
-          @if(editOrganisationFormSignalForm.postalAddress().touched()) {
-          @for (error of editOrganisationFormSignalForm.postalAddress().errors(); track $index) {
-          <p class="error-message" translate>{{ error.message }}</p>
-          }
-          }
         </div>
       </mat-card>
     </div>

@@ -29,15 +29,14 @@
               <div class="field-block">
                 <label class="form-label" for="documentTypeCode">Document Code</label>
                 <mat-form-field appearance="outline" class="vault-field">
-                  <!-- <mat-label translate>code</mat-label> -->
-                  <input id="documentTypeCode" matInput type="text"
-                    placeholder="e.g. KYC_ID_001" [formField]="editDocumentTypeSignalForm.code" />
+                  <input id="documentTypeCode" matInput type="text" placeholder="e.g. KYC_ID_001"
+                    [formField]="editDocumentTypeSignalForm.code" />
+                  @if(editDocumentTypeSignalForm.code().touched()) {
+                  @for (error of editDocumentTypeSignalForm.code().errors(); track $index) {
+                  <p class="error-message" translate>{{ error.message }}</p>
+                  }
+                  }
                 </mat-form-field>
-                @if(editDocumentTypeSignalForm.code().touched()) {
-                @for (error of editDocumentTypeSignalForm.code().errors(); track $index) {
-                <p class="error-message" translate>{{ error.message }}</p>
-                }
-                }
               </div>
 
               <div class="field-block">
@@ -45,12 +44,12 @@
                 <mat-form-field appearance="outline" class="vault-field">
                   <input id="documentTypeName" matInput type="text" placeholder="e.g. Passport Visual"
                     [formField]="editDocumentTypeSignalForm.name" />
+                  @if(editDocumentTypeSignalForm.name().touched()) {
+                  @for (error of editDocumentTypeSignalForm.name().errors(); track $index) {
+                  <p class="error-message" translate>{{ error.message }}</p>
+                  }
+                  }
                 </mat-form-field>
-                @if(editDocumentTypeSignalForm.name().touched()) {
-                @for (error of editDocumentTypeSignalForm.name().errors(); track $index) {
-                <p class="error-message" translate>{{ error.message }}</p>
-                }
-                }
               </div>
             </div>
 
@@ -173,7 +172,8 @@
 
                       <div class="prompt-actions">
                         <button mat-icon-button type="button" class="delete-btn" matTooltip="Delete validation prompt"
-                          aria-label="Delete validation prompt" (click)="validationPromptsRemove(index, prompt().value())">
+                          aria-label="Delete validation prompt"
+                          (click)="validationPromptsRemove(index, prompt().value())">
                           <mat-icon>delete</mat-icon>
                         </button>
                       </div>
@@ -222,7 +222,8 @@
 
                       <div class="prompt-actions">
                         <button mat-icon-button type="button" class="delete-btn" matTooltip="Delete extraction rule"
-                          aria-label="Delete extraction rule" (click)="textExtractionPromptsRemove(index, prompt().value())">
+                          aria-label="Delete extraction rule"
+                          (click)="textExtractionPromptsRemove(index, prompt().value())">
                           <mat-icon>delete</mat-icon>
                         </button>
                       </div>
@@ -250,10 +251,7 @@
                   <div class="fields-body tab-panel-surface" role="table">
                     @if (verificationDataConfigCount() > 0) {
                     <div class="verification-config-nav" role="group" aria-label="Verification data config navigation">
-                      <button
-                        mat-stroked-button
-                        type="button"
-                        class="nav-btn"
+                      <button mat-stroked-button type="button" class="nav-btn"
                         [disabled]="!canGoToPreviousVerificationDataConfig()"
                         (click)="goToPreviousVerificationDataConfig()">
                         <mat-icon>chevron_left</mat-icon>
@@ -264,12 +262,8 @@
                         {{ currentVerificationDataConfigIndex() + 1 }} / {{ verificationDataConfigCount() }}
                       </p>
 
-                      <button
-                        mat-stroked-button
-                        type="button"
-                        class="nav-btn"
-                        [disabled]="!canGoToNextVerificationDataConfig()"
-                        (click)="goToNextVerificationDataConfig()">
+                      <button mat-stroked-button type="button" class="nav-btn"
+                        [disabled]="!canGoToNextVerificationDataConfig()" (click)="goToNextVerificationDataConfig()">
                         <span>Next</span>
                         <mat-icon>chevron_right</mat-icon>
                       </button>
@@ -283,10 +277,7 @@
                           <label class="form-label">Config Name</label>
                           <mat-form-field appearance="outline" class="vault-field compact-field">
                             <!-- <mat-label>Name</mat-label> -->
-                            <input
-                              matInput
-                              type="text"
-                              [formField]="config.name" />
+                            <input matInput type="text" [formField]="config.name" />
                           </mat-form-field>
                         </div>
 
@@ -294,8 +285,7 @@
                           <label class="form-label">Key Fields</label>
                           <div class="verification-key-grid">
                             @for (option of documentTypeKeyFields(); track option) {
-                            <mat-checkbox
-                              [checked]="isVerificationDataConfigKeySelected(index, option)"
+                            <mat-checkbox [checked]="isVerificationDataConfigKeySelected(index, option)"
                               (change)="toggleVerificationDataConfigKey(index, option, $event.checked)">
                               <span translate>key.field.{{ option }}</span>
                             </mat-checkbox>
@@ -306,12 +296,8 @@
 
                       <div class="row-action-wrap verification-config-action">
                         @let configValue = config().value();
-                        <button
-                          mat-icon-button
-                          type="button"
-                          class="delete-btn"
-                          aria-label="Delete verification data config"
-                          matTooltip="Delete verification data config"
+                        <button mat-icon-button type="button" class="delete-btn"
+                          aria-label="Delete verification data config" matTooltip="Delete verification data config"
                           (click)="verificationDataConfigsRemove(index, configValue)">
                           <mat-icon>delete</mat-icon>
                         </button>

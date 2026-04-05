@@ -21,8 +21,7 @@ public class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedA
         if (realmAccess != null && realmAccess.get("roles") instanceof Collection<?> roles) {
             for (Object role : roles) {
                 authorities.add(new SimpleGrantedAuthority(
-                        "ROLE_" + role.toString()
-                ));
+                        "ROLE_" + role.toString()));
             }
         }
 
@@ -40,8 +39,7 @@ public class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedA
 
                         for (Object role : roles) {
                             authorities.add(new SimpleGrantedAuthority(
-                                    "ROLE_" + role
-                            ));
+                                    "ROLE_" + role));
                         }
                     }
                 }
@@ -54,11 +52,8 @@ public class KeycloakRoleConverter implements Converter<Jwt, Collection<GrantedA
         String scope = jwt.getClaimAsString("scope");
         if (scope != null && !scope.isBlank()) {
             Arrays.stream(scope.split(" "))
-                    .forEach(s ->
-                            authorities.add(new SimpleGrantedAuthority(
-                                    "SCOPE_" + s
-                            ))
-                    );
+                    .forEach(s -> authorities.add(new SimpleGrantedAuthority(
+                            "SCOPE_" + s)));
         }
 
         return authorities;

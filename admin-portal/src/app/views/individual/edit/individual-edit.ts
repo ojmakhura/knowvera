@@ -119,6 +119,7 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
     required(path.surname, { message: 'surname.required' })
     required(path.nationality, { message: 'nationality.required' })
     required(path.emailAddress, { message: 'email.address.required' })
+    email(path.emailAddress, { message: 'email.address.invalid' });
     required(path.maritalStatus, { message: 'marital.status.required' })
     required(path.employmentStatus, { message: 'employment.status.required' })
     required(path.hasUser, { message: 'has.user.required' });
