@@ -21,6 +21,7 @@ import bw.co.centralkyc.QueueObject;
 import bw.co.centralkyc.document.DocumentAnalyticsStatus;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
+import bw.co.centralkyc.lmstudio.CompetionResponseChoice;
 import bw.co.centralkyc.lmstudio.CompletionResponse;
 import bw.co.centralkyc.matcher.UniversalStringMatcher;
 import bw.co.centralkyc.properties.RabbitProperties;
@@ -183,7 +184,9 @@ public class DocumentProcessorService {
 
         log.info("Processing document confirmation for document ID: {}", document.getId());
 
-        response.getChoices().forEach(choice -> {
+        for(CompetionResponseChoice choice : response.getChoices()) {
+            log.info("Received response from LmStudioExtractor for confirmation: {}",
+                    choice.getMessage().getContent());
 
             if (choice.getMessage() != null && choice.getMessage().getContent() != null) {
 
@@ -206,9 +209,18 @@ public class DocumentProcessorService {
                     document.setValidationResults(results);
                     document.setAnalyticsStatus(DocumentAnalyticsStatus.TYPE_CONFIRMATION_COMPLETE);
 
+                    
+
                     if(document.getVerificationStatus() == DocumentVerificationStatus.REJECTED) {
                         log.info("Document ID {} rejected due to type mismatch (similarity: {})",
                                 document.getId(), typeSimilarity);
+
+                        document = documentService.save(document);
+                        KycRecord record = kycRecordRepository.getReferenceById(UUID.fromString(document.getTargetId()));
+                        this.rabbitTemplate.convertAndSend(
+                            rabbitProperties.getKycVerificationQueueExchange(),
+                            rabbitProperties.getKycVerificationQueueRoutingKey(),
+                            new QueueObject(document.getTargetId(), record.getTarget(), record.getTargetId()));
 
                         // TODO: Send a notification to the user about the rejection and the reason for it
                         return; // Skip further processing for this document
@@ -225,7 +237,7 @@ public class DocumentProcessorService {
                         }
                     }
 
-                    documentService.save(document);
+                    document = documentService.save(document);
 
                     if(document.getVerificationStatus() == DocumentVerificationStatus.REJECTED || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
                         log.info("Document ID {} requires manual review or has been rejected (verification status: {})",
@@ -244,8 +256,7 @@ public class DocumentProcessorService {
                             new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
                 }
             }
-        });
-
+        }
     }
 
     @Async("virtualThreadExecutor")

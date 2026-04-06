@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,11 +28,7 @@ import bw.co.centralkyc.organisation.OrganisationDTO;
 import bw.co.centralkyc.user.UserDTO;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
@@ -86,6 +83,14 @@ public class KycRecordApiImpl implements KycRecordApi {
             }
         }
 
+    }
+
+    @GetMapping("/debug")
+    public Map<String, Object> debug(Authentication authentication) {
+        return Map.of(
+                "name", authentication.getName(),
+                "authorities", authentication.getAuthorities()
+        );
     }
 
     @Override

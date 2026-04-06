@@ -106,7 +106,8 @@ public class KycRecordServiceImpl
         int kycDuration = settings.getKycDuration() != null ? settings.getKycDuration() : 2; // Default to 2 years if
                                                                                              // not set
 
-        KycRecord kycRecordEntity = this.kycRecordDao.kycRecordDTOToEntity(kycRecord);
+        KycRecord kycRecordEntity = this.kycRecordMapper.kycRecordDTOToEntity(kycRecord);
+        kycRecordEntity.setEmploymentRecord(null);
 
         if (kycRecordEntity.getUploadDate() == null) {
             kycRecordEntity.setUploadDate(LocalDate.now());

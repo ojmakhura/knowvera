@@ -494,7 +494,7 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       fileName: doc.file.name,
     } as DocumentDTO));
 
-    record.documents = [...(record.documents || []), ...docs];
+    // record.documents = [...(record.documents || []), ...docs];
     console.log(files, docs)
 
     if (!record.id) {
