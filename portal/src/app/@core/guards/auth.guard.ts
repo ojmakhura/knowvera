@@ -16,7 +16,7 @@ const isAccessAllowed = async (
 
     if(!authenticated) {
 
-      return true;
+      return false;
     }
 
     return router.parseUrl('/');

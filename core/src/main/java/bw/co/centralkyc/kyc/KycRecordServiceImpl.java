@@ -117,21 +117,6 @@ public class KycRecordServiceImpl
             kycRecordEntity.setExpiryDate(kycRecordEntity.getUploadDate().plusYears(kycDuration));
         }
 
-        if (kycRecordEntity.getId() == null) {
-
-            // KycVerification verification = KycVerification.Factory.newInstance();
-            // verification.setCreatedAt(kycRecordEntity.getCreatedAt());
-            // verification.setCreatedBy(kycRecordEntity.getCreatedBy());
-            // verification.setKycRecord(kycRecordEntity);
-            // verification.setEmploymentVerification(VerificationStatus.UNVERIFIED);
-
-            // verification.setPepStatusVerification(VerificationStatus.UNVERIFIED);
-            // verification.setSanctionsDetailsVerification(VerificationStatus.UNVERIFIED);
-            // verification.setSanctionsMatchVerification(VerificationStatus.UNVERIFIED);
-
-            // kycRecordEntity.setKycVerification(verification);
-        }
-
         this.checkRef(kycRecordEntity);
 
         kycRecordEntity = this.kycRecordRepository.save(kycRecordEntity);

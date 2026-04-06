@@ -92,6 +92,13 @@
   background: var(--vault-surface-container-low);
 }
 
+.vault-card--compliance {
+  background:
+    radial-gradient(circle at top right, rgba(255, 217, 210, 0.22), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(252, 246, 246, 0.9));
+  border: 1px solid rgba(222, 188, 184, 0.45);
+}
+
 .section-heading {
   display: flex;
   align-items: center;
@@ -296,6 +303,15 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.content-grid--stacked {
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.content-grid--stacked > .vault-card {
+  width: 100%;
+}
+
 .source-toolbar,
 .source-picker,
 .document-list {
@@ -304,11 +320,141 @@
   gap: 0.75rem;
 }
 
+.vault-card--funds {
+  background:
+    radial-gradient(circle at 90% 8%, rgba(214, 230, 255, 0.45), transparent 35%),
+    linear-gradient(180deg, rgba(245, 248, 255, 0.95), rgba(255, 255, 255, 0.95));
+  grid-column: 1 / -1;
+}
+
+.source-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vault-spacing-4);
+  margin-bottom: var(--vault-spacing-3);
+}
+
+.source-heading-row__label {
+  margin: 0;
+  color: var(--vault-on-surface-variant);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.source-heading-row__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(0, 47, 108, 0.08);
+  color: var(--vault-primary-container);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.source-toolbar {
+  margin-bottom: var(--vault-spacing-4);
+  padding: 0.9rem;
+  border: 1px solid rgba(180, 191, 226, 0.5);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+}
+
 .source-chip {
   --mdc-filled-button-container-color: var(--vault-primary);
   --mdc-filled-button-label-text-color: var(--vault-on-primary);
   --mat-filled-button-horizontal-padding: 1rem;
   border-radius: 999px;
+  box-shadow: 0 6px 12px rgba(0, 27, 68, 0.14);
+}
+
+.source-chip mat-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.source-empty {
+  margin: 0;
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.6rem;
+  color: var(--vault-on-surface-variant);
+  font-size: 0.82rem;
+  background: rgba(226, 231, 255, 0.55);
+}
+
+.source-add {
+  border-radius: 999px;
+}
+
+.source-picker {
+  margin-bottom: var(--vault-spacing-5);
+}
+
+.source-picker__option {
+  border-radius: 999px;
+}
+
+.compliance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--vault-spacing-4);
+  align-items: start;
+}
+
+.compliance-grid .toggle-card--compliance {
+  margin: 0;
+  align-content: center;
+}
+
+.rich-text-field {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  align-self: start;
+}
+
+.rich-text-field__label {
+  margin: 0;
+  color: var(--vault-on-surface-variant);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.rich-text-field__editor {
+  display: block;
+  align-self: start;
+}
+
+.rich-text-field__editor ::ng-deep .ql-toolbar.ql-snow,
+.rich-text-field__editor ::ng-deep .ql-container.ql-snow {
+  border-color: rgba(196, 198, 210, 0.35);
+}
+
+.rich-text-field__editor ::ng-deep .ql-toolbar.ql-snow {
+  border-radius: 0.95rem 0.95rem 0 0;
+  background: rgba(242, 243, 255, 0.9);
+}
+
+.rich-text-field__editor ::ng-deep .ql-container.ql-snow {
+  border-radius: 0 0 0.95rem 0.95rem;
+  background: rgba(255, 255, 255, 0.95);
+  height: auto;
+  min-height: 8rem;
+}
+
+.rich-text-field__editor ::ng-deep .ql-editor {
+  min-height: 6.4rem;
+  color: var(--vault-on-surface);
+  font-family: var(--vault-font-body);
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
 
 .toggle-card {
@@ -328,6 +474,30 @@
 
 .toggle-card--alert {
   background: rgba(255, 218, 214, 0.38);
+}
+
+.toggle-card--compliance {
+  margin: var(--vault-spacing-2) 0 var(--vault-spacing-4);
+  border: 1px solid rgba(213, 151, 145, 0.36);
+  box-shadow: 0 10px 20px rgba(130, 34, 28, 0.06);
+}
+
+.toggle-card--compliance:focus-within {
+  outline: 2px solid rgba(167, 31, 22, 0.55);
+  outline-offset: 2px;
+}
+
+.toggle-card--compliance ::ng-deep .mdc-form-field {
+  align-items: flex-start;
+}
+
+.toggle-card--compliance ::ng-deep .mdc-label {
+  color: #7f221f;
+  font-weight: 600;
+}
+
+.vault-field--compliance-details {
+  margin-top: 0;
 }
 
 .upload-dropzone {
@@ -398,6 +568,11 @@
   gap: 0.85rem;
 }
 
+.document-item__selector {
+  flex: 1 1 14rem;
+  max-width: 20rem;
+}
+
 .document-item__meta mat-icon {
   color: var(--vault-primary);
 }
@@ -425,6 +600,10 @@
 .document-item--pending .document-item__meta strong,
 .document-item--pending mat-icon {
   color: #2456d6;
+}
+
+.document-item--pending {
+  align-items: flex-start;
 }
 
 .form-actions {
@@ -522,6 +701,7 @@
   .record-grid,
   .content-grid,
   .content-grid--balanced,
+  .content-grid--stacked,
   .context-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -541,8 +721,10 @@
   .owner-contact-grid,
   .record-grid,
   .employment-grid,
+  .compliance-grid,
   .content-grid,
   .content-grid--balanced,
+  .content-grid--stacked,
   .context-grid {
     grid-template-columns: 1fr;
   }

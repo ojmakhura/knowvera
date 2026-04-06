@@ -30,7 +30,7 @@
       }
     </header>
 
-    <form class="edit-kyc__form" novalidate (ngSubmit)="submit()">
+    <form class="edit-kyc__form" novalidate>
       <mat-card class="vault-card vault-card--main">
         <div class="section-heading">
           <div class="section-heading__icon">
@@ -45,7 +45,7 @@
             <span class="status-panel__label">KYC Status</span>
             <div class="status-panel__value">
               <span class="status-panel__dot"></span>
-              <strong>{{ kycStatus() }}</strong>
+              <strong>{{ formModel().kycStatus || 'Not provided' }}</strong>
             </div>
           </div>
         </div>
@@ -104,56 +104,8 @@
         </mat-form-field>
       </mat-card>
 
-      <section class="content-grid">
-        <mat-card class="vault-card">
-          <div class="section-heading">
-            <div class="section-heading__icon">
-              <mat-icon>work</mat-icon>
-            </div>
-            <div>
-              <h2>Employment Details</h2>
-              <p>Employer records used for source-of-funds validation.</p>
-            </div>
-          </div>
-
-          <div class="employment-grid">
-            <mat-form-field class="vault-field vault-field--wide" subscriptSizing="dynamic">
-              <mat-label>Employer Name</mat-label>
-              <input matInput [formField]="editForm.employmentRecord.name" />
-              @if ((submitted() || editForm.employmentRecord.name().touched()) && editForm.employmentRecord.name().invalid()) {
-                <mat-error>Employer name is required.</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field class="vault-field" subscriptSizing="dynamic">
-              <mat-label>Identity Number / Business Reg</mat-label>
-              <input matInput [formField]="editForm.employmentRecord.identityNo" />
-            </mat-form-field>
-
-            <mat-form-field class="vault-field" subscriptSizing="dynamic">
-              <mat-label>Positions (List)</mat-label>
-              <input matInput [formField]="editForm.employmentRecord.positions" />
-              @if ((submitted() || editForm.employmentRecord.positions().touched()) && editForm.employmentRecord.positions().invalid()) {
-                <mat-error>Position is required.</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field class="vault-field" subscriptSizing="dynamic">
-              <mat-label>Employment Start</mat-label>
-              <input matInput type="date" [formField]="editForm.employmentRecord.employmentStart" />
-              @if ((submitted() || editForm.employmentRecord.employmentStart().touched()) && editForm.employmentRecord.employmentStart().invalid()) {
-                <mat-error>Start date is required.</mat-error>
-              }
-            </mat-form-field>
-
-            <mat-form-field class="vault-field" subscriptSizing="dynamic">
-              <mat-label>Employment End (Optional)</mat-label>
-              <input matInput type="date" [formField]="editForm.employmentRecord.employmentEnd" />
-            </mat-form-field>
-          </div>
-        </mat-card>
-
-        <mat-card class="vault-card vault-card--soft">
+      <section class="content-grid content-grid--stacked">
+        <mat-card class="vault-card vault-card--soft vault-card--funds">
           <div class="section-heading">
             <div class="section-heading__icon section-heading__icon--soft">
               <mat-icon>account_balance</mat-icon>
@@ -164,6 +116,11 @@
             </div>
           </div>
 
+          <div class="source-heading-row">
+            <p class="source-heading-row__label">Declared Sources</p>
+            <span class="source-heading-row__count">{{ formModel().sourceOfFunds.length }} selected</span>
+          </div>
+
           <div class="source-toolbar">
             @for (source of formModel().sourceOfFunds; track source) {
               <button
@@ -171,22 +128,26 @@
                 mat-flat-button
                 class="source-chip"
                 (click)="removeSource(source)">
-                <span>{{ source }}</span>
+                <span translate>source.of.funds.{{ source }}</span>
                 <mat-icon>close</mat-icon>
               </button>
             }
 
-            <button type="button" mat-stroked-button class="source-add" (click)="toggleSourcePicker()">
+            @if (!formModel().sourceOfFunds.length) {
+              <p class="source-empty">No source selected yet.</p>
+            }
+
+            <!-- <button type="button" mat-stroked-button class="source-add" (click)="toggleSourcePicker()">
               <mat-icon>add</mat-icon>
               <span>Add Source</span>
-            </button>
+            </button> -->
           </div>
 
-          @if (showSourcePicker() && availableSources().length) {
+          @if ( availableSources().length) {
             <div class="source-picker" aria-label="Available source of funds options">
               @for (source of availableSources(); track source) {
-                <button type="button" mat-stroked-button (click)="addSource(source)">
-                  {{ source }}
+                <button type="button" mat-stroked-button class="source-picker__option" (click)="addSource(source)">
+                  <span translate>source.of.funds.{{ source }}</span>
                 </button>
               }
             </div>
@@ -199,8 +160,8 @@
         </mat-card>
       </section>
 
-      <section class="content-grid content-grid--balanced">
-        <mat-card class="vault-card">
+      <section class="content-grid content-grid--stacked">
+        <mat-card class="vault-card vault-card--compliance">
           <div class="section-heading">
             <div class="section-heading__icon">
               <mat-icon>gavel</mat-icon>
@@ -211,31 +172,49 @@
             </div>
           </div>
 
-          <mat-form-field class="vault-field" subscriptSizing="dynamic">
-            <mat-label>PEP Status (pepStatus)</mat-label>
-            <mat-select [formField]="editForm.declaration.pepStatus">
-              @for (pepStatus of pepStatusOptions; track pepStatus) {
-                <mat-option [value]="pepStatus">{{ pepStatus }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          <div class="compliance-grid">
+            <mat-form-field class="vault-field" subscriptSizing="dynamic">
+              <mat-label>PEP Status (pepStatus)</mat-label>
+              <mat-select [formField]="editForm.declaration.pepStatus">
+                @for (pepStatus of pepStatusOptions; track pepStatus) {
+                  <mat-option [value]="pepStatus">
+                    <span translate>pep.status.{{ pepStatus }}</span>
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
 
-          <mat-form-field class="vault-field vault-field--textarea" subscriptSizing="dynamic">
-            <mat-label>PEP Details (pepDetails)</mat-label>
-            <textarea matInput rows="2" [formField]="editForm.declaration.pepDetails"></textarea>
-          </mat-form-field>
+            <label class="toggle-card toggle-card--alert toggle-card--compliance">
+              <mat-checkbox [formField]="editForm.declaration.sanctionsMatch">
+                Sanctions Match (sanctionsMatch)
+              </mat-checkbox>
+              <span>Flag for potential matches on global sanction lists.</span>
+            </label>
 
-          <label class="toggle-card toggle-card--alert">
-            <mat-checkbox [formField]="editForm.declaration.sanctionsMatch">
-              Sanctions Match (sanctionsMatch)
-            </mat-checkbox>
-            <span>Flag for potential matches on global sanction lists.</span>
-          </label>
+            <div class="rich-text-field rich-text-field--pep">
+              <p class="rich-text-field__label">PEP Details (pepDetails)</p>
+              <quill-editor
+                class="rich-text-field__editor"
+                [ngModel]="formModel().declaration.pepDetails || ''"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="updatePepDetails($event)"
+                [modules]="quillModules"
+                placeholder="Provide PEP context and relationships.">
+              </quill-editor>
+            </div>
 
-          <mat-form-field class="vault-field vault-field--textarea" subscriptSizing="dynamic">
-            <mat-label>Sanctions Details (sanctionsDetails)</mat-label>
-            <textarea matInput rows="2" [formField]="editForm.declaration.sanctionsDetails"></textarea>
-          </mat-form-field>
+            <div class="rich-text-field rich-text-field--sanctions">
+              <p class="rich-text-field__label">Sanctions Details (sanctionsDetails)</p>
+              <quill-editor
+                class="rich-text-field__editor"
+                [ngModel]="formModel().declaration.sanctionsDetails || ''"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="updateSanctionsDetails($event)"
+                [modules]="quillModules"
+                placeholder="Summarize sanctions screening evidence.">
+              </quill-editor>
+            </div>
+          </div>
         </mat-card>
 
         <mat-card class="vault-card">
@@ -290,7 +269,8 @@
           <section class="document-section">
             <h3>Pending Uploads (documentsToUpload)</h3>
             <div class="document-list">
-              @for (document of formModel().documentsToUpload; track document.file.name) {
+              @for (documentForm of editForm.documentsToUpload; track $index) {
+                @let document = documentForm().value();
                 <div class="document-item document-item--pending">
                   <div class="document-item__meta">
                     <mat-icon>pending_actions</mat-icon>
@@ -299,6 +279,16 @@
                       <span>{{ document.documentType?.name || 'Document type pending' }}</span>
                     </div>
                   </div>
+
+                  <mat-form-field class="vault-field document-item__selector" subscriptSizing="dynamic">
+                    <mat-label>Document Type</mat-label>
+                    <mat-select
+                      [formField]="documentForm.documentType">
+                      @for (documentType of availableDocumentTypes(); track documentType.id) {
+                        <mat-option [value]="documentType">{{ documentType.name }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
 
                   <button
                     type="button"
@@ -316,7 +306,7 @@
 
       <div class="form-actions">
         <button type="button" mat-button (click)="navigateBack()">Cancel</button>
-        <button type="submit" mat-flat-button class="save-button">Save KYC Record</button>
+        <button type="button" mat-flat-button class="save-button" (click)="submit()">Save KYC Record</button>
       </div>
 
       <section class="context-grid">
@@ -350,3 +340,4 @@
     </form>
   </main>
 </div>
+<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>

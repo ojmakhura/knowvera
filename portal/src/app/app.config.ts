@@ -33,6 +33,25 @@ import {
   UserActivityService,
   withAutoRefreshToken,
 } from 'keycloak-angular';
+import { provideQuillConfig } from 'ngx-quill';
+
+const modules = {
+  toolbar: [
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote', 'code-block'],
+      [{ header: 1 }, { header: 2 }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ script: 'sub' }, { script: 'super' }],
+      [{ indent: '-1' }, { indent: '+1' }],
+      [{ size: ['small', false, 'large', 'huge'] }],
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      [{ color: [] }, { background: [] }],
+      [{ font: [] }],
+      [{ align: [] }],
+      ['clean'],
+      ['link', 'image'],
+    ],
+};
 
 export const provideKeycloakAndInterceptor = (env: any) => {
   const urlConditions = [
@@ -114,6 +133,11 @@ export const appConfig = (env: any) => {
         tapToDismiss: true,
         maxOpened: 5,
         autoDismiss: true,
+      }),
+      provideQuillConfig({
+        modules: {
+          toolbar: modules.toolbar
+        }
       }),
       importProvidersFrom(
         TranslateModule.forRoot({
