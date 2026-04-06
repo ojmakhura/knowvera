@@ -239,6 +239,11 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
             postalAddress: individual.postalAddress,
             id: individual.id,
           },
+          declaration: {
+            ...record.declaration,
+            pepStatus: individual.pepStatus,
+
+          }
         }));
       }
 
