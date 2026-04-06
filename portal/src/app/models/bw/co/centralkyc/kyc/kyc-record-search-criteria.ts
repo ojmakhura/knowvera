@@ -1,7 +1,6 @@
-import { FormBuilder } from "@angular/forms";
 
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
+import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 
 export class KycRecordSearchCriteria {
     name: string | any;
@@ -10,7 +9,7 @@ export class KycRecordSearchCriteria {
     
     target: TargetEntity | any;
     
-    targetId: string | any;
+    targetIds: Array<string> | any;
     
     statuses: Array<KycComplianceStatus> | any;
     
@@ -18,7 +17,7 @@ export class KycRecordSearchCriteria {
         this.name = null;
         this.registration = null;
         this.target = null;
-        this.targetId = null;
+        this.targetIds = [];
         this.statuses = [];
     }
 }

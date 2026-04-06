@@ -1,10 +1,9 @@
-import { FormBuilder } from "@angular/forms";
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
+import {ClientRequestStatus} from '@models/bw/co/centralkyc/organisation/client/client-request-status';
+import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
 import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
 import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
-import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import {ClientRequestStatus} from '@models/bw/co/centralkyc/organisation/client/client-request-status';
 
 export class ClientRequestDTO extends AuditableDTO {
     name: string | any;
@@ -45,7 +44,7 @@ export class ClientRequestDTO extends AuditableDTO {
         this.registration = null;
         this.identityType = null;
         this.emailAddress = null;
-        this.status = null;
+        this.status = ClientRequestStatus.PENDING;
         this.organisationId = null;
         this.organisation = null;
         this.organisationRegistrationNo = null;

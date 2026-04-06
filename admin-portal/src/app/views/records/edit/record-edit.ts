@@ -1,4 +1,3 @@
-import { VerificationSummaryEntry } from './../../../models/bw/co/centralkyc/kyc/verification-summary-entry';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -48,6 +47,7 @@ import { OwnerDetails } from '@app/models/bw/co/centralkyc/kyc/owner-details';
 import { EmploymentRecordDTO } from '@app/models/bw/co/centralkyc/individual/employment/employment-record-dto';
 import Swal from 'sweetalert2';
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
+import { VerificationSummaryEntry } from '@app/models/bw/co/centralkyc/kyc/verification-summary-entry';
 
 type QueuedDocumentUpload = {
   file: File;

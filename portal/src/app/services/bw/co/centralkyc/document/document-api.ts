@@ -5,6 +5,8 @@ import { DocumentDTO } from '@models/bw/co/centralkyc/document/document-dto';
 import { HttpClient } from '@angular/common/http';
 import { Page } from '@models/page.model';
 import { TargetEntity } from '@models/bw/co/centralkyc/target-entity';
+import { SearchObject } from '@models/search-object';
+import { DocumentSearchCriteria } from '@models/bw/co/centralkyc/document/document-search-criteria';
 
 @Injectable({
   providedIn: 'root',
@@ -50,8 +52,16 @@ export class DocumentApi {
     return this.http.post<DocumentDTO | any>(`${this.path}`, document);
   }
 
-  public search(criteria: string | any): Observable<DocumentDTO[] | any[]> {
-    return this.http.get<DocumentDTO[] | any[]>(`${this.path}/search?criteria=${criteria}`);
+  public search(
+    criteria: SearchObject<DocumentSearchCriteria>): Observable<DocumentDTO[]> {
+
+    return this.http.post<DocumentDTO[]>(`${this.path}/search`, criteria);
+  }
+
+  public searchPaged(
+    criteria: SearchObject<DocumentSearchCriteria>): Observable<Page<DocumentDTO>> {
+
+    return this.http.post<Page<DocumentDTO>>(`${this.path}/search/paged`, criteria);
   }
 
   public upload(
@@ -69,7 +79,7 @@ export class DocumentApi {
   }
 
   public downloadFile(id: string | any): Observable<any> {
-    return this.http.get(`${this.path}/download/${id}`, {
+    return this.http.get(`${this.path}/${id}/download`, {
       responseType: 'blob',
     });
   }
@@ -78,5 +88,17 @@ export class DocumentApi {
     return this.http.get(`${this.path}/download?objectName=${objectName}`, {
       responseType: 'blob',
     });
+  }
+
+  public updateFileContent(id: string, content: string): Observable<DocumentDTO> {
+    return this.http.put<DocumentDTO>(`${this.path}/${id}/content`, content);
+  }
+
+  public analyseDocument(id: string): Observable<DocumentDTO> {
+    return this.http.get<DocumentDTO>(`${this.path}/${id}/analysis`);
+  }
+
+  public verifyData(id: string): Observable<DocumentDTO> {
+    return this.http.get<DocumentDTO>(`${this.path}/${id}/data-verification`);
   }
 }

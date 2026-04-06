@@ -1,8 +1,7 @@
-import { FormBuilder } from "@angular/forms";
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {OrganisationDocumentStatus} from '@models/bw/co/centralkyc/organisation/document/organisation-document-status';
+import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 
 export class OrganisationDocumentDTO extends AuditableDTO {
     status: OrganisationDocumentStatus | any = OrganisationDocumentStatus.ACTIVE;
@@ -29,7 +28,7 @@ export class OrganisationDocumentDTO extends AuditableDTO {
     
     constructor() {
         super();
-        this.status = null;
+        this.status = OrganisationDocumentStatus.ACTIVE;
         this.organisationId = null;
         this.organisation = null;
         this.organisationRegistrationNo = null;

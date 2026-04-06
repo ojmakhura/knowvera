@@ -14,5 +14,7 @@ export enum DocumentVerificationStatus {
     /** TODO: Model Documentation for Enumeration Literal REJECTED value "REJECTED": $literal.enumerationLiteralDisplay */
     REJECTED = "REJECTED",
     /** TODO: Model Documentation for Enumeration Literal MANUAL_REVIEW value "MANUAL_REVIEW": $literal.enumerationLiteralDisplay */
-    MANUAL_REVIEW = "MANUAL_REVIEW"
+    MANUAL_REVIEW = "MANUAL_REVIEW",
+    /** TODO: Model Documentation for Enumeration Literal IN_PROGRESS value "IN_PROGRESS": $literal.enumerationLiteralDisplay */
+    IN_PROGRESS = "IN_PROGRESS"
 }

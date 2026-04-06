@@ -7,14 +7,14 @@
  * MODEL CLASS:  AndroMDAModel::backend::bw.co.centralkyc::PhoneType
  */
 export enum PhoneType {
-    /** TODO: Model Documentation for Enumeration Literal MOBILE value "MOBILE" */
+    /** TODO: Model Documentation for Enumeration Literal MOBILE value "MOBILE": $literal.enumerationLiteralDisplay */
     MOBILE = "MOBILE",
-    /** TODO: Model Documentation for Enumeration Literal WORK value "WORK" */
+    /** TODO: Model Documentation for Enumeration Literal WORK value "WORK": $literal.enumerationLiteralDisplay */
     WORK = "WORK",
-    /** TODO: Model Documentation for Enumeration Literal HOME value "HOME" */
+    /** TODO: Model Documentation for Enumeration Literal HOME value "HOME": $literal.enumerationLiteralDisplay */
     HOME = "HOME",
-    /** TODO: Model Documentation for Enumeration Literal MAIN value "MAIN" */
+    /** TODO: Model Documentation for Enumeration Literal MAIN value "MAIN": $literal.enumerationLiteralDisplay */
     MAIN = "MAIN",
-    /** TODO: Model Documentation for Enumeration Literal OTHER value "OTHER" */
+    /** TODO: Model Documentation for Enumeration Literal OTHER value "OTHER": $literal.enumerationLiteralDisplay */
     OTHER = "OTHER"
 }

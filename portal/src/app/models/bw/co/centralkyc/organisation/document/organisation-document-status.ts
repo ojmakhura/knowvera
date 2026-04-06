@@ -7,8 +7,8 @@
  * MODEL CLASS:  AndroMDAModel::backend::bw.co.centralkyc::organisation::document::OrganisationDocumentStatus
  */
 export enum OrganisationDocumentStatus {
-    /** TODO: Model Documentation for Enumeration Literal ACTIVE value "ACTIVE" */
+    /** TODO: Model Documentation for Enumeration Literal ACTIVE value "ACTIVE": $literal.enumerationLiteralDisplay */
     ACTIVE = "ACTIVE",
-    /** TODO: Model Documentation for Enumeration Literal INACTIVE value "INACTIVE" */
+    /** TODO: Model Documentation for Enumeration Literal INACTIVE value "INACTIVE": $literal.enumerationLiteralDisplay */
     INACTIVE = "INACTIVE"
 }

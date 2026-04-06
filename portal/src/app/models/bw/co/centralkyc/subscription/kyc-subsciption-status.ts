@@ -7,10 +7,10 @@
  * MODEL CLASS:  AndroMDAModel::backend::bw.co.centralkyc::subscription::KycSubsciptionStatus
  */
 export enum KycSubsciptionStatus {
-    /** TODO: Model Documentation for Enumeration Literal ACTIVE value "ACTIVE" */
+    /** TODO: Model Documentation for Enumeration Literal ACTIVE value "ACTIVE": $literal.enumerationLiteralDisplay */
     ACTIVE = "ACTIVE",
-    /** TODO: Model Documentation for Enumeration Literal INACTIVE value "INACTIVE" */
+    /** TODO: Model Documentation for Enumeration Literal INACTIVE value "INACTIVE": $literal.enumerationLiteralDisplay */
     INACTIVE = "INACTIVE",
-    /** TODO: Model Documentation for Enumeration Literal CANCELLED value "CANCELLED" */
+    /** TODO: Model Documentation for Enumeration Literal CANCELLED value "CANCELLED": $literal.enumerationLiteralDisplay */
     CANCELLED = "CANCELLED"
 }

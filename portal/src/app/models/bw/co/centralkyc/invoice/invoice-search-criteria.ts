@@ -1,4 +1,3 @@
-import { FormBuilder } from "@angular/forms";
 
 
 export class InvoiceSearchCriteria {
@@ -12,7 +11,7 @@ export class InvoiceSearchCriteria {
     
     organisationRegistrationNo: string | any;
     
-    paid: boolean | any = false;
+    paid: boolean | any;
     
     constructor() {
         this.ref = null;

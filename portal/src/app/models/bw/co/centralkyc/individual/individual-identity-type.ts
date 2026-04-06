@@ -7,12 +7,12 @@
  * MODEL CLASS:  AndroMDAModel::backend::bw.co.centralkyc::individual::IndividualIdentityType
  */
 export enum IndividualIdentityType {
-    /** TODO: Model Documentation for Enumeration Literal OMANG value "OMANG" */
+    /** TODO: Model Documentation for Enumeration Literal OMANG value "OMANG": $literal.enumerationLiteralDisplay */
     OMANG = "OMANG",
-    /** TODO: Model Documentation for Enumeration Literal PASSPORT value "PASSPORT" */
+    /** TODO: Model Documentation for Enumeration Literal PASSPORT value "PASSPORT": $literal.enumerationLiteralDisplay */
     PASSPORT = "PASSPORT",
-    /** TODO: Model Documentation for Enumeration Literal RESIDENCE_PERMIT value "RESIDENCE_PERMIT" */
+    /** TODO: Model Documentation for Enumeration Literal RESIDENCE_PERMIT value "RESIDENCE_PERMIT": $literal.enumerationLiteralDisplay */
     RESIDENCE_PERMIT = "RESIDENCE_PERMIT",
-    /** TODO: Model Documentation for Enumeration Literal BIRTH_CERTIFICATE value "BIRTH_CERTIFICATE" */
+    /** TODO: Model Documentation for Enumeration Literal BIRTH_CERTIFICATE value "BIRTH_CERTIFICATE": $literal.enumerationLiteralDisplay */
     BIRTH_CERTIFICATE = "BIRTH_CERTIFICATE"
 }

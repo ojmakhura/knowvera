@@ -7,12 +7,12 @@
  * MODEL CLASS:  AndroMDAModel::backend::bw.co.centralkyc::organisation::client::ClientRequestStatus
  */
 export enum ClientRequestStatus {
-    /** TODO: Model Documentation for Enumeration Literal PENDING value "PENDING" */
+    /** TODO: Model Documentation for Enumeration Literal PENDING value "PENDING": $literal.enumerationLiteralDisplay */
     PENDING = "PENDING",
-    /** TODO: Model Documentation for Enumeration Literal CONTACTED value "CONTACTED" */
+    /** TODO: Model Documentation for Enumeration Literal CONTACTED value "CONTACTED": $literal.enumerationLiteralDisplay */
     CONTACTED = "CONTACTED",
-    /** TODO: Model Documentation for Enumeration Literal ACCEPTED value "ACCEPTED" */
+    /** TODO: Model Documentation for Enumeration Literal ACCEPTED value "ACCEPTED": $literal.enumerationLiteralDisplay */
     ACCEPTED = "ACCEPTED",
-    /** TODO: Model Documentation for Enumeration Literal REJECTED value "REJECTED" */
+    /** TODO: Model Documentation for Enumeration Literal REJECTED value "REJECTED": $literal.enumerationLiteralDisplay */
     REJECTED = "REJECTED"
 }

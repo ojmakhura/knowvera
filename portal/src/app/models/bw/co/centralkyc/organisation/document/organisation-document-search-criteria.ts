@@ -1,7 +1,6 @@
-import { FormBuilder } from "@angular/forms";
 
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {OrganisationDocumentStatus} from '@models/bw/co/centralkyc/organisation/document/organisation-document-status';
+import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 
 export class OrganisationDocumentSearchCriteria {
     documentTypeId: string | any;

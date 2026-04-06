@@ -7,10 +7,10 @@
  * MODEL CLASS:  AndroMDAModel::backend::bw.co.centralkyc::IdentityType
  */
 export enum IdentityType {
-    /** TODO: Model Documentation for Enumeration Literal OMANG value "OMANG" */
+    /** TODO: Model Documentation for Enumeration Literal OMANG value "OMANG": $literal.enumerationLiteralDisplay */
     OMANG = "OMANG",
-    /** TODO: Model Documentation for Enumeration Literal PASSPORT value "PASSPORT" */
+    /** TODO: Model Documentation for Enumeration Literal PASSPORT value "PASSPORT": $literal.enumerationLiteralDisplay */
     PASSPORT = "PASSPORT",
-    /** TODO: Model Documentation for Enumeration Literal CIPA value "CIPA" */
+    /** TODO: Model Documentation for Enumeration Literal CIPA value "CIPA": $literal.enumerationLiteralDisplay */
     CIPA = "CIPA"
 }

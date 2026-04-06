@@ -1,4 +1,3 @@
-import { FormBuilder } from "@angular/forms";
 
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
 import {GeneralStatus} from '@models/bw/co/centralkyc/general-status';
@@ -22,6 +21,10 @@ export class OrganisationListDTO {
     
     keycloakId: string | any;
     
+    postalAddress: string | any;
+    
+    physicalAddress: string | any;
+    
     constructor() {
         this.id = null;
         this.code = null;
@@ -30,7 +33,9 @@ export class OrganisationListDTO {
         this.status = null;
         this.contactEmailAddress = null;
         this.kycStatus = null;
-        this.isClient = null;
+        this.isClient = false;
         this.keycloakId = null;
+        this.postalAddress = null;
+        this.physicalAddress = null;
     }
 }

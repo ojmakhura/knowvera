@@ -7,14 +7,14 @@
  * MODEL CLASS:  AndroMDAModel::backend::bw.co.centralkyc::individual::EmploymentStatus
  */
 export enum EmploymentStatus {
-    /** TODO: Model Documentation for Enumeration Literal EMPLOYED value "EMPLOYED" */
+    /** TODO: Model Documentation for Enumeration Literal EMPLOYED value "EMPLOYED": $literal.enumerationLiteralDisplay */
     EMPLOYED = "EMPLOYED",
-    /** TODO: Model Documentation for Enumeration Literal SELF_EMPLOYED value "SELF_EMPLOYED" */
+    /** TODO: Model Documentation for Enumeration Literal SELF_EMPLOYED value "SELF_EMPLOYED": $literal.enumerationLiteralDisplay */
     SELF_EMPLOYED = "SELF_EMPLOYED",
-    /** TODO: Model Documentation for Enumeration Literal STUDENT value "STUDENT" */
+    /** TODO: Model Documentation for Enumeration Literal STUDENT value "STUDENT": $literal.enumerationLiteralDisplay */
     STUDENT = "STUDENT",
-    /** TODO: Model Documentation for Enumeration Literal RETIRED value "RETIRED" */
+    /** TODO: Model Documentation for Enumeration Literal RETIRED value "RETIRED": $literal.enumerationLiteralDisplay */
     RETIRED = "RETIRED",
-    /** TODO: Model Documentation for Enumeration Literal UNEMPLOYED value "UNEMPLOYED" */
+    /** TODO: Model Documentation for Enumeration Literal UNEMPLOYED value "UNEMPLOYED": $literal.enumerationLiteralDisplay */
     UNEMPLOYED = "UNEMPLOYED"
 }

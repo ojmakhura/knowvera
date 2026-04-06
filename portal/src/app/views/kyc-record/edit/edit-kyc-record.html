@@ -1,310 +1,352 @@
-<app-loader [isLoading]="loading() || savingInProgress" [message]="'Loading KYC record...'" [size]="'medium'"></app-loader>
+<div class="edit-kyc">
+  <main class="edit-kyc__canvas">
+    <header class="hero">
+      <div class="hero__eyebrow">
+        <mat-icon>lock</mat-icon>
+        <span>Secure Verification Environment</span>
+      </div>
 
-@if (recordSignal(); as record) {
-  <div class="bg-surface min-vh-100 py-5">
-    <main class="container-xl px-4 max-w-6xl">
-      <header class="mb-4">
-        <h1 class="h2 fw-bold text-primary mb-1">Edit KYC Record</h1>
-        <p class="text-on-surface-variant small mb-0">Update and submit KYC details for verification.</p>
-      </header>
+      <div class="hero__header-row">
+        <div>
+          <h1>Edit KYC Record</h1>
+          <p>
+            Update institutional identity parameters and financial risk profiles. All
+            modifications are logged for regulatory auditing purposes.
+          </p>
+        </div>
 
-      <form class="vstack gap-4" (ngSubmit)="submit()">
-        <section class="bg-surface-container-lowest rounded-xl p-4 p-md-5 ring-1 shadow-sm">
-          <h2 class="h5 fw-bold text-primary mb-4">Record Details</h2>
-          <div class="row g-3">
-            <div class="col-12 col-md-6">
-              <label class="form-label small fw-semibold">Name</label>
-              <input
-                type="text"
-                class="form-control"
-                [formField]="recordForm.name"
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label small fw-semibold">Email Address</label>
-              <input
-                type="email"
-                class="form-control"
-                [formField]="recordForm.emailAddress"
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label small fw-semibold">Identity Number</label>
-              <input
-                type="text"
-                class="form-control"
-                [formField]="recordForm.identityNo"
-              />
-            </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label small fw-semibold">Identity Type</label>
-              <select
-                class="form-select"
-                [formField]="recordForm.identityType"
-              >
-                <option value="">Select identity type</option>
-                @for (identityType of identityTypeOptions; track identityType) {
-                  <option [value]="identityType">{{ toLabel(identityType) }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label small fw-semibold">Target Entity</label>
-              <select
-                class="form-select"
-                [formField]="recordForm.target"
-              >
-                <option value="">Select target entity</option>
-                @for (target of targetEntityOptions; track target) {
-                  <option [value]="target">{{ toLabel(target) }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label small fw-semibold">KYC Status</label>
-              <select
-                class="form-select"
-                [formField]="recordForm.kycStatus"
-              >
-                <option value="">Select status</option>
-                @for (status of kycStatusOptions; track status) {
-                  <option [value]="status">{{ toLabel(status) }}</option>
-                }
-              </select>
+        @if (recordReference(); as recordReferenceValue) {
+          <div class="hero__reference" aria-label="Current record reference">
+            <span>Record Ref</span>
+            <strong>{{ recordReferenceValue }}</strong>
+          </div>
+        }
+      </div>
+
+      @if (saveNotice(); as notice) {
+        <p class="hero__notice" [class.hero__notice--error]="saveNoticeTone() === 'error'">
+          {{ notice }}
+        </p>
+      }
+    </header>
+
+    <form class="edit-kyc__form" novalidate (ngSubmit)="submit()">
+      <mat-card class="vault-card vault-card--main">
+        <div class="section-heading">
+          <div class="section-heading__icon">
+            <mat-icon>person</mat-icon>
+          </div>
+          <div>
+            <h2>Owner Details</h2>
+            <p>Primary identity and address information for the subject.</p>
+          </div>
+
+          <div class="status-panel" aria-label="Current KYC status">
+            <span class="status-panel__label">KYC Status</span>
+            <div class="status-panel__value">
+              <span class="status-panel__dot"></span>
+              <strong>{{ kycStatus() }}</strong>
             </div>
           </div>
-        </section>
+        </div>
 
-        <section class="bg-surface-container-low rounded-xl p-4 p-md-5">
-          <h2 class="h5 fw-bold text-primary mb-3">Addresses</h2>
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label small fw-semibold">Physical Address</label>
-              <textarea
-                rows="2"
-                class="form-control"
-                [formField]="recordForm.physicalAddress"
-              ></textarea>
+        <section class="owner-layout" aria-label="Owner details overview">
+          <article class="owner-identity-card" aria-label="Owner identity summary">
+            <p class="owner-identity-card__eyebrow">Record Owner</p>
+            <h3>{{ formModel().ownerDetails.name || 'Not provided' }}</h3>
+
+            <div class="owner-identity-card__meta">
+              <div>
+                <span>Identity Number</span>
+                <strong>{{ formModel().ownerDetails.identityNo || 'Not provided' }}</strong>
+              </div>
+
+              <div>
+                <span>Identity Type</span>
+                <strong>{{ formModel().ownerDetails.identityType || 'Not provided' }}</strong>
+              </div>
             </div>
-            <div class="col-12">
-              <label class="form-label small fw-semibold">Postal Address</label>
-              <textarea
-                rows="2"
-                class="form-control"
-                [formField]="recordForm.postalAddress"
-              ></textarea>
-            </div>
+          </article>
+
+          <div class="owner-contact-grid" aria-label="Owner contact and address information">
+            <article class="owner-detail-tile owner-detail-tile--email" aria-label="Email address">
+              <p>Email Address</p>
+              <strong>{{ formModel().ownerDetails.emailAddress || 'Not provided' }}</strong>
+            </article>
+
+            <article class="owner-detail-tile" aria-label="Physical address">
+              <p>Physical Address</p>
+              <strong>{{ formModel().ownerDetails.physicalAddress || 'Not provided' }}</strong>
+            </article>
+
+            <article class="owner-detail-tile owner-detail-tile--wide" aria-label="Postal address">
+              <p>Postal Address</p>
+              <strong>{{ formModel().ownerDetails.postalAddress || 'Not provided' }}</strong>
+            </article>
           </div>
         </section>
+      </mat-card>
 
-        <!-- <div class="row g-4">
-          <section class="col-12 col-lg-6">
-            <div class="bg-surface-container-lowest rounded-xl p-4 p-md-5 ring-1 shadow-sm h-100">
-              <h2 class="h5 fw-bold text-primary mb-3">Employment Details</h2>
-              <div class="row g-3">
-                <div class="col-12">
-                  <label class="form-label small fw-semibold">Employer Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    [formField]="recordForm.employmentRecord.employer?.name"
-                  />
-                </div>
-                <div class="col-12">
-                  <label class="form-label small fw-semibold">Positions (comma-separated)</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    [value]="toPositionsDisplay(record.employmentRecord.positions)"
-                    (input)="updateEmploymentField('positions', parsePositionsInput($any($event.target).value))"
-                  />
-                </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label small fw-semibold">Salary Min</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    [formField]="recordForm.employmentRecord.salaryRange?.min"
-                    (input)="updateEmploymentField('salaryRange', { ...record.employmentRecord.salaryRange, min: +$any($event.target).value })"
-                  />
-                </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label small fw-semibold">Salary Max</label>
-                  <input
-                    type="number"
-                    class="form-control"
-                    [formField]="recordForm.employmentRecord.salaryRange?.max"
-                    (input)="updateEmploymentField('salaryRange', { ...record.employmentRecord.salaryRange, max: +$any($event.target).value })"
-                  />
-                </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label small fw-semibold">Employment Start</label>
-                  <input
-                    type="date"
-                    class="form-control"
-                    [value]="toDateInputValue(record.employmentRecord.employmentStart)"
-                    (change)="updateEmploymentDateField('employmentStart', $any($event.target).value)"
-                  />
-                </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label small fw-semibold">Employment End</label>
-                  <input
-                    type="date"
-                    class="form-control"
-                    [value]="toDateInputValue(record.employmentRecord.employmentEnd)"
-                    (change)="updateEmploymentDateField('employmentEnd', $any($event.target).value)"
-                  />
-                </div>
-              </div>
+      <mat-card class="vault-card vault-card--summary">
+        <div class="section-heading">
+          <div class="section-heading__icon">
+            <mat-icon>description</mat-icon>
+          </div>
+          <div>
+            <h2>Record Summary</h2>
+            <p>High-level context used by compliance reviewers.</p>
+          </div>
+        </div>
+
+        <mat-form-field class="vault-field vault-field--textarea" subscriptSizing="dynamic">
+          <mat-label>High-level Compliance Summary</mat-label>
+          <textarea matInput rows="3" [formField]="editForm.recordSummary"></textarea>
+        </mat-form-field>
+      </mat-card>
+
+      <section class="content-grid">
+        <mat-card class="vault-card">
+          <div class="section-heading">
+            <div class="section-heading__icon">
+              <mat-icon>work</mat-icon>
             </div>
-          </section>
-
-          <section class="col-12 col-lg-6">
-            <div class="bg-surface-container-lowest rounded-xl p-4 p-md-5 ring-1 shadow-sm h-100">
-              <h2 class="h5 fw-bold text-primary mb-3">Declaration</h2>
-              <div class="vstack gap-3">
-                <div>
-                  <label class="form-label small fw-semibold">PEP Status</label>
-                  <select
-                    class="form-select"
-                    [formField]="recordForm.declaration.pepStatus"
-                    (change)="updateDeclarationField('pepStatus', $any($event.target).value || null)"
-                  >
-                    <option value="">Select PEP status</option>
-                    @for (pepStatus of pepStatusOptions; track pepStatus) {
-                      <option [value]="pepStatus">{{ toLabel(pepStatus) }}</option>
-                    }
-                  </select>
-                </div>
-                <div>
-                  <label class="form-label small fw-semibold">PEP Details</label>
-                  <textarea
-                    rows="2"
-                    class="form-control"
-                    [formField]="recordForm.declaration.pepDetails"
-                    (input)="updateDeclarationField('pepDetails', $any($event.target).value)"
-                  ></textarea>
-                </div>
-                <div class="form-check">
-                  <input
-                    id="sanctionsMatch"
-                    class="form-check-input"
-                    type="checkbox"
-                    [checked]="!!record.declaration.sanctionsMatch"
-                    (change)="updateDeclarationField('sanctionsMatch', $any($event.target).checked)"
-                  />
-                  <label class="form-check-label" for="sanctionsMatch">Sanctions Match</label>
-                </div>
-                <div>
-                  <label class="form-label small fw-semibold">Sanctions Details</label>
-                  <textarea
-                    rows="2"
-                    class="form-control"
-                    [formField]="recordForm.declaration.sanctionsDetails"
-                    (input)="updateDeclarationField('sanctionsDetails', $any($event.target).value)"
-                  ></textarea>
-                </div>
-              </div>
+            <div>
+              <h2>Employment Details</h2>
+              <p>Employer records used for source-of-funds validation.</p>
             </div>
-          </section>
-        </div> -->
+          </div>
 
-        <section class="bg-surface-container-low rounded-xl p-4 p-md-5">
-          <h2 class="h5 fw-bold text-primary mb-3">Source of Funds</h2>
-          <div class="row g-2">
-            @for (source of sourceOfFundsOptions; track source) {
-              <div class="col-12 col-md-6">
-                <label class="form-check-label d-flex align-items-center gap-2 p-2 rounded-2 bg-surface-container-lowest border">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    [checked]="hasSourceOfFunds(source)"
-                    (change)="toggleSourceOfFunds(source, $any($event.target).checked)"
-                  />
-                  <span>{{ toLabel(source) }}</span>
-                </label>
-              </div>
+          <div class="employment-grid">
+            <mat-form-field class="vault-field vault-field--wide" subscriptSizing="dynamic">
+              <mat-label>Employer Name</mat-label>
+              <input matInput [formField]="editForm.employmentRecord.name" />
+              @if ((submitted() || editForm.employmentRecord.name().touched()) && editForm.employmentRecord.name().invalid()) {
+                <mat-error>Employer name is required.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="vault-field" subscriptSizing="dynamic">
+              <mat-label>Identity Number / Business Reg</mat-label>
+              <input matInput [formField]="editForm.employmentRecord.identityNo" />
+            </mat-form-field>
+
+            <mat-form-field class="vault-field" subscriptSizing="dynamic">
+              <mat-label>Positions (List)</mat-label>
+              <input matInput [formField]="editForm.employmentRecord.positions" />
+              @if ((submitted() || editForm.employmentRecord.positions().touched()) && editForm.employmentRecord.positions().invalid()) {
+                <mat-error>Position is required.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="vault-field" subscriptSizing="dynamic">
+              <mat-label>Employment Start</mat-label>
+              <input matInput type="date" [formField]="editForm.employmentRecord.employmentStart" />
+              @if ((submitted() || editForm.employmentRecord.employmentStart().touched()) && editForm.employmentRecord.employmentStart().invalid()) {
+                <mat-error>Start date is required.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="vault-field" subscriptSizing="dynamic">
+              <mat-label>Employment End (Optional)</mat-label>
+              <input matInput type="date" [formField]="editForm.employmentRecord.employmentEnd" />
+            </mat-form-field>
+          </div>
+        </mat-card>
+
+        <mat-card class="vault-card vault-card--soft">
+          <div class="section-heading">
+            <div class="section-heading__icon section-heading__icon--soft">
+              <mat-icon>account_balance</mat-icon>
+            </div>
+            <div>
+              <h2>Source of Funds</h2>
+              <p>Declared origins of wealth and supporting narrative.</p>
+            </div>
+          </div>
+
+          <div class="source-toolbar">
+            @for (source of formModel().sourceOfFunds; track source) {
+              <button
+                type="button"
+                mat-flat-button
+                class="source-chip"
+                (click)="removeSource(source)">
+                <span>{{ source }}</span>
+                <mat-icon>close</mat-icon>
+              </button>
             }
-          </div>
-          <div class="mt-3">
-            <label class="form-label small fw-semibold">Additional Details</label>
-            <textarea
-              rows="3"
-              class="form-control"
-              [formField]="recordForm.sourceOfFundsDetails"
-              (input)="updateRecordField('sourceOfFundsDetails', $any($event.target).value)"
-            ></textarea>
-          </div>
-        </section>
 
-        <section class="bg-surface-container-lowest rounded-xl p-4 p-md-5 ring-1 shadow-sm">
-          <h2 class="h5 fw-bold text-primary mb-3">Documents</h2>
-
-          <div class="row g-3">
-            @for (type of availableDocumentTypes(); track getDocKey(type)) {
-              <div class="col-12 col-md-6">
-                <div class="d-flex justify-content-between align-items-center p-3 border rounded-3 bg-surface-container-low">
-                  <div>
-                    <p class="small fw-semibold mb-0">{{ type.name }}</p>
-                    <p class="text-10px text-on-surface-variant mb-0">
-                      {{ getDocumentFileName(type) || 'No file selected' }}
-                    </p>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="toggleDocument(type)">
-                      {{ isDocumentSelected(type) ? 'Unselect' : 'Select' }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            }
+            <button type="button" mat-stroked-button class="source-add" (click)="toggleSourcePicker()">
+              <mat-icon>add</mat-icon>
+              <span>Add Source</span>
+            </button>
           </div>
 
-          <div class="row g-3 mt-1">
-            <div class="col-12 col-md-6">
-              <label class="form-label small fw-semibold">Document Type</label>
-              <select
-                class="form-select"
-                [value]="selectedDocumentTypeKey()"
-                (change)="onDocumentTypeSelection($any($event.target).value || null)"
-              >
-                <option value="">Select document type</option>
-                @for (type of availableDocumentTypes(); track getDocKey(type)) {
-                  <option [value]="getDocKey(type)">{{ type.name }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label small fw-semibold">Upload File</label>
-              <input
-                class="form-control"
-                type="file"
-                [disabled]="!selectedDocumentType()"
-                (change)="onSelectedDocumentFileChange($event)"
-              />
-            </div>
-          </div>
-
-          @if (record.documents.length) {
-            <div class="vstack gap-2 mt-3">
-              @for (doc of record.documents; track doc.documentTypeId + '-' + doc.fileName) {
-                <div class="d-flex justify-content-between align-items-center p-2 rounded-2 bg-surface-container-low border">
-                  <div>
-                    <p class="small fw-semibold mb-0">{{ doc.documentType || 'Unknown type' }}</p>
-                    <p class="text-10px text-on-surface-variant mb-0">{{ doc.fileName || 'No file selected' }}</p>
-                  </div>
-                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeDocument(doc)">Remove</button>
-                </div>
+          @if (showSourcePicker() && availableSources().length) {
+            <div class="source-picker" aria-label="Available source of funds options">
+              @for (source of availableSources(); track source) {
+                <button type="button" mat-stroked-button (click)="addSource(source)">
+                  {{ source }}
+                </button>
               }
             </div>
           }
-        </section>
 
-        <div class="d-flex justify-content-end gap-3">
-          <button type="button" class="btn btn-outline-secondary" (click)="router.navigate(['/kyc-record'])">Cancel</button>
-          <button type="submit" class="btn btn-primary" [disabled]="loading() || savingInProgress">Save KYC Record</button>
-        </div>
-      </form>
-    </main>
-  </div>
-}
+          <mat-form-field class="vault-field vault-field--textarea" subscriptSizing="dynamic">
+            <mat-label>Verification Details</mat-label>
+            <textarea matInput rows="4" [formField]="editForm.sourceOfFundsDetails"></textarea>
+          </mat-form-field>
+        </mat-card>
+      </section>
+
+      <section class="content-grid content-grid--balanced">
+        <mat-card class="vault-card">
+          <div class="section-heading">
+            <div class="section-heading__icon">
+              <mat-icon>gavel</mat-icon>
+            </div>
+            <div>
+              <h2>Compliance Declaration</h2>
+              <p>Escalation controls for PEP and sanctions checks.</p>
+            </div>
+          </div>
+
+          <mat-form-field class="vault-field" subscriptSizing="dynamic">
+            <mat-label>PEP Status (pepStatus)</mat-label>
+            <mat-select [formField]="editForm.declaration.pepStatus">
+              @for (pepStatus of pepStatusOptions; track pepStatus) {
+                <mat-option [value]="pepStatus">{{ pepStatus }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="vault-field vault-field--textarea" subscriptSizing="dynamic">
+            <mat-label>PEP Details (pepDetails)</mat-label>
+            <textarea matInput rows="2" [formField]="editForm.declaration.pepDetails"></textarea>
+          </mat-form-field>
+
+          <label class="toggle-card toggle-card--alert">
+            <mat-checkbox [formField]="editForm.declaration.sanctionsMatch">
+              Sanctions Match (sanctionsMatch)
+            </mat-checkbox>
+            <span>Flag for potential matches on global sanction lists.</span>
+          </label>
+
+          <mat-form-field class="vault-field vault-field--textarea" subscriptSizing="dynamic">
+            <mat-label>Sanctions Details (sanctionsDetails)</mat-label>
+            <textarea matInput rows="2" [formField]="editForm.declaration.sanctionsDetails"></textarea>
+          </mat-form-field>
+        </mat-card>
+
+        <mat-card class="vault-card">
+          <div class="section-heading">
+            <div class="section-heading__icon">
+              <mat-icon>upload_file</mat-icon>
+            </div>
+            <div>
+              <h2>Verification Documents</h2>
+              <p>Supporting files for identity and address verification.</p>
+            </div>
+          </div>
+
+          <label class="upload-dropzone" for="kyc-document-upload">
+            <input
+              id="kyc-document-upload"
+              class="upload-dropzone__input"
+              type="file"
+              accept=".pdf,.png,.jpg,.jpeg"
+              (change)="onDocumentSelected($event)" />
+
+            <mat-icon>cloud_upload</mat-icon>
+            <strong>Drag and drop files to upload</strong>
+            <span>PDF, PNG, JPG (Max 10MB per file)</span>
+          </label>
+
+          <section class="document-section">
+            <h3>Verified Documents (documents)</h3>
+            <div class="document-list">
+              @for (document of formModel().documents; track document.id) {
+                <div class="document-item">
+                  <div class="document-item__meta">
+                    <mat-icon>description</mat-icon>
+                    <div>
+                      <strong>{{ document.fileName || 'Unnamed document' }}</strong>
+                      <span>{{ document.documentType || 'Unknown type' }} • {{ document.verificationStatus || 'UNVERIFIED' }}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    mat-icon-button
+                    aria-label="Remove verified document"
+                    (click)="removeDocument(document.fileName)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          </section>
+
+          <section class="document-section">
+            <h3>Pending Uploads (documentsToUpload)</h3>
+            <div class="document-list">
+              @for (document of formModel().documentsToUpload; track document.file.name) {
+                <div class="document-item document-item--pending">
+                  <div class="document-item__meta">
+                    <mat-icon>pending_actions</mat-icon>
+                    <div>
+                      <strong>{{ document.file.name }}</strong>
+                      <span>{{ document.documentType?.name || 'Document type pending' }}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    mat-icon-button
+                    aria-label="Cancel pending upload"
+                    (click)="removeQueuedDocument(document.file.name)">
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          </section>
+        </mat-card>
+      </section>
+
+      <div class="form-actions">
+        <button type="button" mat-button (click)="navigateBack()">Cancel</button>
+        <button type="submit" mat-flat-button class="save-button">Save KYC Record</button>
+      </div>
+
+      <section class="context-grid">
+        <article class="context-panel context-panel--map">
+          <div>
+            <p class="context-panel__eyebrow">Identity Origin</p>
+            <h2>Jurisdiction: United Kingdom</h2>
+            <p>FATF Gray List Status: Non-listed / Stable</p>
+          </div>
+        </article>
+
+        <article class="context-panel context-panel--audit">
+          <mat-icon>verified_user</mat-icon>
+          <div>
+            <h2>Audit Trail Active</h2>
+            <p>
+              This session is being recorded for security and compliance. IP address
+              192.168.1.1 logged.
+            </p>
+          </div>
+
+          <div class="context-panel__agents" aria-label="Compliance observers">
+            <div class="context-panel__avatars">
+              <span>AV</span>
+              <span>MK</span>
+            </div>
+            <strong>2 Agents Viewing</strong>
+          </div>
+        </article>
+      </section>
+    </form>
+  </main>
+</div>

@@ -7,12 +7,12 @@
  * MODEL CLASS:  AndroMDAModel::backend::bw.co.centralkyc::sequence::SequencePartType
  */
 export enum SequencePartType {
-    /** TODO: Model Documentation for Enumeration Literal YEAR value "YEAR" */
+    /** TODO: Model Documentation for Enumeration Literal YEAR value "YEAR": $literal.enumerationLiteralDisplay */
     YEAR = "YEAR",
-    /** TODO: Model Documentation for Enumeration Literal MONTH value "MONTH" */
+    /** TODO: Model Documentation for Enumeration Literal MONTH value "MONTH": $literal.enumerationLiteralDisplay */
     MONTH = "MONTH",
-    /** TODO: Model Documentation for Enumeration Literal COUNTER value "COUNTER" */
+    /** TODO: Model Documentation for Enumeration Literal COUNTER value "COUNTER": $literal.enumerationLiteralDisplay */
     COUNTER = "COUNTER",
-    /** TODO: Model Documentation for Enumeration Literal STATIC value "STATIC" */
+    /** TODO: Model Documentation for Enumeration Literal STATIC value "STATIC": $literal.enumerationLiteralDisplay */
     STATIC = "STATIC"
 }

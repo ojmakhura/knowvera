@@ -7,14 +7,14 @@
  * MODEL CLASS:  AndroMDAModel::backend::bw.co.centralkyc::individual::MaritalStatus
  */
 export enum MaritalStatus {
-    /** TODO: Model Documentation for Enumeration Literal SINGLE value "SINGLE" */
+    /** TODO: Model Documentation for Enumeration Literal SINGLE value "SINGLE": $literal.enumerationLiteralDisplay */
     SINGLE = "SINGLE",
-    /** TODO: Model Documentation for Enumeration Literal MARRIED value "MARRIED" */
+    /** TODO: Model Documentation for Enumeration Literal MARRIED value "MARRIED": $literal.enumerationLiteralDisplay */
     MARRIED = "MARRIED",
-    /** TODO: Model Documentation for Enumeration Literal DIVORCED value "DIVORCED" */
+    /** TODO: Model Documentation for Enumeration Literal DIVORCED value "DIVORCED": $literal.enumerationLiteralDisplay */
     DIVORCED = "DIVORCED",
-    /** TODO: Model Documentation for Enumeration Literal WIDOWED value "WIDOWED" */
+    /** TODO: Model Documentation for Enumeration Literal WIDOWED value "WIDOWED": $literal.enumerationLiteralDisplay */
     WIDOWED = "WIDOWED",
-    /** TODO: Model Documentation for Enumeration Literal OTHER value "OTHER" */
+    /** TODO: Model Documentation for Enumeration Literal OTHER value "OTHER": $literal.enumerationLiteralDisplay */
     OTHER = "OTHER"
 }

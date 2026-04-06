@@ -1,88 +1,185 @@
-<section class="page-header">
-  <p class="eyebrow">Application Overview</p>
-  <div class="row">
+<main class="dashboard-shell">
+  <section class="dashboard-hero" aria-labelledby="dashboard-title">
     <div>
-      <h1>Verification Dashboard</h1>
+      <h1 id="dashboard-title">Dashboard</h1>
       <p>
-        A consolidated view of verification health, pending controls, and recent activity for this vault profile.
+        Monitor real-time compliance status and manage high-priority institutional identity verifications
+        across your organizational network.
       </p>
     </div>
-    <div class="stat">
-      <span>Overall Completion</span>
-      <strong>{{ getCompletionPercent() }}%</strong>
+
+    <div class="dashboard-hero__actions">
+      <button type="button" class="secondary-button" (click)="refreshRecords()">
+        <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+        Refresh
+      </button>
+      <button type="button" class="primary-button" (click)="createRecord(targetEntityEnum.INDIVIDUAL)">
+        <span class="material-symbols-outlined" aria-hidden="true">add</span>
+        New KYC Record
+      </button>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="progress-track" aria-label="Verification progress">
-  <div [class.done]="getCompletionPercent() >= 25" [class.active]="getCompletionPercent() < 25"></div>
-  <div [class.done]="getCompletionPercent() >= 50" [class.active]="getCompletionPercent() >= 25 && getCompletionPercent() < 50"></div>
-  <div [class.done]="getCompletionPercent() >= 75" [class.active]="getCompletionPercent() >= 50 && getCompletionPercent() < 75"></div>
-  <div [class.done]="getCompletionPercent() >= 100" [class.active]="getCompletionPercent() >= 75 && getCompletionPercent() < 100"></div>
-</section>
-
-<section class="grid">
-  <article class="card highlight">
-    <p class="tag">Needs Attention</p>
-    @if (getAttentionRecord(); as attentionRecord) {
-      <h2>{{ attentionRecord.name || attentionRecord.ref || 'KYC Record' }}</h2>
-      <p>
-        Status is <strong>{{ attentionRecord.kycStatus || 'INCOMPLETE' }}</strong>.
-        Please review and complete missing verifications for this record.
-      </p>
-      <button type="button" (click)="editRecord(attentionRecord)">Review Record</button>
-    } @else {
-      <h2>No high-risk records</h2>
-      <p>Everything currently looks healthy. You can create a new KYC record below.</p>
-      <button type="button" (click)="createRecord(targetEntityEnum.INDIVIDUAL)">Create Individual Record</button>
+  <section class="metric-grid" aria-label="Verification metrics">
+    @for (metric of metrics(); track metric.label) {
+      <article class="metric-card">
+        <div class="metric-card__header">
+          <span>{{ metric.label }}</span>
+          <span class="metric-card__icon" [class]="'metric-card__icon metric-card__icon--' + metric.tone">
+            <span class="material-symbols-outlined" aria-hidden="true">{{ metric.icon }}</span>
+          </span>
+        </div>
+        <p class="metric-card__value">{{ metric.value }}</p>
+        <p class="metric-card__detail">{{ metric.detail }}</p>
+      </article>
     }
-  </article>
+  </section>
 
-  <article class="card eta">
-    <h2>Estimated Completion</h2>
-    <p>{{ getEstimatedCompletionDate() }}</p>
-    <small>Based on current record status progression</small>
-  </article>
-
-  <article class="card full">
-    <div class="card__header">
-      <h3>My KYC Records</h3>
-      <button type="button" class="ghost" (click)="refreshRecords()">Refresh</button>
+  <section class="dashboard-section" aria-labelledby="current-records-title">
+    <div class="section-heading">
+      <div>
+        <h2 id="current-records-title">Current Records</h2>
+        <p>Priority profiles surfaced from the latest active verification records.</p>
+      </div>
+      <a class="section-link" href="#registry">View All <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>
     </div>
 
-    @if (myRecords().length) {
-      <ul>
-        @for (record of myRecords(); track record.id || $index) {
-          <li>
-            <div class="log-main">
-              <span>{{ record.name || record.ref || record.identityNo || 'Unnamed record' }}</span>
-              <small>
-                {{ record.target || 'UNKNOWN' }}
-                @if (record.expiryDate) {
-                  • Expires {{ formatDate(record.expiryDate) }}
-                }
-              </small>
+    <div class="record-grid">
+      @for (card of featuredCards(); track card.kind) {
+        <article class="record-card">
+          <div class="record-card__halo"></div>
+          <div class="record-card__content">
+            <div class="record-card__header">
+              <div class="record-card__identity">
+                <div class="record-card__avatar">
+                  <span class="material-symbols-outlined" aria-hidden="true">{{ card.icon }}</span>
+                </div>
+                <div>
+                  <p class="record-card__eyebrow">{{ card.eyebrow }}</p>
+                  <h3>{{ card.title }}</h3>
+                  <p class="record-card__subtitle">{{ card.subtitle }}</p>
+                </div>
+              </div>
+              <span [class]="'status-chip status-chip--' + card.badgeTone">{{ card.badgeLabel }}</span>
             </div>
-            <div class="log-actions">
-              <strong [class]="getStatusClass(record.kycStatus || '')">{{ record.kycStatus || 'UNKNOWN' }}</strong>
-              <button type="button" class="ghost" (click)="viewRecord(record)">View</button>
-              <button type="button" class="ghost" (click)="editRecord(record)">Edit</button>
-            </div>
-          </li>
-        }
-      </ul>
-    } @else {
-      <p class="empty-state">No records found. Create a new KYC record to get started.</p>
-    }
-  </article>
 
-  <article class="card full">
-    <div class="card__header">
-      <h3>Quick Actions</h3>
+            <dl class="record-card__details">
+              @for (detail of card.details; track detail.label) {
+                <div class="record-detail">
+                  <dt>{{ detail.label }}</dt>
+                  <dd [class]="detail.tone === 'alert' ? 'is-alert' : detail.tone === 'accent' ? 'is-accent' : ''">{{ detail.value }}</dd>
+                </div>
+              }
+            </dl>
+
+            <button type="button" class="record-card__action" (click)="handleFeaturedAction(card)">
+              {{ card.actionLabel }}
+            </button>
+          </div>
+        </article>
+      }
     </div>
-    <div class="quick-actions">
-      <button type="button" (click)="createRecord(targetEntityEnum.INDIVIDUAL)">Create Individual Record</button>
-      <button type="button" (click)="createRecord(targetEntityEnum.ORGANISATION)">Create Organisation Record</button>
+  </section>
+
+  <section class="dashboard-section registry" id="registry" aria-labelledby="registry-title">
+    <div class="section-heading section-heading--tight">
+      <div>
+        <h2 id="registry-title">Institutional Records Registry</h2>
+        <p>Complete audit trail of all identity verification objects.</p>
+      </div>
+
+      <div class="registry-toolbar">
+        <button type="button" class="secondary-button secondary-button--compact" (click)="cycleFilter()">
+          <span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
+          {{ filterButtonLabel() }}
+        </button>
+        <button
+          type="button"
+          class="secondary-button secondary-button--compact"
+          (click)="exportRegistry()"
+          [disabled]="!filteredRecords().length"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">download</span>
+          Export CSV
+        </button>
+      </div>
     </div>
-  </article>
-</section>
+
+    <div class="registry-table-wrap">
+      <table class="registry-table">
+        <caption class="sr-only">Registry of institutional and individual KYC records</caption>
+        <thead>
+          <tr>
+            <th scope="col">Client Name / Type</th>
+            <th scope="col">Identity No.</th>
+            <th scope="col">Status</th>
+            <th scope="col">Upload Date</th>
+            <th scope="col">Expiry</th>
+            <th scope="col" class="actions-column">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (record of visibleRecords(); track record.id || $index) {
+            <tr>
+              <td>
+                <div class="registry-name">
+                  <div class="registry-name__icon">
+                    <span class="material-symbols-outlined" aria-hidden="true">{{ rowIcon(record) }}</span>
+                  </div>
+                  <div>
+                    <p>{{ recordTitle(record) }}</p>
+                    <span>{{ rowTypeLabel(record) }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="mono">{{ recordReference(record) }}</td>
+              <td>
+                <span [class]="'status-chip status-chip--' + statusTone(record.kycStatus)">{{ statusLabel(record.kycStatus) }}</span>
+              </td>
+              <td>{{ rowUploadDate(record) }}</td>
+              <td [class]="statusTone(record.kycStatus) === 'expired' ? 'text-alert' : ''">{{ formatDate(record.expiryDate) }}</td>
+              <td>
+                <div class="registry-actions">
+                  <button type="button" class="icon-button" (click)="viewRecord(record)" [attr.aria-label]="'View ' + recordTitle(record)">
+                    <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                  </button>
+                  <button type="button" class="icon-button" (click)="editRecord(record)" [attr.aria-label]="'Edit ' + recordTitle(record)">
+                    <span class="material-symbols-outlined" aria-hidden="true">edit_square</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="registry-table__empty">
+                No records match the current registry filter.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="registry-footer">
+        <p>{{ resultLabel() }}</p>
+        <div class="registry-pager" aria-label="Registry pagination status">
+          <button type="button" class="pager-button" disabled aria-label="Previous page">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+          </button>
+          <span class="pager-button pager-button--active">1</span>
+          <button type="button" class="pager-button" disabled aria-label="Next page">
+            <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="dashboard-footer">
+    <p>© 2026 SecureVault KYC Infrastructure</p>
+    <div>
+      <a routerLink="/privacy-policy">Privacy Policy</a>
+      <a href="#dashboard-title">System Status</a>
+      <a href="#registry">API Documentation</a>
+    </div>
+  </footer>
+</main>

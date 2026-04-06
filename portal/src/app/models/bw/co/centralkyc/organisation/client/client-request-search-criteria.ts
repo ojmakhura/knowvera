@@ -1,7 +1,6 @@
-import { FormBuilder } from "@angular/forms";
 
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {ClientRequestStatus} from '@models/bw/co/centralkyc/organisation/client/client-request-status';
+import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 
 export class ClientRequestSearchCriteria {
     emailAddress: string | any;

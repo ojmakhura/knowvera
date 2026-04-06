@@ -52,7 +52,7 @@ export class OrganisationApi {
     return this.http.post<OrganisationListDTO[] | any[]>(`${this.path}/search`, criteria);
   }
 
-  loadMyOrganisation(): Observable<OrganisationDTO> {
+  public loadMyOrganisation(): Observable<OrganisationDTO> {
     return this.http.get<OrganisationDTO>(`${this.path}/mine`);
   }
 }

@@ -1,4 +1,3 @@
-import { FormBuilder } from "@angular/forms";
 
 
 export class SalaryRangeDTO {
@@ -14,6 +13,6 @@ export class SalaryRangeDTO {
         this.id = null;
         this.min = null;
         this.max = null;
-        this.active = null;
+        this.active = true;
     }
 }

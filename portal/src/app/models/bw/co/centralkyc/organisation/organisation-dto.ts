@@ -1,11 +1,10 @@
-import { FormBuilder } from "@angular/forms";
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
 import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
+import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
 import {DocumentTypeDTO} from '@models/bw/co/centralkyc/document/type/document-type-dto';
 import {OrganisationDomain} from '@models/bw/co/centralkyc/organisation/organisation-domain';
 import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
-import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
 import {GeneralStatus} from '@models/bw/co/centralkyc/general-status';
 
 export class OrganisationDTO extends AuditableDTO {
@@ -56,7 +55,7 @@ export class OrganisationDTO extends AuditableDTO {
         this.status = null;
         this.contactEmailAddress = null;
         this.clientKycDocuments = [];
-        this.isClient = null;
+        this.isClient = false;
         this.clientRequestsFiles = [];
         this.domains = [];
         this.kycStatus = null;

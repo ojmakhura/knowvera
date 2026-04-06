@@ -7,17 +7,16 @@ import { tapResponse } from '@ngrx/operators';
 import { AppState } from '@app/store/app-state';
 import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
-import { KycVerificationDTO } from '@app/models/bw/co/centralkyc/kyc/verification/kyc-verification-dto';
-import { KycVerificationSearchCriteria } from '@app/models/bw/co/centralkyc/kyc/verification/kyc-verification-search-criteria';
-import { KycVerificationApi } from '@app/services/bw/co/centralkyc/kyc/verification/kyc-verification-api';
-import { KycRecordSearchCriteria } from '@app/models/bw/co/centralkyc/kyc/kyc-record-search-criteria';
+import { ContactDTO } from '@app/models/bw/co/centralkyc/contact/contact-dto';
+import { ContactApi } from '@app/services/bw/co/centralkyc/contact/contact-api';
+import { ContactType } from '@app/models/bw/co/centralkyc/contact/contact-type';
 
-export type KycVerificationApiState = AppState<any, any> & {};
+export type ContactApiState = AppState<ContactDTO, ContactDTO> & {};
 
-const initialState: KycVerificationApiState = {
-  data: null,
+const initialState: ContactApiState = {
+  data: new ContactDTO(),
   dataList: [],
-  dataPage: new Page<any>(),
+  dataPage: new Page<ContactDTO>(),
   searchCriteria: new SearchObject<any>(),
   loading: false,
   success: false,
@@ -26,11 +25,11 @@ const initialState: KycVerificationApiState = {
   error: false
 };
 
-export const KycVerificationApiStore = signalStore(
+export const ContactApiStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withMethods((store: any) => {
-    const kycVerificationApi = inject(KycVerificationApi);
+    const contactApi = inject(ContactApi);
     return {
       reset: () => {
         patchState(store, initialState);
@@ -38,15 +37,15 @@ export const KycVerificationApiStore = signalStore(
       findById: rxMethod<{id: string}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return kycVerificationApi.findById(data.id, ).pipe(
+          return contactApi.findById(data.id, ).pipe(
             tapResponse({
-              next: (response: KycVerificationDTO) => {
+              next: (response: ContactDTO) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -54,12 +53,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -67,18 +66,18 @@ export const KycVerificationApiStore = signalStore(
           );
         }),
       ),
-      findByRecord: rxMethod<{recordId: string}>(
+      findByType: rxMethod<{type: ContactType}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return kycVerificationApi.findByRecord(data.recordId, ).pipe(
+          return contactApi.findByType(data.type, ).pipe(
             tapResponse({
-              next: (response: KycVerificationDTO) => {
+              next: (response: ContactDTO[]) => {
                 patchState(
-                  store, 
+                  store,
                   {
-                    data: response,
-                    loading: false, 
-                    success: true, 
+                    dataList: response,
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -86,12 +85,44 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      findByTypePaged: rxMethod<{type: ContactType, pageNumber: number, pageSize: number}>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return contactApi.findByTypePaged(data.type, data.pageNumber, data.pageSize, ).pipe(
+            tapResponse({
+              next: (response: Page<ContactDTO>) => {
+                patchState(
+                  store,
+                  {
+                    dataPage: response,
+                    loading: false,
+                    success: true,
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -102,15 +133,15 @@ export const KycVerificationApiStore = signalStore(
       getAll: rxMethod<void>(
         switchMap(() => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return kycVerificationApi.getAll().pipe(
+          return contactApi.getAll().pipe(
             tapResponse({
-              next: (response: KycVerificationDTO[]) => {
+              next: (response: ContactDTO[]) => {
                 patchState(
-                  store, 
+                  store,
                   {
-                    dataList: response, 
-                    loading: false, 
-                    success: true, 
+                    dataList: response,
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -118,12 +149,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -134,15 +165,15 @@ export const KycVerificationApiStore = signalStore(
       getAllPaged: rxMethod<{pageNumber: number, pageSize: number}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return kycVerificationApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
+          return contactApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
-              next: (response: Page<KycVerificationDTO>) => {
+              next: (response: Page<ContactDTO>) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     dataPage: response,
-                    loading: false, 
-                    success: true, 
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -150,44 +181,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
-                  }
-                );
-              },
-            }),
-          );
-        }),
-      ),
-      pagedSearch: rxMethod<{criteria: SearchObject<KycRecordSearchCriteria>}>(
-        switchMap((data: any) => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return kycVerificationApi.pagedSearch(data.criteria, ).pipe(
-            tapResponse({
-              next: (response: Page<KycVerificationDTO>) => {
-                patchState(
-                  store, 
-                  {
-                    dataPage: response,
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
-                    error: false,
-                  }
-                );
-              },
-              error: (error: any) => {
-                patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
-                    success: false,
-                    error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -198,15 +197,15 @@ export const KycVerificationApiStore = signalStore(
       remove: rxMethod<{id: string}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return kycVerificationApi.remove(data.id, ).pipe(
+          return contactApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -214,12 +213,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -227,18 +226,18 @@ export const KycVerificationApiStore = signalStore(
           );
         }),
       ),
-      save: rxMethod<{kycRecord: KycVerificationDTO}>(
+      save: rxMethod<{document: ContactDTO}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return kycVerificationApi.save(data.kycRecord, ).pipe(
+          return contactApi.save(data.document, ).pipe(
             tapResponse({
-              next: (response: KycVerificationDTO) => {
+              next: (response: ContactDTO) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -246,12 +245,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },
@@ -259,18 +258,18 @@ export const KycVerificationApiStore = signalStore(
           );
         }),
       ),
-      search: rxMethod<{criteria: KycVerificationSearchCriteria}>(
+      search: rxMethod<{criteria: string}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return kycVerificationApi.search(data.criteria, ).pipe(
+          return contactApi.search(data.criteria, ).pipe(
             tapResponse({
-              next: (response: KycVerificationDTO[]) => {
+              next: (response: ContactDTO[]) => {
                 patchState(
-                  store, 
+                  store,
                   {
-                    dataList: response, 
-                    loading: false, 
-                    success: true, 
+                    dataList: response,
+                    loading: false,
+                    success: true,
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -278,12 +277,12 @@ export const KycVerificationApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
                   }
                 );
               },

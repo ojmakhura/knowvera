@@ -8,6 +8,7 @@ package bw.co.centralkyc.document.type;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +45,14 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
         try {
 
-            return ResponseEntity.ok(documentTypeService.getAll());
+            Collection<DocumentTypeDTO> results = documentTypeService.getAll();
+
+            if (CollectionUtils.isEmpty(results)) {
+
+                return ResponseEntity.noContent().build();
+            }   
+
+            return ResponseEntity.ok(results);
 
         } catch (Exception e) {
 
@@ -58,8 +66,15 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
             Integer pageSize) {
 
         try {
-            return ResponseEntity.ok(documentTypeService.getAll(pageNumber, pageSize));
-        } catch(Exception e) {
+            Page<DocumentTypeDTO> results = documentTypeService.getAll(pageNumber, pageSize);
+
+            if (CollectionUtils.isEmpty(results.getContent())) {
+
+                return ResponseEntity.noContent().build();
+            }
+
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
 
             throw e;
         }
@@ -72,7 +87,14 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
         try {
 
-            return ResponseEntity.ok(documentTypeService.search(criteria, pageNumber, pageSize));
+            Page<DocumentTypeDTO> results = documentTypeService.search(criteria, pageNumber, pageSize);
+
+            if (CollectionUtils.isEmpty(results.getContent())) {
+
+                return ResponseEntity.noContent().build();
+            }
+
+            return ResponseEntity.ok(results);
 
         } catch (Exception e) {
 
@@ -103,21 +125,21 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             AuditTracker.auditTrail(documentType, authentication);
 
-            if(documentType.getExpectedFields() != null) {
+            if (documentType.getExpectedFields() != null) {
 
                 documentType.getExpectedFields().forEach(field -> {
                     AuditTracker.auditTrail(field, authentication);
                 });
             }
 
-            if(documentType.getVerificationDataConfigs() != null) {
+            if (documentType.getVerificationDataConfigs() != null) {
 
                 documentType.getVerificationDataConfigs().forEach(config -> {
                     AuditTracker.auditTrail(config, authentication);
                 });
             }
 
-            return ResponseEntity.ok(documentTypeService.save(documentType));
+            return ResponseEntity.status(HttpStatus.CREATED).body(documentTypeService.save(documentType));
 
         } catch (Exception e) {
 
@@ -130,8 +152,14 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     public ResponseEntity<Collection<DocumentTypeDTO>> search(String criteria) {
 
         try {
-            
-            return ResponseEntity.ok(documentTypeService.search(criteria));
+            Collection<DocumentTypeDTO> results = documentTypeService.search(criteria);
+
+            if (CollectionUtils.isEmpty(results)) {
+
+                return ResponseEntity.noContent().build();
+            }
+
+            return ResponseEntity.ok(results);
 
         } catch (Exception e) {
 

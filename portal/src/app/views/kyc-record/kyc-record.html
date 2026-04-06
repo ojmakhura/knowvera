@@ -8,14 +8,14 @@
     >
       <div>
         <h1 class="h2 fw-bolder text-primary tracking-tight mb-0">KYC Record Details</h1>
-        @if (record()) {
+        <!-- @if (record()) {
           <p class="text-on-surface-variant small mt-1 mb-0">
             {{ record().target === 'INDIVIDUAL' ? 'Individual' : 'Organisation' }} Review for {{ record().name }}
             @if (record().ref) {
               (Case Ref: {{ record().ref }})
             }
           </p>
-        }
+        } -->
       </div>
       <div class="d-flex gap-4">
         <div class="text-end">
@@ -51,12 +51,12 @@
                 <mat-icon class="text-primary">account_circle</mat-icon>
                 @if (record().target === 'INDIVIDUAL') { Personal Identity } @else { Organisation Identity }
               </h2>
-              @if (record().kycVerification?.identityVerification === 'VERIFIED') {
+              <!-- @if (record().kycVerification?.identityVerification === 'VERIFIED') {
                 <span class="bg-light px-3 py-1 rounded-pill text-10px fw-bold text-primary text-uppercase">Identity Verified</span>
-              }
+              } -->
             </div>
             <div class="row row-cols-1 row-cols-md-2 g-4">
-              <div class="col">
+              <!-- <div class="col">
                 <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">
                   @if (record().target === 'INDIVIDUAL') { Full Legal Name } @else { Organisation Name }
                 </label>
@@ -65,13 +65,13 @@
               <div class="col">
                 <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">Primary Email</label>
                 <p class="small fw-medium text-primary mb-0">{{ record().emailAddress }}</p>
-              </div>
-              <div class="col">
+              </div> -->
+              <!-- <div class="col">
                 <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">
                   @if (record().identityType) { ID Number ({{ record().identityType }}) } @else { ID Number }
                 </label>
                 <p class="small fw-medium text-primary mb-0">{{ record().identityNo }}</p>
-              </div>
+              </div> -->
               <div class="col">
                 <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">Entity Type</label>
                 <p class="small fw-medium text-primary mb-0">{{ record().target }}</p>
@@ -120,13 +120,13 @@
                 <mat-icon class="text-primary">location_on</mat-icon>
                 Address Information
               </h2>
-              @if (record().kycVerification?.addressVerification === 'VERIFIED') {
+              <!-- @if (record().kycVerification?.addressVerification === 'VERIFIED') {
                 <span class="d-flex align-items-center gap-1 small fw-semibold text-success">
                   <mat-icon style="font-size: 18px; width: 18px; height: 18px;">check_circle</mat-icon> Verified
                 </span>
-              }
+              } -->
             </div>
-            <div class="vstack gap-4">
+            <!-- <div class="vstack gap-4">
               <div>
                 <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">Physical Residential Address</label>
                 <p class="small text-primary mb-0">{{ record().physicalAddress || 'Not provided' }}</p>
@@ -139,7 +139,7 @@
                   <p class="small text-primary fst-italic mb-0">Same as physical address</p>
                 }
               </div>
-            </div>
+            </div> -->
           </div>
         </section>
 
@@ -152,7 +152,7 @@
                   <mat-icon class="text-primary">work</mat-icon>
                   Employment Profile
                 </h2>
-                @if (record().kycVerification?.employmentVerification) {
+                <!-- @if (record().kycVerification?.employmentVerification) {
                   <span
                     class="d-flex align-items-center gap-1 small fw-semibold"
                     [class.text-success]="record().kycVerification?.employmentVerification === 'VERIFIED'"
@@ -163,7 +163,7 @@
                     </mat-icon>
                     {{ record().kycVerification?.employmentVerification }}
                   </span>
-                }
+                } -->
               </div>
               <div class="row g-3">
                 <div class="col-12">
@@ -230,7 +230,7 @@
                   <p class="text-10px text-on-surface-variant mb-0">{{ record().sourceOfFundsDetails }}</p>
                 </div>
               }
-              @if (record().kycVerification?.sourceOfFundsVerification) {
+              <!-- @if (record().kycVerification?.sourceOfFundsVerification) {
                 <div class="mt-4 pt-3 border-top border-light d-flex justify-content-between align-items-center">
                   <span class="text-10px fw-bold text-on-surface-variant">Verification:</span>
                   <span
@@ -241,7 +241,7 @@
                     {{ record().kycVerification?.sourceOfFundsVerification }}
                   </span>
                 </div>
-              }
+              } -->
             </div>
           </section>
         }

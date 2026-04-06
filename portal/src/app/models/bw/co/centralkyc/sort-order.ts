@@ -8,8 +8,8 @@
  * STEREOTYPE:   Enumeration
  */
 export enum SortOrder {
-    /** TODO: Model Documentation for Enumeration Literal DESC value "DESC" */
+    /** TODO: Model Documentation for Enumeration Literal DESC value "DESC": DESC */
     DESC = "DESC",
-    /** TODO: Model Documentation for Enumeration Literal ASC value "ASC" */
+    /** TODO: Model Documentation for Enumeration Literal ASC value "ASC": ASC */
     ASC = "ASC"
 }

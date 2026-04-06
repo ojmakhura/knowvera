@@ -7,12 +7,12 @@
  * MODEL CLASS:  AndroMDAModel::backend::bw.co.centralkyc::individual::Sex
  */
 export enum Sex {
-    /** TODO: Model Documentation for Enumeration Literal MALE value "MALE" */
+    /** TODO: Model Documentation for Enumeration Literal MALE value "MALE": $literal.enumerationLiteralDisplay */
     MALE = "MALE",
-    /** TODO: Model Documentation for Enumeration Literal FEMALE value "FEMALE" */
+    /** TODO: Model Documentation for Enumeration Literal FEMALE value "FEMALE": $literal.enumerationLiteralDisplay */
     FEMALE = "FEMALE",
-    /** TODO: Model Documentation for Enumeration Literal OTHER value "OTHER" */
+    /** TODO: Model Documentation for Enumeration Literal OTHER value "OTHER": $literal.enumerationLiteralDisplay */
     OTHER = "OTHER",
-    /** TODO: Model Documentation for Enumeration Literal UNSPECIFIED value "UNSPECIFIED" */
+    /** TODO: Model Documentation for Enumeration Literal UNSPECIFIED value "UNSPECIFIED": $literal.enumerationLiteralDisplay */
     UNSPECIFIED = "UNSPECIFIED"
 }

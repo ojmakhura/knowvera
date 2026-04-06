@@ -7,10 +7,10 @@
  * MODEL CLASS:  AndroMDAModel::backend::bw.co.centralkyc::TimePeriod
  */
 export enum TimePeriod {
-    /** TODO: Model Documentation for Enumeration Literal WEEK value "WEEK" */
+    /** TODO: Model Documentation for Enumeration Literal WEEK value "WEEK": $literal.enumerationLiteralDisplay */
     WEEK = "WEEK",
-    /** TODO: Model Documentation for Enumeration Literal MONTH value "MONTH" */
+    /** TODO: Model Documentation for Enumeration Literal MONTH value "MONTH": $literal.enumerationLiteralDisplay */
     MONTH = "MONTH",
-    /** TODO: Model Documentation for Enumeration Literal YEAR value "YEAR" */
+    /** TODO: Model Documentation for Enumeration Literal YEAR value "YEAR": $literal.enumerationLiteralDisplay */
     YEAR = "YEAR"
 }

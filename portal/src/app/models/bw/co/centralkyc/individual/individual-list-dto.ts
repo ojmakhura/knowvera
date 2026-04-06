@@ -1,9 +1,8 @@
-import { FormBuilder } from "@angular/forms";
 
-import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
 import {Sex} from '@models/bw/co/centralkyc/individual/sex';
-import {PepStatus} from '@models/bw/co/centralkyc/individual/pep-status';
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
+import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
+import {PepStatus} from '@models/bw/co/centralkyc/individual/pep-status';
 
 export class IndividualListDTO {
     id: string | any;
@@ -22,6 +21,12 @@ export class IndividualListDTO {
     
     pepStatus: PepStatus | any;
     
+    userCreated: boolean | any = false;
+    
+    physicalAddress: string | any;
+    
+    postalAddress: string | any;
+    
     constructor() {
         this.id = null;
         this.name = null;
@@ -31,5 +36,8 @@ export class IndividualListDTO {
         this.kycStatus = null;
         this.sex = null;
         this.pepStatus = null;
+        this.userCreated = false;
+        this.physicalAddress = null;
+        this.postalAddress = null;
     }
 }

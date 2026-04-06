@@ -7,8 +7,8 @@
  * MODEL CLASS:  AndroMDAModel::backend::bw.co.centralkyc::invoice::UploadPurpose
  */
 export enum UploadPurpose {
-    /** TODO: Model Documentation for Enumeration Literal INVOICE value "INVOICE" */
+    /** TODO: Model Documentation for Enumeration Literal INVOICE value "INVOICE": $literal.enumerationLiteralDisplay */
     INVOICE = "INVOICE",
-    /** TODO: Model Documentation for Enumeration Literal PAYMENT value "PAYMENT" */
+    /** TODO: Model Documentation for Enumeration Literal PAYMENT value "PAYMENT": $literal.enumerationLiteralDisplay */
     PAYMENT = "PAYMENT"
 }

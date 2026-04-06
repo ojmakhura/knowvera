@@ -50,10 +50,22 @@ import bw.co.roguesystems.comm.message.CommMessageDTO;
 public class KeycloakUserService {
 
     private static final String[] EXCLUDED_ROLES = { "offline_access", "uma_authorization",
-            "default-roles-bocraportal" };
+            "default-roles-centralkyc" };
 
     @Value("${app.organisation.manager-role}")
     private String organisationManagerRole;
+
+    @Value("${app.realmUserRole}")
+    private String realmUserRole;
+
+    @Value("${app.adminPortalRole}")
+    private String adminPortalRole;
+
+    @Value("${app.userPortalRole}")
+    private String userPortalRole;
+
+    @Value("${app.apiUserRole}")
+    private String apiUserRole;
 
     @Value("${app.security.password.min-length}")
     private int minPasswordLength;
@@ -331,6 +343,21 @@ public class KeycloakUserService {
         if (StringUtils.isNotBlank(user.getUserId())) {
 
             throw new RuntimeException("User ID must be blank when creating a new registration user.");
+        }
+
+        if(CollectionUtils.isEmpty(user.getRealmRoles())) {
+
+            user.setRealmRoles(Set.of(realmUserRole));
+        }
+
+        if(CollectionUtils.isEmpty(user.getUserPortalRoles())) {
+
+            user.setUserPortalRoles(Set.of(userPortalRole));
+        }
+
+        if(CollectionUtils.isEmpty(user.getApiRoles())) {
+
+            user.setApiRoles(Set.of(apiUserRole));
         }
 
         return keycloakService.withRegistrationRealm(realm -> {

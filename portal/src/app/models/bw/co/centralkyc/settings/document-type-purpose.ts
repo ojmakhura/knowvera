@@ -7,12 +7,12 @@
  * MODEL CLASS:  AndroMDAModel::backend::bw.co.centralkyc::settings::DocumentTypePurpose
  */
 export enum DocumentTypePurpose {
-    /** TODO: Model Documentation for Enumeration Literal ORGANISATION value "ORGANISATION" */
+    /** TODO: Model Documentation for Enumeration Literal ORGANISATION value "ORGANISATION": $literal.enumerationLiteralDisplay */
     ORGANISATION = "ORGANISATION",
-    /** TODO: Model Documentation for Enumeration Literal ORGANISATION_KYC value "ORGANISATION_KYC" */
+    /** TODO: Model Documentation for Enumeration Literal ORGANISATION_KYC value "ORGANISATION_KYC": $literal.enumerationLiteralDisplay */
     ORGANISATION_KYC = "ORGANISATION_KYC",
-    /** TODO: Model Documentation for Enumeration Literal INDIVIDUAL value "INDIVIDUAL" */
+    /** TODO: Model Documentation for Enumeration Literal INDIVIDUAL value "INDIVIDUAL": $literal.enumerationLiteralDisplay */
     INDIVIDUAL = "INDIVIDUAL",
-    /** TODO: Model Documentation for Enumeration Literal INDIVIDUAL_KYC value "INDIVIDUAL_KYC" */
+    /** TODO: Model Documentation for Enumeration Literal INDIVIDUAL_KYC value "INDIVIDUAL_KYC": $literal.enumerationLiteralDisplay */
     INDIVIDUAL_KYC = "INDIVIDUAL_KYC"
 }

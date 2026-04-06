@@ -1,4 +1,3 @@
-import { FormBuilder } from "@angular/forms";
 
 
 export class OrganisationDomain {
@@ -8,6 +7,6 @@ export class OrganisationDomain {
     
     constructor() {
         this.name = null;
-        this.verified = null;
+        this.verified = false;
     }
 }

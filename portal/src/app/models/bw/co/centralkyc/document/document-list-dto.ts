@@ -1,6 +1,6 @@
-import { FormBuilder } from "@angular/forms";
 
 import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
+import {DocumentAnalyticsStatus} from '@models/bw/co/centralkyc/document/document-analytics-status';
 
 export class DocumentListDTO {
     id: string | any;
@@ -17,6 +17,8 @@ export class DocumentListDTO {
     
     documentType: string | any;
     
+    analyticsStatus: DocumentAnalyticsStatus | any;
+    
     constructor() {
         this.id = null;
         this.target = null;
@@ -25,5 +27,6 @@ export class DocumentListDTO {
         this.fileName = null;
         this.documentTypeId = null;
         this.documentType = null;
+        this.analyticsStatus = null;
     }
 }

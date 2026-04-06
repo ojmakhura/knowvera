@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
 
 import { EditKycRecord } from './edit-kyc-record';
 
@@ -8,13 +10,13 @@ describe('EditKycRecord', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditKycRecord]
-    })
-    .compileComponents();
+      imports: [EditKycRecord, NoopAnimationsModule],
+      providers: [provideRouter([])],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(EditKycRecord);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {

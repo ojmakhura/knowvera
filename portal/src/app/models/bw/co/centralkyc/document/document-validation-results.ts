@@ -1,26 +1,25 @@
-import { FormBuilder } from "@angular/forms";
-import { DocumentVerificationStatus } from "./document-verification-status";
 
+import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
 
 export class DocumentValidationResults {
     expectedType: string | any;
-
+    
     detectedType: string | any;
-
+    
     match: boolean | any = false;
-
+    
     score: number | any;
-
+    
     signalScores: any | any;
-
+    
     reason: string | any;
-
+    
     informationMatchResults: DocumentVerificationStatus | any;
-
+    
     informationMatchDetails: string | any;
-
+    
     typeMatch: boolean | any = false;
-
+    
     constructor() {
         this.expectedType = null;
         this.detectedType = null;

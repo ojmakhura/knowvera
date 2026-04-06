@@ -1,4 +1,3 @@
-import { FormBuilder } from "@angular/forms";
 
 
 export class CountDTO {
@@ -37,22 +36,22 @@ export class CountDTO {
     subscriptionCount: number | any = 0;
     
     constructor() {
-        this.organisationCount = null;
-        this.individualCount = null;
-        this.requestCount = null;
-        this.compliantCount = null;
-        this.pepCount = null;
-        this.pepRelativeCount = null;
-        this.pepAssociateCount = null;
-        this.kycComplianceExpiredCount = null;
-        this.kycComplianceAbsentCount = null;
-        this.kycComplianceIncompleteCount = null;
-        this.subscriptionCountActive = null;
-        this.subscriptionCountInactive = null;
-        this.subscriptionCountCancelled = null;
-        this.paidInvoicesCount = null;
-        this.unpaidInvoicesCount = null;
-        this.invoicesCount = null;
-        this.subscriptionCount = null;
+        this.organisationCount = 0;
+        this.individualCount = 0;
+        this.requestCount = 0;
+        this.compliantCount = 0;
+        this.pepCount = 0;
+        this.pepRelativeCount = 0;
+        this.pepAssociateCount = 0;
+        this.kycComplianceExpiredCount = 0;
+        this.kycComplianceAbsentCount = 0;
+        this.kycComplianceIncompleteCount = 0;
+        this.subscriptionCountActive = 0;
+        this.subscriptionCountInactive = 0;
+        this.subscriptionCountCancelled = 0;
+        this.paidInvoicesCount = 0;
+        this.unpaidInvoicesCount = 0;
+        this.invoicesCount = 0;
+        this.subscriptionCount = 0;
     }
 }
