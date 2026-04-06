@@ -226,6 +226,7 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
           name += ' ' + individual.surname;
         }
 
+
         this.formModel.update((record) => ({
           ...record,
           ownerDetails: {
