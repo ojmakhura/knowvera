@@ -395,7 +395,11 @@ public class KycRecordServiceImpl
             Individual individual = this.individualRepository.findById(UUID.fromString(kycRecord.getTargetId()))
                     .orElseThrow(() -> new Exception("Individual not found for id: " + kycRecord.getTargetId()));
 
-            return Strings.CS.equals(individual.getUserId(), user.getUserId());
+            if(individual == null || individual.getId() == null) {
+                return false;
+            }
+
+            return kycRecord.getTargetId().equals(individual.getId().toString());
 
         } else if (kycRecord.getTarget() == TargetEntity.ORGANISATION) {
 
@@ -404,10 +408,14 @@ public class KycRecordServiceImpl
                 return false;
             }
 
-            Organisation organisation = this.organisationRepository.findById(UUID.fromString(kycRecord.getTargetId()))
-                    .orElseThrow(() -> new Exception("Organisation not found for id: " + kycRecord.getTargetId()));
+            Organisation organisation = this.organisationRepository.findById(UUID.fromString(user.getOrganisationId()))
+                    .orElseThrow(() -> new Exception("Organisation not found for id: " + user.getOrganisationId()));
 
-            return Strings.CS.equals(organisation.getId().toString(), user.getOrganisationId());
+            if(organisation == null || organisation.getId() == null) {
+                return false;
+            }
+
+            return kycRecord.getTargetId().equals(organisation.getId().toString());
 
         }
 

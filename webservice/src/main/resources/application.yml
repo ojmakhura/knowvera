@@ -161,9 +161,9 @@ minio:
     bucket-name: ${MINIO_BUCKET:centralkyc}
 app:
   realmUserRole: ${REALM_USER_ROLE:KYC_USER}
-  adminPortalRole: ${ADMIN_PORTAL_ROLE:admin-portal-user}
-  userPortalRole: ${USER_PORTAL_ROLE:portal-user}
-  apiUserRole: ${API_USER_ROLE:kyc-user}
+  adminPortalRole: ${ADMIN_PORTAL_ROLE:ADMIN_PORTAL_USER}
+  userPortalRole: ${USER_PORTAL_ROLE:PORTAL_USER}
+  apiUserRole: ${API_USER_ROLE:KYC_USER}
   request-token-length: ${REQUEST_TOKEN_LENGTH:32}
   registration-url: ${REGISTRATION_URL:http://localhost:4300/register}
   admin-web: ${ADMIN_WEB_URL:http://localhost:4200}
