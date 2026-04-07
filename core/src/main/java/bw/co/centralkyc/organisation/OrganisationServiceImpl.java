@@ -248,13 +248,35 @@ public class OrganisationServiceImpl
 
         Organisation org = organisationRepository.findByCode(code).orElse(null);
 
+        if(org == null) {
+            return null;
+        }
+
         return organisationMapper.toOrganisationDTO(org);
     }
 
     @Override
     protected OrganisationDTO handleFindByName(String name) throws Exception {
         Organisation org = organisationRepository.findByName(name).orElse(null);
+
+        if(org == null) {
+            return null;
+        }
+
         return organisationMapper.toOrganisationDTO(org);
+    }
+
+    @Override
+    protected OrganisationDTO handleFindByRegistrationNo(String registrationNo) throws Exception {
+        
+        Organisation org = organisationRepository.findByRegistrationNo(registrationNo).orElse(null);
+
+        if(org == null) {
+            return null;
+        }
+
+        return organisationMapper.toOrganisationDTO(org);
+
     }
 
 }

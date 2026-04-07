@@ -238,4 +238,16 @@ public class OrganisationApiImpl implements OrganisationApi {
             throw e;
         }
     }
+
+    @Override
+    public ResponseEntity<OrganisationDTO> findByRegistrationNo(String registrationNo) throws Exception {
+        
+        try {
+            return ResponseEntity.ok(organisationService.findByRegistrationNo(registrationNo));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+    }
 }

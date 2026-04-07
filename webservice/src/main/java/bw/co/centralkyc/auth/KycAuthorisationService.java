@@ -86,6 +86,7 @@ public class KycAuthorisationService {
 
         return individualOwner.getId().equals(individual.getId());
     }
+    
 
     public Boolean isOrganisationUserMatch(String organisationId) {
 
@@ -96,6 +97,23 @@ public class KycAuthorisationService {
         }
 
         OrganisationDTO targetOrg = organisationService.findById(organisationId);
+
+        if(targetOrg == null) {
+            return false;
+        }
+
+        return user.getOrganisationId().equals(targetOrg.getId());
+    }
+
+    public Boolean isOrganisationUserMatchByRegistration(String registrationId) {
+
+        UserDTO user = getCurrentUser();
+
+        if(user == null || StringUtils.isBlank(user.getUserId()) || StringUtils.isBlank(user.getOrganisationId())) {
+            return false;
+        }
+
+        OrganisationDTO targetOrg = organisationService.findByRegistrationNo(registrationId);
 
         if(targetOrg == null) {
             return false;
