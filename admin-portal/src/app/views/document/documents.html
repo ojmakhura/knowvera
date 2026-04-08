@@ -35,7 +35,7 @@
               >
                 <mat-option value="">All Entities</mat-option>
                 @for (target of targetOptions; track target) {
-                  <mat-option [value]="target">{{ targetOptionLabel(target) }}</mat-option>
+                  <mat-option [value]="target" translate>target.entity.{{ target }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -108,12 +108,22 @@
           <td mat-cell *matCellDef="let row" class="muted-cell">{{ targetLabelOf(row) }}</td>
         </ng-container>
 
+        <ng-container matColumnDef="analyticsStatus">
+          <th mat-header-cell *matHeaderCellDef>Analytics Status</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="status-pill" [ngClass]="statusClass(row.analyticsStatus)">
+              <span class="status-dot"></span>
+              <span translate>document.analytics.status.{{ row.analyticsStatus }}</span>
+            </span>
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <th mat-header-cell *matHeaderCellDef>Verification Status</th>
           <td mat-cell *matCellDef="let row">
             <span class="status-pill" [ngClass]="statusClass(row.verificationStatus)">
               <span class="status-dot"></span>
-              {{ statusLabel(row.verificationStatus) }}
+              <span translate>document.verification.status.{{ row.verificationStatus }}</span>
             </span>
           </td>
         </ng-container>

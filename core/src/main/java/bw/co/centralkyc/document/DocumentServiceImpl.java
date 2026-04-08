@@ -323,9 +323,17 @@ public class DocumentServiceImpl
 
             String label = extractTargetLabel(dto.target(), dto.targetId());
 
-            dto = new DocumentListDTO(dto.id(), dto.target(), dto.targetId(), label, dto.fileName(),
+            dto = new DocumentListDTO(
+                    dto.id(),
+                    dto.target(),
+                    dto.targetId(),
+                    label,
+                    dto.fileName(),
                     dto.documentTypeId(),
-                    dto.documentType(), dto.analyticsStatus());
+                    dto.documentType(),
+                    dto.analyticsStatus(),
+                    dto.verificationStatus()
+            );
         }
         return dto;
     }
@@ -586,9 +594,7 @@ public class DocumentServiceImpl
 
                 String fieldName = fielNameMap.get(keyField);
 
-                String extracted = document.getExpectedInformation() != null
-                        ? document.getExpectedInformation().toString()
-                        : null;
+                String extracted = null;
 
                 if (document.getExtractedInformation().containsKey(fieldName)) {
 
@@ -599,14 +605,15 @@ public class DocumentServiceImpl
                     Object info = document.getExtractedInformation().get(fieldName);
 
                     if (info != null) {
-                        extractedBuilder.append(info.toString());
-                    }
+                        extracted = info.toString();
+                        extractedBuilder.append(extracted);
+                    } else {
 
+                        extracted = "";
+                    }
                 }
 
-                String expected = document.getExpectedInformation() != null
-                        ? document.getExpectedInformation().toString()
-                        : null;
+                String expected = null;
 
                 if (document.getExpectedInformation().containsKey(fieldName)) {
 
@@ -618,7 +625,11 @@ public class DocumentServiceImpl
 
                     if (info != null) {
 
-                        expectedBuilder.append(document.getExpectedInformation().get(fieldName).toString());
+                        expected = info.toString();
+                        expectedBuilder.append(expected);
+                    } else {
+
+                        expected = "";
                     }
                 }
 
@@ -725,7 +736,7 @@ public class DocumentServiceImpl
 
     private boolean continueProcessing(KeyField keyField, String expected, Object extracted) {
 
-        if (StringUtils.isBlank(expected)) {
+        if (StringUtils.isBlank(expected) && keyField != KeyField.DOCUMENT_DATE) {
 
             return true;
         }
@@ -733,8 +744,8 @@ public class DocumentServiceImpl
         boolean isExpectedString = expected instanceof String;
         boolean isExtractedString = extracted instanceof String;
 
-        String expectedStr = ((String) expected).toLowerCase();
-        String extractedStr = ((String) extracted).toLowerCase();
+        String expectedStr = expected != null ? expected.toString().toLowerCase() : "";
+        String extractedStr = extracted != null ? extracted.toString().toLowerCase() : "";
 
         switch (keyField) {
             case INDIVIDUAL_IDENTITY_NO, ORGANISATION_REGISTRATION_NO:
@@ -753,7 +764,7 @@ public class DocumentServiceImpl
 
             case DOCUMENT_DATE:
 
-                LocalDate documentDate = LocalDate.parse(expectedStr);
+                LocalDate documentDate = LocalDate.parse(extractedStr);
 
                 LocalDate expiryDate = documentDate.plusMonths(3);
 

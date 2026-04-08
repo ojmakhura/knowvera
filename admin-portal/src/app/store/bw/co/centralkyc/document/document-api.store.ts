@@ -11,13 +11,14 @@ import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto'
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { DocumentSearchCriteria } from '@app/models/bw/co/centralkyc/document/document-search-criteria';
+import { DocumentListDTO } from '@app/models/bw/co/centralkyc/document/document-list-dto';
 
-export type DocumentApiState = AppState<DocumentDTO, DocumentDTO> & {};
+export type DocumentApiState = AppState<DocumentDTO, DocumentListDTO> & {};
 
 const initialState: DocumentApiState = {
   data: new DocumentDTO(),
   dataList: [],
-  dataPage: new Page<DocumentDTO>(),
+  dataPage: new Page<DocumentListDTO>(),
   searchCriteria: new SearchObject<any>(),
   loading: false,
   success: false,

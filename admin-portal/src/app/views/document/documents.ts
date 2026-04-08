@@ -37,6 +37,8 @@ import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/
 import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
 import { form, FormField } from '@angular/forms/signals';
+import { TranslateModule } from '@ngx-translate/core';
+import { DocumentListDTO } from '@app/models/bw/co/centralkyc/document/document-list-dto';
 
 export class SearchDocumentsVarsForm {
   fileName: string = '';
@@ -44,7 +46,7 @@ export class SearchDocumentsVarsForm {
   target: TargetEntity | '' = '';
   targetId: string = '';
   verificationStatus: DocumentVerificationStatus | '' = '';
-  documents: Array<DocumentDTO> = [];
+  documents: Array<DocumentListDTO> = [];
 }
 
 @Component({
@@ -68,6 +70,7 @@ export class SearchDocumentsVarsForm {
     MatProgressBarModule,
     FormsModule,
     FormField,
+    TranslateModule,
     Loader
   ],
 })
@@ -80,8 +83,8 @@ export class Documents implements OnInit {
   readonly documentTypeApiStore = inject(DocumentTypeApiStore);
   private readonly documentApi = inject(DocumentApi);
   private readonly toaster = inject(ToastrService);
-  protected readonly rows = signal<DocumentDTO[]>([]);
-  protected readonly dataSource = new MatTableDataSource<DocumentDTO>([]);
+  protected readonly rows = signal<DocumentListDTO[]>([]);
+  protected readonly dataSource = new MatTableDataSource<DocumentListDTO>([]);
   protected readonly currentPage = signal(0);
   protected readonly pageSize = signal(10);
   protected readonly totalElements = signal(0);
@@ -95,7 +98,7 @@ export class Documents implements OnInit {
   protected readonly targetOptions = Object.values(TargetEntity);
   protected readonly statusOptions = Object.values(DocumentVerificationStatus);
 
-  displayedColumns: string[] = ['fileName', 'documentType', 'target', 'status', 'actions'];
+  displayedColumns: string[] = ['fileName', 'documentType', 'target', 'analyticsStatus', 'status', 'actions'];
 
   constructor() {
     effect(() => {
@@ -260,11 +263,11 @@ export class Documents implements OnInit {
     return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
   }
 
-  trackByDocument(_: number, row: DocumentDTO): string {
+  trackByDocument(_: number, row: DocumentListDTO): string {
     return row.id || row.fileName || `${row.documentType}-${row.targetId}`;
   }
 
-  private downloadFileNameOf(row: DocumentDTO): string {
+  private downloadFileNameOf(row: DocumentListDTO): string {
     return row.fileName || 'document-download';
   }
 
