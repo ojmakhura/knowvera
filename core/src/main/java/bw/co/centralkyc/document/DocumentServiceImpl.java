@@ -9,6 +9,7 @@
 package bw.co.centralkyc.document;
 
 import bw.co.centralkyc.KeyField;
+import bw.co.centralkyc.KeyFieldMatchResult;
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.QueueObject;
 import bw.co.centralkyc.SearchObject;
@@ -33,6 +34,8 @@ import bw.co.centralkyc.properties.RabbitProperties;
 import bw.co.centralkyc.subscription.KycSubscriptionRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+
+import static org.junit.jupiter.api.DynamicTest.stream;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -332,8 +335,7 @@ public class DocumentServiceImpl
                     dto.documentTypeId(),
                     dto.documentType(),
                     dto.analyticsStatus(),
-                    dto.verificationStatus()
-            );
+                    dto.verificationStatus());
         }
         return dto;
     }
@@ -562,26 +564,18 @@ public class DocumentServiceImpl
         return expectedInformation;
     }
 
-    @Override
-    protected DocumentDTO handleVerifyData(String id, String user) throws Exception {
+    private List<DataVerification> processVerificationFields(Collection<VerificationDataConfig> dataConfigs,
+            Collection<ExpectedField> expectedFields, Map expectedInformation,
+            Map extractedInformation) {
 
-        Document document = documentRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new Exception("Document not found"));
+        Map<KeyField, Boolean> mandatoryMap = expectedFields.stream()
+                .collect(Collectors.toMap(ExpectedField::getKeyField, ExpectedField::getMandatory));
 
-        if (MapUtils.isEmpty(document.getExtractedInformation())) {
-
-            return documentMapper.toDocumentDTO(document);
-        }
-
-        DocumentType docType = document.getDocumentType();
-        Map<KeyField, String> fielNameMap = docType.getExpectedFields().stream()
+        Map<KeyField, String> fielNameMap = expectedFields.stream()
                 .collect(Collectors.toMap(ExpectedField::getKeyField, ExpectedField::getField));
-
-        document.setVerificationStatus(DocumentVerificationStatus.UNVERIFIED);
-
         List<DataVerification> verifications = new ArrayList<>();
 
-        for (VerificationDataConfig config : docType.getVerificationDataConfigs()) {
+        for (VerificationDataConfig config : dataConfigs) {
 
             DataVerification verification = new DataVerification();
             verification.setVerificationDataConfigId(config.getId().toString());
@@ -590,19 +584,24 @@ public class DocumentServiceImpl
             StringBuilder expectedBuilder = new StringBuilder();
             StringBuilder extractedBuilder = new StringBuilder();
 
+            List<KeyFieldMatchResult> matchResults = new ArrayList<>();
+
             for (KeyField keyField : config.getKeyFields()) {
+
+                KeyFieldMatchResult match = new KeyFieldMatchResult();
+                match.setKeyField(keyField);
 
                 String fieldName = fielNameMap.get(keyField);
 
                 String extracted = null;
 
-                if (document.getExtractedInformation().containsKey(fieldName)) {
+                if (extractedInformation.containsKey(fieldName)) {
 
                     if (extractedBuilder.length() > 0) {
                         extractedBuilder.append(" ");
                     }
 
-                    Object info = document.getExtractedInformation().get(fieldName);
+                    Object info = extractedInformation.get(fieldName);
 
                     if (info != null) {
                         extracted = info.toString();
@@ -615,13 +614,13 @@ public class DocumentServiceImpl
 
                 String expected = null;
 
-                if (document.getExpectedInformation().containsKey(fieldName)) {
+                if (expectedInformation.containsKey(fieldName)) {
 
                     if (expectedBuilder.length() > 0) {
                         expectedBuilder.append(" ");
                     }
 
-                    Object info = document.getExpectedInformation().get(fieldName);
+                    Object info = expectedInformation.get(fieldName);
 
                     if (info != null) {
 
@@ -637,9 +636,13 @@ public class DocumentServiceImpl
                         expected,
                         extracted);
 
-                if (!continueProcessing) {
-                    document.setVerificationStatus(DocumentVerificationStatus.REJECTED);
-                }
+                match.setExpectedValue(expected);
+                match.setExtractedValue(extracted);
+                match.setSimilarity(stringMatcher.calculateFilteredSimilarity(extracted, expected));
+                match.setMandatory(mandatoryMap.get(keyField));
+                match.setSuccess(continueProcessing);
+
+                matchResults.add(match);
             }
 
             List<String> values = new ArrayList<>();
@@ -652,36 +655,92 @@ public class DocumentServiceImpl
                 values.add(extractedBuilder.toString());
             }
 
-            verification.setValues(values);
+            verification.setKeyFieldMatches(matchResults);
 
-            double similarity = 0.0;
+            List<KeyFieldMatchResult> mandatory = matchResults.stream()
+                    .filter(KeyFieldMatchResult::getMandatory)
+                    .toList();
 
-            if (extractedBuilder.length() > 0 && expectedBuilder.length() > 0) {
-                similarity = stringMatcher.calculateFilteredSimilarity(extractedBuilder.toString(),
-                        expectedBuilder.toString());
-
-            } else if (expectedBuilder.length() == 0 && extractedBuilder.length() > 0) {
-                similarity = 1.0;
-            } else if (expectedBuilder.length() > 0 && extractedBuilder.length() == 0) {
-                similarity = 0.0;
+            if (mandatory == null || mandatory.isEmpty()) {
+                mandatory = matchResults;
+                verification.setHasMandatoryFields(false);
             } else {
-
-                similarity = 1.0;
+                verification.setHasMandatoryFields(true);
             }
+
+            double similarity = mandatory
+                    .stream()
+                    .reduce(0.0, (sum, match) -> sum + match.getSimilarity(), Double::sum)
+                    / mandatory.size();
 
             verification.setScore(similarity);
 
-            if (similarity >= 0.8) {
+            boolean hasFailedMandatory = mandatory.stream()
+                    .anyMatch(match -> !match.getSuccess());
+
+            if (hasFailedMandatory || similarity < 0.4) {
+
+                verification.setVerificationStatus(DataVerificationStatus.VERIFICATION_FAILED);
+
+                StringBuilder reasonBuilder = new StringBuilder();
+                if (hasFailedMandatory) {
+
+                    if (verification.getHasMandatoryFields()) {
+                        reasonBuilder.append("Failed verification of mandatory field(s). ");
+                    } else {
+                        reasonBuilder.append("Failed verification of field(s). ");
+                    }
+                    reasonBuilder.append('\n').append(mandatory.stream()
+                            .filter(match -> !match.getSuccess())
+                            .map(match -> match.getKeyField().name())
+                            .collect(Collectors.joining(", ")));
+                } else {
+
+                    reasonBuilder.append("Overall similarity score below threshold. ")
+                            .append('\n')
+                            .append(String.format("Similarity: %.2f", similarity));
+                }
+
+                verification.setVerificationReport(reasonBuilder.toString());
+
+            } else if (similarity >= 0.8) {
 
                 verification.setVerificationStatus(DataVerificationStatus.VERIFIED);
-            } else if (similarity >= 0.4) {
-                verification.setVerificationStatus(DataVerificationStatus.UNVERIFIED);
+
+                if (verification.getHasMandatoryFields()) {
+                    verification.setVerificationReport(
+                            "All mandatory fields passed verification with satisfactory similarity.");
+                } else {
+                    verification.setVerificationReport("All fields passed verification with satisfactory similarity.");
+                }
+
             } else {
-                verification.setVerificationStatus(DataVerificationStatus.VERIFICATION_FAILED);
+                verification.setVerificationStatus(DataVerificationStatus.UNVERIFIED);
             }
 
             verifications.add(verification);
         }
+
+        return verifications;
+    }
+
+    @Override
+    protected DocumentDTO handleVerifyData(String id, String user) throws Exception {
+
+        Document document = documentRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new Exception("Document not found"));
+        if (MapUtils.isEmpty(document.getExtractedInformation())) {
+
+            return documentMapper.toDocumentDTO(document);
+        }
+
+        DocumentType docType = document.getDocumentType();
+
+        document.setVerificationStatus(DocumentVerificationStatus.UNVERIFIED);
+
+        List<DataVerification> verifications = processVerificationFields(docType.getVerificationDataConfigs(),
+                docType.getExpectedFields(),
+                document.getExpectedInformation(), document.getExtractedInformation());
 
         document.setDataVerifications(verifications);
 
@@ -697,12 +756,16 @@ public class DocumentServiceImpl
                         .average()
                         .orElse(0.0);
 
-                if (score >= 0.8) {
-                    document.setVerificationStatus(DocumentVerificationStatus.VERIFIED);
-                } else if (score >= 0.4) {
-                    document.setVerificationStatus(DocumentVerificationStatus.MANUAL_REVIEW);
-                } else {
+                boolean hasFailedMandatory = verifications.stream()
+                        .anyMatch(verification -> verification.getHasMandatoryFields()
+                                && verification.getVerificationStatus() == DataVerificationStatus.VERIFICATION_FAILED);
+
+                if (hasFailedMandatory || score < 0.4) {
                     document.setVerificationStatus(DocumentVerificationStatus.REJECTED);
+                } else if (score >= 0.8) {
+                    document.setVerificationStatus(DocumentVerificationStatus.VERIFIED);
+                } else {
+                    document.setVerificationStatus(DocumentVerificationStatus.MANUAL_REVIEW);
                 }
 
             } else {
@@ -757,8 +820,9 @@ public class DocumentServiceImpl
 
             case INDIVIDUAL_FIRST_NAME, INDIVIDUAL_SURNAME, ORGANISATION_NAME:
                 if (isExpectedString && isExtractedString) {
-
-                    return stringMatcher.calculateFilteredSimilarity(expectedStr, extractedStr) < 0.8;
+                    double score = stringMatcher.calculateFilteredSimilarity(expectedStr, extractedStr);
+                    boolean satisfactoryScore = score >= 0.8;
+                    return satisfactoryScore;
                 }
                 break;
 

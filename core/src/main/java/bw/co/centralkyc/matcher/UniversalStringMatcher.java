@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -52,6 +53,15 @@ public class UniversalStringMatcher {
     }
 
     public double calculateFilteredSimilarity(String shortStr, String longStr) {
+
+        if(StringUtils.isNotBlank(shortStr) && StringUtils.isBlank(longStr)) {
+            return 1.0;
+        } else if(StringUtils.isBlank(shortStr) && StringUtils.isBlank(longStr)) {
+            return 1.0;
+        } else if(StringUtils.isBlank(shortStr) && StringUtils.isNotBlank(longStr)) {
+            return 0.0;
+        }
+
         Set<String> smallSet = getTokens(shortStr);
         Set<String> largeSet = getTokens(longStr);
 
@@ -71,6 +81,9 @@ public class UniversalStringMatcher {
 
         // This will return 1.0 if all tokens in the smaller string
         // are found somewhere in the larger string.
-        return (double) filteredLargeSet.size() / smallSet.size();
+
+        double score = filteredLargeSet.size() / (double) smallSet.size();
+
+        return score;
     }
 }
