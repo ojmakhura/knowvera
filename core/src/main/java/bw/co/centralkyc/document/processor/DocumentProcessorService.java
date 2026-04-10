@@ -21,8 +21,9 @@ import bw.co.centralkyc.QueueObject;
 import bw.co.centralkyc.document.DocumentAnalyticsStatus;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
-import bw.co.centralkyc.lmstudio.CompetionResponseChoice;
-import bw.co.centralkyc.lmstudio.CompletionResponse;
+import bw.co.centralkyc.llm.LmStudioResponseChoice;
+import bw.co.centralkyc.llm.OllamaResponse;
+import bw.co.centralkyc.llm.LmStudioResponse;
 import bw.co.centralkyc.matcher.UniversalStringMatcher;
 import bw.co.centralkyc.properties.RabbitProperties;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,9 @@ public class DocumentProcessorService {
 
     @Value("${app.tessdata-langs}")
     private String tessdataLangs;
+
+    @Value("${app.llm.id}")
+    private String llmId;
 
     private final KycRecordRepository kycRecordRepository;
     private final RabbitTemplate rabbitTemplate;
@@ -113,7 +117,37 @@ public class DocumentProcessorService {
     }
 
     @Async("virtualThreadExecutor")
-    public void processLmCompletionResponse(CompletionResponse response, DocumentDTO document) {
+    public void processLmCompletionResponse(Object response, DocumentDTO document) {
+        if (llmId == null) {
+            log.warn("LLM ID is not configured. Skipping LLM completion response processing for document ID: {}",
+                    document.getId());
+            return;
+        }
+
+        if (llmId.equalsIgnoreCase("lmstudio")) {
+            handlProcessLmCompletionResponse((LmStudioResponse) response, document);
+        } else if (llmId.equalsIgnoreCase("ollama")) {
+            // For Ollama, we can directly handle the response without needing to extract choices
+            handlProcessLmCompletionResponse((OllamaResponse) response, document);
+        } else {
+            log.warn("Unknown LLM ID: {}. Skipping LLM completion response processing for document ID: {}",
+                    llmId, document.getId());
+        }
+    }
+
+    private void handlProcessLmCompletionResponse(OllamaResponse response, DocumentDTO document) {
+        log.info("Received response from OllamaExtractor: {}",
+                response.getMessage().getContent());
+
+        if (StringUtils.isNotBlank(response.getMessage().getContent())) {
+            this.doHandleProcessLmCompletionResponse(response.getMessage().getContent(), document);
+        } else {
+            log.warn("OllamaExtractor response is empty for document ID: {}",
+                    document.getId());
+        }
+    }
+
+    private void handlProcessLmCompletionResponse(LmStudioResponse response, DocumentDTO document) {
 
         // Process the response and extract the JSON data
         response.getChoices().forEach(choice -> {
@@ -121,29 +155,33 @@ public class DocumentProcessorService {
                     choice.getMessage().getContent());
             // Here you can implement logic to update the document with the extracted
             if (StringUtils.isNotBlank(choice.getMessage().getContent())) {
-                try {
-                    // Assuming the response content is a JSON string representing the extracted
-
-                    Map<String, Object> extractedInfo = parseLmStudioResponse(choice.getMessage().getContent());
-                    document.setExtractedInformation(extractedInfo);
-                    document.setAnalyticsStatus(DocumentAnalyticsStatus.INFORMATION_EXTRACTION_COMPLETE);
-                    documentService.save(document);
-
-                    // Send this to the next queue for further processing
-                    rabbitTemplate.convertAndSend(
-                            rabbitProperties.getDocumentConfirmationQueueExchange(),
-                            rabbitProperties.getDocumentConfirmationQueueRoutingKey(),
-                            new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
-                } catch (Exception e) {
-                    log.error("Failed to parse LmStudioExtractor response for document ID: {}",
-                            document.getId(), e);
-                }
+                this.doHandleProcessLmCompletionResponse(choice.getMessage().getContent(), document);
             } else {
                 log.warn("LmStudioExtractor response is empty for document ID: {}",
                         document.getId());
 
             }
         });
+    }
+
+    private void doHandleProcessLmCompletionResponse(String content, DocumentDTO document) {
+        try {
+            // Assuming the response content is a JSON string representing the extracted
+
+            Map<String, Object> extractedInfo = parseLmStudioResponse(content);
+            document.setExtractedInformation(extractedInfo);
+            document.setAnalyticsStatus(DocumentAnalyticsStatus.INFORMATION_EXTRACTION_COMPLETE);
+            documentService.save(document);
+
+            // Send this to the next queue for further processing
+            rabbitTemplate.convertAndSend(
+                    rabbitProperties.getDocumentConfirmationQueueExchange(),
+                    rabbitProperties.getDocumentConfirmationQueueRoutingKey(),
+                    new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
+        } catch (Exception e) {
+            log.error("Failed to parse LmStudioExtractor response for document ID: {}",
+                    document.getId(), e);
+        }
     }
 
     private Map<String, Object> parseLmStudioResponse(String responseContent) {
@@ -158,7 +196,7 @@ public class DocumentProcessorService {
                 // Optional: parse into a Map
                 Map<String, Object> jsonMap = jsonMapper.readValue(jsonString, Map.class);
 
-                if(!jsonMap.containsKey("score") && jsonMap.containsKey("signalScores")) {
+                if (!jsonMap.containsKey("score") && jsonMap.containsKey("signalScores")) {
                     Map<String, Integer> signalScores = (Map<String, Integer>) jsonMap.get("signalScores");
                     double score = signalScores.values().stream()
                             .mapToInt(Integer::intValue)
@@ -180,113 +218,183 @@ public class DocumentProcessorService {
     }
 
     @Async("virtualThreadExecutor")
-    public void processDocumentConfirmation(CompletionResponse response, DocumentDTO document) {
+    public void processDocumentConfirmation(Object response, DocumentDTO document) {
+        if (llmId == null) {
+            log.warn("LLM ID is not configured. Skipping file content update for document ID: {}",
+                    document.getId());
+            return;
+        }
+
+        if (llmId.equalsIgnoreCase("lmstudio")) {
+            handleProcessDocumentConfirmation((LmStudioResponse) response, document);
+        } else if (llmId.equalsIgnoreCase("ollama")) {
+            handleProcessDocumentConfirmation((OllamaResponse) response, document);
+        } else {
+            log.warn("Unknown LLM ID: {}. Skipping file content update for document ID: {}",
+                    llmId, document.getId());
+        }
+    }
+
+    private void handleProcessDocumentConfirmation(OllamaResponse response, DocumentDTO document) {
 
         log.info("Processing document confirmation for document ID: {}", document.getId());
 
-        for(CompetionResponseChoice choice : response.getChoices()) {
+        if (response.getMessage() != null && response.getMessage().getContent() != null) {
+            this.handleProcessDocumentConfirmation(response.getMessage().getContent(), document);
+        }
+
+    }
+
+    private void handleProcessDocumentConfirmation(LmStudioResponse response, DocumentDTO document) {
+
+        log.info("Processing document confirmation for document ID: {}", document.getId());
+
+        for (LmStudioResponseChoice choice : response.getChoices()) {
             log.info("Received response from LmStudioExtractor for confirmation: {}",
                     choice.getMessage().getContent());
 
             if (choice.getMessage() != null && choice.getMessage().getContent() != null) {
-
-                Map<String, Object> extractedInfo = parseLmStudioResponse(choice.getMessage().getContent());
-                if (!extractedInfo.isEmpty()) {
-                    // Example: Log the extracted information
-                    log.info("Document Confirmation for Document ID {}: {}", document.getId(), extractedInfo);
-                    DocumentValidationResults results = jsonMapper.convertValue(extractedInfo,
-                            DocumentValidationResults.class);
-
-                    double typeSimilarity = stringMatcher.calculateSimilarity(results.getDetectedType(), results.getExpectedType());
-
-                    if(typeSimilarity >= 0.8) {
-                        results.setTypeMatch(true);
-                    } else {
-                        results.setTypeMatch(false);
-                        document.setVerificationStatus(DocumentVerificationStatus.REJECTED);
-                    }
-
-                    document.setValidationResults(results);
-                    document.setAnalyticsStatus(DocumentAnalyticsStatus.TYPE_CONFIRMATION_COMPLETE);
-
-                    
-
-                    if(document.getVerificationStatus() == DocumentVerificationStatus.REJECTED) {
-                        log.info("Document ID {} rejected due to type mismatch (similarity: {})",
-                                document.getId(), typeSimilarity);
-
-                        document = documentService.save(document);
-                        KycRecord record = kycRecordRepository.getReferenceById(UUID.fromString(document.getTargetId()));
-                        this.rabbitTemplate.convertAndSend(
-                            rabbitProperties.getKycVerificationQueueExchange(),
-                            rabbitProperties.getKycVerificationQueueRoutingKey(),
-                            new QueueObject(document.getTargetId(), record.getTarget(), record.getTargetId()));
-
-                        // TODO: Send a notification to the user about the rejection and the reason for it
-                        return; // Skip further processing for this document
-
-                    }
-                    if (results.getMatch()) {
-                        document.setVerificationStatus(DocumentVerificationStatus.VERIFIED);
-                    } else {
-
-                        if (results.getScore() < 0.3) {
-                            document.setVerificationStatus(DocumentVerificationStatus.REJECTED);
-                        } else {
-                            document.setVerificationStatus(DocumentVerificationStatus.MANUAL_REVIEW);
-                        }
-                    }
-
-                    document = documentService.save(document);
-
-                    if(document.getVerificationStatus() == DocumentVerificationStatus.REJECTED || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
-                        log.info("Document ID {} requires manual review or has been rejected (verification status: {})",
-                                document.getId(), document.getVerificationStatus());
-
-                        KycRecord record = kycRecordRepository.getReferenceById(UUID.fromString(document.getTargetId()));
-                        this.rabbitTemplate.convertAndSend(
-                            rabbitProperties.getKycVerificationQueueExchange(),
-                            rabbitProperties.getKycVerificationQueueRoutingKey(),
-                            new QueueObject(document.getTargetId(), record.getTarget(), record.getTargetId()));
-                    }
-
-                    this.rabbitTemplate.convertAndSend(
-                            rabbitProperties.getInformationConfirmationQueueExchange(),
-                            rabbitProperties.getInformationConfirmationQueueRoutingKey(),
-                            new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
-                }
+                this.handleProcessDocumentConfirmation(choice.getMessage().getContent(), document);
             }
         }
     }
 
+    private void handleProcessDocumentConfirmation(String content, DocumentDTO document) {
+        Map<String, Object> extractedInfo = parseLmStudioResponse(content);
+        if (!extractedInfo.isEmpty()) {
+            // Example: Log the extracted information
+            log.info("Document Confirmation for Document ID {}: {}", document.getId(), extractedInfo);
+            DocumentValidationResults results = jsonMapper.convertValue(extractedInfo,
+                    DocumentValidationResults.class);
+
+            double typeSimilarity = stringMatcher.calculateSimilarity(results.getDetectedType(),
+                    results.getExpectedType());
+
+            if (typeSimilarity >= 0.8) {
+                results.setTypeMatch(true);
+            } else {
+                results.setTypeMatch(false);
+                document.setVerificationStatus(DocumentVerificationStatus.REJECTED);
+            }
+
+            document.setValidationResults(results);
+            document.setAnalyticsStatus(DocumentAnalyticsStatus.TYPE_CONFIRMATION_COMPLETE);
+
+            if (document.getVerificationStatus() == DocumentVerificationStatus.REJECTED) {
+                log.info("Document ID {} rejected due to type mismatch (similarity: {})",
+                        document.getId(), typeSimilarity);
+
+                document = documentService.save(document);
+                KycRecord record = kycRecordRepository
+                        .getReferenceById(UUID.fromString(document.getTargetId()));
+                this.rabbitTemplate.convertAndSend(
+                        rabbitProperties.getKycVerificationQueueExchange(),
+                        rabbitProperties.getKycVerificationQueueRoutingKey(),
+                        new QueueObject(document.getTargetId(), record.getTarget(), record.getTargetId()));
+
+                // TODO: Send a notification to the user about the rejection and the reason for
+                // it
+                return; // Skip further processing for this document
+
+            }
+            if (results.getMatch()) {
+                document.setVerificationStatus(DocumentVerificationStatus.VERIFIED);
+            } else {
+
+                if (results.getScore() < 0.3) {
+                    document.setVerificationStatus(DocumentVerificationStatus.REJECTED);
+                } else {
+                    document.setVerificationStatus(DocumentVerificationStatus.MANUAL_REVIEW);
+                }
+            }
+
+            document = documentService.save(document);
+
+            if (document.getVerificationStatus() == DocumentVerificationStatus.REJECTED
+                    || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
+                log.info("Document ID {} requires manual review or has been rejected (verification status: {})",
+                        document.getId(), document.getVerificationStatus());
+
+                KycRecord record = kycRecordRepository
+                        .getReferenceById(UUID.fromString(document.getTargetId()));
+                this.rabbitTemplate.convertAndSend(
+                        rabbitProperties.getKycVerificationQueueExchange(),
+                        rabbitProperties.getKycVerificationQueueRoutingKey(),
+                        new QueueObject(document.getTargetId(), record.getTarget(), record.getTargetId()));
+            }
+
+            this.rabbitTemplate.convertAndSend(
+                    rabbitProperties.getInformationConfirmationQueueExchange(),
+                    rabbitProperties.getInformationConfirmationQueueRoutingKey(),
+                    new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
+        }
+    }
+
     @Async("virtualThreadExecutor")
-    public void updateFileContent(CompletionResponse response, DocumentDTO document) {
+    public void updateFileContent(Object response, DocumentDTO document) {
+        log.info("Updating file content for document ID: {}", document.getId());
+
+        if (llmId == null) {
+            log.warn("LLM ID is not configured. Skipping file content update for document ID: {}",
+                    document.getId());
+            return;
+        }
+
+        if (llmId.equalsIgnoreCase("lmstudio")) {
+            updateFileContent((LmStudioResponse) response, document);
+        } else if (llmId.equalsIgnoreCase("ollama")) {
+            updateFileContent((OllamaResponse) response, document);
+        } else {
+            log.warn("Unknown LLM ID: {}. Skipping file content update for document ID: {}",
+                    llmId, document.getId());
+        }
+
+    }
+
+    private void updateFileContent(LmStudioResponse response, DocumentDTO document) {
         log.info("Updating file content for document ID: {}", document.getId());
 
         response.getChoices().forEach(choice -> {
             if (choice.getMessage() != null && choice.getMessage().getContent() != null) {
-                String updatedContent = removeThinkBlocks(choice.getMessage().getContent());
-                document.setFileContent(updatedContent);
-                document.setAnalyticsStatus(DocumentAnalyticsStatus.TEXT_CLEANUP_COMPLETE);
-                documentService.save(document);
-                log.info("Updated file content for document ID: {}", document.getId());
-
-                QueueObject queueObject = new QueueObject(
-                        document.getId(),
-                        document.getTarget(),
-                        document.getTargetId());
-
-                rabbitTemplate.convertAndSend(
-                    rabbitProperties.getTextProcessingQueueExchange(),
-                    rabbitProperties.getTextProcessingQueueRoutingKey(),
-                        queueObject);
+                this.handleContentUpdate(choice.getMessage().getContent(), document);
             }
         });
 
     }
 
+    private void updateFileContent(OllamaResponse response, DocumentDTO document) {
+        log.info("Updating file content for document ID: {}", document.getId());
+
+        String content = response.getMessage().getContent();
+
+        if (content != null) {
+            this.handleContentUpdate(content, document);
+        }
+    }
+
+    private void handleContentUpdate(String content, DocumentDTO document) {
+        if (content != null) {
+            String updatedContent = removeThinkBlocks(content);
+            document.setFileContent(updatedContent);
+            document.setAnalyticsStatus(DocumentAnalyticsStatus.TEXT_CLEANUP_COMPLETE);
+            documentService.save(document);
+            log.info("Updated file content for document ID: {}", document.getId());
+
+            QueueObject queueObject = new QueueObject(
+                    document.getId(),
+                    document.getTarget(),
+                    document.getTargetId());
+
+            rabbitTemplate.convertAndSend(
+                    rabbitProperties.getTextProcessingQueueExchange(),
+                    rabbitProperties.getTextProcessingQueueRoutingKey(),
+                    queueObject);
+        }
+    }
+
     String removeThinkBlocks(String input) {
-        if (input == null) return null;
+        if (input == null)
+            return null;
 
         return input.replaceAll("(?s)<think>.*?</think>", "").trim();
     }

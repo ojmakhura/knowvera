@@ -10,8 +10,8 @@ import bw.co.centralkyc.QueueObject;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
 import bw.co.centralkyc.extractor.LmStudioExtractorService;
-import bw.co.centralkyc.lmstudio.CompletionRequest;
-import bw.co.centralkyc.lmstudio.CompletionRequestMessage;
+import bw.co.centralkyc.llm.Prompt;
+import bw.co.centralkyc.llm.PromptMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.json.JsonMapper;
@@ -60,16 +60,16 @@ public class TextProcessingService {
             }
 
             // Call LmStudioExtractor to process the extracted text
-            CompletionRequest request = new CompletionRequest();
+            Prompt request = new Prompt();
             request.setModel("local-model"); // Specify the model you want to use
             request.setStream(false);
 
-            CompletionRequestMessage system = new CompletionRequestMessage();
+            PromptMessage system = new PromptMessage();
             system.setRole("system");
             system.setContent(
                     "You are a data extraction assistant. You **MUST ONLY output valid JSON**. Do not include explanations, notes, reasoning, or any extra text. Follow the instructions carefully.");
 
-            CompletionRequestMessage message = new CompletionRequestMessage();
+            PromptMessage message = new PromptMessage();
             message.setRole("user");
 
             StringBuilder contentBuilder = new StringBuilder();
@@ -144,15 +144,15 @@ public class TextProcessingService {
 
             String finalPrompt = String.format(userCleanUpPromptTemplate, document.getFileContent());
 
-            CompletionRequest request = new CompletionRequest();
+            Prompt request = new Prompt();
             request.setModel("local-model"); // Specify the model you want to use
             request.setStream(false);
 
-            CompletionRequestMessage system = new CompletionRequestMessage();
+            PromptMessage system = new PromptMessage();
             system.setRole("system");
             system.setContent(systemCleanUpPrompt);
 
-            CompletionRequestMessage message = new CompletionRequestMessage();
+            PromptMessage message = new PromptMessage();
             message.setRole("user");
             message.setContent(finalPrompt);
 

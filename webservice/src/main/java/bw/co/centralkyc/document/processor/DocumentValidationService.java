@@ -2,10 +2,8 @@ package bw.co.centralkyc.document.processor;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import bw.co.centralkyc.QueueObject;
@@ -14,11 +12,10 @@ import bw.co.centralkyc.document.DocumentService;
 import bw.co.centralkyc.document.type.DocumentTypeDTO;
 import bw.co.centralkyc.document.type.DocumentTypeService;
 import bw.co.centralkyc.extractor.LmStudioExtractorService;
-import bw.co.centralkyc.lmstudio.CompletionRequest;
-import bw.co.centralkyc.lmstudio.CompletionRequestMessage;
+import bw.co.centralkyc.llm.Prompt;
+import bw.co.centralkyc.llm.PromptMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import tools.jackson.databind.json.JsonMapper;
 
 @Service
 @Slf4j
@@ -43,10 +40,10 @@ public class DocumentValidationService {
         boolean hasCustomPrompts = document.getValidationPrompts() != null
                 && !document.getValidationPrompts().isEmpty();
 
-        CompletionRequestMessage systemPrompt = hasCustomPrompts ? buildCustomSystemPrompt(document)
+        PromptMessage systemPrompt = hasCustomPrompts ? buildCustomSystemPrompt(document)
                 : buildSystemPrompt();
 
-        CompletionRequestMessage userPrompt = hasCustomPrompts ? buildCustomUserPrompt(document)
+        PromptMessage userPrompt = hasCustomPrompts ? buildCustomUserPrompt(document)
                 : buildUserPrompt(document);
 
         if (document != null) {
@@ -55,7 +52,7 @@ public class DocumentValidationService {
                     document.getExtractedInformation());
         }
 
-        CompletionRequest completionRequest = new CompletionRequest();
+        Prompt completionRequest = new Prompt();
         completionRequest.setStream(false);
         completionRequest.setModel("local-model");
         completionRequest.setMessages(List.of(systemPrompt, userPrompt));
@@ -79,7 +76,7 @@ public class DocumentValidationService {
                 });
     }
 
-    private CompletionRequestMessage buildCustomSystemPrompt(DocumentDTO document) {
+    private PromptMessage buildCustomSystemPrompt(DocumentDTO document) {
 
         Collection<DocumentTypeDTO> documentTypes = documentTypeService.getAll();
         StringBuilder systemPromptBuilder = new StringBuilder();
@@ -107,14 +104,14 @@ public class DocumentValidationService {
                 .map(p -> p.getContent())
                 .orElse("");
 
-        CompletionRequestMessage system = new CompletionRequestMessage();
+        PromptMessage system = new PromptMessage();
         system.setRole("system");
         system.setContent(String.format(validationSystemPrompt, systemPromptBuilder.toString()));
 
         return system;
     }
 
-    private CompletionRequestMessage buildCustomUserPrompt(DocumentDTO document) {
+    private PromptMessage buildCustomUserPrompt(DocumentDTO document) {
         String userPromptTemplate = document.getValidationPrompts().stream()
                 .filter(prompt -> prompt.getRole().equals("user"))
                 .findFirst()
@@ -124,14 +121,14 @@ public class DocumentValidationService {
         String userPromptContent = String.format(userPromptTemplate, document.getDocumentType(),
                 document.getFileContent());
 
-        CompletionRequestMessage user = new CompletionRequestMessage();
+        PromptMessage user = new PromptMessage();
         user.setRole("user");
         user.setContent(userPromptContent);
 
         return user;
     }
 
-    private CompletionRequestMessage buildSystemPrompt() {
+    private PromptMessage buildSystemPrompt() {
 
         Collection<DocumentTypeDTO> documentTypes = documentTypeService.getAll();
 
@@ -189,14 +186,14 @@ public class DocumentValidationService {
                 }
                 """);
 
-        CompletionRequestMessage system = new CompletionRequestMessage();
+        PromptMessage system = new PromptMessage();
         system.setRole("system");
         system.setContent(systemPromptBuilder.toString());
 
         return system;
     }
 
-    private CompletionRequestMessage buildUserPrompt(DocumentDTO document) {
+    private PromptMessage buildUserPrompt(DocumentDTO document) {
         String userPrompt = String.format("""
                 Validate the document using signal scoring.
 
@@ -211,7 +208,7 @@ public class DocumentValidationService {
                 Return JSON only.
                 """, document.getDocumentType(), document.getFileContent());
 
-        CompletionRequestMessage user = new CompletionRequestMessage();
+        PromptMessage user = new PromptMessage();
         user.setRole("user");
         user.setContent(userPrompt);
 

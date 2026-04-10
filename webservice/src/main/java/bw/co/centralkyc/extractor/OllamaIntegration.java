@@ -6,10 +6,9 @@ import org.springframework.web.service.annotation.PostExchange;
 
 import bw.co.centralkyc.llm.Prompt;
 
-
-@HttpExchange("/v1")
-public interface LmStudioExtractor {
+@HttpExchange("/api")
+public interface OllamaIntegration {
     
-    @PostExchange("/chat/completions")
-    String createChatCompletion(@RequestBody Prompt request);
+    @PostExchange("/chat")
+    String getOllamaResponse(@RequestBody Prompt request);
 }
