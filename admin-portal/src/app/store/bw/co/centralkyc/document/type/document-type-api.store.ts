@@ -147,6 +147,7 @@ export const DocumentTypeApiStore = signalStore(
                 );
               },
               error: (error: any) => {
+                console.log('Error in pagedSearch:', error);
                 patchState(
                   store, {
                     status: (error?.status || 0),

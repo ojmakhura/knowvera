@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import bw.co.centralkyc.QueueObject;
@@ -22,6 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DocumentValidationService {
 
+    @Value("${app.llm.model}")
+    private String llmModel;
+    
     private final DocumentService documentService;
     private final DocumentTypeService documentTypeService;
     private final LmStudioExtractorService lmStudioExtractorService;
@@ -54,7 +58,7 @@ public class DocumentValidationService {
 
         Prompt completionRequest = new Prompt();
         completionRequest.setStream(false);
-        completionRequest.setModel("local-model");
+        completionRequest.setModel(llmModel);
         completionRequest.setMessages(List.of(systemPrompt, userPrompt));
 
         // ChatResponse chatResponse = geminiClient.prompt()
@@ -149,7 +153,7 @@ public class DocumentValidationService {
             type.getExpectedFields().forEach(field -> {
                 
                 systemPromptBuilder
-                    .append("\t\t-")
+                    .append("\t\t")
                     .append(field.getField());
 
                 if(field.getMandatory() != null && field.getMandatory()) {

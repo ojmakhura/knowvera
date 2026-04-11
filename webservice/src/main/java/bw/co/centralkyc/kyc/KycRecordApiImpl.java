@@ -85,21 +85,12 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     }
 
-    @GetMapping("/debug")
-    public Map<String, Object> debug(Authentication authentication) {
-        return Map.of(
-                "name", authentication.getName(),
-                "authorities", authentication.getAuthorities()
-        );
-    }
-
     @Override
     public ResponseEntity<KycRecordDTO> findById(String id) throws Exception {
 
         try {
 
             KycRecordDTO record = kycRecordService.findById(id);
-
             updateOrganisations(List.of(record));
 
             return ResponseEntity.ok(record);

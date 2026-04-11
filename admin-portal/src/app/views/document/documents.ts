@@ -92,9 +92,14 @@ export class Documents implements OnInit {
   protected readonly router = inject(Router);
   protected readonly loading = linkedSignal(() => this.documentApiStore.loading());
   protected readonly loaderMessage = linkedSignal(() => this.documentApiStore.loaderMessage());
+  protected readonly messages = linkedSignal(() => this.documentApiStore.messages());
+  protected readonly success = linkedSignal(() => this.documentApiStore.success());
+  protected readonly error = linkedSignal(() => this.documentApiStore.error());
   protected readonly documentTypeOptions = linkedSignal<DocumentTypeDTO[]>(() =>
     this.documentTypeApiStore.dataList(),
   );
+
+  protected readonly toastr = inject(ToastrService);
   protected readonly targetOptions = Object.values(TargetEntity);
   protected readonly statusOptions = Object.values(DocumentVerificationStatus);
 
@@ -119,6 +124,15 @@ export class Documents implements OnInit {
         ...state,
         documents: page.content || [],
       }));
+    });
+
+    effect(() => {
+      let error = this.error();
+
+      if(error) {
+        console.error('Error state changed:', error, this.messages());
+        this.toastr.error(this.messages()[0] || 'An error occurred while fetching documents.');
+      }
     });
   }
 

@@ -17,8 +17,9 @@ import tools.jackson.databind.json.JsonMapper;
 @RequiredArgsConstructor
 @Service
 public class LmStudioExtractorService {
-    
+
     private final LmStudioExtractor lmStudioExtractor;
+    private final OllamaIntegration ollamaIntegration;
     // private final ChatClient geminiClient;
     private final JsonMapper jsonMapper;
 
@@ -28,24 +29,28 @@ public class LmStudioExtractorService {
     @Async("virtualThreadExecutor")
     public CompletableFuture<Object> extractInformation(Prompt request) {
         try {
-            String response = lmStudioExtractor.createChatCompletion(request);
-
-            Object parsedResponse = jsonMapper.readValue(response, Object.class);
 
             if (llmId.equals("ollama")) {
+                String response = ollamaIntegration.getOllamaResponse(request);
+
                 return CompletableFuture.completedFuture(jsonMapper.readValue(response, OllamaResponse.class));
             } else {
+
+                String response = lmStudioExtractor.createChatCompletion(request);
                 return CompletableFuture.completedFuture(jsonMapper.readValue(response, LmStudioResponse.class));
-                
+
             }
 
         } catch (Exception ex) {
             CompletableFuture<Object> future = new CompletableFuture<>();
             future.completeExceptionally(ex);
 
-            // CompletionRequestMessage systemPrompt = request.getMessages().stream().filter(m -> "system".equals(m.getRole())).findFirst().orElse(null);
+            // CompletionRequestMessage systemPrompt =
+            // request.getMessages().stream().filter(m ->
+            // "system".equals(m.getRole())).findFirst().orElse(null);
 
-            // CompletionRequestMessage userPrompt = request.getMessages().stream().filter(m -> "user".equals(m.getRole())).findFirst().orElse(null);
+            // CompletionRequestMessage userPrompt = request.getMessages().stream().filter(m
+            // -> "user".equals(m.getRole())).findFirst().orElse(null);
 
             return future;
         }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import bw.co.centralkyc.QueueObject;
@@ -20,6 +21,9 @@ import tools.jackson.databind.json.JsonMapper;
 @Slf4j
 @RequiredArgsConstructor
 public class TextProcessingService {
+
+    @Value("${app.llm.model}")
+    private String llmModel;
 
     private final DocumentService documentService;
     private final LmStudioExtractorService lmStudioExtractorService;
@@ -61,7 +65,7 @@ public class TextProcessingService {
 
             // Call LmStudioExtractor to process the extracted text
             Prompt request = new Prompt();
-            request.setModel("local-model"); // Specify the model you want to use
+            request.setModel(llmModel); // Specify the model you want to use
             request.setStream(false);
 
             PromptMessage system = new PromptMessage();
@@ -145,7 +149,7 @@ public class TextProcessingService {
             String finalPrompt = String.format(userCleanUpPromptTemplate, document.getFileContent());
 
             Prompt request = new Prompt();
-            request.setModel("local-model"); // Specify the model you want to use
+            request.setModel(llmModel); // Specify the model you want to use
             request.setStream(false);
 
             PromptMessage system = new PromptMessage();

@@ -38,7 +38,6 @@ import Swal from 'sweetalert2';
   templateUrl: './document-details.html',
   styleUrls: ['./document-details.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [ToastrService],
   imports: [
     CommonModule,
     FormsModule,

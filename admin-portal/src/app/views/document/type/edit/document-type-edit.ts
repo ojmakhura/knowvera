@@ -121,6 +121,16 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       }
 
     });
+
+    effect(() => {
+
+      const success = this.success();
+
+      if(success) {
+        this.toastr.success(this.messages()[0] || 'Document type saved successfully.');
+      }
+
+    });
   }
 
   ngOnInit(): void {

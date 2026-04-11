@@ -345,6 +345,8 @@ public class DocumentApiImpl implements DocumentApi {
             @Valid SearchObject<DocumentSearchCriteria> criteria) throws Exception {
         
         try {
+//            throw  new DocumentServiceException("Search operation not implemented yet");
+
             Page<DocumentListDTO> results = documentService.search(criteria);
             return ResponseEntity.ok(results);
         } catch (Exception e) {

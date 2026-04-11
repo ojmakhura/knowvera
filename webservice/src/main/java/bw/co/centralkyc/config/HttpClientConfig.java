@@ -8,38 +8,54 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.support.RestClientHttpServiceGroupConfigurer;
 import bw.co.centralkyc.extractor.LmStudioExtractor;
+import bw.co.centralkyc.extractor.OllamaIntegration;
+
 import org.springframework.web.service.registry.ImportHttpServices;
 
 @Configuration
 @ImportHttpServices(group = "lmstudio", types = {
         LmStudioExtractor.class,
 })
+@ImportHttpServices(group = "ollama", types = {
+        OllamaIntegration.class,
+})
 public class HttpClientConfig {
 
     @Value("${app.lmstudio.base-url}")
-    private String url;
+    private String lmstudioUrl;
+
+    @Value("${app.ollama.base-url}")
+    private String ollamaUrl;
 
     @Bean
     RestClientHttpServiceGroupConfigurer groupConfigurer() {
         return groups -> {
-            
+
             SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
             factory.setConnectTimeout((int) Duration.ofSeconds(5).toMillis());
             factory.setReadTimeout((int) Duration.ofMinutes(10).toMillis());
 
             groups.filterByName("lmstudio")
                     .forEachClient((group, builder) -> builder
-                            .baseUrl(url)
+                            .baseUrl(lmstudioUrl)
+                            .requestFactory(factory)
+                            .build());
+
+            groups.filterByName("ollama")
+                    .forEachClient((group, builder) -> builder
+                            .baseUrl(ollamaUrl)
                             .requestFactory(factory)
                             .build());
         };
     }
 
     // private String getCurrentBearerToken() {
-    //     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    //     if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
-    //         return "Bearer " + jwt.getTokenValue();
-    //     }
-    //     return null;
+    // Authentication authentication =
+    // SecurityContextHolder.getContext().getAuthentication();
+    // if (authentication != null && authentication.getPrincipal() instanceof Jwt
+    // jwt) {
+    // return "Bearer " + jwt.getTokenValue();
+    // }
+    // return null;
     // }
 }
