@@ -82,16 +82,6 @@ public abstract class KycRecordMapper {
                 .toList();
     }
 
-    // protected List<KeyValue> mapDataVerifications(KycRecord entity) {
-    //     if (entity == null || entity.getDataVerificationSummaries() == null) {
-    //         return null;
-    //     }
-    //     return entity.getDataVerificationSummaries().stream()
-    //             .map(dv -> new KeyValue(dv.verificationParameter(), dv.verificationStatus().value()))
-    //             .toList();
-
-    // }
-
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link KycRecordSummary}.
      * @param entities

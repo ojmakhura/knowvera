@@ -638,7 +638,11 @@ public class DocumentServiceImpl
 
                 match.setExpectedValue(expected);
                 match.setExtractedValue(extracted);
-                match.setSimilarity(stringMatcher.calculateFilteredSimilarity(extracted, expected));
+                if (continueProcessing) {
+                    match.setSimilarity(stringMatcher.calculateFilteredSimilarity(extracted, expected));
+                } else {
+                    match.setSimilarity(0.0);
+                }
                 match.setMandatory(mandatoryMap.get(keyField));
                 match.setSuccess(continueProcessing);
 
@@ -784,11 +788,14 @@ public class DocumentServiceImpl
             log.info("Document ID {} requires manual review or has been rejected (verification status: {})",
                     document.getId(), document.getVerificationStatus());
 
-            KycRecord record = kycRecordRepository.findById(UUID.fromString(document.getTargetId())).orElseThrow(() -> new DocumentServiceException("Document not found"));
-            this.rabbitTemplate.convertAndSend(
-                    rabbitProperties.getKycVerificationQueueExchange(),
-                    rabbitProperties.getKycVerificationQueueRoutingKey(),
-                    new QueueObject(record.getId().toString(), record.getTarget(), record.getTargetId()));
+            if (document.getTarget() == TargetEntity.KYC_RECORD) {
+                KycRecord record = kycRecordRepository.findById(UUID.fromString(document.getTargetId()))
+                        .orElseThrow(() -> new DocumentServiceException("Document not found"));
+                this.rabbitTemplate.convertAndSend(
+                        rabbitProperties.getKycVerificationQueueExchange(),
+                        rabbitProperties.getKycVerificationQueueRoutingKey(),
+                        new QueueObject(record.getId().toString(), record.getTarget(), record.getTargetId()));
+            }
         }
 
         DocumentDTO dto = documentMapper.toDocumentDTO(document);

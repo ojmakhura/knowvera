@@ -39,7 +39,7 @@ public class InformationConfirmationService {
 
     switch (document.getTarget()) {
       case KYC_RECORD:
-        KycRecordDTO record = kycRecordService.runVerification(document.getId(), "AI-AGENT");
+        KycRecordDTO record = kycRecordService.runVerification(document.getTargetId(), "AI-AGENT");
         break;
       case INDIVIDUAL:
         break;

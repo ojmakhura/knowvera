@@ -2,8 +2,10 @@ package bw.co.centralkyc.document.processor;
 
 import java.util.List;
 
+import bw.co.centralkyc.properties.RabbitProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,8 @@ public class TextProcessingService {
     private final LmStudioExtractorService lmStudioExtractorService;
     private final JsonMapper jsonMapper;
     private final DocumentProcessorService documentProcessorService;
+    private final RabbitTemplate rabbitTemplate;
+    private final RabbitProperties rabbitProperties;
 
     private final String initialPrompt = """
                 Extract all required information from the text and return it strictly in JSON format.
@@ -57,7 +61,7 @@ public class TextProcessingService {
         log.info("Processing extracted text for document ID: {}", queueObject.objectId());
         try {
             DocumentDTO document = documentService.findById(queueObject.objectId()); // Replace with actual retrieval
-                                                                                       // logic
+                                                                                     // logic
 
             if (document == null) {
                 log.warn("Document not found for ID: {}", queueObject.objectId());
@@ -99,7 +103,20 @@ public class TextProcessingService {
             lmStudioExtractorService.extractInformation(request)
                     .thenAccept(response -> {
                         System.out.println("✅ Got response");
-                        documentProcessorService.processLmCompletionResponse(response, document);
+                        documentProcessorService.processExtractedData(response, document)
+                                .thenAccept(continueProcessing -> {
+                                    if (continueProcessing) {
+                                        QueueObject queueItem = new QueueObject(
+                                                document.getId(),
+                                                document.getTarget(),
+                                                document.getTargetId());
+
+                                        rabbitTemplate.convertAndSend(
+                                                rabbitProperties.getInformationConfirmationQueueExchange(),
+                                                rabbitProperties.getInformationConfirmationQueueRoutingKey(),
+                                                queueItem);
+                                    }
+                                });
                     })
                     .exceptionally(ex -> {
                         System.err.println("❌ ERROR:");
@@ -170,8 +187,21 @@ public class TextProcessingService {
 
             lmStudioExtractorService.extractInformation(request)
                     .thenAccept(response -> {
-                        documentProcessorService.updateFileContent(response, document);
+                        documentProcessorService.updateFileContent(response, document)
+                                .thenAccept(continueProcessing -> {
 
+                                    if (continueProcessing) {
+                                        QueueObject queueItem = new QueueObject(
+                                                document.getId(),
+                                                document.getTarget(),
+                                                document.getTargetId());
+
+                                        rabbitTemplate.convertAndSend(
+                                                rabbitProperties.getTextProcessingQueueExchange(),
+                                                rabbitProperties.getTextProcessingQueueRoutingKey(),
+                                                queueItem);
+                                    }
+                                });
                     })
                     .exceptionally(ex -> {
                         log.error("Error during text cleanup for document ID: {}", queueObject.objectId(), ex);

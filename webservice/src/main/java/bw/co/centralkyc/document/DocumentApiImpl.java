@@ -377,7 +377,6 @@ public class DocumentApiImpl implements DocumentApi {
                 throw new IllegalArgumentException("Document not found with id: " + id);
             }
 
-            
             QueueObject queueObject = new QueueObject(
                     document.getId(),
                     document.getTarget(),

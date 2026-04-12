@@ -3,7 +3,7 @@
     <div>
       <div class="breadcrumb-nav">
         <mat-icon inline>folder_open</mat-icon>
-        Documents / Details
+        Documents / Details@if(document().fileName) { / {{ document().fileName }} }
       </div>
       <h1 class="page-title">
         <mat-icon inline style="font-size: 2.25rem; width: 2.25rem; height: 2.25rem;">description</mat-icon>
@@ -39,7 +39,7 @@
           <div class="id-details">
             <div class="detail-row">
               <span class="key">Entity Type</span>
-              <span class="val">{{ entityTypeLabel() }}</span>
+              <span class="val" translate>target.entity.{{ entityTypeLabel() }}</span>
             </div>
             <div class="detail-row">
               <span class="key">Document Type</span>
