@@ -38,8 +38,8 @@ public class DocumentValidationService {
         // For example, you could perform validation, enrichment, or trigger further
         // workflows based on the extracted data
 
-        log.info("Processing extracted information for document ID: {}", queueObject.documentId());
-        DocumentDTO document = documentService.findById(queueObject.documentId());
+        log.info("Processing extracted information for document ID: {}", queueObject.objectId());
+        DocumentDTO document = documentService.findById(queueObject.objectId());
 
         boolean hasCustomPrompts = document.getValidationPrompts() != null
                 && !document.getValidationPrompts().isEmpty();
@@ -52,7 +52,7 @@ public class DocumentValidationService {
 
         if (document != null) {
             // Example: Log the extracted information
-            log.info("Extracted Information for Document ID {}: {}", queueObject.documentId(),
+            log.info("Extracted Information for Document ID {}: {}", queueObject.objectId(),
                     document.getExtractedInformation());
         }
 

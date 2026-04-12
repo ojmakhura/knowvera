@@ -34,10 +34,10 @@ public class DocumentQueueProcessor {
     @RabbitListener(queues = "${app.rabbitmq.textExtractionQueue}")
     public void handleDocumentProcessing(QueueObject queueObject) {
         try {
-            DocumentDTO document = documentService.findById(queueObject.documentId());
+            DocumentDTO document = documentService.findById(queueObject.objectId());
             System.out.println();
             if (document == null) {
-                throw new IllegalArgumentException("Document not found for id: " + queueObject.documentId());
+                throw new IllegalArgumentException("Document not found for id: " + queueObject.objectId());
             }
 
             String objectName = resolveObjectName(document.getUrl());
@@ -73,13 +73,13 @@ public class DocumentQueueProcessor {
                     rabbitProperties.getTextCleanupQueueRoutingKey(), queueObject);
                     
             }).exceptionally(ex -> {
-                log.error("Async extraction failed for id: {}", queueObject.documentId(), ex);
+                log.error("Async extraction failed for id: {}", queueObject.objectId(), ex);
                 sendToDeadLetter(queueObject);
                 return null;
             });
 
         } catch (Exception e) {
-            log.error("Failed to process document {}", queueObject.documentId(), e);
+            log.error("Failed to process document {}", queueObject.objectId(), e);
             sendToDeadLetter(queueObject);
         }
     }

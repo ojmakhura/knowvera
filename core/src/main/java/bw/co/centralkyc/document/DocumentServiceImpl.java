@@ -784,11 +784,11 @@ public class DocumentServiceImpl
             log.info("Document ID {} requires manual review or has been rejected (verification status: {})",
                     document.getId(), document.getVerificationStatus());
 
-            KycRecord record = kycRecordRepository.getReferenceById(UUID.fromString(document.getTargetId()));
+            KycRecord record = kycRecordRepository.findById(UUID.fromString(document.getTargetId())).orElseThrow(() -> new DocumentServiceException("Document not found"));
             this.rabbitTemplate.convertAndSend(
                     rabbitProperties.getKycVerificationQueueExchange(),
                     rabbitProperties.getKycVerificationQueueRoutingKey(),
-                    new QueueObject(document.getTargetId(), record.getTarget(), record.getTargetId()));
+                    new QueueObject(record.getId().toString(), record.getTarget(), record.getTargetId()));
         }
 
         DocumentDTO dto = documentMapper.toDocumentDTO(document);

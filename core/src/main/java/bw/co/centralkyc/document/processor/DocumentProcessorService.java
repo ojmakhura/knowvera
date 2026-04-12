@@ -290,7 +290,7 @@ public class DocumentProcessorService {
                 this.rabbitTemplate.convertAndSend(
                         rabbitProperties.getKycVerificationQueueExchange(),
                         rabbitProperties.getKycVerificationQueueRoutingKey(),
-                        new QueueObject(document.getTargetId(), record.getTarget(), record.getTargetId()));
+                        new QueueObject(record.getId().toString(), record.getTarget(), record.getTargetId()));
 
                 // TODO: Send a notification to the user about the rejection and the reason for
                 // it

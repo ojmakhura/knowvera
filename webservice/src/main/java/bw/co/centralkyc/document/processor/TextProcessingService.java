@@ -43,23 +43,31 @@ public class TextProcessingService {
                 JSON structure to populate:
             """;
 
+    /**
+     * Extracts data from the provided queue object. The method retrieves the
+     * document based on the ID from the queue object, processes the extracted text
+     * using LmStudioExtractor, and then handles the response to update the document
+     * accordingly.
+     * 
+     * @param queueObject the queue object containing the document ID
+     */
     @RabbitListener(queues = "${app.rabbitmq.textProcessingQueue}")
-    public void processExtractedText(QueueObject queueObject) {
+    public void extractData(QueueObject queueObject) {
 
-        log.info("Processing extracted text for document ID: {}", queueObject.documentId());
+        log.info("Processing extracted text for document ID: {}", queueObject.objectId());
         try {
-            DocumentDTO document = documentService.findById(queueObject.documentId()); // Replace with actual retrieval
+            DocumentDTO document = documentService.findById(queueObject.objectId()); // Replace with actual retrieval
                                                                                        // logic
 
             if (document == null) {
-                log.warn("Document not found for ID: {}", queueObject.documentId());
+                log.warn("Document not found for ID: {}", queueObject.objectId());
                 return;
             }
 
             String extractedText = document.getFileContent(); // Assuming this contains the extracted text
 
             if (StringUtils.isBlank(extractedText)) {
-                log.warn("Extracted text is empty for document ID: {}", queueObject.documentId());
+                log.warn("Extracted text is empty for document ID: {}", queueObject.objectId());
                 return;
             }
 
@@ -99,16 +107,14 @@ public class TextProcessingService {
                         return null;
                     });
 
-            log.info("Completed text processing for document ID: {}", queueObject.documentId());
+            log.info("Completed text processing for document ID: {}", queueObject.objectId());
         } catch (Exception e) {
-            log.error("Text processing interrupted for document ID: {}", queueObject.documentId(), e);
+            log.error("Text processing interrupted for document ID: {}", queueObject.objectId(), e);
         }
     }
 
     private String getExtractionSystemPrompt(DocumentDTO document) {
         StringBuilder systemPromptBuilder = new StringBuilder();
-        
-        
 
         return systemPromptBuilder.toString();
     }
@@ -144,7 +150,7 @@ public class TextProcessingService {
     public void cleanExtractedText(QueueObject queueObject) {
 
         try {
-            DocumentDTO document = documentService.findById(queueObject.documentId());
+            DocumentDTO document = documentService.findById(queueObject.objectId());
 
             String finalPrompt = String.format(userCleanUpPromptTemplate, document.getFileContent());
 
@@ -168,12 +174,12 @@ public class TextProcessingService {
 
                     })
                     .exceptionally(ex -> {
-                        log.error("Error during text cleanup for document ID: {}", queueObject.documentId(), ex);
+                        log.error("Error during text cleanup for document ID: {}", queueObject.objectId(), ex);
                         return null;
                     });
 
         } catch (Exception e) {
-            log.error("Error retrieving document for ID: {}", queueObject.documentId(), e);
+            log.error("Error retrieving document for ID: {}", queueObject.objectId(), e);
             return;
         }
 

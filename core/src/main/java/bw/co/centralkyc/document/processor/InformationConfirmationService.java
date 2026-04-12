@@ -27,14 +27,14 @@ public class InformationConfirmationService {
     // For example, you could perform validation, enrichment, or trigger further
     // workflows based on the extracted data
 
-    log.info("Processing extracted information for document ID: {}", queueObject.documentId());
-    DocumentDTO document = documentService.verifyData(queueObject.documentId(), "AI-AGENT");
+    log.info("Processing extracted information for document ID: {}", queueObject.objectId());
+    DocumentDTO document = documentService.verifyData(queueObject.objectId(), "AI-AGENT");
     if (document != null) {
       // Example: Log the extracted information
-      log.info("Extracted Information for Document ID {}: {}", queueObject.documentId(),
+      log.info("Extracted Information for Document ID {}: {}", queueObject.objectId(),
           document.getExtractedInformation());
     } else {
-      log.warn("Document not found for ID: {}", queueObject.documentId());
+      log.warn("Document not found for ID: {}", queueObject.objectId());
     }
 
     switch (document.getTarget()) {

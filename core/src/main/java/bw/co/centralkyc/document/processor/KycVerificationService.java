@@ -21,7 +21,7 @@ public class KycVerificationService {
         log.info("Processing KYC verification for KYC record ID: {}", queueObject.targetId());
 
         try {
-            KycRecordDTO record = kycRecordService.runVerification(queueObject.targetId(), "AI-AGENT");
+            KycRecordDTO record = kycRecordService.runVerification(queueObject.objectId(), "AI-AGENT");
 
             if (record == null) {
                 log.warn("KYC record not found for ID: {}", queueObject.targetId());
