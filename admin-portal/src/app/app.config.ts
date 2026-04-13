@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, inject } from '@angular/core';
 import { provideRouter, RouteReuseStrategy, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -16,8 +16,8 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { apiPrefixInterceptor } from './@core/http/api-prefix.interceptor';
 import { errorHandlerInterceptor } from './@core/http/error-handler.interceptor';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { firstValueFrom, Observable, of } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { provideToastr } from 'ngx-toastr';
 import {
   AutoRefreshTokenService,
@@ -30,6 +30,8 @@ import {
   withAutoRefreshToken,
 } from 'keycloak-angular';
 import { provideQuillConfig } from 'ngx-quill';
+import { AppEnvStore } from './store/app-env.state';
+import { EnvLoaderService } from './services/env-loader.service';
 
 export class CustomTranslateLoader implements TranslateLoader {
   constructor(private http: HttpClient) { }
@@ -41,6 +43,24 @@ export class CustomTranslateLoader implements TranslateLoader {
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new CustomTranslateLoader(http);
+}
+
+function initialiseEnv() {
+  return () => {
+    const appEnvStore = inject(AppEnvStore);
+    const envLoaderService = inject(EnvLoaderService);
+
+    return firstValueFrom(envLoaderService.loadEnv().pipe(
+      tap((env) => {
+        console.log('Environment loaded:', env);
+        appEnvStore.setEnv(env);
+      }),
+      catchError((error) => {
+        console.error('Failed to load environment:', error);
+        return of(null);
+      }),
+    ));
+  };
 }
 
 export const provideKeycloakAndInterceptor = (env: any) => {

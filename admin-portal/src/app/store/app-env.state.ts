@@ -1,6 +1,7 @@
 import { of, switchMap } from 'rxjs';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { Env } from '@app/models/env.model';
 
 export type AppEnvState = {
   env: any;
@@ -58,6 +59,12 @@ export const AppEnvStore = signalStore(
             .catch((error) => {
               patchState(store, { error, loading: false });
             });
+        }),
+      ),
+      setEnv: rxMethod<Env>(
+        switchMap((env) => {
+          patchState(store, { env });
+          return of(store.env());
         }),
       ),
       addRealmRole: rxMethod<any>(
