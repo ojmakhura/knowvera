@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom, inject } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, inject, provideAppInitializer } from '@angular/core';
 import { provideRouter, RouteReuseStrategy, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -144,6 +144,7 @@ const modules = {
 export const appConfig = (env: any) => {
   return {
     providers: [
+      provideAppInitializer(initialiseEnv()),
       provideRouter(routes, withComponentInputBinding()),
       provideKeycloakAndInterceptor(env),
       provideAnimations(),
