@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -24,7 +25,6 @@ import {
 import { form, required, applyEach, FormField } from '@angular/forms/signals';
 import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
 import { KeyField } from '@app/models/bw/co/centralkyc/key-field';
-import { CompletionRequestMessage } from '@app/models/bw/co/centralkyc/lmstudio/completion-request-message';
 import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
 import Swal from 'sweetalert2';
 import { Loader } from '@app/@shared/loader/loader';
@@ -32,6 +32,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ExpectedFieldDTO } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-dto';
 import { VerificationDataConfigDTO } from '@app/models/bw/co/centralkyc/document/type/verification/verification-data-config-dto';
 import { ToastrService } from 'ngx-toastr';
+import { PromptMessage } from '@app/models/bw/co/centralkyc/llm/prompt-message';
+import { ExpectedFieldType } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-type';
+import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -45,8 +48,8 @@ export class EditDocumentTypeVarsForm {
   expires: boolean | any = false;
   expiryField: KeyField | any = null;
   expectedFields: Array<ExpectedFieldDTO> = [];
-  validationPrompts: Array<CompletionRequestMessage> = [];
-  textExtractionPrompts: Array<CompletionRequestMessage> = [];
+  validationPrompts: Array<PromptMessage> = [];
+  textExtractionPrompts: Array<PromptMessage> = [];
   verificationDataConfigs: VerificationDataConfigDTO[] = [];
 }
 
@@ -85,7 +88,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.editDocumentTypeSignal().expectedFields.length > 1) {
       applyEach(path.expectedFields, (fieldPath) => {
-        required(fieldPath.keyField, { message: 'keyField.required' });
+        // required(fieldPath.keyField, { message: 'keyField.required' });
         required(fieldPath.mandatory, { message: 'mandatory.required' });
         required(fieldPath.field, { message: 'field.required' });
       });
@@ -101,8 +104,9 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   messages = linkedSignal(() => this.documentTypeApiStore.messages());
 
   toastr = inject(ToastrService);
+  dialog = inject(MatDialog);
 
-  protected readonly documentTypeKeyFields = linkedSignal(() => this.editDocumentTypeSignal().expectedFields.map((field) => field.keyField).filter((keyField): keyField is KeyField => !!keyField));
+  // protected readonly documentTypeKeyFields = linkedSignal(() => this.editDocumentTypeSignal().expectedFields.map((field) => field.field).filter((keyField): keyField is KeyField => !!keyField));
 
   constructor() {
 
@@ -110,7 +114,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
       let docType = this.documentTypeApiStore.data();
 
-      if(docType) {
+      if (docType) {
         this.editDocumentTypeSignal.set(this.updateDocumentTypeSignal(docType));
       }
     });
@@ -120,7 +124,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       const error = this.error();
       console.log('Error state changed:', error);
 
-      if(error) {
+      if (error) {
         console.log('Error messages:', this.messages());
         this.toastr.error(this.messages()[0] || 'An error occurred while saving the document type.');
       }
@@ -131,7 +135,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
       const success = this.success();
 
-      if(success) {
+      if (success) {
         this.toastr.success(this.messages()[0] || 'Document type saved successfully.');
       }
 
@@ -139,19 +143,19 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    
+
     this.documentTypeApiStore.reset();
 
-    if(this.id && this.id !== '') {
+    if (this.id && this.id !== '') {
 
       this.documentTypeApiStore.findById({ id: this.id });
     }
 
   }
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void { }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void { }
 
   discardChanges(): void {
     const current = this.documentTypeApiStore.data();
@@ -179,14 +183,49 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   expectedFieldsAdd() {
+    const dialogRef = this.dialog.open(ExpectedFieldDialogComponent, {
+      width: '760px',
+      maxWidth: '95vw',
+      data: {
+        title: 'Add Expected Field',
+        field: this.createNewExpectedFields(),
+      },
+    });
 
-    this.editDocumentTypeSignal.update((value) => ({
-      ...value,
-      expectedFields: [
-        this.createNewExpectedFields(),
-        ...value.expectedFields,
-      ]
-    }))
+    dialogRef.afterClosed().subscribe((result?: ExpectedFieldDTO) => {
+      if (!result) {
+        return;
+      }
+
+      this.editDocumentTypeSignal.update((value) => ({
+        ...value,
+        expectedFields: [result, ...value.expectedFields],
+      }));
+    });
+  }
+
+  expectedFieldsEdit(index: number, selected: ExpectedFieldDTO): void {
+    const dialogRef = this.dialog.open(ExpectedFieldDialogComponent, {
+      width: '760px',
+      maxWidth: '95vw',
+      data: {
+        title: 'Edit Expected Field',
+        field: {
+          ...selected,
+        },
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result?: ExpectedFieldDTO) => {
+      if (!result) {
+        return;
+      }
+
+      this.editDocumentTypeSignal.update((value) => ({
+        ...value,
+        expectedFields: value.expectedFields.map((item, itemIndex) => itemIndex === index ? result : item),
+      }));
+    });
   }
 
   expectedFieldsRemove(i: number, selected: ExpectedFieldDTO) {
@@ -230,11 +269,11 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   onExpectedFieldKeyFieldChange(index: number, event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
 
-    this.updateExpectedField(index, 'keyField', value);
+    // this.updateExpectedField(index, 'keyField', value);
   }
 
-  createNewValidationPrompts(): CompletionRequestMessage {
-    return new CompletionRequestMessage();
+  createNewValidationPrompts(): PromptMessage {
+    return new PromptMessage();
   }
 
   validationPromptsAdd() {
@@ -248,7 +287,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     }))
   }
 
-  validationPromptsRemove(i: number, selected: CompletionRequestMessage) {
+  validationPromptsRemove(i: number, selected: PromptMessage) {
 
     Swal.fire({
       title: 'Are you sure?',
@@ -270,8 +309,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  createNewTextExtractionPrompts(): CompletionRequestMessage {
-    return new CompletionRequestMessage();
+  createNewTextExtractionPrompts(): PromptMessage {
+    return new PromptMessage();
   }
 
   textExtractionPromptsAdd() {
@@ -428,7 +467,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   //   });
   // }
 
-  textExtractionPromptsRemove(i: number, selected: CompletionRequestMessage) {
+  textExtractionPromptsRemove(i: number, selected: PromptMessage) {
     Swal.fire({
       title: 'Are you sure?',
       text: `This will remove the prompt with role "${selected.role}" from the text extraction prompts list.`,
@@ -449,7 +488,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  updateTextExtractionPrompt(index: number, field: keyof CompletionRequestMessage, value: any): void {
+  updateTextExtractionPrompt(index: number, field: keyof PromptMessage, value: any): void {
     this.editDocumentTypeSignal.update((state) => ({
       ...state,
       textExtractionPrompts: state.textExtractionPrompts.map((item, itemIndex) => {
@@ -510,5 +549,149 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
   trackByIndex(index: number): number {
     return index;
+  }
+
+  displayExpectedFieldType(value: ExpectedFieldType | null | undefined): string {
+    return value ? String(value) : '-';
+  }
+
+  displayTargetType(value: TargetEntity | null | undefined): string {
+    return value ? String(value) : '-';
+  }
+}
+
+interface ExpectedFieldDialogData {
+  title?: string;
+  field: ExpectedFieldDTO;
+}
+
+@Component({
+  selector: 'app-expected-field-dialog',
+  standalone: true,
+  imports: [
+    MatDialogModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    FormField,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <h2 mat-dialog-title>{{ data.title || 'Expected Field' }}</h2>
+
+    <mat-dialog-content>
+      <div class="dialog-form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Field Name</mat-label>
+          <input matInput [formField]="expectedFieldForm.field" placeholder="e.g. documentNumber" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Format</mat-label>
+          <input matInput [formField]="expectedFieldForm.format" placeholder="e.g. dd/MM/yyyy" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Field Type</mat-label>
+          <mat-select [formField]="expectedFieldForm.fieldType">
+            @for (option of fieldTypeOptions; track option) {
+            <mat-option [value]="option">{{ option }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Match To</mat-label>
+          <input matInput [formField]="expectedFieldForm.matchTo" placeholder="e.g. nationalId" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Target Type</mat-label>
+          <mat-select [formField]="expectedFieldForm.targetType">
+            @for (option of targetTypeOptions; track option) {
+            <mat-option [value]="option">{{ option }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Target Field</mat-label>
+          <input matInput [formField]="expectedFieldForm.targetField" placeholder="e.g. identityNumber" />
+        </mat-form-field>
+
+        <div class="checkbox-row">
+          <mat-checkbox [formField]="expectedFieldForm.mandatory">Mandatory</mat-checkbox>
+          <mat-checkbox [formField]="expectedFieldForm.many">Many</mat-checkbox>
+        </div>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-stroked-button type="button" (click)="onCancel()">Cancel</button>
+      <button mat-flat-button color="primary" type="button" [disabled]="!expectedFieldForm().valid()" (click)="onSave()">
+        Save
+      </button>
+    </mat-dialog-actions>
+  `,
+  styles: [
+    `
+      mat-dialog-content {
+        min-width: 680px;
+      }
+
+      .dialog-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        padding-top: 8px;
+      }
+
+      mat-form-field {
+        width: 100%;
+      }
+
+      .checkbox-row {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 18px;
+        padding: 4px 2px;
+      }
+
+      @media (max-width: 760px) {
+        mat-dialog-content {
+          min-width: 100%;
+        }
+
+        .dialog-form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    `,
+  ],
+})
+export class ExpectedFieldDialogComponent {
+  private dialogRef = inject(MatDialogRef<ExpectedFieldDialogComponent>);
+  data: ExpectedFieldDialogData = inject(MAT_DIALOG_DATA);
+
+  protected readonly fieldTypeOptions = Object.values(ExpectedFieldType);
+  protected readonly targetTypeOptions = Object.values(TargetEntity);
+
+  expectedFieldSignal = signal<ExpectedFieldDTO>(this.data.field);
+  expectedFieldForm = form(this.expectedFieldSignal, (path) => {
+    required(path.field);
+  });
+
+  onCancel(): void {
+    this.dialogRef.close();
+  }
+
+  onSave(): void {
+    if (!this.expectedFieldForm().valid()) {
+      return;
+    }
+
+    this.dialogRef.close(this.expectedFieldSignal());
   }
 }

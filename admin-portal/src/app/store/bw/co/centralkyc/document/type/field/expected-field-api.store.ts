@@ -42,7 +42,7 @@ export const ExpectedFieldApiStore = signalStore(
                 patchState(
                   store, 
                   {
-                    dataList: response, 
+                    data: response,
                     loading: false, 
                     success: true, 
                     messages: ['Success!!'],
@@ -74,7 +74,7 @@ export const ExpectedFieldApiStore = signalStore(
                 patchState(
                   store, 
                   {
-                    dataPage: response,
+                    data: response,
                     loading: false, 
                     success: true, 
                     messages: ['Success!!'],

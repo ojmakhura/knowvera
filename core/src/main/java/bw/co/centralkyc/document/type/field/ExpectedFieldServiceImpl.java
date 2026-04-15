@@ -10,9 +10,13 @@ package bw.co.centralkyc.document.type.field;
 
 import jakarta.validation.Valid;
 
+import java.util.Collection;
 import java.util.UUID;
 
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,21 +24,18 @@ import org.springframework.stereotype.Service;
  */
 @Service("expectedFieldService")
 public class ExpectedFieldServiceImpl
-    extends ExpectedFieldServiceBase
-{
+        extends ExpectedFieldServiceBase {
     public ExpectedFieldServiceImpl(
-        ExpectedFieldDao expectedFieldDao,
-        ExpectedFieldRepository expectedFieldRepository,
-        ExpectedFieldMapper expectedFieldMapper,
-        MessageSource messageSource
-    ) {
-        
+            ExpectedFieldDao expectedFieldDao,
+            ExpectedFieldRepository expectedFieldRepository,
+            ExpectedFieldMapper expectedFieldMapper,
+            MessageSource messageSource) {
+
         super(
-            expectedFieldDao,
-            expectedFieldRepository,
-            expectedFieldMapper,
-            messageSource
-        );
+                expectedFieldDao,
+                expectedFieldRepository,
+                expectedFieldMapper,
+                messageSource);
     }
 
     /**
@@ -42,22 +43,21 @@ public class ExpectedFieldServiceImpl
      */
     @Override
     protected ExpectedFieldDTO handleFindById(String id)
-        throws Exception
-    {
+            throws Exception {
 
         ExpectedField expectedField = this.expectedFieldRepository.findById(UUID.fromString(id))
-            .orElseThrow(() -> new RuntimeException("ExpectedField not found for id: " + id));
+                .orElseThrow(() -> new RuntimeException("ExpectedField not found for id: " + id));
 
         return this.expectedFieldMapper.toExpectedFieldDTO(expectedField);
     }
 
     /**
-     * @see bw.co.centralkyc.document.type.field.ExpectedFieldService#save(@Valid ExpectedFieldDTO)
+     * @see bw.co.centralkyc.document.type.field.ExpectedFieldService#save(@Valid
+     *      ExpectedFieldDTO)
      */
     @Override
     protected ExpectedFieldDTO handleSave(@Valid ExpectedFieldDTO expectedField)
-        throws Exception
-    {
+            throws Exception {
 
         ExpectedField expectedFieldEntity = this.expectedFieldMapper.expectedFieldDTOToEntity(expectedField);
         ExpectedField savedExpectedField = this.expectedFieldRepository.save(expectedFieldEntity);
@@ -69,11 +69,33 @@ public class ExpectedFieldServiceImpl
      */
     @Override
     protected boolean handleRemove(String id)
-        throws Exception
-    {
+            throws Exception {
 
         this.expectedFieldRepository.deleteById(UUID.fromString(id));
         return true;
+    }
+
+    @Override
+    protected Page<ExpectedFieldDTO> handleFindByDocumentType(String documentTypeId, Integer pageNumber,
+            Integer pageSize) throws Exception {
+
+        Specification<ExpectedField> specification = (root, query, criteriaBuilder) -> criteriaBuilder
+                .equal(root.get("documentType").get("id"), UUID.fromString(documentTypeId));
+
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        Page<ExpectedField> expectedFieldsPage = this.expectedFieldRepository.findAll(specification, pageRequest);
+        return expectedFieldsPage.map(this.expectedFieldMapper::toExpectedFieldDTO);
+    }
+
+    @Override
+    protected Collection<ExpectedFieldDTO> handleFindByDocumentType(String documentTypeId) throws Exception {
+        Specification<ExpectedField> specification = (root, query, criteriaBuilder) -> criteriaBuilder
+                .equal(root.get("documentType").get("id"), UUID.fromString(documentTypeId));
+
+        return this.expectedFieldRepository.findAll(specification)
+                .stream()
+                .map(this.expectedFieldMapper::toExpectedFieldDTO)
+                .toList();
     }
 
 }

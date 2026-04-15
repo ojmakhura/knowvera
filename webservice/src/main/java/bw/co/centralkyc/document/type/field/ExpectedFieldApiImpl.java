@@ -8,8 +8,12 @@ package bw.co.centralkyc.document.type.field;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import java.util.Collection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,15 +26,13 @@ import bw.co.centralkyc.AuditTracker;
 public class ExpectedFieldApiImpl implements ExpectedFieldApi {
 
     private static final Logger logger = LoggerFactory.getLogger(ExpectedFieldApiImpl.class);
-        protected final ExpectedFieldService expectedFieldService;
-    
+    protected final ExpectedFieldService expectedFieldService;
+
     public ExpectedFieldApiImpl(
-        ExpectedFieldService expectedFieldService    ) {
-        
+            ExpectedFieldService expectedFieldService) {
+
         this.expectedFieldService = expectedFieldService;
     }
-
-
 
     @Override
     @Operation(summary = "Find Document Type", description = "Get the document type with the given id")
@@ -41,9 +43,8 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
 
             logger.error("An error occurred while processing the request", e);
             throw e.getCause() != null ? new Exception(e.getCause()) : e;
-        } 
+        }
     }
-
 
     @Override
     public ResponseEntity<Boolean> remove(String id) throws Exception {
@@ -53,9 +54,8 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
 
             logger.error("An error occurred while processing the request", e);
             throw e.getCause() != null ? new Exception(e.getCause()) : e;
-        } 
+        }
     }
-
 
     @Override
     public ResponseEntity<ExpectedFieldDTO> save(@Valid ExpectedFieldDTO expectedField) throws Exception {
@@ -69,15 +69,40 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
 
             logger.error("An error occurred while processing the request", e);
             throw e.getCause() != null ? new Exception(e.getCause()) : e;
-        } 
+        }
     }
-    
+
     /**
      * Gets the reference to <code>$serviceRef.daoName</code>.
+     * 
      * @return expectedFieldService
      */
-    protected ExpectedFieldService getExpectedFieldService()
-    {
+    protected ExpectedFieldService getExpectedFieldService() {
         return this.expectedFieldService;
+    }
+
+    @Override
+    public ResponseEntity<Collection<ExpectedFieldDTO>> findByDocumentType(String documentTypeId) throws Exception {
+
+        try {
+            return ResponseEntity.ok(expectedFieldService.findByDocumentType(documentTypeId));
+        } catch (Exception e) {
+
+            logger.error("An error occurred while processing the request", e);
+            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+        }
+
+    }
+
+    @Override
+    public ResponseEntity<Page<ExpectedFieldDTO>> findByDocumentTypePage(String documentTypeId, Integer pageNumber,
+            Integer pageSize) throws Exception {
+        try {
+            return ResponseEntity.ok(expectedFieldService.findByDocumentType(documentTypeId, pageNumber, pageSize));
+        } catch (Exception e) {
+
+            logger.error("An error occurred while processing the request", e);
+            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+        }
     }
 }

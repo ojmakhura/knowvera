@@ -108,65 +108,56 @@
                   </div>
 
                   <div class="fields-body table-card tab-panel-surface">
-                    <div class="fields-head" role="row">
-                      <p>Field Name</p>
-                      <p class="centered">Key Field</p>
-                      <p class="centered">Mandatory</p>
-                      <p>Format</p>
-                      <p></p>
+                    @if (editDocumentTypeSignal().expectedFields.length > 0) {
+                    <div class="expected-fields-table-wrap">
+                      <table class="expected-fields-table">
+                        <thead>
+                          <tr>
+                            <th>Field Name</th>
+                            <th>Mandatory</th>
+                            <th>Format</th>
+                            <th>Field Type</th>
+                            <th>Match To</th>
+                            <th>Target Type</th>
+                            <th>Target Field</th>
+                            <th>Many</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (field of editDocumentTypeSignal().expectedFields; track trackByIndex($index); let index = $index) {
+                          <tr>
+                            <td>{{ field.field || '-' }}</td>
+                            <td>{{ field.mandatory ? 'Yes' : 'No' }}</td>
+                            <td>{{ field.format || '-' }}</td>
+                            <td>{{ displayExpectedFieldType(field.fieldType) }}</td>
+                            <td>{{ field.matchTo || '-' }}</td>
+                            <td>{{ displayTargetType(field.targetType) }}</td>
+                            <td>{{ field.targetField || '-' }}</td>
+                            <td>{{ field.many ? 'Yes' : 'No' }}</td>
+                            <td>
+                              <div class="row-action-wrap">
+                                <button mat-icon-button type="button" class="edit-btn" aria-label="Edit field"
+                                  matTooltip="Edit field" (click)="expectedFieldsEdit(index, field)">
+                                  <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-icon-button type="button" class="delete-btn" aria-label="Delete field"
+                                  matTooltip="Delete field" (click)="expectedFieldsRemove(index, field)">
+                                  <mat-icon>delete</mat-icon>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          }
+                        </tbody>
+                      </table>
                     </div>
-
-                    <div class="fields-body" role="table">
-                      @for (field of editDocumentTypeSignalForm.expectedFields; track trackByIndex($index); let
-                      index = $index) {
-                      <article class="fields-row" role="row">
-                        <mat-form-field appearance="outline" class="vault-field ">
-                          <input matInput type="text" [formField]="field.field" />
-                          @if(field.field().touched()) {
-                          @for (error of field.field().errors(); track $index) {
-                          <p class="error-message" translate>{{ error.message }}</p>
-                          }
-                          }
-
-                        </mat-form-field>
-
-                        <mat-form-field appearance="outline" class="vault-field">
-                          <!-- <mat-label>Key Field</mat-label> -->
-                          <mat-select [formField]="field.keyField">
-                            @for (option of keyFieldOptions; track option) {
-                            <mat-option [value]="option"><span translate>key.field.{{ option }}</span></mat-option>
-                            }
-                          </mat-select>
-                          @if(field.keyField().touched()) {
-                          @for (error of field.keyField().errors(); track $index) {
-                          <p class="error-message" translate>{{ error.message }}</p>
-                          }
-                          }
-                        </mat-form-field>
-
-                        <div class="centered checkbox-cell">
-                          <mat-checkbox [formField]="field.mandatory" aria-label="Mandatory field"></mat-checkbox>
-                        </div>
-
-                        <mat-form-field appearance="outline" class="vault-field ">
-                          <!-- <mat-label>Format</mat-label> -->
-                          <input matInput type="text" [formField]="field.format" />
-                        </mat-form-field>
-
-                        <div class="row-action-wrap">
-                          <button mat-icon-button type="button" class="delete-btn" aria-label="Delete field"
-                            matTooltip="Delete field" (click)="expectedFieldsRemove(index, field().value())">
-                            <mat-icon>delete</mat-icon>
-                          </button>
-                        </div>
-                      </article>
-                      } @empty {
-                      <div class="empty-state-card">
-                        <mat-icon>list_alt</mat-icon>
-                        <p>No expected fields configured yet.</p>
-                      </div>
-                      }
+                    } @else {
+                    <div class="empty-state-card">
+                      <mat-icon>list_alt</mat-icon>
+                      <p>No expected fields configured yet.</p>
                     </div>
+                    }
                   </div>
                 </div>
               </mat-tab>
@@ -316,14 +307,14 @@
 
                         <div class="field-block">
                           <label class="form-label">Key Fields</label>
-                          <div class="verification-key-grid">
+                          <!-- <div class="verification-key-grid">
                             @for (option of documentTypeKeyFields(); track option) {
                             <mat-checkbox [checked]="isVerificationDataConfigKeySelected(index, option)"
                               (change)="toggleVerificationDataConfigKey(index, option, $event.checked)">
                               <span translate>key.field.{{ option }}</span>
                             </mat-checkbox>
                             }
-                          </div>
+                          </div> -->
                         </div>
                       </div>
 
