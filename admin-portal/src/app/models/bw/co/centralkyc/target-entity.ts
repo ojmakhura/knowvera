@@ -26,5 +26,7 @@ export enum TargetEntity {
     /** TODO: Model Documentation for Enumeration Literal CONTACT value "CONTACT": $literal.enumerationLiteralDisplay */
     CONTACT = "CONTACT",
     /** TODO: Model Documentation for Enumeration Literal SETTINGS value "SETTINGS": $literal.enumerationLiteralDisplay */
-    SETTINGS = "SETTINGS"
+    SETTINGS = "SETTINGS",
+    /** TODO: Model Documentation for Enumeration Literal DOCUMENT value "DOCUMENT": $literal.enumerationLiteralDisplay */
+    DOCUMENT = "DOCUMENT"
 }

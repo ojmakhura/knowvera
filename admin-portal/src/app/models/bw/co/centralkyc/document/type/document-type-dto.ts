@@ -1,9 +1,9 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {PromptMessage} from '@models/bw/co/centralkyc/llm/prompt-message';
-import {VerificationDataConfigDTO} from '@models/bw/co/centralkyc/document/type/verification/verification-data-config-dto';
 import {KeyField} from '@models/bw/co/centralkyc/key-field';
+import {PromptMessage} from '@models/bw/co/centralkyc/llm/prompt-message';
 import {ExpectedFieldDTO} from '@models/bw/co/centralkyc/document/type/field/expected-field-dto';
+import {VerificationDataConfigDTO} from '@models/bw/co/centralkyc/document/type/verification/verification-data-config-dto';
 
 export class DocumentTypeDTO extends AuditableDTO {
     code: string | any;

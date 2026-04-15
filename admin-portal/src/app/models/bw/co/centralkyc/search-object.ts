@@ -1,18 +1,22 @@
-import { FormBuilder } from "@angular/forms";
 
 import {PropertySearchOrder} from '@models/bw/co/centralkyc/property-search-order';
 
-export class SearchObject {
-    criteria?: any;
-
-    paged?: boolean = false;
-
-    pageNumber?: number;
-
-    pageSize?: number;
-
-    sortings?: Array<PropertySearchOrder>;
-
+export class SearchObject<T> {
+    criteria: T | any;
+    
+    paged: boolean | any = false;
+    
+    pageNumber: number | any;
+    
+    pageSize: number | any;
+    
+    sortings: Array<PropertySearchOrder> | any;
+    
     constructor() {
+        this.criteria = null;
+        this.paged = false;
+        this.pageNumber = null;
+        this.pageSize = null;
+        this.sortings = [];
     }
 }

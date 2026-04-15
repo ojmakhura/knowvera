@@ -1,8 +1,8 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {DocumentTypeDTO} from '@models/bw/co/centralkyc/document/type/document-type-dto';
 import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
 import {SalaryRangeDTO} from '@models/bw/co/centralkyc/settings/salary-range-dto';
+import {DocumentTypeDTO} from '@models/bw/co/centralkyc/document/type/document-type-dto';
 
 export class SettingsDTO extends AuditableDTO {
     kycDuration: number | any;

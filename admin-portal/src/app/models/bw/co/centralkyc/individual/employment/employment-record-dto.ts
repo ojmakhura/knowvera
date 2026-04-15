@@ -1,8 +1,8 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {SalaryRangeDTO} from '@models/bw/co/centralkyc/settings/salary-range-dto';
 import {OrganisationListDTO} from '@models/bw/co/centralkyc/organisation/organisation-list-dto';
 import {KycRecordDTO} from '@models/bw/co/centralkyc/kyc/kyc-record-dto';
+import {SalaryRangeDTO} from '@models/bw/co/centralkyc/settings/salary-range-dto';
 
 export class EmploymentRecordDTO extends AuditableDTO {
     kycRecords: Array<KycRecordDTO> | any;

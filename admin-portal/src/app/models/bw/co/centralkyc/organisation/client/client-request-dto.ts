@@ -1,9 +1,9 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
 import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
+import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
 import {ClientRequestStatus} from '@models/bw/co/centralkyc/organisation/client/client-request-status';
+import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
 
 export class ClientRequestDTO extends AuditableDTO {
     name: string | any;

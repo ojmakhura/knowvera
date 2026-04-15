@@ -27,6 +27,16 @@ export class UserDTO {
     
     identityNo: string | any;
     
+    realmRoles: Array<string> | any;
+    
+    apiRoles: Array<string> | any;
+    
+    userPortalRoles: Array<string> | any;
+    
+    adminPortalRoles: Array<string> | any;
+    
+    organisationRegistrationNo: string | any;
+    
     constructor() {
         this.userId = null;
         this.username = null;
@@ -41,5 +51,10 @@ export class UserDTO {
         this.branchId = null;
         this.branch = null;
         this.identityNo = null;
+        this.realmRoles = [];
+        this.apiRoles = [];
+        this.userPortalRoles = [];
+        this.adminPortalRoles = [];
+        this.organisationRegistrationNo = null;
     }
 }

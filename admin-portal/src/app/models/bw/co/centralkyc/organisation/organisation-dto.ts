@@ -2,10 +2,10 @@ import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
 import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
+import {GeneralStatus} from '@models/bw/co/centralkyc/general-status';
+import {OrganisationDomain} from '@models/bw/co/centralkyc/organisation/organisation-domain';
 import {DocumentTypeDTO} from '@models/bw/co/centralkyc/document/type/document-type-dto';
 import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
-import {OrganisationDomain} from '@models/bw/co/centralkyc/organisation/organisation-domain';
-import {GeneralStatus} from '@models/bw/co/centralkyc/general-status';
 
 export class OrganisationDTO extends AuditableDTO {
     code: string | any;
@@ -42,6 +42,8 @@ export class OrganisationDTO extends AuditableDTO {
     
     keycloakId: string | any;
     
+    registrationDate: Date | any;
+    
     constructor() {
         super();
         this.code = null;
@@ -61,5 +63,6 @@ export class OrganisationDTO extends AuditableDTO {
         this.kycStatus = null;
         this.countryOfRegistration = null;
         this.keycloakId = null;
+        this.registrationDate = null;
     }
 }
