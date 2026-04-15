@@ -45,7 +45,7 @@ export const AnalyticsApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -77,7 +77,7 @@ export const AnalyticsApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );

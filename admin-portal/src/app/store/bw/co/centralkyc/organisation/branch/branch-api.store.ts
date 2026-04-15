@@ -45,7 +45,7 @@ export const BranchApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -77,7 +77,7 @@ export const BranchApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -109,7 +109,7 @@ export const BranchApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -141,7 +141,7 @@ export const BranchApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -173,7 +173,7 @@ export const BranchApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -205,7 +205,7 @@ export const BranchApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -237,7 +237,7 @@ export const BranchApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -259,7 +259,7 @@ export const BranchApiStore = signalStore(
       ),
       save: rxMethod<{branch: BranchDTO | any }>(
         switchMap((data: any) => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          patchState(store, { loading: true, loaderMessage: 'Saving branch ...' });
           return branchApi.save(data.branch, ).pipe(
             tapResponse({
               next: (response: BranchDTO | any) => {
@@ -269,7 +269,7 @@ export const BranchApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: ['Branch saved successfully!!'],
                     error: false,
                   }
                 );
@@ -281,7 +281,7 @@ export const BranchApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [error?.error?.message || 'An error occurred while saving the branch'],
                   }
                 );
               },
@@ -301,7 +301,7 @@ export const BranchApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );

@@ -65,15 +65,23 @@ export class DocumentApi {
   }
 
   public upload(
-    target: TargetEntity | any,
-    targetId: string | any,
-    documentTypeId: string | any,
-    file: File | any,
+    target: TargetEntity,
+    targetId: string,
+    documentTypeId: string,
+    file: File,
+    purpose?: string
   ): Observable<DocumentDTO | any> {
     const formData: FormData = new FormData();
     formData.append('file', file);
+
+    let url = `${this.path}/upload/${target}/${targetId}/type/${documentTypeId}`;
+
+    if (purpose) {
+      url += `?purpose=${purpose}`;
+    }
+
     return this.http.post<DocumentDTO | any>(
-      `${this.path}/upload/${target}/${targetId}/type/${documentTypeId}`,
+      url,
       formData,
     );
   }

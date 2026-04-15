@@ -6,6 +6,7 @@ import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType, ReadyArgs, typeEventArgs } fr
 import Keycloak from 'keycloak-js';
 import { Shell } from './shell';
 import { TranslateModule } from '@ngx-translate/core';
+import { SettingsApiStore } from './store/bw/co/centralkyc/settings/settings-api.store';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +21,7 @@ export class App {
   env = this.appEnvState.env;
   private keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
   private keycloak = inject(Keycloak);
+  settingsApiStore = inject(SettingsApiStore);
 
   constructor() {
     // Translation service is initialized automatically via constructor
@@ -55,5 +57,7 @@ export class App {
         );
       }
     });
+
+    this.settingsApiStore.getAll();
   }
 }

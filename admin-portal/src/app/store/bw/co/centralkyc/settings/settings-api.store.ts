@@ -47,7 +47,7 @@ export const SettingsApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -87,7 +87,7 @@ export const SettingsApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -119,7 +119,7 @@ export const SettingsApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -151,7 +151,7 @@ export const SettingsApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -183,7 +183,7 @@ export const SettingsApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -215,7 +215,7 @@ export const SettingsApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -247,7 +247,7 @@ export const SettingsApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -279,7 +279,7 @@ export const SettingsApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );

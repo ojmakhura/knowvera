@@ -1,8 +1,9 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {ExpectedFieldDTO} from '@models/bw/co/centralkyc/document/type/field/expected-field-dto';
-import {CompletionRequestMessage} from '@models/bw/co/centralkyc/lmstudio/completion-request-message';
+import {PromptMessage} from '@models/bw/co/centralkyc/llm/prompt-message';
 import {VerificationDataConfigDTO} from '@models/bw/co/centralkyc/document/type/verification/verification-data-config-dto';
+import {KeyField} from '@models/bw/co/centralkyc/key-field';
+import {ExpectedFieldDTO} from '@models/bw/co/centralkyc/document/type/field/expected-field-dto';
 
 export class DocumentTypeDTO extends AuditableDTO {
     code: string | any;
@@ -13,11 +14,15 @@ export class DocumentTypeDTO extends AuditableDTO {
     
     expectedFields: Array<ExpectedFieldDTO> | any;
     
-    validationPrompts: Array<CompletionRequestMessage> | any;
+    validationPrompts: Array<PromptMessage> | any;
     
-    textExtractionPrompts: Array<CompletionRequestMessage> | any;
+    textExtractionPrompts: Array<PromptMessage> | any;
     
     verificationDataConfigs: Array<VerificationDataConfigDTO> | any;
+    
+    expires: boolean | any = false;
+    
+    expiryField: KeyField | any;
     
     constructor() {
         super();
@@ -28,5 +33,7 @@ export class DocumentTypeDTO extends AuditableDTO {
         this.validationPrompts = [];
         this.textExtractionPrompts = [];
         this.verificationDataConfigs = [];
+        this.expires = false;
+        this.expiryField = null;
     }
 }

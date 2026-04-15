@@ -45,7 +45,7 @@ export const EmploymentRecordApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -77,7 +77,7 @@ export const EmploymentRecordApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -109,7 +109,7 @@ export const EmploymentRecordApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -141,7 +141,7 @@ export const EmploymentRecordApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -173,7 +173,7 @@ export const EmploymentRecordApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -205,7 +205,7 @@ export const EmploymentRecordApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -237,7 +237,7 @@ export const EmploymentRecordApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -269,7 +269,7 @@ export const EmploymentRecordApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );

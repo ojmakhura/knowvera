@@ -47,7 +47,7 @@ export const KycInvoiceApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -79,7 +79,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -111,7 +111,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -143,7 +143,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -175,7 +175,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -207,7 +207,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -239,7 +239,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -271,7 +271,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -303,7 +303,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -335,7 +335,7 @@ export const KycInvoiceApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -367,7 +367,7 @@ export const KycInvoiceApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -399,7 +399,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -431,7 +431,7 @@ export const KycInvoiceApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );

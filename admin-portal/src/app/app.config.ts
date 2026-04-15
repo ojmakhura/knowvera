@@ -1,8 +1,12 @@
-import { ApplicationConfig, importProvidersFrom, inject, provideAppInitializer } from '@angular/core';
+import {
+  ApplicationConfig,
+  importProvidersFrom,
+  inject,
+  provideAppInitializer,
+} from '@angular/core';
 import { provideRouter, RouteReuseStrategy, withComponentInputBinding } from '@angular/router';
 
 import { routes } from './app.routes';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import {
   provideHttpClient,
   withFetch,
@@ -10,7 +14,12 @@ import {
   withInterceptorsFromDi,
   HttpClient,
 } from '@angular/common/http';
-import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatDateFormats, provideNativeDateAdapter } from '@angular/material/core';
+import {
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+  MatDateFormats,
+  provideNativeDateAdapter,
+} from '@angular/material/core';
 import { RouteReusableStrategy } from './@core/route-reusable-strategy';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { apiPrefixInterceptor } from './@core/http/api-prefix.interceptor';
@@ -31,10 +40,11 @@ import {
 } from 'keycloak-angular';
 import { provideQuillConfig } from 'ngx-quill';
 import { AppEnvStore } from './store/app-env.state';
-import { EnvLoaderService } from './services/env-loader.service';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { App } from './app';
 
 export class CustomTranslateLoader implements TranslateLoader {
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   getTranslation(lang: string): Observable<any> {
     return this.http.get(`/i18n/${lang}.json`).pipe(catchError(() => of({})));
@@ -45,21 +55,14 @@ export function HttpLoaderFactory(http: HttpClient) {
   return new CustomTranslateLoader(http);
 }
 
-function initialiseEnv() {
+function initialiseEnv(env: any) {
   return () => {
     const appEnvStore = inject(AppEnvStore);
-    const envLoaderService = inject(EnvLoaderService);
 
-    return firstValueFrom(envLoaderService.loadEnv().pipe(
-      tap((env) => {
-        console.log('Environment loaded:', env);
-        appEnvStore.setEnv(env);
-      }),
-      catchError((error) => {
-        console.error('Failed to load environment:', error);
-        return of(null);
-      }),
-    ));
+    console.log(window.location.origin);
+    appEnvStore.setEnv(env);
+
+    return firstValueFrom(of(env));
   };
 }
 
@@ -105,12 +108,6 @@ export const provideKeycloakAndInterceptor = (env: any) => {
   ];
 };
 
-export function initFactory() {
-  // const envStore = inject(AppEnvStore);
-
-  return async () => { };
-}
-
 export const MY_DATE_FORMATS: MatDateFormats = {
   parse: {
     dateInput: 'DD/MM/YYYY', // how the input string is parsed
@@ -125,29 +122,30 @@ export const MY_DATE_FORMATS: MatDateFormats = {
 
 const modules = {
   toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
-      [{ header: 1 }, { header: 2 }],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      [{ script: 'sub' }, { script: 'super' }],
-      [{ indent: '-1' }, { indent: '+1' }],
-      [{ size: ['small', false, 'large', 'huge'] }],
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      [{ color: [] }, { background: [] }],
-      [{ font: [] }],
-      [{ align: [] }],
-      ['clean'],
-      ['link', 'image'],
-    ],
+    ['bold', 'italic', 'underline', 'strike'],
+    ['blockquote', 'code-block'],
+    [{ header: 1 }, { header: 2 }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ script: 'sub' }, { script: 'super' }],
+    [{ indent: '-1' }, { indent: '+1' }],
+    [{ size: ['small', false, 'large', 'huge'] }],
+    [{ header: [1, 2, 3, 4, 5, 6, false] }],
+    [{ color: [] }, { background: [] }],
+    [{ font: [] }],
+    [{ align: [] }],
+    ['clean'],
+    ['link', 'image'],
+  ],
 };
 
-export const appConfig = (env: any) => {
-  return {
+export const initialiseApp = async () => {
+  const env = await fetch('/env.json').then((res) => res.json());
+
+  const appConfig: ApplicationConfig = {
     providers: [
-      provideAppInitializer(initialiseEnv()),
-      provideRouter(routes, withComponentInputBinding()),
+      provideAppInitializer(initialiseEnv(env)),
       provideKeycloakAndInterceptor(env),
-      provideAnimations(),
+      provideRouter(routes, withComponentInputBinding()),
       provideHttpClient(
         withFetch(),
         withInterceptorsFromDi(),
@@ -155,7 +153,7 @@ export const appConfig = (env: any) => {
           apiPrefixInterceptor,
           errorHandlerInterceptor,
           includeBearerTokenInterceptor,
-        ])
+        ]),
       ),
       provideToastr({
         timeOut: 3000,
@@ -177,23 +175,23 @@ export const appConfig = (env: any) => {
             useFactory: HttpLoaderFactory,
             deps: [HttpClient],
           },
-        })
+        }),
       ),
-      { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
       {
         provide: RouteReuseStrategy,
         useClass: RouteReusableStrategy,
       },
       provideQuillConfig({
         modules: {
-          toolbar: modules.toolbar
-        }
+          toolbar: modules.toolbar,
+        },
       }),
-      provideNativeDateAdapter(),
       // { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
       { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
       { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
       { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
     ],
-  } as ApplicationConfig;
+  };
+
+  bootstrapApplication(App, appConfig).catch((err) => console.error(err));
 };

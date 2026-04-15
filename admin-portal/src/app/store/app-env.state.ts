@@ -4,7 +4,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { Env } from '@app/models/env.model';
 
 export type AppEnvState = {
-  env: any;
+  env: Env;
   loading: boolean;
   loadingMenus: boolean;
   error?: any;
@@ -25,7 +25,15 @@ export type AppEnvState = {
 };
 
 const initialState: AppEnvState = {
-  env: null,
+  env: {
+    apiUrl: '',
+    authDomain: '',
+    realm: '',
+    clientId: '',
+    currency: '',
+    redirectUri: '',
+    
+  },
   error: null,
   loading: false,
   loadingMenus: false,

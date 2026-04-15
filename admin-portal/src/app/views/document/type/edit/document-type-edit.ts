@@ -42,6 +42,8 @@ export class EditDocumentTypeVarsForm {
   code: string | any = null;
   name: string | any = null;
   description: string | any = null;
+  expires: boolean | any = false;
+  expiryField: KeyField | any = null;
   expectedFields: Array<ExpectedFieldDTO> = [];
   validationPrompts: Array<CompletionRequestMessage> = [];
   textExtractionPrompts: Array<CompletionRequestMessage> = [];
@@ -80,11 +82,14 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   editDocumentTypeSignalForm = form(this.editDocumentTypeSignal, (path) => {
     required(path.code, { message: 'code.required' });
     required(path.name, { message: 'name.required' });
-    applyEach(path.expectedFields, (fieldPath) => {
-      required(fieldPath.keyField, { message: 'expectedFields.keyField.required' });
-      required(fieldPath.mandatory, { message: 'expectedFields.mandatory.required' });
-      required(fieldPath.field, { message: 'expectedFields.field.required' });
-    });
+
+    if (this.editDocumentTypeSignal().expectedFields.length > 1) {
+      applyEach(path.expectedFields, (fieldPath) => {
+        required(fieldPath.keyField, { message: 'keyField.required' });
+        required(fieldPath.mandatory, { message: 'mandatory.required' });
+        required(fieldPath.field, { message: 'field.required' });
+      });
+    }
   });
 
   documentTypeApiStore = inject(DocumentTypeApiStore);
@@ -134,6 +139,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    
+    this.documentTypeApiStore.reset();
 
     if(this.id && this.id !== '') {
 
@@ -464,6 +471,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       createdAt: documentType.createdAt,
       createdBy: documentType.createdBy,
       description: documentType.description,
+      expires: documentType.expires,
+      expiryField: documentType.expiryField,
       id: documentType.id,
       modifiedAt: documentType.modifiedAt,
       modifiedBy: documentType.modifiedBy,
@@ -483,6 +492,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.createdAt = formData.createdAt;
     docType.createdBy = formData.createdBy;
     docType.description = formData.description;
+    docType.expires = formData.expires;
+    docType.expiryField = formData.expiryField;
     docType.id = formData.id;
     docType.modifiedAt = formData.modifiedAt;
     docType.modifiedBy = formData.modifiedBy;

@@ -49,7 +49,7 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -81,7 +81,7 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -113,7 +113,7 @@ export const DocumentApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -145,7 +145,7 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -177,7 +177,7 @@ export const DocumentApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -209,7 +209,7 @@ export const DocumentApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -241,7 +241,7 @@ export const DocumentApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -272,7 +272,7 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -304,7 +304,7 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -336,7 +336,7 @@ export const DocumentApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -368,7 +368,7 @@ export const DocumentApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -388,10 +388,10 @@ export const DocumentApiStore = signalStore(
           );
         }),
       ),
-      upload: rxMethod<{ target: TargetEntity | any, targetId: string | any, documentTypeId: string | any, file: File | any }>(
+      upload: rxMethod<{ target: TargetEntity, targetId: string, documentTypeId: string, file: File, purpose?: string }>(
         switchMap((data: any) => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return documentApi.upload(data.target, data.targetId, data.documentTypeId, data.file,).pipe(
+          patchState(store, { loading: true, loaderMessage: `Uploading document` });
+          return documentApi.upload(data.target, data.targetId, data.documentTypeId, data.file, data.purpose).pipe(
             tapResponse({
               next: (response: DocumentDTO | any) => {
                 patchState(
@@ -400,7 +400,7 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Upload ${response?.fileName || 'document'} successful!!`],
                     error: false,
                   }
                 );

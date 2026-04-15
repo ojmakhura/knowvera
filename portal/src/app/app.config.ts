@@ -1,28 +1,32 @@
 import {
   ApplicationConfig,
   importProvidersFrom,
-  provideBrowserGlobalErrorListeners,
+  inject,
+  provideAppInitializer,
 } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideRouter, RouteReuseStrategy, withComponentInputBinding } from '@angular/router';
+
+import { routes } from './app.routes';
 import {
   provideHttpClient,
   withFetch,
   withInterceptors,
   withInterceptorsFromDi,
+  HttpClient,
 } from '@angular/common/http';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import {
+  MAT_DATE_FORMATS,
+  MAT_DATE_LOCALE,
+  MatDateFormats,
+} from '@angular/material/core';
+import { RouteReusableStrategy } from './@core/route-reusable-strategy';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-import { HttpClient } from '@angular/common/http';
-
-import { routes } from './app.routes';
-import { catchError, Observable, of } from 'rxjs';
-import { provideToastr } from 'ngx-toastr';
-import { CUSTOM_DATE_FORMATS } from './@shared/custom-date-formats';
-import { MAT_DATE_FORMATS } from '@angular/material/core';
 import { apiPrefixInterceptor } from './@core/http/api-prefix.interceptor';
 import { errorHandlerInterceptor } from './@core/http/error-handler.interceptor';
-
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { firstValueFrom, Observable, of } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { provideToastr } from 'ngx-toastr';
 import {
   AutoRefreshTokenService,
   createInterceptorCondition,
@@ -34,24 +38,32 @@ import {
   withAutoRefreshToken,
 } from 'keycloak-angular';
 import { provideQuillConfig } from 'ngx-quill';
+import { AppEnvStore } from './store/app-env.state';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { App } from './app';
 
-const modules = {
-  toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
-      [{ header: 1 }, { header: 2 }],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      [{ script: 'sub' }, { script: 'super' }],
-      [{ indent: '-1' }, { indent: '+1' }],
-      [{ size: ['small', false, 'large', 'huge'] }],
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      [{ color: [] }, { background: [] }],
-      [{ font: [] }],
-      [{ align: [] }],
-      ['clean'],
-      ['link', 'image'],
-    ],
-};
+export class CustomTranslateLoader implements TranslateLoader {
+  constructor(private http: HttpClient) {}
+
+  getTranslation(lang: string): Observable<any> {
+    return this.http.get(`/i18n/${lang}.json`).pipe(catchError(() => of({})));
+  }
+}
+
+export function HttpLoaderFactory(http: HttpClient) {
+  return new CustomTranslateLoader(http);
+}
+
+function initialiseEnv(env: any) {
+  return () => {
+    const appEnvStore = inject(AppEnvStore);
+
+    console.log(window.location.origin);
+    appEnvStore.setEnv(env);
+
+    return firstValueFrom(of(env));
+  };
+}
 
 export const provideKeycloakAndInterceptor = (env: any) => {
   const urlConditions = [
@@ -67,6 +79,12 @@ export const provideKeycloakAndInterceptor = (env: any) => {
     }),
     // you can add more interceptors in this array...
   ];
+
+  console.log('Keycloak configuration:', {
+    url: env.authDomain,
+    realm: env.realm,
+    clientId: env.clientId,
+  });
 
   // in our case, we put the identity configuration in the environment files
   // const { identityServerUrl, clientId, realm } = environment.auth;
@@ -95,24 +113,50 @@ export const provideKeycloakAndInterceptor = (env: any) => {
   ];
 };
 
-export class CustomTranslateLoader implements TranslateLoader {
-  constructor(private http: HttpClient) {}
+export function initFactory() {
+  // const envStore = inject(AppEnvStore);
 
-  getTranslation(lang: string): Observable<any> {
-    return this.http.get(`/i18n/${lang}.json`).pipe(catchError(() => of({})));
-  }
+  return async () => {};
 }
 
-export function HttpLoaderFactory(http: HttpClient) {
-  return new CustomTranslateLoader(http);
-}
+export const MY_DATE_FORMATS: MatDateFormats = {
+  parse: {
+    dateInput: 'DD/MM/YYYY', // how the input string is parsed
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY', // how it appears in the input
+    monthYearLabel: 'MMM YYYY', // month-year label in calendar
+    dateA11yLabel: 'LL', // accessibility label
+    monthYearA11yLabel: 'MMMM YYYY', // accessibility label for month/year
+  },
+};
 
-export const appConfig = (env: any) => {
-  return {
+const modules = {
+  toolbar: [
+    ['bold', 'italic', 'underline', 'strike'],
+    ['blockquote', 'code-block'],
+    [{ header: 1 }, { header: 2 }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ script: 'sub' }, { script: 'super' }],
+    [{ indent: '-1' }, { indent: '+1' }],
+    [{ size: ['small', false, 'large', 'huge'] }],
+    [{ header: [1, 2, 3, 4, 5, 6, false] }],
+    [{ color: [] }, { background: [] }],
+    [{ font: [] }],
+    [{ align: [] }],
+    ['clean'],
+    ['link', 'image'],
+  ],
+};
+
+export const initialiseApp = async () => {
+  const env = await fetch('/env.json').then((res) => res.json());
+
+  const appConfig: ApplicationConfig = {
     providers: [
-      provideBrowserGlobalErrorListeners(),
-      provideRouter(routes, withComponentInputBinding()),
+      provideAppInitializer(initialiseEnv(env)),
       provideKeycloakAndInterceptor(env),
+      provideRouter(routes, withComponentInputBinding()),
       provideHttpClient(
         withFetch(),
         withInterceptorsFromDi(),
@@ -134,11 +178,6 @@ export const appConfig = (env: any) => {
         maxOpened: 5,
         autoDismiss: true,
       }),
-      provideQuillConfig({
-        modules: {
-          toolbar: modules.toolbar
-        }
-      }),
       importProvidersFrom(
         TranslateModule.forRoot({
           defaultLanguage: 'en',
@@ -149,8 +188,21 @@ export const appConfig = (env: any) => {
           },
         }),
       ),
+      {
+        provide: RouteReuseStrategy,
+        useClass: RouteReusableStrategy,
+      },
+      provideQuillConfig({
+        modules: {
+          toolbar: modules.toolbar,
+        },
+      }),
+      // { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
       { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
-      { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
+      { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+      { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
     ],
   };
+
+  bootstrapApplication(App, appConfig).catch((err) => console.error(err));
 };

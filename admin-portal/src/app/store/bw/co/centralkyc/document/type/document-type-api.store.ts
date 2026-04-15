@@ -35,7 +35,7 @@ export const DocumentTypeApiStore = signalStore(
       },
       findById: rxMethod<{id: string | any }>(
         switchMap((data: any) => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          patchState(store, { loading: true, loaderMessage: 'Loading document type ...' });
           return documentTypeApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: DocumentTypeDTO | any) => {
@@ -45,7 +45,7 @@ export const DocumentTypeApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Document type "${response?.name || 'unknown'}" loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -67,7 +67,7 @@ export const DocumentTypeApiStore = signalStore(
       ),
       getAll: rxMethod<void>(
         switchMap(() => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          patchState(store, { loading: true, loaderMessage: 'Loading all document types ...' });
           return documentTypeApi.getAll().pipe(
             tapResponse({
               next: (response: DocumentTypeDTO[] | any[]) => {
@@ -77,7 +77,7 @@ export const DocumentTypeApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`${response.length} document types loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -109,7 +109,7 @@ export const DocumentTypeApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Page ${response.page.number + 1} of ${response.page.totalPages} document types loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -131,17 +131,17 @@ export const DocumentTypeApiStore = signalStore(
       ),
       pagedSearch: rxMethod<{criteria: string | any , pageNumber: number | any , pageSize: number | any }>(
         switchMap((data: any) => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          patchState(store, { loading: true, loaderMessage: 'Searching ...' });
           return documentTypeApi.pagedSearch(data.criteria, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
-              next: (response: Page<DocumentTypeDTO> | any) => {
+              next: (response: Page<DocumentTypeDTO>) => {
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Page ${response.page.number + 1} of ${response.page.totalPages} document types loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -174,7 +174,7 @@ export const DocumentTypeApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Document type "${data.documentType.name}" removed successfully!!`],
                     error: false,
                   }
                 );
@@ -196,7 +196,7 @@ export const DocumentTypeApiStore = signalStore(
       ),
       save: rxMethod<{documentType: DocumentTypeDTO | any }>(
         switchMap((data: any) => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          patchState(store, { loading: true, loaderMessage: `Saving ${data.documentType.name} ...` });
           return documentTypeApi.save(data.documentType, ).pipe(
             tapResponse({
               next: (response: DocumentTypeDTO | any) => {
@@ -206,7 +206,7 @@ export const DocumentTypeApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Document type "${response?.name || 'unknown'}" saved successfully!!`],
                     error: false,
                   }
                 );
@@ -238,7 +238,7 @@ export const DocumentTypeApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );

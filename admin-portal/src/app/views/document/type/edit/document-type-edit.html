@@ -7,7 +7,7 @@
 
     <div class="header-actions">
       <button mat-button type="button" class="btn-secondary" (click)="discardChanges()">Discard</button>
-      <button mat-flat-button type="button" class="btn-save" (click)="saveDocumentType()">
+      <button mat-flat-button type="button" [disabled]="editDocumentTypeSignalForm().invalid()" class="btn-save" (click)="saveDocumentType()">
         <mat-icon>save</mat-icon>
         <span>Save</span>
       </button>
@@ -61,10 +61,33 @@
                   [formField]="editDocumentTypeSignalForm.description"></textarea>
               </mat-form-field>
             </div>
+
+            <div class="field-grid field-grid-two">
+              <div class="field-block">
+                <label class="form-label" for="documentTypeExpires">Expires</label>
+                <div class="checkbox-cell">
+                  <mat-checkbox id="documentTypeExpires" [formField]="editDocumentTypeSignalForm.expires"
+                    aria-label="Document type expires"></mat-checkbox>
+                </div>
+              </div>
+
+              @if(editDocumentTypeSignal().expires) {
+              <div class="field-block">
+                <label class="form-label" for="documentTypeExpiryField">Expiry Field</label>
+                <mat-form-field appearance="outline" class="vault-field">
+                  <mat-select id="documentTypeExpiryField" [formField]="editDocumentTypeSignalForm.expiryField">
+                    @for (option of keyFieldOptions; track option) {
+                    <mat-option [value]="option"><span translate>key.field.{{ option }}</span></mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              }
+            </div>
           </mat-card-content>
         </mat-card>
       </section>
-
+      @defer(when editDocumentTypeSignal().id) {
       <section class="editor-section editor-section-wide" id="document-configuration">
         <div class="section-title-row">
           <p class="step-label">Step 02</p>
@@ -98,8 +121,13 @@
                       index = $index) {
                       <article class="fields-row" role="row">
                         <mat-form-field appearance="outline" class="vault-field ">
-                          <!-- <mat-label>Field Name</mat-label> -->
                           <input matInput type="text" [formField]="field.field" />
+                          @if(field.field().touched()) {
+                          @for (error of field.field().errors(); track $index) {
+                          <p class="error-message" translate>{{ error.message }}</p>
+                          }
+                          }
+
                         </mat-form-field>
 
                         <mat-form-field appearance="outline" class="vault-field">
@@ -109,6 +137,11 @@
                             <mat-option [value]="option"><span translate>key.field.{{ option }}</span></mat-option>
                             }
                           </mat-select>
+                          @if(field.keyField().touched()) {
+                          @for (error of field.keyField().errors(); track $index) {
+                          <p class="error-message" translate>{{ error.message }}</p>
+                          }
+                          }
                         </mat-form-field>
 
                         <div class="centered checkbox-cell">
@@ -316,6 +349,7 @@
           </mat-card-content>
         </mat-card>
       </section>
+      }
     </main>
   </div>
 </div>

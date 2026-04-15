@@ -184,13 +184,6 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/organisation']);
   }
 
-  // updateField<K extends keyof EditOrganisationVarsForm>(field: K, value: EditOrganisationVarsForm[K]): void {
-  //   this.editOrganisationFormSignal.update((current) => ({
-  //     ...current,
-  //     [field]: value,
-  //   }));
-  // }
-
   toggleIsClient(event: any): void {
     this.editOrganisationFormSignal.update((val) => {
       return {

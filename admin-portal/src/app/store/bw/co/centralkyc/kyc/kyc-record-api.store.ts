@@ -52,7 +52,7 @@ export const KycRecordApiStore = signalStore(
                   data: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -79,7 +79,7 @@ export const KycRecordApiStore = signalStore(
                   data: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -106,7 +106,7 @@ export const KycRecordApiStore = signalStore(
                   data: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -133,7 +133,7 @@ export const KycRecordApiStore = signalStore(
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -162,7 +162,7 @@ export const KycRecordApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   });
                 },
@@ -189,7 +189,7 @@ export const KycRecordApiStore = signalStore(
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -222,7 +222,7 @@ export const KycRecordApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   });
                 },
@@ -249,7 +249,7 @@ export const KycRecordApiStore = signalStore(
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -276,7 +276,7 @@ export const KycRecordApiStore = signalStore(
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -313,7 +313,7 @@ export const KycRecordApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   });
                 },
@@ -340,7 +340,7 @@ export const KycRecordApiStore = signalStore(
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -367,7 +367,7 @@ export const KycRecordApiStore = signalStore(
                   dataPage: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -394,7 +394,7 @@ export const KycRecordApiStore = signalStore(
                   dataPage: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -421,7 +421,7 @@ export const KycRecordApiStore = signalStore(
                   data: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -448,7 +448,7 @@ export const KycRecordApiStore = signalStore(
                   data: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -475,7 +475,7 @@ export const KycRecordApiStore = signalStore(
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -502,7 +502,7 @@ export const KycRecordApiStore = signalStore(
                   currentOrganisationRecord: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -529,7 +529,7 @@ export const KycRecordApiStore = signalStore(
                   currentIndividualRecord: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -556,7 +556,7 @@ export const KycRecordApiStore = signalStore(
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -584,7 +584,7 @@ export const KycRecordApiStore = signalStore(
                   data: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },
@@ -612,7 +612,7 @@ export const KycRecordApiStore = signalStore(
                   dataPage: response,
                   loading: false,
                   success: true,
-                  messages: ['Success!!'],
+                  messages: [`Success!!`],
                   error: false,
                 });
               },

@@ -28,6 +28,7 @@ import { SearchObject } from '@app/models/search-object';
 import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { Loader } from '@app/@shared/loader/loader';
 
 export class SearchOrganisationsVarsForm {
   criteria: string | any = null;
@@ -46,7 +47,8 @@ export class SearchOrganisationsVarsForm {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatTooltipModule
+    MatTooltipModule,
+    Loader
   ],
   templateUrl: './organisations.html',
   styleUrls: ['./organisations.scss'],
