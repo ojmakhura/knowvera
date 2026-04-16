@@ -11,6 +11,7 @@ import {KycRecordDTO} from '@models/bw/co/centralkyc/kyc/kyc-record-dto';
 import {Sex} from '@models/bw/co/centralkyc/individual/sex';
 import {EmploymentRecordDTO} from '@models/bw/co/centralkyc/individual/employment/employment-record-dto';
 import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
+import { DocumentListDTO } from '../document/document-list-dto';
 
 export class IndividualDTO extends AuditableDTO {
     firstName: string | any;
@@ -60,6 +61,10 @@ export class IndividualDTO extends AuditableDTO {
     userCreated: boolean | any = false;
     
     userId: string | any;
+
+    dateOfBirth: Date | any;
+
+    documents: DocumentListDTO[] = [];
     
     constructor() {
         super();
@@ -87,5 +92,8 @@ export class IndividualDTO extends AuditableDTO {
         this.pepStatus = null;
         this.userCreated = false;
         this.userId = null;
+        this.dateOfBirth = null;
+        this.documents = [];
+
     }
 }

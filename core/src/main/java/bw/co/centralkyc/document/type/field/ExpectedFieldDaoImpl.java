@@ -7,6 +7,8 @@
 package bw.co.centralkyc.document.type.field;
 
 import bw.co.centralkyc.document.type.DocumentTypeRepository;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfigRepository;
+
 import org.springframework.stereotype.Repository;
 
 /**
@@ -16,16 +18,12 @@ import org.springframework.stereotype.Repository;
 public class ExpectedFieldDaoImpl
     extends ExpectedFieldDaoBase
 {
-    
-    public ExpectedFieldDaoImpl(
-        DocumentTypeRepository documentTypeRepository,
-        ExpectedFieldRepository expectedFieldRepository
-    ) {
 
-        super(
-            documentTypeRepository,
-            expectedFieldRepository
-        );
+    public ExpectedFieldDaoImpl(DocumentTypeRepository documentTypeRepository,
+            VerificationDataConfigRepository verificationDataConfigRepository,
+            ExpectedFieldRepository expectedFieldRepository) {
+        super(documentTypeRepository, verificationDataConfigRepository, expectedFieldRepository);
+        //TODO Auto-generated constructor stub
     }
 
     /**

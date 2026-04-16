@@ -23,7 +23,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { form, required, applyEach, FormField } from '@angular/forms/signals';
+import { form, required, applyEach, FormField, min, minLength } from '@angular/forms/signals';
 import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
 import { KeyField } from '@app/models/bw/co/centralkyc/key-field';
 import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
@@ -43,6 +43,7 @@ import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
 import { ContactDTO } from '@app/models/bw/co/centralkyc/contact/contact-dto';
 import { SettingsDTO } from '@app/models/bw/co/centralkyc/settings/settings-dto';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
+import { ExpectedFieldApiStore } from '@app/store/bw/co/centralkyc/document/type/field/expected-field-api.store';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -86,6 +87,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   protected readonly keyFieldOptions = Object.values(KeyField);
   protected readonly promptRoleOptions = ['system', 'user', 'assistant'];
   // protected readonly verificationTagOptions = Object.values(VerificationTag);
+  protected readonly expectedFieldIndex = signal(0);
   protected readonly verificationDataConfigIndex = signal(0);
 
   editDocumentTypeVarsForm: EditDocumentTypeVarsForm = new EditDocumentTypeVarsForm();
@@ -101,6 +103,14 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
         required(fieldPath.field, { message: 'field.required' });
       });
     }
+
+    // if(this.editDocumentTypeSignal().verificationDataConfigs.length > 0) {
+
+      // applyEach(path.verificationDataConfigs, (configPath) => {
+      //   required(configPath.name, { message: 'verificationDataConfig.name.required' });
+      //   minLength(path.expectedFields, 1, { message: 'verificationDataConfig.expectedFields.min' });
+      // });
+    // }
   });
 
   documentTypeApiStore = inject(DocumentTypeApiStore);
@@ -113,8 +123,9 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
   toastr = inject(ToastrService);
   dialog = inject(MatDialog);
+  expectedFieldApiStore = inject(ExpectedFieldApiStore);
 
-  // protected readonly documentTypeKeyFields = linkedSignal(() => this.editDocumentTypeSignal().expectedFields.map((field) => field.field).filter((keyField): keyField is KeyField => !!keyField));
+  protected readonly documentTypeFields = linkedSignal(() => this.editDocumentTypeSignal().expectedFields.filter(field => field.id));
 
   constructor() {
 
@@ -209,6 +220,10 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
         ...value,
         expectedFields: [result, ...value.expectedFields],
       }));
+
+      this.expectedFieldIndex.set(0);
+
+      this.saveDocumentType();
     });
   }
 
@@ -233,6 +248,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
         ...value,
         expectedFields: value.expectedFields.map((item, itemIndex) => itemIndex === index ? result : item),
       }));
+      this.saveDocumentType();
     });
   }
 
@@ -248,6 +264,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       if (result.isConfirmed) {
         this.editDocumentTypeSignal.update((value) => {
           const expectedFields = value.expectedFields.filter((_: any, index: number) => index !== i);
+          const nextIndex = Math.max(0, Math.min(this.expectedFieldIndex(), expectedFields.length - 1));
+          this.expectedFieldIndex.set(nextIndex);
 
           return {
             ...value,
@@ -258,26 +276,42 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  updateExpectedField(index: number, field: keyof ExpectedFieldDTO, value: any): void {
-    this.editDocumentTypeSignal.update((state) => ({
-      ...state,
-      expectedFields: state.expectedFields.map((item, itemIndex) => {
-        if (itemIndex !== index) {
-          return item;
-        }
-
-        return {
-          ...item,
-          [field]: value,
-        };
-      }),
-    }));
+  expectedFieldCount(): number {
+    return this.editDocumentTypeSignal().expectedFields.length;
   }
 
-  onExpectedFieldKeyFieldChange(index: number, event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
+  currentExpectedFieldIndex(): number {
+    const count = this.expectedFieldCount();
 
-    // this.updateExpectedField(index, 'keyField', value);
+    if (count === 0) {
+      return 0;
+    }
+
+    return Math.max(0, Math.min(this.expectedFieldIndex(), count - 1));
+  }
+
+  canGoToPreviousExpectedField(): boolean {
+    return this.currentExpectedFieldIndex() > 0;
+  }
+
+  canGoToNextExpectedField(): boolean {
+    return this.currentExpectedFieldIndex() < this.expectedFieldCount() - 1;
+  }
+
+  goToPreviousExpectedField(): void {
+    if (!this.canGoToPreviousExpectedField()) {
+      return;
+    }
+
+    this.expectedFieldIndex.update((index) => Math.max(0, index - 1));
+  }
+
+  goToNextExpectedField(): void {
+    if (!this.canGoToNextExpectedField()) {
+      return;
+    }
+
+    this.expectedFieldIndex.update((index) => Math.min(this.expectedFieldCount() - 1, index + 1));
   }
 
   createNewValidationPrompts(): PromptMessage {
@@ -371,6 +405,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
             verificationDataConfigs,
           };
         });
+
+        this.saveDocumentType();
       }
     });
   }
@@ -391,8 +427,15 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   //   }));
   // }
 
-  isVerificationDataConfigKeySelected(configIndex: number, keyField: KeyField): boolean {
-    return this.editDocumentTypeSignal().verificationDataConfigs[configIndex]?.keyFields?.includes(keyField) ?? false;
+  isVerificationDataConfigKeySelected(configIndex: number, field: ExpectedFieldDTO): boolean {
+
+    let fields = this.editDocumentTypeSignal().verificationDataConfigs[configIndex]?.expectedFields || [];
+
+    let fieldIds = fields.map((f) => f.id);
+
+    return fieldIds.includes(field.id) ?? false;
+
+    // return this.editDocumentTypeSignal().verificationDataConfigs[configIndex]?.expectedFields?.includes(field) ?? false;
   }
 
   verificationDataConfigCount(): number {
@@ -433,7 +476,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     this.verificationDataConfigIndex.update((index) => Math.min(this.verificationDataConfigCount() - 1, index + 1));
   }
 
-  toggleVerificationDataConfigKey(configIndex: number, keyField: KeyField, checked: boolean): void {
+  toggleVerificationDataConfigKey(configIndex: number, field: ExpectedFieldDTO, checked: boolean): void {
     this.editDocumentTypeSignal.update((state) => ({
       ...state,
       verificationDataConfigs: state.verificationDataConfigs.map((config, index) => {
@@ -441,16 +484,16 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
           return config;
         }
 
-        const selectedKeyFields = Array.isArray(config.keyFields) ? config.keyFields : [];
+        const selectedKeyFields = Array.isArray(config.expectedFields) ? config.expectedFields : [];
         const keyFields = checked
-          ? selectedKeyFields.includes(keyField)
+          ? selectedKeyFields.includes(field)
             ? selectedKeyFields
-            : [...selectedKeyFields, keyField]
-          : selectedKeyFields.filter((item: KeyField) => item !== keyField);
+            : [...selectedKeyFields, field]
+          : selectedKeyFields.filter((item: ExpectedFieldDTO) => item.id !== field.id);
 
         return {
           ...config,
-          keyFields,
+          expectedFields: keyFields,
         };
       }),
     }));
@@ -559,13 +602,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     return index;
   }
 
-  displayExpectedFieldType(value: ExpectedFieldType | null | undefined): string {
-    return value ? String(value) : '-';
-  }
-
-  displayTargetType(value: TargetEntity | null | undefined): string {
-    return value ? String(value) : '-';
-  }
 }
 
 interface ExpectedFieldDialogData {
@@ -637,19 +673,6 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Match To</mat-label>
-          <mat-select [formField]="expectedFieldForm.matchTo">
-            @if (matchToOptions().length === 0) {
-            <mat-option [value]="null" disabled>Select target type first</mat-option>
-            } @else {
-            @for (option of matchToOptions(); track option) {
-            <mat-option [value]="option">{{ option }}</mat-option>
-            }
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
           <mat-label>Target Type</mat-label>
           <mat-select [formField]="expectedFieldForm.targetType">
             @for (option of targetTypeOptions; track option) {
@@ -661,8 +684,16 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Target Field</mat-label>
-          <input matInput [formField]="expectedFieldForm.targetField" placeholder="e.g. identityNumber" />
+          <mat-label>Match To</mat-label>
+          <mat-select [formField]="expectedFieldForm.matchTo">
+            @if (matchToOptions().length === 0) { 
+            <mat-option [value]="null" disabled>Select target type first</mat-option>
+            } @else {
+            @for (option of matchToOptions(); track option) {
+            <mat-option [value]="option">{{ option }}</mat-option>
+            }
+            }
+          </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="format-field">

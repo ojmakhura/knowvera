@@ -6,6 +6,7 @@
 package bw.co.centralkyc.document.type.verification;
 
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
+import bw.co.centralkyc.document.type.field.ExpectedFieldMapper;
 import bw.co.centralkyc.utils.MappingUtils;
 
 import java.util.Collection;
@@ -22,7 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
     componentModel = "spring",
     uses = {
         MappingUtils.class,
-        DocumentTypeMapper.class
+        DocumentTypeMapper.class,
+        ExpectedFieldMapper.class
     }
 )
 public abstract class VerificationDataConfigMapper {    

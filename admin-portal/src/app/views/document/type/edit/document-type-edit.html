@@ -108,54 +108,162 @@
                   </div>
 
                   <div class="fields-body table-card tab-panel-surface">
-                    @if (editDocumentTypeSignal().expectedFields.length > 0) {
-                    <div class="expected-fields-table-wrap">
-                      <table class="expected-fields-table">
-                        <thead>
-                          <tr>
-                            <th>Field Name</th>
-                            <th>Mandatory</th>
-                            <th>Format</th>
-                            <th>Field Type</th>
-                            <th>Match To</th>
-                            <th>Target Type</th>
-                            <th>Target Field</th>
-                            <th>Many</th>
-                            <th>Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (field of editDocumentTypeSignal().expectedFields; track trackByIndex($index); let index = $index) {
-                          <tr>
-                            <td>{{ field.field || '-' }}</td>
-                            <td>{{ field.mandatory ? 'Yes' : 'No' }}</td>
-                            <td>{{ field.format || '-' }}</td>
-                            <td>{{ displayExpectedFieldType(field.fieldType) }}</td>
-                            <td>{{ field.matchTo || '-' }}</td>
-                            <td>{{ displayTargetType(field.targetType) }}</td>
-                            <td>{{ field.targetField || '-' }}</td>
-                            <td>{{ field.many ? 'Yes' : 'No' }}</td>
-                            <td>
-                              <div class="row-action-wrap">
-                                <button mat-icon-button type="button" class="edit-btn" aria-label="Edit field"
-                                  matTooltip="Edit field" (click)="expectedFieldsEdit(index, field)">
-                                  <mat-icon>edit</mat-icon>
-                                </button>
-                                <button mat-icon-button type="button" class="delete-btn" aria-label="Delete field"
-                                  matTooltip="Delete field" (click)="expectedFieldsRemove(index, field)">
-                                  <mat-icon>delete</mat-icon>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                          }
-                        </tbody>
-                      </table>
+                    @if (expectedFieldCount() > 0) {
+                    <div class="verification-config-nav" role="group" aria-label="Expected field navigation">
+                      <button mat-stroked-button type="button" class="nav-btn" [disabled]="!canGoToPreviousExpectedField()"
+                        (click)="goToPreviousExpectedField()">
+                        <mat-icon>chevron_left</mat-icon>
+                        <span>Previous</span>
+                      </button>
+
+                      <p class="verification-config-position">
+                        {{ currentExpectedFieldIndex() + 1 }} / {{ expectedFieldCount() }}
+                      </p>
+
+                      <button mat-stroked-button type="button" class="nav-btn" [disabled]="!canGoToNextExpectedField()"
+                        (click)="goToNextExpectedField()">
+                        <span>Next</span>
+                        <mat-icon>chevron_right</mat-icon>
+                      </button>
                     </div>
+
+                    @let index = currentExpectedFieldIndex();
+                    @let field = editDocumentTypeSignal().expectedFields[index];
+                    <article class="verification-config-row expected-field-row">
+                      <div class="verification-config-main">
+                        <div class="field-grid field-grid-two expected-field-grid">
+                          <div class="field-block">
+                            <p class="form-label">Field Name</p>
+                            <p class="expected-field-value">{{ field.field || '-' }}</p>
+                          </div>
+
+                          <div class="field-block">
+                            <p class="form-label">Field Type</p>
+                            <p class="expected-field-value" translate>expected.field.type.{{ field.fieldType }}</p>
+                          </div>
+
+                          <div class="field-block">
+                            <p class="form-label">Match To</p>
+                            <p class="expected-field-value">{{ field.matchTo || '-' }}</p>
+                          </div>
+
+                          <div class="field-block">
+                            <p class="form-label">Target Type</p>
+                            <p class="expected-field-value" translate>target.entity.{{ field.targetType }}</p>
+                          </div>
+
+                          <div class="field-block">
+                            <p class="form-label">Format</p>
+                            <p class="expected-field-value">{{ field.format || '-' }}</p>
+                          </div>
+
+                          <div class="field-block">
+                            <p class="form-label">Mandatory</p>
+                            <p class="expected-field-value">{{ field.mandatory ? 'Yes' : 'No' }}</p>
+                          </div>
+
+                          <div class="field-block">
+                            <p class="form-label">Many</p>
+                            <p class="expected-field-value">{{ field.many ? 'Yes' : 'No' }}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="row-action-wrap verification-config-action">
+                        <button mat-icon-button type="button" class="edit-btn" aria-label="Edit field" matTooltip="Edit field"
+                          (click)="expectedFieldsEdit(index, field)">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button type="button" class="delete-btn" aria-label="Delete field"
+                          matTooltip="Delete field" (click)="expectedFieldsRemove(index, field)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </article>
                     } @else {
                     <div class="empty-state-card">
                       <mat-icon>list_alt</mat-icon>
                       <p>No expected fields configured yet.</p>
+                    </div>
+                    }
+                  </div>
+                </div>
+              </mat-tab>
+
+              <mat-tab label="Verification Data Configs">
+                <div class="tab-pane-content">
+                  <div class="section-head-between">
+                    <h3 class="section-title">Verification Data Configs</h3>
+                    <button mat-button type="button" class="add-btn subtle-btn" (click)="verificationDataConfigsAdd()">
+                      <mat-icon>add</mat-icon>
+                      <span>Add Config</span>
+                    </button>
+                  </div>
+
+                  <div class="fields-body tab-panel-surface" role="table">
+                    @if (verificationDataConfigCount() > 0) {
+                    <div class="verification-config-nav" role="group" aria-label="Verification data config navigation">
+                      <button mat-stroked-button type="button" class="nav-btn"
+                        [disabled]="!canGoToPreviousVerificationDataConfig()"
+                        (click)="goToPreviousVerificationDataConfig()">
+                        <mat-icon>chevron_left</mat-icon>
+                        <span>Previous</span>
+                      </button>
+
+                      <p class="verification-config-position">
+                        {{ currentVerificationDataConfigIndex() + 1 }} / {{ verificationDataConfigCount() }}
+                      </p>
+
+                      <button mat-stroked-button type="button" class="nav-btn"
+                        [disabled]="!canGoToNextVerificationDataConfig()" (click)="goToNextVerificationDataConfig()">
+                        <span>Next</span>
+                        <mat-icon>chevron_right</mat-icon>
+                      </button>
+                    </div>
+
+                    @let index = currentVerificationDataConfigIndex();
+                    @let config = editDocumentTypeSignalForm.verificationDataConfigs[index];
+                    <article class="verification-config-row">
+                      <div class="verification-config-main">
+                        <div class="field-block">
+                          <label class="form-label">Config Name</label>
+                          <mat-form-field appearance="outline" class="vault-field compact-field">
+                            <!-- <mat-label>Name</mat-label> -->
+                            <input matInput type="text" [formField]="config.name" />
+                            @if(config.name().touched()) {
+                            @for (error of config.name().errors(); track $index) {
+                            <p class="error-message" translate>{{ error.message }}</p>
+                            }
+                            }
+                          </mat-form-field>
+                        </div>
+
+                        <div class="field-block">
+                          <label class="form-label">Key Fields</label>
+                          <div class="verification-key-grid">
+                            @for (option of documentTypeFields(); track option) {
+                            <mat-checkbox [checked]="isVerificationDataConfigKeySelected(index, option)"
+                              (change)="toggleVerificationDataConfigKey(index, option, $event.checked)">
+                              <span translate>{{ option.field }}</span>
+                            </mat-checkbox>
+                            }
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="row-action-wrap verification-config-action">
+                        @let configValue = config().value();
+                        <button mat-icon-button type="button" class="delete-btn"
+                          aria-label="Delete verification data config" matTooltip="Delete verification data config"
+                          (click)="verificationDataConfigsRemove(index, configValue)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </article>
+                    } @else {
+                    <div class="empty-state-card">
+                      <mat-icon>data_object</mat-icon>
+                      <p>No verification data configs configured yet.</p>
                     </div>
                     }
                   </div>
@@ -260,82 +368,7 @@
                     }
                   </div>
                 </div>
-              </mat-tab>
-
-              <mat-tab label="Verification Data Configs">
-                <div class="tab-pane-content">
-                  <div class="section-head-between">
-                    <h3 class="section-title">Verification Data Configs</h3>
-                    <button mat-button type="button" class="add-btn subtle-btn" (click)="verificationDataConfigsAdd()">
-                      <mat-icon>add</mat-icon>
-                      <span>Add Config</span>
-                    </button>
-                  </div>
-
-                  <div class="fields-body tab-panel-surface" role="table">
-                    @if (verificationDataConfigCount() > 0) {
-                    <div class="verification-config-nav" role="group" aria-label="Verification data config navigation">
-                      <button mat-stroked-button type="button" class="nav-btn"
-                        [disabled]="!canGoToPreviousVerificationDataConfig()"
-                        (click)="goToPreviousVerificationDataConfig()">
-                        <mat-icon>chevron_left</mat-icon>
-                        <span>Previous</span>
-                      </button>
-
-                      <p class="verification-config-position">
-                        {{ currentVerificationDataConfigIndex() + 1 }} / {{ verificationDataConfigCount() }}
-                      </p>
-
-                      <button mat-stroked-button type="button" class="nav-btn"
-                        [disabled]="!canGoToNextVerificationDataConfig()" (click)="goToNextVerificationDataConfig()">
-                        <span>Next</span>
-                        <mat-icon>chevron_right</mat-icon>
-                      </button>
-                    </div>
-
-                    @let index = currentVerificationDataConfigIndex();
-                    @let config = editDocumentTypeSignalForm.verificationDataConfigs[index];
-                    <article class="verification-config-row">
-                      <div class="verification-config-main">
-                        <div class="field-block">
-                          <label class="form-label">Config Name</label>
-                          <mat-form-field appearance="outline" class="vault-field compact-field">
-                            <!-- <mat-label>Name</mat-label> -->
-                            <input matInput type="text" [formField]="config.name" />
-                          </mat-form-field>
-                        </div>
-
-                        <div class="field-block">
-                          <label class="form-label">Key Fields</label>
-                          <!-- <div class="verification-key-grid">
-                            @for (option of documentTypeKeyFields(); track option) {
-                            <mat-checkbox [checked]="isVerificationDataConfigKeySelected(index, option)"
-                              (change)="toggleVerificationDataConfigKey(index, option, $event.checked)">
-                              <span translate>key.field.{{ option }}</span>
-                            </mat-checkbox>
-                            }
-                          </div> -->
-                        </div>
-                      </div>
-
-                      <div class="row-action-wrap verification-config-action">
-                        @let configValue = config().value();
-                        <button mat-icon-button type="button" class="delete-btn"
-                          aria-label="Delete verification data config" matTooltip="Delete verification data config"
-                          (click)="verificationDataConfigsRemove(index, configValue)">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </div>
-                    </article>
-                    } @else {
-                    <div class="empty-state-card">
-                      <mat-icon>data_object</mat-icon>
-                      <p>No verification data configs configured yet.</p>
-                    </div>
-                    }
-                  </div>
-                </div>
-              </mat-tab>
+              </mat-tab>             
             </mat-tab-group>
           </mat-card-content>
         </mat-card>

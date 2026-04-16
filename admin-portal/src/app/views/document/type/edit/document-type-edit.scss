@@ -353,6 +353,20 @@
 	background: rgb(214 227 255 / 72%);
 }
 
+:host ::ng-deep :is(.edit-btn, .delete-btn).mat-mdc-icon-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+:host ::ng-deep :is(.edit-btn, .delete-btn).mat-mdc-icon-button .mat-icon {
+	margin: 0;
+	line-height: 1;
+	width: 1.1rem;
+	height: 1.1rem;
+	font-size: 1.1rem;
+}
+
 :host ::ng-deep .delete-btn.mat-mdc-icon-button {
 	color: var(--vault-error);
 	background: rgb(255 218 214 / 72%);
@@ -416,6 +430,33 @@
 .verification-config-main {
 	display: grid;
 	gap: 0.75rem;
+}
+
+.expected-field-row .verification-config-main {
+	width: 100%;
+}
+
+.expected-field-row .verification-config-action {
+	padding-top: 0;
+	align-self: start;
+}
+
+:host ::ng-deep .expected-field-row .verification-config-action .mat-mdc-icon-button {
+	width: 2.5rem;
+	height: 2.5rem;
+	padding: 0;
+}
+
+.expected-field-grid {
+	gap: 0.95rem 1rem;
+}
+
+.expected-field-value {
+	margin: 0;
+	font-size: 0.9rem;
+	line-height: 1.45;
+	color: var(--vault-on-surface);
+	word-break: break-word;
 }
 
 .verification-config-nav {

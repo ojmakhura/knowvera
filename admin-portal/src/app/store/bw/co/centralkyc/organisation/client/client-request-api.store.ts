@@ -4,7 +4,7 @@ import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { AppState } from '@app/store/app-state';
+import { AppState, getErrormessage } from '@app/store/app-state';
 import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { ClientRequestDTO } from '@app/models/bw/co/centralkyc/organisation/client/client-request-dto';
@@ -75,7 +75,7 @@ export const ClientRequestApiStore = signalStore(
       //               loading: false,
       //               success: false,
       //               error: true,
-      //               messages: [error?.error?.message || 'An error occurred'],
+      //               messages: [getErrormessage(error)],
       //             }
       //           );
       //         },
@@ -107,7 +107,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -139,7 +139,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -171,7 +171,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -203,7 +203,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -235,7 +235,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -267,7 +267,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -299,7 +299,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -331,7 +331,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -363,7 +363,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -395,7 +395,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -427,7 +427,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -459,7 +459,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -491,7 +491,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -523,7 +523,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -555,7 +555,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -587,7 +587,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -619,7 +619,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -651,7 +651,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -683,7 +683,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -715,7 +715,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -747,7 +747,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -779,7 +779,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -811,7 +811,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -852,7 +852,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -884,7 +884,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -916,7 +916,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -948,7 +948,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },
@@ -980,7 +980,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [error?.error?.message || 'An error occurred'],
+                  messages: [getErrormessage(error)],
                 }
                 );
               },

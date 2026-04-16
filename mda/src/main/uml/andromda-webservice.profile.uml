@@ -1,479 +1,479 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xmi:XMI xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:standard="http://www.eclipse.org/uml2/5.0.0/UML/Profile/Standard" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML">
   <uml:Profile xmi:id="_9_0_2_12ab03bf_1120852932765_76536_0" name="andromda-webservice" visibility="public" URI="" metamodelReference="_0metamodelReferenceandromda-webservice">
-    <eAnnotations xmi:id="_sfnQKDj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML">
-      <contents xmi:type="ecore:EPackage" xmi:id="_sfnQKTj0EfGB8YYzei7pnA" name="andromdawebservice" nsURI="http:///schemas/andromdawebservice/_sZ2jsDj0EfGB8YYzei7pnA/0" nsPrefix="andromdawebservice">
-        <eAnnotations xmi:id="_sfnQKjj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML">
-          <details xmi:id="_sfnQKzj0EfGB8YYzei7pnA" key="originalName" value="andromda-webservice"/>
+    <eAnnotations xmi:id="_GfbstjmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML">
+      <contents xmi:type="ecore:EPackage" xmi:id="_GfbstzmYEfG_q5O6vG-tYA" name="andromdawebservice" nsURI="http:///schemas/andromdawebservice/_GYX-IDmYEfG_q5O6vG-tYA/0" nsPrefix="andromdawebservice">
+        <eAnnotations xmi:id="_GfbsuDmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML">
+          <details xmi:id="_GfbsuTmYEfG_q5O6vG-tYA" key="originalName" value="andromda-webservice"/>
         </eAnnotations>
-        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_sfnQLDj0EfGB8YYzei7pnA" name="HttpRequestType">
-          <eAnnotations xmi:id="_sfnQLTj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1244667162410_222611_3"/>
-          <eLiterals xmi:id="_sfnQLjj0EfGB8YYzei7pnA" name="default"/>
-          <eLiterals xmi:id="_sfnQLzj0EfGB8YYzei7pnA" name="GET" value="1"/>
-          <eLiterals xmi:id="_sfnQMDj0EfGB8YYzei7pnA" name="POST" value="2"/>
-          <eLiterals xmi:id="_sfnQMTj0EfGB8YYzei7pnA" name="PUT" value="3"/>
-          <eLiterals xmi:id="_sfnQMjj0EfGB8YYzei7pnA" name="DELETE" value="4"/>
-          <eLiterals xmi:id="_sfnQMzj0EfGB8YYzei7pnA" name="HEADER" value="5"/>
-          <eLiterals xmi:id="_sfnQNDj0EfGB8YYzei7pnA" name="PATCH" value="6"/>
-          <eLiterals xmi:id="_sfnQNTj0EfGB8YYzei7pnA" name="OPTIONS" value="7"/>
+        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_GfbsujmYEfG_q5O6vG-tYA" name="HttpRequestType">
+          <eAnnotations xmi:id="_GfbsuzmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1244667162410_222611_3"/>
+          <eLiterals xmi:id="_GfbsvDmYEfG_q5O6vG-tYA" name="default"/>
+          <eLiterals xmi:id="_GfbsvTmYEfG_q5O6vG-tYA" name="GET" value="1"/>
+          <eLiterals xmi:id="_GfbsvjmYEfG_q5O6vG-tYA" name="POST" value="2"/>
+          <eLiterals xmi:id="_GfbsvzmYEfG_q5O6vG-tYA" name="PUT" value="3"/>
+          <eLiterals xmi:id="_GfbswDmYEfG_q5O6vG-tYA" name="DELETE" value="4"/>
+          <eLiterals xmi:id="_GfbswTmYEfG_q5O6vG-tYA" name="HEADER" value="5"/>
+          <eLiterals xmi:id="_GfbswjmYEfG_q5O6vG-tYA" name="PATCH" value="6"/>
+          <eLiterals xmi:id="_GfbswzmYEfG_q5O6vG-tYA" name="OPTIONS" value="7"/>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_sfnQNjj0EfGB8YYzei7pnA" name="ParamType">
-          <eAnnotations xmi:id="_sfnQNzj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1244667333711_282538_15"/>
-          <eLiterals xmi:id="_sfnQODj0EfGB8YYzei7pnA" name="default"/>
-          <eLiterals xmi:id="_sfnQOTj0EfGB8YYzei7pnA" name="PathParam" value="1"/>
-          <eLiterals xmi:id="_sfnQOjj0EfGB8YYzei7pnA" name="QueryParam" value="2"/>
-          <eLiterals xmi:id="_sfnQOzj0EfGB8YYzei7pnA" name="HeaderParam" value="3"/>
-          <eLiterals xmi:id="_sfnQPDj0EfGB8YYzei7pnA" name="MatrixParam" value="4"/>
-          <eLiterals xmi:id="_sfnQPTj0EfGB8YYzei7pnA" name="CookieParam" value="5"/>
-          <eLiterals xmi:id="_sfnQPjj0EfGB8YYzei7pnA" name="FormParam" value="6"/>
-          <eLiterals xmi:id="_sfnQPzj0EfGB8YYzei7pnA" name="RequestParam" value="7"/>
-          <eLiterals xmi:id="_sfnQQDj0EfGB8YYzei7pnA" name="RequestBody" value="8"/>
+        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_GfbsxDmYEfG_q5O6vG-tYA" name="ParamType">
+          <eAnnotations xmi:id="_GfbsxTmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1244667333711_282538_15"/>
+          <eLiterals xmi:id="_GfbsxjmYEfG_q5O6vG-tYA" name="default"/>
+          <eLiterals xmi:id="_GfbsxzmYEfG_q5O6vG-tYA" name="PathParam" value="1"/>
+          <eLiterals xmi:id="_GfbsyDmYEfG_q5O6vG-tYA" name="QueryParam" value="2"/>
+          <eLiterals xmi:id="_GfbsyTmYEfG_q5O6vG-tYA" name="HeaderParam" value="3"/>
+          <eLiterals xmi:id="_GfbsyjmYEfG_q5O6vG-tYA" name="MatrixParam" value="4"/>
+          <eLiterals xmi:id="_GfbsyzmYEfG_q5O6vG-tYA" name="CookieParam" value="5"/>
+          <eLiterals xmi:id="_GfbszDmYEfG_q5O6vG-tYA" name="FormParam" value="6"/>
+          <eLiterals xmi:id="_GfbszTmYEfG_q5O6vG-tYA" name="RequestParam" value="7"/>
+          <eLiterals xmi:id="_GfbszjmYEfG_q5O6vG-tYA" name="RequestBody" value="8"/>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_sfnQQTj0EfGB8YYzei7pnA" name="ProviderMediaType">
-          <eAnnotations xmi:id="_sfnQQjj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1244667996150_450267_125"/>
-          <eLiterals xmi:id="_sfnQQzj0EfGB8YYzei7pnA" name="default"/>
-          <eLiterals xmi:id="_sfnQRDj0EfGB8YYzei7pnA" name="ApplicationXML" value="1"/>
-          <eLiterals xmi:id="_sfnQRTj0EfGB8YYzei7pnA" name="TextPlain" value="2"/>
-          <eLiterals xmi:id="_sfnQRjj0EfGB8YYzei7pnA" name="TextXML" value="3"/>
-          <eLiterals xmi:id="_sfnQRzj0EfGB8YYzei7pnA" name="ApplicationAtom" value="4"/>
-          <eLiterals xmi:id="_sfnQSDj0EfGB8YYzei7pnA" name="ApplicationJSON" value="5"/>
-          <eLiterals xmi:id="_sfnQSTj0EfGB8YYzei7pnA" name="ApplicationFastinfoset" value="6"/>
-          <eLiterals xmi:id="_sfnQSjj0EfGB8YYzei7pnA" name="ApplicationFormURLEncoded" value="7"/>
-          <eLiterals xmi:id="_sfnQSzj0EfGB8YYzei7pnA" name="Wildcard" value="8"/>
-          <eLiterals xmi:id="_sfnQTDj0EfGB8YYzei7pnA" name="MultipartFixed" value="9"/>
-          <eLiterals xmi:id="_sfnQTTj0EfGB8YYzei7pnA" name="MultipartFormData" value="10"/>
-          <eLiterals xmi:id="_sfnQTjj0EfGB8YYzei7pnA" name="MultipartMixed" value="11"/>
-          <eLiterals xmi:id="_sfnQTzj0EfGB8YYzei7pnA" name="MultipartRelated" value="12"/>
-          <eLiterals xmi:id="_sfnQUDj0EfGB8YYzei7pnA" name="MultipartAlternative" value="13"/>
-          <eLiterals xmi:id="_sfnQUTj0EfGB8YYzei7pnA" name="ApplicationOctetStream" value="14"/>
-          <eLiterals xmi:id="_sfnQUjj0EfGB8YYzei7pnA" name="ApplicationAtomXML" value="15"/>
-          <eLiterals xmi:id="_sfnQUzj0EfGB8YYzei7pnA" name="ApplicationXhtmlXML" value="16"/>
-          <eLiterals xmi:id="_sfnQVDj0EfGB8YYzei7pnA" name="ApplicationSvgXML" value="17"/>
-          <eLiterals xmi:id="_sfnQVTj0EfGB8YYzei7pnA" name="ApplicationAtomEntry" value="18"/>
-          <eLiterals xmi:id="_sfnQVjj0EfGB8YYzei7pnA" name="ApplicationXMLAll" value="19"/>
-          <eLiterals xmi:id="_sfnQVzj0EfGB8YYzei7pnA" name="ApplicationYaml" value="20"/>
-          <eLiterals xmi:id="_sfnQWDj0EfGB8YYzei7pnA" name="TextXYaml" value="21"/>
-          <eLiterals xmi:id="_sfnQWTj0EfGB8YYzei7pnA" name="TextYaml" value="22"/>
+        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_GfbszzmYEfG_q5O6vG-tYA" name="ProviderMediaType">
+          <eAnnotations xmi:id="_Gfbs0DmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1244667996150_450267_125"/>
+          <eLiterals xmi:id="_Gfbs0TmYEfG_q5O6vG-tYA" name="default"/>
+          <eLiterals xmi:id="_Gfbs0jmYEfG_q5O6vG-tYA" name="ApplicationXML" value="1"/>
+          <eLiterals xmi:id="_Gfbs0zmYEfG_q5O6vG-tYA" name="TextPlain" value="2"/>
+          <eLiterals xmi:id="_Gfbs1DmYEfG_q5O6vG-tYA" name="TextXML" value="3"/>
+          <eLiterals xmi:id="_Gfbs1TmYEfG_q5O6vG-tYA" name="ApplicationAtom" value="4"/>
+          <eLiterals xmi:id="_Gfbs1jmYEfG_q5O6vG-tYA" name="ApplicationJSON" value="5"/>
+          <eLiterals xmi:id="_Gfbs1zmYEfG_q5O6vG-tYA" name="ApplicationFastinfoset" value="6"/>
+          <eLiterals xmi:id="_Gfbs2DmYEfG_q5O6vG-tYA" name="ApplicationFormURLEncoded" value="7"/>
+          <eLiterals xmi:id="_Gfbs2TmYEfG_q5O6vG-tYA" name="Wildcard" value="8"/>
+          <eLiterals xmi:id="_Gfbs2jmYEfG_q5O6vG-tYA" name="MultipartFixed" value="9"/>
+          <eLiterals xmi:id="_Gfbs2zmYEfG_q5O6vG-tYA" name="MultipartFormData" value="10"/>
+          <eLiterals xmi:id="_Gfbs3DmYEfG_q5O6vG-tYA" name="MultipartMixed" value="11"/>
+          <eLiterals xmi:id="_Gfbs3TmYEfG_q5O6vG-tYA" name="MultipartRelated" value="12"/>
+          <eLiterals xmi:id="_Gfbs3jmYEfG_q5O6vG-tYA" name="MultipartAlternative" value="13"/>
+          <eLiterals xmi:id="_Gfbs3zmYEfG_q5O6vG-tYA" name="ApplicationOctetStream" value="14"/>
+          <eLiterals xmi:id="_Gfbs4DmYEfG_q5O6vG-tYA" name="ApplicationAtomXML" value="15"/>
+          <eLiterals xmi:id="_Gfbs4TmYEfG_q5O6vG-tYA" name="ApplicationXhtmlXML" value="16"/>
+          <eLiterals xmi:id="_Gfbs4jmYEfG_q5O6vG-tYA" name="ApplicationSvgXML" value="17"/>
+          <eLiterals xmi:id="_Gfbs4zmYEfG_q5O6vG-tYA" name="ApplicationAtomEntry" value="18"/>
+          <eLiterals xmi:id="_Gfbs5DmYEfG_q5O6vG-tYA" name="ApplicationXMLAll" value="19"/>
+          <eLiterals xmi:id="_Gfbs5TmYEfG_q5O6vG-tYA" name="ApplicationYaml" value="20"/>
+          <eLiterals xmi:id="_Gfbs5jmYEfG_q5O6vG-tYA" name="TextXYaml" value="21"/>
+          <eLiterals xmi:id="_Gfbs5zmYEfG_q5O6vG-tYA" name="TextYaml" value="22"/>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_sfnQWjj0EfGB8YYzei7pnA" name="WebServiceStyle">
-          <eAnnotations xmi:id="_sfnQWzj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_0_1fe00f9_1119337599234_576105_6"/>
-          <eLiterals xmi:id="_sfnQXDj0EfGB8YYzei7pnA" name="default"/>
-          <eLiterals xmi:id="_sfnQXTj0EfGB8YYzei7pnA" name="wrapped" value="1"/>
-          <eLiterals xmi:id="_sfnQXjj0EfGB8YYzei7pnA" name="document" value="2"/>
-          <eLiterals xmi:id="_sfnQXzj0EfGB8YYzei7pnA" name="rpc" value="3"/>
+        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_Gfbs6DmYEfG_q5O6vG-tYA" name="WebServiceStyle">
+          <eAnnotations xmi:id="_Gfbs6TmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_0_1fe00f9_1119337599234_576105_6"/>
+          <eLiterals xmi:id="_Gfbs6jmYEfG_q5O6vG-tYA" name="default"/>
+          <eLiterals xmi:id="_Gfbs6zmYEfG_q5O6vG-tYA" name="wrapped" value="1"/>
+          <eLiterals xmi:id="_Gfbs7DmYEfG_q5O6vG-tYA" name="document" value="2"/>
+          <eLiterals xmi:id="_Gfbs7TmYEfG_q5O6vG-tYA" name="rpc" value="3"/>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_sfnQYDj0EfGB8YYzei7pnA" name="WebServiceProvider">
-          <eAnnotations xmi:id="_sfnQYTj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_0_1fe00f9_1119337599234_816697_9"/>
-          <eLiterals xmi:id="_sfnQYjj0EfGB8YYzei7pnA" name="default"/>
-          <eLiterals xmi:id="_sfnQYzj0EfGB8YYzei7pnA" name="RPC" value="1"/>
-          <eLiterals xmi:id="_sfnQZDj0EfGB8YYzei7pnA" name="EJB" value="2"/>
-          <eLiterals xmi:id="_sfnQZTj0EfGB8YYzei7pnA" name="JAX-WS" value="3"/>
+        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_Gfbs7jmYEfG_q5O6vG-tYA" name="WebServiceProvider">
+          <eAnnotations xmi:id="_Gfbs7zmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_0_1fe00f9_1119337599234_816697_9"/>
+          <eLiterals xmi:id="_Gfbs8DmYEfG_q5O6vG-tYA" name="default"/>
+          <eLiterals xmi:id="_Gfbs8TmYEfG_q5O6vG-tYA" name="RPC" value="1"/>
+          <eLiterals xmi:id="_Gfbs8jmYEfG_q5O6vG-tYA" name="EJB" value="2"/>
+          <eLiterals xmi:id="_Gfbs8zmYEfG_q5O6vG-tYA" name="JAX-WS" value="3"/>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_sfnQZjj0EfGB8YYzei7pnA" name="WebServiceUse">
-          <eAnnotations xmi:id="_sfnQZzj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_0_1fe00f9_1119337599234_508718_16"/>
-          <eLiterals xmi:id="_sfnQaDj0EfGB8YYzei7pnA" name="default"/>
-          <eLiterals xmi:id="_sfnQaTj0EfGB8YYzei7pnA" name="literal" value="1"/>
-          <eLiterals xmi:id="_sfnQajj0EfGB8YYzei7pnA" name="encoded" value="2"/>
+        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_Gfbs9DmYEfG_q5O6vG-tYA" name="WebServiceUse">
+          <eAnnotations xmi:id="_Gfbs9TmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_0_1fe00f9_1119337599234_508718_16"/>
+          <eLiterals xmi:id="_Gfbs9jmYEfG_q5O6vG-tYA" name="default"/>
+          <eLiterals xmi:id="_Gfbs9zmYEfG_q5O6vG-tYA" name="literal" value="1"/>
+          <eLiterals xmi:id="_Gfbs-DmYEfG_q5O6vG-tYA" name="encoded" value="2"/>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_sfnQazj0EfGB8YYzei7pnA" name="WebServiceParameterStyle">
-          <eAnnotations xmi:id="_sfnQbDj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1229442786298_883324_88"/>
-          <eLiterals xmi:id="_sfnQbTj0EfGB8YYzei7pnA" name="default"/>
-          <eLiterals xmi:id="_sfnQbjj0EfGB8YYzei7pnA" name="wrapped" value="1"/>
-          <eLiterals xmi:id="_sfnQbzj0EfGB8YYzei7pnA" name="bare" value="2"/>
+        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_Gfbs-TmYEfG_q5O6vG-tYA" name="WebServiceParameterStyle">
+          <eAnnotations xmi:id="_Gfbs-jmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1229442786298_883324_88"/>
+          <eLiterals xmi:id="_Gfbs-zmYEfG_q5O6vG-tYA" name="default"/>
+          <eLiterals xmi:id="_Gfbs_DmYEfG_q5O6vG-tYA" name="wrapped" value="1"/>
+          <eLiterals xmi:id="_Gfbs_TmYEfG_q5O6vG-tYA" name="bare" value="2"/>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_sfnQcDj0EfGB8YYzei7pnA" name="WebServiceParameterDirection">
-          <eAnnotations xmi:id="_sfnQcTj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_d1OT8FnNEeKwC6RAHZ8EBA"/>
-          <eLiterals xmi:id="_sfnQcjj0EfGB8YYzei7pnA" name="default"/>
-          <eLiterals xmi:id="_sfnQczj0EfGB8YYzei7pnA" name="IN" value="1"/>
-          <eLiterals xmi:id="_sfnQdDj0EfGB8YYzei7pnA" name="INOUT" value="2"/>
-          <eLiterals xmi:id="_sfnQdTj0EfGB8YYzei7pnA" name="OUT" value="3"/>
+        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_Gfbs_jmYEfG_q5O6vG-tYA" name="WebServiceParameterDirection">
+          <eAnnotations xmi:id="_Gfbs_zmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_d1OT8FnNEeKwC6RAHZ8EBA"/>
+          <eLiterals xmi:id="_GfbtADmYEfG_q5O6vG-tYA" name="default"/>
+          <eLiterals xmi:id="_GfbtATmYEfG_q5O6vG-tYA" name="IN" value="1"/>
+          <eLiterals xmi:id="_GfbtAjmYEfG_q5O6vG-tYA" name="INOUT" value="2"/>
+          <eLiterals xmi:id="_GfbtAzmYEfG_q5O6vG-tYA" name="OUT" value="3"/>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_sfnQdjj0EfGB8YYzei7pnA" name="TernaryBoolean">
-          <eAnnotations xmi:id="_sfnQdzj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2090114_1235189840952_369943_0"/>
-          <eLiterals xmi:id="_sfnQeDj0EfGB8YYzei7pnA" name="default"/>
-          <eLiterals xmi:id="_sfnQeTj0EfGB8YYzei7pnA" name="false" value="1"/>
-          <eLiterals xmi:id="_sfnQejj0EfGB8YYzei7pnA" name="true" value="2"/>
+        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_GfbtBDmYEfG_q5O6vG-tYA" name="TernaryBoolean">
+          <eAnnotations xmi:id="_GfbtBTmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2090114_1235189840952_369943_0"/>
+          <eLiterals xmi:id="_GfbtBjmYEfG_q5O6vG-tYA" name="default"/>
+          <eLiterals xmi:id="_GfbtBzmYEfG_q5O6vG-tYA" name="false" value="1"/>
+          <eLiterals xmi:id="_GfbtCDmYEfG_q5O6vG-tYA" name="true" value="2"/>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EClass" xmi:id="_sfnQezj0EfGB8YYzei7pnA" name="WebService">
-          <eAnnotations xmi:id="_sfnQfDj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_0_1fe00f9_1119337599234_292426_17"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQfTj0EfGB8YYzei7pnA" name="andromda_cache_type" ordered="false" lowerBound="1">
+        <eClassifiers xmi:type="ecore:EClass" xmi:id="_GfbtCTmYEfG_q5O6vG-tYA" name="WebService">
+          <eAnnotations xmi:id="_GfbtCjmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_0_1fe00f9_1119337599234_292426_17"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtCzmYEfG_q5O6vG-tYA" name="andromda_cache_type" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQfzj0EfGB8YYzei7pnA" name="andromda_jaxb_xjcArguments" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtDTmYEfG_q5O6vG-tYA" name="andromda_jaxb_xjcArguments" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQgTj0EfGB8YYzei7pnA" name="andromda_jaxb_simpleBindingMode" ordered="false" lowerBound="1" eType="_sfnQdjj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQgzj0EfGB8YYzei7pnA" name="andromda_schema_validation" ordered="false" lowerBound="1" eType="_sfnQdjj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQhTj0EfGB8YYzei7pnA" name="andromda_serialVersionUID" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtDzmYEfG_q5O6vG-tYA" name="andromda_jaxb_simpleBindingMode" ordered="false" lowerBound="1" eType="_GfbtBDmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtETmYEfG_q5O6vG-tYA" name="andromda_schema_validation" ordered="false" lowerBound="1" eType="_GfbtBDmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtEzmYEfG_q5O6vG-tYA" name="andromda_serialVersionUID" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQhzj0EfGB8YYzei7pnA" name="andromda_service_logging" ordered="false" lowerBound="1" eType="_sfnQdjj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQiTj0EfGB8YYzei7pnA" name="andromda_webservice_provider" ordered="false" lowerBound="1" eType="_sfnQYDj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQizj0EfGB8YYzei7pnA" name="andromda_webservice_serviceName" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtFTmYEfG_q5O6vG-tYA" name="andromda_service_logging" ordered="false" lowerBound="1" eType="_GfbtBDmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtFzmYEfG_q5O6vG-tYA" name="andromda_webservice_provider" ordered="false" lowerBound="1" eType="_Gfbs7jmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtGTmYEfG_q5O6vG-tYA" name="andromda_webservice_serviceName" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQjTj0EfGB8YYzei7pnA" name="andromda_webservice_style" ordered="false" lowerBound="1" eType="_sfnQWjj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQjzj0EfGB8YYzei7pnA" name="andromda_webservice_use" ordered="false" lowerBound="1" eType="_sfnQZjj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQkTj0EfGB8YYzei7pnA" name="andromda_webservice_wsdlLocation" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtGzmYEfG_q5O6vG-tYA" name="andromda_webservice_style" ordered="false" lowerBound="1" eType="_Gfbs6DmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtHTmYEfG_q5O6vG-tYA" name="andromda_webservice_use" ordered="false" lowerBound="1" eType="_Gfbs9DmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtHzmYEfG_q5O6vG-tYA" name="andromda_webservice_wsdlLocation" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQkzj0EfGB8YYzei7pnA" name="andromda_webservice_wsdlSoapAddress" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtITmYEfG_q5O6vG-tYA" name="andromda_webservice_wsdlSoapAddress" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQlTj0EfGB8YYzei7pnA" name="andromda_REST" ordered="false" lowerBound="1" eType="_sfnQdjj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQlzj0EfGB8YYzei7pnA" name="andromda_REST_consumes" ordered="false" lowerBound="1" eType="_sfnQQTj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQmTj0EfGB8YYzei7pnA" name="andromda_REST_contexts" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtIzmYEfG_q5O6vG-tYA" name="andromda_REST" ordered="false" lowerBound="1" eType="_GfbtBDmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtJTmYEfG_q5O6vG-tYA" name="andromda_REST_consumes" ordered="false" lowerBound="1" eType="_GfbszzmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtJzmYEfG_q5O6vG-tYA" name="andromda_REST_contexts" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQmzj0EfGB8YYzei7pnA" name="andromda_REST_http_method" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtKTmYEfG_q5O6vG-tYA" name="andromda_REST_http_method" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQnTj0EfGB8YYzei7pnA" name="andromda_REST_path" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtKzmYEfG_q5O6vG-tYA" name="andromda_REST_path" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQnzj0EfGB8YYzei7pnA" name="andromda_REST_produces" ordered="false" lowerBound="1" eType="_sfnQQTj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQoTj0EfGB8YYzei7pnA" name="andromda_REST_provider" ordered="false" lowerBound="1" eType="_sfnQdjj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQozj0EfGB8YYzei7pnA" name="andromda_REST_request_type" ordered="false" lowerBound="1" eType="_sfnQLDj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQpTj0EfGB8YYzei7pnA" name="andromda_REST_retention" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtLTmYEfG_q5O6vG-tYA" name="andromda_REST_produces" ordered="false" lowerBound="1" eType="_GfbszzmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtLzmYEfG_q5O6vG-tYA" name="andromda_REST_provider" ordered="false" lowerBound="1" eType="_GfbtBDmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtMTmYEfG_q5O6vG-tYA" name="andromda_REST_request_type" ordered="false" lowerBound="1" eType="_GfbsujmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtMzmYEfG_q5O6vG-tYA" name="andromda_REST_retention" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQpzj0EfGB8YYzei7pnA" name="andromda_REST_target" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtNTmYEfG_q5O6vG-tYA" name="andromda_REST_target" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnQqTj0EfGB8YYzei7pnA" name="base_Class" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_GfbtNzmYEfG_q5O6vG-tYA" name="base_Class" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Class"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQqzj0EfGB8YYzei7pnA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtOTmYEfG_q5O6vG-tYA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQrTj0EfGB8YYzei7pnA" name="andromda_additionalExtends" ordered="false" upperBound="-1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtOzmYEfG_q5O6vG-tYA" name="andromda_additionalExtends" ordered="false" upperBound="-1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQrzj0EfGB8YYzei7pnA" name="andromda_additionalImplements" ordered="false" upperBound="-1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtPTmYEfG_q5O6vG-tYA" name="andromda_additionalImplements" ordered="false" upperBound="-1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EClass" xmi:id="_sfnQsTj0EfGB8YYzei7pnA" name="WebServiceOperation">
-          <eAnnotations xmi:id="_sfnQsjj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_0_1fe00f9_1119337599234_736026_12"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQszj0EfGB8YYzei7pnA" name="andromda_cache_type" ordered="false" lowerBound="1">
+        <eClassifiers xmi:type="ecore:EClass" xmi:id="_GfbtPzmYEfG_q5O6vG-tYA" name="WebServiceOperation">
+          <eAnnotations xmi:id="_GfbtQDmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_0_1fe00f9_1119337599234_736026_12"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtQTmYEfG_q5O6vG-tYA" name="andromda_cache_type" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQtTj0EfGB8YYzei7pnA" name="anromda_webservice_operationName" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtQzmYEfG_q5O6vG-tYA" name="anromda_webservice_operationName" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQtzj0EfGB8YYzei7pnA" name="andromda_webservice_parameter_style" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtRTmYEfG_q5O6vG-tYA" name="andromda_webservice_parameter_style" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQuTj0EfGB8YYzei7pnA" name="andromda_REST_path" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtRzmYEfG_q5O6vG-tYA" name="andromda_REST_path" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQuzj0EfGB8YYzei7pnA" name="andromda_REST_request_type" ordered="false" lowerBound="1" eType="_sfnQLDj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQvTj0EfGB8YYzei7pnA" name="andromda_REST_encoded" ordered="false" lowerBound="1" eType="_sfnQdjj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQvzj0EfGB8YYzei7pnA" name="andromda_REST_produces" ordered="false" lowerBound="1" eType="_sfnQQTj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQwTj0EfGB8YYzei7pnA" name="andromda_REST_consumes" ordered="false" lowerBound="1" eType="_sfnQQTj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQwzj0EfGB8YYzei7pnA" name="andromda_REST_provider" ordered="false" lowerBound="1" eType="_sfnQdjj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQxTj0EfGB8YYzei7pnA" name="andromda_REST_part_type" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtSTmYEfG_q5O6vG-tYA" name="andromda_REST_request_type" ordered="false" lowerBound="1" eType="_GfbsujmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtSzmYEfG_q5O6vG-tYA" name="andromda_REST_encoded" ordered="false" lowerBound="1" eType="_GfbtBDmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtTTmYEfG_q5O6vG-tYA" name="andromda_REST_produces" ordered="false" lowerBound="1" eType="_GfbszzmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtTzmYEfG_q5O6vG-tYA" name="andromda_REST_consumes" ordered="false" lowerBound="1" eType="_GfbszzmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtUTmYEfG_q5O6vG-tYA" name="andromda_REST_provider" ordered="false" lowerBound="1" eType="_GfbtBDmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtUzmYEfG_q5O6vG-tYA" name="andromda_REST_part_type" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQxzj0EfGB8YYzei7pnA" name="andromda_REST_suspend" ordered="false" lowerBound="1" defaultValueLiteral="0">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtVTmYEfG_q5O6vG-tYA" name="andromda_REST_suspend" ordered="false" lowerBound="1" defaultValueLiteral="0">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//Integer"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQyTj0EfGB8YYzei7pnA" name="andromda_REST_roles_allowed" ordered="false" upperBound="-1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtVzmYEfG_q5O6vG-tYA" name="andromda_REST_roles_allowed" ordered="false" upperBound="-1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnQyzj0EfGB8YYzei7pnA" name="base_Operation" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_GfbtWTmYEfG_q5O6vG-tYA" name="base_Operation" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Operation"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQzTj0EfGB8YYzei7pnA" name="andromda_REST_response_status" ordered="false" lowerBound="1" eType="_sfnQ1zj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQzzj0EfGB8YYzei7pnA" name="andromda_REST_pre_authorize" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtWzmYEfG_q5O6vG-tYA" name="andromda_REST_response_status" ordered="false" lowerBound="1" eType="_GfbtZTmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtXTmYEfG_q5O6vG-tYA" name="andromda_REST_pre_authorize" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQ0Tj0EfGB8YYzei7pnA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtXzmYEfG_q5O6vG-tYA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQ0zj0EfGB8YYzei7pnA" name="andromda_REST_post_authorize" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtYTmYEfG_q5O6vG-tYA" name="andromda_REST_post_authorize" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnQ1Tj0EfGB8YYzei7pnA" name="andromda_REST_path_static" ordered="false" defaultValueLiteral="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtYzmYEfG_q5O6vG-tYA" name="andromda_REST_path_static" ordered="false" defaultValueLiteral="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//Boolean"/>
           </eStructuralFeatures>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_sfnQ1zj0EfGB8YYzei7pnA" name="HttpStatus">
-          <eAnnotations xmi:id="_sfnQ2Dj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_19_0_3_90e0298_1585922569390_29744_5592"/>
-          <eLiterals xmi:id="_sfnQ2Tj0EfGB8YYzei7pnA" name="default"/>
-          <eLiterals xmi:id="_sfnQ2jj0EfGB8YYzei7pnA" name="REQUEST_HEADER_FIELDS_TOO_LARGE" value="1"/>
-          <eLiterals xmi:id="_sfnQ2zj0EfGB8YYzei7pnA" name="UNAVAILABLE_FOR_LEGAL_REASONS" value="2"/>
-          <eLiterals xmi:id="_sfnQ3Dj0EfGB8YYzei7pnA" name="INTERNAL_SERVER_ERROR" value="3"/>
-          <eLiterals xmi:id="_sfnQ3Tj0EfGB8YYzei7pnA" name="NOT_IMPLEMENTED" value="4"/>
-          <eLiterals xmi:id="_sfnQ3jj0EfGB8YYzei7pnA" name="BAD_GATEWAY" value="5"/>
-          <eLiterals xmi:id="_sfnQ3zj0EfGB8YYzei7pnA" name="SERVICE_UNAVAILABLE" value="6"/>
-          <eLiterals xmi:id="_sfnQ4Dj0EfGB8YYzei7pnA" name="GATEWAY_TIMEOUT" value="7"/>
-          <eLiterals xmi:id="_sfnQ4Tj0EfGB8YYzei7pnA" name="CONTINUE" value="8"/>
-          <eLiterals xmi:id="_sfnQ4jj0EfGB8YYzei7pnA" name="SWITCHING_PROTOCOLS" value="9"/>
-          <eLiterals xmi:id="_sfnQ4zj0EfGB8YYzei7pnA" name="PROCESSING" value="10"/>
-          <eLiterals xmi:id="_sfnQ5Dj0EfGB8YYzei7pnA" name="CHECKPOINT" value="11"/>
-          <eLiterals xmi:id="_sfnQ5Tj0EfGB8YYzei7pnA" name="OK" value="12"/>
-          <eLiterals xmi:id="_sfnQ5jj0EfGB8YYzei7pnA" name="CREATED" value="13"/>
-          <eLiterals xmi:id="_sfnQ5zj0EfGB8YYzei7pnA" name="ACCEPTED" value="14"/>
-          <eLiterals xmi:id="_sfnQ6Dj0EfGB8YYzei7pnA" name="NON_AUTHORITATIVE_INFORMATION" value="15"/>
-          <eLiterals xmi:id="_sfnQ6Tj0EfGB8YYzei7pnA" name="NO_CONTENT" value="16"/>
-          <eLiterals xmi:id="_sfnQ6jj0EfGB8YYzei7pnA" name="RESET_CONTENT" value="17"/>
-          <eLiterals xmi:id="_sfnQ6zj0EfGB8YYzei7pnA" name="PARTIAL_CONTENT" value="18"/>
-          <eLiterals xmi:id="_sfnQ7Dj0EfGB8YYzei7pnA" name="MULTI_STATUS" value="19"/>
-          <eLiterals xmi:id="_sfnQ7Tj0EfGB8YYzei7pnA" name="ALREADY_REPORTED" value="20"/>
-          <eLiterals xmi:id="_sfnQ7jj0EfGB8YYzei7pnA" name="IM_USED" value="21"/>
-          <eLiterals xmi:id="_sfnQ7zj0EfGB8YYzei7pnA" name="MULTIPLE_CHOICES" value="22"/>
-          <eLiterals xmi:id="_sfnQ8Dj0EfGB8YYzei7pnA" name="MOVED_PERMANENTLY" value="23"/>
-          <eLiterals xmi:id="_sfnQ8Tj0EfGB8YYzei7pnA" name="FOUND" value="24"/>
-          <eLiterals xmi:id="_sfnQ8jj0EfGB8YYzei7pnA" name="SEE_OTHER" value="25"/>
-          <eLiterals xmi:id="_sfnQ8zj0EfGB8YYzei7pnA" name="NOT_MODIFIED" value="26"/>
-          <eLiterals xmi:id="_sfnQ9Dj0EfGB8YYzei7pnA" name="TEMPORARY_REDIRECT" value="27"/>
-          <eLiterals xmi:id="_sfnQ9Tj0EfGB8YYzei7pnA" name="PERMANENT_REDIRECT" value="28"/>
-          <eLiterals xmi:id="_sfnQ9jj0EfGB8YYzei7pnA" name="BAD_REQUEST" value="29"/>
-          <eLiterals xmi:id="_sfnQ9zj0EfGB8YYzei7pnA" name="UNAUTHORIZED" value="30"/>
-          <eLiterals xmi:id="_sfnQ-Dj0EfGB8YYzei7pnA" name="PAYMENT_REQUIRED" value="31"/>
-          <eLiterals xmi:id="_sfnQ-Tj0EfGB8YYzei7pnA" name="FORBIDDEN" value="32"/>
-          <eLiterals xmi:id="_sfnQ-jj0EfGB8YYzei7pnA" name="NOT_FOUND" value="33"/>
-          <eLiterals xmi:id="_sfnQ-zj0EfGB8YYzei7pnA" name="METHOD_NOT_ALLOWED" value="34"/>
-          <eLiterals xmi:id="_sfnQ_Dj0EfGB8YYzei7pnA" name="NOT_ACCEPTABLE" value="35"/>
-          <eLiterals xmi:id="_sfnQ_Tj0EfGB8YYzei7pnA" name="PROXY_AUTHENTICATION_REQUIRED" value="36"/>
-          <eLiterals xmi:id="_sfnQ_jj0EfGB8YYzei7pnA" name="REQUEST_TIMEOUT" value="37"/>
-          <eLiterals xmi:id="_sfnQ_zj0EfGB8YYzei7pnA" name="CONFLICT" value="38"/>
-          <eLiterals xmi:id="_sfnRADj0EfGB8YYzei7pnA" name="GONE" value="39"/>
-          <eLiterals xmi:id="_sfnRATj0EfGB8YYzei7pnA" name="LENGTH_REQUIRED" value="40"/>
-          <eLiterals xmi:id="_sfnRAjj0EfGB8YYzei7pnA" name="PRECONDITION_FAILED" value="41"/>
-          <eLiterals xmi:id="_sfnRAzj0EfGB8YYzei7pnA" name="PAYLOAD_TOO_LARGE" value="42"/>
-          <eLiterals xmi:id="_sfnRBDj0EfGB8YYzei7pnA" name="URI_TOO_LONG" value="43"/>
-          <eLiterals xmi:id="_sfnRBTj0EfGB8YYzei7pnA" name="UNSUPPORTED_MEDIA_TYPE" value="44"/>
-          <eLiterals xmi:id="_sfnRBjj0EfGB8YYzei7pnA" name="REQUESTED_RANGE_NOT_SATISFIABLE" value="45"/>
-          <eLiterals xmi:id="_sfnRBzj0EfGB8YYzei7pnA" name="EXPECTATION_FAILED" value="46"/>
-          <eLiterals xmi:id="_sfnRCDj0EfGB8YYzei7pnA" name="I_AM_A_TEAPOT" value="47"/>
-          <eLiterals xmi:id="_sfnRCTj0EfGB8YYzei7pnA" name="UNPROCESSABLE_ENTITY" value="48"/>
-          <eLiterals xmi:id="_sfnRCjj0EfGB8YYzei7pnA" name="LOCKED" value="49"/>
-          <eLiterals xmi:id="_sfnRCzj0EfGB8YYzei7pnA" name="FAILED_DEPENDENCY" value="50"/>
-          <eLiterals xmi:id="_sfnRDDj0EfGB8YYzei7pnA" name="UPGRADE_REQUIRED" value="51"/>
-          <eLiterals xmi:id="_sfnRDTj0EfGB8YYzei7pnA" name="PRECONDITION_REQUIRED" value="52"/>
-          <eLiterals xmi:id="_sfnRDjj0EfGB8YYzei7pnA" name="TOO_MANY_REQUESTS" value="53"/>
-          <eLiterals xmi:id="_sfnRDzj0EfGB8YYzei7pnA" name="HTTP_VERSION_NOT_SUPPORTED" value="54"/>
-          <eLiterals xmi:id="_sfnREDj0EfGB8YYzei7pnA" name="VARIANT_ALSO_NEGOTIATES" value="55"/>
-          <eLiterals xmi:id="_sfnRETj0EfGB8YYzei7pnA" name="INSUFFICIENT_STORAGE" value="56"/>
-          <eLiterals xmi:id="_sfnREjj0EfGB8YYzei7pnA" name="LOOP_DETECTED" value="57"/>
-          <eLiterals xmi:id="_sfnREzj0EfGB8YYzei7pnA" name="BANDWIDTH_LIMIT_EXCEEDED" value="58"/>
-          <eLiterals xmi:id="_sfnRFDj0EfGB8YYzei7pnA" name="NOT_EXTENDED" value="59"/>
-          <eLiterals xmi:id="_sfnRFTj0EfGB8YYzei7pnA" name="NETWORK_AUTHENTICATION_REQUIRED" value="60"/>
+        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_GfbtZTmYEfG_q5O6vG-tYA" name="HttpStatus">
+          <eAnnotations xmi:id="_GfbtZjmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_19_0_3_90e0298_1585922569390_29744_5592"/>
+          <eLiterals xmi:id="_GfbtZzmYEfG_q5O6vG-tYA" name="default"/>
+          <eLiterals xmi:id="_GfbtaDmYEfG_q5O6vG-tYA" name="REQUEST_HEADER_FIELDS_TOO_LARGE" value="1"/>
+          <eLiterals xmi:id="_GfbtaTmYEfG_q5O6vG-tYA" name="UNAVAILABLE_FOR_LEGAL_REASONS" value="2"/>
+          <eLiterals xmi:id="_GfbtajmYEfG_q5O6vG-tYA" name="INTERNAL_SERVER_ERROR" value="3"/>
+          <eLiterals xmi:id="_GfbtazmYEfG_q5O6vG-tYA" name="NOT_IMPLEMENTED" value="4"/>
+          <eLiterals xmi:id="_GfbtbDmYEfG_q5O6vG-tYA" name="BAD_GATEWAY" value="5"/>
+          <eLiterals xmi:id="_GfbtbTmYEfG_q5O6vG-tYA" name="SERVICE_UNAVAILABLE" value="6"/>
+          <eLiterals xmi:id="_GfbtbjmYEfG_q5O6vG-tYA" name="GATEWAY_TIMEOUT" value="7"/>
+          <eLiterals xmi:id="_GfbtbzmYEfG_q5O6vG-tYA" name="CONTINUE" value="8"/>
+          <eLiterals xmi:id="_GfbtcDmYEfG_q5O6vG-tYA" name="SWITCHING_PROTOCOLS" value="9"/>
+          <eLiterals xmi:id="_GfbtcTmYEfG_q5O6vG-tYA" name="PROCESSING" value="10"/>
+          <eLiterals xmi:id="_GfbtcjmYEfG_q5O6vG-tYA" name="CHECKPOINT" value="11"/>
+          <eLiterals xmi:id="_GfbtczmYEfG_q5O6vG-tYA" name="OK" value="12"/>
+          <eLiterals xmi:id="_GfbtdDmYEfG_q5O6vG-tYA" name="CREATED" value="13"/>
+          <eLiterals xmi:id="_GfbtdTmYEfG_q5O6vG-tYA" name="ACCEPTED" value="14"/>
+          <eLiterals xmi:id="_GfbtdjmYEfG_q5O6vG-tYA" name="NON_AUTHORITATIVE_INFORMATION" value="15"/>
+          <eLiterals xmi:id="_GfbtdzmYEfG_q5O6vG-tYA" name="NO_CONTENT" value="16"/>
+          <eLiterals xmi:id="_GfbteDmYEfG_q5O6vG-tYA" name="RESET_CONTENT" value="17"/>
+          <eLiterals xmi:id="_GfbteTmYEfG_q5O6vG-tYA" name="PARTIAL_CONTENT" value="18"/>
+          <eLiterals xmi:id="_GfbtejmYEfG_q5O6vG-tYA" name="MULTI_STATUS" value="19"/>
+          <eLiterals xmi:id="_GfbtezmYEfG_q5O6vG-tYA" name="ALREADY_REPORTED" value="20"/>
+          <eLiterals xmi:id="_GfbtfDmYEfG_q5O6vG-tYA" name="IM_USED" value="21"/>
+          <eLiterals xmi:id="_GfbtfTmYEfG_q5O6vG-tYA" name="MULTIPLE_CHOICES" value="22"/>
+          <eLiterals xmi:id="_GfbtfjmYEfG_q5O6vG-tYA" name="MOVED_PERMANENTLY" value="23"/>
+          <eLiterals xmi:id="_GfbtfzmYEfG_q5O6vG-tYA" name="FOUND" value="24"/>
+          <eLiterals xmi:id="_GfbtgDmYEfG_q5O6vG-tYA" name="SEE_OTHER" value="25"/>
+          <eLiterals xmi:id="_GfbtgTmYEfG_q5O6vG-tYA" name="NOT_MODIFIED" value="26"/>
+          <eLiterals xmi:id="_GfbtgjmYEfG_q5O6vG-tYA" name="TEMPORARY_REDIRECT" value="27"/>
+          <eLiterals xmi:id="_GfbtgzmYEfG_q5O6vG-tYA" name="PERMANENT_REDIRECT" value="28"/>
+          <eLiterals xmi:id="_GfbthDmYEfG_q5O6vG-tYA" name="BAD_REQUEST" value="29"/>
+          <eLiterals xmi:id="_GfbthTmYEfG_q5O6vG-tYA" name="UNAUTHORIZED" value="30"/>
+          <eLiterals xmi:id="_GfbthjmYEfG_q5O6vG-tYA" name="PAYMENT_REQUIRED" value="31"/>
+          <eLiterals xmi:id="_GfbthzmYEfG_q5O6vG-tYA" name="FORBIDDEN" value="32"/>
+          <eLiterals xmi:id="_GfbtiDmYEfG_q5O6vG-tYA" name="NOT_FOUND" value="33"/>
+          <eLiterals xmi:id="_GfbtiTmYEfG_q5O6vG-tYA" name="METHOD_NOT_ALLOWED" value="34"/>
+          <eLiterals xmi:id="_GfbtijmYEfG_q5O6vG-tYA" name="NOT_ACCEPTABLE" value="35"/>
+          <eLiterals xmi:id="_GfbtizmYEfG_q5O6vG-tYA" name="PROXY_AUTHENTICATION_REQUIRED" value="36"/>
+          <eLiterals xmi:id="_GfbtjDmYEfG_q5O6vG-tYA" name="REQUEST_TIMEOUT" value="37"/>
+          <eLiterals xmi:id="_GfbtjTmYEfG_q5O6vG-tYA" name="CONFLICT" value="38"/>
+          <eLiterals xmi:id="_GfbtjjmYEfG_q5O6vG-tYA" name="GONE" value="39"/>
+          <eLiterals xmi:id="_GfbtjzmYEfG_q5O6vG-tYA" name="LENGTH_REQUIRED" value="40"/>
+          <eLiterals xmi:id="_GfbtkDmYEfG_q5O6vG-tYA" name="PRECONDITION_FAILED" value="41"/>
+          <eLiterals xmi:id="_GfbtkTmYEfG_q5O6vG-tYA" name="PAYLOAD_TOO_LARGE" value="42"/>
+          <eLiterals xmi:id="_GfbtkjmYEfG_q5O6vG-tYA" name="URI_TOO_LONG" value="43"/>
+          <eLiterals xmi:id="_GfbtkzmYEfG_q5O6vG-tYA" name="UNSUPPORTED_MEDIA_TYPE" value="44"/>
+          <eLiterals xmi:id="_GfbtlDmYEfG_q5O6vG-tYA" name="REQUESTED_RANGE_NOT_SATISFIABLE" value="45"/>
+          <eLiterals xmi:id="_GfbtlTmYEfG_q5O6vG-tYA" name="EXPECTATION_FAILED" value="46"/>
+          <eLiterals xmi:id="_GfbtljmYEfG_q5O6vG-tYA" name="I_AM_A_TEAPOT" value="47"/>
+          <eLiterals xmi:id="_GfbtlzmYEfG_q5O6vG-tYA" name="UNPROCESSABLE_ENTITY" value="48"/>
+          <eLiterals xmi:id="_GfbtmDmYEfG_q5O6vG-tYA" name="LOCKED" value="49"/>
+          <eLiterals xmi:id="_GfbtmTmYEfG_q5O6vG-tYA" name="FAILED_DEPENDENCY" value="50"/>
+          <eLiterals xmi:id="_GfbtmjmYEfG_q5O6vG-tYA" name="UPGRADE_REQUIRED" value="51"/>
+          <eLiterals xmi:id="_GfbtmzmYEfG_q5O6vG-tYA" name="PRECONDITION_REQUIRED" value="52"/>
+          <eLiterals xmi:id="_GfbtnDmYEfG_q5O6vG-tYA" name="TOO_MANY_REQUESTS" value="53"/>
+          <eLiterals xmi:id="_GfbtnTmYEfG_q5O6vG-tYA" name="HTTP_VERSION_NOT_SUPPORTED" value="54"/>
+          <eLiterals xmi:id="_GfbtnjmYEfG_q5O6vG-tYA" name="VARIANT_ALSO_NEGOTIATES" value="55"/>
+          <eLiterals xmi:id="_GfbtnzmYEfG_q5O6vG-tYA" name="INSUFFICIENT_STORAGE" value="56"/>
+          <eLiterals xmi:id="_GfbtoDmYEfG_q5O6vG-tYA" name="LOOP_DETECTED" value="57"/>
+          <eLiterals xmi:id="_GfbtoTmYEfG_q5O6vG-tYA" name="BANDWIDTH_LIMIT_EXCEEDED" value="58"/>
+          <eLiterals xmi:id="_GfbtojmYEfG_q5O6vG-tYA" name="NOT_EXTENDED" value="59"/>
+          <eLiterals xmi:id="_GfbtozmYEfG_q5O6vG-tYA" name="NETWORK_AUTHENTICATION_REQUIRED" value="60"/>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EClass" xmi:id="_sfnRFjj0EfGB8YYzei7pnA" name="WebServiceFeed">
-          <eAnnotations xmi:id="_sfnRFzj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1245794733151_533417_4"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRGDj0EfGB8YYzei7pnA" name="andromda_feed_author" ordered="false" lowerBound="1">
+        <eClassifiers xmi:type="ecore:EClass" xmi:id="_GfbtpDmYEfG_q5O6vG-tYA" name="WebServiceFeed">
+          <eAnnotations xmi:id="_GfbtpTmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1245794733151_533417_4"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtpjmYEfG_q5O6vG-tYA" name="andromda_feed_author" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRGjj0EfGB8YYzei7pnA" name="andromda_feed_category" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtqDmYEfG_q5O6vG-tYA" name="andromda_feed_category" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRHDj0EfGB8YYzei7pnA" name="andromda_feed_contributor" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtqjmYEfG_q5O6vG-tYA" name="andromda_feed_contributor" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRHjj0EfGB8YYzei7pnA" name="andromda_feed_generator" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtrDmYEfG_q5O6vG-tYA" name="andromda_feed_generator" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRIDj0EfGB8YYzei7pnA" name="andromda_feed_icon" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtrjmYEfG_q5O6vG-tYA" name="andromda_feed_icon" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRIjj0EfGB8YYzei7pnA" name="andromda_feed_id" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtsDmYEfG_q5O6vG-tYA" name="andromda_feed_id" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRJDj0EfGB8YYzei7pnA" name="andromda_feed_link" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtsjmYEfG_q5O6vG-tYA" name="andromda_feed_link" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRJjj0EfGB8YYzei7pnA" name="andromda_feed_logo" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbttDmYEfG_q5O6vG-tYA" name="andromda_feed_logo" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRKDj0EfGB8YYzei7pnA" name="andromda_feed_rights" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbttjmYEfG_q5O6vG-tYA" name="andromda_feed_rights" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRKjj0EfGB8YYzei7pnA" name="andromda_entry_source" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtuDmYEfG_q5O6vG-tYA" name="andromda_entry_source" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRLDj0EfGB8YYzei7pnA" name="andromda_feed_subtitle" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtujmYEfG_q5O6vG-tYA" name="andromda_feed_subtitle" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRLjj0EfGB8YYzei7pnA" name="andromda_feed_title" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtvDmYEfG_q5O6vG-tYA" name="andromda_feed_title" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRMDj0EfGB8YYzei7pnA" name="andromda_feed_updated" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtvjmYEfG_q5O6vG-tYA" name="andromda_feed_updated" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRMjj0EfGB8YYzei7pnA" name="andromda_entry_author" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtwDmYEfG_q5O6vG-tYA" name="andromda_entry_author" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRNDj0EfGB8YYzei7pnA" name="andromda_entry_category" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtwjmYEfG_q5O6vG-tYA" name="andromda_entry_category" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRNjj0EfGB8YYzei7pnA" name="andromda_entry_contributor" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtxDmYEfG_q5O6vG-tYA" name="andromda_entry_contributor" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRODj0EfGB8YYzei7pnA" name="andromda_entry_id" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtxjmYEfG_q5O6vG-tYA" name="andromda_entry_id" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnROjj0EfGB8YYzei7pnA" name="andromda_entry_link" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtyDmYEfG_q5O6vG-tYA" name="andromda_entry_link" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRPDj0EfGB8YYzei7pnA" name="andromda_entry_published" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtyjmYEfG_q5O6vG-tYA" name="andromda_entry_published" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRPjj0EfGB8YYzei7pnA" name="andromda_entry_rights" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtzDmYEfG_q5O6vG-tYA" name="andromda_entry_rights" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRQDj0EfGB8YYzei7pnA" name="andromda_entry_summary" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbtzjmYEfG_q5O6vG-tYA" name="andromda_entry_summary" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRQjj0EfGB8YYzei7pnA" name="andromda_entry_title" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt0DmYEfG_q5O6vG-tYA" name="andromda_entry_title" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRRDj0EfGB8YYzei7pnA" name="andromda_entry_updated" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt0jmYEfG_q5O6vG-tYA" name="andromda_entry_updated" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnRRjj0EfGB8YYzei7pnA" name="base_Operation" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_Gfbt1DmYEfG_q5O6vG-tYA" name="base_Operation" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Operation"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnRSDj0EfGB8YYzei7pnA" name="base_Class" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_Gfbt1jmYEfG_q5O6vG-tYA" name="base_Class" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Class"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRSjj0EfGB8YYzei7pnA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt2DmYEfG_q5O6vG-tYA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EClass" xmi:id="_sfnRTDj0EfGB8YYzei7pnA" name="WebServiceParam">
-          <eAnnotations xmi:id="_sfnRTTj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1244667747768_149984_26"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRTjj0EfGB8YYzei7pnA" name="andromda_webservice_param_name" ordered="false">
+        <eClassifiers xmi:type="ecore:EClass" xmi:id="_Gfbt2jmYEfG_q5O6vG-tYA" name="WebServiceParam">
+          <eAnnotations xmi:id="_Gfbt2zmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1244667747768_149984_26"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt3DmYEfG_q5O6vG-tYA" name="andromda_webservice_param_name" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRUDj0EfGB8YYzei7pnA" name="andromda_webservice_param_mode" ordered="false" defaultValueLiteral="">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt3jmYEfG_q5O6vG-tYA" name="andromda_webservice_param_mode" ordered="false" defaultValueLiteral="">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRUjj0EfGB8YYzei7pnA" name="andromda_webservice_param_header" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt4DmYEfG_q5O6vG-tYA" name="andromda_webservice_param_header" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//Boolean"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRVDj0EfGB8YYzei7pnA" name="andromda_webservice_param_partName" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt4jmYEfG_q5O6vG-tYA" name="andromda_webservice_param_partName" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRVjj0EfGB8YYzei7pnA" name="andromda_service_encoded" ordered="false" lowerBound="1" eType="_sfnQdjj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRWDj0EfGB8YYzei7pnA" name="andromda_REST_parameter_URL" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt5DmYEfG_q5O6vG-tYA" name="andromda_service_encoded" ordered="false" lowerBound="1" eType="_GfbtBDmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt5jmYEfG_q5O6vG-tYA" name="andromda_REST_parameter_URL" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRWjj0EfGB8YYzei7pnA" name="andromda_REST_path_param" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt6DmYEfG_q5O6vG-tYA" name="andromda_REST_path_param" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRXDj0EfGB8YYzei7pnA" name="andromda_REST_param_type" ordered="false" lowerBound="1" eType="_sfnQNjj0EfGB8YYzei7pnA" defaultValueLiteral="default"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRXjj0EfGB8YYzei7pnA" name="andromda_REST_path_segment" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt6jmYEfG_q5O6vG-tYA" name="andromda_REST_param_type" ordered="false" lowerBound="1" eType="_GfbsxDmYEfG_q5O6vG-tYA" defaultValueLiteral="default"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt7DmYEfG_q5O6vG-tYA" name="andromda_REST_path_segment" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnRYDj0EfGB8YYzei7pnA" name="base_Parameter" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_Gfbt7jmYEfG_q5O6vG-tYA" name="base_Parameter" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Parameter"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRYjj0EfGB8YYzei7pnA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt8DmYEfG_q5O6vG-tYA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EClass" xmi:id="_sfnRZDj0EfGB8YYzei7pnA" name="WebFault">
-          <eAnnotations xmi:id="_sfnRZTj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1229364633835_405645_0"/>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnRZjj0EfGB8YYzei7pnA" name="base_Class" ordered="false" lowerBound="1">
+        <eClassifiers xmi:type="ecore:EClass" xmi:id="_Gfbt8jmYEfG_q5O6vG-tYA" name="WebFault">
+          <eAnnotations xmi:id="_Gfbt8zmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_9_5_1_2e90116_1229364633835_405645_0"/>
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_Gfbt9DmYEfG_q5O6vG-tYA" name="base_Class" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Class"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRaDj0EfGB8YYzei7pnA" name="andromda_webservice_fault_name" ordered="false">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt9jmYEfG_q5O6vG-tYA" name="andromda_webservice_fault_name" ordered="false">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRajj0EfGB8YYzei7pnA" name="andromda_webservice_fault_faultName" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt-DmYEfG_q5O6vG-tYA" name="andromda_webservice_fault_faultName" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRbDj0EfGB8YYzei7pnA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt-jmYEfG_q5O6vG-tYA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EClass" xmi:id="_sfnRbjj0EfGB8YYzei7pnA" name="WSSecurity">
-          <eAnnotations xmi:id="_sfnRbzj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_K5L-0CpXEeCEp4eYah8h_A"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRcDj0EfGB8YYzei7pnA" name="andromda_security_abbr" ordered="false" defaultValueLiteral="wsse">
+        <eClassifiers xmi:type="ecore:EClass" xmi:id="_Gfbt_DmYEfG_q5O6vG-tYA" name="WSSecurity">
+          <eAnnotations xmi:id="_Gfbt_TmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_K5L-0CpXEeCEp4eYah8h_A"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_Gfbt_jmYEfG_q5O6vG-tYA" name="andromda_security_abbr" ordered="false" defaultValueLiteral="wsse">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRcjj0EfGB8YYzei7pnA" name="andromda_security_namespace" ordered="false" defaultValueLiteral="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuADmYEfG_q5O6vG-tYA" name="andromda_security_namespace" ordered="false" defaultValueLiteral="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRdDj0EfGB8YYzei7pnA" name="andromda_security_XSDlocation" ordered="false" defaultValueLiteral="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuAjmYEfG_q5O6vG-tYA" name="andromda_security_XSDlocation" ordered="false" defaultValueLiteral="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRdjj0EfGB8YYzei7pnA" name="andromda_wsdl_security_partName" ordered="false" defaultValueLiteral="wsse">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuBDmYEfG_q5O6vG-tYA" name="andromda_wsdl_security_partName" ordered="false" defaultValueLiteral="wsse">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnReDj0EfGB8YYzei7pnA" name="andromda_wsdl_security_element" ordered="false" defaultValueLiteral="Security">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuBjmYEfG_q5O6vG-tYA" name="andromda_wsdl_security_element" ordered="false" defaultValueLiteral="Security">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRejj0EfGB8YYzei7pnA" name="andromda_wsdl_security_use" ordered="false" eType="_sfnQZjj0EfGB8YYzei7pnA" defaultValueLiteral="literal"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRfDj0EfGB8YYzei7pnA" name="andromda_wsdl_security_type" ordered="false" lowerBound="1" eType="_sfnRhjj0EfGB8YYzei7pnA" defaultValueLiteral="UsernameToken"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRfjj0EfGB8YYzei7pnA" name="andromda_security_header_direction" ordered="false" lowerBound="1" eType="_sfnQcDj0EfGB8YYzei7pnA" defaultValueLiteral="IN"/>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnRgDj0EfGB8YYzei7pnA" name="base_Class" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuCDmYEfG_q5O6vG-tYA" name="andromda_wsdl_security_use" ordered="false" eType="_Gfbs9DmYEfG_q5O6vG-tYA" defaultValueLiteral="literal"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuCjmYEfG_q5O6vG-tYA" name="andromda_wsdl_security_type" ordered="false" lowerBound="1" eType="_GfbuFDmYEfG_q5O6vG-tYA" defaultValueLiteral="UsernameToken"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuDDmYEfG_q5O6vG-tYA" name="andromda_security_header_direction" ordered="false" lowerBound="1" eType="_Gfbs_jmYEfG_q5O6vG-tYA" defaultValueLiteral="IN"/>
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_GfbuDjmYEfG_q5O6vG-tYA" name="base_Class" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Class"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnRgjj0EfGB8YYzei7pnA" name="base_Operation" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_GfbuEDmYEfG_q5O6vG-tYA" name="base_Operation" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Operation"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRhDj0EfGB8YYzei7pnA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuEjmYEfG_q5O6vG-tYA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_sfnRhjj0EfGB8YYzei7pnA" name="WSSecurityType">
-          <eAnnotations xmi:id="_sfnRhzj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_K5L_BipXEeCEp4eYah8h_A"/>
-          <eLiterals xmi:id="_sfnRiDj0EfGB8YYzei7pnA" name="default"/>
-          <eLiterals xmi:id="_sfnRiTj0EfGB8YYzei7pnA" name="UsernameToken" value="1"/>
-          <eLiterals xmi:id="_sfnRijj0EfGB8YYzei7pnA" name="X509" value="2"/>
-          <eLiterals xmi:id="_sfnRizj0EfGB8YYzei7pnA" name="Saml" value="3"/>
+        <eClassifiers xmi:type="ecore:EEnum" xmi:id="_GfbuFDmYEfG_q5O6vG-tYA" name="WSSecurityType">
+          <eAnnotations xmi:id="_GfbuFTmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_K5L_BipXEeCEp4eYah8h_A"/>
+          <eLiterals xmi:id="_GfbuFjmYEfG_q5O6vG-tYA" name="default"/>
+          <eLiterals xmi:id="_GfbuFzmYEfG_q5O6vG-tYA" name="UsernameToken" value="1"/>
+          <eLiterals xmi:id="_GfbuGDmYEfG_q5O6vG-tYA" name="X509" value="2"/>
+          <eLiterals xmi:id="_GfbuGTmYEfG_q5O6vG-tYA" name="Saml" value="3"/>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EClass" xmi:id="_sfnRjDj0EfGB8YYzei7pnA" name="WSCustomHeader">
-          <eAnnotations xmi:id="_sfnRjTj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_K5L_GCpXEeCEp4eYah8h_A"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRjjj0EfGB8YYzei7pnA" name="andromda_wsdl_header_use" ordered="false" lowerBound="1" eType="_sfnQZjj0EfGB8YYzei7pnA"/>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRkDj0EfGB8YYzei7pnA" name="andromda_wsdl_header_element" ordered="false" lowerBound="1">
+        <eClassifiers xmi:type="ecore:EClass" xmi:id="_GfbuGjmYEfG_q5O6vG-tYA" name="WSCustomHeader">
+          <eAnnotations xmi:id="_GfbuGzmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_K5L_GCpXEeCEp4eYah8h_A"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuHDmYEfG_q5O6vG-tYA" name="andromda_wsdl_header_use" ordered="false" lowerBound="1" eType="_Gfbs9DmYEfG_q5O6vG-tYA"/>
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuHjmYEfG_q5O6vG-tYA" name="andromda_wsdl_header_element" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRkjj0EfGB8YYzei7pnA" name="andromda_header_namespace" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuIDmYEfG_q5O6vG-tYA" name="andromda_header_namespace" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRlDj0EfGB8YYzei7pnA" name="andromda_wsdl_header_partName" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuIjmYEfG_q5O6vG-tYA" name="andromda_wsdl_header_partName" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRljj0EfGB8YYzei7pnA" name="andromda_header_XSDlocation" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuJDmYEfG_q5O6vG-tYA" name="andromda_header_XSDlocation" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRmDj0EfGB8YYzei7pnA" name="andromda_header_abbr" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuJjmYEfG_q5O6vG-tYA" name="andromda_header_abbr" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRmjj0EfGB8YYzei7pnA" name="andromda_header_direction" ordered="false" lowerBound="1" eType="_sfnQcDj0EfGB8YYzei7pnA" defaultValueLiteral="IN"/>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnRnDj0EfGB8YYzei7pnA" name="base_Class" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuKDmYEfG_q5O6vG-tYA" name="andromda_header_direction" ordered="false" lowerBound="1" eType="_Gfbs_jmYEfG_q5O6vG-tYA" defaultValueLiteral="IN"/>
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_GfbuKjmYEfG_q5O6vG-tYA" name="base_Class" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Class"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnRnjj0EfGB8YYzei7pnA" name="base_Operation" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_GfbuLDmYEfG_q5O6vG-tYA" name="base_Operation" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Operation"/>
           </eStructuralFeatures>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EClass" xmi:id="_sfnRoDj0EfGB8YYzei7pnA" name="WSAddressing">
-          <eAnnotations xmi:id="_sfnRoTj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_gtINMC2BEeCw7u-i2lbLPQ"/>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnRojj0EfGB8YYzei7pnA" name="base_Class" ordered="false" lowerBound="1">
+        <eClassifiers xmi:type="ecore:EClass" xmi:id="_GfbuLjmYEfG_q5O6vG-tYA" name="WSAddressing">
+          <eAnnotations xmi:id="_GfbuLzmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_gtINMC2BEeCw7u-i2lbLPQ"/>
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_GfbuMDmYEfG_q5O6vG-tYA" name="base_Class" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Class"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnRpDj0EfGB8YYzei7pnA" name="base_Operation" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_GfbuMjmYEfG_q5O6vG-tYA" name="base_Operation" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Operation"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRpjj0EfGB8YYzei7pnA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuNDmYEfG_q5O6vG-tYA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
         </eClassifiers>
-        <eClassifiers xmi:type="ecore:EClass" xmi:id="_sfnRqDj0EfGB8YYzei7pnA" name="WSPolicy">
-          <eAnnotations xmi:id="_sfnRqTj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_0DK00C2BEeCw7u-i2lbLPQ"/>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnRqjj0EfGB8YYzei7pnA" name="base_Class" ordered="false" lowerBound="1">
+        <eClassifiers xmi:type="ecore:EClass" xmi:id="_GfbuNjmYEfG_q5O6vG-tYA" name="WSPolicy">
+          <eAnnotations xmi:id="_GfbuNzmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML" references="_0DK00C2BEeCw7u-i2lbLPQ"/>
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_GfbuODmYEfG_q5O6vG-tYA" name="base_Class" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Class"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_sfnRrDj0EfGB8YYzei7pnA" name="base_Operation" ordered="false" lowerBound="1">
+          <eStructuralFeatures xmi:type="ecore:EReference" xmi:id="_GfbuOjmYEfG_q5O6vG-tYA" name="base_Operation" ordered="false" lowerBound="1">
             <eType xmi:type="ecore:EClass" href="http://www.eclipse.org/uml2/5.0.0/UML#//Operation"/>
           </eStructuralFeatures>
-          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_sfnRrjj0EfGB8YYzei7pnA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
+          <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="_GfbuPDmYEfG_q5O6vG-tYA" name="andromda_additionalAnnotations" ordered="false" upperBound="-1">
             <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/uml2/5.0.0/Types#//String"/>
           </eStructuralFeatures>
         </eClassifiers>
@@ -1249,11 +1249,11 @@
       <ownedLiteral xmi:id="_19_0_3_90e0298_1585928241121_432761_5732" name="NETWORK_AUTHENTICATION_REQUIRED" visibility="public"/>
     </packagedElement>
     <profileApplication xmi:id="_0profileApplicationandromda-webservice">
-      <eAnnotations xmi:id="_shDX8Dj0EfGB8YYzei7pnA" source="http://www.eclipse.org/uml2/2.0.0/UML">
+      <eAnnotations xmi:id="_Gg7dQjmYEfG_q5O6vG-tYA" source="http://www.eclipse.org/uml2/2.0.0/UML">
         <references xmi:type="ecore:EPackage" href="http://www.eclipse.org/uml2/5.0.0/UML/Profile/Standard#/"/>
       </eAnnotations>
       <appliedProfile href="pathmap://UML_PROFILES/Standard.profile.uml#_0"/>
     </profileApplication>
   </uml:Profile>
-  <standard:ModelLibrary xmi:id="_shD-8Dj0EfGB8YYzei7pnA" base_Package="_9_0_2_12ab03bf_1120852932765_76536_0"/>
+  <standard:ModelLibrary xmi:id="_Gg8EQDmYEfG_q5O6vG-tYA" base_Package="_9_0_2_12ab03bf_1120852932765_76536_0"/>
 </xmi:XMI>

@@ -4,7 +4,7 @@ import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { AppState } from '@store/app-state';
+import { AppState, getErrormessage } from '@store/app-state';
 import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { OrganisationDocumentDTO } from '@models/bw/co/centralkyc/organisation/document/organisation-document-dto';
@@ -59,7 +59,7 @@ export const OrganisationDocumentApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -91,7 +91,7 @@ export const OrganisationDocumentApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -123,7 +123,7 @@ export const OrganisationDocumentApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -155,7 +155,7 @@ export const OrganisationDocumentApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -187,7 +187,7 @@ export const OrganisationDocumentApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -219,7 +219,7 @@ export const OrganisationDocumentApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -251,7 +251,7 @@ export const OrganisationDocumentApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -283,7 +283,7 @@ export const OrganisationDocumentApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -315,7 +315,7 @@ export const OrganisationDocumentApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -347,7 +347,7 @@ export const OrganisationDocumentApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -379,7 +379,7 @@ export const OrganisationDocumentApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },

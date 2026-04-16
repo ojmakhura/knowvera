@@ -17,8 +17,7 @@ export class ExpectedFieldDTO extends AuditableDTO {
     matchTo: string | any;
     
     targetType: TargetEntity | any;
-    
-    targetField: string | any;
+    fieldLabel: string | any;
     
     many: boolean | any = false;
     
@@ -33,8 +32,8 @@ export class ExpectedFieldDTO extends AuditableDTO {
         this.documentType = null;
         this.matchTo = null;
         this.targetType = null;
-        this.targetField = null;
         this.many = false;
         this.fieldType = null;
+        this.fieldLabel = null;
     }
 }

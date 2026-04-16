@@ -7,6 +7,7 @@ package bw.co.centralkyc.document;
 
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
 import bw.co.centralkyc.document.type.field.ExpectedField;
+import bw.co.centralkyc.document.type.field.ExpectedFieldMapper;
 import bw.co.centralkyc.document.type.verification.VerificationDataConfigMapper;
 import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.matcher.UniversalStringMatcher;
@@ -35,7 +36,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         MappingUtils.class,
         DocumentTypeMapper.class,
         UniversalStringMatcher.class,
-        VerificationDataConfigMapper.class
+        VerificationDataConfigMapper.class,
+        ExpectedFieldMapper.class
     }
 )
 public abstract class DocumentMapper {
