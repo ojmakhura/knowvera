@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  computed,
   Component,
   effect,
   inject,
@@ -35,6 +36,13 @@ import { ToastrService } from 'ngx-toastr';
 import { PromptMessage } from '@app/models/bw/co/centralkyc/llm/prompt-message';
 import { ExpectedFieldType } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-type';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
+import { IndividualDTO } from '@app/models/bw/co/centralkyc/individual/individual-dto';
+import { OrganisationDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-dto';
+import { KycInvoiceDTO } from '@app/models/bw/co/centralkyc/invoice/kyc-invoice-dto';
+import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
+import { ContactDTO } from '@app/models/bw/co/centralkyc/contact/contact-dto';
+import { SettingsDTO } from '@app/models/bw/co/centralkyc/settings/settings-dto';
+import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -565,6 +573,34 @@ interface ExpectedFieldDialogData {
   field: ExpectedFieldDTO;
 }
 
+const MATCH_TO_EXCLUDED_FIELDS = new Set([
+  'id',
+  'createdBy',
+  'createdAt',
+  'modifiedBy',
+  'modifiedAt',
+]);
+
+const EXCLUDED_TARGET_TYPES = new Set<TargetEntity>([
+  TargetEntity.BRANCH,
+  TargetEntity.SUBSCRIPTION,
+  TargetEntity.CLIENT_REQUEST,
+  TargetEntity.DOCUMENT,
+  TargetEntity.SETTINGS
+]);
+
+const getDtoMatchToFields = (dto: object): string[] =>
+  Object.keys(dto).filter((field) => !MATCH_TO_EXCLUDED_FIELDS.has(field));
+
+const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => string[]>> = {
+  [TargetEntity.INDIVIDUAL]: () => getDtoMatchToFields(new IndividualDTO()),
+  [TargetEntity.ORGANISATION]: () => getDtoMatchToFields(new OrganisationDTO()),
+  [TargetEntity.INVOICE]: () => getDtoMatchToFields(new KycInvoiceDTO()),
+  [TargetEntity.KYC_RECORD]: () => getDtoMatchToFields(new KycRecordDTO()),
+  [TargetEntity.CONTACT]: () => getDtoMatchToFields(new ContactDTO()),
+  [TargetEntity.SETTINGS]: () => getDtoMatchToFields(new SettingsDTO()),
+};
+
 @Component({
   selector: 'app-expected-field-dialog',
   standalone: true,
@@ -576,6 +612,7 @@ interface ExpectedFieldDialogData {
     MatInputModule,
     MatSelectModule,
     FormField,
+    TranslateModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -589,29 +626,36 @@ interface ExpectedFieldDialogData {
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Format</mat-label>
-          <input matInput [formField]="expectedFieldForm.format" placeholder="e.g. dd/MM/yyyy" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
           <mat-label>Field Type</mat-label>
           <mat-select [formField]="expectedFieldForm.fieldType">
             @for (option of fieldTypeOptions; track option) {
-            <mat-option [value]="option">{{ option }}</mat-option>
+            <mat-option [value]="option">
+              <span translate>expected.field.type.{{ option }}</span>
+            </mat-option>
             }
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Match To</mat-label>
-          <input matInput [formField]="expectedFieldForm.matchTo" placeholder="e.g. nationalId" />
+          <mat-select [formField]="expectedFieldForm.matchTo">
+            @if (matchToOptions().length === 0) {
+            <mat-option [value]="null" disabled>Select target type first</mat-option>
+            } @else {
+            @for (option of matchToOptions(); track option) {
+            <mat-option [value]="option">{{ option }}</mat-option>
+            }
+            }
+          </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Target Type</mat-label>
           <mat-select [formField]="expectedFieldForm.targetType">
             @for (option of targetTypeOptions; track option) {
-            <mat-option [value]="option">{{ option }}</mat-option>
+            <mat-option [value]="option">
+              <span translate>target.entity.{{ option }}</span>
+            </mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -619,6 +663,11 @@ interface ExpectedFieldDialogData {
         <mat-form-field appearance="outline">
           <mat-label>Target Field</mat-label>
           <input matInput [formField]="expectedFieldForm.targetField" placeholder="e.g. identityNumber" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="format-field">
+          <mat-label>Format</mat-label>
+          <textarea matInput [formField]="expectedFieldForm.format" placeholder="e.g. dd/MM/yyyy"></textarea>
         </mat-form-field>
 
         <div class="checkbox-row">
@@ -652,6 +701,15 @@ interface ExpectedFieldDialogData {
         width: 100%;
       }
 
+      .format-field {
+        grid-column: 1 / -1;
+      }
+
+      .format-field textarea {
+        min-height: 88px;
+        resize: vertical;
+      }
+
       .checkbox-row {
         grid-column: 1 / -1;
         display: flex;
@@ -676,12 +734,37 @@ export class ExpectedFieldDialogComponent {
   data: ExpectedFieldDialogData = inject(MAT_DIALOG_DATA);
 
   protected readonly fieldTypeOptions = Object.values(ExpectedFieldType);
-  protected readonly targetTypeOptions = Object.values(TargetEntity);
+  protected readonly targetTypeOptions = Object.values(TargetEntity).filter((targetType) => !EXCLUDED_TARGET_TYPES.has(targetType));
+  protected readonly matchToOptions = computed(() => {
+    const targetType = this.expectedFieldSignal().targetType as TargetEntity | null | undefined;
+
+    if (!targetType) {
+      return [];
+    }
+
+    return TARGET_ENTITY_MATCH_TO_FACTORIES[targetType]?.() ?? [];
+  });
 
   expectedFieldSignal = signal<ExpectedFieldDTO>(this.data.field);
   expectedFieldForm = form(this.expectedFieldSignal, (path) => {
     required(path.field);
   });
+
+  constructor() {
+    effect(() => {
+      const matchTo = this.expectedFieldSignal().matchTo;
+      const options = this.matchToOptions();
+
+      if (!matchTo || options.includes(matchTo)) {
+        return;
+      }
+
+      this.expectedFieldSignal.update((field) => ({
+        ...field,
+        matchTo: null,
+      }));
+    });
+  }
 
   onCancel(): void {
     this.dialogRef.close();
