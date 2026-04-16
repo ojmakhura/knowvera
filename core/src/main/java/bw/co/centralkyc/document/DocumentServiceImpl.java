@@ -8,7 +8,6 @@
  */
 package bw.co.centralkyc.document;
 
-import bw.co.centralkyc.KeyField;
 import bw.co.centralkyc.KeyFieldMatchResult;
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.QueueObject;
@@ -510,32 +509,20 @@ public class DocumentServiceImpl
 
         for (ExpectedField expectedField : docType.getExpectedFields()) {
 
-            // switch (expectedField.getKeyField()) {
-            //     case ORGANISATION_NAME:
-            //         expectedInformation.put(expectedField.getField(), organisation.getName());
-            //         break;
+            if(expectedField.getTargetType() == TargetEntity.ORGANISATION) {
 
-            //     case ORGANISATION_REGISTRATION_NO:
-            //         expectedInformation.put(expectedField.getField(), organisation.getRegistrationNo());
-            //         break;
-            //     case ORGANISATION_PHONE_NUMBER:
-            //         expectedInformation.put(expectedField.getField(), organisation.getPhoneNumbers());
-            //         break;
-            //     case ORGANISATION_PHYSICAL_ADDRESS:
-            //         expectedInformation.put(expectedField.getField(), organisation.getPhysicalAddress());
-            //         break;
-            //     case ORGANISATION_POSTAL_ADDRESS:
-            //         expectedInformation.put(expectedField.getField(), organisation.getPostalAddress());
-            //         break;
+                if(StringUtils.isNotBlank(expectedField.getMatchTo())) {
+                    
+                    String fieldName = expectedField.getMatchTo();
 
-            //     case ORGANISATION_EMAIL_ADDRESS:
-            //         expectedInformation.put(expectedField.getField(), organisation.getContactEmailAddress());
-            //         break;
-
-            //     default:
-            //         break;
-            // }
-
+                    try {
+                        Object value = Organisation.class.getDeclaredField(fieldName).get(organisation);
+                        expectedInformation.put(expectedField.getField(), value);
+                    } catch (NoSuchFieldException | IllegalAccessException e) {
+                        log.warn("Error accessing field {} on Organisation entity: {}", fieldName, e.getMessage());
+                    }
+                }
+            }
         }
 
         return expectedInformation;
@@ -552,46 +539,20 @@ public class DocumentServiceImpl
         if (docType.getExpectedFields() != null) {
             for (ExpectedField expectedField : docType.getExpectedFields()) {
 
-                // switch (expectedField.getKeyField()) {
-                //     case INDIVIDUAL_FIRST_NAME:
-                //         expectedInformation.put(expectedField.getField(), individual.getFirstName());
-                //         break;
+                if(expectedField.getTargetType() == TargetEntity.INDIVIDUAL) {
 
-                //     case INDIVIDUAL_MIDDLE_NAME:
-                //         expectedInformation.put(expectedField.getField(), individual.getMiddleName());
+                    if(StringUtils.isNotBlank(expectedField.getMatchTo())) {
+                        
+                        String fieldName = expectedField.getMatchTo();
 
-                //         break;
-                //     case INDIVIDUAL_SURNAME:
-                //         expectedInformation.put(expectedField.getField(), individual.getSurname());
-                //         break;
-                //     case INDIVIDUAL_IDENTITY_NO:
-                //         expectedInformation.put(expectedField.getField(), individual.getIdentityNo());
-                //         break;
-                //     case INDIVIDUAL_IDENTITY_TYPE:
-                //         expectedInformation.put(expectedField.getField(), individual.getIdentityType());
-                //         break;
-                //     case INDIVIDUAL_POSTAL_ADDRESS:
-                //         expectedInformation.put(expectedField.getField(), individual.getPostalAddress());
-                //         break;
-                //     case INDIVIDUAL_PHYSICAL_ADDRESS:
-                //         expectedInformation.put(expectedField.getField(), individual.getPhysicalAddress());
-                //         break;
-
-                //     case INDIVIDUAL_EMAIL_ADDRESS:
-                //         expectedInformation.put(expectedField.getField(), individual.getEmailAddress());
-                //         break;
-
-                //     case INDIVIDUAL_SEX:
-                //         expectedInformation.put(expectedField.getField(), individual.getSex());
-                //         break;
-                //     case INDIVIDUAL_NATIONALITY:
-                //         expectedInformation.put(expectedField.getField(), individual.getNationality());
-                //         break;
-
-                //     default:
-                //         break;
-                // }
-
+                        try {
+                            Object value = Individual.class.getDeclaredField(fieldName).get(individual);
+                            expectedInformation.put(expectedField.getField(), value);
+                        } catch (NoSuchFieldException | IllegalAccessException e) {
+                            log.warn("Error accessing field {} on Individual entity: {}", fieldName, e.getMessage());
+                        }
+                    }
+                }
             }
         }
 
@@ -602,162 +563,162 @@ public class DocumentServiceImpl
             Collection<ExpectedField> expectedFields, Map expectedInformation,
             Map extractedInformation) {
 
-        // Map<KeyField, Boolean> mandatoryMap = expectedFields.stream()
-        //         .collect(Collectors.toMap(ExpectedField::getKeyField, ExpectedField::getMandatory));
+        Map<String, Boolean> mandatoryMap = expectedFields.stream()
+                .collect(Collectors.toMap(ExpectedField::getField, ExpectedField::getMandatory));
 
-        // Map<KeyField, String> fielNameMap = expectedFields.stream()
-        //         .collect(Collectors.toMap(ExpectedField::getKeyField, ExpectedField::getField));
+        Map<String, String> fielNameMap = expectedFields.stream()
+                .collect(Collectors.toMap(ExpectedField::getField, ExpectedField::getField));
         List<DataVerification> verifications = new ArrayList<>();
 
-        // for (VerificationDataConfig config : dataConfigs) {
+        for (VerificationDataConfig config : dataConfigs) {
 
-        //     DataVerification verification = new DataVerification();
-        //     verification.setVerificationDataConfigId(config.getId().toString());
-        //     verification.setVerificationDataName(config.getName());
+            DataVerification verification = new DataVerification();
+            verification.setVerificationDataConfigId(config.getId().toString());
+            verification.setVerificationDataName(config.getName());
 
-        //     StringBuilder expectedBuilder = new StringBuilder();
-        //     StringBuilder extractedBuilder = new StringBuilder();
+            StringBuilder expectedBuilder = new StringBuilder();
+            StringBuilder extractedBuilder = new StringBuilder();
 
-        //     List<KeyFieldMatchResult> matchResults = new ArrayList<>();
+            List<KeyFieldMatchResult> matchResults = new ArrayList<>();
 
-        //     for (KeyField keyField : config.getKeyFields()) {
+            for (ExpectedField expectedField : config.getExpectedFields()) {
 
-        //         KeyFieldMatchResult match = new KeyFieldMatchResult();
-        //         match.setKeyField(keyField);
+                KeyFieldMatchResult match = new KeyFieldMatchResult();
+                match.setKeyField(expectedField.getField());
 
-        //         String fieldName = fielNameMap.get(keyField);
+                String fieldName = fielNameMap.get(expectedField.getField());
 
-        //         String extracted = null;
+                String extracted = null;
 
-        //         if (extractedInformation.containsKey(fieldName)) {
+                if (extractedInformation.containsKey(fieldName)) {
 
-        //             if (extractedBuilder.length() > 0) {
-        //                 extractedBuilder.append(" ");
-        //             }
+                    if (extractedBuilder.length() > 0) {
+                        extractedBuilder.append(" ");
+                    }
 
-        //             Object info = extractedInformation.get(fieldName);
+                    Object info = extractedInformation.get(fieldName);
 
-        //             if (info != null) {
-        //                 extracted = info.toString();
-        //                 extractedBuilder.append(extracted);
-        //             } else {
+                    if (info != null) {
+                        extracted = info.toString();
+                        extractedBuilder.append(extracted);
+                    } else {
 
-        //                 extracted = "";
-        //             }
-        //         }
+                        extracted = "";
+                    }
+                }
 
-        //         String expected = null;
+                String expected = null;
 
-        //         if (expectedInformation.containsKey(fieldName)) {
+                if (expectedInformation.containsKey(fieldName)) {
 
-        //             if (expectedBuilder.length() > 0) {
-        //                 expectedBuilder.append(" ");
-        //             }
+                    if (expectedBuilder.length() > 0) {
+                        expectedBuilder.append(" ");
+                    }
 
-        //             Object info = expectedInformation.get(fieldName);
+                    Object info = expectedInformation.get(fieldName);
 
-        //             if (info != null) {
+                    if (info != null) {
 
-        //                 expected = info.toString();
-        //                 expectedBuilder.append(expected);
-        //             } else {
+                        expected = info.toString();
+                        expectedBuilder.append(expected);
+                    } else {
 
-        //                 expected = "";
-        //             }
-        //         }
+                        expected = "";
+                    }
+                }
 
-        //         boolean continueProcessing = continueProcessing(keyField,
-        //                 expected,
-        //                 extracted);
+                boolean continueProcessing = continueProcessing(expectedField,
+                        expected,
+                        extracted);
 
-        //         match.setExpectedValue(expected);
-        //         match.setExtractedValue(extracted);
-        //         if (continueProcessing) {
-        //             match.setSimilarity(stringMatcher.calculateFilteredSimilarity(extracted, expected));
-        //         } else {
-        //             match.setSimilarity(0.0);
-        //         }
-        //         match.setMandatory(mandatoryMap.get(keyField));
-        //         match.setSuccess(continueProcessing);
+                match.setExpectedValue(expected);
+                match.setExtractedValue(extracted);
+                if (continueProcessing) {
+                    match.setSimilarity(stringMatcher.calculateFilteredSimilarity(extracted, expected));
+                } else {
+                    match.setSimilarity(0.0);
+                }
+                match.setMandatory(mandatoryMap.get(expectedField.getField()));
+                match.setSuccess(continueProcessing);
 
-        //         matchResults.add(match);
-        //     }
+                matchResults.add(match);
+            }
 
-        //     List<String> values = new ArrayList<>();
+            List<String> values = new ArrayList<>();
 
-        //     if (expectedBuilder.length() > 0) {
-        //         values.add(expectedBuilder.toString());
-        //     }
+            if (expectedBuilder.length() > 0) {
+                values.add(expectedBuilder.toString());
+            }
 
-        //     if (extractedBuilder.length() > 0) {
-        //         values.add(extractedBuilder.toString());
-        //     }
+            if (extractedBuilder.length() > 0) {
+                values.add(extractedBuilder.toString());
+            }
 
-        //     verification.setKeyFieldMatches(matchResults);
+            verification.setKeyFieldMatches(matchResults);
 
-        //     List<KeyFieldMatchResult> mandatory = matchResults.stream()
-        //             .filter(KeyFieldMatchResult::getMandatory)
-        //             .toList();
+            List<KeyFieldMatchResult> mandatory = matchResults.stream()
+                    .filter(KeyFieldMatchResult::getMandatory)
+                    .toList();
 
-        //     if (mandatory == null || mandatory.isEmpty()) {
-        //         mandatory = matchResults;
-        //         verification.setHasMandatoryFields(false);
-        //     } else {
-        //         verification.setHasMandatoryFields(true);
-        //     }
+            if (mandatory == null || mandatory.isEmpty()) {
+                mandatory = matchResults;
+                verification.setHasMandatoryFields(false);
+            } else {
+                verification.setHasMandatoryFields(true);
+            }
 
-        //     double similarity = mandatory
-        //             .stream()
-        //             .reduce(0.0, (sum, match) -> sum + match.getSimilarity(), Double::sum)
-        //             / mandatory.size();
+            double similarity = mandatory
+                    .stream()
+                    .reduce(0.0, (sum, match) -> sum + match.getSimilarity(), Double::sum)
+                    / mandatory.size();
 
-        //     verification.setScore(similarity);
+            verification.setScore(similarity);
 
-        //     boolean hasFailedMandatory = mandatory.stream()
-        //             .anyMatch(match -> !match.getSuccess());
+            boolean hasFailedMandatory = mandatory.stream()
+                    .anyMatch(match -> !match.getSuccess());
 
-        //     if (hasFailedMandatory || similarity < 0.4) {
+            if (hasFailedMandatory || similarity < 0.4) {
 
-        //         verification.setVerificationStatus(DataVerificationStatus.VERIFICATION_FAILED);
+                verification.setVerificationStatus(DataVerificationStatus.VERIFICATION_FAILED);
 
-        //         StringBuilder reasonBuilder = new StringBuilder();
-        //         if (hasFailedMandatory) {
+                StringBuilder reasonBuilder = new StringBuilder();
+                if (hasFailedMandatory) {
 
-        //             if (verification.getHasMandatoryFields()) {
-        //                 reasonBuilder.append("Failed verification of mandatory field(s). ");
-        //             } else {
-        //                 reasonBuilder.append("Failed verification of field(s). ");
-        //             }
-        //             reasonBuilder.append('\n').append(mandatory.stream()
-        //                     .filter(match -> !match.getSuccess())
-        //                     .map(match -> match.getKeyField().name())
-        //                     .collect(Collectors.joining(", ")));
-        //         } else {
+                    if (verification.getHasMandatoryFields()) {
+                        reasonBuilder.append("Failed verification of mandatory field(s). ");
+                    } else {
+                        reasonBuilder.append("Failed verification of field(s). ");
+                    }
+                    reasonBuilder.append('\n').append(mandatory.stream()
+                            .filter(match -> !match.getSuccess())
+                            .map(match -> match.getKeyField())
+                            .collect(Collectors.joining(", ")));
+                } else {
 
-        //             reasonBuilder.append("Overall similarity score below threshold. ")
-        //                     .append('\n')
-        //                     .append(String.format("Similarity: %.2f", similarity));
-        //         }
+                    reasonBuilder.append("Overall similarity score below threshold. ")
+                            .append('\n')
+                            .append(String.format("Similarity: %.2f", similarity));
+                }
 
-        //         verification.setVerificationReport(reasonBuilder.toString());
+                verification.setVerificationReport(reasonBuilder.toString());
 
-        //     } else if (similarity >= 0.8) {
+            } else if (similarity >= 0.8) {
 
-        //         verification.setVerificationStatus(DataVerificationStatus.VERIFIED);
+                verification.setVerificationStatus(DataVerificationStatus.VERIFIED);
 
-        //         if (verification.getHasMandatoryFields()) {
-        //             verification.setVerificationReport(
-        //                     "All mandatory fields passed verification with satisfactory similarity.");
-        //         } else {
-        //             verification.setVerificationReport("All fields passed verification with satisfactory similarity.");
-        //         }
+                if (verification.getHasMandatoryFields()) {
+                    verification.setVerificationReport(
+                            "All mandatory fields passed verification with satisfactory similarity.");
+                } else {
+                    verification.setVerificationReport("All fields passed verification with satisfactory similarity.");
+                }
 
-        //     } else {
-        //         verification.setVerificationStatus(DataVerificationStatus.UNVERIFIED);
-        //     }
+            } else {
+                verification.setVerificationStatus(DataVerificationStatus.UNVERIFIED);
+            }
 
-        //     verifications.add(verification);
-        // }
+            verifications.add(verification);
+        }
 
         return verifications;
     }
@@ -838,47 +799,54 @@ public class DocumentServiceImpl
 
     }
 
-    private boolean continueProcessing(KeyField keyField, String expected, Object extracted) {
+    private boolean continueProcessing(ExpectedField expectedField, String expected, Object extracted) {
 
-        if (StringUtils.isBlank(expected) && keyField != KeyField.DOCUMENT_DATE) {
+    //     if (StringUtils.isBlank(expected) && keyField != KeyField.DOCUMENT_DATE) {
 
-            return true;
-        }
+    //         return true;
+    //     }
 
         boolean isExpectedString = expected instanceof String;
         boolean isExtractedString = extracted instanceof String;
 
-        String expectedStr = expected != null ? expected.toString().toLowerCase() : "";
         String extractedStr = extracted != null ? extracted.toString().toLowerCase() : "";
 
-        switch (keyField) {
-            case INDIVIDUAL_IDENTITY_NO, ORGANISATION_REGISTRATION_NO:
-                if (isExpectedString && isExtractedString) {
+        if(expectedField.getExactMatch()) {
+            return expected.equals(extracted);
+        } else {
 
-                    return expectedStr.equals(extractedStr);
-                }
-                break;
-
-            case INDIVIDUAL_FIRST_NAME, INDIVIDUAL_SURNAME, ORGANISATION_NAME:
-                if (isExpectedString && isExtractedString) {
-                    double score = stringMatcher.calculateFilteredSimilarity(expectedStr, extractedStr);
-                    boolean satisfactoryScore = score >= 0.8;
-                    return satisfactoryScore;
-                }
-                break;
-
-            case DOCUMENT_DATE:
-
-                LocalDate documentDate = LocalDate.parse(extractedStr);
-
-                LocalDate expiryDate = documentDate.plusMonths(3);
-
-                return LocalDate.now().isBefore(expiryDate);
-
-            default:
-                break;
+            double score = stringMatcher.calculateFilteredSimilarity(extractedStr, expected.toString().toLowerCase());
+            return score >= 0.8;
         }
 
-        return true;
+        // switch (keyField) {
+        //     case INDIVIDUAL_IDENTITY_NO, ORGANISATION_REGISTRATION_NO:
+        //         if (isExpectedString && isExtractedString) {
+
+        //             return expectedStr.equals(extractedStr);
+        //         }
+        //         break;
+
+        //     case INDIVIDUAL_FIRST_NAME, INDIVIDUAL_SURNAME, ORGANISATION_NAME:
+        //         if (isExpectedString && isExtractedString) {
+        //             double score = stringMatcher.calculateFilteredSimilarity(expectedStr, extractedStr);
+        //             boolean satisfactoryScore = score >= 0.8;
+        //             return satisfactoryScore;
+        //         }
+        //         break;
+
+        //     case DOCUMENT_DATE:
+
+        //         LocalDate documentDate = LocalDate.parse(extractedStr);
+
+        //         LocalDate expiryDate = documentDate.plusMonths(3);
+
+        //         return LocalDate.now().isBefore(expiryDate);
+
+        //     default:
+        //         break;
+        // }
+
+        // return true;
     }
 }

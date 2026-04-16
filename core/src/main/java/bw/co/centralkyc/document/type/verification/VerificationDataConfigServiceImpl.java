@@ -8,11 +8,17 @@
  */
 package bw.co.centralkyc.document.type.verification;
 
+import bw.co.centralkyc.document.type.DocumentType;
+import bw.co.centralkyc.document.type.DocumentTypeRepository;
+import bw.co.centralkyc.document.type.field.ExpectedField;
+import bw.co.centralkyc.document.type.field.ExpectedFieldRepository;
 import jakarta.validation.Valid;
 
+import java.util.Collection;
 import java.util.UUID;
 
 import org.springframework.context.MessageSource;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,10 +28,16 @@ import org.springframework.stereotype.Service;
 public class VerificationDataConfigServiceImpl
     extends VerificationDataConfigServiceBase
 {
+    private final DocumentTypeRepository documentTypeRepository;
+    private final ExpectedFieldRepository expectedFieldRepository;
+    private final JdbcTemplate jdbcTemplate;
     public VerificationDataConfigServiceImpl(
         VerificationDataConfigDao verificationDataConfigDao,
         VerificationDataConfigRepository verificationDataConfigRepository,
         VerificationDataConfigMapper verificationDataConfigMapper,
+        DocumentTypeRepository typeRepository,
+        ExpectedFieldRepository expectedFieldRepository,
+        JdbcTemplate jdbcTemplate,
         MessageSource messageSource
     ) {
         
@@ -35,6 +47,10 @@ public class VerificationDataConfigServiceImpl
             verificationDataConfigMapper,
             messageSource
         );
+
+        this.documentTypeRepository = typeRepository;
+        this.jdbcTemplate = jdbcTemplate;
+        this.expectedFieldRepository = expectedFieldRepository;
     }
 
     /**
@@ -71,7 +87,10 @@ public class VerificationDataConfigServiceImpl
         throws Exception
     {
 
-        this.verificationDataConfigRepository.deleteById(UUID.fromString(id));
+        UUID configId = UUID.fromString(id);
+        VerificationDataConfig config = verificationDataConfigRepository.getReferenceById(configId);
+
+        this.verificationDataConfigRepository.delete(config);
         return true;
     }
 

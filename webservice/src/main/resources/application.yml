@@ -1,15 +1,17 @@
 logging:
   level:
     org:
-      springframework: INFO
-      hibernate: INFO
+      springframework:  ${SPRING_LOG_LEVEL:INFO}
+      hibernate:  ${HIBERNATE_LOG_LEVEL:INFO}
     bw:
       co:
-        roguesystems: DEBUG
+        roguesystems: ${KYC_LOG_LEVEL:DEBUG}
 server:
   port: ${PORT:8085}
   servlet:
     context-path: /
+  compression:
+    enabled: true
 springdoc:
   swagger-ui:
     oauth:

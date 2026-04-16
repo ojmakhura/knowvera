@@ -36,7 +36,7 @@ public class VerificationDataConfigApiImpl implements VerificationDataConfigApi 
     @Operation(summary = "Find Document Type", description = "Get the document type with the given id")
     public ResponseEntity<VerificationDataConfigDTO> findById(String id) throws Exception {
         try {
-            return ResponseEntity.ok(null);
+            return ResponseEntity.ok(verificationDataConfigService.findById(id));
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
@@ -48,7 +48,7 @@ public class VerificationDataConfigApiImpl implements VerificationDataConfigApi 
     @Override
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
-            return ResponseEntity.ok(null);
+            return ResponseEntity.ok(verificationDataConfigService.remove(id));
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);

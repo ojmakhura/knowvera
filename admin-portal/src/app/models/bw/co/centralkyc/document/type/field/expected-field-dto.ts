@@ -22,6 +22,8 @@ export class ExpectedFieldDTO extends AuditableDTO {
     many: boolean | any = false;
     
     fieldType: ExpectedFieldType | any;
+
+    exactMatch: boolean | any = false;
     
     constructor() {
         super();
@@ -35,5 +37,6 @@ export class ExpectedFieldDTO extends AuditableDTO {
         this.many = false;
         this.fieldType = null;
         this.fieldLabel = null;
+        this.exactMatch = false;
     }
 }

@@ -44,6 +44,8 @@ import { ContactDTO } from '@app/models/bw/co/centralkyc/contact/contact-dto';
 import { SettingsDTO } from '@app/models/bw/co/centralkyc/settings/settings-dto';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
 import { ExpectedFieldApiStore } from '@app/store/bw/co/centralkyc/document/type/field/expected-field-api.store';
+import { VerificationDataConfigApiStore } from '@app/store/bw/co/centralkyc/document/type/verification/verification-data-config-api.store';
+import { VerificationDataConfigApi } from '@app/services/bw/co/centralkyc/document/type/verification/verification-data-config-api';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -106,10 +108,10 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
     // if(this.editDocumentTypeSignal().verificationDataConfigs.length > 0) {
 
-      // applyEach(path.verificationDataConfigs, (configPath) => {
-      //   required(configPath.name, { message: 'verificationDataConfig.name.required' });
-      //   minLength(path.expectedFields, 1, { message: 'verificationDataConfig.expectedFields.min' });
-      // });
+    // applyEach(path.verificationDataConfigs, (configPath) => {
+    //   required(configPath.name, { message: 'verificationDataConfig.name.required' });
+    //   minLength(path.expectedFields, 1, { message: 'verificationDataConfig.expectedFields.min' });
+    // });
     // }
   });
 
@@ -124,6 +126,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   toastr = inject(ToastrService);
   dialog = inject(MatDialog);
   expectedFieldApiStore = inject(ExpectedFieldApiStore);
+  verificationConfigApiStore = inject(VerificationDataConfigApiStore);
+  verificationConfigApi = inject(VerificationDataConfigApi);
 
   protected readonly documentTypeFields = linkedSignal(() => this.editDocumentTypeSignal().expectedFields.filter(field => field.id));
 
@@ -406,7 +410,24 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
           };
         });
 
-        this.saveDocumentType();
+        this.loading.set(true);
+        this.verificationConfigApi.remove(selected.id).subscribe({
+          next: (done: boolean) => {
+
+            if (done) {
+              this.saveDocumentType();
+              this.toastr.success('Verification data config removed successfully.');
+            }
+
+            this.loading.set(false);
+          },
+          error: (error: any) => {
+            this.toastr.error('Failed to remove verification data config.');
+            this.loading.set(false);
+          }
+        });
+
+
       }
     });
   }
