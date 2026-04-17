@@ -1,4 +1,3 @@
-
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -8,7 +7,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -69,7 +73,8 @@ export class EditDocumentTypeVarsForm {
   templateUrl: './document-type-edit.html',
   styleUrls: ['./document-type-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule,
+  imports: [
+    CommonModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -81,7 +86,7 @@ export class EditDocumentTypeVarsForm {
     MatTabsModule,
     Loader,
     FormField,
-    TranslateModule
+    TranslateModule,
   ],
 })
 export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
@@ -129,12 +134,12 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   verificationConfigApiStore = inject(VerificationDataConfigApiStore);
   verificationConfigApi = inject(VerificationDataConfigApi);
 
-  protected readonly documentTypeFields = linkedSignal(() => this.editDocumentTypeSignal().expectedFields.filter(field => field.id));
+  protected readonly documentTypeFields = linkedSignal(() =>
+    this.editDocumentTypeSignal().expectedFields.filter((field) => field.id),
+  );
 
   constructor() {
-
     effect(() => {
-
       let docType = this.documentTypeApiStore.data();
 
       if (docType) {
@@ -143,42 +148,37 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     });
 
     effect(() => {
-
       const error = this.error();
       console.log('Error state changed:', error);
 
       if (error) {
         console.log('Error messages:', this.messages());
-        this.toastr.error(this.messages()[0] || 'An error occurred while saving the document type.');
+        this.toastr.error(
+          this.messages()[0] || 'An error occurred while saving the document type.',
+        );
       }
-
     });
 
     effect(() => {
-
       const success = this.success();
 
       if (success) {
         this.toastr.success(this.messages()[0] || 'Document type saved successfully.');
       }
-
     });
   }
 
   ngOnInit(): void {
-
     this.documentTypeApiStore.reset();
 
     if (this.id && this.id !== '') {
-
       this.documentTypeApiStore.findById({ id: this.id });
     }
-
   }
 
-  ngAfterViewInit(): void { }
+  ngAfterViewInit(): void {}
 
-  ngOnDestroy(): void { }
+  ngOnDestroy(): void {}
 
   discardChanges(): void {
     const current = this.documentTypeApiStore.data();
@@ -191,7 +191,10 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     this.editDocumentTypeSignal.set(new EditDocumentTypeVarsForm());
   }
 
-  updateField<K extends keyof EditDocumentTypeVarsForm>(field: K, value: EditDocumentTypeVarsForm[K]): void {
+  updateField<K extends keyof EditDocumentTypeVarsForm>(
+    field: K,
+    value: EditDocumentTypeVarsForm[K],
+  ): void {
     this.editDocumentTypeSignal.update((state) => ({
       ...state,
       [field]: value,
@@ -250,14 +253,15 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
       this.editDocumentTypeSignal.update((value) => ({
         ...value,
-        expectedFields: value.expectedFields.map((item, itemIndex) => itemIndex === index ? result : item),
+        expectedFields: value.expectedFields.map((item, itemIndex) =>
+          itemIndex === index ? result : item,
+        ),
       }));
       this.saveDocumentType();
     });
   }
 
   expectedFieldsRemove(i: number, selected: ExpectedFieldDTO) {
-
     Swal.fire({
       title: 'Are you sure?',
       text: `This will remove the field "${selected.field}" from the expected fields list.`,
@@ -267,14 +271,19 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     }).then((result) => {
       if (result.isConfirmed) {
         this.editDocumentTypeSignal.update((value) => {
-          const expectedFields = value.expectedFields.filter((_: any, index: number) => index !== i);
-          const nextIndex = Math.max(0, Math.min(this.expectedFieldIndex(), expectedFields.length - 1));
+          const expectedFields = value.expectedFields.filter(
+            (_: any, index: number) => index !== i,
+          );
+          const nextIndex = Math.max(
+            0,
+            Math.min(this.expectedFieldIndex(), expectedFields.length - 1),
+          );
           this.expectedFieldIndex.set(nextIndex);
 
           return {
             ...value,
-            expectedFields: expectedFields
-          }
+            expectedFields: expectedFields,
+          };
         });
       }
     });
@@ -323,18 +332,13 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   validationPromptsAdd() {
-
     this.editDocumentTypeSignal.update((value) => ({
       ...value,
-      validationPrompts: [
-        ...value.validationPrompts,
-        this.createNewValidationPrompts()
-      ]
-    }))
+      validationPrompts: [...value.validationPrompts, this.createNewValidationPrompts()],
+    }));
   }
 
   validationPromptsRemove(i: number, selected: PromptMessage) {
-
     Swal.fire({
       title: 'Are you sure?',
       text: `This will remove the prompt with role "${selected.role}" from the validation prompts list.`,
@@ -344,12 +348,14 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     }).then((result) => {
       if (result.isConfirmed) {
         this.editDocumentTypeSignal.update((value) => {
-          const validationPrompts = value.validationPrompts.filter((_: any, index: number) => index !== i);
+          const validationPrompts = value.validationPrompts.filter(
+            (_: any, index: number) => index !== i,
+          );
 
           return {
             ...value,
-            validationPrompts: validationPrompts
-          }
+            validationPrompts: validationPrompts,
+          };
         });
       }
     });
@@ -360,14 +366,13 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   textExtractionPromptsAdd() {
-
     this.editDocumentTypeSignal.update((value) => ({
       ...value,
       textExtractionPrompts: [
         ...value.textExtractionPrompts,
-        this.createNewTextExtractionPrompts()
-      ]
-    }))
+        this.createNewTextExtractionPrompts(),
+      ],
+    }));
   }
 
   createNewVerificationDataConfig(): VerificationDataConfigDTO {
@@ -399,9 +404,14 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     }).then((result) => {
       if (result.isConfirmed) {
         this.editDocumentTypeSignal.update((value) => {
-          const verificationDataConfigs = value.verificationDataConfigs.filter((_: any, index: number) => index !== i);
+          const verificationDataConfigs = value.verificationDataConfigs.filter(
+            (_: any, index: number) => index !== i,
+          );
 
-          const nextIndex = Math.max(0, Math.min(this.verificationDataConfigIndex(), verificationDataConfigs.length - 1));
+          const nextIndex = Math.max(
+            0,
+            Math.min(this.verificationDataConfigIndex(), verificationDataConfigs.length - 1),
+          );
           this.verificationDataConfigIndex.set(nextIndex);
 
           return {
@@ -413,7 +423,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
         this.loading.set(true);
         this.verificationConfigApi.remove(selected.id).subscribe({
           next: (done: boolean) => {
-
             if (done) {
               this.saveDocumentType();
               this.toastr.success('Verification data config removed successfully.');
@@ -424,10 +433,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
           error: (error: any) => {
             this.toastr.error('Failed to remove verification data config.');
             this.loading.set(false);
-          }
+          },
         });
-
-
       }
     });
   }
@@ -449,8 +456,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   // }
 
   isVerificationDataConfigKeySelected(configIndex: number, field: ExpectedFieldDTO): boolean {
-
-    let fields = this.editDocumentTypeSignal().verificationDataConfigs[configIndex]?.expectedFields || [];
+    let fields =
+      this.editDocumentTypeSignal().verificationDataConfigs[configIndex]?.expectedFields || [];
 
     let fieldIds = fields.map((f) => f.id);
 
@@ -494,10 +501,16 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.verificationDataConfigIndex.update((index) => Math.min(this.verificationDataConfigCount() - 1, index + 1));
+    this.verificationDataConfigIndex.update((index) =>
+      Math.min(this.verificationDataConfigCount() - 1, index + 1),
+    );
   }
 
-  toggleVerificationDataConfigKey(configIndex: number, field: ExpectedFieldDTO, checked: boolean): void {
+  toggleVerificationDataConfigKey(
+    configIndex: number,
+    field: ExpectedFieldDTO,
+    checked: boolean,
+  ): void {
     this.editDocumentTypeSignal.update((state) => ({
       ...state,
       verificationDataConfigs: state.verificationDataConfigs.map((config, index) => {
@@ -549,12 +562,14 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     }).then((result) => {
       if (result.isConfirmed) {
         this.editDocumentTypeSignal.update((value) => {
-          const textExtractionPrompts = value.textExtractionPrompts.filter((_: any, index: number) => index !== i);
+          const textExtractionPrompts = value.textExtractionPrompts.filter(
+            (_: any, index: number) => index !== i,
+          );
 
           return {
             ...value,
-            textExtractionPrompts: textExtractionPrompts
-          }
+            textExtractionPrompts: textExtractionPrompts,
+          };
         });
       }
     });
@@ -596,7 +611,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   saveDocumentType(): void {
-
     let formData: EditDocumentTypeVarsForm = this.editDocumentTypeSignal();
     let docType = new DocumentTypeDTO();
     docType.code = formData.code;
@@ -615,14 +629,13 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.verificationDataConfigs = formData.verificationDataConfigs || [];
 
     this.documentTypeApiStore.save({
-      documentType: docType
+      documentType: docType,
     });
   }
 
   trackByIndex(index: number): number {
     return index;
   }
-
 }
 
 interface ExpectedFieldDialogData {
@@ -643,7 +656,7 @@ const EXCLUDED_TARGET_TYPES = new Set<TargetEntity>([
   TargetEntity.SUBSCRIPTION,
   TargetEntity.CLIENT_REQUEST,
   TargetEntity.DOCUMENT,
-  TargetEntity.SETTINGS
+  TargetEntity.SETTINGS,
 ]);
 
 const getDtoMatchToFields = (dto: object): string[] =>
@@ -669,7 +682,7 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
     MatInputModule,
     MatSelectModule,
     FormField,
-    TranslateModule
+    TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -681,14 +694,22 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
           <mat-label>Field Name</mat-label>
           <input matInput [formField]="expectedFieldForm.field" placeholder="e.g. documentNumber" />
         </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Field Label</mat-label>
+          <input
+            matInput
+            [formField]="expectedFieldForm.fieldLabel"
+            placeholder="e.g. Document Number"
+          />
+        </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Field Type</mat-label>
           <mat-select [formField]="expectedFieldForm.fieldType">
             @for (option of fieldTypeOptions; track option) {
-            <mat-option [value]="option">
-              <span translate>expected.field.type.{{ option }}</span>
-            </mat-option>
+              <mat-option [value]="option">
+                <span translate>expected.field.type.{{ option }}</span>
+              </mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -697,9 +718,9 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
           <mat-label>Target Type</mat-label>
           <mat-select [formField]="expectedFieldForm.targetType">
             @for (option of targetTypeOptions; track option) {
-            <mat-option [value]="option">
-              <span translate>target.entity.{{ option }}</span>
-            </mat-option>
+              <mat-option [value]="option">
+                <span translate>target.entity.{{ option }}</span>
+              </mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -707,19 +728,26 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
         <mat-form-field appearance="outline">
           <mat-label>Match To</mat-label>
           <mat-select [formField]="expectedFieldForm.matchTo">
-            @if (matchToOptions().length === 0) { 
-            <mat-option [value]="null" disabled>Select target type first</mat-option>
+            @if (matchToOptions().length === 0) {
+              <mat-option [value]="null" disabled>Select target type first</mat-option>
             } @else {
-            @for (option of matchToOptions(); track option) {
-            <mat-option [value]="option">{{ option }}</mat-option>
-            }
+              @for (option of matchToOptions(); track option) {
+                <mat-option [value]="option">{{ option }}</mat-option>
+              }
             }
           </mat-select>
         </mat-form-field>
 
+        @if(expectedFieldSignal().matchTo) { 
+        <mat-checkbox [formField]="expectedFieldForm.exactMatch">Exact Match</mat-checkbox>
+        }
         <mat-form-field appearance="outline" class="format-field">
           <mat-label>Format</mat-label>
-          <textarea matInput [formField]="expectedFieldForm.format" placeholder="e.g. dd/MM/yyyy"></textarea>
+          <textarea
+            matInput
+            [formField]="expectedFieldForm.format"
+            placeholder="e.g. dd/MM/yyyy"
+          ></textarea>
         </mat-form-field>
 
         <div class="checkbox-row">
@@ -731,7 +759,13 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
 
     <mat-dialog-actions align="end">
       <button mat-stroked-button type="button" (click)="onCancel()">Cancel</button>
-      <button mat-flat-button color="primary" type="button" [disabled]="!expectedFieldForm().valid()" (click)="onSave()">
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        [disabled]="!expectedFieldForm().valid()"
+        (click)="onSave()"
+      >
         Save
       </button>
     </mat-dialog-actions>
@@ -786,7 +820,9 @@ export class ExpectedFieldDialogComponent {
   data: ExpectedFieldDialogData = inject(MAT_DIALOG_DATA);
 
   protected readonly fieldTypeOptions = Object.values(ExpectedFieldType);
-  protected readonly targetTypeOptions = Object.values(TargetEntity).filter((targetType) => !EXCLUDED_TARGET_TYPES.has(targetType));
+  protected readonly targetTypeOptions = Object.values(TargetEntity).filter(
+    (targetType) => !EXCLUDED_TARGET_TYPES.has(targetType),
+  );
   protected readonly matchToOptions = computed(() => {
     const targetType = this.expectedFieldSignal().targetType as TargetEntity | null | undefined;
 

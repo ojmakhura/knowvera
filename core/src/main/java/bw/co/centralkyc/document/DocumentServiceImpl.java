@@ -21,6 +21,7 @@ import bw.co.centralkyc.document.type.DocumentTypeRepository;
 import bw.co.centralkyc.document.type.field.ExpectedField;
 import bw.co.centralkyc.document.type.field.ExpectedFieldDTO;
 import bw.co.centralkyc.document.type.verification.VerificationDataConfig;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfigRepository;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.kyc.KycRecord;
@@ -37,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 import static org.junit.jupiter.api.DynamicTest.stream;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -73,6 +75,7 @@ import org.springframework.validation.annotation.Validated;
 public class DocumentServiceImpl
         extends DocumentServiceBase {
 
+    private final VerificationDataConfigRepository verificationDataConfigRepository;
     private final OrganisationRepository organisationRepository;
     private final IndividualRepository individualRepository;
     private final KycRecordRepository kycRecordRepository;
@@ -84,7 +87,7 @@ public class DocumentServiceImpl
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
 
-    public DocumentServiceImpl(DocumentDao documentDao, DocumentRepository documentRepository,
+    public DocumentServiceImpl(DocumentDao documentDao, DocumentRepository documentRepository, VerificationDataConfigRepository verificationDataConfigRepository,
             OrganisationRepository organisationRepository, IndividualRepository individualRepository,
             KycRecordRepository kycRecordRepository, ClientRequestRepository clientRequestRepository,
             KycSubscriptionRepository kycSubscriptionRepository, DocumentTypeMapper documentTypeMapper,
@@ -103,6 +106,7 @@ public class DocumentServiceImpl
         this.stringMatcher = stringMatcher;
         this.rabbitProperties = rabbitProperties;
         this.rabbitTemplate = rabbitTemplate;
+        this.verificationDataConfigRepository = verificationDataConfigRepository;
     }
 
     /**
@@ -139,13 +143,14 @@ public class DocumentServiceImpl
         extractExpectedInformation(entity);
         entity = documentRepository.save(entity);
 
-        if(isNew) {
+        if (isNew) {
 
             switch (entity.getTarget()) {
                 case ORGANISATION:
                     Organisation org = organisationRepository.findById(UUID.fromString(entity.getTargetId()))
-                            .orElseThrow(() -> new DocumentServiceException("No organisation found for document target"));
-                    if(org.getDocuments() == null) {
+                            .orElseThrow(
+                                    () -> new DocumentServiceException("No organisation found for document target"));
+                    if (org.getDocuments() == null) {
                         org.setDocuments(new ArrayList<>());
                     }
 
@@ -156,14 +161,14 @@ public class DocumentServiceImpl
                 case INDIVIDUAL:
                     Individual ind = individualRepository.findById(UUID.fromString(entity.getTargetId()))
                             .orElseThrow(() -> new DocumentServiceException("No individual found for document target"));
-                    if(ind.getDocuments() == null) {
+                    if (ind.getDocuments() == null) {
                         ind.setDocuments(new ArrayList<>());
                     }
 
                     ind.getDocuments().add(entity);
                     individualRepository.save(ind);
                     break;
-            
+
                 default:
                     break;
             }
@@ -509,20 +514,17 @@ public class DocumentServiceImpl
 
         for (ExpectedField expectedField : docType.getExpectedFields()) {
 
-            if(expectedField.getTargetType() == TargetEntity.ORGANISATION) {
-
-                if(StringUtils.isNotBlank(expectedField.getMatchTo())) {
-                    
-                    String fieldName = expectedField.getMatchTo();
-
-                    try {
-                        Object value = Organisation.class.getDeclaredField(fieldName).get(organisation);
-                        expectedInformation.put(expectedField.getField(), value);
-                    } catch (NoSuchFieldException | IllegalAccessException e) {
-                        log.warn("Error accessing field {} on Organisation entity: {}", fieldName, e.getMessage());
-                    }
-                }
+            if (StringUtils.isBlank(expectedField.getMatchTo())) {
+                continue;
             }
+
+            if (expectedField.getTargetType() != TargetEntity.ORGANISATION) {
+                continue;
+            }
+
+            Object value = getFieldValue(expectedField, TargetEntity.ORGANISATION, organisation);
+            expectedInformation.put(expectedField.getField(), value);
+
         }
 
         return expectedInformation;
@@ -539,24 +541,44 @@ public class DocumentServiceImpl
         if (docType.getExpectedFields() != null) {
             for (ExpectedField expectedField : docType.getExpectedFields()) {
 
-                if(expectedField.getTargetType() == TargetEntity.INDIVIDUAL) {
-
-                    if(StringUtils.isNotBlank(expectedField.getMatchTo())) {
-                        
-                        String fieldName = expectedField.getMatchTo();
-
-                        try {
-                            Object value = Individual.class.getDeclaredField(fieldName).get(individual);
-                            expectedInformation.put(expectedField.getField(), value);
-                        } catch (NoSuchFieldException | IllegalAccessException e) {
-                            log.warn("Error accessing field {} on Individual entity: {}", fieldName, e.getMessage());
-                        }
-                    }
+                if (StringUtils.isNotBlank(expectedField.getMatchTo())) {
+                    continue;
                 }
+
+                if (expectedField.getTargetType() != TargetEntity.INDIVIDUAL) {
+                    continue;
+                }
+
+                Object value = getFieldValue(expectedField, TargetEntity.INDIVIDUAL, individual);
+                expectedInformation.put(expectedField.getField(), value);
             }
         }
 
         return expectedInformation;
+    }
+
+    private Object getFieldValue(ExpectedField expectedField, TargetEntity targetEntity, Object entity) {
+
+        if (StringUtils.isBlank(expectedField.getMatchTo())) {
+            return null;
+        }
+
+        if (expectedField.getTargetType() != targetEntity) {
+            return null;
+
+        }
+
+        try {
+
+            String accessorName = "get" + StringUtils.capitalize(expectedField.getMatchTo());
+            return entity.getClass().getMethod(accessorName).invoke(entity);
+
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            log.warn("Error accessing field {} on entity {}: {}", expectedField.getMatchTo(),
+                    entity.getClass().getSimpleName(),
+                    e.getMessage());
+            return null;
+        }
     }
 
     private List<DataVerification> processVerificationFields(Collection<VerificationDataConfig> dataConfigs,
@@ -582,6 +604,11 @@ public class DocumentServiceImpl
             List<KeyFieldMatchResult> matchResults = new ArrayList<>();
 
             for (ExpectedField expectedField : config.getExpectedFields()) {
+
+                if(expectedField.getMandatory() == null || !expectedField.getMandatory()) {
+
+                    continue;
+                }
 
                 KeyFieldMatchResult match = new KeyFieldMatchResult();
                 match.setKeyField(expectedField.getField());
@@ -734,10 +761,11 @@ public class DocumentServiceImpl
         }
 
         DocumentType docType = document.getDocumentType();
-
         document.setVerificationStatus(DocumentVerificationStatus.UNVERIFIED);
 
-        List<DataVerification> verifications = processVerificationFields(docType.getVerificationDataConfigs(),
+        List<VerificationDataConfig> configs = verificationDataConfigRepository.findByDocumentTypeId(docType.getId());
+
+        List<DataVerification> verifications = processVerificationFields(configs,
                 docType.getExpectedFields(),
                 document.getExpectedInformation(), document.getExtractedInformation());
 
@@ -783,14 +811,7 @@ public class DocumentServiceImpl
             log.info("Document ID {} requires manual review or has been rejected (verification status: {})",
                     document.getId(), document.getVerificationStatus());
 
-            if (document.getTarget() == TargetEntity.KYC_RECORD) {
-                KycRecord record = kycRecordRepository.findById(UUID.fromString(document.getTargetId()))
-                        .orElseThrow(() -> new DocumentServiceException("Document not found"));
-                this.rabbitTemplate.convertAndSend(
-                        rabbitProperties.getKycVerificationQueueExchange(),
-                        rabbitProperties.getKycVerificationQueueRoutingKey(),
-                        new QueueObject(record.getId().toString(), record.getTarget(), record.getTargetId()));
-            }
+            dispatchVerificationQueue(document);
         }
 
         DocumentDTO dto = documentMapper.toDocumentDTO(document);
@@ -799,19 +820,53 @@ public class DocumentServiceImpl
 
     }
 
+    private void dispatchVerificationQueue(Document document) {
+        if (document.getTarget() == null || StringUtils.isBlank(document.getTargetId())) {
+            log.warn("Skipping verification queue dispatch for document {} because target metadata is incomplete",
+                    document.getId());
+            return;
+        }
+
+        switch (document.getTarget()) {
+            case KYC_RECORD:
+                KycRecord record = kycRecordRepository.findById(UUID.fromString(document.getTargetId()))
+                        .orElseThrow(() -> new DocumentServiceException("KYC record not found for id: "
+                                + document.getTargetId()));
+                rabbitTemplate.convertAndSend(
+                        rabbitProperties.getKycVerificationQueueExchange(),
+                        rabbitProperties.getKycVerificationQueueRoutingKey(),
+                        new QueueObject(record.getId().toString(), record.getTarget(), record.getTargetId()));
+                break;
+            case ORGANISATION:
+                rabbitTemplate.convertAndSend(
+                        rabbitProperties.getOrganisationVerificationQueueExchange(),
+                        rabbitProperties.getOrganisationVerificationQueueRoutingKey(),
+                        new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
+                break;
+            case INDIVIDUAL:
+                rabbitTemplate.convertAndSend(
+                        rabbitProperties.getIndividualVerificationQueueExchange(),
+                        rabbitProperties.getIndividualVerificationQueueRoutingKey(),
+                        new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
+                break;
+            default:
+                log.debug("No verification queue configured for document target {}", document.getTarget());
+        }
+    }
+
     private boolean continueProcessing(ExpectedField expectedField, String expected, Object extracted) {
 
-    //     if (StringUtils.isBlank(expected) && keyField != KeyField.DOCUMENT_DATE) {
+        // if (StringUtils.isBlank(expected) && keyField != KeyField.DOCUMENT_DATE) {
 
-    //         return true;
-    //     }
+        // return true;
+        // }
 
         boolean isExpectedString = expected instanceof String;
         boolean isExtractedString = extracted instanceof String;
 
         String extractedStr = extracted != null ? extracted.toString().toLowerCase() : "";
 
-        if(expectedField.getExactMatch()) {
+        if (expectedField.getExactMatch() != null && expectedField.getExactMatch()) {
             return expected.equals(extracted);
         } else {
 
@@ -820,31 +875,32 @@ public class DocumentServiceImpl
         }
 
         // switch (keyField) {
-        //     case INDIVIDUAL_IDENTITY_NO, ORGANISATION_REGISTRATION_NO:
-        //         if (isExpectedString && isExtractedString) {
+        // case INDIVIDUAL_IDENTITY_NO, ORGANISATION_REGISTRATION_NO:
+        // if (isExpectedString && isExtractedString) {
 
-        //             return expectedStr.equals(extractedStr);
-        //         }
-        //         break;
+        // return expectedStr.equals(extractedStr);
+        // }
+        // break;
 
-        //     case INDIVIDUAL_FIRST_NAME, INDIVIDUAL_SURNAME, ORGANISATION_NAME:
-        //         if (isExpectedString && isExtractedString) {
-        //             double score = stringMatcher.calculateFilteredSimilarity(expectedStr, extractedStr);
-        //             boolean satisfactoryScore = score >= 0.8;
-        //             return satisfactoryScore;
-        //         }
-        //         break;
+        // case INDIVIDUAL_FIRST_NAME, INDIVIDUAL_SURNAME, ORGANISATION_NAME:
+        // if (isExpectedString && isExtractedString) {
+        // double score = stringMatcher.calculateFilteredSimilarity(expectedStr,
+        // extractedStr);
+        // boolean satisfactoryScore = score >= 0.8;
+        // return satisfactoryScore;
+        // }
+        // break;
 
-        //     case DOCUMENT_DATE:
+        // case DOCUMENT_DATE:
 
-        //         LocalDate documentDate = LocalDate.parse(extractedStr);
+        // LocalDate documentDate = LocalDate.parse(extractedStr);
 
-        //         LocalDate expiryDate = documentDate.plusMonths(3);
+        // LocalDate expiryDate = documentDate.plusMonths(3);
 
-        //         return LocalDate.now().isBefore(expiryDate);
+        // return LocalDate.now().isBefore(expiryDate);
 
-        //     default:
-        //         break;
+        // default:
+        // break;
         // }
 
         // return true;

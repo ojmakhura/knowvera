@@ -114,11 +114,11 @@ public abstract class DocumentMapper {
 
                 Object exp = extractedInformation.get(field.getField());
 
-                if(exp != null) {
+                if(exp != null || expected != null) {
                     expectedFieldsCollection.add(new DataComparisons(
                             field.getField(),
-                            (String) expectedInformation.get(field.getField()),
-                            exp.toString(),
+                            expected,
+                            exp != null ? exp.toString() : null,
                             similarity >= 0.8));
                 }
 

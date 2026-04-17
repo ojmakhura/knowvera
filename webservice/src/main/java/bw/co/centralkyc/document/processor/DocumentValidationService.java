@@ -17,10 +17,14 @@ import bw.co.centralkyc.document.DocumentVerificationStatus;
 import bw.co.centralkyc.document.type.DocumentTypeDTO;
 import bw.co.centralkyc.document.type.DocumentTypeService;
 import bw.co.centralkyc.extractor.LmStudioExtractorService;
+import bw.co.centralkyc.individual.IndividualDTO;
+import bw.co.centralkyc.individual.IndividualService;
 import bw.co.centralkyc.kyc.KycRecordDTO;
 import bw.co.centralkyc.kyc.KycRecordService;
 import bw.co.centralkyc.llm.Prompt;
 import bw.co.centralkyc.llm.PromptMessage;
+import bw.co.centralkyc.organisation.OrganisationDTO;
+import bw.co.centralkyc.organisation.OrganisationService;
 import bw.co.centralkyc.properties.RabbitProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +37,8 @@ public class DocumentValidationService {
     @Value("${app.llm.model}")
     private String llmModel;
 
+    private final OrganisationService organisationService;
+    private final IndividualService individualService;
     private final DocumentService documentService;
     private final DocumentTypeService documentTypeService;
     private final LmStudioExtractorService lmStudioExtractorService;
@@ -135,6 +141,42 @@ public class DocumentValidationService {
                     rabbitProperties.getKycVerificationQueueExchange(),
                     rabbitProperties.getKycVerificationQueueRoutingKey(),
                     new QueueObject(record.getId(), record.getTarget(), record.getTargetId()));
+        }
+    }
+
+    /**
+     * Triggers the organisation verification process for the given document.
+     * This method is a placeholder for future implementation.
+     * 
+     * @param document the document for which to trigger organisation verification
+     */
+    private void triggerOrganisationVerification(DocumentDTO document) {
+
+        if (document.getVerificationStatus() == DocumentVerificationStatus.REJECTED
+                || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
+            log.info("Triggering organisation verification for organisation ID: {}", document.getTargetId());
+
+            OrganisationDTO org = organisationService.findById(document.getTargetId());
+
+            this.rabbitTemplate.convertAndSend(
+                    rabbitProperties.getOrganisationVerificationQueueExchange(),
+                    rabbitProperties.getOrganisationVerificationQueueRoutingKey(),
+                    new QueueObject(org.getId(), null, null));
+        }
+    }
+
+    private void triggerIndividualVerification(DocumentDTO document) {
+
+        if (document.getVerificationStatus() == DocumentVerificationStatus.REJECTED
+                || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
+            log.info("Triggering individual verification for individual ID: {}", document.getTargetId());
+
+            IndividualDTO individual = individualService.findById(document.getTargetId());
+
+            this.rabbitTemplate.convertAndSend(
+                    rabbitProperties.getIndividualVerificationQueueExchange(),
+                    rabbitProperties.getIndividualVerificationQueueRoutingKey(),
+                    new QueueObject(individual.getId(), null, null));
         }
     }
 

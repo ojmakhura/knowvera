@@ -84,7 +84,7 @@ public class KeycloakOrganisationService {
                 organisation.getModifiedAt() != null ? List.of(formatter.format(organisation.getModifiedAt()))
                         : List.of());
         if (CollectionUtils.isNotEmpty(organisation.getDocuments()))
-            attributes.put("documents", organisation.getDocuments().stream().map(d -> d.getId()).toList());
+            attributes.put("documents", organisation.getDocuments().stream().map(d -> d.id()).toList());
         if (CollectionUtils.isNotEmpty(organisation.getClientKycDocuments()))
             attributes.put("clientKycDocuments",
                     organisation.getClientKycDocuments().stream().map(d -> d.getId()).toList());

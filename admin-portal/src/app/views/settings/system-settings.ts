@@ -277,7 +277,9 @@ export class SystemSettings {
   }
 
   addDocumentRequirement(purpose: DocumentTypePurpose): void {
+    console.log('Adding document requirement for purpose:', purpose);
     const documentTypeId = this.selectedDocumentIdFor(purpose);
+    console.log('Selected document type ID:', documentTypeId);
 
     if (!documentTypeId) {
       return;
@@ -386,13 +388,13 @@ export class SystemSettings {
   private selectedDocumentIdFor(purpose: DocumentTypePurpose): string | null {
     switch (purpose) {
       case DocumentTypePurpose.INDIVIDUAL:
-        return this.selectedIndividualDocumentId;
+        return this.editSettingsSignal().selectedIndDocument?.id;
       case DocumentTypePurpose.ORGANISATION:
-        return this.selectedOrganisationDocumentId;
+        return this.editSettingsSignal().selectedOrgDocument?.id;
       case DocumentTypePurpose.ORGANISATION_KYC:
-        return this.selectedOrganisationKycDocumentId;
+        return this.editSettingsSignal().selectedKycOrgDocument?.id;
       case DocumentTypePurpose.INDIVIDUAL_KYC:
-        return this.selectedIndividualKycDocumentId;
+        return this.editSettingsSignal().selectedKycIndDocument?.id;
     }
   }
 

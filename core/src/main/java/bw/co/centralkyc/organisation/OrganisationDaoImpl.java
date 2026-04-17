@@ -7,6 +7,9 @@
 package bw.co.centralkyc.organisation;
 
 import bw.co.centralkyc.GeneralStatus;
+import bw.co.centralkyc.document.DocumentDTO;
+import bw.co.centralkyc.document.DocumentListDTO;
+import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.document.DocumentRepository;
 import bw.co.centralkyc.document.type.DocumentTypeRepository;
 import bw.co.centralkyc.individual.IndividualRepository;
@@ -18,7 +21,9 @@ import bw.co.centralkyc.subscription.KycSubscriptionRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
@@ -29,15 +34,17 @@ import org.springframework.stereotype.Repository;
 public class OrganisationDaoImpl
         extends OrganisationDaoBase {
 
+    private final DocumentMapper documentMapper;
+
     public OrganisationDaoImpl(DocumentRepository documentRepository, DocumentTypeRepository documentTypeRepository,
-            BranchRepository branchRepository, KycSubscriptionRepository kycSubscriptionRepository,
+            BranchRepository branchRepository, KycSubscriptionRepository kycSubscriptionRepository, DocumentMapper documentMapper,
             KycInvoiceRepository kycInvoiceRepository, ClientRequestRepository clientRequestRepository,
             IndividualRepository individualRepository, OrganisationRepository organisationRepository) {
         super(documentRepository, documentTypeRepository, branchRepository, kycSubscriptionRepository,
                 kycInvoiceRepository,
                 clientRequestRepository, individualRepository, organisationRepository);
         // TODO Auto-generated constructor stub
-
+        this.documentMapper = documentMapper;
     }
 
     /**
@@ -50,6 +57,13 @@ public class OrganisationDaoImpl
         // TODO verify behavior of toOrganisationDTO
         super.toOrganisationDTO(source, target);
 
+        if(source.getDocuments() != null) {
+            List<DocumentListDTO> docs = source.getDocuments().stream()
+                    .map(documentMapper::toDocumentListDTO)
+                    .toList();
+
+            target.setDocuments(docs);
+        }
     }
 
     /**

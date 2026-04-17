@@ -212,6 +212,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     this.kycInvoiceApiStore.reset();
     this.kycSubscriptionApiStore.reset();
     this.clientRequestApiStore.reset();
+    this.documentApiStore.reset();
 
   }
 

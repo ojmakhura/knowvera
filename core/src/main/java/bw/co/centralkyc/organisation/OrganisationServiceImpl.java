@@ -63,7 +63,7 @@ public class OrganisationServiceImpl
         Organisation org = organisationRepository.getReferenceById(UUID.fromString(id));
         org = organisationRepository.save(org);
 
-        return organisationDao.toOrganisationDTO(org);
+        return organisationMapper.toOrganisationDTO(org);
     }
 
     /**
@@ -74,7 +74,7 @@ public class OrganisationServiceImpl
             throws Exception {
 
         Collection<Organisation> orgs = organisationRepository.findAll();
-        return organisationDao.toOrganisationListDTOCollection(orgs);
+        return organisationMapper.toOrganisationListDTOCollection(orgs);
 
     }
 
@@ -111,10 +111,10 @@ public class OrganisationServiceImpl
     protected OrganisationDTO handleSave(OrganisationDTO organisation)
             throws Exception {
 
-        Organisation orgEntity = organisationDao.organisationDTOToEntity(organisation);
+        Organisation orgEntity = organisationMapper.organisationDTOToEntity(organisation);
         orgEntity = organisationRepository.save(orgEntity); 
 
-        return organisationDao.toOrganisationDTO(orgEntity);
+        return organisationMapper.toOrganisationDTO(orgEntity);
     }
 
     private Specification<Organisation> createSpecification(OrganisationSearchCriteria criteria) {
@@ -180,7 +180,7 @@ public class OrganisationServiceImpl
 
         Collection<Organisation> orgs = organisationRepository.findAll(spec);
 
-        return organisationDao.toOrganisationListDTOCollection(orgs);
+        return organisationMapper.toOrganisationListDTOCollection(orgs);
 
     }
 
@@ -203,7 +203,7 @@ public class OrganisationServiceImpl
 
         Page<Organisation> orgs = organisationRepository.findAll(spec, pageable);
 
-        return orgs.map(organisation -> organisationDao.toOrganisationListDTO(organisation));
+        return orgs.map(organisation -> organisationMapper.toOrganisationListDTO(organisation));
     }
 
     @Override

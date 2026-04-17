@@ -18,7 +18,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import bw.co.centralkyc.QueueObject;
-import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.DocumentAnalyticsStatus;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
@@ -35,10 +34,11 @@ import net.sourceforge.tess4j.TesseractException;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -158,7 +158,7 @@ public class DocumentProcessorService {
                 response.getMessage().getContent());
 
         if (StringUtils.isNotBlank(response.getMessage().getContent())) {
-            this.doHandleProcessLmCompletionResponse(response.getMessage().getContent(), document);
+            document = this.doHandleProcessLmCompletionResponse(response.getMessage().getContent(), document);
         } else {
             log.warn("OllamaExtractor response is empty for document ID: {}",
                     document.getId());
@@ -213,13 +213,16 @@ public class DocumentProcessorService {
                 System.out.println("Extracted JSON String:\n" + jsonString);
 
                 // Optional: parse into a Map
-                Map<String, Object> jsonMap = jsonMapper.readValue(jsonString, Map.class);
+                Map<?, ?> rawJsonMap = jsonMapper.readValue(jsonString, Map.class);
+                Map<String, Object> jsonMap = new HashMap<>();
+                rawJsonMap.forEach((key, value) -> jsonMap.put(String.valueOf(key), value));
 
                 if (!jsonMap.containsKey("score") && jsonMap.containsKey("signalScores")) {
-                    Map<String, Integer> signalScores = (Map<String, Integer>) jsonMap.get("signalScores");
-                    double score = signalScores.values().stream()
+                    Map<?, ?> rawSignalScores = (Map<?, ?>) jsonMap.get("signalScores");
+                    double score = rawSignalScores.values().stream()
+                            .map(Integer.class::cast)
                             .mapToInt(Integer::intValue)
-                            .sum() / (double) signalScores.size();
+                            .sum() / (double) rawSignalScores.size();
                     jsonMap.put("score", score);
                 }
 
@@ -335,16 +338,7 @@ public class DocumentProcessorService {
                         document.getId(), typeSimilarity);
 
                 document = documentService.save(document);
-
-                if (document.getTarget() == TargetEntity.KYC_RECORD) {
-
-                    KycRecord record = kycRecordRepository
-                            .getReferenceById(UUID.fromString(document.getTargetId()));
-                    this.rabbitTemplate.convertAndSend(
-                            rabbitProperties.getKycVerificationQueueExchange(),
-                            rabbitProperties.getKycVerificationQueueRoutingKey(),
-                            new QueueObject(record.getId().toString(), record.getTarget(), record.getTargetId()));
-                }
+                dispatchVerificationQueue(document);
                 // TODO: Send a notification to the user about the rejection and the reason for
                 // it
                 return document; // Skip further processing for this document
@@ -366,6 +360,39 @@ public class DocumentProcessorService {
         }
 
         return document;
+    }
+
+    private void dispatchVerificationQueue(DocumentDTO document) {
+        if (document.getTarget() == null || StringUtils.isBlank(document.getTargetId())) {
+            log.warn("Skipping verification queue dispatch for document {} because target metadata is incomplete",
+                    document.getId());
+            return;
+        }
+
+        switch (document.getTarget()) {
+            case KYC_RECORD:
+                KycRecord record = kycRecordRepository.getReferenceById(UUID.fromString(document.getTargetId()));
+                rabbitTemplate.convertAndSend(
+                        rabbitProperties.getKycVerificationQueueExchange(),
+                        rabbitProperties.getKycVerificationQueueRoutingKey(),
+                        new QueueObject(record.getId().toString(), record.getTarget(), record.getTargetId()));
+                break;
+            case ORGANISATION:
+                rabbitTemplate.convertAndSend(
+                        rabbitProperties.getOrganisationVerificationQueueExchange(),
+                        rabbitProperties.getOrganisationVerificationQueueRoutingKey(),
+                        new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
+                break;
+            case INDIVIDUAL:
+                rabbitTemplate.convertAndSend(
+                        rabbitProperties.getIndividualVerificationQueueExchange(),
+                        rabbitProperties.getIndividualVerificationQueueRoutingKey(),
+                        new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
+                break;
+            default:
+                log.debug("No verification queue configured for target {} on document {}",
+                        document.getTarget().name().toLowerCase(Locale.ROOT), document.getId());
+        }
     }
 
     /**

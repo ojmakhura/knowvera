@@ -40,6 +40,14 @@ public class RabbitProperties {
     private final String kycVerificationQueue;
     private final String kycVerificationQueueRoutingKey;
 
+    private final String organisationVerificationQueueExchange;
+    private final String organisationVerificationQueue;
+    private final String organisationVerificationQueueRoutingKey;
+
+    private final String individualVerificationQueueExchange;
+    private final String individualVerificationQueue;
+    private final String individualVerificationQueueRoutingKey;
+
     public String getHost() {
         return host;
     }
@@ -138,5 +146,29 @@ public class RabbitProperties {
 
     public String getKycVerificationQueueRoutingKey() {
         return kycVerificationQueueRoutingKey;
+    }
+
+    public String getOrganisationVerificationQueueExchange() {
+        return organisationVerificationQueueExchange;
+    }
+
+    public String getOrganisationVerificationQueue() {
+        return organisationVerificationQueue;
+    }
+
+    public String getOrganisationVerificationQueueRoutingKey() {
+        return organisationVerificationQueueRoutingKey;
+    }
+
+    public String getIndividualVerificationQueueExchange() {
+        return individualVerificationQueueExchange;
+    }
+
+    public String getIndividualVerificationQueue() {
+        return individualVerificationQueue;
+    }
+
+    public String getIndividualVerificationQueueRoutingKey() {
+        return individualVerificationQueueRoutingKey;
     }
 }
