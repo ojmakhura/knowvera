@@ -1,5 +1,6 @@
 package bw.co.centralkyc.document.processor;
 
+import bw.co.centralkyc.document.DocumentDTO;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +18,14 @@ public class KycVerificationService {
     private final KycRecordService kycRecordService;
 
     @RabbitListener(queues = "${app.rabbitmq.kycVerificationQueue}")
-    public void handleKycVerification(QueueObject queueObject) {
-        log.info("Processing KYC verification for KYC record ID: {}", queueObject.targetId());
+    public void handleKycVerification(DocumentDTO document) {
+        log.info("Processing KYC verification for KYC record ID: {}", document.getTargetId());
 
         try {
-            KycRecordDTO record = kycRecordService.runVerification(queueObject.objectId(), "AI-AGENT");
+            KycRecordDTO record = kycRecordService.runVerification(document.getTargetId(), "AI-AGENT");
 
             if (record == null) {
-                log.warn("KYC record not found for ID: {}", queueObject.targetId());
+                log.warn("KYC record not found for ID: {}", document.getTargetId());
                 return;
             }
 
@@ -32,7 +33,7 @@ public class KycVerificationService {
                     record.getId(), record.getKycStatus());
 
         } catch (Exception e) {
-            log.error("Failed to run KYC verification for record ID: {}", queueObject.targetId(), e);
+            log.error("Failed to run KYC verification for record ID: {}", document.getTargetId(), e);
         }
     }
 }

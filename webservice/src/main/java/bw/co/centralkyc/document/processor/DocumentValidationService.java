@@ -83,14 +83,8 @@ public class DocumentValidationService {
                             document);
 
                     result.thenAccept(continueProcessing -> {
-                        if (continueProcessing) {
-
-                            // if(document.getTarget() == TargetEntity.KYC_RECORD) {
-                            //     triggerKycRecordVerification(document);
-                            // }
-
-                            triggerInformationConfirmation(document);
-                        }
+                        // Information confirmation is already dispatched in
+                        // DocumentProcessorService.processDocumentConfirmation.
                     }).exceptionally(ex -> {
                         System.err.println("❌ ERROR during document processing:");
                         ex.printStackTrace();
@@ -103,22 +97,6 @@ public class DocumentValidationService {
                     ex.printStackTrace();
                     return null;
                 });
-    }
-
-    /**
-     * Regardless of the verification status, we want to trigger the information
-     * confirmation process to ensure that any necessary workflows or notifications
-     * that depend on the information confirmation step are executed. This allows
-     * the system to maintain a consistent flow of processing and ensures that all
-     * necessary steps are completed in a timely manner.
-     */
-    private void triggerInformationConfirmation(DocumentDTO document) {
-        log.info("Triggering information confirmation for document ID: {}", document.getId());
-
-        this.rabbitTemplate.convertAndSend(
-                rabbitProperties.getInformationConfirmationQueueExchange(),
-                rabbitProperties.getInformationConfirmationQueueRoutingKey(),
-                new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
     }
 
     /**
@@ -135,12 +113,10 @@ public class DocumentValidationService {
                 || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
             log.info("Triggering KYC verification for KYC record ID: {}", document.getTargetId());
 
-            KycRecordDTO record = kycRecordService.findById(document.getTargetId());
-
             this.rabbitTemplate.convertAndSend(
                     rabbitProperties.getKycVerificationQueueExchange(),
                     rabbitProperties.getKycVerificationQueueRoutingKey(),
-                    new QueueObject(record.getId(), record.getTarget(), record.getTargetId()));
+                    new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
         }
     }
 
@@ -156,12 +132,10 @@ public class DocumentValidationService {
                 || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
             log.info("Triggering organisation verification for organisation ID: {}", document.getTargetId());
 
-            OrganisationDTO org = organisationService.findById(document.getTargetId());
-
             this.rabbitTemplate.convertAndSend(
                     rabbitProperties.getOrganisationVerificationQueueExchange(),
                     rabbitProperties.getOrganisationVerificationQueueRoutingKey(),
-                    new QueueObject(org.getId(), null, null));
+                    document);
         }
     }
 
@@ -171,12 +145,10 @@ public class DocumentValidationService {
                 || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
             log.info("Triggering individual verification for individual ID: {}", document.getTargetId());
 
-            IndividualDTO individual = individualService.findById(document.getTargetId());
-
             this.rabbitTemplate.convertAndSend(
                     rabbitProperties.getIndividualVerificationQueueExchange(),
                     rabbitProperties.getIndividualVerificationQueueRoutingKey(),
-                    new QueueObject(individual.getId(), null, null));
+                    document);
         }
     }
 

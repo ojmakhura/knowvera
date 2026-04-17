@@ -806,53 +806,55 @@ public class DocumentServiceImpl
         document.setModifiedBy(user);
         document = documentRepository.save(document);
 
-        if (document.getVerificationStatus() == DocumentVerificationStatus.REJECTED
-                || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
-            log.info("Document ID {} requires manual review or has been rejected (verification status: {})",
-                    document.getId(), document.getVerificationStatus());
-
-            dispatchVerificationQueue(document);
-        }
-
         DocumentDTO dto = documentMapper.toDocumentDTO(document);
+
+//        if (document.getVerificationStatus() == DocumentVerificationStatus.REJECTED
+//                || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
+//            log.info("Document ID {} requires manual review or has been rejected (verification status: {})",
+//                    document.getId(), document.getVerificationStatus());
+//
+//            dispatchVerificationQueue(dto);
+//        }
+
+
         setTargetLabel(dto);
         return dto;
 
     }
 
-    private void dispatchVerificationQueue(Document document) {
-        if (document.getTarget() == null || StringUtils.isBlank(document.getTargetId())) {
-            log.warn("Skipping verification queue dispatch for document {} because target metadata is incomplete",
-                    document.getId());
-            return;
-        }
-
-        switch (document.getTarget()) {
-            case KYC_RECORD:
-                KycRecord record = kycRecordRepository.findById(UUID.fromString(document.getTargetId()))
-                        .orElseThrow(() -> new DocumentServiceException("KYC record not found for id: "
-                                + document.getTargetId()));
-                rabbitTemplate.convertAndSend(
-                        rabbitProperties.getKycVerificationQueueExchange(),
-                        rabbitProperties.getKycVerificationQueueRoutingKey(),
-                        new QueueObject(record.getId().toString(), record.getTarget(), record.getTargetId()));
-                break;
-            case ORGANISATION:
-                rabbitTemplate.convertAndSend(
-                        rabbitProperties.getOrganisationVerificationQueueExchange(),
-                        rabbitProperties.getOrganisationVerificationQueueRoutingKey(),
-                        new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
-                break;
-            case INDIVIDUAL:
-                rabbitTemplate.convertAndSend(
-                        rabbitProperties.getIndividualVerificationQueueExchange(),
-                        rabbitProperties.getIndividualVerificationQueueRoutingKey(),
-                        new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
-                break;
-            default:
-                log.debug("No verification queue configured for document target {}", document.getTarget());
-        }
-    }
+//    private void dispatchVerificationQueue(DocumentDTO document) {
+//        if (document.getTarget() == null || StringUtils.isBlank(document.getTargetId())) {
+//            log.warn("Skipping verification queue dispatch for document {} because target metadata is incomplete",
+//                    document.getId());
+//            return;
+//        }
+//
+//        switch (document.getTarget()) {
+//            case KYC_RECORD:
+//                KycRecord record = kycRecordRepository.findById(UUID.fromString(document.getTargetId()))
+//                        .orElseThrow(() -> new DocumentServiceException("KYC record not found for id: "
+//                                + document.getTargetId()));
+//                rabbitTemplate.convertAndSend(
+//                        rabbitProperties.getKycVerificationQueueExchange(),
+//                        rabbitProperties.getKycVerificationQueueRoutingKey(),
+//                        new QueueObject(record.getId().toString(), record.getTarget(), record.getTargetId()));
+//                break;
+//            case ORGANISATION:
+//                rabbitTemplate.convertAndSend(
+//                        rabbitProperties.getOrganisationVerificationQueueExchange(),
+//                        rabbitProperties.getOrganisationVerificationQueueRoutingKey(),
+//                        new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
+//                break;
+//            case INDIVIDUAL:
+//                rabbitTemplate.convertAndSend(
+//                        rabbitProperties.getIndividualVerificationQueueExchange(),
+//                        rabbitProperties.getIndividualVerificationQueueRoutingKey(),
+//                        new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
+//                break;
+//            default:
+//                log.debug("No verification queue configured for document target {}", document.getTarget());
+//        }
+//    }
 
     private boolean continueProcessing(ExpectedField expectedField, String expected, Object extracted) {
 
