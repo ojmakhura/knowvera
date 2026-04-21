@@ -1,0 +1,216 @@
+<!-- Modern Edit KYC Records Component -->
+<div class="edit-container">
+  <div class="breadcrumb-section">
+    <mat-icon class="breadcrumb-icon">home</mat-icon>
+    <span class="breadcrumb-text">{{ 'home' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text">{{ 'kyc' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ 'edit.record' | translate }}</span>
+  </div>
+
+  <div class="page-header">
+    <div class="header-content">
+      <h2 class="page-title">
+        <mat-icon>edit</mat-icon>
+        {{ 'edit.kyc.record' | translate }}
+      </h2>
+    </div>
+    <div class="action-buttons">
+      <button mat-stroked-button type="button" color="primary" [routerLink]="['/kyc']"
+        routerLinkActive="router-link-active" ]>
+        <mat-icon>search</mat-icon>
+        <span>{{ 'search' | translate }}</span>
+      </button>
+    </div>
+  </div>
+  @if (loading()) {
+  <div class="loading-container">
+    <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+  </div>
+  }
+
+  <div class="form-container">
+    <form class="edit-form">
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            {{ 'basic.information' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="field-row" style="width: 100%;">
+            <div class="display-grid field-full"  style="width: 100%;">
+              <div class="display-item">
+                <div class="display-label">
+                  <span>{{ 'kyc.status' | translate }}</span>
+                </div>
+                <div class="display-value">
+                  {{ kycRecordSignal()!.kycStatus || 'N/A' }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="identityType_label" for="identityType">
+                <span translate>identity.type</span>
+              </mat-label>
+
+              <mat-select id="identityType" [formField]="kycRecordSignalForm.ownerType">
+                @for (option of TargetEntityOptions; track option) {
+                <mat-option [value]="option">
+                  {{ ('target.entity.' + option) | translate }}
+                </mat-option>
+                }
+              </mat-select>
+              @for (error of kycRecordSignalForm.ownerType().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="field-half">
+              <mat-label id="identityNo_label" for="identityNo">
+                <span translate>identity.no</span>
+              </mat-label>
+              <mat-select [formField]="kycRecordSignalForm.owner" [compareWith]="ownerCompare">
+                <mat-option>
+                  <ngx-mat-select-search [formField]="kycRecordSignalForm.ownerFilter" (keyup.enter)="filterOwner()"
+                    [placeholderLabel]="'search.individual' | translate"
+                    [noEntriesFoundLabel]="'no.matching.individual.found' | translate">
+                  </ngx-mat-select-search>
+                </mat-option>
+                @for (individual of ownerList(); track individual.id) {
+                <mat-option [value]="individual">
+                  {{ individual.name }}
+                </mat-option>
+                }
+              </mat-select>
+              @for (error of kycRecordSignalForm.owner().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="pepStatus_label" for="pepStatus">
+                <span translate>pep.status</span>
+              </mat-label>
+              <mat-select id="pepStatus" [formField]="kycRecordSignalForm.declaration.pepStatus">
+                @for (option of PepStatusOptions; track option) {
+                <mat-option [value]="option">
+                  {{ option | translate }}
+                </mat-option>
+                }
+              </mat-select>
+              @for (error of kycRecordSignalForm.declaration.pepStatus().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="field-half">
+              <mat-label id="sanctionsMatch_label" for="sanctionsMatch">
+                <span translate>sanctions.match</span>
+              </mat-label>
+
+              <mat-select id="sanctionsMatch" [formField]="kycRecordSignalForm.declaration.sanctionsMatch">
+                <mat-option [value]="false">
+                  {{ 'no' | translate }}
+                </mat-option>
+                <mat-option [value]="true">
+                  {{ 'yes' | translate }}
+                </mat-option>
+              </mat-select>
+              @for (error of kycRecordSignalForm.declaration.sanctionsMatch().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="pepDetails_label" for="pepDetails">
+                <span translate>pep.details</span>
+              </mat-label>
+              <textarea matInput id="pepDetails" [formField]="kycRecordSignalForm.declaration.pepDetails"></textarea>
+            </mat-form-field>
+
+            <mat-form-field class="field-half">
+              <mat-label id="sanctionsDetails_label" for="sanctionsDetails">
+                <span translate>sanctions.details</span>
+              </mat-label>
+              <textarea matInput id="sanctionsDetails"
+                [formField]="kycRecordSignalForm.declaration.sanctionsDetails"></textarea>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            {{ 'sources.of.funds' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="field-full">
+            <!-- <h3 class="col-form-label col-sm-2 pt-0" translate>Source of Funds</h3> -->
+            <div class="field-row">
+              <button type="button" mat-mini-fab matTooltip="{{'add' | translate}}" color="primary"
+                (click)="sourceOfFundsAdd()">
+                <mat-icon fontIcon="add" aria-hidden="false" aria-label="add"></mat-icon>
+              </button>
+            </div>
+            <div class="mb-3">
+              @for(item of kycRecordSignalForm.sourceOfFunds; track i; let i = $index){
+              <div class="field-row">
+                <mat-form-field class="col-md-4">
+                  <mat-label>{{ 'type' | translate }}</mat-label>
+                  <mat-select id="type" [formField]="item">
+                    <mat-option value="">{{ 'select.type' | translate }}</mat-option>
+                    @for (key of SourceOfFundsOptions; track key) {
+                    <mat-option [value]="key">
+                      {{ SourceOfFundsT[key] }}
+                    </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <button type="button" mat-mini-fab matTooltip="{{'remove' | translate}}" color="warn"
+                  (click)="sourceOfFundsRemove(i, item().value())">
+                  <mat-icon fontIcon="delete" aria-hidden="false" aria-label="remove"></mat-icon>
+                </button>
+              </div>
+              }
+              @for (error of kycRecordSignalForm.sourceOfFunds().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </div>
+          </div>
+          <mat-form-field class="col-md-12">
+            <mat-label id="sourceOfFundsDetails_label" for="sourceOfFundsDetails">
+              <span translate>source.of.funds.details</span>
+            </mat-label>
+            <textarea matInput id="sourceOfFundsDetails"
+              [formField]="kycRecordSignalForm.sourceOfFundsDetails"></textarea>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+      <!-- Form Actions (Bottom) -->
+      <div class="form-actions">
+        <button mat-raised-button type="button" color="primary" class="action-primary"
+          [disabled]="kycRecordSignalForm().invalid()">
+          <mat-icon>save</mat-icon>
+          <span>{{ 'save' | translate }}</span>
+        </button>
+        <button mat-stroked-button type="button" color="warn" class="action-secondary">
+          <mat-icon>delete</mat-icon>
+          <span>{{ 'delete' | translate }}</span>
+        </button>
+        <button mat-stroked-button type="button" (click)="kycRecordFormReset()" class="action-secondary">
+          <mat-icon>restore</mat-icon>
+          <span>{{ 'reset' | translate }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

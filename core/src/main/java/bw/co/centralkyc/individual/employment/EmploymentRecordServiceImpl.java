@@ -9,6 +9,8 @@
 package bw.co.centralkyc.individual.employment;
 
 import java.util.Collection;
+import java.util.UUID;
+
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,17 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class EmploymentRecordServiceImpl
     extends EmploymentRecordServiceBase
 {
-    public EmploymentRecordServiceImpl(
-        EmploymentRecordDao employmentRecordDao,
-        EmploymentRecordRepository employmentRecordRepository,
-        MessageSource messageSource
-    ) {
-        
-        super(
-            employmentRecordDao,
-            employmentRecordRepository,
-            messageSource
-        );
+    
+
+    public EmploymentRecordServiceImpl(EmploymentRecordDao employmentRecordDao,
+            EmploymentRecordRepository employmentRecordRepository, EmploymentRecordMapper employmentRecordMapper,
+            MessageSource messageSource) {
+        super(employmentRecordDao, employmentRecordRepository, employmentRecordMapper, messageSource);
+        //TODO Auto-generated constructor stub
     }
 
     /**
@@ -46,7 +44,7 @@ public class EmploymentRecordServiceImpl
         throws Exception
     {
 
-        EmploymentRecord employmentRecord = this.employmentRecordRepository.findById(id)
+        EmploymentRecord employmentRecord = this.employmentRecordRepository.findById(UUID.fromString(id))
             .orElseThrow(() -> new Exception("EmploymentRecord not found for id: " + id));
         
         return this.employmentRecordDao.toEmploymentRecordDTO(employmentRecord);
@@ -73,11 +71,11 @@ public class EmploymentRecordServiceImpl
         throws Exception
     {
 
-        if(!this.employmentRecordRepository.existsById(id)) {
+        if(!this.employmentRecordRepository.existsById(UUID.fromString(id))) {
             throw new EmploymentRecordServiceException("EmploymentRecord not found for id: " + id);
         }
 
-        this.employmentRecordRepository.deleteById(id);
+        this.employmentRecordRepository.deleteById(UUID.fromString(id));
         return true;
     }
 
@@ -138,7 +136,7 @@ public class EmploymentRecordServiceImpl
     {
 
         Specification<EmploymentRecord> specification = (root, query, criteriaBuilder) -> 
-            criteriaBuilder.equal(root.get("individual").get("id"), individualId);
+            criteriaBuilder.equal(root.get("individual").get("id"), UUID.fromString(individualId));
 
         Collection<EmploymentRecord> employmentRecords = this.employmentRecordRepository.findAll(specification);
         return this.employmentRecordDao.toEmploymentRecordDTOCollection(employmentRecords);

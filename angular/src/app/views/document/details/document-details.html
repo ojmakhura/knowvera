@@ -1,0 +1,75 @@
+<div class="edit-container">
+  <div class="breadcrumb-section">
+    <mat-icon class="breadcrumb-icon">home</mat-icon>
+    <span class="breadcrumb-text">{{ 'home' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text">{{ 'documents.title' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ 'document.details.title' | translate }}</span>
+  </div>
+
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>description</mat-icon>
+        {{ 'document.details.title' | translate }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ document()?.fileName || '-' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content class="action-row">
+      <button mat-stroked-button type="button" (click)="goBackToSearch()">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'cancel' | translate }}
+      </button>
+      <button mat-stroked-button type="button" color="primary" (click)="downloadDocument()">
+        <mat-icon>download</mat-icon>
+        {{ 'download' | translate }}
+      </button>
+      <button mat-raised-button type="button" color="primary" (click)="goToEdit()">
+        <mat-icon>edit</mat-icon>
+        {{ 'edit' | translate }}
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  @if (loading()) {
+  <div class="loading-container">
+    <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+  </div>
+  }
+
+  @if (!loading()) {
+  <mat-card class="details-card">
+    <mat-card-content>
+      <div class="details-grid">
+        <div class="item">
+          <span class="label">{{ 'target' | translate }}</span>
+          <span class="value">{{ document()?.target || '-' }}</span>
+        </div>
+        <div class="item">
+          <span class="label">{{ 'target.id' | translate }}</span>
+          <span class="value">{{ document()?.targetId || '-' }}</span>
+        </div>
+        <div class="item">
+          <span class="label">{{ 'document.type' | translate }}</span>
+          <span class="value">{{ document()?.documentType || '-' }}</span>
+        </div>
+        <div class="item">
+          <span class="label">{{ 'file.name' | translate }}</span>
+          <span class="value">{{ document()?.fileName || '-' }}</span>
+        </div>
+        <div class="item">
+          <span class="label">URL</span>
+          <span class="value value-url">{{ document()?.url || '-' }}</span>
+        </div>
+        <div class="item">
+          <span class="label">{{ 'verification.status' | translate }}</span>
+          <span class="value">{{ ('document.verification.status.' + (document()?.verificationStatus || 'UNVERIFIED')) | translate }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  }
+</div>

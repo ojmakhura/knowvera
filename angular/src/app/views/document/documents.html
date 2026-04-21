@@ -1,0 +1,175 @@
+<div class="edit-container">
+	<div class="breadcrumb-section">
+		<mat-icon class="breadcrumb-icon">home</mat-icon>
+		<span class="breadcrumb-text">{{ 'home' | translate }}</span>
+		<mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+		<span class="breadcrumb-text">{{ 'documents.title' | translate }}</span>
+		<mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+		<span class="breadcrumb-text active">{{ 'search' | translate }}</span>
+	</div>
+
+	<div class="hero-header">
+		<div class="hero-content">
+			<div class="header-info">
+				<div class="header-icon">
+					<mat-icon class="main-icon">description</mat-icon>
+				</div>
+				<div class="header-text">
+					<h1 class="page-title">{{ 'documents.title' | translate }}</h1>
+					<p class="page-subtitle">{{ 'search.filters' | translate }}</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@if (loading()) {
+	<div class="loading-container">
+		<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+	</div>
+	}
+
+	<div class="form-container">
+		<div class="edit-form">
+			<mat-card class="form-section">
+				<mat-card-header>
+					<mat-card-title>
+						<mat-icon>filter_list</mat-icon>
+						{{ 'search.filters' | translate }}
+					</mat-card-title>
+				</mat-card-header>
+				<mat-card-content class="modern-content">
+					<form class="search-form">
+						<div class="field-row">
+							<mat-form-field appearance="outline" class="field-half">
+								<mat-label>{{ 'target' | translate }}</mat-label>
+								<mat-select
+									[formField]="documentsSearchSignalForm.target"
+									(selectionChange)="targetSelectionChanged($event.value)"
+								>
+									@for (key of TargetEntityOptions; track key) {
+									<mat-option [value]="key">{{ ('target.entity.' + key) | translate }}</mat-option>
+									}
+								</mat-select>
+								<mat-icon matSuffix>groups</mat-icon>
+							</mat-form-field>
+
+							@if (hasTargetObjectOptions()) {
+							<mat-form-field appearance="outline" class="field-half">
+								<mat-label>{{ targetObjectLabelKey() | translate }}</mat-label>
+								<mat-select
+									[formField]="documentsSearchSignalForm.targetObject"
+									[compareWith]="targetObjectCompare"
+								>
+									<mat-option>
+										<ngx-mat-select-search
+											[placeholderLabel]="targetObjectSearchPlaceholderKey() | translate"
+											[formField]="documentsSearchSignalForm.targetObjectFilter"
+											(keyup.enter)="searchTargetObjects()"
+											[noEntriesFoundLabel]="'no.entries.found' | translate"
+										>
+										</ngx-mat-select-search>
+									</mat-option>
+									@for (item of activeTargetObjectOptions(); track item.id) {
+									<mat-option [value]="item">
+										{{ formatTargetObject(item) }}
+									</mat-option>
+									}
+								</mat-select>
+								<mat-icon matSuffix>{{ targetObjectIcon() }}</mat-icon>
+							</mat-form-field>
+							} @else {
+							<mat-form-field appearance="outline" class="field-half">
+								<mat-label>{{ 'target.id' | translate }}</mat-label>
+								<input matInput disabled placeholder="No target options available">
+								<mat-icon matSuffix>badge</mat-icon>
+							</mat-form-field>
+							}
+						</div>
+
+						<div class="field-row">
+							<mat-form-field appearance="outline" class="field-half">
+								<mat-label>{{ 'document.type' | translate }}</mat-label>
+								<mat-select
+									[formField]="documentsSearchSignalForm.documentType"
+									[compareWith]="documentTypeCompare"
+								>
+									<mat-option>
+										<ngx-mat-select-search
+											[placeholderLabel]="'search' | translate"
+											[formField]="documentsSearchSignalForm.documentTypeFilter"
+											[noEntriesFoundLabel]="'no.entries.found' | translate"
+										>
+										</ngx-mat-select-search>
+									</mat-option>
+									@for (item of filteredDocumentTypeOptions(); track item.id) {
+									<mat-option [value]="item">{{ item.name }}</mat-option>
+									}
+								</mat-select>
+								<mat-icon matSuffix>description</mat-icon>
+							</mat-form-field>
+
+							<div class="field-half"></div>
+						</div>
+
+						<div class="field-row">
+							<mat-form-field appearance="outline" class="field-half">
+								<mat-label>{{ 'file.name' | translate }}</mat-label>
+								<input
+									matInput
+									type="text"
+									[formField]="documentsSearchSignalForm.fileName"
+									placeholder="{{ 'file.name' | translate }}"
+								>
+								<mat-icon matSuffix>insert_drive_file</mat-icon>
+							</mat-form-field>
+
+							<mat-form-field appearance="outline" class="field-half">
+								<mat-label>{{ 'verification.status' | translate }}</mat-label>
+								<mat-select [formField]="documentsSearchSignalForm.verificationStatus">
+									@for (key of DocumentVerificationStatusOptions; track key) {
+									<mat-option [value]="key">{{ DocumentVerificationStatusT[key] }}</mat-option>
+									}
+								</mat-select>
+								<mat-icon matSuffix>verified</mat-icon>
+							</mat-form-field>
+						</div>
+					</form>
+				</mat-card-content>
+				<mat-card-footer>
+					<div class="form-actions">
+						<button mat-raised-button type="button" color="primary" (click)="documentsSearch()" class="action-button search-button">
+							<mat-icon>search</mat-icon>
+							{{ 'search' | translate }}
+						</button>
+						<button mat-stroked-button type="button" (click)="documentsFormReset()" class="action-secondary">
+							<mat-icon>restore</mat-icon>
+							<span>{{ 'reset' | translate }}</span>
+						</button>
+					</div>
+				</mat-card-footer>
+			</mat-card>
+
+			<mat-card class="form-section modern-card">
+				<mat-card-header>
+					<mat-card-title>
+						<mat-icon>assignment</mat-icon>
+						{{ 'search.results' | translate }}
+					</mat-card-title>
+				</mat-card-header>
+				<mat-card-content class="modern-content results-content">
+					<div class="table-container">
+						<app-table
+							[dataColumns]="documentsTableColumns"
+							[showActions]="showDocumentsActions"
+							[actions]="documentsTableColumnsActions"
+							(actionClicked)="documentsTableActionClicked($event)"
+							[paged]="true"
+							[dataSignal]="documentsTableSignal"
+						>
+						</app-table>
+					</div>
+				</mat-card-content>
+			</mat-card>
+		</div>
+	</div>
+</div>

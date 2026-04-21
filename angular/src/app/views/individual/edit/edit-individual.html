@@ -1,0 +1,353 @@
+<!-- Redesigned edit component using global styles -->
+<div class="edit-container">
+  <div class="breadcrumb-section">
+    <mat-icon class="breadcrumb-icon">home</mat-icon>
+    <span class="breadcrumb-text">{{ 'home.title' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text">{{ 'individual' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ (editIndividualSignal().id ? 'edit' : 'create') | translate }}</span>
+    @if(editIndividualSignal().id) {
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ editIndividualSignal().firstName }} {{ editIndividualSignal().surname
+      }}</span>
+    }
+  </div>
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h2 class="page-title">
+        <mat-icon>person</mat-icon>
+        {{ 'edit.individual.title' | translate }}
+      </h2>
+    </div>
+    <div class="action-buttons">
+      <!-- <button mat-raised-button color="primary" class="save-btn" (click)="editIndividualSave()">
+        <mat-icon>save</mat-icon>
+        <span>{{ 'save' | translate }}</span>
+      </button> -->
+      <button mat-stroked-button type="button" color="primary" [routerLink]="['/individual']" routerLinkActive="router-link-active" ]>
+        <mat-icon>search</mat-icon>
+        <span>{{ 'search' | translate }}</span>
+      </button>
+      <!-- <button mat-stroked-button color="warn" (click)="editIndividualDelete()" *ngIf="deleteUnrestricted()">
+        <mat-icon>delete</mat-icon>
+        <span>{{ 'delete' | translate }}</span>
+      </button> -->
+      <!-- <button mat-stroked-button color="primary" (click)="editIndividualFormReset()">
+        <mat-icon>restore</mat-icon>
+        <span>{{ 'reset' | translate }}</span>
+      </button> -->
+    </div>
+  </div>
+
+  @if (loading()) {
+  <div class="loading-overlay">
+    <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+  </div>
+  }
+
+  <!-- Form Content -->
+  <div class="form-container">
+    <form class="edit-form">
+      <!-- Basic Information -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            {{ 'basic.information' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="field-row">
+            <mat-label id="kycStatus_label" for="kycStatus">
+              <span translate>lyc.status</span>
+            </mat-label>
+            <mat-radio-group id="kycStatus" [formField]="editIndividualSignalForm.kycStatus">
+              @for(status of KycComplianceStatusOptions; track status) {
+              <mat-radio-button [value]="status">{{ status }}</mat-radio-button>
+              }
+
+            </mat-radio-group>
+            @for (error of editIndividualSignalForm.kycStatus().errors(); track error) {
+            <mat-error translate>{{error.message}}</mat-error>
+            }
+          </div>
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="identityType_label" for="identityType">
+                <span translate>identity.type</span>
+              </mat-label>
+              <mat-select id="identityType" [formField]="editIndividualSignalForm.identityType">
+                <mat-option></mat-option>
+                @for (key of IndividualIdentityTypeOptions; track key) {
+                <mat-option [value]="key">{{ IndividualIdentityTypeT[key] }}</mat-option>
+                }
+              </mat-select>
+              @for (error of editIndividualSignalForm.identityType().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="field-half">
+              <mat-label id="identityNo_label" for="identityNo">
+                <span translate>identity.no</span>
+              </mat-label>
+              <input matInput type="text" id="identityNo" [formField]="editIndividualSignalForm.identityNo" />
+              @for (error of editIndividualSignalForm.identityNo().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="sex_label" class="col-sm-2 col-form-label" for="sex"><span translate>sex</span></mat-label>
+              <mat-select id="sex" [formField]="editIndividualSignalForm.sex">
+                <mat-option>
+                </mat-option>
+                @for(key of SexOptions; track key) {
+                <mat-option [value]="key">
+                  {{ SexT[key] }}
+                </mat-option>
+                }
+              </mat-select>
+              @for (error of editIndividualSignalForm.sex().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="firstName_label" for="firstName">
+                <span translate>first.name</span>
+              </mat-label>
+              <input matInput type="text" id="firstName" [formField]="editIndividualSignalForm.firstName" />
+              @for (error of editIndividualSignalForm.identityNo().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="field-half">
+              <mat-label id="middleName_label" for="middleName">
+                <span translate>middle.name</span>
+              </mat-label>
+              <input matInput type="text" id="middleName" [formField]="editIndividualSignalForm.middleName" />
+            </mat-form-field>
+          </div>
+
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="surname_label" for="surname">
+                <span translate>surname</span>
+              </mat-label>
+              <input matInput type="text" id="surname" [formField]="editIndividualSignalForm.surname" />
+              @for (error of editIndividualSignalForm.surname().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="nationality_label" for="nationality">
+                <span translate>nationality</span>
+              </mat-label>
+              <mat-select id="nationality" [formField]="editIndividualSignalForm.nationality">
+                <mat-option></mat-option>
+                @for (country of countries; track country) {
+                <mat-option [value]="country">{{ country }}</mat-option>
+                }
+              </mat-select>
+              @for (error of editIndividualSignalForm.nationality().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field class="field-half">
+              <mat-label id="maritalStatus_label" for="maritalStatus">
+                <span translate>marital.status</span>
+              </mat-label>
+              <mat-select id="maritalStatus" [formField]="editIndividualSignalForm.maritalStatus">
+                <mat-option></mat-option>
+                @for (key of MaritalStatusOptions; track key) {
+                <mat-option [value]="key">{{ MaritalStatusT[key] }}</mat-option>
+                }
+              </mat-select>
+              @for (error of editIndividualSignalForm.maritalStatus().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="employmentStatus_label" for="employmentStatus">
+                <span translate>employment.status</span>
+              </mat-label>
+              <mat-select id="employmentStatus" [formField]="editIndividualSignalForm.employmentStatus">
+                <mat-option></mat-option>
+                @for (key of EmploymentStatusOptions; track key) {
+                <mat-option [value]="key">{{ EmploymentStatusT[key] }}</mat-option>
+                }
+              </mat-select>
+              @for (error of editIndividualSignalForm.employmentStatus().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Contact Information -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>contact_phone</mat-icon>
+            {{ 'contact.information' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="emailAddress_label" for="emailAddress">
+                <span translate>email.address</span>
+              </mat-label>
+              <input matInput type="text" id="emailAddress" [formField]="editIndividualSignalForm.emailAddress" />
+            </mat-form-field>
+            @for (error of editIndividualSignalForm.emailAddress().errors(); track error) {
+            <mat-error translate>{{error.message}}</mat-error>
+            }
+          </div>
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="postalAddress_label" for="postalAddress">
+                <span translate>postal.address</span>
+              </mat-label>
+              <textarea matInput id="postalAddress" [formField]="editIndividualSignalForm.postalAddress"></textarea>
+            </mat-form-field>
+
+            <mat-form-field class="field-half">
+              <mat-label id="physicalAddress_label" for="physicalAddress">
+                <span translate>physical.address</span>
+              </mat-label>
+              <textarea matInput id="physicalAddress" [formField]="editIndividualSignalForm.physicalAddress"></textarea>
+            </mat-form-field>
+          </div>
+          <div class="row">
+            <div class="field-full">
+              <h3 class="col-form-label col-sm-2 pt-0" translate>phone.numbers</h3>
+              <div class="field-row">
+                <button type="button" mat-mini-fab matTooltip="{{'add' | translate}}" color="primary"
+                  (click)="phoneNumbersAdd()">
+                  <mat-icon fontIcon="add" aria-hidden="false" aria-label="add"></mat-icon>
+                </button>
+              </div>
+              <div class="mb-3">
+                @for(item of editIndividualSignalForm.phoneNumbers; track i; let i = $index){
+                <div class="field-row">
+                  <mat-form-field appearance="outline" class="col-md-4">
+                    <mat-label>{{ 'type' | translate }}</mat-label>
+                    <mat-select id="type" [formField]="item.type">
+                      <mat-option value="">{{ 'select.type' | translate }}</mat-option>
+                      @for (key of PhoneTypeOptions; track key) {
+                      <mat-option [value]="key">
+                        {{ PhoneTypeT[key] }}
+                      </mat-option>
+                      }
+                    </mat-select>
+                    <mat-icon matSuffix>expand_more</mat-icon>
+                  </mat-form-field>
+                  <mat-form-field class="col-md-4">
+                    <mat-label for="phoneNumber" class="col-sm-2 col-form-label" translate>phone.number</mat-label>
+                    <input matInput type="text" id="phoneNumber" [formField]="item.phoneNumber" />
+                  </mat-form-field>
+                  <button type="button" mat-mini-fab matTooltip="{{'remove' | translate}}" color="warn"
+                    (click)="phoneNumbersRemove(i, item().value())">
+                    <mat-icon fontIcon="delete" aria-hidden="false" aria-label="remove"></mat-icon>
+                  </button>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- User & Organisation -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>group</mat-icon>
+            {{ 'user.and.organisation' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="field-row">
+            <mat-checkbox id="hasUser" [formField]="editIndividualSignalForm.hasUser">
+              <span translate>has.user</span>
+            </mat-checkbox>
+          </div>
+
+          <div class="field-row">
+            @if (editIndividualSignal().hasUser) {
+            <mat-form-field class="field-half">
+              <mat-label id="organisation_label" for="organisation">
+                <span translate>organisation</span>
+              </mat-label>
+              <mat-select id="organisation" [compareWith]="organisationCompare"
+                [formField]="editIndividualSignalForm.organisation">
+                <mat-option>
+                  <ngx-mat-select-search [placeholderLabel]="'Search'"
+                    [formField]="editIndividualSignalForm.organisationFilter" (keyup.enter)="filterOrganisation()"
+                    [noEntriesFoundLabel]="'No Entries Found'"></ngx-mat-select-search>
+                </mat-option>
+                @for (item of organisationList(); track item.id) {
+                <mat-option [value]="item">{{ item.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            }
+
+            @if (editIndividualSignal().organisation?.id) {
+            <mat-form-field class="field-half">
+              <mat-label id="branch_label" for="branch">
+                <span translate>branch</span>
+              </mat-label>
+              <mat-select id="branch" [compareWith]="branchCompare" [formField]="editIndividualSignalForm.branch">
+                <mat-option>
+                  <ngx-mat-select-search [placeholderLabel]="'Search'" [formField]="editIndividualSignalForm.branchFilter"
+                    (keyup.enter)="filterBranch()" [noEntriesFoundLabel]="'No Entries Found'"></ngx-mat-select-search>
+                </mat-option>
+                @for (item of branchList(); track item.id) {
+                <mat-option [value]="item">{{ item[branchDisplays[0]] }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Form Actions (Bottom) -->
+      <div class="form-actions">
+        <button mat-raised-button type="button" color="primary" class="action-primary" (click)="editIndividualSave()">
+          <mat-icon>save</mat-icon>
+          <span>{{ 'save' | translate }}</span>
+        </button>
+        <!-- <button mat-stroked-button type="button" color="primary" class="action-secondary" (click)="editIndividualSearch()">
+          <mat-icon>search</mat-icon>
+          <span>{{ 'search' | translate }}</span>
+        </button> -->
+        <button mat-stroked-button type="button" color="warn" class="action-secondary" (click)="editIndividualDelete()"
+          *ngIf="deleteUnrestricted()">
+          <mat-icon>delete</mat-icon>
+          <span>{{ 'delete' | translate }}</span>
+        </button>
+        <button mat-stroked-button type="button" (click)="editIndividualFormReset()" class="action-secondary">
+          <mat-icon>restore</mat-icon>
+          <span>{{ 'reset' | translate }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

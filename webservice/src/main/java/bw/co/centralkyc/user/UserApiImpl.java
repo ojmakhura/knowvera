@@ -14,23 +14,25 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import bw.co.centralkyc.RestApiResponse;
 import bw.co.centralkyc.keycloak.KeycloakUserService;
 
 @RestController
-public class UserApiImpl extends UserApiBase {
+public class UserApiImpl implements UserApi {
+
+    protected Logger logger = LoggerFactory.getLogger(UserApiImpl.class);    
 
     private final KeycloakUserService keycloakUserService;
 
     public UserApiImpl(KeycloakUserService keycloakUserService) {
 
-        super();
         this.keycloakUserService = keycloakUserService;
     }
 
     @Override
-    public ResponseEntity<UserDTO> handleAddClientRoles(
+    public ResponseEntity<UserDTO> addClientRoles(
             String clientId, Set<String> roles, String userId) {
         try {
             logger.debug(
@@ -47,7 +49,7 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<Boolean> handleAddRole(String userId,
+    public ResponseEntity<Boolean> addRole(String userId,
             String role) {
 
         try {
@@ -62,7 +64,7 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<String> handleChangePassword(String userId,
+    public ResponseEntity<String> changePassword(String userId,
             String newPassword) {
         try {
             
@@ -77,10 +79,10 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<UserDTO>> handleFindByClientRoles(
+    public ResponseEntity<Collection<UserDTO>> findByClientRoles(
             Set<String> roles, String clientId) {
         try {
-            return ResponseEntity.ok(this.keycloakUserService.getUsersByRoles(clientId, roles));
+            return ResponseEntity.ok(this.keycloakUserService.getUsersByClientRoles(clientId, roles));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,10 +92,10 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<UserDTO>> handleFindByRealmRoles(
+    public ResponseEntity<Collection<UserDTO>> findByRealmRoles(
             Set<String> roles) {
         try {
-            return ResponseEntity.ok(this.keycloakUserService.getUsersByRoles(roles));
+            return ResponseEntity.ok(this.keycloakUserService.getUsersByRealmRoles(roles));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,7 +105,7 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<UserDTO> handleFindUserById(String userId) {
+    public ResponseEntity<UserDTO> findUserById(String userId) {
         try {
             logger.debug("Search user by Id " + userId);
             UserDTO rep = this.keycloakUserService.findUserById(userId);
@@ -117,10 +119,10 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<UserDTO>> handleLoadUsers() {
+    public ResponseEntity<Collection<UserDTO>> loadUsers() {
         try {
             
-            Collection<UserDTO> data = this.keycloakUserService.loadUsers();
+            Collection<UserDTO> data = this.keycloakUserService.findAll();
             return ResponseEntity.ok(data);
 
         } catch (Exception e) {
@@ -131,7 +133,7 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<Boolean> handleRemoveRole(String userId,
+    public ResponseEntity<Boolean> removeRole(String userId,
             String role) {
         try {
             Boolean responseData = this.keycloakUserService.updateUserRoles(userId, role, -1);
@@ -144,7 +146,7 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<UserDTO> handleSaveUser(
+    public ResponseEntity<UserDTO> saveUser(
             UserDTO user) {
         try {
             logger.debug("Save User " + user);
@@ -165,7 +167,7 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<UserDTO>> handleSearch(String criteria) {
+    public ResponseEntity<Collection<UserDTO>> search(String criteria) {
         try {
             
             logger.debug("Search user by criteria" + criteria);
@@ -182,7 +184,7 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<Boolean> handleUpdateUserName(String userId,
+    public ResponseEntity<Boolean> updateUserName(String userId,
             String username) {
         try {
             
@@ -197,7 +199,7 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<UserDTO>> handleFindByBranchId(String branchId) {
+    public ResponseEntity<Collection<UserDTO>> findByBranchId(String branchId) {
 
         try {
             
@@ -211,7 +213,7 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<UserDTO>> handleFindByBranchName(String branch) {
+    public ResponseEntity<Collection<UserDTO>> findByBranchName(String branch) {
 
         try {
             
@@ -226,7 +228,7 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<UserDTO>> handleFindByOrganisationId(String organisationId) {
+    public ResponseEntity<Collection<UserDTO>> findByOrganisationId(String organisationId) {
 
         try {
             
@@ -239,7 +241,7 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<UserDTO>> handleFindByOrganisationName(String organisation) {
+    public ResponseEntity<Collection<UserDTO>> findByOrganisationName(String organisation) {
 
         try {
             
@@ -254,7 +256,7 @@ public class UserApiImpl extends UserApiBase {
     }
 
     @Override
-    public ResponseEntity<UserDTO> handleFindByIdentityNo(String identityNo) {
+    public ResponseEntity<UserDTO> findByIdentityNo(String identityNo) {
 
         try {
             return ResponseEntity.ok(this.keycloakUserService.getUserByIdentityNo(identityNo));

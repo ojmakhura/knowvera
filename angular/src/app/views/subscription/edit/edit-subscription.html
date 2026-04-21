@@ -1,0 +1,317 @@
+<!-- Modern Subscription Edit Component -->
+<div class="edit-container">
+  <!-- Header Section with Breadcrumb -->
+  <div class="breadcrumb-section">
+    <mat-icon class="breadcrumb-icon">home</mat-icon>
+    <span class="breadcrumb-text">{{ 'home' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text">{{ 'subscriptions' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ (editSubscriptionSignal().id ? 'edit' : 'create') | translate }}</span>
+  </div>
+
+  <!-- Header Card -->
+  <mat-card class="header-card" appearance="outlined">
+    <mat-card-header>
+      <div class="header-content">
+        <div class="title-section">
+          <div class="icon-wrapper">
+            <mat-icon class="title-icon">card_membership</mat-icon>
+          </div>
+          <div class="title-text">
+            <h1 class="page-title">
+              {{ (editSubscriptionVarsForm.id ? 'subscription.edit' : 'subscription.create') | translate }}
+            </h1>
+            @if (editSubscriptionVarsForm.ref) {
+              <p class="page-subtitle">
+                <mat-icon class="subtitle-icon">confirmation_number</mat-icon>
+                {{ editSubscriptionVarsForm.ref }}
+              </p>
+            }
+            @if (!editSubscriptionVarsForm.ref) {
+              <p class="page-subtitle">
+                {{ 'new.subscription.description' | translate }}
+              </p>
+            }
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button mat-raised-button color="primary" (click)="editSubscriptionSave()"
+                  [disabled]="!editSubscriptionSignalForm().valid()" class="action-button save-button">
+            <mat-icon>save</mat-icon>
+            {{ 'save' | translate }}
+          </button>
+          <button mat-stroked-button color="accent" (click)="editSubscriptionSearch()" class="action-button">
+            <mat-icon>search</mat-icon>
+            {{ 'search' | translate }}
+          </button>
+          @if (deleteUnrestricted()) {
+            <button mat-stroked-button color="warn" (click)="editSubscriptionDelete()"
+                    class="action-button delete-button">
+              <mat-icon>delete</mat-icon>
+              {{ 'delete' | translate }}
+            </button>
+          }
+          <button mat-stroked-button (click)="editSubscriptionFormReset()" class="action-button">
+            <mat-icon>refresh</mat-icon>
+            {{ 'reset' | translate }}
+          </button>
+        </div>
+      </div>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+    </div>
+  }
+
+  <!-- Form Content -->
+  <div class="form-container">
+    <form class="edit-form">
+
+      <!-- Status and Reference Section -->
+      <mat-card class="form-section status-section" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>
+            <div class="section-title-wrapper">
+              <mat-icon class="section-icon">info</mat-icon>
+              <span>{{ 'subscription.information' | translate }}</span>
+            </div>
+          </mat-card-title>
+          <mat-card-subtitle>{{ 'basic.info.description' | translate }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-grid two-column">
+            <!-- Status Field -->
+            <mat-form-field appearance="outline">
+              <mat-label>
+                <mat-icon class="field-icon">flag</mat-icon>
+                <span>{{ 'status' | translate }}</span>
+              </mat-label>
+              <mat-select id="status" [formField]="editSubscriptionSignalForm.status">
+                @for(key of KycSubsciptionStatusOptions; track key) {
+                  <mat-option [value]="key">
+                    <div class="select-option-content">
+                      <span class="status-indicator" [class]="'status-' + key"></span>
+                      {{ KycSubsciptionStatusT[key] }}
+                    </div>
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix class="field-suffix-icon">arrow_drop_down</mat-icon>
+              <!-- @if(statusControl.hasError('required')) {
+                <mat-error>
+                  <mat-icon class="error-icon">error</mat-icon>
+                  {{ 'status.required' | translate }}
+                </mat-error>
+              } -->
+            </mat-form-field>
+
+            <!-- Reference Field -->
+            <mat-form-field appearance="outline">
+              <mat-label>
+                <mat-icon class="field-icon">confirmation_number</mat-icon>
+                <span>{{ 'ref' | translate }}</span>
+              </mat-label>
+              <input matInput type="text" id="ref" [formField]="editSubscriptionSignalForm.ref" />
+              <mat-icon matSuffix class="field-suffix-icon readonly-icon">lock</mat-icon>
+              <mat-hint>
+                <mat-icon class="hint-icon">info</mat-icon>
+                {{ 'auto.generated' | translate }}
+              </mat-hint>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Organisation Section -->
+      <mat-card class="form-section organisation-section" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>
+            <div class="section-title-wrapper">
+              <mat-icon class="section-icon">business</mat-icon>
+              <span>{{ 'organisation.information' | translate }}</span>
+            </div>
+          </mat-card-title>
+          <mat-card-subtitle>{{ 'select.organisation.description' | translate }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-grid">
+            <!-- Organisation Field -->
+            <mat-form-field appearance="outline" class="full-width enhanced-select">
+              <mat-label>
+                <mat-icon class="field-icon">business</mat-icon>
+                <span>{{ 'organisation' | translate }}</span>
+              </mat-label>
+              <mat-select id="organisation" [compareWith]="organisationCompare" [formField]="editSubscriptionSignalForm.organisation">
+                <mat-option>
+                  <ngx-mat-select-search
+                    [placeholderLabel]="'search.organisation' | translate"
+                    [formField]="editSubscriptionSignalForm.organisationFilter"
+                    (keyup.enter)="filterOrganisation()"
+                    [noEntriesFoundLabel]="'no.entries.found' | translate">
+                  </ngx-mat-select-search>
+                </mat-option>
+                @for(item of organisationFilteredList(); track item.id) {
+                  <mat-option [value]="item">
+                    <div class="organisation-option">
+                      <!-- <mat-icon class="option-icon">business</mat-icon> -->
+                      <span class="option-text">{{ item.name }}</span>
+                    </div>
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix class="field-suffix-icon">arrow_drop_down</mat-icon>
+              <!-- @if(organisationControl.hasError('required')) {
+                <mat-error>
+                  <mat-icon class="error-icon">error</mat-icon>
+                  {{ 'organisation.required' | translate }}
+                </mat-error>
+              } -->
+              <mat-hint>
+                <mat-icon class="hint-icon">search</mat-icon>
+                {{ 'type.to.search' | translate }}
+              </mat-hint>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Subscription Details Section -->
+      <mat-card class="form-section details-section" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>
+            <div class="section-title-wrapper">
+              <mat-icon class="section-icon">schedule</mat-icon>
+              <span>{{ 'subscription.details' | translate }}</span>
+            </div>
+          </mat-card-title>
+          <mat-card-subtitle>{{ 'configure.period.amount' | translate }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-grid two-column">
+            <!-- Period Field -->
+            <mat-form-field appearance="outline">
+              <mat-label>
+                <mat-icon class="field-icon">schedule</mat-icon>
+                <span>{{ 'period' | translate }}</span>
+              </mat-label>
+              <mat-select id="period" [formField]="editSubscriptionSignalForm.period">
+                @for(key of TimePeriodOptions; track key) {
+                  <mat-option [value]="key">
+                    <div class="select-option-content">
+                      <!-- <mat-icon class="option-icon">access_time</mat-icon> -->
+                      {{ TimePeriodT[key] }}
+                    </div>
+                  </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix class="field-suffix-icon">arrow_drop_down</mat-icon>
+              <!-- @if(periodControl.hasError('required')) {
+                <mat-error>
+                  <mat-icon class="error-icon">error</mat-icon>
+                  {{ 'period.required' | translate }}
+                </mat-error>
+              } -->
+            </mat-form-field>
+
+            <!-- Amount Field -->
+            <mat-form-field appearance="outline">
+              <mat-label>
+                <mat-icon class="field-icon">payments</mat-icon>
+                <span>{{ 'amount' | translate }}</span>
+              </mat-label>
+              <input matInput type="number" id="amount" [formField]="editSubscriptionSignalForm.amount" step="0.01" />
+              <span matTextPrefix class="currency-prefix">BWP&nbsp;</span>
+              <mat-icon matSuffix class="field-suffix-icon">attach_money</mat-icon>
+              <!-- @if(amountControl.hasError('required')) {
+                <mat-error>
+                  <mat-icon class="error-icon">error</mat-icon>
+                  {{ 'amount.required' | translate }}
+                </mat-error>
+              } -->
+            </mat-form-field>
+
+            <!-- Start Date Field -->
+            <mat-form-field appearance="outline">
+              <mat-label>
+                <mat-icon class="field-icon">event_available</mat-icon>
+                <span>{{ 'start.date' | translate }}</span>
+              </mat-label>
+              <input matInput [matDatepicker]="startDatePicker" id="startDate" [formField]="editSubscriptionSignalForm.startDate" />
+              <mat-datepicker-toggle matIconSuffix [for]="startDatePicker">
+                <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
+              </mat-datepicker-toggle>
+              <mat-datepicker #startDatePicker></mat-datepicker>
+              <!-- @if(startDateControl.hasError('required')) {
+                <mat-error>
+                  <mat-icon class="error-icon">error</mat-icon>
+                  {{ 'start.date.required' | translate }}
+                </mat-error>
+              } -->
+            </mat-form-field>
+
+            <!-- End Date Field -->
+            <mat-form-field appearance="outline">
+              <mat-label>
+                <mat-icon class="field-icon">event_busy</mat-icon>
+                <span>{{ 'end.date' | translate }}</span>
+              </mat-label>
+              <input matInput [matDatepicker]="endDatePicker" id="endDate" [formField]="editSubscriptionSignalForm.endDate" />
+              <mat-datepicker-toggle matIconSuffix [for]="endDatePicker">
+                <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
+              </mat-datepicker-toggle>
+              <mat-datepicker #endDatePicker></mat-datepicker>
+              <mat-hint>
+                <mat-icon class="hint-icon">info</mat-icon>
+                {{ 'optional.field' | translate }}
+              </mat-hint>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Form Actions Footer -->
+      <mat-card class="form-actions" appearance="outlined">
+        <mat-card-content>
+          <div class="action-buttons-footer">
+            <div class="primary-actions">
+              <button mat-raised-button type="button" color="primary" (click)="editSubscriptionSave()"
+                      [disabled]="!editSubscriptionSignalForm().valid()"
+                      class="action-button-large primary-button">
+                <mat-icon>save</mat-icon>
+                <span>{{ 'save' | translate }}</span>
+              </button>
+              <button mat-flat-button type="button" (click)="editSubscriptionFormReset()" class="action-button-large reset-button">
+                <mat-icon>refresh</mat-icon>
+                <span>{{ 'reset' | translate }}</span>
+              </button>
+            </div>
+            <div class="secondary-actions">
+              @if (deleteUnrestricted()) {
+                <button mat-stroked-button type="button" color="warn" (click)="editSubscriptionDelete()"
+                        class="action-button-large delete-button">
+                  <mat-icon>delete</mat-icon>
+                  <span>{{ 'delete' | translate }}</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Form Status Info -->
+          @if (!editSubscriptionSignalForm().valid()) {
+            <div class="form-status-info">
+              <mat-icon class="info-icon">info</mat-icon>
+              <span class="info-text">{{ 'complete.required.fields' | translate }}</span>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+    </form>
+  </div>
+</div>

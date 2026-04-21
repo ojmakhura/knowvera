@@ -79,7 +79,7 @@
                 <property name="wrapperMappingsUri">JavaWrapper</property>
                 <property name="sqlMappingsUri">${sql.mappings}</property>
                 <property name="jdbcMappingsUri">JDBC</property>
-                <property name="maxSqlNameLength">30</property>
+                <property name="maxSqlNameLength">50</property>
                 <property name="shortenSqlNamesMethod">truncate</property>
                 <property name="foreignKeySuffix">_FK</property>
                 <property name="ejbJndiNamePrefix">${application.id}-${project.version}</property>
@@ -113,7 +113,6 @@
                 <!-- JDK5 error on @Override on methods implemented from Interfaces -->
                 <property name="javaVersion">${javaVersion}</property>
                 <property name="xmlAttributes">false</property>
-                <property name="springRestService">true</property>
             </properties>
         </namespace>
         <!-- See http://docs.andromda.org/andromda-cartridges/andromda-spring-cartridge/namespace.html -->
@@ -136,11 +135,11 @@
                 <property name="hibernateInheritanceStrategy">${hibernate.inheritance.strategy}</property>
                 <property name="springTypesPackage">${application.package}</property>
                 <property name="javaTypeConversionIgnoreList">java.util.Date,java.sql.Timestamp,java.sql.Date</property>
-                <!-- <property name="hikariConnectionTimeout">3000</property> -->
-                <!-- <property name="hikariIdleTimeout">600000</property> -->
-                <!-- <property name="hikariMaxLifetime">1800000</property> -->
-                <!-- <property name="hikariMinimumIdle">10</property> -->
-                <!-- <property name="hikariMaximumPoolsize">500</property> -->
+                <property name="hikariConnectionTimeout">${HIKARI_CONNECTION_TIMEOUT:3000}</property>
+                <property name="hikariIdleTimeout">${HIKARI_IDLE_TIMEOUT:600000}</property>
+                <property name="hikariMaxLifetime">${HIKARI_MAX_LIFETIME:1200000}</property>
+                <property name="hikariMinimumIdle">${HIKARI_MIN_IDLE:5}</property>
+                <property name="hikariMaximumPoolsize">${HIKARI_MAX_POOL_SIZE:20}</property>
                 <!-- Specialized use: OSGI, RichClient, remoting, generated JDBC tests -->
                 <!--property name="advice-impls">${core.generated.dir}</property>
                 <property name="remoting-war-support">${core.manual.java.dir}</property>
@@ -187,12 +186,11 @@
         <namespace name="webservice">
             <properties>
                 <property name="webserviceStack">spring</property>
-                <property name="springRestService">true</property>
-
+                <property name="languageMappingsUri">SpringWebMappings</property>
                 <property name="ejbInterfacePattern">{0}.ejb.{1}</property>
                 <property name="ejbHomeInterfacePattern">{0}.ejb.{1}Home</property>
                 <property name="springVersion">5.2.4.RELEASE</property>
-                                                <property name="webservice-types">${webservice.generated.dir}</property>
+                <property name="webservice-types">${webservice.generated.dir}</property>
                 <property name="configuration">${webservice.generated.dir}</property>
                 <property name="webservice-project">${webservice.project}</property>
                 <property name="webservice-impl">${webservice.manual.java.dir}</property>

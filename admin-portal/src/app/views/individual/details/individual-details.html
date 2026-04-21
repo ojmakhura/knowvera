@@ -1,0 +1,241 @@
+<main class="details-page">
+	@if (loading()) {
+		<div class="loading-overlay">
+			<div class="loading-panel">{{ loaderMessage() || 'Loading profile...' }}</div>
+		</div>
+	}
+
+	<header class="details-header">
+		<div class="header-copy">
+			<div class="header-meta">
+				<span class="status-chip" [class]="statusClass(individual().kycStatus)">{{ statusLabel(individual().kycStatus) }}</span>
+				<span class="record-id">ID: {{ individual().identityNo || id || 'Not available' }}</span>
+			</div>
+
+			<h1 class="page-title">{{ fullName() }}</h1>
+			<p class="page-subtitle">{{ summaryText() }}</p>
+		</div>
+
+		<div class="header-actions">
+			<button mat-stroked-button type="button" class="ghost-btn">
+				<mat-icon>history</mat-icon>
+				Audit Log
+			</button>
+			<button mat-flat-button type="button" class="primary-btn" (click)="openEdit()">
+				<mat-icon>edit</mat-icon>
+				Edit Profile
+			</button>
+		</div>
+	</header>
+
+	<div class="details-grid">
+		<div class="left-column">
+			<mat-card class="vault-card core-card">
+				<h2 class="section-label">
+					<mat-icon>person</mat-icon>
+					Core Identity
+				</h2>
+
+				<div class="info-stack">
+					<div>
+						<label>Full Legal Name</label>
+						<div class="value-strong">{{ fullName() }}</div>
+					</div>
+
+					<div class="split-grid">
+						<div>
+							<label>Sex</label>
+							<div class="value-regular">{{ individual().sex || 'Not available' }}</div>
+						</div>
+						<div>
+							<label>Nationality</label>
+							<div class="value-regular">{{ individual().nationality || 'Not available' }}</div>
+						</div>
+					</div>
+
+					<div>
+						<label>Marital Status</label>
+						<div class="value-regular">{{ individual().maritalStatus || 'Not available' }}</div>
+					</div>
+				</div>
+			</mat-card>
+
+			<mat-card class="vault-card identification-card">
+				<div class="pattern-layer"></div>
+				<h2 class="section-label on-dark">
+					<mat-icon>fingerprint</mat-icon>
+					Identification
+				</h2>
+
+				<div class="info-stack on-dark content-layer">
+					<div>
+						<label>Document Type</label>
+						<div class="value-strong">{{ individual().identityType || individual().latestKyc?.identityType || 'Not available' }}</div>
+					</div>
+
+					<div>
+						<label>Identity Number</label>
+						<div class="value-mono">{{ individual().identityNo || individual().latestKyc?.identityNo || 'Not available' }}</div>
+					</div>
+				</div>
+			</mat-card>
+
+			<mat-card class="vault-card employment-card">
+				<h2 class="section-label">
+					<mat-icon>work</mat-icon>
+					Employment
+				</h2>
+
+				<div>
+					<label>Current Status</label>
+					<div class="employment-status">
+						<span class="status-dot"></span>
+						<span>{{ individual().employmentStatus || 'Not available' }}</span>
+					</div>
+					<p class="support-copy">
+						@if (latestEmploymentRecord()) {
+							{{ latestEmploymentRecord()?.employer?.name || 'Employer not listed' }}
+							@if (latestEmploymentRecord()?.positions?.length) {
+								· {{ latestEmploymentRecord()?.positions?.join(', ') }}
+							}
+							@if (latestEmploymentRecord()?.employmentStart) {
+								· Started {{ formatDate(latestEmploymentRecord()?.employmentStart) }}
+							}
+						} @else {
+							Verified through Architectural Trust payroll integration. Last payroll sync information is not available.
+						}
+					</p>
+				</div>
+			</mat-card>
+		</div>
+
+		<div class="right-column">
+			<mat-card class="vault-card contact-card">
+				<h2 class="section-label">
+					<mat-icon>contact_mail</mat-icon>
+					Contact Information
+				</h2>
+
+				<div class="contact-grid">
+					<div class="contact-column">
+						<div>
+							<label>Primary Email</label>
+							<div class="contact-tile">
+								<mat-icon>mail</mat-icon>
+								<span>{{ individual().emailAddress || individual().latestKyc?.emailAddress || 'Not available' }}</span>
+							</div>
+						</div>
+
+						<div>
+							<label>Phone Numbers</label>
+							<div class="phone-list">
+								@for (phone of phoneNumbers(); track phone) {
+									<div class="phone-row">
+										<div class="phone-main">
+											<mat-icon>{{ $any(phone).type === 'MOBILE' ? 'smartphone' : 'call' }}</mat-icon>
+											<span>{{ $any(phone).phoneNumber || 'Not available' }}</span>
+										</div>
+										<span class="phone-type">{{ $any(phone).type || 'Phone' }}</span>
+									</div>
+								} @empty {
+									<div class="phone-row empty-phone">
+										<div class="phone-main">
+											<mat-icon>call</mat-icon>
+											<span>Not available</span>
+										</div>
+									</div>
+								}
+							</div>
+						</div>
+					</div>
+
+					<div class="contact-column">
+						<div>
+							<label>Physical Residence</label>
+							<div class="address-card filled">
+								<div class="address-head">
+									<mat-icon>location_on</mat-icon>
+									<div class="address-copy">
+										<p class="address-text">{{ individual().physicalAddress || individual().latestKyc?.physicalAddress || 'Not available' }}</p>
+									</div>
+								</div>
+								<div class="map-placeholder">
+									<div class="map-overlay">Location Overview</div>
+								</div>
+							</div>
+						</div>
+
+						<div>
+							<label>Postal Address</label>
+							<div class="address-card dashed">
+								<div class="address-head">
+									<mat-icon>mark_as_unread</mat-icon>
+									@if (postalAddressSameAsPhysical()) {
+										<p class="address-note">Same as physical address</p>
+									} @else {
+										<p class="address-text">{{ individual().postalAddress || individual().latestKyc?.postalAddress || 'Not available' }}</p>
+									}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</mat-card>
+
+			<section class="documents-grid">
+				@for (document of documents().slice(0, 2); track document.id || document.fileName) {
+					<mat-card class="document-card">
+						<div class="document-icon" [class.pdf]="($any(document).fileName || '').toLowerCase().endsWith('.pdf')">
+							<mat-icon>{{ ($any(document).fileName || '').toLowerCase().endsWith('.pdf') ? 'picture_as_pdf' : 'description' }}</mat-icon>
+						</div>
+						<div class="document-copy">
+							<div class="document-name">{{ document.fileName || document.documentType || 'Document' }}</div>
+							<div class="document-meta">
+								Verified {{ formatDate(document.createdAt || individual().modifiedAt) }} • {{ document.documentType || 'Reference file' }}
+							</div>
+						</div>
+						<button mat-icon-button type="button" [attr.aria-label]="'Download ' + (document.fileName || 'document')">
+							<mat-icon>download</mat-icon>
+						</button>
+					</mat-card>
+				} @empty {
+					<mat-card class="document-card placeholder-card">
+						<div class="document-icon pdf">
+							<mat-icon>picture_as_pdf</mat-icon>
+						</div>
+						<div class="document-copy">
+							<div class="document-name">No verified documents available</div>
+							<div class="document-meta">Upload and verification records will appear here.</div>
+						</div>
+					</mat-card>
+				}
+			</section>
+		</div>
+	</div>
+
+	<footer class="details-footer">
+		<div class="audit-meta">
+			<div class="audit-block">
+				<span class="audit-label">Created By</span>
+				<span class="audit-value">{{ individual().createdBy || 'Unknown' }}</span>
+				<span class="audit-date">{{ formatDateTime(individual().createdAt) }}</span>
+			</div>
+
+			<div class="audit-block">
+				<span class="audit-label">Last Modified By</span>
+				<span class="audit-value">{{ individual().modifiedBy || 'Unknown' }}</span>
+				<span class="audit-date">{{ formatDateTime(individual().modifiedAt) }}</span>
+			</div>
+		</div>
+
+		<div class="record-meta">
+			<div>
+				<div class="audit-label">Record Hash</div>
+				<div class="record-hash">{{ recordHash() }}</div>
+			</div>
+			<div class="record-badge">
+				<mat-icon>verified_user</mat-icon>
+			</div>
+		</div>
+	</footer>
+</main>

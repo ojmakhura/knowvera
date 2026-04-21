@@ -1,0 +1,121 @@
+<div class="edit-container">
+  <div class="breadcrumb-section">
+    <mat-icon class="breadcrumb-icon">home</mat-icon>
+    <span class="breadcrumb-text">{{ 'home' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text">{{ 'documents.title' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ 'edit' | translate }}</span>
+  </div>
+
+  <div class="hero-header">
+    <div class="hero-content">
+      <div class="header-info">
+        <div class="header-icon">
+          <mat-icon class="main-icon">edit</mat-icon>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">{{ 'edit' | translate }} {{ 'documents.title' | translate }}</h1>
+          <p class="page-subtitle">{{ editDocumentSignal().fileName || '-' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+  <div class="loading-container">
+    <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+  </div>
+  }
+
+  <div class="form-container">
+    <div class="edit-form">
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>description</mat-icon>
+            {{ 'documents.title' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="modern-content">
+          <form class="search-form">
+            <div class="field-row">
+              <mat-form-field appearance="outline" class="field-half">
+                <mat-label>{{ 'target' | translate }}</mat-label>
+                <mat-select [formField]="editDocumentSignalForm.target">
+                  @for (key of TargetEntityOptions; track key) {
+                  <mat-option [value]="key">{{ ('target.entity.' + key) | translate }}</mat-option>
+                  }
+                </mat-select>
+                <mat-icon matSuffix>groups</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="field-half">
+                <mat-label>{{ 'target.id' | translate }}</mat-label>
+                <input matInput type="text" [formField]="editDocumentSignalForm.targetId">
+                <mat-icon matSuffix>badge</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="field-row">
+              <mat-form-field appearance="outline" class="field-half">
+                <mat-label>{{ 'document.type' | translate }}</mat-label>
+                <mat-select
+                  [formField]="editDocumentSignalForm.documentType"
+                  [compareWith]="documentTypeCompare"
+                >
+                  @for (item of documentTypeOptions(); track item.id) {
+                  <mat-option [value]="item">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+                <mat-icon matSuffix>category</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="field-half">
+                <mat-label>{{ 'verification.status' | translate }}</mat-label>
+                <mat-select [formField]="editDocumentSignalForm.verificationStatus">
+                  @for (status of DocumentVerificationStatusOptions; track status) {
+                  <mat-option [value]="status">
+                    {{ ('document.verification.status.' + status) | translate }}
+                  </mat-option>
+                  }
+                </mat-select>
+                <mat-icon matSuffix>verified</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <div class="field-row">
+              <mat-form-field appearance="outline" class="field-half">
+                <mat-label>{{ 'file.name' | translate }}</mat-label>
+                <input matInput type="text" [formField]="editDocumentSignalForm.fileName">
+                <mat-icon matSuffix>insert_drive_file</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="field-half">
+                <mat-label>URL</mat-label>
+                <input matInput type="text" [formField]="editDocumentSignalForm.url">
+                <mat-icon matSuffix>link</mat-icon>
+              </mat-form-field>
+            </div>
+          </form>
+        </mat-card-content>
+        <mat-card-footer>
+          <div class="form-actions">
+            <button mat-stroked-button type="button" (click)="cancelEdit()" class="action-secondary">
+              <mat-icon>arrow_back</mat-icon>
+              <span>{{ 'cancel' | translate }}</span>
+            </button>
+            <button mat-stroked-button type="button" (click)="editDocumentReset()" class="action-secondary">
+              <mat-icon>restore</mat-icon>
+              <span>{{ 'reset' | translate }}</span>
+            </button>
+            <button mat-raised-button type="button" color="primary" (click)="editDocumentSave()" class="action-button search-button">
+              <mat-icon>save</mat-icon>
+              {{ 'save' | translate }}
+            </button>
+          </div>
+        </mat-card-footer>
+      </mat-card>
+    </div>
+  </div>
+</div>

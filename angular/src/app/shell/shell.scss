@@ -1,0 +1,211 @@
+/* Vault Compliance - Custom SCSS (Angular Component) */
+
+$primary-blue: #002B5B;
+$primary-container: #0e2c52;
+$surface-bg: #f7f9fb;
+$sidebar-bg: #f8fafc;
+$text-main: #0d1c2e;
+$text-muted: #57657a;
+$border-color: #eceef0;
+
+:host {
+  display: block;
+}
+
+/* Sidebar Styling */
+#sidebar {
+  width: 260px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: $sidebar-bg;
+  border-right: 1px solid $border-color;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+}
+
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  background-color: $primary-blue;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-right: 0.75rem;
+}
+
+.nav-link {
+  color: $text-muted;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s;
+  border-right: 4px solid transparent;
+  text-decoration: none;
+
+  &:hover {
+    color: $primary-blue;
+    background-color: rgba(0, 43, 91, 0.05);
+  }
+
+  &.active {
+    color: $primary-blue;
+    background-color: rgba(0, 43, 91, 0.08);
+    border-right-color: $primary-blue;
+  }
+}
+
+.btn-new-verification {
+  background-color: $primary-blue;
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 0.75rem;
+  margin-bottom: 2rem;
+  border: none;
+  transition: transform 0.1s, background-color 0.2s;
+
+  &:hover {
+    background-color: $primary-container;
+    color: white;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Topbar Styling */
+#topbar {
+  margin-left: 260px;
+  height: 64px;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid $border-color;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+}
+
+.search-container {
+  position: relative;
+  max-width: 400px;
+  width: 100%;
+
+  input {
+    background-color: #f1f3f5;
+    border: none;
+    padding-left: 2.5rem;
+    font-size: 0.875rem;
+    height: 38px;
+    border-radius: 8px;
+    width: 100%;
+    outline: none;
+  }
+
+  .material-symbols-outlined {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    font-size: 20px;
+  }
+}
+
+/* Main Content */
+main {
+  margin-left: 260px;
+  padding-top: 64px;
+  min-height: 100vh;
+}
+
+.content-canvas {
+  background-color: white;
+  border-radius: 12px;
+  min-height: calc(100vh - 200px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  border: 1px solid $border-color;
+}
+
+.router-outlet-badge {
+  background-color: $surface-bg;
+  border: 1px solid $border-color;
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  font-family: monospace;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: $primary-blue;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 43, 91, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 43, 91, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 43, 91, 0); }
+}
+
+.fab-support {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: $primary-blue;
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 1050;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    color: white;
+  }
+}
+
+.user-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid $border-color;
+}
+
+.avatar-small {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}

@@ -1,16 +1,28 @@
 logging:
   level:
     org:
-      springframework: INFO
-      hibernate: INFO
-      bw:
-        co:
-          roguesystems: DEBUG
+      springframework:  ${SPRING_LOG_LEVEL:INFO}
+      hibernate:  ${HIBERNATE_LOG_LEVEL:INFO}
+    bw:
+      co:
+        roguesystems: ${KYC_LOG_LEVEL:DEBUG}
 server:
   port: ${PORT:8085}
   servlet:
     context-path: /
+  compression:
+    enabled: true
+springdoc:
+  swagger-ui:
+    oauth:
+      client-id: swagger-client
+      use-pkce-with-authorization-code-grant: true
 spring:
+  application:
+    name: centralkyc-webservice
+  threads:
+    virtual:
+      enabled: true
   jpa:
     show-sql: true
     properties:
@@ -32,6 +44,12 @@ spring:
       time: HH:mm:ss
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
+  
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672} 
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
   liquibase:
     enabled: false
   security:
@@ -46,6 +64,62 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD}
       timeout: 100
+  ai:
+    chat:
+      client:
+        enabled: false
+    openai:
+      # Redirect from official API to LM Studio
+      base-url: http://localhost:1234
+      # LM Studio doesn't require a real key, but the starter expects a value
+      api-key: lm-studio
+      chat:
+        client:
+        ## LM Studio's chat endpoint is compatible with OpenAI's API, so we can use the same client configuration
+          enabled: false
+      audio:
+        speech:
+          enabled: false  # This stops the broken AutoConfig from loading
+        transcription:
+          enabled: false
+        options:
+          # Must match the exact model name/path in LM Studio
+          # model: lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF
+          model: ${LLM_MODEL:deepseek-r1-distill-qwen-32b}
+          temperature: 0.7
+    vertex:
+      ai:
+        gemini:
+          enabled: false
+          # --- Core Connection Settings ---
+          project-id: ${GEMINI_PROJECT_ID:central-kyc}
+          location: ${GEMINI_LOCATION:us-central1}
+          # If using a physical file (not recommended for production)
+          credentials-uri: file://${GCP_CREDENTIALS_FILE:/path/to/credentials.json}
+          
+          # --- Default Model Behavior ---
+          chat:
+            enabled: false
+            options:
+              # Common models: gemini-1.5-pro, gemini-2.0-flash, gemini-3.1-flash
+              model: gemini-2.0-flash
+              temperature: 0.7        # 0.0 = deterministic, 1.0 = creative
+              top-p: 0.95             # Nucleus sampling
+              top-k: 40               # Top-K sampling
+              max-output-tokens: 2048
+              
+              # --- 2026 Specific Features ---
+              # thinking-budget: 8192   # Token budget for "Chain of Thought" reasoning
+              # response-mime-type: application/json # Force JSON output if needed
+
+              # --- Safety Settings (Strict for Enterprise) ---
+              # safety-settings:
+              #   - category: HARM_CATEGORY_HATE_SPEECH
+              #     threshold: BLOCK_MEDIUM_AND_ABOVE
+              #   - category: HARM_CATEGORY_DANGEROUS_CONTENT
+              #     threshold: BLOCK_ONLY_HIGH
+              #   - category: HARM_CATEGORY_HARASSMENT
+              #     threshold: BLOCK_LOW_AND_ABOVE
 management:
   endpoint:
     health:
@@ -58,19 +132,42 @@ management:
     web:
       base-path: /actuator
       exposure:
-        include: '*'
+        include: health,info,metrics,prometheus
+        exclude: env,shutdown,heapdump
   metrics:
     tags:
       application: ${spring.application.name}
       version: ${spring.application.version}
+  tracing:
+    sampling:
+      probability: 1.0  # 100% for development
+  otlp:
+    metrics:
+      export:
+        url: ${OTLP_URL:http://localhost:4318}/v1/metrics
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTLP_URL:http://localhost:4318}/v1/traces
+    logging:
+      export:
+        otlp:
+          endpoint: ${OTLP_URL:http://localhost:4318}/v1/logs
 rate-limiting:
   tokens: ${RATE_LIMIT:2000}
 minio:
     url: ${MINIO_URL:http://localhost:9000}
     access-key: ${MINIO_ACCESS_KEY:minio}
     secret-key: ${MINIO_SECRET_KEY:minio123}
-    bucket-name: ${MINIO_BUCKET:zetaerdms}
+    bucket-name: ${MINIO_BUCKET:centralkyc}
 app:
+  realmUserRole: ${REALM_USER_ROLE:KYC_USER}
+  adminPortalRole: ${ADMIN_PORTAL_ROLE:ADMIN_PORTAL_USER}
+  userPortalRole: ${USER_PORTAL_ROLE:PORTAL_USER}
+  apiUserRole: ${API_USER_ROLE:KYC_USER}
+  request-token-length: ${REQUEST_TOKEN_LENGTH:32}
+  registration-url: ${REGISTRATION_URL:http://localhost:4300/register}
   admin-web: ${ADMIN_WEB_URL:http://localhost:4200}
   tessdata-prefix: ${TESSDATA_PREFIX:/usr/share/tesseract-ocr/5/tessdata}
   tessdata-langs: ${TESSDATA_LANGS:eng}
@@ -83,3 +180,51 @@ app:
       min-length: ${MIN_PASSWORD_LENGTH:8}
   organisation:
     manager-role: ${ORGANISATION_MANAGER_ROLE:ORG_MANAGER}
+  llm:
+    id: ${LLM_ID:ollama}
+    model: ${LLM_MODEL:gemma4}
+  lmstudio:
+    base-url: ${LMSTUDIO_BASE_URL:http://localhost:1234}
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    model: ${OLLAMA_MODEL:gemma4}
+  registration:
+    client: ${REGISTRATION_CLIENT:centralkyc-registration}
+    client-secret: ${REGISTRATION_CLIENT_SECRET:secret}
+  rabbitmq:
+    # Dead-letter queue for text extraction failures
+    documentHandlerDeadLetterExchange: ${DOCUMENT_HANDLER_DEAD_LETTER_EXCHANGE:x.document-dispatch-failure}
+    documentHandlerDeadLetterQueue: ${DOCUMENT_HANDLER_DEAD_LETTER_QUEUE:q.fall-back-document-dispatch}
+    documentHandlerDeadLetterRoutingKey: ${DOCUMENT_HANDLER_DEAD_LETTER_ROUTING_KEY:document-fall-back}
+    
+    textExtractionQueueExchange: ${TEXT_EXTRACTION_QUEUE_EXCHANGE:x.text-extraction-queue}
+    textExtractionQueue: ${TEXT_EXTRACTION_QUEUE:q.text-extraction}
+    textExtractionQueueRoutingKey: ${TEXT_EXTRACTION_QUEUE_ROUTING_KEY:text-extraction}
+
+    documentConfirmationQueueExchange: ${DOCUMENT_CONFIRMATION_QUEUE_EXCHANGE:x.document-confirmation-queue}
+    documentConfirmationQueue: ${DOCUMENT_CONFIRMATION_QUEUE:q.document-confirmation}
+    documentConfirmationQueueRoutingKey: ${DOCUMENT_CONFIRMATION_QUEUE_ROUTING_KEY:document-confirmation}
+
+    textProcessingQueueExchange: ${TEXT_PROCESSING_QUEUE_EXCHANGE:x.text-processing-queue}
+    textProcessingQueue: ${TEXT_PROCESSING_QUEUE:q.text-processing}
+    textProcessingQueueRoutingKey: ${TEXT_PROCESSING_QUEUE_ROUTING_KEY:text-processing}
+
+    informationConfirmationQueueExchange: ${INFORMATION_CONFIRMATION_QUEUE_EXCHANGE:x.information-confirmation-queue}
+    informationConfirmationQueue: ${INFORMATION_CONFIRMATION_QUEUE:q.information-confirmation}
+    informationConfirmationQueueRoutingKey: ${INFORMATION_CONFIRMATION_QUEUE_ROUTING_KEY:information-confirmation}
+
+    textCleanupQueueExchange: ${TEXT_CLEANUP_QUEUE_EXCHANGE:x.text-cleanup-queue}
+    textCleanupQueue: ${TEXT_CLEANUP_QUEUE:q.text-cleanup}
+    textCleanupQueueRoutingKey: ${TEXT_CLEANUP_QUEUE_ROUTING_KEY:text-cleanup}
+
+    kycVerificationQueueExchange: ${KYC_VERIFICATION_QUEUE_EXCHANGE:x.kyc-verification-queue}
+    kycVerificationQueue: ${KYC_VERIFICATION_QUEUE:q.kyc-verification}
+    kycVerificationQueueRoutingKey: ${KYC_VERIFICATION_QUEUE_ROUTING_KEY:kyc-verification}
+
+    organisationVerificationQueueExchange: ${ORGANISATION_VERIFICATION_QUEUE_EXCHANGE:x.organisation-verification-queue}
+    organisationVerificationQueue: ${ORGANISATION_VERIFICATION_QUEUE:q.organisation-verification}
+    organisationVerificationQueueRoutingKey: ${ORGANISATION_VERIFICATION_QUEUE_ROUTING_KEY:organisation-verification}
+
+    individualVerificationQueueExchange: ${INDIVIDUAL_VERIFICATION_QUEUE_EXCHANGE:x.individual-verification-queue}
+    individualVerificationQueue: ${INDIVIDUAL_VERIFICATION_QUEUE:q.individual-verification}
+    individualVerificationQueueRoutingKey: ${INDIVIDUAL_VERIFICATION_QUEUE_ROUTING_KEY:individual-verification}

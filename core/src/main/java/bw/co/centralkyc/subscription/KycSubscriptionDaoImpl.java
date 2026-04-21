@@ -11,6 +11,9 @@ import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.Collection;
+import java.util.UUID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
@@ -22,9 +25,9 @@ public class KycSubscriptionDaoImpl
     extends KycSubscriptionDaoBase
 {
 
-    public KycSubscriptionDaoImpl(OrganisationRepository organisationRepository,
-            KycInvoiceRepository kycInvoiceRepository, KycSubscriptionRepository kycSubscriptionRepository) {
-        super(organisationRepository, kycInvoiceRepository, kycSubscriptionRepository);
+    public KycSubscriptionDaoImpl(KycInvoiceRepository kycInvoiceRepository,
+            OrganisationRepository organisationRepository, KycSubscriptionRepository kycSubscriptionRepository) {
+        super(kycInvoiceRepository, organisationRepository, kycSubscriptionRepository);
         //TODO Auto-generated constructor stub
     }
 
@@ -45,7 +48,7 @@ public class KycSubscriptionDaoImpl
 
         if(source.getOrganisation() != null) {
 
-            target.setOrganisationId(source.getOrganisation().getId());
+            target.setOrganisationId(source.getOrganisation().getId().toString());
             target.setOrganisationCode(source.getOrganisation().getCode());
             target.setOrganisationName(source.getOrganisation().getName());
             target.setOrganisationRegistrationNo(source.getOrganisation().getRegistrationNo());
@@ -75,7 +78,7 @@ public class KycSubscriptionDaoImpl
         }
         else
         {
-            return this.kycSubscriptionRepository.findById(kycSubscriptionDTO.getId())
+            return this.kycSubscriptionRepository.findById(UUID.fromString(kycSubscriptionDTO.getId()))
                 .orElseThrow(() -> new EntityNotFoundException("Entity not found for id: " + kycSubscriptionDTO.getId()));
         }
     }
@@ -109,7 +112,7 @@ public class KycSubscriptionDaoImpl
 
         if(StringUtils.isNotBlank(source.getOrganisationId())) {
 
-            Organisation organisation = this.organisationRepository.getReferenceById(source.getOrganisationId());
+            Organisation organisation = this.organisationRepository.getReferenceById(UUID.fromString(source.getOrganisationId()));
             target.setOrganisation(organisation);
         }
     }

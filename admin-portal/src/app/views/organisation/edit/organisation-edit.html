@@ -1,0 +1,311 @@
+<div class="page-wrapper">
+  <app-loader [isLoading]="loading()" [size]="'medium'"></app-loader>
+
+  <header class="page-header">
+    <div>
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a routerLink="/organisation">{{ breadcrumbLabel }}</a>
+        <mat-icon>chevron_right</mat-icon>
+        @if(editOrganisationFormSignal().name) {
+        <span>{{ editOrganisationFormSignal().name || 'Organisation' }}</span>
+        <mat-icon>chevron_right</mat-icon>
+        }
+        <span class="crumb-current" translate>{{ editOrganisationFormSignal().id ? 'edit' : 'create' }}</span>
+      </nav>
+      <h1 class="page-title">Edit Organisation</h1>
+    </div>
+
+    <div class="header-btns">
+      <button mat-button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+      <button mat-flat-button type="button" [disabled]="editOrganisationFormSignalForm().invalid()" class="btn-save"
+        (click)="saveOrganisation()">Save Changes</button>
+    </div>
+  </header>
+  <div class="content-grid">
+    <div class="main-column">
+      <mat-card class="vault-card">
+        <div class="section-head">
+          <mat-icon class="section-icon">corporate_fare</mat-icon>
+          <h2 class="section-title">Core Identity</h2>
+        </div>
+
+        <div class="field-grid single-column">
+          <div class="field-group">
+            <label class="field-label" for="organisationName">Organisation Name</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <input id="organisationName" matInput [formField]="editOrganisationFormSignalForm.name" />
+              @if(editOrganisationFormSignalForm.name().touched()) {
+              @for (error of editOrganisationFormSignalForm.name().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="field-grid two-column mt-field">
+          <div class="field-group">
+            <label class="field-label" for="organisationCode" translate>abbreviation</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <input id="organisationCode" matInput [formField]="editOrganisationFormSignalForm.code" />
+              @if(editOrganisationFormSignalForm.code().touched()) {
+              @for (error of editOrganisationFormSignalForm.code().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="organisationRegistrationNo">Registration No.</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <input id="organisationRegistrationNo" matInput
+                [formField]="editOrganisationFormSignalForm.registrationNo" />
+              @if(editOrganisationFormSignalForm.registrationNo().touched()) {
+              @for (error of editOrganisationFormSignalForm.registrationNo().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="field-grid two-column align-end mt-field">
+          <div class="field-group">
+            <label class="field-label" for="organisationCountryOfRegistration">Country of Registration</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select id="organisationCountryOfRegistration"
+                [formField]="editOrganisationFormSignalForm.countryOfRegistration">
+                @for (country of countries; track country) {
+                <mat-option [value]="country">{{ country }}</mat-option>
+                }
+              </mat-select>
+              @if(editOrganisationFormSignalForm.countryOfRegistration().touched()) {
+              @for (error of editOrganisationFormSignalForm.countryOfRegistration().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="client-toggle">
+            <span class="toggle-label">Client Toggle</span>
+            <mat-slide-toggle color="primary" [formField]="editOrganisationFormSignalForm.isClient"></mat-slide-toggle>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="vault-card">
+        <div class="section-head">
+          <mat-icon class="section-icon">verified_user</mat-icon>
+          <h2 class="section-title">Operational Status</h2>
+        </div>
+
+        <div class="field-grid two-column">
+          <div class="field-group">
+            <label class="field-label" for="organisationStatus">General Status</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select id="organisationStatus" [formField]="editOrganisationFormSignalForm.status">
+                @for (status of generalStatuses; track status) {
+                <mat-option [value]="status">{{ status }}</mat-option>
+                }
+              </mat-select>
+              @if(editOrganisationFormSignalForm.status().touched()) {
+              @for (error of editOrganisationFormSignalForm.status().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="organisationKycStatus">KYC Compliance Status</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select id="organisationKycStatus" [formField]="editOrganisationFormSignalForm.kycStatus">
+                @for (status of kycComplianceStatuses; track status) {
+                <mat-option [value]="status">{{ status }}</mat-option>
+                }
+              </mat-select>
+              @if(editOrganisationFormSignalForm.kycStatus().touched()) {
+              @for (error of editOrganisationFormSignalForm.kycStatus().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="field-group mt-field">
+          <label class="field-label" for="organisationDescription">Description</label>
+          <mat-form-field appearance="outline" class="vault-field vault-textarea">
+            <textarea id="organisationDescription" matInput rows="4"
+              [formField]="editOrganisationFormSignalForm.description"
+              placeholder="Enter organisational details and compliance notes..."></textarea>
+          </mat-form-field>
+        </div>
+      </mat-card>
+
+      <mat-card class="vault-card">
+        <div class="section-head section-head-split">
+          <div class="section-head-inner">
+            <mat-icon class="section-icon">language</mat-icon>
+            <h2 class="section-title">Managed Domains</h2>
+          </div>
+
+          <button mat-button type="button" class="add-action-btn" (click)="addDomain()">
+            <mat-icon>add_circle</mat-icon>
+            Add Domain
+          </button>
+        </div>
+
+        <div class="domains-list">
+          @for (domain of editOrganisationFormSignalForm.domains; track domain; let index = $index) {
+          <div class="domain-row">
+            <div class="domain-meta domain-meta-grow">
+              <mat-icon class="domain-icon">link</mat-icon>
+              <mat-form-field appearance="outline" class="vault-field">
+                <input matInput [formField]="domain.name" placeholder="Enter domain" />
+                @if(domain.name().touched()) {
+                @for (error of domain.name().errors(); track $index) {
+                <p class="error-message" translate>{{ error.message }}</p>
+                }
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="domain-actions">
+              <mat-checkbox class="domain-unverified-toggle" [formField]="domain.verified">Verified</mat-checkbox>
+              <button mat-icon-button type="button" class="domain-delete-btn" (click)="removeDomain(index)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+          } @empty {
+          <p class="empty-state">No managed domains added yet.</p>
+          }
+        </div>
+      </mat-card>
+    </div>
+
+    <div class="side-column">
+      <mat-card class="vault-card vault-card-side">
+        <div class="section-head">
+          <mat-icon class="section-icon">alternate_email</mat-icon>
+          <h2 class="section-title">Contact</h2>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="organisationEmail">Contact Email Address</label>
+          <mat-form-field class="vault-field">
+            <input id="organisationEmail" matInput type="email"
+              [formField]="editOrganisationFormSignalForm.contactEmailAddress" />
+            @if (editOrganisationFormSignalForm.contactEmailAddress().touched()) {
+            @for (error of editOrganisationFormSignalForm.contactEmailAddress().errors(); track $index) {
+            <p class="error-message" translate>{{ error.message }}</p>
+            }
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="phones-section">
+          <div class="phones-header">
+            <label class="field-label">Phone Numbers</label>
+            <button mat-button type="button" class="add-action-btn" (click)="addPhoneNumber()">Add Phone</button>
+          </div>
+
+          @for (phone of editOrganisationFormSignalForm.phoneNumbers; track phone; let index = $index) {
+          <div class="phone-row">
+            <mat-form-field class="vault-field phone-type">
+              <mat-select [formField]="phone.type">
+                @for (type of phoneTypes; track type) {
+                <mat-option [value]="type">{{ type }}</mat-option>
+                }
+              </mat-select>
+              @if(phone.type().touched()) {
+              @for (error of phone.type().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="vault-field phone-number">
+              <input matInput [formField]="phone.phoneNumber" placeholder="Phone number" />
+              @if(phone.phoneNumber().touched()) {
+              @for (error of phone.phoneNumber().errors(); track $index) {
+              <p class="error-message" translate>{{ error.message }}</p>
+              }
+              }
+            </mat-form-field>
+
+            <button mat-icon-button type="button" class="phone-delete" (click)="removePhoneNumber(index)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          } @empty {
+          <p class="empty-state" translate>No phone numbers added yet.</p>
+          }
+        </div>
+      </mat-card>
+
+      <mat-card class="vault-card vault-card-side">
+        <div class="section-head">
+          <mat-icon class="section-icon">location_on</mat-icon>
+          <h2 class="section-title">Addresses</h2>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="organisationPhysicalAddress">Physical Address</label>
+          <mat-form-field appearance="outline" class="vault-field vault-textarea compact-textarea">
+            <textarea id="organisationPhysicalAddress" matInput rows="3"
+              [formField]="editOrganisationFormSignalForm.physicalAddress"></textarea>
+            @if(editOrganisationFormSignalForm.physicalAddress().touched()) {
+            @for (error of editOrganisationFormSignalForm.physicalAddress().errors(); track $index) {
+            <p class="error-message" translate>{{ error.message }}</p>
+            }
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="field-group mt-field">
+          <label class="field-label" for="organisationPostalAddress">Postal Address</label>
+          <mat-form-field appearance="outline" class="vault-field vault-textarea compact-textarea">
+            <textarea id="organisationPostalAddress" matInput rows="3"
+              [formField]="editOrganisationFormSignalForm.postalAddress"></textarea>
+            @if(editOrganisationFormSignalForm.postalAddress().touched()) {
+            @for (error of editOrganisationFormSignalForm.postalAddress().errors(); track $index) {
+            <p class="error-message" translate>{{ error.message }}</p>
+            }
+            }
+          </mat-form-field>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+
+  <footer class="audit-footer">
+    <div class="audit-grid">
+      <div class="audit-item">
+        <label class="field-label">Created At</label>
+        <p class="audit-value">{{ formatAuditDate(editOrganisationFormSignal().createdAt) }}</p>
+      </div>
+
+      <div class="audit-item">
+        <label class="field-label">Created By</label>
+        <p class="audit-value">{{ editOrganisationFormSignal().createdBy || 'Not available' }}</p>
+      </div>
+
+      <div class="audit-item">
+        <label class="field-label">Modified At</label>
+        <p class="audit-value">{{ formatAuditDate(editOrganisationFormSignal().modifiedAt) }}</p>
+      </div>
+
+      <div class="audit-item">
+        <label class="field-label">Modified By</label>
+        <p class="audit-value">{{ editOrganisationFormSignal().modifiedBy || 'Not available' }}</p>
+      </div>
+    </div>
+  </footer>
+
+  <div class="background-orb orb-top"></div>
+  <div class="background-orb orb-bottom"></div>
+</div>

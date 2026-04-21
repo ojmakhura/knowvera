@@ -1,0 +1,226 @@
+<!-- Client Requests Search — adapted to kyc-record modern style -->
+<div class="edit-container">
+  <div class="breadcrumb-section">
+    <mat-icon class="breadcrumb-icon">home</mat-icon>
+    <span class="breadcrumb-text">{{ 'home' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text">{{ 'client' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ 'search.client.requests' | translate }}</span>
+  </div>
+
+  <div class="hero-header">
+    <div class="hero-content">
+      <div class="header-info">
+        <div class="header-icon">
+          <mat-icon class="main-icon">search</mat-icon>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">{{ 'search.client.requests' | translate }}</h1>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-fab type="button" matTooltip="{{ 'add.new' | translate }}" color="primary" class="fab-button"
+          [routerLink]="['/client-request', 'edit']">
+          <mat-icon fontIcon="add" aria-hidden="false" aria-label="add"></mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+  <div class="loading-container">
+    <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+  </div>
+  }
+
+  <div class="form-container">
+    <div class="edit-form">
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>filter_list</mat-icon>
+            {{ 'search.filters' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'name' | translate }}</mat-label>
+              <input matInput type="text" id="name" [formField]="clientRequestSignalForm.name"
+                placeholder="{{ 'enter.name' | translate }}">
+              <mat-icon matSuffix>person</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'email.address' | translate }}</mat-label>
+              <input matInput type="email" id="emailAddress" [formField]="clientRequestSignalForm.emailAddress"
+                placeholder="{{ 'enter.email.address' | translate }}">
+              <mat-icon matSuffix>email</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-half enhanced-select">
+              <mat-label>
+                <mat-icon class="field-icon">business</mat-icon>
+                <span>{{ 'organisation' | translate }}</span>
+              </mat-label>
+              <mat-select id="organisation" [compareWith]="organisationCompare"
+                [formField]="clientRequestSignalForm.organisation">
+                <mat-option>
+                  <ngx-mat-select-search [placeholderLabel]="'search.organisation' | translate"
+                    [formField]="clientRequestSignalForm.organisationFilter" (keyup.enter)="filterOrganisation()"
+                    [noEntriesFoundLabel]="'no.entries.found' | translate">
+                  </ngx-mat-select-search>
+                </mat-option>
+                @for(item of organisationFilteredList(); track item.id) {
+                <mat-option [value]="item">
+                  <div class="organisation-option">
+                    <span class="option-text">{{ item.name }}</span>
+                    @if (item.registrationNo) {
+                    <span class="option-secondary"> - {{ item.registrationNo }}</span>
+                    }
+                  </div>
+                </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>arrow_drop_down</mat-icon>
+              <mat-hint>
+                <mat-icon class="hint-icon">search</mat-icon>
+                {{ 'type.to.search' | translate }}
+              </mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'status' | translate }}</mat-label>
+              <mat-select id="status" [formField]="clientRequestSignalForm.status"
+                placeholder="{{ 'select.status' | translate }}">
+                <mat-option value="">{{ 'all.statuses' | translate }}</mat-option>
+                @for (key of ClientRequestStatusOptions; track key) {
+                <mat-option [value]="key">
+                  {{ ClientRequestStatusT[key] }}
+                </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>info</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'target.entity' | translate }}</mat-label>
+              <mat-select id="target" [formField]="clientRequestSignalForm.target"
+                placeholder="{{ 'select.target.entity' | translate }}">
+                <mat-option value="">{{ 'all.targets' | translate }}</mat-option>
+                @for (key of TargetEntityOptions; track key) {
+                <mat-option [value]="key">
+                  {{ key }}
+                </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>category</mat-icon>
+            </mat-form-field>
+
+
+            @if (clientRequestSignal().target === 'ORGANISATION') {
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>
+                <mat-icon class="field-icon">business</mat-icon>
+                <span>{{ 'target.organisation' | translate }}</span>
+              </mat-label>
+              <mat-select id="targetIdOrganisation" [compareWith]="targetOrganisationCompare"
+                [formField]="clientRequestSignalForm.targetId">
+                <mat-option>
+                  <ngx-mat-select-search [placeholderLabel]="'search.organisation' | translate"
+                    [formField]="clientRequestSignalForm.targetIdFilter" (keyup.enter)="filterTargetOrganisation()"
+                    [noEntriesFoundLabel]="'no.entries.found' | translate">
+                  </ngx-mat-select-search>
+                </mat-option>
+                @for(item of targetOrganisationFilteredList(); track item.id) {
+                <mat-option [value]="item">
+                  <div class="organisation-option">
+                    <span class="option-text">{{ item.name }}</span>
+                    @if (item.registrationNo) {
+                    <span class="option-secondary"> - {{ item.registrationNo }}</span>
+                    }
+                  </div>
+                </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>arrow_drop_down</mat-icon>
+              <mat-hint>
+                <mat-icon class="hint-icon">search</mat-icon>
+                {{ 'type.to.search' | translate }}
+              </mat-hint>
+            </mat-form-field>
+            }
+
+            @if (clientRequestSignal().target === 'INDIVIDUAL') {
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>
+                <mat-icon class="field-icon">person</mat-icon>
+                <span>{{ 'target.individual' | translate }}</span>
+              </mat-label>
+              <mat-select id="targetIdIndividual" [compareWith]="individualCompare"
+                [formField]="clientRequestSignalForm.targetId">
+                <mat-option>
+                  <ngx-mat-select-search [placeholderLabel]="'search.individual' | translate"
+                    [formField]="clientRequestSignalForm.targetIdFilter" (keyup.enter)="filterTargetIndividual()"
+                    [noEntriesFoundLabel]="'no.entries.found' | translate">
+                  </ngx-mat-select-search>
+                </mat-option>
+                @for(item of targetIndividualFilteredList(); track item.id) {
+                <mat-option [value]="item">
+                  <div class="individual-option">
+                    <span class="option-text">{{ item.name }}</span>
+                    @if (item.identityNo) {
+                    <span class="option-secondary"> - {{ item.identityNo }}</span>
+                    }
+                  </div>
+                </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>arrow_drop_down</mat-icon>
+              <mat-hint>
+                <mat-icon class="hint-icon">search</mat-icon>
+                {{ 'type.to.search' | translate }}
+              </mat-hint>
+            </mat-form-field>
+            }
+          </div>
+
+          <div class="form-actions">
+            <button mat-raised-button type="button" color="primary" type="button" (click)="searchClientRequests()"
+              class="action-button search-button">
+              <mat-icon>search</mat-icon>
+              {{ 'search' | translate }}
+            </button>
+            <button mat-stroked-button type="button" (click)="formReset()" class="action-secondary">
+              <mat-icon>restore</mat-icon>
+              <span>{{ 'reset' | translate }}</span>
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="form-section modern-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>assignment</mat-icon>
+            {{ 'search.results' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="modern-content results-content">
+          <div class="table-container">
+            <app-table #clientRequestsTable [dataColumns]="clientRequestsTableColumns"
+              [showActions]="showClientRequestsActions" [paged]="clientRequestsTablePaged"
+              [actions]="clientRequestsTableColumnsActions" (actionClicked)="clientRequestsTableActionClicked($event)"
+              [dataSignal]="clientRequestsTableSignal">
+            </app-table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

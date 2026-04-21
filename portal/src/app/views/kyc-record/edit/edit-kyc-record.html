@@ -1,0 +1,343 @@
+<div class="edit-kyc">
+  <main class="edit-kyc__canvas">
+    <header class="hero">
+      <div class="hero__eyebrow">
+        <mat-icon>lock</mat-icon>
+        <span>Secure Verification Environment</span>
+      </div>
+
+      <div class="hero__header-row">
+        <div>
+          <h1>Edit KYC Record</h1>
+          <p>
+            Update institutional identity parameters and financial risk profiles. All
+            modifications are logged for regulatory auditing purposes.
+          </p>
+        </div>
+
+        @if (recordReference(); as recordReferenceValue) {
+          <div class="hero__reference" aria-label="Current record reference">
+            <span>Record Ref</span>
+            <strong>{{ recordReferenceValue }}</strong>
+          </div>
+        }
+      </div>
+
+      @if (saveNotice(); as notice) {
+        <p class="hero__notice" [class.hero__notice--error]="saveNoticeTone() === 'error'">
+          {{ notice }}
+        </p>
+      }
+    </header>
+
+    <form class="edit-kyc__form" novalidate>
+      <mat-card class="vault-card vault-card--main">
+        <div class="section-heading">
+          <div class="section-heading__icon">
+            <mat-icon>person</mat-icon>
+          </div>
+          <div>
+            <h2>Owner Details</h2>
+            <p>Primary identity and address information for the subject.</p>
+          </div>
+
+          <div class="status-panel" aria-label="Current KYC status">
+            <span class="status-panel__label">KYC Status</span>
+            <div class="status-panel__value">
+              <span class="status-panel__dot"></span>
+              <strong>{{ formModel().kycStatus || 'Not provided' }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <section class="owner-layout" aria-label="Owner details overview">
+          <article class="owner-identity-card" aria-label="Owner identity summary">
+            <p class="owner-identity-card__eyebrow">Record Owner</p>
+            <h3>{{ formModel().ownerDetails.name || 'Not provided' }}</h3>
+
+            <div class="owner-identity-card__meta">
+              <div>
+                <span>Identity Number</span>
+                <strong>{{ formModel().ownerDetails.identityNo || 'Not provided' }}</strong>
+              </div>
+
+              <div>
+                <span>Identity Type</span>
+                <strong>{{ formModel().ownerDetails.identityType || 'Not provided' }}</strong>
+              </div>
+            </div>
+          </article>
+
+          <div class="owner-contact-grid" aria-label="Owner contact and address information">
+            <article class="owner-detail-tile owner-detail-tile--email" aria-label="Email address">
+              <p>Email Address</p>
+              <strong>{{ formModel().ownerDetails.emailAddress || 'Not provided' }}</strong>
+            </article>
+
+            <article class="owner-detail-tile" aria-label="Physical address">
+              <p>Physical Address</p>
+              <strong>{{ formModel().ownerDetails.physicalAddress || 'Not provided' }}</strong>
+            </article>
+
+            <article class="owner-detail-tile owner-detail-tile--wide" aria-label="Postal address">
+              <p>Postal Address</p>
+              <strong>{{ formModel().ownerDetails.postalAddress || 'Not provided' }}</strong>
+            </article>
+          </div>
+        </section>
+      </mat-card>
+
+      <mat-card class="vault-card vault-card--summary">
+        <div class="section-heading">
+          <div class="section-heading__icon">
+            <mat-icon>description</mat-icon>
+          </div>
+          <div>
+            <h2>Record Summary</h2>
+            <p>High-level context used by compliance reviewers.</p>
+          </div>
+        </div>
+
+        <mat-form-field class="vault-field vault-field--textarea" subscriptSizing="dynamic">
+          <mat-label>High-level Compliance Summary</mat-label>
+          <textarea matInput rows="3" [formField]="editForm.recordSummary"></textarea>
+        </mat-form-field>
+      </mat-card>
+
+      <section class="content-grid content-grid--stacked">
+        <mat-card class="vault-card vault-card--soft vault-card--funds">
+          <div class="section-heading">
+            <div class="section-heading__icon section-heading__icon--soft">
+              <mat-icon>account_balance</mat-icon>
+            </div>
+            <div>
+              <h2>Source of Funds</h2>
+              <p>Declared origins of wealth and supporting narrative.</p>
+            </div>
+          </div>
+
+          <div class="source-heading-row">
+            <p class="source-heading-row__label">Declared Sources</p>
+            <span class="source-heading-row__count">{{ formModel().sourceOfFunds.length }} selected</span>
+          </div>
+
+          <div class="source-toolbar">
+            @for (source of formModel().sourceOfFunds; track source) {
+              <button
+                type="button"
+                mat-flat-button
+                class="source-chip"
+                (click)="removeSource(source)">
+                <span translate>source.of.funds.{{ source }}</span>
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+
+            @if (!formModel().sourceOfFunds.length) {
+              <p class="source-empty">No source selected yet.</p>
+            }
+
+            <!-- <button type="button" mat-stroked-button class="source-add" (click)="toggleSourcePicker()">
+              <mat-icon>add</mat-icon>
+              <span>Add Source</span>
+            </button> -->
+          </div>
+
+          @if ( availableSources().length) {
+            <div class="source-picker" aria-label="Available source of funds options">
+              @for (source of availableSources(); track source) {
+                <button type="button" mat-stroked-button class="source-picker__option" (click)="addSource(source)">
+                  <span translate>source.of.funds.{{ source }}</span>
+                </button>
+              }
+            </div>
+          }
+
+          <mat-form-field class="vault-field vault-field--textarea" subscriptSizing="dynamic">
+            <mat-label>Verification Details</mat-label>
+            <textarea matInput rows="4" [formField]="editForm.sourceOfFundsDetails"></textarea>
+          </mat-form-field>
+        </mat-card>
+      </section>
+
+      <section class="content-grid content-grid--stacked">
+        <mat-card class="vault-card vault-card--compliance">
+          <div class="section-heading">
+            <div class="section-heading__icon">
+              <mat-icon>gavel</mat-icon>
+            </div>
+            <div>
+              <h2>Compliance Declaration</h2>
+              <p>Escalation controls for PEP and sanctions checks.</p>
+            </div>
+          </div>
+
+          <div class="compliance-grid">
+            <mat-form-field class="vault-field" subscriptSizing="dynamic">
+              <mat-label>PEP Status (pepStatus)</mat-label>
+              <mat-select [formField]="editForm.declaration.pepStatus">
+                @for (pepStatus of pepStatusOptions; track pepStatus) {
+                  <mat-option [value]="pepStatus">
+                    <span translate>pep.status.{{ pepStatus }}</span>
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <label class="toggle-card toggle-card--alert toggle-card--compliance">
+              <mat-checkbox [formField]="editForm.declaration.sanctionsMatch">
+                Sanctions Match (sanctionsMatch)
+              </mat-checkbox>
+              <span>Flag for potential matches on global sanction lists.</span>
+            </label>
+
+            <div class="rich-text-field rich-text-field--pep">
+              <p class="rich-text-field__label">PEP Details (pepDetails)</p>
+              <quill-editor
+                class="rich-text-field__editor"
+                [ngModel]="formModel().declaration.pepDetails || ''"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="updatePepDetails($event)"
+                [modules]="quillModules"
+                placeholder="Provide PEP context and relationships.">
+              </quill-editor>
+            </div>
+
+            <div class="rich-text-field rich-text-field--sanctions">
+              <p class="rich-text-field__label">Sanctions Details (sanctionsDetails)</p>
+              <quill-editor
+                class="rich-text-field__editor"
+                [ngModel]="formModel().declaration.sanctionsDetails || ''"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="updateSanctionsDetails($event)"
+                [modules]="quillModules"
+                placeholder="Summarize sanctions screening evidence.">
+              </quill-editor>
+            </div>
+          </div>
+        </mat-card>
+
+        <mat-card class="vault-card">
+          <div class="section-heading">
+            <div class="section-heading__icon">
+              <mat-icon>upload_file</mat-icon>
+            </div>
+            <div>
+              <h2>Verification Documents</h2>
+              <p>Supporting files for identity and address verification.</p>
+            </div>
+          </div>
+
+          <label class="upload-dropzone" for="kyc-document-upload">
+            <input
+              id="kyc-document-upload"
+              class="upload-dropzone__input"
+              type="file"
+              accept=".pdf,.png,.jpg,.jpeg"
+              (change)="onDocumentSelected($event)" />
+
+            <mat-icon>cloud_upload</mat-icon>
+            <strong>Drag and drop files to upload</strong>
+            <span>PDF, PNG, JPG (Max 10MB per file)</span>
+          </label>
+
+          <section class="document-section">
+            <h3>Verified Documents (documents)</h3>
+            <div class="document-list">
+              @for (document of formModel().documents; track document.id) {
+                <div class="document-item">
+                  <div class="document-item__meta">
+                    <mat-icon>description</mat-icon>
+                    <div>
+                      <strong>{{ document.fileName || 'Unnamed document' }}</strong>
+                      <span>{{ document.documentType || 'Unknown type' }} • {{ document.verificationStatus || 'UNVERIFIED' }}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    mat-icon-button
+                    aria-label="Remove verified document"
+                    (click)="removeDocument(document.fileName)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          </section>
+
+          <section class="document-section">
+            <h3>Pending Uploads (documentsToUpload)</h3>
+            <div class="document-list">
+              @for (documentForm of editForm.documentsToUpload; track $index) {
+                @let document = documentForm().value();
+                <div class="document-item document-item--pending">
+                  <div class="document-item__meta">
+                    <mat-icon>pending_actions</mat-icon>
+                    <div>
+                      <strong>{{ document.file.name }}</strong>
+                      <span>{{ document.documentType?.name || 'Document type pending' }}</span>
+                    </div>
+                  </div>
+
+                  <mat-form-field class="vault-field document-item__selector" subscriptSizing="dynamic">
+                    <mat-label>Document Type</mat-label>
+                    <mat-select
+                      [formField]="documentForm.documentType">
+                      @for (documentType of availableDocumentTypes(); track documentType.id) {
+                        <mat-option [value]="documentType">{{ documentType.name }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+
+                  <button
+                    type="button"
+                    mat-icon-button
+                    aria-label="Cancel pending upload"
+                    (click)="removeQueuedDocument(document.file.name)">
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+          </section>
+        </mat-card>
+      </section>
+
+      <div class="form-actions">
+        <button type="button" mat-button (click)="navigateBack()">Cancel</button>
+        <button type="button" mat-flat-button class="save-button" (click)="submit()">Save KYC Record</button>
+      </div>
+
+      <section class="context-grid">
+        <article class="context-panel context-panel--map">
+          <div>
+            <p class="context-panel__eyebrow">Identity Origin</p>
+            <h2>Jurisdiction: United Kingdom</h2>
+            <p>FATF Gray List Status: Non-listed / Stable</p>
+          </div>
+        </article>
+
+        <article class="context-panel context-panel--audit">
+          <mat-icon>verified_user</mat-icon>
+          <div>
+            <h2>Audit Trail Active</h2>
+            <p>
+              This session is being recorded for security and compliance. IP address
+              192.168.1.1 logged.
+            </p>
+          </div>
+
+          <div class="context-panel__agents" aria-label="Compliance observers">
+            <div class="context-panel__avatars">
+              <span>AV</span>
+              <span>MK</span>
+            </div>
+            <strong>2 Agents Viewing</strong>
+          </div>
+        </article>
+      </section>
+    </form>
+  </main>
+</div>
+<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>

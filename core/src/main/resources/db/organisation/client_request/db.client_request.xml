@@ -1,0 +1,20 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="
+                        http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="drop_organisation_fk_column" author="ojmakhura">
+        <sql>
+            -- Index for filtering by target
+            CREATE INDEX idx_client_request_target ON client_request(target);
+
+            -- Index for joining by target_id
+            CREATE INDEX idx_client_request_target_id ON client_request(target_id);
+
+            -- Optional composite index for both
+            CREATE INDEX idx_client_request_target_and_target_id ON client_request(target, target_id);
+        </sql>  
+    </changeSet>
+</databaseChangeLog>

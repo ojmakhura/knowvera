@@ -9,6 +9,7 @@
 package bw.co.centralkyc.document.type;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
@@ -22,8 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import bw.co.centralkyc.document.Document;
-
 /**
  * @see bw.co.centralkyc.document.type.DocumentTypeService
  */
@@ -31,16 +30,14 @@ import bw.co.centralkyc.document.Document;
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 public class DocumentTypeServiceImpl
         extends DocumentTypeServiceBase {
-    public DocumentTypeServiceImpl(
-            DocumentTypeDao documentTypeDao,
-            DocumentTypeRepository documentTypeRepository,
-            MessageSource messageSource) {
 
-        super(
-                documentTypeDao,
-                documentTypeRepository,
-                messageSource);
-    }
+
+
+    public DocumentTypeServiceImpl(DocumentTypeDao documentTypeDao, DocumentTypeRepository documentTypeRepository,
+            DocumentTypeMapper documentTypeMapper, MessageSource messageSource) {
+        super(documentTypeDao, documentTypeRepository, documentTypeMapper, messageSource);
+        //TODO Auto-generated constructor stub
+        }
 
     /**
      * @see bw.co.centralkyc.document.type.DocumentTypeService#findById(String)
@@ -48,7 +45,10 @@ public class DocumentTypeServiceImpl
     @Override
     protected DocumentTypeDTO handleFindById(String id)
             throws Exception {
-        return documentTypeDao.toDocumentTypeDTO(documentTypeRepository.getReferenceById(id));
+
+        DocumentType entity = documentTypeRepository.findById(UUID.fromString(id)).orElseThrow(() -> new Exception("DocumentType not found for id: " + id));
+        
+        return documentTypeMapper.toDocumentTypeDTO(entity);
     }
 
     /**
@@ -58,10 +58,10 @@ public class DocumentTypeServiceImpl
     protected DocumentTypeDTO handleSave(DocumentTypeDTO documentType)
             throws Exception {
 
-        DocumentType doc = documentTypeDao.documentTypeDTOToEntity(documentType);
+        DocumentType doc = documentTypeMapper.documentTypeDTOToEntity(documentType);
         doc = documentTypeRepository.save(doc);
 
-        return documentTypeDao.toDocumentTypeDTO(doc);
+        return documentTypeMapper.toDocumentTypeDTO(doc);
     }
 
     /**
@@ -71,7 +71,7 @@ public class DocumentTypeServiceImpl
     protected boolean handleRemove(String id)
             throws Exception {
 
-        documentTypeRepository.deleteById(id);
+        documentTypeRepository.deleteById(UUID.fromString(id));
 
         return true;
     }
@@ -85,7 +85,7 @@ public class DocumentTypeServiceImpl
 
         Collection<DocumentType> types = documentTypeRepository.findAll();
 
-        return documentTypeDao.toDocumentTypeDTOCollection(types);
+        return documentTypeMapper.toDocumentTypeDTOCollection(types);
     }
 
     private Specification<DocumentType> createSpecification(String criteria) {
@@ -116,7 +116,7 @@ public class DocumentTypeServiceImpl
         Collection<DocumentType> types = spec == null ? documentTypeRepository.findAll(Sort.by(Direction.ASC, "name"))
                 : documentTypeRepository.findAll(spec, Sort.by(Direction.ASC, "name"));
 
-        return documentTypeDao.toDocumentTypeDTOCollection(types);
+        return documentTypeMapper.toDocumentTypeDTOCollection(types);
     }
 
     /**
@@ -132,7 +132,7 @@ public class DocumentTypeServiceImpl
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Direction.ASC, "name"));
         Page<DocumentType> types = documentTypeRepository.findAll(pageable);
 
-        return types.map(type -> documentTypeDao.toDocumentTypeDTO(type));
+        return types.map(type -> documentTypeMapper.toDocumentTypeDTO(type));
     }
 
     /**
@@ -148,7 +148,7 @@ public class DocumentTypeServiceImpl
         Page<DocumentType> types = spec == null ? documentTypeRepository.findAll(pageable)
                 : documentTypeRepository.findAll(spec, pageable);
 
-        return types.map(type -> documentTypeDao.toDocumentTypeDTO(type));
+        return types.map(type -> documentTypeMapper.toDocumentTypeDTO(type));
 
     }
 

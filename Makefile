@@ -66,5 +66,14 @@ run_api_local:
 local_web_deps: build_web
 	cd angular/target/centralkyc && npm i
 
+local_web_deps_force:
+	cd angular/target/centralkyc && npm i --force
+
 run_web_local: build_web
 	cd angular/target/centralkyc && npm start
+
+update_portal_deps:
+	cp -rf angular/target/src/app/models/* portal/src/app/models/
+	cp -rf angular/src/app/models/* portal/src/app/models/
+	cp -rf angular/src/app/services/* portal/src/app/services/
+	cp -rf angular/src/app/store/* portal/src/app/store/

@@ -1,0 +1,193 @@
+<div class="sequences-page" aria-label="Sequence search">
+	<section class="hero-panel">
+		<div class="hero-copy">
+			<nav class="hero-breadcrumb" aria-label="Breadcrumb">
+				<span>Registry</span>
+				<mat-icon>chevron_right</mat-icon>
+				<span class="hero-breadcrumb-current">Sequences</span>
+			</nav>
+
+			<h1>Sequence Generators</h1>
+			<p>
+				Manage cryptographic identifiers and automated numbering patterns for cross-protocol
+				entity validation.
+			</p>
+		</div>
+
+		<button mat-flat-button color="primary" class="create-button" type="button" (click)="openCreate()">
+			<mat-icon>add</mat-icon>
+			New Sequence
+		</button>
+	</section>
+
+	<section class="search-band">
+		<mat-card class="search-card">
+			<mat-card-content>
+				<div class="search-card-label">Filter By Criteria</div>
+
+				<div class="search-layout">
+					<mat-form-field appearance="outline" class="search-primary vault-field">
+						<mat-label>Search all sequence metadata</mat-label>
+						<mat-icon matPrefix>search</mat-icon>
+						<input
+							matInput
+							[value]="searchSequencesSignal().general"
+							(input)="updateField('general', $any($event.target).value)"
+							(keyup.enter)="doSearch()"
+							placeholder="Search by sequence name, target entity, or pattern string..."
+						/>
+					</mat-form-field>
+
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Sequence Name</mat-label>
+						<input
+							matInput
+							[value]="searchSequencesSignal().name"
+							(input)="updateField('name', $any($event.target).value)"
+							(keyup.enter)="doSearch()"
+							placeholder="KYC-AUTH-MASTER"
+						/>
+					</mat-form-field>
+
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Target Entity</mat-label>
+						<mat-select
+							[value]="searchSequencesSignal().targetEntity"
+							(selectionChange)="updateField('targetEntity', $event.value)"
+						>
+							<mat-option value="">All Entities</mat-option>
+							@for (target of targetOptions; track target) {
+								<mat-option [value]="target">{{ targetLabel(target) }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Pattern</mat-label>
+						<input
+							matInput
+							[value]="searchSequencesSignal().pattern"
+							(input)="updateField('pattern', $any($event.target).value)"
+							(keyup.enter)="doSearch()"
+							placeholder="Prefix, token, or fragment"
+						/>
+					</mat-form-field>
+				</div>
+			</mat-card-content>
+
+			<mat-card-actions align="end" class="search-actions">
+				<button mat-button type="button" (click)="resetSearch()">
+					<mat-icon>restart_alt</mat-icon>
+					Reset
+				</button>
+				<button mat-flat-button color="primary" type="button" (click)="doSearch()">
+					Search Sequences
+				</button>
+			</mat-card-actions>
+		</mat-card>
+
+		<mat-card class="stats-card">
+			<mat-card-content>
+				<div class="stats-label">Active Protocols</div>
+				<div class="stats-value">{{ activeProtocols() }}</div>
+				<div class="stats-footnote">
+					<mat-icon>verified_user</mat-icon>
+					Registry fully synchronized
+				</div>
+			</mat-card-content>
+			<div class="stats-accent" aria-hidden="true"></div>
+		</mat-card>
+	</section>
+
+	<mat-card class="results-card search-results-card" aria-label="Sequence results">
+		<div class="table-wrap search-results-table-wrap">
+			<table mat-table [dataSource]="dataSource" class="sequences-table search-results-table">
+				<ng-container matColumnDef="name">
+					<th mat-header-cell *matHeaderCellDef>Sequence Name</th>
+					<td mat-cell *matCellDef="let row">
+						<div class="name-cell">
+							<span class="icon-box">
+								<mat-icon>{{ iconOf(row) }}</mat-icon>
+							</span>
+
+							<div class="name-copy">
+								<div class="name-text">{{ row.name || 'Untitled Sequence' }}</div>
+								<div class="muted">{{ subtitleOf(row) }}</div>
+							</div>
+						</div>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="targetEntity">
+					<th mat-header-cell *matHeaderCellDef>Target Entity</th>
+					<td mat-cell *matCellDef="let row">
+						<span class="entity-pill">{{ targetLabel(row.targetEntity) }}</span>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="patternPreview">
+					<th mat-header-cell *matHeaderCellDef>Pattern Preview</th>
+					<td mat-cell *matCellDef="let row">
+						<code>{{ patternOf(row) }}</code>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="lastModified">
+					<th mat-header-cell *matHeaderCellDef>Last Modified</th>
+					<td mat-cell *matCellDef="let row">
+						<span class="muted">{{ lastModifiedOf(row) }}</span>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="actions">
+					<th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
+					<td mat-cell *matCellDef="let row" class="actions-cell">
+						<button mat-icon-button type="button" aria-label="Edit sequence" (click)="openEdit(row.id)">
+							<mat-icon>edit</mat-icon>
+						</button>
+					</td>
+				</ng-container>
+
+				<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+				<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+				<tr class="mat-row empty-row" *matNoDataRow>
+					<td class="mat-cell" colspan="5">
+						<div class="empty-state">
+							<mat-icon>search_off</mat-icon>
+							<p>No sequences found for the current search.</p>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="results-footer search-results-footer">
+			<p class="search-results-summary">Showing {{ showingLabel() }} of {{ totalElements() }} sequences</p>
+
+			<mat-paginator
+				[length]="totalElements()"
+				[pageSize]="pageSize()"
+				[pageIndex]="currentPage()"
+				[pageSizeOptions]="[5, 10, 25, 50]"
+				[hidePageSize]="false"
+				showFirstLastButtons
+				(page)="onPageChange($event)"
+			></mat-paginator>
+		</div>
+	</mat-card>
+
+	<footer class="page-footer">
+		<div class="footer-meta">
+			<span class="footer-dot"></span>
+			<span>System Online</span>
+		</div>
+
+		<div class="footer-meta">
+			<span class="footer-dot footer-dot-secondary"></span>
+			<span>Sequence Registry Live</span>
+		</div>
+
+		<div class="footer-brand">Central KYC Identity Engine</div>
+	</footer>
+</div>

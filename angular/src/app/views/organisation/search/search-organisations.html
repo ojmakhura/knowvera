@@ -1,0 +1,87 @@
+<!-- Organisations Search — adapted to kyc-record style -->
+<div class="edit-container">
+  <div class="breadcrumb-section">
+    <mat-icon class="breadcrumb-icon">home</mat-icon>
+    <span class="breadcrumb-text">{{ 'home' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text">{{ 'organisation.title' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ 'search.organisations.title' | translate }}</span>
+  </div>
+
+  <!-- Hero Header Section -->
+  <div class="hero-header">
+    <div class="hero-content">
+      <div class="header-info">
+        <div class="header-icon">
+          <mat-icon class="main-icon">business</mat-icon>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">{{ 'search.organisations.title' | translate }}</h1>
+          <p class="page-subtitle">{{ 'search.organisations.description' | translate }}</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-fab type="button" matTooltip="{{ 'add.new' | translate }}" color="primary" (click)="searchOrganisationsAddNew()"
+          class="fab-button">
+          <mat-icon fontIcon="add" aria-hidden="false" aria-label="add"></mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+  <div class="loading-container">
+    <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+  </div>
+  }
+
+  <div class="form-container">
+    <div class="edit-form">
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>filter_list</mat-icon>
+            {{ 'search.filters' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="modern-content">
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="col-md-8">
+              <mat-label>{{ 'criteria' | translate }}</mat-label>
+              <input matInput type="text" id="criteria" [formField]="searchOrganisationsSignalForm.criteria" placeholder="{{ 'enter.search.criteria' | translate }}">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+        <mat-card-footer>
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="button" (click)="searchOrganisationsSearch()" class="action-button search-button">
+              <mat-icon>search</mat-icon>
+              {{ 'search' | translate }}
+            </button>
+            <button mat-stroked-button type="button" (click)="searchOrganisationsFormReset()" class="action-secondary">
+              <mat-icon>restore</mat-icon>
+              <span>{{ 'reset' | translate }}</span>
+            </button>
+          </div>
+        </mat-card-footer>
+      </mat-card>
+
+      <mat-card class="form-section modern-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>assignment</mat-icon>
+            {{ 'search.results' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="modern-content results-content">
+          <div class="table-container">
+            <app-table #organisationsTable [dataColumns]="organisationsTableColumns" [showActions]="showOrganisationsActions" [paged]="organisationsTablePaged" [actions]="organisationsTableColumnsActions" (actionClicked)="organisationsTableActionClicked($event)" [dataSignal]="organisationsTableSignal">
+            </app-table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

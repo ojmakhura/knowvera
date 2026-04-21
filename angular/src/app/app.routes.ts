@@ -6,8 +6,19 @@
  * MODEL CLASS:  $validationName
  */
 import { Routes } from '@angular/router';
-import { Shell } from '@app/shell/shell.service';
+import { Shell } from './shell';
 // import { LoginComponent } from './auth/login.component';
+import { organisationRoutes } from '@app/views/organisation/organisation.routes';
+import { settingsRoutes } from '@app/views/settings/settings.routes';
+import { documentTypeRoutes } from '@app/views/document/type/document-type.routes';
+import { documentsRoutes } from '@app/views/document/documents.routes';
+import { individualRoutes } from '@app/views/individual/individual.routes';
+import { usersRoutes } from '@app/views/user/user.routes';
+import { kycSubscriptionRoutes } from '@app/views/subscription/subcription.routes';
+import { invoiceRoutes } from '@app/views/invoice/invoice.routes';
+import { kycRecordRoutes } from '@app/views/kyc/kyc-record.routes';
+import { clientRequestRoutes } from '@app/views/client/client-request.routes';
+import { sequenceRoutes } from '@app/views/sequence/sequence.routes';
 
 export const routes: Routes = [
   // Uncomment the following lines to enable login route
@@ -19,45 +30,24 @@ export const routes: Routes = [
     {
       path: '',
       data: { title: 'Home' },
-      loadChildren: () => import('./home/home.routes').then((m) => m.routes),
+      loadComponent: () => import('./views/home/home').then((m) => m.Home),
     },
     {
       path: 'about',
       data: { title: 'About' },
-      loadChildren: () => import('./about/about.routes').then((m) => m.routes),
+      loadComponent: () => import('./views/about/about').then((m) => m.About),
     },
-    {
-      path: 'organisation', 
-      loadChildren: () => import('@app/view/organisation/organisation.routes').then((m) => m.routes),
-    },
-    {
-      path: 'settings', 
-      loadChildren: () => import('@app/view/settings/settings.routes').then((m) => m.routes),
-    },
-    {
-      path: 'document/type', 
-      loadChildren: () => import('@app/view/document/type/document-type.routes').then((m) => m.routes),
-    },
-    {
-      path: 'individual', 
-      loadChildren: () => import('@app/view/individual/individual.routes').then((m) => m.routes),
-    },
-    {
-      path: 'kyc', 
-      loadChildren: () => import('@app/view/individual/kyc/kyc-record.routes').then((m) => m.routes),
-    },
-    {
-      path: 'user', 
-      loadChildren: () => import('@app/view/user/user.routes').then((m) => m.routes),
-    },
-    {
-      path: 'subscription', 
-      loadChildren: () => import('@app/view/subscription/subcription.routes').then((m) => m.routes),
-    },
-    {
-      path: 'invoice', 
-      loadChildren: () => import('@app/view/invoice/invoice.routes').then((m) => m.routes),
-    },
+    ...organisationRoutes,
+    ...settingsRoutes,
+    ...documentTypeRoutes,
+    ...documentsRoutes,
+    ...individualRoutes,
+    ...usersRoutes,
+    ...kycSubscriptionRoutes,
+    ...invoiceRoutes,
+    ...kycRecordRoutes,
+    ...clientRequestRoutes,
+    ...sequenceRoutes,
   ]),
   // Fallback when no prior route is matched
   { 

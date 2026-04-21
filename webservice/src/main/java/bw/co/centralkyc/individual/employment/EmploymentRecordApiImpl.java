@@ -17,17 +17,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 
 @org.springframework.web.bind.annotation.RestController
-public class EmploymentRecordApiImpl extends EmploymentRecordApiBase {
+public class EmploymentRecordApiImpl implements EmploymentRecordApi {
+
+    private final EmploymentRecordService employmentRecordService;
 
     public EmploymentRecordApiImpl(
             EmploymentRecordService employmentRecordService) {
 
-        super(
-                employmentRecordService);
+        this.employmentRecordService = employmentRecordService;
     }
 
     @Override
-    public ResponseEntity<EmploymentRecordDTO> handleFindById(String id) throws Exception {
+    public ResponseEntity<EmploymentRecordDTO> findById(String id) throws Exception {
 
         try {
 
@@ -40,7 +41,7 @@ public class EmploymentRecordApiImpl extends EmploymentRecordApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<EmploymentRecordDTO>> handleFindByIndividual(String individualId)
+    public ResponseEntity<Collection<EmploymentRecordDTO>> findByIndividual(String individualId)
             throws Exception {
 
         try {
@@ -54,7 +55,7 @@ public class EmploymentRecordApiImpl extends EmploymentRecordApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<EmploymentRecordDTO>> handleGetAll() throws Exception {
+    public ResponseEntity<Collection<EmploymentRecordDTO>> getAll() throws Exception {
 
         try {
 
@@ -67,7 +68,7 @@ public class EmploymentRecordApiImpl extends EmploymentRecordApiBase {
     }
 
     @Override
-    public ResponseEntity<Page<EmploymentRecordDTO>> handleGetAllPaged(Integer pageNumber,
+    public ResponseEntity<Page<EmploymentRecordDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) throws Exception {
 
         try {
@@ -81,7 +82,7 @@ public class EmploymentRecordApiImpl extends EmploymentRecordApiBase {
     }
 
     @Override
-    public ResponseEntity<Page<EmploymentRecordDTO>> handlePagedSearch(String criteria,
+    public ResponseEntity<Page<EmploymentRecordDTO>> pagedSearch(String criteria,
             Integer pageNumber, Integer pageSize) throws Exception {
 
         try {
@@ -95,7 +96,7 @@ public class EmploymentRecordApiImpl extends EmploymentRecordApiBase {
     }
 
     @Override
-    public ResponseEntity<Boolean> handleRemove(String id) throws Exception {
+    public ResponseEntity<Boolean> remove(String id) throws Exception {
 
         try {
 
@@ -108,7 +109,7 @@ public class EmploymentRecordApiImpl extends EmploymentRecordApiBase {
     }
 
     @Override
-    public ResponseEntity<EmploymentRecordDTO> handleSave(EmploymentRecordDTO employmentRecord)
+    public ResponseEntity<EmploymentRecordDTO> save(EmploymentRecordDTO employmentRecord)
             throws Exception {
 
         try {
@@ -125,7 +126,7 @@ public class EmploymentRecordApiImpl extends EmploymentRecordApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<EmploymentRecordDTO>> handleSearch(String criteria)
+    public ResponseEntity<Collection<EmploymentRecordDTO>> search(String criteria)
             throws Exception {
 
         try {

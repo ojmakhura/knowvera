@@ -35,7 +35,7 @@ public class EmailService {
 
     private final RestTemplate restTemplate;
 
-    @Async
+    @Async("virtualThreadExecutor")
     public void sendEmail(Collection<CommMessageDTO> messages) {
 
         if (CollectionUtils.isEmpty(messages)) {

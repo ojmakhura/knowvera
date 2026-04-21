@@ -1,21 +1,25 @@
-import { Menu } from '@app/model/menu/menu';
-import { SelectItem } from '@app/utils/select-item';
+import { of, switchMap } from 'rxjs';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { of, switchMap } from 'rxjs';
 
 export type AppEnvState = {
   env: any;
   loading: boolean;
   loadingMenus: boolean;
   error?: any;
-  realmRoles: SelectItem[];
-  menus: Menu[];
+  realmRoles: any[];
+  menus: any[];
   authorisedPaths: string[];
   authorisedPathsLoaded: boolean;
   isLoggedIn: boolean;
   accountUri: string | null;
   username: string | null;
+  profile: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    username: string;
+  } | null;
 };
 
 const initialState: AppEnvState = {
@@ -30,6 +34,7 @@ const initialState: AppEnvState = {
   isLoggedIn: false,
   accountUri: null,
   username: null,
+  profile: null
 };
 
 export const AppEnvStore = signalStore(
@@ -53,22 +58,10 @@ export const AppEnvStore = signalStore(
             });
         }),
       ),
-      addRealmRole: rxMethod<SelectItem>(
+      addRealmRole: rxMethod<any>(
         switchMap((role) => {
           patchState(store, { realmRoles: [...store.realmRoles(), role] });
           return of(store.realmRoles());
-        }),
-      ),
-      addMenu: rxMethod<Menu>(
-        switchMap((menu) => {
-          patchState(store, { menus: [...store.menus(), menu] });
-          return of(store.menus());
-        }),
-      ),
-      addMenus: rxMethod<Menu[]>(
-        switchMap((menus) => {
-          patchState(store, { menus: [...menus] });
-          return of(store.menus());
         }),
       ),
       setIsLoggedIn: rxMethod<boolean>(
@@ -83,28 +76,10 @@ export const AppEnvStore = signalStore(
           return of(store.accountUri);
         }),
       ),
-      setUsername: rxMethod<string | null>(
-        switchMap((username) => {
-          patchState(store, { username });
-          return of(store.username);
-        }),
-      ),
-      setLoadingMenus: rxMethod<boolean>(
-        switchMap((loadingMenus) => {
-          patchState(store, { loadingMenus });
-          return of(store.loading);
-        }),
-      ),
-      setAuthorisedPaths: rxMethod<string[]>(
-        switchMap((authorisedPaths) => {
-          patchState(store, { authorisedPaths });
-          return of(store.authorisedPaths);
-        }),
-      ),
-      setAuthorisedPathsLoaded: rxMethod<boolean>(
-        switchMap((authorisedPathsLoaded) => {
-          patchState(store, { authorisedPathsLoaded });
-          return of(store.authorisedPathsLoaded);
+      setProfile: rxMethod<{ firstName: string; lastName: string; email: string; username: string } | null>(
+        switchMap((profile) => {
+          patchState(store, { profile });
+          return of(store.profile);
         }),
       ),
     };

@@ -1,0 +1,200 @@
+<div class="edit-container">
+  <!-- Loader -->
+  @if (loading()) {
+  <div>
+    <app-loader [isLoading]="loading()" [size]="'medium'" [message]="'Loading ...'"></app-loader>
+  </div>
+  }
+
+  <!-- Breadcrumb Section -->
+  <div class="breadcrumb-section">
+    <!-- <button mat-icon-button (click)="goBack()" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+    </button> -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a routerLink="/home">{{ 'home' | translate }}</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a routerLink="/client-request">{{ 'client.requests' | translate }}</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ editClientRequestSignal().id ? ('edit' | translate) : ('new' | translate) }}
+        </li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h2 class="page-title">
+        <mat-icon class="header-icon">person_add</mat-icon>
+        {{ 'edit.client.request' | translate }}
+      </h2>
+    </div>
+     <div class="action-buttons">
+    </div>
+  </div>
+
+  <!-- Form Container -->
+  <div class="form-container">
+    <form class="edit-form">
+
+      <!-- Target Information Section -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>category</mat-icon>
+          <mat-card-title>{{ 'target.information' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="grid-2">
+            <!-- Target Entity -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'target.entity' | translate }}</mat-label>
+              <mat-select [formField]="editClientRequestForm.target"
+                (selectionChange)="targetEntitySelectionChange($event)">
+                @for (option of TargetEntityOptions; track option) {
+                <mat-option [value]="option">
+                  {{ ('target.entity.' + option) | translate }}
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="grid-2">
+            @if (editClientRequestSignal().target === TargetEntityT.INDIVIDUAL) {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'individual' | translate }}</mat-label>
+              <mat-select [formField]="editClientRequestForm.targetObject" [compareWith]="individualCompare">
+                <mat-option>
+                  <ngx-mat-select-search [formField]="editClientRequestForm.targetObjectFilter"
+                    (keyup.enter)="filterTargetIndividual()" [placeholderLabel]="'search.individual' | translate"
+                    [noEntriesFoundLabel]="'no.matching.individual.found' | translate">
+                  </ngx-mat-select-search>
+                </mat-option>
+                @for (individual of targetIndividualList(); track individual.id) {
+                <mat-option [value]="individual">
+                  {{ individual.name }} ({{ individual.identityNo }})
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            }
+            @if (editClientRequestSignal().target === TargetEntityT.ORGANISATION) {
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'organisation' | translate }}</mat-label>
+              <mat-select [formField]="editClientRequestForm.targetObject" [compareWith]="organisationCompare">
+                <mat-option>
+                  <ngx-mat-select-search [formField]="editClientRequestForm.targetObjectFilter"
+                    (keyup.enter)="filterTargetOrganisation()" [placeholderLabel]="'search.organisation' | translate"
+                    [noEntriesFoundLabel]="'no.matching.organisation.found' | translate">
+                  </ngx-mat-select-search>
+                </mat-option>
+                @for (org of targetOrganisationList(); track org.id) {
+                <mat-option [value]="org">
+                  {{ org.name }} ({{ org.registrationNo }})
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            }
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'request.status' | translate }}</mat-label>
+              <mat-select [formField]="editClientRequestForm.status">
+                @for (option of ClientRequestStatusOptions; track option) {
+                <mat-option [value]="ClientRequestStatusT[option]">
+                  {{ ('client.request.status.' + ClientRequestStatusT[option]) | translate }}
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Requesting Organisation Section -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>corporate_fare</mat-icon>
+          <mat-card-title>{{ 'requesting.organisation' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="grid-2">
+            <!-- Organisation -->
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'organisation' | translate }}</mat-label>
+              <mat-select [formField]="editClientRequestForm.organisation" [compareWith]="organisationCompare">
+                <mat-option>
+                  <ngx-mat-select-search [formField]="editClientRequestForm.organisationFilter"
+                    (keyup.enter)="filterOrganisation()" [placeholderLabel]="'search.organisation' | translate"
+                    [noEntriesFoundLabel]="'no.matching.organisation.found' | translate">
+                  </ngx-mat-select-search>
+                </mat-option>
+                @for (org of organisationList(); track org.id) {
+                <mat-option [value]="org">
+                  {{ org.name }} ({{ org.registrationNo }})
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Document Information Section -->
+      @if (editClientRequestSignal().documentId) {
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>attach_file</mat-icon>
+          <mat-card-title>{{ 'document.information' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="document-info">
+            @if (editClientRequestSignal().fileName) {
+            <div class="document-item">
+              <mat-icon>description</mat-icon>
+              <span>{{ editClientRequestSignal().fileName }}</span>
+              @if (editClientRequestSignal().fileUrl) {
+              <a [href]="editClientRequestSignal().fileUrl" target="_blank" mat-icon-button>
+                <mat-icon>download</mat-icon>
+              </a>
+              }
+            </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+      }
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <div class="action-buttons">
+          @if (editClientRequestSignal().id) {
+          <button mat-raised-button color="warn" type="button" (click)="editClientRequestFormDelete()">
+            <mat-icon>delete</mat-icon>
+            {{ 'delete' | translate }}
+          </button>
+          }
+        <!-- </div> -->
+        <!-- <div class="action-group action-group-right"> -->
+          <!-- <button mat-raised-button type="button" (click)="goBack()">
+            <mat-icon>cancel</mat-icon>
+            {{ 'cancel' | translate }}
+          </button> -->
+          <button mat-raised-button type="button" (click)="editClientRequestFormReset()">
+            <mat-icon>refresh</mat-icon>
+            {{ 'reset' | translate }}
+          </button>
+          <button mat-raised-button color="primary" type="button" (click)="editClientRequestFormSave()">
+            <mat-icon>save</mat-icon>
+            {{ 'save' | translate }}
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>

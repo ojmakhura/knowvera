@@ -1,0 +1,201 @@
+<section class="invoice-edit-page">
+  <header class="page-header">
+    <div class="page-title-group">
+      <div class="title-mark">
+        <mat-icon>edit_document</mat-icon>
+        <span>Edit Invoice</span>
+      </div>
+      <h1>{{ editInvoiceSignal().id ? 'Update Invoice Record' : 'Create Invoice Record' }}</h1>
+      <p>
+        Configure identity, subscription context, and payment state for the selected invoice record.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button mat-stroked-button type="button" class="secondary-action" (click)="cancel()">
+        Discard
+      </button>
+      <button mat-flat-button type="button" class="primary-action"
+        [disabled]="loading() || editInvoiceSignalForm().invalid()" (click)="saveInvoice()">
+        Save Changes
+      </button>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <mat-card class="vault-card">
+      <mat-card-content>
+        <div class="section-heading">
+          <mat-icon>fingerprint</mat-icon>
+          <h2>Invoice Identity</h2>
+        </div>
+
+        <div class="field-grid two-column">
+          <div class="field-group">
+            <label class="field-label" for="subOrg" translate>Invoice Reference</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-icon matPrefix>tag</mat-icon>
+              <input matInput type="text" placeholder="e.g. INV-2024-001" [formField]="editInvoiceSignalForm.ref" />
+            </mat-form-field>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="subOrg" translate>Assign Organisation</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select id="organisation" [compareWith]="organisationCompare"
+                [formField]="editInvoiceSignalForm.organisation">
+                <mat-option>
+                  <ngx-mat-select-search [placeholderLabel]="'search.organisation' | translate"
+                    [formField]="editInvoiceSignalForm.organisationFilter" (keyup.enter)="filterOrganisation()"
+                    [noEntriesFoundLabel]="'no.entries.found' | translate">
+                  </ngx-mat-select-search>
+                  <button mat-icon-button type="button" aria-label="Search organisations"
+                    (click)="filterOrganisation()">
+                    <mat-icon>search</mat-icon>
+                  </button>
+                </mat-option>
+                @for(item of organisationApiStore.dataList(); track item.id) {
+                <mat-option [value]="item">
+                  <div class="organisation-option">
+                    <span class="option-text">{{ item.name }}</span>
+                  </div>
+                </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            @if (editInvoiceSignalForm.organisation().touched()) {
+            @for (error of editInvoiceSignalForm.organisation().errors(); track $index) {
+            <p class="error-message" translate>{{ error }}</p>
+            }
+            }
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="vault-card">
+      <mat-card-content>
+        <div class="section-heading">
+          <mat-icon>calendar_today</mat-icon>
+          <h2>Subscription Context</h2>
+        </div>
+
+        <p class="support-copy context-copy">
+          Subscription metadata is inherited from the linked record and cannot be edited here.
+        </p>
+
+        <div class="subscription-context-grid top-gap">
+          <div class="context-item">
+            <p class="field-label">Billing Period</p>
+            <p class="context-value">{{ subscriptionPeriodLabel() }}</p>
+          </div>
+
+          <div class="context-item">
+            <p class="field-label">Start Date</p>
+            <p class="context-value">{{ editInvoiceSignal().startDate | date: 'dd-MM-yyyy' }}</p>
+          </div>
+
+          <div class="context-item">
+            <p class="field-label">End Date</p>
+            <p class="context-value">{{ editInvoiceSignal().endDate | date: 'dd-MM-yyyy' }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="split-grid">
+      <mat-card class="vault-card compact-card">
+        <mat-card-content>
+          <div class="section-heading">
+            <mat-icon>payments</mat-icon>
+            <h2>Financials</h2>
+          </div>
+
+          <div class="field-group amount-field">
+            <label class="field-label" for="invoiceAmount">Invoice Amount</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <span matTextPrefix>{{appEnvState.currency()}}&nbsp;</span>
+              <input id="invoiceAmount" matInput type="number" step="0.01" placeholder="0.00"
+                [formField]="editInvoiceSignalForm.amount" />
+            </mat-form-field>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="invoiceVat">VAT (%)</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <input id="invoiceVat" matInput type="number" step="0.01" placeholder="0.00"
+                [formField]="editInvoiceSignalForm.vat" />
+            </mat-form-field>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="invoiceTotalAmount">Total Amount</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <span matTextPrefix>{{appEnvState.currency()}}&nbsp;</span>
+              <input id="invoiceTotalAmount" matInput type="number" step="0.01"
+                [formField]="editInvoiceSignalForm.totalAmount" />
+            </mat-form-field>
+          </div>
+
+          <p class="support-copy">Total amount is calculated from invoice amount and VAT.</p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="vault-card compact-card">
+        <mat-card-content>
+          <div class="payment-header">
+            <div class="section-heading section-heading-inline">
+              <mat-icon>verified_user</mat-icon>
+              <h2>Payment Status</h2>
+            </div>
+
+            <mat-slide-toggle color="primary" [formField]="editInvoiceSignalForm.paid">
+              Is Paid
+            </mat-slide-toggle>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="invoiceTotalAmount" translate>payment.date</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <input id="paymentDate" matInput [matDatepicker]="paymentDatePicker" [formField]="editInvoiceSignalForm.paymentDate" >
+              <mat-hint>DD/MM/YYYY</mat-hint>
+              <mat-datepicker-toggle matIconSuffix [for]="paymentDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #paymentDatePicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="invoiceTotalAmount" translate>payment.reference</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-icon matPrefix>receipt_long</mat-icon>
+              <input matInput type="text" placeholder="Payment Reference"
+                [formField]="editInvoiceSignalForm.paymentReference" />
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <footer class="audit-grid">
+      <div class="audit-item">
+        <p class="audit-label">Created At</p>
+        <p class="audit-value">{{ editInvoiceSignal().createdAt || 'Not available' }}</p>
+      </div>
+
+      <div class="audit-item">
+        <p class="audit-label">Created By</p>
+        <p class="audit-value">{{ editInvoiceSignal().createdBy || 'Not available' }}</p>
+      </div>
+
+      <div class="audit-item">
+        <p class="audit-label">Modified At</p>
+        <p class="audit-value">{{ editInvoiceSignal().modifiedAt || 'Not available' }}</p>
+      </div>
+
+      <div class="audit-item">
+        <p class="audit-label">Modified By</p>
+        <p class="audit-value">{{ editInvoiceSignal().modifiedBy || 'Not available' }}</p>
+      </div>
+    </footer>
+  </div>
+
+  <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+</section>

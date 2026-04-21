@@ -1,0 +1,216 @@
+<section class="client-requests-page">
+	<header class="page-header">
+		<div class="page-title-group">
+			<h1 class="page-title">Client Requests</h1>
+			<p class="page-subtitle">Central KYC / Audit Environment</p>
+		</div>
+
+		<button mat-flat-button type="button" class="new-request-btn" [routerLink]="['/client-request/edit']">
+			<mat-icon>add</mat-icon>
+			<span>New Request</span>
+		</button>
+	</header>
+
+	<mat-card class="search-card">
+		<div class="section-heading">
+			<mat-icon>manage_search</mat-icon>
+			<h2>Search Parameters</h2>
+		</div>
+
+		<form class="search-form" (submit)="$event.preventDefault(); onSubmit()">
+			<mat-form-field appearance="outline" class="vault-field">
+				<mat-label>Name</mat-label>
+				<input
+					matInput
+					[value]="filters().name"
+					(input)="updateField('name', $any($event.target).value)"
+					placeholder="Search by name..."
+				/>
+			</mat-form-field>
+
+			<mat-form-field appearance="outline" class="vault-field">
+				<mat-label>Email Address</mat-label>
+				<input
+					matInput
+					type="email"
+					[value]="filters().emailAddress"
+					(input)="updateField('emailAddress', $any($event.target).value)"
+					placeholder="client@example.com"
+				/>
+			</mat-form-field>
+
+			<mat-form-field appearance="outline" class="vault-field">
+				<mat-label>Organisation</mat-label>
+				<mat-select
+					[value]="filters().organisationId"
+					(selectionChange)="updateField('organisationId', $event.value)"
+				>
+					<mat-option value="">All Organisations</mat-option>
+					@for (organisation of organisations(); track organisation.id) {
+						<mat-option [value]="organisation.id">{{ organisation.name || organisation.registrationNo }}</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
+
+			<mat-form-field appearance="outline" class="vault-field">
+				<mat-label>Status</mat-label>
+				<mat-select [value]="filters().status" (selectionChange)="updateField('status', $event.value)">
+					<mat-option value="">All Statuses</mat-option>
+					@for (status of statusOptions; track status) {
+						<mat-option [value]="status">{{ statusLabel(status) }}</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
+
+			<mat-form-field appearance="outline" class="vault-field">
+				<mat-label>Target Entity</mat-label>
+				<mat-select [value]="filters().target" (selectionChange)="updateField('target', $event.value)">
+					<mat-option value="">All Targets</mat-option>
+					@for (target of targetOptions; track target) {
+						<mat-option [value]="target">{{ targetLabel(target) }}</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
+
+			<mat-form-field appearance="outline" class="vault-field">
+				<mat-label>Target ID Filter</mat-label>
+				<input
+					matInput
+					[value]="filters().targetId"
+					(input)="updateField('targetId', $any($event.target).value)"
+					placeholder="UUID or Reference No."
+				/>
+			</mat-form-field>
+
+			<div class="search-actions">
+				<button mat-button type="button" class="clear-btn" (click)="clearFilters()">Clear Filters</button>
+				<button mat-flat-button type="submit" class="search-btn">Execute Search</button>
+			</div>
+		</form>
+	</mat-card>
+
+	<mat-card class="results-card search-results-card">
+		<div class="results-head">
+			<h3>
+				<mat-icon>list_alt</mat-icon>
+				<span>Vault Query Results</span>
+			</h3>
+
+			<span class="record-count">Showing {{ totalElements() }} Records</span>
+		</div>
+
+		@if (loading()) {
+			<div class="loader-wrap">
+				<app-loader [isLoading]="true" [overlay]="false" [fullScreen]="false" message="Loading requests"></app-loader>
+			</div>
+		}
+
+		<div class="results-table-wrap search-results-table-wrap">
+			<table mat-table [dataSource]="dataSource" class="requests-table search-results-table">
+				<ng-container matColumnDef="client">
+					<th mat-header-cell *matHeaderCellDef>Client Name / Registration</th>
+					<td mat-cell *matCellDef="let row">
+						<div class="client-cell">
+							<div class="client-name">{{ row.name || 'Unnamed Request' }}</div>
+							<div class="client-reference">{{ requestReference(row) }}</div>
+							<span class="entity-chip">{{ targetLabel(row.target) }}</span>
+						</div>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="email">
+					<th mat-header-cell *matHeaderCellDef>Email Address</th>
+					<td mat-cell *matCellDef="let row" class="email-cell">{{ row.emailAddress || '-' }}</td>
+				</ng-container>
+
+				<ng-container matColumnDef="status">
+					<th mat-header-cell *matHeaderCellDef>Status</th>
+					<td mat-cell *matCellDef="let row">
+						<span class="status-badge" [class]="statusClass(row.status)">
+							<span class="status-dot"></span>
+							{{ statusLabel(row.status) }}
+						</span>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="organisation">
+					<th mat-header-cell *matHeaderCellDef>Organisation</th>
+					<td mat-cell *matCellDef="let row">
+						<div class="organisation-cell">
+							<div class="organisation-name">{{ row.organisation || 'No organisation attached' }}</div>
+							<div class="organisation-reference">{{ organisationSubtitle(row) }}</div>
+						</div>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="documents">
+					<th mat-header-cell *matHeaderCellDef>Documents</th>
+					<td mat-cell *matCellDef="let row">
+						<div class="document-cell">
+							<mat-icon [class.alert]="!row.fileName">{{ row.fileName ? 'description' : 'warning' }}</mat-icon>
+							<div>
+								<div class="document-name">{{ documentName(row) }}</div>
+								<div class="document-type">{{ documentType(row) }}</div>
+							</div>
+						</div>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="target">
+					<th mat-header-cell *matHeaderCellDef>Target &amp; KYC</th>
+					<td mat-cell *matCellDef="let row">
+						<div class="target-cell">
+							<div class="target-name">{{ row.targetId || targetLabel(row.target) }}</div>
+							<div class="kyc-row" [class]="kycClass(row.targetKycStatus)">
+								<mat-icon>{{ statusIcon(row.status) }}</mat-icon>
+								<span>{{ kycLabel(row.targetKycStatus) }}</span>
+							</div>
+						</div>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="actions">
+					<th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
+					<td mat-cell *matCellDef="let row" class="actions-cell">
+						<button mat-icon-button type="button" matTooltip="View request" (click)="openDetails(row.id)">
+							<mat-icon>visibility</mat-icon>
+						</button>
+						<button mat-icon-button type="button" matTooltip="Edit request" (click)="openEdit(row.id)">
+							<mat-icon>edit</mat-icon>
+						</button>
+					</td>
+				</ng-container>
+
+				<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+				<tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+				<tr class="mat-row empty-row" *matNoDataRow>
+					<td class="mat-cell" colspan="7">
+						<div class="empty-state">
+							<mat-icon>search_off</mat-icon>
+							<p>No client requests matched the current search.</p>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+		<div class="results-footer search-results-footer">
+			<p class="results-summary search-results-summary">Viewing {{ showingStart() }} - {{ showingEnd() }} of {{ totalElements() }} requests</p>
+
+			<mat-paginator
+				[length]="totalElements()"
+				[pageIndex]="currentPage()"
+				[pageSize]="pageSize()"
+				[pageSizeOptions]="[5, 10, 25, 50]"
+				[hidePageSize]="false"
+				showFirstLastButtons
+				(page)="handlePageEvent($event)"
+			></mat-paginator>
+		</div>
+	</mat-card>
+
+	<footer class="security-footer">
+		<p>Central KYC Secure Search Interface • End-to-End Encrypted Data Access</p>
+	</footer>
+</section>

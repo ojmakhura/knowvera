@@ -1,0 +1,169 @@
+<div class="document-edit-page">
+	<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+
+	<div class="edit-shell">
+		<mat-card class="edit-card">
+			@if (loading()) {
+			<mat-progress-bar mode="indeterminate"></mat-progress-bar>
+			}
+
+			<header class="edit-header">
+				<div class="header-copy">
+					<div class="heading-row">
+						<mat-icon>description</mat-icon>
+						<h1>Edit Document Asset</h1>
+					</div>
+					<p>Internal Reference: {{ internalReference() }}</p>
+				</div>
+
+				<div class="header-actions">
+					<button mat-button type="button" class="cancel-btn" (click)="cancelEdit()">Cancel</button>
+					<button mat-flat-button color="primary" type="button" class="save-btn" [disabled]="loading()"
+						(click)="editDocumentSave()">
+						Save Changes
+					</button>
+				</div>
+			</header>
+
+			<form class="edit-form">
+				<section class="section-block">
+					<div class="section-head">
+						<div class="section-mark"></div>
+						<h2>Identity &amp; Context</h2>
+					</div>
+
+					<div class="field-grid two-column">
+						<div class="field-group">
+							<label class="field-label">Document ID</label>
+							<mat-form-field class="vault-field">
+								<mat-icon matPrefix>lock</mat-icon>
+								<input matInput [value]="editDocumentSignal().id || ''" readonly />
+							</mat-form-field>
+							<!-- <p class="field-note">This unique identifier is immutable.</p> -->
+						</div>
+
+						<div class="field-group">
+							<label class="field-label">Target Entity</label>
+							<mat-form-field class="vault-field">
+								@if(!editDocumentSignal().id) {
+								<mat-select [formField]="editDocumentSignalForm.target">
+									@for (option of TargetEntityOptions; track option) {
+									<mat-option [value]="option">{{ targetEntityLabel(option) }}</mat-option>
+									}
+								</mat-select>
+								}
+								<input matInput [formField]="editDocumentSignalForm.target" placeholder="Select target entity" />	
+							</mat-form-field>
+						</div>
+
+						<div class="field-group">
+							<label class="field-label">Target ID</label>
+							<mat-form-field class="vault-field">
+								<input matInput [formField]="editDocumentSignalForm.targetId"
+									placeholder="Enter entity reference" />
+							</mat-form-field>
+						</div>
+
+						<div class="field-group">
+							<label class="field-label">Document Type</label>
+							<mat-form-field class="vault-field">
+								<mat-select [formField]="editDocumentSignalForm.documentType"
+									[compareWith]="documentTypeCompare">
+									<mat-option>
+										<ngx-mat-select-search [placeholderLabel]="'search.document.type' | translate"
+											[formField]="editDocumentSignalForm.documentTypeFilter"
+											(keyup.enter)="filterDocumentType()"
+											[noEntriesFoundLabel]="'no.entries.found' | translate">
+										</ngx-mat-select-search>
+									</mat-option>
+									@for (option of documentTypeOptions(); track option.id) {
+									<mat-option [value]="option">{{ option.name || option.code }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+					</div>
+				</section>
+
+				<mat-divider></mat-divider>
+
+				<section class="section-block section-block-compact">
+					<div class="section-head">
+						<div class="section-mark"></div>
+						<h2>Asset Details</h2>
+					</div>
+
+					<div class="field-grid two-column">
+						<div class="field-group">
+							<label class="field-label">File Name</label>
+							<mat-form-field class="vault-field icon-suffix-field">
+								<input matInput [formField]="editDocumentSignalForm.fileName" />
+								<mat-icon matSuffix>edit</mat-icon>
+							</mat-form-field>
+						</div>
+
+						<div class="field-group">
+							<label class="field-label">Verification Status</label>
+							<mat-form-field class="vault-field">
+								<mat-select [formField]="editDocumentSignalForm.verificationStatus">
+									@for (status of DocumentVerificationStatusOptions; track status) {
+									<mat-option [value]="status">{{ verificationStatusLabel(status) }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<div class="field-group field-span-2">
+							<label class="field-label">Document URL</label>
+							<div class="url-row">
+								<mat-form-field class="vault-field url-field">
+									<input matInput [formField]="editDocumentSignalForm.url" />
+								</mat-form-field>
+
+								<button mat-stroked-button type="button" class="view-btn"
+									[disabled]="!canViewDocument()" (click)="viewDocument()"
+									matTooltip="Open document preview">
+									<mat-icon>visibility</mat-icon>
+									View Document
+								</button>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section class="compliance-panel">
+					<mat-icon>shield</mat-icon>
+					<div>
+						<h3>Compliance Protocol Active</h3>
+						<p>
+							All changes to this document form are logged in the immutable audit trail. Ensure all
+							entity references align with current registry data before finalizing the update.
+						</p>
+					</div>
+				</section>
+			</form>
+
+			<footer class="edit-footer">
+				<div class="footer-left">
+					<div class="footer-badges">
+						<span class="user-badge">AI</span>
+					</div>
+					<span>Auto-scanned by Veritas Engine 2.4</span>
+				</div>
+
+				<div class="footer-right">{{ lastUpdatedLabel() }}</div>
+			</footer>
+		</mat-card>
+
+		<div class="trust-footer">
+			<div>
+				<mat-icon>verified_user</mat-icon>
+				<span>Veritas Secure</span>
+			</div>
+			<div>
+				<mat-icon>history_edu</mat-icon>
+				<span>Audit Ready</span>
+			</div>
+		</div>
+	</div>
+</div>

@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Flow.Subscription;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -30,16 +31,19 @@ import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.SortOrder;
 import bw.co.centralkyc.SortOrderFactory;
+import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.kyc.KycRecordServiceException;
-import bw.co.centralkyc.organisation.OrganisationDao;
-import bw.co.centralkyc.organisation.OrganisationRepository;
 import bw.co.centralkyc.sequence.SequenceGenerator;
+import bw.co.centralkyc.sequence.SequenceGeneratorRepository;
 import bw.co.centralkyc.sequence.SequenceGeneratorService;
 import bw.co.centralkyc.sequence.SequencePart;
 import bw.co.centralkyc.sequence.SequencePartType;
+import bw.co.centralkyc.settings.SettingsDTO;
+import bw.co.centralkyc.settings.SettingsService;
 import bw.co.centralkyc.subscription.KycSubsciptionStatus;
 import bw.co.centralkyc.subscription.KycSubscription;
 import bw.co.centralkyc.subscription.KycSubscriptionDao;
+import bw.co.centralkyc.subscription.KycSubscriptionMapper;
 import bw.co.centralkyc.subscription.KycSubscriptionRepository;
 
 /**
@@ -52,15 +56,20 @@ public class KycInvoiceServiceImpl
 
     private static final String SEQUENCE_NAME = "KYC_INVOICE_REF";
     private final SequenceGeneratorService sequenceGeneratorService;
+    private final SequenceGeneratorRepository sequenceGeneratorRepository;
+    private final SettingsService settingsService;
 
     public KycInvoiceServiceImpl(KycInvoiceDao kycInvoiceDao, KycInvoiceRepository kycInvoiceRepository,
-            KycSubscriptionDao kycSubscriptionDao, KycSubscriptionRepository kycSubscriptionRepository,
-            OrganisationDao organisationDao, OrganisationRepository organisationRepository,
-            MessageSource messageSource, SequenceGeneratorService sequenceGeneratorService) {
-        super(kycInvoiceDao, kycInvoiceRepository, kycSubscriptionDao, kycSubscriptionRepository, organisationDao,
-                organisationRepository, messageSource);
-
+            KycInvoiceMapper kycInvoiceMapper, KycSubscriptionDao kycSubscriptionDao,
+            SequenceGeneratorService sequenceGeneratorService, SequenceGeneratorRepository sequenceGeneratorRepository,
+            KycSubscriptionRepository kycSubscriptionRepository, KycSubscriptionMapper kycSubscriptionMapper, SettingsService settingsService,
+            MessageSource messageSource) {
+        super(kycInvoiceDao, kycInvoiceRepository, kycInvoiceMapper, kycSubscriptionDao, kycSubscriptionRepository,
+                kycSubscriptionMapper, messageSource);
+        // TODO Auto-generated constructor stub
         this.sequenceGeneratorService = sequenceGeneratorService;
+        this.sequenceGeneratorRepository = sequenceGeneratorRepository;
+        this.settingsService = settingsService;
     }
 
     /**
@@ -70,7 +79,7 @@ public class KycInvoiceServiceImpl
     protected KycInvoiceDTO handleFindById(String id)
             throws Exception {
 
-        KycInvoice kycInvoice = this.kycInvoiceRepository.findById(id).orElse(null);
+        KycInvoice kycInvoice = this.kycInvoiceRepository.findById(UUID.fromString(id)).orElse(null);
 
         return this.kycInvoiceDao.toKycInvoiceDTO(kycInvoice);
     }
@@ -84,7 +93,7 @@ public class KycInvoiceServiceImpl
 
         KycInvoice kycInvoice = this.kycInvoiceDao.kycInvoiceDTOToEntity(invoice);
 
-        if(StringUtils.isBlank(kycInvoice.getRef())) {
+        if (StringUtils.isBlank(kycInvoice.getRef())) {
 
             kycInvoice.setRef(createInvoiceRef());
         }
@@ -101,7 +110,7 @@ public class KycInvoiceServiceImpl
     protected boolean handleRemove(String id)
             throws Exception {
 
-        this.kycInvoiceRepository.deleteById(id);
+        this.kycInvoiceRepository.deleteById(UUID.fromString(id));
         return true;
     }
 
@@ -117,7 +126,7 @@ public class KycInvoiceServiceImpl
 
     private Specification<KycInvoice> createSearchSpecification(InvoiceSearchCriteria criteria) {
 
-        Specification<KycInvoice> specification = null;
+        Specification<KycInvoice> specification = ((root, query, builder) -> builder.conjunction());
 
         if (criteria.getPaid() != null) {
             specification = (root, query, cb) -> cb.equal(root.get("paid"), criteria.getPaid());
@@ -156,8 +165,8 @@ public class KycInvoiceServiceImpl
 
         if (StringUtils.isNotBlank(criteria.getOrganisatonId())) {
 
-            Specification<KycInvoice> orgIdSpec = (root, query, cb) -> cb.equal(root.get("organisation").get("id"),
-                    criteria.getOrganisatonId());
+            Specification<KycInvoice> orgIdSpec = (root, query, cb) -> cb.equal(root.get("organisationId"),
+                    UUID.fromString(criteria.getOrganisatonId()));
             specification = specification == null ? orgIdSpec : specification.and(orgIdSpec);
         }
 
@@ -181,8 +190,9 @@ public class KycInvoiceServiceImpl
 
         Specification<KycInvoice> specification = createSearchSpecification(criteria);
 
-        Collection<KycInvoice> invoices = this.kycInvoiceRepository.findAll(specification,
-                SortOrderFactory.createSortOrder(sortOrders));
+        Collection<KycInvoice> invoices = specification == null
+                ? this.kycInvoiceRepository.findAll(SortOrderFactory.createSortOrder(sortOrders))
+                : this.kycInvoiceRepository.findAll(specification, SortOrderFactory.createSortOrder(sortOrders));
         return this.kycInvoiceDao.toKycInvoiceDTOCollection(invoices);
     }
 
@@ -230,7 +240,8 @@ public class KycInvoiceServiceImpl
 
         Specification<KycInvoice> specification = createSearchSpecification(criteria.getCriteria());
 
-        Page<KycInvoice> invoicePage = this.kycInvoiceRepository.findAll(specification, page);
+        Page<KycInvoice> invoicePage = specification == null ? this.kycInvoiceRepository.findAll(page)
+                : this.kycInvoiceRepository.findAll(specification, page);
 
         return invoicePage.map(kycInvoice -> this.kycInvoiceDao.toKycInvoiceDTO(kycInvoice));
 
@@ -245,12 +256,13 @@ public class KycInvoiceServiceImpl
 
     private String createInvoiceRef() {
 
-        SequenceGenerator sequenceGenerator = sequenceGeneratorService.findByName(SEQUENCE_NAME);
+        SequenceGenerator sequenceGenerator = sequenceGeneratorRepository.findByName(SEQUENCE_NAME).orElse(null);
 
         if (sequenceGenerator == null) {
 
             sequenceGenerator = new SequenceGenerator();
             sequenceGenerator.setName(SEQUENCE_NAME);
+            sequenceGenerator.setTargetEntity(TargetEntity.INVOICE);
 
             Collection<SequencePart> sequenceParts = new HashSet<SequencePart>();
 
@@ -271,7 +283,7 @@ public class KycInvoiceServiceImpl
             sequenceParts.add(counterPart);
 
             sequenceGenerator.setSequenceParts(sequenceParts);
-            sequenceGenerator = sequenceGeneratorService.save(sequenceGenerator);
+            sequenceGenerator = sequenceGeneratorRepository.save(sequenceGenerator);
         }
 
         String nextRef = sequenceGeneratorService.generateNextSequenceValue(SEQUENCE_NAME, true);
@@ -281,13 +293,15 @@ public class KycInvoiceServiceImpl
     @Override
     protected Collection<KycInvoiceDTO> handleGenerateInvoice(String subscriptionId, String user) throws Exception {
 
-        KycSubscription subscription = this.kycSubscriptionRepository.findById(subscriptionId).orElseThrow(
-                () -> new KycRecordServiceException(
-                        String.format("Subscription with id %s not found", subscriptionId)));
+        KycSubscription subscription = this.kycSubscriptionRepository.findById(UUID.fromString(subscriptionId))
+                .orElseThrow(
+                        () -> new KycRecordServiceException(
+                                String.format("Subscription with id %s not found", subscriptionId)));
 
-        if(subscription.getStatus() != KycSubsciptionStatus.ACTIVE) {
+        if (subscription.getStatus() != KycSubsciptionStatus.ACTIVE) {
             throw new KycRecordServiceException(
-                String.format("Cannot generate invoice for subscription with ref %s because it is not active", subscription.getRef()));
+                    String.format("Cannot generate invoice for subscription with ref %s because it is not active",
+                            subscription.getRef()));
         }
 
         KycInvoice invoice = KycInvoice.Factory.newInstance();
@@ -313,21 +327,32 @@ public class KycInvoiceServiceImpl
                 break;
             case WEEK:
                 throw new UnsupportedOperationException("Weekly subscriptions are not supported yet");
-                // break;
+            // break;
             case YEAR:
                 LocalDate firstDayOfYear = LocalDate.now().withDayOfYear(1);
                 LocalDate lastDayOfYear = firstDayOfYear.plusYears(1).minusDays(1);
                 invoice.setStartDate(firstDayOfYear);
                 invoice.setEndDate(lastDayOfYear);
                 break;
-        
+
             default:
                 break;
         }
 
+        double amount = subscription.getAmount();
+        SettingsDTO settings = settingsService.getAll().stream().findFirst().orElse(null);
+        
+        if (settings != null && settings.getVat() != null) {
+            invoice.setVat(settings.getVat());
+            double vat = amount * settings.getVat() / 100;
+            invoice.setTotalAmount(amount + vat);
+        } else {
+            invoice.setTotalAmount(amount);
+        }
+
         invoice = this.kycInvoiceRepository.save(invoice);
 
-        return kycInvoiceRepository.findInvoicesBySubscriptionId(subscriptionId);
+        return kycInvoiceRepository.findInvoicesBySubscriptionId(UUID.fromString(subscriptionId));
     }
 
     @Override
@@ -335,7 +360,7 @@ public class KycInvoiceServiceImpl
 
         Specification<KycInvoice> specification = (root, query, cb) -> cb.equal(
                 root.get("organisation").get("id"),
-                organisationId);
+                UUID.fromString(organisationId));
 
         Collection<KycInvoice> invoices = this.kycInvoiceRepository.findAll(specification);
 
@@ -347,7 +372,7 @@ public class KycInvoiceServiceImpl
 
         Specification<KycInvoice> specification = (root, query, cb) -> cb.equal(
                 root.get("kycSubscription").get("id"),
-                subscriptionId);
+                UUID.fromString(subscriptionId));
 
         Collection<KycInvoice> invoices = this.kycInvoiceRepository.findAll(specification);
 
@@ -359,14 +384,40 @@ public class KycInvoiceServiceImpl
     protected Page<KycInvoiceDTO> handleFindByOrganisation(String organisationId, Integer pageNumber,
             Integer pageSize) throws Exception {
 
-        return kycInvoiceRepository.findInvoicesByOrganisationId(organisationId, PageRequest.of(pageNumber, pageSize));
+        return kycInvoiceRepository.findInvoicesByOrganisationId(UUID.fromString(organisationId),
+                PageRequest.of(pageNumber, pageSize));
     }
 
     @Override
     protected Page<KycInvoiceDTO> handleFindBySubscription(String subscriptionId, Integer pageNumber,
             Integer pageSize) throws Exception {
-        
-        return kycInvoiceRepository.findInvoicesBySubscriptionId(subscriptionId, PageRequest.of(pageNumber, pageSize));
+
+        return kycInvoiceRepository.findInvoicesBySubscriptionId(UUID.fromString(subscriptionId),
+                PageRequest.of(pageNumber, pageSize));
+    }
+
+    @Override
+    protected Long handleCountInvoicesByOrganisationId(String organisationId) throws Exception {
+
+        return kycInvoiceRepository.countInvoicesByOrganisationId(UUID.fromString(organisationId)).orElse(0L);
+    }
+
+    @Override
+    protected Long handleCountInvoices(Boolean paid) throws Exception {
+
+        return kycInvoiceRepository.countInvoices(paid).orElse(0L);
+    }
+
+    @Override
+    protected Long handleCountOrganisationInvoices(Boolean paid, String organisationId) throws Exception {
+
+        return kycInvoiceRepository.countOrganisationInvoices(paid, UUID.fromString(organisationId)).orElse(0L);
+    }
+
+    @Override
+    protected Long handleCount() throws Exception {
+
+        return kycInvoiceRepository.count();
     }
 
 }

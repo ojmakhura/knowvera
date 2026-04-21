@@ -1,0 +1,355 @@
+<!-- Redesigned KYC Record Details Component - Display Only -->
+<div class="details-container">
+  <div class="breadcrumb-section">
+    <mat-icon class="breadcrumb-icon">home</mat-icon>
+    <span class="breadcrumb-text">{{ 'home.title' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text">{{ 'kyc.records' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ kycRecord().name || kycRecord().targetId }} </span>
+  </div>
+
+  <!-- Header Section -->
+  <mat-card class="header-card" appearance="outlined">
+    <mat-card-header>
+      <div class="header-content">
+        <div class="title-section">
+          <mat-icon class="title-icon"
+            [class]="kycRecord().kycStatus === KycComplianceStatusT.APPROVED ? 'status-approved' : 'status-pending'">
+            @if (kycRecord().kycStatus === KycComplianceStatusT.APPROVED) {
+            check_circle
+            } @else if (kycRecord().kycStatus === KycComplianceStatusT.PENDING) {
+            schedule
+            } @else if (kycRecord().kycStatus === KycComplianceStatusT.REJECTED) {
+            cancel
+            } @else {
+            help
+            }
+          </mat-icon>
+          <div class="title-text">
+            <h1 class="item-title">{{ kycRecord().name || 'KYC Record' }}</h1>
+            <!-- <p class="item-subtitle">{{ 'identity.no' | translate }}: {{ kycRecord().identityNo }}</p> -->
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <mat-chip class="status-chip" [class.approved]="kycRecord().kycStatus === KycComplianceStatusT.APPROVED"
+            [class.pending]="kycRecord().kycStatus === KycComplianceStatusT.PENDING"
+            [class.rejected]="kycRecord().kycStatus === KycComplianceStatusT.REJECTED">
+            @if (kycRecord().kycStatus === KycComplianceStatusT.APPROVED) {
+            {{ 'approved' | translate }}
+            } @else if (kycRecord().kycStatus === KycComplianceStatusT.PENDING) {
+            {{ 'pending' | translate }}
+            } @else if (kycRecord().kycStatus === KycComplianceStatusT.REJECTED) {
+            {{ 'rejected' | translate }}
+            } @else if (kycRecord().kycStatus === KycComplianceStatusT.INCOMPLETE) {
+            {{ 'incomplete' | translate }}
+            } @else {
+            {{ 'unknown' | translate }}
+            }
+          </mat-chip>
+          <button mat-raised-button color="primary" type="button" class="action-button">
+            <mat-icon>edit</mat-icon>
+            {{ 'edit' | translate }}
+          </button>
+          <button mat-stroked-button color="primary" type="button" class="action-button">
+            <mat-icon>refresh</mat-icon>
+            {{ 'refresh' | translate }}
+          </button>
+        </div>
+      </div>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Loading State -->
+  @if (loading()) {
+  <div class="loading-container">
+    <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+  </div>
+  }
+
+  <!-- Main Content -->
+  <div class="item-display">
+    <!-- Basic Information Section -->
+
+
+    <!-- Target Entity Details Section -->
+    @if (kycRecord().target === TargetEntityT.INDIVIDUAL && individual()) {
+    <mat-card class="section-card basic-info-section" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">person</mat-icon>
+          {{ 'individual.details' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="display-grid">
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">badge</mat-icon>
+              <span>{{ 'name' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ individual()!.name || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">fingerprint</mat-icon>
+              <span>{{ 'identity.type' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ individual()!.identityType || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">qr_code</mat-icon>
+              <span>{{ 'identity.no' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ individual()!.identityNo || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">email</mat-icon>
+              <span>{{ 'email.address' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ individual()!.emailAddress || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">verified_user</mat-icon>
+              <span>{{ 'kyc.status' | translate }}</span>
+            </div>
+            <div class="display-value">
+              @if (individual()!.kycStatus === KycComplianceStatusT.APPROVED) {
+              {{ 'approved' | translate }}
+              } @else if (individual()!.kycStatus === KycComplianceStatusT.PENDING) {
+              {{ 'pending' | translate }}
+              } @else if (individual()!.kycStatus === KycComplianceStatusT.REJECTED) {
+              {{ 'rejected' | translate }}
+              } @else if (individual()!.kycStatus === KycComplianceStatusT.INCOMPLETE) {
+              {{ 'incomplete' | translate }}
+              } @else {
+              {{ 'unknown' | translate }}
+              }
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    }
+
+    @if (kycRecord().target === TargetEntityT.ORGANISATION && organisation()) {
+    <mat-card class="section-card basic-info-section" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">business</mat-icon>
+          {{ 'organisation.details' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="display-grid">
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">business</mat-icon>
+              <span>{{ 'organisation.name' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ organisation()!.name || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">tag</mat-icon>
+              <span>{{ 'organisation.code' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ organisation()!.code || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">receipt</mat-icon>
+              <span>{{ 'registration.no' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ organisation()!.registrationNo || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">info</mat-icon>
+              <span>{{ 'status' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ organisation()!.status || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">email</mat-icon>
+              <span>{{ 'contact.email' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ organisation()!.contactEmailAddress || 'N/A' }}
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    }
+    <!--  -->
+    <mat-card class="section-card basic-info-section" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">info</mat-icon>
+          {{ 'kyc.record.information' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="display-grid">
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">event</mat-icon>
+              <span>{{ 'upload.date' | translate }}</span>
+            </div>
+            <div class="display-value">
+              @if (kycRecord().uploadDate) {
+              {{ kycRecord().uploadDate | date:'MMM dd, yyyy' }}
+              } @else {
+              N/A
+              }
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">schedule</mat-icon>
+              <span>{{ 'expiry.date' | translate }}</span>
+            </div>
+            <div class="display-value">
+              @if (kycRecord().expiryDate) {
+              {{ kycRecord().expiryDate | date:'MMM dd, yyyy' }}
+              } @else {
+              N/A
+              }
+            </div>
+          </div>
+          @if (kycRecord().declaration) {
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">assignment_ind</mat-icon>
+              <span>{{ 'declaration.pep.status' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ kycRecord().declaration.pepStatus || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">notes</mat-icon>
+              <span>{{ 'declaration.pep.details' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ kycRecord().declaration.pepDetails || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">report_problem</mat-icon>
+              <span>{{ 'declaration.sanctions.match' | translate }}</span>
+            </div>
+            <div class="display-value">
+              @if (kycRecord().declaration.sanctionsMatch) {
+              {{ 'yes' | translate }}
+              } @else {
+              {{ 'no' | translate }}
+              }
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">description</mat-icon>
+              <span>{{ 'declaration.sanctions.details' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ kycRecord().declaration.sanctionsDetails || 'N/A' }}
+            </div>
+          </div>
+          }
+
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Add Documents Section -->
+    @if (kycIndDocumentTypes() && kycIndDocumentTypes().length > 0) {
+    <mat-card class="section-card documents-section" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">add_circle</mat-icon>
+          {{ 'kyc.documents' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="grid-2">
+          @for (docType of kycIndDocumentTypes(); track docType.id) {
+          <div class="document-type-item">
+            <div class="document-info">
+              <mat-icon>security</mat-icon>
+              <div class="document-details">
+                <div class="document-name">{{ docType.name }}</div>
+                @if (docType.description) {
+                <div class="document-type">{{ docType.description }}</div>
+                }
+              </div>
+              <button mat-stroked-button type="button" color="primary" (click)="kycFileInput.click()">
+                <mat-icon>upload</mat-icon>
+                {{ 'upload' | translate }}
+              </button>
+              <input type="file" #kycFileInput (change)="onFileSelected($event, docType)"
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display: none" />
+            </div>
+          </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+    }
+
+    <!-- Actions Section -->
+    @if (kycRecord().kycStatus !== KycComplianceStatusT.APPROVED) {
+    <mat-card class="section-card" appearance="outlined">
+      <mat-card-content>
+        <div class="action-buttons"
+          style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; padding: 8px 0;">
+          <!-- <button mat-raised-button color="primary" class="action-button">
+            <mat-icon>check_circle</mat-icon>
+            {{ 'submit.for.approval' | translate }}
+          </button> -->
+          <button mat-stroked-button type="button" color="warn" class="action-button">
+            <mat-icon>delete</mat-icon>
+            {{ 'delete.kyc.record' | translate }}
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    }
+  </div>
+</div>

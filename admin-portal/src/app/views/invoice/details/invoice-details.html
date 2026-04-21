@@ -1,0 +1,160 @@
+<section class="invoice-details-page">
+	<header class="page-head">
+		<div class="title-wrap">
+			<button mat-icon-button type="button" class="back-btn" matTooltip="Back to invoices" (click)="backToInvoices()">
+				<mat-icon>arrow_back</mat-icon>
+			</button>
+
+			<div>
+				<span class="eyebrow">Digital Vault / Invoices</span>
+				<h1>{{ invoiceRef() }}</h1>
+				<p>{{ createdSummary() }}</p>
+			</div>
+		</div>
+
+		<div class="head-actions">
+			<button mat-stroked-button type="button" class="ghost-btn" (click)="printView()">
+				<mat-icon>print</mat-icon>
+				Print
+			</button>
+
+			<button mat-flat-button type="button" class="primary-btn" (click)="downloadPrimaryDocument()">
+				<mat-icon>download</mat-icon>
+				Download PDF
+			</button>
+		</div>
+	</header>
+
+	<section class="details-grid">
+		<div class="main-column">
+			<section class="top-panels-grid">
+				<mat-card class="panel summary-panel">
+					<div>
+						<span class="section-label">Total Amount Due</span>
+						<h2>{{ invoice()?.amount | currency: appEnvState.currency() || 'BWP' }}</h2>
+						<p>{{ subscriptionPeriodLabel() }}</p>
+					</div>
+
+					<div class="summary-side">
+						<span class="status-pill" [class.paid]="invoice()?.paid" [class.pending]="!invoice()?.paid">
+							<span class="status-dot"></span>
+							{{ paymentStatusLabel() }}
+						</span>
+						<span class="meta-note">Ref: {{ paymentReference() }}</span>
+					</div>
+				</mat-card>
+
+				<mat-card class="panel context-panel">
+					<div class="panel-head">
+						<div class="section-head">
+							<div class="org-avatar">{{ organisationInitial() }}</div>
+							<div>
+								<h2>Organisation Context</h2>
+								<p>{{ serviceTier() }}</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="context-grid">
+						<div class="kv">
+							<span class="section-label">Legal Entity Name</span>
+							<p>{{ invoice()?.organisationName || 'Not available' }}</p>
+						</div>
+
+						<div class="kv">
+							<span class="section-label">Organisation Code</span>
+							<p>{{ invoice()?.organisationCode || 'Not available' }}</p>
+						</div>
+
+						<div class="kv">
+							<span class="section-label">Registration No.</span>
+							<p>{{ invoice()?.organisationRegistrationNo || 'Not available' }}</p>
+						</div>
+
+						<div class="kv">
+							<span class="section-label">Subscription Ref</span>
+							<p>{{ invoice()?.subscriptionRef || 'Not available' }}</p>
+						</div>
+					</div>
+				</mat-card>
+			</section>
+
+			<section class="meta-grid">
+				<mat-card class="panel meta-panel">
+					<span class="section-label">Original Entry</span>
+					<div class="meta-stack">
+						<div class="meta-row">
+							<span>Timestamp</span>
+							<strong>{{ auditTimestamp('created') }}</strong>
+						</div>
+						<div class="meta-row">
+							<span>Created By</span>
+							<strong>{{ auditUser('created') }}</strong>
+						</div>
+					</div>
+				</mat-card>
+
+				<mat-card class="panel meta-panel">
+					<span class="section-label">Last Modification</span>
+					<div class="meta-stack">
+						<div class="meta-row">
+							<span>Timestamp</span>
+							<strong>{{ auditTimestamp('modified') }}</strong>
+						</div>
+						<div class="meta-row">
+							<span>Modified By</span>
+							<strong>{{ auditUser('modified') }}</strong>
+						</div>
+					</div>
+				</mat-card>
+			</section>
+		</div>
+
+		<aside class="side-column">
+			<mat-card class="panel status-panel">
+				<h2>Compliance Status</h2>
+				<div class="status-copy">
+					<mat-icon>verified</mat-icon>
+					<span>{{ invoice()?.paid ? 'Payment verified by Central KYC' : 'Awaiting payment verification' }}</span>
+				</div>
+
+				<div class="status-actions">
+					<button mat-flat-button type="button" class="light-btn" (click)="openEdit()">
+						<mat-icon>edit</mat-icon>
+						Edit Invoice
+					</button>
+
+					<button mat-stroked-button type="button" class="dark-btn" (click)="openEdit()">
+						<mat-icon>payments</mat-icon>
+						Manage Payment
+					</button>
+				</div>
+			</mat-card>
+			<mat-card class="panel support-panel">
+				<div class="support-icon">
+					<mat-icon>help_outline</mat-icon>
+				</div>
+				<div>
+					<h3>Need assistance?</h3>
+					<p>Contact Protocol Support</p>
+				</div>
+			</mat-card>
+
+			<mat-card class="panel support-panel audit-panel">
+				<span class="section-label">Billing Coverage</span>
+				<h3>{{ coverageLabel() }}</h3>
+				<p>Issued {{ issueDateLabel() }} • Payment date {{ paymentDateLabel() }}</p>
+			</mat-card>
+		</aside>
+	</section>
+
+	@if (loading()) {
+		<mat-card class="panel loading-panel">
+			<mat-icon>hourglass_top</mat-icon>
+			<div>
+				<strong>Loading invoice details</strong>
+				<p>{{ loaderMessage() || 'Fetching the latest invoice record...' }}</p>
+			</div>
+		</mat-card>
+	}
+</section>

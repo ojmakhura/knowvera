@@ -1,0 +1,282 @@
+<div class="min-vh-100 bg-veritas-surface text-dark pb-5">
+  <div class="container py-5">
+    <!-- Header -->
+    <header class="mb-5">
+      <h1 class="display-5 fw-black text-veritas-primary mb-2">System Settings Editor</h1>
+      <p class="text-secondary max-w-2xl">Manage the core architectural parameters for the Veritas Protocol. Changes made here impact all sub-accounts and global compliance flows.</p>
+    </header>
+
+    <!-- Section: Platform Identity -->
+    <section class="mb-5">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="rounded-3 d-flex align-items-center justify-content-center bg-primary-subtle text-primary" style="width: 48px; height: 48px;">
+          <i class="bi bi-patch-check fs-4"></i>
+        </div>
+        <div>
+          <h2 class="h4 fw-bold text-veritas-primary mb-0">Platform Identity</h2>
+          <p class="small text-secondary mb-0">Core branding and contact coordinates</p>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6">
+          <label class="form-label small fw-bold text-uppercase text-secondary">Platform Name</label>
+          <input type="text" value="Veritas Global Protocol" class="form-control py-2">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-bold text-uppercase text-secondary">Platform URL</label>
+          <input type="url" value="https://protocol.veritas.io" class="form-control py-2">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-bold text-uppercase text-secondary">Support Contact Email</label>
+          <input type="email" value="support@veritas.io" class="form-control py-2">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-bold text-uppercase text-secondary">KYC Portal Access Link</label>
+          <input type="text" value="https://verify.veritas.io/portal/auth" class="form-control py-2">
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: KYC & Account Lifecycle -->
+    <section class="mb-5">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="rounded-3 d-flex align-items-center justify-content-center bg-info-subtle text-info" style="width: 48px; height: 48px;">
+          <i class="bi bi-shield-check fs-4"></i>
+        </div>
+        <div>
+          <h2 class="h4 fw-bold text-veritas-primary mb-0">KYC & Account Lifecycle</h2>
+          <p class="small text-secondary mb-0">Temporal rules for verification workflows</p>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm p-4 rounded-4">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <h3 class="h6 fw-bold text-veritas-primary mb-1">KYC Duration</h3>
+                <p class="small text-secondary mb-0">Number of days a KYC session remains valid</p>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <input type="number" value="365" class="form-control text-center fw-bold border-0 bg-light" style="width: 80px;">
+                <span class="small fw-bold text-uppercase text-secondary" style="font-size: 10px;">Days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm p-4 rounded-4">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <h3 class="h6 fw-bold text-veritas-primary mb-1">Time to Creation</h3>
+                <p class="small text-secondary mb-0">Hours until account is automatically provisioned</p>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <input type="number" value="24" class="form-control text-center fw-bold border-0 bg-light" style="width: 80px;">
+                <span class="small fw-bold text-uppercase text-secondary" style="font-size: 10px;">Hours</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Document Types & Templates -->
+    <section class="mb-5">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="rounded-3 d-flex align-items-center justify-content-center bg-warning-subtle text-warning" style="width: 48px; height: 48px;">
+          <i class="bi bi-file-earmark-text fs-4"></i>
+        </div>
+        <div>
+          <h2 class="h4 fw-bold text-veritas-primary mb-0">Document Types & Templates</h2>
+          <p class="small text-secondary mb-0">Classification and system-generated document mapping</p>
+        </div>
+      </div>
+
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <label class="form-label small fw-bold text-uppercase text-secondary mb-2">Individual Documents</label>
+          <div class="bg-light p-3 rounded-4 d-flex flex-wrap gap-2">
+            <div *ngFor="let doc of individualDocs" class="badge bg-white text-dark border px-3 py-2 rounded-pill fw-semibold d-flex align-items-center gap-2">
+              {{doc}}
+              <button  class="btn btn-link p-0 text-secondary hover-danger">
+                <i class="bi bi-x fs-6"></i>
+              </button>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-dashed">
+              + Add Type
+            </button>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-bold text-uppercase text-secondary mb-2">Organisation Documents</label>
+          <div class="bg-light p-3 rounded-4 d-flex flex-wrap gap-2">
+            <div *ngFor="let doc of orgDocs" class="badge bg-white text-dark border px-3 py-2 rounded-pill fw-semibold d-flex align-items-center gap-2">
+              {{doc}}
+              <button  class="btn btn-link p-0 text-secondary hover-danger">
+                <i class="bi bi-x fs-6"></i>
+              </button>
+            </div>
+            <button  class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-dashed">
+              + Add Type
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm p-4 rounded-4">
+            <div class="d-flex align-items-center gap-2 mb-3 text-veritas-primary">
+              <i class="bi bi-receipt"></i>
+              <h4 class="small fw-bold mb-0">Invoice Template</h4>
+            </div>
+            <select class="form-select bg-light border-0">
+              <option>Standard_Invoice_v2.pdf</option>
+              <option>Detailed_Invoice_v1.pdf</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm p-4 rounded-4">
+            <div class="d-flex align-items-center gap-2 mb-3 text-veritas-primary">
+              <i class="bi bi-chat-quote"></i>
+              <h4 class="small fw-bold mb-0">Quotation Template</h4>
+            </div>
+            <select class="form-select bg-light border-0">
+              <option>Standard_Quote_2024.pdf</option>
+              <option>Service_Estimation.pdf</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm p-4 rounded-4">
+            <div class="d-flex align-items-center gap-2 mb-3 text-veritas-primary">
+              <i class="bi bi-file-earmark-medical"></i>
+              <h4 class="small fw-bold mb-0">Request File Type</h4>
+            </div>
+            <select class="form-select bg-light border-0">
+              <option>PDF (Optimized)</option>
+              <option>JPEG High Res</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Financial Configuration -->
+    <section class="mb-5">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-3 d-flex align-items-center justify-content-center bg-success-subtle text-success" style="width: 48px; height: 48px;">
+            <i class="bi bi-credit-card fs-4"></i>
+          </div>
+          <div>
+            <h2 class="h4 fw-bold text-veritas-primary mb-0">Financial Configuration</h2>
+            <p class="small text-secondary mb-0">Risk-based salary brackets and currency controls</p>
+          </div>
+        </div>
+        <button class="btn btn-dark px-4 py-2 rounded-3 fw-bold d-flex align-items-center gap-2 shadow">
+          <i class="bi bi-plus-lg"></i>
+          Add Range
+        </button>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="bg-light">
+              <tr class="small fw-black text-uppercase text-secondary" style="font-size: 10px; letter-spacing: 1px;">
+                <th class="px-4 py-3">Label</th>
+                <th class="px-4 py-3">Lower Bound</th>
+                <th class="px-4 py-3">Upper Bound</th>
+                <th class="px-4 py-3">Risk Level</th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody class="small">
+              <tr *ngFor="let range of salaryRanges">
+                <td class="px-4 py-3 fw-bold text-veritas-primary">{{range.label}}</td>
+                <td class="px-4 py-3 font-monospace text-secondary">{{range.lower}}</td>
+                <td class="px-4 py-3 font-monospace text-secondary">{{range.upper}}</td>
+                <td class="px-4 py-3">
+                  <!-- <span class="badge rounded-pill px-3 py-1 text-uppercase"
+                    [ngClass]="{
+                      'bg-primary-subtle text-primary': range.risk === 'LOW',
+                      'bg-secondary-subtle text-secondary': range.risk === 'MEDIUM',
+                      'bg-danger-subtle text-danger': range.risk === 'HIGH'
+                    }">
+                    {{range.risk}}
+                  </span> -->
+                </td>
+                <td class="px-4 py-3 text-end">
+                  <button class="btn btn-link p-0 text-secondary">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: Access Control -->
+    <section class="mb-5">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="rounded-3 d-flex align-items-center justify-content-center bg-veritas-primary text-white" style="width: 48px; height: 48px;">
+          <i class="bi bi-people fs-4"></i>
+        </div>
+        <div>
+          <h2 class="h4 fw-bold text-veritas-primary mb-0">Access Control</h2>
+          <p class="small text-secondary mb-0">System-wide role mapping for platform orchestration</p>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm p-4 rounded-4 d-flex flex-row gap-3">
+            <div class="bg-light rounded-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+              <i class="bi bi-shield-lock text-veritas-primary"></i>
+            </div>
+            <div class="flex-grow-1">
+              <label class="small fw-black text-uppercase text-secondary mb-2 d-block" style="font-size: 10px;">Organisation Admin Role</label>
+              <input type="text" value="ORG_PRINCIPAL_ADMIN" class="form-control form-control-sm bg-light border-0 font-monospace text-veritas-primary mb-2">
+              <p class="mb-0 text-secondary" style="font-size: 10px;">System-assigned role for entity owners. Grants full read/write on organizational vaults.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm p-4 rounded-4 d-flex flex-row gap-3">
+            <div class="bg-light rounded-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+              <i class="bi bi-person text-secondary"></i>
+            </div>
+            <div class="flex-grow-1">
+              <label class="small fw-black text-uppercase text-secondary mb-2 d-block" style="font-size: 10px;">Normal User Role</label>
+              <input type="text" value="STANDARD_COMPLIANCE_OFFICER" class="form-control form-control-sm bg-light border-0 font-monospace text-veritas-primary mb-2">
+              <p class="mb-0 text-secondary" style="font-size: 10px;">Default role for standard internal users. Limited to assigned case management.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Sticky Footer -->
+  <footer class="fixed-bottom bg-white border-top py-3 px-4 shadow-lg">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2 text-secondary small">
+        <i class="bi bi-info-circle text-danger"></i>
+        <span class="fw-medium">You have 4 unsaved changes.</span>
+      </div>
+      <div class="d-flex align-items-center gap-4">
+        <button class="btn btn-link text-decoration-none text-secondary fw-bold small p-0">Discard Changes</button>
+        <button class="btn btn-dark px-4 py-2 rounded-3 fw-bold d-flex align-items-center gap-2 shadow">
+          <i class="bi bi-cloud-upload"></i>
+          Publish Settings
+        </button>
+      </div>
+    </div>
+  </footer>
+</div>

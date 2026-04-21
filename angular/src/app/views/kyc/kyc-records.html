@@ -1,0 +1,130 @@
+<!-- Modern Search KYC Records Component -->
+<div class="edit-container">
+  <div class="breadcrumb-section">
+    <mat-icon class="breadcrumb-icon">home</mat-icon>
+    <span class="breadcrumb-text">{{ 'home' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text">{{ 'kyc' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ 'search.records' | translate }}</span>
+  </div>
+
+  <div class="hero-header">
+    <div class="hero-content">
+      <div class="header-info">
+        <div class="header-icon">
+          <mat-icon class="main-icon">search</mat-icon>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">{{ 'kyc.records' | translate }}</h1>
+          <!-- <p class="page-subtitle">{{ 'search.client.requests.description' | translate }}</p> -->
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-fab type="button" matTooltip="{{ 'add.new' | translate }}" color="primary" class="fab-button" [routerLink]="['/kyc/edit']">
+          <mat-icon fontIcon="add" aria-hidden="false" aria-label="add"></mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+  @if (loading()) {
+  <div class="loading-container">
+    <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+  </div>
+  }
+  <div class="form-container">
+    <div class="edit-form">
+      <!-- Basic Information -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>filter_list</mat-icon>
+            {{ 'search.filters' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'name' | translate }}</mat-label>
+              <input matInput type="text" id="name" [formField]="kycRecordSearchSignalForm.name"
+                placeholder="{{ 'enter.name' | translate }}">
+              <mat-icon matSuffix>person</mat-icon>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'registration' | translate }}</mat-label>
+              <input matInput type="text" id="registration" [formField]="kycRecordSearchSignalForm.registration"
+                placeholder="{{ 'enter.registration' | translate }}">
+              <mat-icon matSuffix>badge</mat-icon>
+            </mat-form-field>
+          </div>
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'target.entity' | translate }}</mat-label>
+              <mat-select id="target" [formField]="kycRecordSearchSignalForm.target"
+                placeholder="{{ 'select.target.entity' | translate }}">
+                <mat-option value="">{{ 'all.targets' | translate }}</mat-option>
+                @for (key of TargetEntityOptions; track key) {
+                <mat-option [value]="key">
+                  {{ TargetEntityT[key] }}
+                </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>category</mat-icon>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'target.id' | translate }}</mat-label>
+              <input matInput type="text" id="targetId" [formField]="kycRecordSearchSignalForm.targetId"
+                placeholder="{{ 'enter.target.id' | translate }}">
+              <mat-icon matSuffix>fingerprint</mat-icon>
+            </mat-form-field>
+          </div>
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label>{{ 'kyc.status' | translate }}</mat-label>
+              <mat-select id="statuses" [formField]="kycRecordSearchSignalForm.statuses" multiple
+                placeholder="{{ 'select.kyc.statuses' | translate }}">
+                @for (key of KycComplianceStatusOptions; track key) {
+                <mat-option [value]="key">
+                  {{ KycComplianceStatusT[key] }}
+                </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>verified_user</mat-icon>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+        <mat-card-footer>
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="button" (click)="kycRecordSearch()"
+              class="action-button search-button">
+              <mat-icon>search</mat-icon>
+              {{ 'search' | translate }}
+            </button>
+
+            <button mat-stroked-button type="button" (click)="kycRecordSearchFormReset()" class="action-secondary">
+              <mat-icon>restore</mat-icon>
+              <span>{{ 'reset' | translate }}</span>
+            </button>
+          </div>
+        </mat-card-footer>
+      </mat-card>
+
+      <mat-card class="form-section modern-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>assignment</mat-icon>
+            {{ 'search.results' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="modern-content results-content">
+          <div class="table-container">
+            <app-table #kycRecordsTable [dataColumns]="kycRecordsTableColumns" [showActions]="showKycRecordsActions"
+              [paged]="kycRecordsTablePaged" [actions]="kycRecordsTableColumnsActions"
+              (actionClicked)="kycRecordsTableActionClicked($event)" [dataSignal]="kycRecordsTableSignal">
+            </app-table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

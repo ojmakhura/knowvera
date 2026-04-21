@@ -5,25 +5,24 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { AppState } from '@app/store/app-state';
-import { SearchObject } from '@app/model/search-object';
-import { Page } from '@app/model/page.model';
-import { DocumentDTO } from '@app/model/bw/co/centralkyc/document/document-dto';
-import { DocumentApi } from '@app/service/bw/co/centralkyc/document/document-api';
-import { RestApiResponse } from '@app/model/rest-api-response.model';
-import { TargetEntity } from '@app/model/bw/co/centralkyc/target-entity';
+import { SearchObject } from '@app/models/search-object';
+import { Page } from '@app/models/page.model';
+import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
+import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
+import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
+import { DocumentSearchCriteria } from '@app/models/bw/co/centralkyc/document/document-search-criteria';
 
-export type DocumentApiState = AppState<any, any> & {};
+export type DocumentApiState = AppState<DocumentDTO, DocumentDTO> & {};
 
 const initialState: DocumentApiState = {
-  data: null,
+  data: new DocumentDTO(),
   dataList: [],
-  dataPage: new Page<any>(),
+  dataPage: new Page<DocumentDTO>(),
   searchCriteria: new SearchObject<any>(),
   loading: false,
   success: false,
   messages: [],
   loaderMessage: '',
-  details: '',
   error: false
 };
 
@@ -36,6 +35,70 @@ export const DocumentApiStore = signalStore(
       reset: () => {
         patchState(store, initialState);
       },
+      downloadFile: rxMethod<{id: string | any }>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return documentApi.downloadFile(data.id, ).pipe(
+            tapResponse({
+              next: (response: any) => {
+                patchState(
+                  store,
+                  {
+                    data: response,
+                    loading: false,
+                    success: true,
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
+                    success: false,
+                    error: true,
+                    messages: [error?.error?.message || 'An error occurred'],
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      downloadFileByUrl: rxMethod<{objectName: string | any }>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return documentApi.downloadFileByUrl(data.objectName, ).pipe(
+            tapResponse({
+              next: (response: any) => {
+                patchState(
+                  store,
+                  {
+                    data: response,
+                    loading: false,
+                    success: true,
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
+                    success: false,
+                    error: true,
+                    messages: [error?.error?.message || 'An error occurred'],
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
       findByDocumentType: rxMethod<{documentTypeId: string | any }>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
@@ -48,7 +111,7 @@ export const DocumentApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [ 'Success!'],
+                    messages: ['Success!!'],
                     error: false,
                   }
                 );
@@ -56,10 +119,11 @@ export const DocumentApiStore = signalStore(
               error: (error: any) => {
                 patchState(
                   store, {
+                    status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error?.error?.message || 'An error occurred'],
                   }
                 );
               },
@@ -79,18 +143,19 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [ 'Success!'],
+                    messages: ['Success!!'],
                     error: false,
                   }
                 );
               },
-              error: (error: DocumentDTO | any) => {
+              error: (error: any) => {
                 patchState(
                   store, {
+                    status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error?.error?.message || 'An error occurred'],
                   }
                 );
               },
@@ -110,7 +175,7 @@ export const DocumentApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [ 'Success!'],
+                    messages: ['Success!!'],
                     error: false,
                   }
                 );
@@ -122,7 +187,7 @@ export const DocumentApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error?.error?.message || 'An error occurred'],
                   }
                 );
               },
@@ -142,7 +207,7 @@ export const DocumentApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [ 'Success!'],
+                    messages: ['Success!!'],
                     error: false,
                   }
                 );
@@ -150,10 +215,11 @@ export const DocumentApiStore = signalStore(
               error: (error: any) => {
                 patchState(
                   store, {
+                    status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error?.error?.message || 'An error occurred'],
                   }
                 );
               },
@@ -173,18 +239,18 @@ export const DocumentApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [ 'Success!'],
+                    messages: ['Success!!'],
                     error: false,
                   }
                 );
               },
-              error: (error: Page<DocumentDTO> | any) => {
+              error: (error: any) => {
                 patchState(
                   store, {
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error?.error?.message || 'An error occurred'],
                   }
                 );
               },
@@ -204,18 +270,19 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [ 'Success!'],
+                    messages: ['Success!!'],
                     error: false,
                   }
                 );
               },
-              error: (error: boolean | any) => {
+              error: (error: any) => {
                 patchState(
                   store, {
+                    status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error?.error?.message || 'An error occurred'],
                   }
                 );
               },
@@ -235,18 +302,19 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [ 'Success!'],
+                    messages: ['Success!!'],
                     error: false,
                   }
                 );
               },
-              error: (error: DocumentDTO | any) => {
+              error: (error: any) => {
                 patchState(
                   store, {
+                    status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error?.error?.message || 'An error occurred'],
                   }
                 );
               },
@@ -254,7 +322,7 @@ export const DocumentApiStore = signalStore(
           );
         }),
       ),
-      search: rxMethod<{criteria: string | any }>(
+      search: rxMethod<{criteria: SearchObject<DocumentSearchCriteria> | string | any }>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return documentApi.search(data.criteria, ).pipe(
@@ -266,7 +334,7 @@ export const DocumentApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [ 'Success!'],
+                    messages: ['Success!!'],
                     error: false,
                   }
                 );
@@ -274,10 +342,43 @@ export const DocumentApiStore = signalStore(
               error: (error: any) => {
                 patchState(
                   store, {
+                    status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error?.error?.message || 'An error occurred'],
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      searchPaged: rxMethod<{criteria: SearchObject<DocumentSearchCriteria> | any }>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return documentApi.searchPaged(data.criteria, ).pipe(
+            tapResponse({
+              next: (response: Page<DocumentDTO> | any) => {
+                patchState(
+                  store,
+                  {
+                    dataPage: response,
+                    loading: false,
+                    success: true,
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
+                    success: false,
+                    error: true,
+                    messages: [error?.error?.message || 'An error occurred'],
                   }
                 );
               },
@@ -297,18 +398,19 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [ 'Success!'],
+                    messages: ['Success!!'],
                     error: false,
                   }
                 );
               },
-              error: (error: DocumentDTO | any) => {
+              error: (error: any) => {
                 patchState(
                   store, {
+                    status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error?.error?.message || 'An error occurred'],
                   }
                 );
               },

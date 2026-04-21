@@ -12,8 +12,10 @@ import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.kyc.KycRecord;
 import bw.co.centralkyc.kyc.KycRecordDTO;
 import bw.co.centralkyc.kyc.KycRecordRepository;
-import bw.co.centralkyc.organisation.OrganisationRepository;
+import bw.co.centralkyc.settings.SalaryRangeRepository;
 import jakarta.persistence.EntityNotFoundException;
+
+import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -27,21 +29,12 @@ public class EmploymentRecordDaoImpl
     extends EmploymentRecordDaoBase
 {
     
-    public EmploymentRecordDaoImpl(
-        DocumentRepository documentRepository,
-        KycRecordRepository kycRecordRepository,
-        OrganisationRepository organisationRepository,
-        IndividualRepository individualRepository,
-        EmploymentRecordRepository employmentRecordRepository
-    ) {
 
-        super(
-            documentRepository,
-            kycRecordRepository,
-            organisationRepository,
-            individualRepository,
-            employmentRecordRepository
-        );
+    public EmploymentRecordDaoImpl(DocumentRepository documentRepository, KycRecordRepository kycRecordRepository,
+            IndividualRepository individualRepository, SalaryRangeRepository salaryRangeRepository,
+            EmploymentRecordRepository employmentRecordRepository) {
+        super(documentRepository, kycRecordRepository, individualRepository, salaryRangeRepository, employmentRecordRepository);
+        //TODO Auto-generated constructor stub
     }
 
     /**
@@ -108,7 +101,7 @@ public class EmploymentRecordDaoImpl
         }
         else
         {
-            return this.employmentRecordRepository.findById(employmentRecordDTO.getId())
+            return this.employmentRecordRepository.findById(UUID.fromString(employmentRecordDTO.getId()))
                 .orElseThrow(() -> new EntityNotFoundException("Entity not found for id: " + employmentRecordDTO.getId()));
         }
     }

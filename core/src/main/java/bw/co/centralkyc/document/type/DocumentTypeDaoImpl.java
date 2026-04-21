@@ -7,8 +7,12 @@
 package bw.co.centralkyc.document.type;
 
 import java.util.Collection;
+import java.util.UUID;
+
 import org.springframework.stereotype.Repository;
 
+import bw.co.centralkyc.document.type.field.ExpectedFieldRepository;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfigRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 /**
@@ -19,13 +23,19 @@ public class DocumentTypeDaoImpl
     extends DocumentTypeDaoBase
 {
     
-    public DocumentTypeDaoImpl(
-        DocumentTypeRepository documentTypeRepository
-    ) {
+    // public DocumentTypeDaoImpl(
+    //     DocumentTypeRepository documentTypeRepository
+    // ) {
 
-        super(
-            documentTypeRepository
-        );
+    //     super(
+    //         documentTypeRepository
+    //     );
+    // }
+
+    public DocumentTypeDaoImpl(VerificationDataConfigRepository verificationDataConfigRepository,
+            ExpectedFieldRepository expectedFieldRepository, DocumentTypeRepository documentTypeRepository) {
+        super(verificationDataConfigRepository, expectedFieldRepository, documentTypeRepository);
+        //TODO Auto-generated constructor stub
     }
 
     /**
@@ -73,7 +83,7 @@ public class DocumentTypeDaoImpl
         }
         else
         {
-            return this.documentTypeRepository.findById(documentTypeDTO.getId())
+            return this.documentTypeRepository.findById(UUID.fromString(documentTypeDTO.getId()))
                 .orElseThrow(() -> new EntityNotFoundException("Entity not found for id: " + documentTypeDTO.getId()));
         }
     }

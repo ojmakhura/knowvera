@@ -5,10 +5,10 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { AppState } from '@app/store/app-state';
-import { SearchObject } from '@app/model/search-object';
-import { Page } from '@app/model/page.model';
-import { KycSubscriptionDTO } from '@app/model/bw/co/centralkyc/subscription/kyc-subscription-dto';
-import { KycSubscriptionApi } from '@app/service/bw/co/centralkyc/subscription/kyc-subscription-api';
+import { SearchObject } from '@models/search-object';
+import { Page } from '@models/page.model';
+import { KycSubscriptionDTO } from '@app/models/bw/co/centralkyc/subscription/kyc-subscription-dto';
+import { KycSubscriptionApi } from '@app/services/bw/co/centralkyc/subscription/kyc-subscription-api';
 
 export type KycSubscriptionApiState = AppState<any, any> & {};
 
@@ -21,7 +21,6 @@ const initialState: KycSubscriptionApiState = {
   success: false,
   messages: [],
   loaderMessage: '',
-  details: '',
   error: false
 };
 
@@ -34,18 +33,18 @@ export const KycSubscriptionApiStore = signalStore(
       reset: () => {
         patchState(store, initialState);
       },
-      findById: rxMethod<{id: string | any }>(
+      findById: rxMethod<{id: string}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycSubscriptionApi.findById(data.id, ).pipe(
             tapResponse({
-              next: (response: KycSubscriptionDTO | any) => {
+              next: (response: KycSubscriptionDTO) => {
                 patchState(
-                  store,
+                  store, 
                   {
                     data: response,
-                    loading: false,
-                    success: true,
+                    loading: false, 
+                    success: true, 
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -53,12 +52,44 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, {
-                    status: (error?.status || 0),
-                    loading: false,
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      findByOrganisation: rxMethod<{organisationId: string}>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return kycSubscriptionApi.findByOrganisation(data.organisationId, ).pipe(
+            tapResponse({
+              next: (response: KycSubscriptionDTO[]) => {
+                patchState(
+                  store, 
+                  {
+                    dataList: response, 
+                    loading: false, 
+                    success: true, 
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
                   }
                 );
               },
@@ -71,13 +102,13 @@ export const KycSubscriptionApiStore = signalStore(
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycSubscriptionApi.getAll().pipe(
             tapResponse({
-              next: (response: KycSubscriptionDTO[] | any[]) => {
+              next: (response: KycSubscriptionDTO[]) => {
                 patchState(
-                  store,
+                  store, 
                   {
-                    dataList: response,
-                    loading: false,
-                    success: true,
+                    dataList: response, 
+                    loading: false, 
+                    success: true, 
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -85,12 +116,12 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, {
-                    status: (error?.status || 0),
-                    loading: false,
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
                   }
                 );
               },
@@ -98,18 +129,18 @@ export const KycSubscriptionApiStore = signalStore(
           );
         }),
       ),
-      getAllPaged: rxMethod<{pageNumber: number | any , pageSize: number | any }>(
+      getAllPaged: rxMethod<{pageNumber: number, pageSize: number}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycSubscriptionApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
-              next: (response: Page<KycSubscriptionDTO> | any) => {
+              next: (response: Page<KycSubscriptionDTO>) => {
                 patchState(
-                  store,
+                  store, 
                   {
                     dataPage: response,
-                    loading: false,
-                    success: true,
+                    loading: false, 
+                    success: true, 
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -117,12 +148,12 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, {
-                    status: (error?.status || 0),
-                    loading: false,
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
                   }
                 );
               },
@@ -130,18 +161,18 @@ export const KycSubscriptionApiStore = signalStore(
           );
         }),
       ),
-      pagedSearch: rxMethod<{criteria: string | any , pageNumber: number | any , pageSize: number | any }>(
+      pagedSearch: rxMethod<{criteria: SearchObject<SubscriptionSearchCriteria>}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return kycSubscriptionApi.pagedSearch(data.criteria, data.pageNumber, data.pageSize, ).pipe(
+          return kycSubscriptionApi.pagedSearch(data.criteria, ).pipe(
             tapResponse({
-              next: (response: Page<KycSubscriptionDTO> | any) => {
+              next: (response: Page<KycSubscriptionDTO>) => {
                 patchState(
-                  store,
+                  store, 
                   {
                     dataPage: response,
-                    loading: false,
-                    success: true,
+                    loading: false, 
+                    success: true, 
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -149,12 +180,12 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, {
-                    status: (error?.status || 0),
-                    loading: false,
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
                   }
                 );
               },
@@ -162,18 +193,18 @@ export const KycSubscriptionApiStore = signalStore(
           );
         }),
       ),
-      remove: rxMethod<{id: string | any }>(
+      remove: rxMethod<{id: string}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycSubscriptionApi.remove(data.id, ).pipe(
             tapResponse({
-              next: (response: boolean | any) => {
+              next: (response: boolean) => {
                 patchState(
-                  store,
+                  store, 
                   {
                     data: response,
-                    loading: false,
-                    success: true,
+                    loading: false, 
+                    success: true, 
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -181,12 +212,12 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, {
-                    status: (error?.status || 0),
-                    loading: false,
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
                   }
                 );
               },
@@ -194,18 +225,18 @@ export const KycSubscriptionApiStore = signalStore(
           );
         }),
       ),
-      save: rxMethod<{subscription: KycSubscriptionDTO | any }>(
+      save: rxMethod<{subscription: KycSubscriptionDTO}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycSubscriptionApi.save(data.subscription, ).pipe(
             tapResponse({
-              next: (response: KycSubscriptionDTO | any) => {
+              next: (response: KycSubscriptionDTO) => {
                 patchState(
-                  store,
+                  store, 
                   {
                     data: response,
-                    loading: false,
-                    success: true,
+                    loading: false, 
+                    success: true, 
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -213,12 +244,12 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, {
-                    status: (error?.status || 0),
-                    loading: false,
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
                   }
                 );
               },
@@ -226,18 +257,18 @@ export const KycSubscriptionApiStore = signalStore(
           );
         }),
       ),
-      search: rxMethod<{criteria: string | any }>(
+      search: rxMethod<{criteria: SearchObject<SubscriptionSearchCriteria>}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return kycSubscriptionApi.search(data.criteria, ).pipe(
             tapResponse({
-              next: (response: KycSubscriptionDTO[] | any[]) => {
+              next: (response: KycSubscriptionDTO[]) => {
                 patchState(
-                  store,
+                  store, 
                   {
-                    dataList: response,
-                    loading: false,
-                    success: true,
+                    dataList: response, 
+                    loading: false, 
+                    success: true, 
                     messages: ['Success!!'],
                     error: false,
                   }
@@ -245,44 +276,12 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 patchState(
-                  store, {
-                    status: (error?.status || 0),
-                    loading: false,
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
-                  }
-                );
-              },
-            }),
-          );
-        }),
-      ),
-      findByOrganisation: rxMethod<{organisationId: string | any }>(
-        switchMap((data: any) => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return kycSubscriptionApi.findByOrganisation(data.organisationId, ).pipe(
-            tapResponse({
-              next: (response: KycSubscriptionDTO[] | any[]) => {
-                patchState(
-                  store,
-                  {
-                    dataList: response,
-                    loading: false,
-                    success: true,
-                    messages: ['Success!!'],
-                    error: false,
-                  }
-                );
-              },
-              error: (error: any) => {
-                patchState(
-                  store, {
-                    status: (error?.status || 0),
-                    loading: false,
-                    success: false,
-                    error: true,
-                    messages: [error.error?.message ? error.error.message : error.message || 'An error occurred'],
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
                   }
                 );
               },

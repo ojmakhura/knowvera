@@ -1,0 +1,355 @@
+<div class="vault-container">
+  <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap">
+    <div>
+      <div class="breadcrumb-nav">
+        <mat-icon inline>folder_open</mat-icon>
+        Documents / Details@if(document().fileName) { / {{ document().fileName }} }
+      </div>
+      <h1 class="page-title">
+        <mat-icon inline style="font-size: 2.25rem; width: 2.25rem; height: 2.25rem;">description</mat-icon>
+        {{ document().fileName || '—' }}
+      </h1>
+    </div>
+
+    <div class="status-badge-container">
+      <span class="status-label">Current Status</span>
+      <div class="status-badge">
+        <mat-icon inline>{{ statusIcon }}</mat-icon>
+        {{ document().verificationStatus || '—' }}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-8">
+      <mat-card class="identity-card">
+        <div class="identity-decoration"></div>
+        <mat-card-content>
+          <div class="id-label">Target Entity Identity</div>
+
+          <div class="profile-header">
+            <div class="icon-circle">
+              <mat-icon inline style="font-size: 1.5rem; width: 1.5rem; height: 1.5rem;">person</mat-icon>
+            </div>
+            <div>
+              <h3>{{ document().targetLabel || '—' }}</h3>
+            </div>
+          </div>
+
+          <div class="id-details">
+            <div class="detail-row">
+              <span class="key">Entity Type</span>
+              <span class="val" translate>target.entity.{{ entityTypeLabel() }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="key">Document Type</span>
+              <span class="val">{{ document().documentType || '—' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="key">Analytics Status</span>
+              <span class="val">{{ analyticsStatusLabel() }}</span>
+            </div>
+            @if (document().metadata?.registration) {
+            <div class="detail-row">
+              <span class="key">Registration</span>
+              <span class="val">{{ document().metadata.registration }}</span>
+            </div>
+            }
+            @if (document().metadata?.riskProfile) {
+            <div class="detail-row">
+              <span class="key">Risk Profile</span>
+              <span class="val-low">{{ document().metadata.riskProfile }}</span>
+            </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="vault-card">
+        <mat-card-content>
+          <div class="vault-card-header">
+            <div>
+              <h2>AI Automated Validation</h2>
+              <p>Compliance Assessment</p>
+            </div>
+            <div class="score">
+              <div class="value">{{ confidenceScore() | number:'1.0-2' }}%</div>
+              <div class="label">Confidence Score</div>
+            </div>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-box">
+              <div class="meta-label">Expected Type</div>
+              <div class="meta-value">{{ document().validationResults?.expectedType || '—' }}</div>
+            </div>
+            <div class="meta-box">
+              <div class="meta-label">Detected Type</div>
+              <div class="meta-value">{{ document().validationResults?.detectedType || '—' }}</div>
+            </div>
+            <div class="meta-box highlight">
+              <div class="meta-label">Match Status</div>
+              <div class="meta-value">
+                <mat-icon inline>{{ matchIcon }}</mat-icon> {{ matchLabel() }}
+              </div>
+            </div>
+          </div>
+
+          <!-- <div class="progress-container">
+            <div class="progress-header">
+              <span>Threshold Alignment</span>
+              <span>{{ thresholdLabel }}</span>
+            </div>
+            <div class="segmented-progress">
+              @for (filled of confidenceSegments(); track $index) {
+              <div class="segment" [class.off]="!filled"></div>
+              }
+            </div>
+          </div> -->
+
+          @if (document().validationResults?.reason) {
+          <div class="info-alert mt-4">
+            <mat-icon inline style="color: #001735;">info</mat-icon>
+            <div>{{ document().validationResults.reason }}</div>
+          </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="vault-card tabs-card">
+        <mat-card-content style="padding-bottom: 0 !important;">
+          <mat-tab-group class="details-tabs" animationDuration="200ms">
+            <mat-tab label="Integrity Signals">
+              <div class="tab-pane-content">
+                @if (integritySignalRows.length > 0) {
+                <div class="integrity-list">
+                  @for (signal of integritySignalRows; track signal.key) {
+                  <div class="integrity-item">
+                    <div class="left">
+                      <mat-icon inline>{{ signalIcon(signal.key) }}</mat-icon> {{ signal.label }}
+                    </div>
+                    <div class="right">
+                      @if (signal.isBoolean) {
+                      <mat-icon inline>{{ signal.value ? 'check_circle' : 'cancel' }}</mat-icon>
+                      } @else {
+                      {{ signal.value }}
+                      }
+                    </div>
+                  </div>
+                  }
+                </div>
+                } @else {
+                <p class="tab-empty">No signal data available</p>
+                }
+              </div>
+            </mat-tab>
+
+            <mat-tab label="Extracted vs Expected Data">
+              <div class="tab-pane-content tab-table-pane">
+                <div class="table-responsive">
+                  <table class="vault-table">
+                    <thead>
+                      <tr>
+                        <th>Field Label</th>
+                        <th>Expected (Database)</th>
+                        <th>Extracted (OCR)</th>
+                        <th>Result</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @if (document().dataComparisons.length > 0) {
+                      @for (row of document().dataComparisons; track row.field) {
+                      <tr>
+                        <td class="label-col">{{ row.field }}</td>
+                        <td [class.text-error]="!row.matches">{{ row.expected ? row.expected : '—' }}</td>
+                        <td [class.text-error]="!row.matches">{{ row.extracted ? row.extracted : '—' }}</td>
+                        <td>
+                          @if (row.matches) {
+                          <span class="badge-valid">Valid</span>
+                          } @else {
+                          <span class="badge-expired">Mismatch</span>
+                          }
+                        </td>
+                      </tr>
+                      }
+                      } @else {
+                      <tr>
+                        <td colspan="4" style="text-align: center; color: #9aa0a6; padding: 2rem;">No extraction data
+                          available</td>
+                      </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </mat-tab>
+
+            <mat-tab label="File Content">
+              <div class="tab-pane-content">
+                <div class="file-content-header">
+                  <div>
+                    <h2>
+                      <mat-icon inline>article</mat-icon>
+                      File Content
+                    </h2>
+                    <p>Raw extracted text from the document</p>
+                  </div>
+                  <button mat-icon-button [matTooltip]="fileContentCopied() ? 'Copied!' : 'Copy to clipboard'"
+                    (click)="copyFileContent()">
+                    <mat-icon>{{ fileContentCopied() ? 'check' : 'content_copy' }}</mat-icon>
+                  </button>
+                </div>
+                <textarea class="file-content-area" [formField]="documentForm.fileContent"
+                  placeholder="No file content available..." spellcheck="false"></textarea>
+                @if(document().verificationStatus != 'REJECTED') {
+                <div class="file-content-actions">
+                  <button mat-stroked-button (click)="analyseDocument()" [disabled]="loading() || !document().id">
+                    <mat-icon>analytics</mat-icon>
+                    Analyse Document
+                  </button>
+                  <button mat-flat-button color="primary" (click)="saveDocument()" [disabled]="loading()">
+                    <mat-icon>save</mat-icon>
+                    Update Document
+                  </button>
+                </div>
+                }
+              </div>
+            </mat-tab>
+
+            <mat-tab label="Data Verification">
+              <div class="tab-pane-content">
+                @if(document().verificationStatus != 'REJECTED') {
+                <div class="verification-tag-toolbar file-content-actions">
+                  <button mat-stroked-button (click)="verifyData()" [disabled]="loading() || !document().id">
+                    <mat-icon>fact_check</mat-icon>
+                    Verify Data
+                  </button>
+                  <button mat-flat-button color="primary" (click)="saveDocument()" [disabled]="loading()">
+                    <mat-icon>save</mat-icon>
+                    Update Document
+                  </button>
+                </div>
+                }
+
+                @if ((document().dataVerifications ?? []).length > 0) {
+                <div class="table-responsive">
+                  <table class="vault-table">
+                    <thead>
+                      <tr>
+                        <th>Data Point</th>
+                        <th>Status</th>
+                        <th>Score</th>
+                        <th>Values</th>
+                        <th>Report</th>
+                        <th>Verified By</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (verification of document().dataVerifications; track $index) {
+                      <tr>
+                        <td class="label-col">{{ verification.verificationDataName || '—' }}</td>
+                        <td>{{ verification.verificationStatus || '—' }}</td>
+                        <td>{{ verification.score ?? '—' }}</td>
+                        <td>{{ formatVerificationValues(verification.values) }}</td>
+                        <td>{{ verification.verificationReport || '—' }}</td>
+                        <td>{{ verification.verificationBy || '—' }}</td>
+                        <td>
+                          <button mat-icon-button type="button" color="warn" (click)="removeVerificationTagResult($index)"
+                            matTooltip="Remove entry">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </td>
+                      </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                } @else {
+                <p class="tab-empty">No data verifications available yet.</p>
+                }
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="action-buttons sticky-actions">
+        @if (document().url) {
+        <a mat-button class="btn-download-archive" [href]="document().url" target="_blank" rel="noopener noreferrer">
+          <mat-icon inline>download</mat-icon> Download Archive
+        </a>
+        } @else {
+        <button mat-button class="btn-download-archive" disabled>
+          <mat-icon inline>download</mat-icon> Download Archive
+        </button>
+        }
+        <div class="sub-actions">
+          <button mat-button (click)="openMetadataEdit()">
+            <mat-icon inline>edit</mat-icon> Metadata
+          </button>
+          <button mat-button>
+            <mat-icon inline>update</mat-icon> Update Status
+          </button>
+        </div>
+      </div>
+
+      @if (metadataEditing()) {
+      <mat-card class="vault-card metadata-edit-card">
+        <mat-card-content>
+          <div class="metadata-edit-header">
+            <div>
+              <h2>
+                <mat-icon inline>edit_note</mat-icon>
+                Edit Metadata
+              </h2>
+              <p>Key-value pairs attached to this document</p>
+            </div>
+            <button mat-icon-button (click)="cancelMetadataEdit()" matTooltip="Cancel">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+
+          <div class="metadata-field-list">
+            @for (field of metadataFields(); track $index) {
+            <div class="metadata-field-row">
+              <mat-form-field class="vault-field metadata-key-field">
+                <mat-label>Key</mat-label>
+                <input matInput [value]="field.key" (input)="updateMetadataKey($index, $any($event.target).value)"
+                  placeholder="e.g. registration" />
+              </mat-form-field>
+              <mat-form-field class="vault-field metadata-val-field">
+                <mat-label>Value</mat-label>
+                <input matInput [value]="field.value" (input)="updateMetadataValue($index, $any($event.target).value)"
+                  placeholder="e.g. REG-001" />
+              </mat-form-field>
+              <button mat-icon-button color="warn" type="button" (click)="removeMetadataField($index)"
+                matTooltip="Remove field">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+            } @empty {
+            <p class="tab-empty">No metadata fields. Add one below.</p>
+            }
+          </div>
+
+          <div class="metadata-edit-actions">
+            <button mat-stroked-button type="button" (click)="addMetadataField()">
+              <mat-icon>add</mat-icon> Add Field
+            </button>
+            <button mat-flat-button color="primary" type="button" [disabled]="loading()" (click)="saveMetadata()">
+              <mat-icon>save</mat-icon> Save Metadata
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Visual Inspection Point Banner -->
+
+<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>

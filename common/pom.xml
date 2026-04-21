@@ -9,7 +9,7 @@
     </parent>
     <artifactId>centralkyc-common</artifactId>
     <packaging>jar</packaging>
-    <name>Centalised KYC Common</name>
+    <name>The Centalised KYC Project Common</name>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -18,12 +18,6 @@
             <type>pom</type>
             <scope>provided</scope>
             <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -37,22 +31,13 @@
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
         </dependency>
-        <!-- <dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-        </dependency> -->
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web-services</artifactId>
-        </dependency>
-        <!-- For Working with Json Web Tokens (JWT) -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -60,10 +45,10 @@
             <version>1.18.34</version>
             <optional>true</optional>
         </dependency>
-            <dependency>
-                <groupId>bw.co.roguesystems.comm</groupId>
-                <artifactId>roguecomm-common</artifactId>
-            </dependency>
+        <dependency>
+            <groupId>bw.co.roguesystems.comm</groupId>
+            <artifactId>roguecomm-common</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

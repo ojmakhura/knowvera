@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>{{data.title}}</h2>
+<mat-dialog-content>
+    <form>
+         <ng-container id="dialogChild" #dialogChild *ngComponentOutlet="data.component; inputs: data.inputs;"></ng-container>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button (click)="close()">Close</button>
+    @for(action of data?.actions; track action.id) {
+    @if(dialogChild) {
+    <button mat-button (click)="doDialogAction(action.id)" [disabled]="dialogChild.componentInstance?.formObject()?.invalid()" translate>{{action.label}}</button>
+    } @else {
+    <button mat-button (click)="doDialogAction(action.id)"  translate>{{action.label}}</button>
+    }
+    }
+</mat-dialog-actions>

@@ -31,6 +31,7 @@ public class MinioService {
     }
 
     public String uploadFile(String objectName, InputStream data, long size, String contentType) throws Exception {
+        String safeObjectName = requireObjectName(objectName);
 
         // Check if the bucket exists, if not create it
         boolean bucketExists = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
@@ -41,8 +42,8 @@ public class MinioService {
         ObjectWriteResponse response = minioClient.putObject(
             PutObjectArgs.builder()
                 .bucket(bucketName)
-                .object(objectName)
-                .stream(data, size, -1)
+                .object(safeObjectName)
+                .stream(data, size, -1L)
                 .contentType(contentType)
                 .build()
         );
@@ -51,19 +52,23 @@ public class MinioService {
     }
 
     public InputStream downloadFile(String objectName) throws Exception {
+        String safeObjectName = requireObjectName(objectName);
+
         return minioClient.getObject(
             GetObjectArgs.builder()
                 .bucket(bucketName)
-                .object(objectName)
+                .object(safeObjectName)
                 .build()
         );
     }
 
     public void deleteFile(String objectName) throws Exception {
+        String safeObjectName = requireObjectName(objectName);
+
         minioClient.removeObject(
             RemoveObjectArgs.builder()
                 .bucket(bucketName)
-                .object(objectName)
+                .object(safeObjectName)
                 .build()
         );
     }
@@ -94,5 +99,12 @@ public class MinioService {
         }
 
         return items;
+    }
+
+    private String requireObjectName(String objectName) {
+        if (objectName == null || objectName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Minio object name must not be null or blank");
+        }
+        return objectName.trim();
     }
 }

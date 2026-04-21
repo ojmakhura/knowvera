@@ -1,107 +1,179 @@
 package bw.co.centralkyc.keycloak;
 
+import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.admin.client.resource.ClientsResource;
+import org.keycloak.admin.client.resource.OrganizationResource;
 import org.keycloak.admin.client.resource.OrganizationsResource;
 import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.RolesResource;
-import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.idm.ClientRepresentation;
+import org.keycloak.representations.AccessTokenResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 @Component
 public class KeycloakService {
-    
-    public Keycloak getKeycloak() {
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuerUri;
+
+    @Value("${app.registration.client}")
+    private String registrationClient;
+
+    @Value("${app.registration.client-secret}")
+    private String registrationClientSecret;
+
+    /**
+     * Returns the JWT of the currently authenticated user
+     */
+    public Jwt getJwt() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if(authentication.getPrincipal() instanceof String) {
+            return null;
+        }
+
+        return (Jwt) authentication.getPrincipal();
+    }
+
+    /**
+     * Creates a new Keycloak admin client for the current request JWT
+     */
+    private Keycloak createKeycloak() {
         Jwt jwt = getJwt();
 
-        String iss = jwt.getClaimAsString("iss");
+        if(jwt == null) {
+            return null;
+        }
 
-        int i = iss.lastIndexOf("/");
-        String realm = iss.substring(i + 1);
-        i = iss.indexOf("/realms");
-        String serverUrl = iss.substring(0, i);
+        String iss = jwt.getClaimAsString("iss");  // e.g., https://auth.example.com/realms/bocraportal
+        String realm = iss.substring(iss.lastIndexOf('/') + 1);
+        String serverUrl = iss.substring(0, iss.indexOf("/realms"));
         String clientId = jwt.getClaimAsString("azp");
 
-        Keycloak keycloak = KeycloakBuilder.builder()
+        return KeycloakBuilder.builder()
                 .serverUrl(serverUrl)
                 .realm(realm)
                 .clientId(clientId)
                 .authorization(jwt.getTokenValue())
                 .build();
-        return keycloak;
     }
 
-    public Jwt getJwt() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (Jwt) authentication.getPrincipal();
+    private Keycloak createRegistrationKeycloak() {
+        String realm = issuerUri.substring(issuerUri.lastIndexOf('/') + 1);
+        String serverUrl = issuerUri.substring(0, issuerUri.indexOf("/realms"));
+
+        return KeycloakBuilder.builder()
+                .serverUrl(serverUrl)
+                .realm(realm)
+                .clientId(registrationClient)
+                .clientSecret(registrationClientSecret)
+                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+                .build();
     }
 
-    public RealmResource getRealmResource() {
-        
-        Jwt jwt = getJwt();
-        String iss = jwt.getClaimAsString("iss");
-        int i = iss.lastIndexOf("/");
-        String realm = iss.substring(i + 1);
+    public AccessTokenResponse getAccessToken() {
 
-        return getKeycloak().realm(realm);
+        try (Keycloak kc = createRegistrationKeycloak()) {
+
+            if(kc == null) {
+                return null;
+            }
+
+            return kc.tokenManager().getAccessToken();
+        }
     }
 
-    public String getAuthClient() {
-
-        Jwt jwt = getJwt();
-
-        return jwt.getClaimAsString("azp");
-    }
-
+    /**
+     * Returns the Keycloak realm name for the current JWT
+     */
     private String getRealm() {
         Jwt jwt = getJwt();
 
-        int i = jwt.getClaimAsString("iss").lastIndexOf("/");
-        return jwt.getClaimAsString("iss").substring(i + 1);
-    }   
-
-    public ClientRepresentation findAuthenticatedClientResource() {
-        for (ClientRepresentation clientRep : getRealmResource().clients().findAll()) {
-            if (clientRep.getClientId().equals(getAuthClient())) {
-                return clientRep;
-            }
+        if(jwt == null) {
+            return null;
         }
-
-        return null;
+        
+        String iss = jwt.getClaimAsString("iss");
+        return iss.substring(iss.lastIndexOf('/') + 1);
     }
 
-    public OrganizationsResource getOrganizationsResource() {
+    /* =====================================================
+       ============= EXECUTION HELPERS ====================
+       ===================================================== */
 
-        return getKeycloak().realm(getRealm()).organizations();
+    /**
+     * Executes a Keycloak RealmResource operation that returns a value
+     */
+    public <T> T withRealm(Function<RealmResource, T> fn) {
+        try (Keycloak kc = createKeycloak()) {
+
+            if(kc == null) {
+                return null;
+            }
+
+            RealmResource realm = kc.realm(getRealm());
+            return fn.apply(realm);
+        }
     }
 
-    public UsersResource getUsersResource() {
+    public <T> T withRegistrationRealm(Function<RealmResource, T> fn) {
+        try (Keycloak kc = createRegistrationKeycloak()) {
 
-        Keycloak keycloak = getKeycloak();
+            if(kc == null) {
+                return null;
+            }
 
-        return keycloak.realm(getRealm()).users();
+            String r = issuerUri.substring(issuerUri.lastIndexOf('/') + 1);
+            RealmResource realm = kc.realm(r);
+            return fn.apply(realm);
+        }
     }
 
-    public RolesResource getRealmRolesResource() {
-        Keycloak keycloak = getKeycloak();
+    /**
+     * Executes a Keycloak RealmResource operation that returns void
+     */
+    public void runWithRealm(Consumer<RealmResource> fn) {
+        try (Keycloak kc = createKeycloak()) {
 
-        return keycloak.realm(getRealm()).roles();
+            if(kc == null) {
+                return;
+            }
+
+            RealmResource realm = kc.realm(getRealm());
+            fn.accept(realm);
+        }
     }
 
-    public RolesResource getClientRolesResource(String clientId) {
+    /* =====================================================
+       ============= ORGANIZATION HELPERS =================
+       ===================================================== */
 
-        Keycloak keycloak = getKeycloak();
-
-        return keycloak.realm(getRealm()).clients().get(clientId).roles();
+    // Single organization by ID (returns a result)
+    public <T> T withOrganization(String orgId, Function<OrganizationResource, T> fn) {
+        return withRealm(realm -> {
+            OrganizationResource org = realm.organizations().get(orgId);
+            return fn.apply(org);
+        });
     }
 
-    public ClientsResource getClientsResource() {
+    // Single organization by ID (void)
+    public void runWithOrganization(String orgId, Consumer<OrganizationResource> consumer) {
+        withOrganization(orgId, org -> { consumer.accept(org); return null; });
+    }
 
-        return getRealmResource().clients();
+    // All organizations (returns a result)
+    public <T> T withOrganizations(Function<OrganizationsResource, T> fn) {
+        return withRealm(realm -> fn.apply(realm.organizations()));
+    }
+
+    // All organizations (void)
+    public void runWithOrganizations(Consumer<OrganizationsResource> consumer) {
+        withOrganizations(orgs -> { consumer.accept(orgs); return null; });
     }
 }

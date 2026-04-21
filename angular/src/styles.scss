@@ -1,4 +1,9 @@
-@use "@angular/material" as mat;
+/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+// Common page styles
+@import 'styles/common';
+
 // regular style toast
 @import 'ngx-toastr/toastr';
 
@@ -11,6 +16,8 @@
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins';
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
 // bootstrap 4
 // @import 'ngx-toastr/toastr-bs4-alert';
 // boostrap 5
@@ -25,7 +32,7 @@ $theme: mat.define-theme(
       primary: mat.$blue-palette,
     ),
     typography: (
-      brand-family: "Comic Sans",
+      brand-family: 'Comic Sans',
       bold-weight: 900,
     ),
     density: (
@@ -49,7 +56,7 @@ $primary-color: mat.get-theme-color($theme, primary, 80);
 }
 
 /* You can add global styles to this file, and also import other style files */
-@import "flex";
+// @import "flex";
 
 * {
   box-sizing: border-box;
@@ -306,57 +313,56 @@ body {
           }
         }
       }
-
-      // Form Actions
-      .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        padding: 2rem 1.5rem 1rem;
-        border-top: 1px solid #e9ecef;
-        margin-top: 1rem;
-
-        button {
-          min-width: 140px;
-          border-radius: 8px;
-          font-weight: 500;
-          padding: 0.75rem 2rem;
-
-          &.action-primary {
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-
-            &:hover:not(:disabled) {
-              box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-              transform: translateY(-1px);
-            }
-          }
-
-          &.action-secondary {
-            color: #6c757d;
-            border-color: #dee2e6;
-
-            &:hover:not(:disabled) {
-              background-color: #f8f9fa;
-              border-color: #adb5bd;
-            }
-          }
-
-          mat-icon {
-            margin-right: 0.5rem;
-          }
-
-          &:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-          }
-
-          transition: all 0.3s ease;
-        }
-      }
     }
   }
 }
 
+// Form Actions
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 2rem 1.5rem 1rem;
+  border-top: 1px solid #e9ecef;
+  margin-top: 1rem;
+
+  button {
+    min-width: 140px;
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 0.75rem 2rem;
+
+    &.action-primary {
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+      &:hover:not(:disabled) {
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        transform: translateY(-1px);
+      }
+    }
+
+    &.action-secondary {
+      color: #6c757d;
+      border-color: #dee2e6;
+
+      &:hover:not(:disabled) {
+        background-color: #f8f9fa;
+        border-color: #adb5bd;
+      }
+    }
+
+    mat-icon {
+      margin-right: 0.5rem;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    transition: all 0.3s ease;
+  }
+}
 // Responsive Design
 @media (max-width: 768px) {
   .edit-container {
@@ -435,10 +441,19 @@ body {
 }
 
 @keyframes shake {
-  0%, 20%, 40%, 60%, 80%, 100% {
+  0%,
+  20%,
+  40%,
+  60%,
+  80%,
+  100% {
     transform: translateX(0);
   }
-  10%, 30%, 50%, 70%, 90% {
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
     transform: translateX(-2px);
   }
 }
@@ -529,28 +544,28 @@ body {
       }
     }
   }
+}
 
-  .action-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 
-    .action-button {
-      border-radius: 24px !important;
-      padding: 8px 24px !important;
-      font-weight: 500 !important;
-      text-transform: none !important;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-      transition: all 0.3s ease !important;
+  .action-button {
+    border-radius: 24px !important;
+    padding: 8px 24px !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.3s ease !important;
 
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
-      }
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
+    }
 
-      mat-icon {
-        margin-right: 8px;
-      }
+    mat-icon {
+      margin-right: 8px;
     }
   }
 }
@@ -634,7 +649,7 @@ body {
     }
 
     &:empty::before {
-      content: "N/A";
+      content: 'N/A';
       color: #94a3b8;
       font-style: italic;
     }
@@ -698,7 +713,7 @@ body {
 
 /* Phone Numbers Display */
 .phone-numbers {
-  font-family: "Roboto Mono", monospace;
+  font-family: 'Roboto Mono', monospace;
   font-weight: 500;
 }
 
@@ -789,13 +804,6 @@ body {
 }
 
 /* Error States */
-.mat-mdc-form-field.mat-form-field-invalid {
-  .mdc-notched-outline__leading,
-  .mdc-notched-outline__notch,
-  .mdc-notched-outline__trailing {
-    border-color: #ef4444 !important;
-  }
-}
 
 .mat-mdc-form-field-error {
   font-size: 12px !important;

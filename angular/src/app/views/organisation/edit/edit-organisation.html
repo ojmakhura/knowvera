@@ -1,0 +1,318 @@
+<!-- Redesigned Organisation Edit Component -->
+<div class="edit-container">
+  <div class="breadcrumb-section">
+    <mat-icon class="breadcrumb-icon">home</mat-icon>
+    <span class="breadcrumb-text">{{ 'home' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text">{{ 'organisation' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ (editOrganisationSignal().id ? 'edit' : 'create') | translate }}</span>
+    @if(editOrganisationSignal().id) {
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ editOrganisationSignal().name }}</span>
+    }
+  </div>
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon>business</mat-icon>
+        <span>{{ 'edit.organisation' | translate }}</span>
+      </h1>
+      <p class="page-subtitle">{{ 'edit.organisation.description' | translate }}</p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button mat-raised-button color="primary" (click)="editOrganisationSave()" class="save-btn">
+        <mat-icon>save</mat-icon>
+        <span>{{ 'save' | translate }}</span>
+      </button>
+      <button mat-stroked-button color="primary" [routerLink]="['/organisation']" [disabled]="loading()">
+        <mat-icon>search</mat-icon>
+        <span>{{ 'search' | translate }}</span>
+      </button>
+      <button mat-stroked-button color="warn" (click)="editOrganisationDelete()" *ngIf="deleteUnrestricted()"
+        [disabled]="loading()">
+        <mat-icon>delete</mat-icon>
+        <span>{{ 'delete' | translate }}</span>
+      </button>
+      <button mat-button (click)="editOrganisationFormReset()" [disabled]="loading()">
+        <mat-icon>refresh</mat-icon>
+        <span>{{ 'reset' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+  <div class="loading-overlay">
+    <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+  </div>
+  }
+
+  <!-- Main Form Container -->
+  <div class="form-container">
+    <form class="edit-form">
+      <!-- Basic Information Section -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            {{ 'basic.information' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'status' | translate }}</mat-label>
+              <mat-select id="status" [formField]="editOrganisationSignalForm.status">
+                <mat-option value="">{{ 'select.status' | translate }}</mat-option>
+                @for (key of GeneralStatusOptions; track key) {
+                <mat-option [value]="key">
+                  {{ GeneralStatusT[key] }}
+                </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>verified</mat-icon>
+              @for (error of editOrganisationSignalForm.status.errors; track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'kyc.status' | translate }}</mat-label>
+              <mat-select id="kycStatus" [formField]="editOrganisationSignalForm.kycStatus">
+                <mat-option value="">{{ 'select.kyc.status' | translate }}</mat-option>
+                @for (key of KycComplianceStatusOptions; track key) {
+                <mat-option [value]="key">
+                  {{ KycComplianceStatusT[key] }}
+                </mat-option>
+                }
+              </mat-select>
+              <mat-icon matSuffix>security</mat-icon>
+              @for (error of editOrganisationSignalForm.kycStatus.errors; track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="field-row">
+            <mat-checkbox [formField]="editOrganisationSignalForm.isClient" color="primary">
+              <span translate>is.client</span>
+            </mat-checkbox>
+            @for (error of editOrganisationSignalForm.isClient.errors; track error) {
+            <mat-error class="checkbox-error" translate>{{error.message}}</mat-error>
+            }
+          </div>
+
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'registration.no' | translate }}</mat-label>
+              <input matInput type="text" id="registrationNo" [formField]="editOrganisationSignalForm.registrationNo"
+                placeholder="{{ 'enter.registration.no' | translate }}" />
+              <mat-icon matSuffix>assignment</mat-icon>
+              @for (error of editOrganisationSignalForm.registrationNo.errors; track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'code' | translate }}</mat-label>
+              <input matInput type="text" id="code" [formField]="editOrganisationSignalForm.code"
+                placeholder="{{ 'enter.code' | translate }}" />
+              <mat-icon matSuffix>qr_code</mat-icon>
+              @for (error of editOrganisationSignalForm.code.errors; track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-full-width">
+              <mat-label>{{ 'name' | translate }}</mat-label>
+              <input matInput type="text" id="name" [formField]="editOrganisationSignalForm.name"
+                placeholder="{{ 'enter.organisation.name' | translate }}" />
+              <mat-icon matSuffix>business</mat-icon>
+              @for (error of editOrganisationSignalForm.name.errors; track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-full-width">
+              <mat-label>{{ 'country.of.registration' | translate }}</mat-label>
+              <mat-select id="countryOfRegistration" [formField]="editOrganisationSignalForm.countryOfRegistration">
+                <mat-option></mat-option>
+                @for (country of countries; track country) {
+                <mat-option [value]="country">{{ country }}</mat-option>
+                }
+              </mat-select>
+              @for (error of editOrganisationSignalForm.countryOfRegistration.errors; track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-full-width">
+              <mat-label>{{ 'description' | translate }}</mat-label>
+              <textarea matInput id="description" [formField]="editOrganisationSignalForm.description"
+                placeholder="{{ 'enter.description' | translate }}" rows="3"></textarea>
+              <mat-icon matSuffix>description</mat-icon>
+              @for (error of editOrganisationSignalForm.description.errors; track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Contact Information Section -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>contact_phone</mat-icon>
+            {{ 'contact.information' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="row">
+            <div class="field-full">
+              <h3 class="col-form-label col-sm-2 pt-0" translate>phone.numbers</h3>
+              <div class="field-row">
+                <button type="button" mat-mini-fab matTooltip="{{'add' | translate}}" color="primary"
+                  (click)="phoneNumbersAdd()">
+                  <mat-icon fontIcon="add" aria-hidden="false" aria-label="add"></mat-icon>
+                </button>
+              </div>
+              <div class="mb-3">
+                @for(item of editOrganisationSignalForm.phoneNumbers; track i; let i = $index){
+                <div class="field-row">
+                  <mat-form-field appearance="outline" class="col-md-4">
+                    <mat-label>{{ 'type' | translate }}</mat-label>
+                    <mat-select id="type" [formField]="item.type">
+                      <mat-option value="">{{ 'select.type' | translate }}</mat-option>
+                      @for (key of PhoneTypeOptions; track key) {
+                      <mat-option [value]="key">
+                        {{ PhoneTypeT[key] }}
+                      </mat-option>
+                      }
+                    </mat-select>
+                    <mat-icon matSuffix>expand_more</mat-icon>
+                  </mat-form-field>
+                  <!-- <mat-form-field class="col-md-4">
+                    <mat-label for="type" class="col-sm-2 col-form-label" translate>type</mat-label>
+                    <input matInput type="text" id="type" [formField]="item.type" />
+                  </mat-form-field> -->
+                  <mat-form-field class="col-md-4">
+                    <mat-label for="phoneNumber" class="col-sm-2 col-form-label" translate>phone.number</mat-label>
+                    <input matInput type="text" id="phoneNumber" [formField]="item.phoneNumber" />
+                  </mat-form-field>
+                  <button type="button" mat-mini-fab matTooltip="{{'remove' | translate}}" color="warn"
+                    (click)="phoneNumbersRemove(i, item().value())">
+                    <mat-icon fontIcon="delete" aria-hidden="false" aria-label="remove"></mat-icon>
+                  </button>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+          <hr>
+
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'postal.address' | translate }}</mat-label>
+              <textarea matInput id="postalAddress" [formField]="editOrganisationSignalForm.postalAddress"
+                placeholder="{{ 'enter.postal.address' | translate }}" rows="3"></textarea>
+              <mat-icon matSuffix>mail</mat-icon>
+              @for (error of editOrganisationSignalForm.postalAddress.errors; track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ 'physical.address' | translate }}</mat-label>
+              <textarea matInput id="physicalAddress" [formField]="editOrganisationSignalForm.physicalAddress"
+                placeholder="{{ 'enter.physical.address' | translate }}" rows="3"></textarea>
+              <mat-icon matSuffix>location_on</mat-icon>
+              @for (error of editOrganisationSignalForm.physicalAddress.errors; track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Online Presence Section -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>contact_phone</mat-icon>
+            {{ 'online.presence' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="field-row">
+            <mat-form-field appearance="outline" class="field-full-width">
+              <mat-label>{{ 'contact.email.address' | translate }}</mat-label>
+              <input matInput type="text" id="contactEmailAddress"
+                [formField]="editOrganisationSignalForm.contactEmailAddress"
+                placeholder="{{ 'enter.contact.email.address' | translate }}" />
+              <mat-icon matSuffix>phone</mat-icon>
+              <!-- <mat-hint>{{ 'separate.multiple.numbers.with.commas' | translate }}</mat-hint> -->
+            </mat-form-field>
+          </div>
+          <div class="row">
+            <div class="field-full">
+              <h3 class="col-form-label col-sm-2 pt-0" translate>domains</h3>
+              <div class="field-row">
+                <button type="button" mat-mini-fab matTooltip="{{'add' | translate}}" color="primary"
+                  (click)="domainsAdd()">
+                  <mat-icon fontIcon="add" aria-hidden="false" aria-label="add"></mat-icon>
+                </button>
+              </div>
+              <div class="mb-3">
+                @for(item of editOrganisationSignalForm.domains; track i; let i = $index){
+                <div class="field-row">
+                  <mat-form-field class="col-md-4">
+                    <mat-label for="name" class="col-sm-2 col-form-label" translate>name</mat-label>
+                    <input matInput type="text" id="name" [formField]="item.name" />
+                  </mat-form-field>
+                  <mat-checkbox [formField]="item.verified" color="primary">
+                    <span translate>verified</span>
+                  </mat-checkbox>
+                  <button type="button" mat-mini-fab matTooltip="{{'remove' | translate}}" color="warn"
+                    (click)="domainsRemove(i, item().value())">
+                    <mat-icon fontIcon="delete" aria-hidden="false" aria-label="remove"></mat-icon>
+                  </button>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Form Actions (Bottom) -->
+      <div class="form-actions">
+        <button mat-raised-button color="primary" type="button" (click)="editOrganisationSave()"
+          [disabled]="editOrganisationSignalForm().invalid()" class="action-primary">
+          <mat-icon>save</mat-icon>
+          <span>{{ 'save' | translate }}</span>
+        </button>
+
+        <button mat-button type="button" (click)="editOrganisationFormReset()" [disabled]="loading()"
+          class="action-secondary">
+          <mat-icon>refresh</mat-icon>
+          <span>{{ 'reset' | translate }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

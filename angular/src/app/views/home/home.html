@@ -1,0 +1,100 @@
+<div class="home-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        <mat-icon class="hero-icon">shield</mat-icon>
+        {{ 'application.name' | translate }}
+      </h1>
+      <p class="hero-subtitle">
+        Centralized KYC verification and compliance management platform
+      </p>
+      <div class="hero-actions">
+        <button mat-raised-button color="primary" class="hero-btn" (click)="navigateTo('/individual/new')">
+          <mat-icon>person_add</mat-icon>
+          Get Started
+        </button>
+        <button mat-stroked-button class="hero-btn-secondary" (click)="navigateTo('/about')">
+          <mat-icon>info</mat-icon>
+          Learn More
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistics Cards -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      @for (stat of statCards; track $index) {
+      <mat-card class="stat-card">
+        <mat-card-content>
+          <div class="stat-icon" [style.background-color]="stat.color + '20'">
+            <mat-icon [style.color]="stat.color">{{ stat.icon }}</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3 class="stat-value">{{ stat.value() }}</h3>
+            <p class="stat-title">{{ stat.title }}</p>
+            <div class="stat-trend" [class]="getTrendClass(stat.trend)" *ngIf="stat.trend">
+              <mat-icon class="trend-icon">{{ getTrendIcon(stat.trend) }}</mat-icon>
+              <span>{{ stat.trend }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      }
+    </div>
+  </section>
+
+  <!-- Quick Actions -->
+  <section class="quick-actions-section">
+    <h2 class="section-title">
+      <mat-icon>flash_on</mat-icon>
+      Quick Actions
+    </h2>
+    <div class="actions-grid">
+      <mat-card class="action-card" *ngFor="let action of quickActions" (click)="navigateTo(action.route)">
+        <mat-card-content>
+          <div class="action-icon" [style.background-color]="action.color + '20'">
+            <mat-icon [style.color]="action.color">{{ action.icon }}</mat-icon>
+          </div>
+          <h3 class="action-title">{{ action.title }}</h3>
+          <p class="action-description">{{ action.description }}</p>
+          <mat-icon class="action-arrow">arrow_forward</mat-icon>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <h2 class="section-title">
+      <mat-icon>stars</mat-icon>
+      Platform Features
+    </h2>
+    <div class="features-grid">
+      <div class="feature-item" *ngFor="let feature of features">
+        <div class="feature-icon-wrapper">
+          <mat-icon class="feature-icon">{{ feature.icon }}</mat-icon>
+        </div>
+        <h3 class="feature-title">{{ feature.title }}</h3>
+        <p class="feature-description">{{ feature.description }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="cta-section">
+    <mat-card class="cta-card">
+      <mat-card-content>
+        <h2 class="cta-title">Ready to streamline your KYC process?</h2>
+        <p class="cta-description">
+          Join hundreds of organizations using our platform for secure and efficient identity verification.
+        </p>
+        <button mat-raised-button color="primary" class="cta-button" (click)="navigateTo('/individual/new')">
+          <mat-icon>rocket_launch</mat-icon>
+          Start Verification
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </section>
+</div>

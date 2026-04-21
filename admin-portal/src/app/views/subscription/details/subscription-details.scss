@@ -1,0 +1,436 @@
+:host {
+	display: block;
+}
+
+.sub-details-page {
+	padding: 1.5rem 2rem 3rem;
+	background: #f7f9fb;
+}
+
+.details-head,
+.title-wrap,
+.head-actions,
+.section-head,
+.overview-head,
+.amount-row,
+.tier-row,
+.timeline-row,
+.invoice-head,
+.meta,
+.meta-item,
+.code-row {
+	display: flex;
+	align-items: center;
+}
+
+.details-head,
+.invoice-head,
+.meta {
+	justify-content: space-between;
+}
+
+.details-head {
+	gap: 1rem;
+	margin-bottom: 2rem;
+}
+
+.title-wrap,
+.head-actions,
+.section-head,
+.tier-row,
+.timeline-row,
+.meta,
+.meta-item,
+.code-row {
+	gap: 0.75rem;
+}
+
+.title-wrap h1,
+.section-title,
+.mapping-grid p,
+.timeline-row p,
+.meta-item p {
+	margin: 0;
+}
+
+.title-wrap h1 {
+	font-size: clamp(1.8rem, 3vw, 2.4rem);
+	line-height: 1;
+	font-weight: 800;
+	letter-spacing: -0.03em;
+	color: #191c1e;
+}
+
+.title-wrap p,
+.progress-copy,
+.timeline-row p,
+.section-label,
+.meta-item p,
+.empty-state {
+	color: #43474f;
+}
+
+.back-btn,
+.ghost-btn,
+.primary-btn,
+.panel {
+	border-radius: 1rem;
+}
+
+.ghost-btn {
+	border-color: rgba(196, 198, 208, 0.25) !important;
+}
+
+.primary-btn {
+	background: linear-gradient(135deg, #001735, #0e2c52) !important;
+}
+
+.top-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+.panel {
+	position: relative;
+	overflow: hidden;
+	background: #fff;
+	box-shadow: none;
+}
+
+.overview-card,
+.timeline-card,
+.mapping-card,
+.invoice-card,
+.details-footer {
+	padding: 1.5rem;
+}
+
+.hero-glow {
+	position: absolute;
+	top: -3rem;
+	right: -3rem;
+	width: 10rem;
+	height: 10rem;
+	border-radius: 999px;
+	background: rgba(0, 23, 53, 0.06);
+	filter: blur(30px);
+}
+
+.overview-card {
+	min-height: 20rem;
+}
+
+.overview-head,
+.progress-row,
+.invoice-head {
+	position: relative;
+	z-index: 1;
+}
+
+.overview-head {
+	justify-content: space-between;
+	margin-bottom: 2rem;
+}
+
+.section-label {
+	display: block;
+	margin-bottom: 0.35rem;
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.ref-value,
+.mapping-grid p,
+.timeline-row p,
+.meta-item p {
+	font-weight: 700;
+	color: #191c1e;
+}
+
+.ref-value {
+	font-family: monospace;
+}
+
+.status-pill,
+.invoice-pill,
+.record-chip,
+.code-chip {
+	display: inline-flex;
+	align-items: center;
+}
+
+.status-pill,
+.invoice-pill {
+	gap: 0.45rem;
+	padding: 0.3rem 0.7rem;
+	border-radius: 999px;
+	font-size: 0.7rem;
+	font-weight: 800;
+	text-transform: uppercase;
+}
+
+.status-dot {
+	width: 0.4rem;
+	height: 0.4rem;
+	border-radius: 999px;
+	background: currentColor;
+}
+
+.active,
+.paid {
+	background: #d5e3fc;
+	color: #57657a;
+}
+
+.inactive,
+.pending {
+	background: rgba(255, 179, 0, 0.15);
+	color: #b57400;
+}
+
+.cancelled {
+	background: #ffdad6;
+	color: #93000a;
+}
+
+.unknown {
+	background: #eceef0;
+	color: #43474f;
+}
+
+.overview-grid,
+.mapping-grid {
+	display: grid;
+	gap: 1rem;
+}
+
+.overview-grid {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mapping-card {
+	margin-bottom: 1rem;
+}
+
+.mapping-grid {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	margin-top: 1.5rem;
+}
+
+.amount-row strong {
+	font-size: clamp(2rem, 4vw, 3rem);
+	line-height: 1;
+	letter-spacing: -0.03em;
+	color: #001735;
+}
+
+.amount-row span,
+.tier-row,
+.invoice-table .amount-cell {
+	font-weight: 700;
+}
+
+.tier-row mat-icon,
+.section-head mat-icon,
+.record-chip mat-icon {
+	color: #001735;
+}
+
+.progress-row {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 0.2rem;
+	margin-top: 3rem;
+}
+
+.progress-row span {
+	height: 0.4rem;
+	border-radius: 999px;
+	background: #cfd6de;
+}
+
+.progress-row span.filled {
+	background: linear-gradient(135deg, #001735, #0e2c52);
+}
+
+.progress-copy {
+	margin: 1rem 0 0;
+	font-size: 0.75rem;
+}
+
+.timeline-card {
+	background: #f2f4f6;
+}
+
+.timeline-list {
+	display: grid;
+	gap: 1rem;
+	margin-top: 1.25rem;
+}
+
+.timeline-row {
+	align-items: flex-start;
+}
+
+.timeline-icon {
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 0.7rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: #fff;
+	color: #001735;
+}
+
+.timeline-icon.warn {
+	color: #ba1a1a;
+}
+
+.days-box {
+	margin-top: 1.75rem;
+	padding: 1rem;
+	border-radius: 0.85rem;
+	text-align: center;
+	background: linear-gradient(135deg, #001735, #0e2c52);
+}
+
+.days-box span,
+.days-box strong {
+	display: block;
+	color: #fff;
+}
+
+.days-box span {
+	font-size: 0.65rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	opacity: 0.7;
+}
+
+.days-box strong {
+	margin-top: 0.35rem;
+	font-size: 2rem;
+	line-height: 1;
+}
+
+.code-chip {
+	padding: 0.2rem 0.55rem;
+	border-radius: 0.35rem;
+	background: #eceef0;
+	font-family: monospace;
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: #001735;
+}
+
+.invoice-table-wrap {
+	overflow-x: auto;
+	margin-top: 1rem;
+}
+
+.mono-cell {
+	font-family: monospace;
+	font-weight: 700;
+}
+
+.align-end {
+	text-align: right;
+}
+
+.empty-state {
+	display: grid;
+	place-items: center;
+	gap: 0.5rem;
+	padding: 1.5rem 0;
+}
+
+.details-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	background: #f2f4f6;
+}
+
+.meta {
+	gap: 2rem;
+}
+
+.meta-item {
+	min-width: 0;
+}
+
+.record-chip {
+	gap: 0.45rem;
+	padding: 0.6rem 0.9rem;
+	border-radius: 0.7rem;
+	background: #e0e3e5;
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #001735;
+}
+
+:host ::ng-deep .invoice-table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	background: transparent;
+}
+
+:host ::ng-deep .invoice-table .mat-mdc-header-cell,
+:host ::ng-deep .invoice-table .mat-mdc-cell {
+	border-bottom: none;
+}
+
+:host ::ng-deep .invoice-table .mat-mdc-header-cell {
+	padding: 1rem 1.25rem;
+	background: rgba(242, 244, 246, 0.4);
+	color: #747780;
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+:host ::ng-deep .invoice-table .mat-mdc-cell {
+	padding: 1rem 1.25rem;
+	color: #191c1e;
+}
+
+:host ::ng-deep .invoice-table .mat-mdc-row:hover {
+	background: #f2f4f6;
+}
+
+@media (max-width: 960px) {
+	.sub-details-page {
+		padding: 1rem;
+	}
+
+	.details-head,
+	.head-actions,
+	.title-wrap,
+	.details-footer,
+	.meta {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.top-grid,
+	.overview-grid,
+	.mapping-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.head-actions button {
+		width: 100%;
+	}
+}
+

@@ -1,575 +1,715 @@
 package bw.co.centralkyc.keycloak;
 
 import java.net.URI;
+import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.StatusType;
 import lombok.RequiredArgsConstructor;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.resource.OrganizationResource;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.RoleResource;
 import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.admin.client.resource.UserResource;
-import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.idm.ClientRepresentation;
-import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.OrganizationRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
-import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.representations.idm.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
+import bw.co.centralkyc.individual.IndividualDTO;
+import bw.co.centralkyc.individual.IndividualService;
+import bw.co.centralkyc.individual.IndividualServiceException;
+import bw.co.centralkyc.organisation.OrganisationDTO;
+import bw.co.centralkyc.organisation.OrganisationService;
 import bw.co.centralkyc.organisation.branch.BranchDTO;
 import bw.co.centralkyc.organisation.branch.BranchService;
+import bw.co.centralkyc.organisation.client.ClientRequestDTO;
+import bw.co.centralkyc.organisation.client.ClientRequestService;
+import bw.co.centralkyc.settings.SettingsDTO;
+import bw.co.centralkyc.settings.SettingsService;
 import bw.co.centralkyc.user.UserDTO;
-
+import bw.co.centralkyc.utils.KycUtils;
+import bw.co.roguesystems.comm.ContentType;
+import bw.co.roguesystems.comm.MessagingPlatform;
+import bw.co.roguesystems.comm.message.CommMessageDTO;
 
 @Component
 @RequiredArgsConstructor
 public class KeycloakUserService {
 
-    String[] excludedRoles = { "offline_access", "uma_authorization", "default-roles-bocraportal" };
+    private static final String[] EXCLUDED_ROLES = { "offline_access", "uma_authorization",
+            "default-roles-centralkyc" };
+
+    @Value("${app.organisation.manager-role}")
+    private String organisationManagerRole;
+
+    @Value("${app.realmUserRole}")
+    private String realmUserRole;
+
+    @Value("${app.adminPortalRole}")
+    private String adminPortalRole;
+
+    @Value("${app.userPortalRole}")
+    private String userPortalRole;
+
+    @Value("${app.apiUserRole}")
+    private String apiUserRole;
+
+    @Value("${app.security.password.min-length}")
+    private int minPasswordLength;
+
+    @Value("${app.admin-web}")
+    private String adminWebUrl;
+
+    @Value("${app.comm.source-email}")
+    private String sourceEmail;
+
+    private SettingsDTO settings;
 
     private final KeycloakService keycloakService;
     private final BranchService branchService;
-    // private final KeycloakOrganisationService orgService;
+    private final IndividualService individualService;
+    private final ClientRequestService clientRequestService;
+    private final OrganisationService organisationService;
+    private final SettingsService settingsService;
 
-    // public KeycloakUserService(KeycloakService keycloakService) {
-    //     this.keycloakService = keycloakService;
-    // }
+    private final KycUtils kycUtils;
 
-    private CredentialRepresentation createCredential(String type, String value, Boolean temporary) {
+    private static final String newOrgUserTemplate = """
+            Dear %s,
+
+            Welcome to Central KYC platform. Your organisation, %s, has selected you to manage
+            their account. This message alerts you that a user has been created for you on the
+            platform. Please find the login details below:
+
+            URL: %s
+            Username: %s
+            Password: %s
+
+            Regards
+
+            CentralKYC Team
+            """;
+
+    private static final String newUserTemplate = """
+            Dear %s,
+
+            Welcome to Central KYC platform. Your new account is ready for use. Please find the login details below:
+
+            URL: %s
+            Username: %s
+            Password: %s
+
+            Kindly change your password upon first login.
+
+            Regards
+
+            CentralKYC Team
+            """;
+
+    // -------------------- UTILS --------------------
+
+    private CredentialRepresentation createCredential(String type, String value, boolean temporary) {
         CredentialRepresentation cred = new CredentialRepresentation();
-
         cred.setType(type);
         cred.setValue(value);
         cred.setTemporary(temporary);
-
         return cred;
     }
 
-    private ClientRepresentation findAuthenticatedClientResource() {
-        for (ClientRepresentation clientRep : keycloakService.getClientsResource().findAll()) {
-            if (clientRep.getClientId().equals(keycloakService.getAuthClient())) {
-                return clientRep;
-            }
+    private String getCreatedId(Response response) {
+        if (response.getStatus() != HttpStatus.CREATED.value()) {
+            response.bufferEntity();
+            String body = response.readEntity(String.class);
+            throw new WebApplicationException(
+                    "Create method returned status " + response.getStatusInfo().getReasonPhrase() +
+                            " (Code: " + response.getStatusInfo().getStatusCode() + "); Response body: " + body,
+                    response);
         }
-
-        return null;
+        URI location = response.getLocation();
+        return location == null ? null : location.getPath().substring(location.getPath().lastIndexOf('/') + 1);
     }
 
-    public UserDTO findByUsername(String username) {
-
-        UsersResource usersResource = keycloakService.getUsersResource();
-        List<UserRepresentation> users = usersResource.search(username, true);
-
-        return CollectionUtils.isEmpty(users) ? null : userRepresentationUserDTO(users.get(0));
-    }
-
-    public UserDTO getLoggedInUser() {
-
-        Jwt jwt = keycloakService.getJwt();
-
-        String userId = jwt.getSubject();
-
-        UsersResource usersResource = keycloakService.getUsersResource();
-        UserRepresentation userRep = usersResource.get(userId).toRepresentation();
-
-        return userRepresentationUserDTO(userRep);
-    }
-
-    public Collection<UserDTO> getUsersByRoles(String client, Set<String> roles) {
-
-        RolesResource rolesResource = keycloakService.getClientRolesResource(client);
-        return this.getRolesResourceUsers(rolesResource, roles);
-    }
-
-    private Collection<UserDTO> getRolesResourceUsers(RolesResource rolesResource, Set<String> roles) {
-        Map<String, UserDTO> users = new HashMap<>();
-        for (String role : roles) {
-            Set<UserDTO> uvo = rolesResource.get(role).getRoleUserMembers().stream()
-                    .map(user -> userRepresentationUserDTO(user)).collect(Collectors.toSet());
-
-            uvo.stream().forEach(user -> users.put(user.getUserId(), user));
-        }
-
-        return users.values();
-    }
-
-    public Collection<UserDTO> getUsersByRoles(Set<String> roles) {
-        RolesResource rolesResource = keycloakService.getRealmRolesResource();
-        return this.getRolesResourceUsers(rolesResource, roles);
-    }
-
-    private UserRepresentation UserDTOUserRepresentation(UserDTO user) {
-
-        UserRepresentation userRepresentation = new UserRepresentation();
-
-        userRepresentation.setUsername(user.getUsername());
-        userRepresentation.setEmail(user.getEmail());
-        userRepresentation.setFirstName(user.getFirstName());
-        userRepresentation.setLastName(user.getLastName());
-        userRepresentation.setEnabled(user.getEnabled());
-        userRepresentation.setEmailVerified(false);
-        userRepresentation.setRequiredActions(Collections.singletonList("VERIFY_EMAIL"));
-        userRepresentation.setCredentials(Collections
+    private UserRepresentation toUserRepresentation(UserDTO user) {
+        UserRepresentation rep = new UserRepresentation();
+        rep.setUsername(user.getUsername());
+        rep.setEmail(user.getEmail());
+        rep.setFirstName(user.getFirstName());
+        rep.setLastName(user.getLastName());
+        rep.setEnabled(user.getEnabled());
+        rep.setEmailVerified(false);
+        rep.setRequiredActions(Collections.singletonList("VERIFY_EMAIL"));
+        rep.setCredentials(Collections
                 .singletonList(createCredential(CredentialRepresentation.PASSWORD, user.getPassword(), true)));
 
-        if(StringUtils.isNotBlank(user.getUserId())) {
-            userRepresentation.setId(user.getUserId());
+        if (StringUtils.isNotBlank(user.getUserId())) {
+            rep.setId(user.getUserId());
         }
 
         Map<String, List<String>> attributes = new HashMap<>();
-
-        if(StringUtils.isNotBlank(user.getBranchId())) {
-
-            attributes.put("branchId", Arrays.asList(user.getBranchId()));
-
-            if(StringUtils.isBlank(user.getOrganisationId())) {
+        if (StringUtils.isNotBlank(user.getBranchId())) {
+            attributes.put("branchId", Collections.singletonList(user.getBranchId()));
+            if (StringUtils.isBlank(user.getOrganisationId())) {
                 BranchDTO branch = branchService.findById(user.getBranchId());
                 user.setOrganisationId(branch.getOrganisationId());
             }
         }
-
-        if(StringUtils.isNotBlank(user.getBranch())) {
-
-            attributes.put("branch", Arrays.asList(user.getBranch()));
-        }
-
-        if(StringUtils.isNotBlank(user.getOrganisationId())) {
-
-            // attributes.put("organisationId", Arrays.asList(user.getOrganisationId()));
-        }
-
-        if(StringUtils.isNotBlank(user.getOrganisation())) {
-
-            // attributes.put("organisation", Arrays.asList(user.getOrganisation()));
-        }
-
-        if(StringUtils.isNotBlank(user.getIdentityNo())) {
-
-            attributes.put("identityNo", Arrays.asList(user.getIdentityNo()));
-        }
-
-        if(attributes.size() > 0) {
-            userRepresentation.setAttributes(attributes);
-        }
+        if (StringUtils.isNotBlank(user.getBranch()))
+            attributes.put("branch", Collections.singletonList(user.getBranch()));
+        if (StringUtils.isNotBlank(user.getIdentityNo()))
+            attributes.put("identityNo", Collections.singletonList(user.getIdentityNo()));
+        if (!attributes.isEmpty())
+            rep.setAttributes(attributes);
 
         if (CollectionUtils.isNotEmpty(user.getRoles())) {
-            userRepresentation.setRealmRoles(user.getRoles().stream().collect(Collectors.toList()));
+            rep.setRealmRoles(new ArrayList<>(user.getRoles()));
         }
 
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + userRepresentation.getAttributes());
-
-        return userRepresentation;
+        return rep;
     }
 
-    private UserDTO userRepresentationUserDTO(UserRepresentation userRepresentation) {
-        UserDTO user = new UserDTO();
+    private UserDTO toUserDTO(UserRepresentation rep) {
+        UserDTO dto = new UserDTO();
+        dto.setUserId(rep.getId());
+        dto.setUsername(rep.getUsername());
+        dto.setEmail(rep.getEmail());
+        dto.setFirstName(rep.getFirstName());
+        dto.setLastName(rep.getLastName());
+        dto.setEnabled(rep.isEnabled());
+        dto.setRoles(new ArrayList<>());
 
-        user.setUserId(userRepresentation.getId());
-        user.setEmail(userRepresentation.getEmail());
-        user.setEnabled(userRepresentation.isEnabled());
-        user.setFirstName(userRepresentation.getFirstName());
-        user.setUsername(userRepresentation.getUsername());
-        user.setLastName(userRepresentation.getLastName());
-        user.setRoles(new ArrayList<>());
-
-        if (userRepresentation.getAttributes() != null &&
-                !userRepresentation.getAttributes().isEmpty()) {
-            List<String> branchIds = userRepresentation.getAttributes().get("branchId");
-            List<String> branchNames = userRepresentation.getAttributes().get("branch");
-
-            if(CollectionUtils.isNotEmpty(branchNames)) {
-                user.setBranch(branchNames.get(0));
-            }
-
-            if(CollectionUtils.isNotEmpty(branchIds)) {
-                user.setBranchId(branchIds.get(0));
-            }
-
-            // List<String> orgIds = userRepresentation.getAttributes().get("organisationId");
-            // List<String> orgNames = userRepresentation.getAttributes().get("organisation");
-
-
-            // if(CollectionUtils.isNotEmpty(orgNames)) {
-            //     user.setOrganisation(orgNames.get(0));
-            // }
-
-
-            List<String> identityNos = userRepresentation.getAttributes().get("identityNo");
-
-            if(CollectionUtils.isNotEmpty(identityNos)) {
-                user.setIdentityNo(identityNos.get(0));
-            }   
-
-            // if(CollectionUtils.isNotEmpty(orgIds)) {
-            //     user.setOrganisationId(orgIds.get(0));
-            // }
-
-        } else {
-            user.setBranch(null);
-            user.setOrganisation(null);
+        if (rep.getAttributes() != null) {
+            Optional.ofNullable(rep.getAttributes().get("branchId"))
+                    .ifPresent(ids -> dto.setBranchId(ids.get(0)));
+            Optional.ofNullable(rep.getAttributes().get("branch"))
+                    .ifPresent(names -> dto.setBranch(names.get(0)));
+            Optional.ofNullable(rep.getAttributes().get("identityNo"))
+                    .ifPresent(ids -> dto.setIdentityNo(ids.get(0)));
         }
 
-        List<OrganizationRepresentation> orgs = keycloakService.getOrganizationsResource().search("member=" + user.getUserId());
+        keycloakService.withRealm(realm -> {
+            // Fetch organizations for the user using realm-aware call
+            realm.organizations().members().getOrganizations(dto.getUserId())
+                    .stream().findFirst()
+                    .ifPresent(org -> {
+                        dto.setOrganisationId(org.getId());
+                        dto.setOrganisation(org.getName());
+                    });
 
-        if(CollectionUtils.isNotEmpty(orgs)) {
+            // Roles
+            List<RoleRepresentation> roles = realm.users().get(dto.getUserId()).roles().realmLevel().listAll();
+            roles.stream()
+                    .filter(role -> !ArrayUtils.contains(EXCLUDED_ROLES, role.getName()))
+                    .forEach(role -> dto.getRoles().add(role.getName()));
 
-            user.setOrganisationId(orgs.getFirst().getId());
-            user.setOrganisation(orgs.getFirst().getName());
-        }
-
-        RealmResource realmResource = keycloakService.getRealmResource();
-        UserResource userResource = realmResource.users().get(userRepresentation.getId());
-        List<RoleRepresentation> roles = userResource.roles().realmLevel().listAll();
-
-        roles = roles.stream().filter(role -> !ArrayUtils.contains(excludedRoles, role.getName()))
-                .collect(Collectors.toList());
-
-        if (CollectionUtils.isNotEmpty(roles)) {
-
-            for (RoleRepresentation roleRep : roles) {
-                user.getRoles().add(roleRep.getName());
-            }
-        }
-
-        return user;
-    }
-
-    public Collection<UserDTO> getBranchUsers(String branchId) {
-
-        List<UserRepresentation> userRep = keycloakService.getUsersResource()
-                .searchByAttributes("branchId:" + branchId);
-
-        Collection<UserDTO> users = new ArrayList<>();
-
-        for (UserRepresentation user : userRep) {
-            UserDTO vo = this.userRepresentationUserDTO(user);
-            users.add(vo);
-        }
-
-        return users;
-    }
-    
-    public Collection<UserDTO> getOrganisationUsers(String organisationId) {
-
-        List<UserRepresentation> userRep = keycloakService.getUsersResource()
-                .searchByAttributes("organisationId:" + organisationId);
-
-        Collection<UserDTO> users = new ArrayList<>();
-
-        for (UserRepresentation user : userRep) {
-            UserDTO vo = this.userRepresentationUserDTO(user);
-            users.add(vo);
-        }
-
-        return users;
-    }
-
-    public UserDTO getUserByIdentityNo(String identityNo) {
-
-        UsersResource resource = keycloakService.getUsersResource();
-        List<UserRepresentation> users = resource
-                .searchByAttributes("identityNo:" + identityNo);
-
-        return CollectionUtils.isEmpty(users) ? null : userRepresentationUserDTO(users.get(0));
-    }
-
-    public UserDTO getUserByEmail(String email) {
-
-        UsersResource resource = keycloakService.getUsersResource();
-        List<UserRepresentation> users = resource
-                .searchByEmail(email, true);
-
-        return CollectionUtils.isEmpty(users) ? null : userRepresentationUserDTO(users.get(0));
-    }
-
-    public boolean updateUserPassword(String userId, String newPassword) {
-
-        if (StringUtils.isNotBlank(userId)) {
-            userId = keycloakService.getJwt().getSubject();
-        }
-
-        UsersResource usersResource = keycloakService.getUsersResource();
-        UserResource userResource = usersResource.get(userId);
-        CredentialRepresentation credential = createCredential(CredentialRepresentation.PASSWORD, newPassword, false);
-        userResource.resetPassword(credential);
-
-        return true;
-    }
-
-    public void updateUser(UserDTO user) {
-
-        if (StringUtils.isNotBlank(user.getUserId())) {
-            UsersResource usersResource = keycloakService.getUsersResource();
-            UserResource userResource = usersResource.get(user.getUserId());
-
-            UserRepresentation userRep = userResource.toRepresentation();
-            userRep.setEmail(user.getEmail());
-            userRep.setFirstName(user.getFirstName());
-            userRep.setLastName(user.getLastName());
-            userRep.setEnabled(user.getEnabled());
-
-            userResource.update(userRep);
-        }
-    }
-
-    public static String getCreatedId(Response response) {
-        URI location = response.getLocation();
-        // if (!response.getStatusInfo().equals(Status.CREATED)) {
-        if (response.getStatus() != HttpStatus.CREATED.value()) {
-            StatusType statusInfo = response.getStatusInfo();
-            response.bufferEntity();
-            String body = response.readEntity(String.class);
-            throw new WebApplicationException("Create method returned status "
-                    + statusInfo.getReasonPhrase() + " (Code: " + statusInfo.getStatusCode()
-                    + "); expected status: Created (201). Response body: " + body, response);
-        }
-
-        if (location == null) {
             return null;
-        }
+        });
 
-        String path = location.getPath();
-        return path.substring(path.lastIndexOf('/') + 1);
+        return dto;
     }
 
-    public UserDTO createUser(UserDTO user) {
+    private List<UserDTO> toUserDTOs(Collection<UserRepresentation> reps) {
+        return reps.stream().map(this::toUserDTO).collect(Collectors.toList());
+    }
 
-        UsersResource usersResource = keycloakService.getUsersResource();
-        UserRepresentation userRepresentation = this.UserDTOUserRepresentation(user);
-        UserResource userResource = null;
+    private CommMessageDTO newUserMessage(IndividualDTO individual, UserDTO user, OrganisationDTO organisation) {
 
-        if (StringUtils.isBlank(user.getUserId())) {
+        CommMessageDTO message = new CommMessageDTO();
 
-            Response res = usersResource.create(userRepresentation);
+        message.setContentType(ContentType.PLAIN_TEXT);
+        message.setDestinations(List.of(individual.getEmailAddress()));
+        message.setSource(sourceEmail);
 
-            if (res.getStatus() != HttpStatus.CREATED.value()) {
-                StatusType statusInfo = res.getStatusInfo();
-                res.bufferEntity();
-                String body = res.readEntity(String.class);
-                throw new WebApplicationException("Create method returned status "
-                        + statusInfo.getReasonPhrase() + " (Code: " + statusInfo.getStatusCode()
-                        + "); expected status: Created (201). Response body: " + body, res);
-            }
+        StringBuilder nameBuilder = new StringBuilder();
+        nameBuilder.append(individual.getFirstName()).append(' ');
+        if (StringUtils.isNotBlank(individual.getMiddleName())) {
 
-            userResource = usersResource.get(getCreatedId(res));
-            System.out.println("========================================> " + userResource.toRepresentation().getAttributes());
-            user.setUserId(getCreatedId(res));
-
-            
-        } else {
-            usersResource.get(user.getUserId()).update(userRepresentation);
-            userResource = usersResource.get(user.getUserId());
+            nameBuilder.append(individual.getMiddleName()).append(' ');
         }
 
-        if(StringUtils.isNotBlank(user.getOrganisationId())) {
+        nameBuilder.append(individual.getSurname());
 
-                OrganizationResource org = keycloakService.getOrganizationsResource().get(user.getOrganisationId());
-                org.members().addMember(user.getUserId());
-            }
+        message.setPlatform(MessagingPlatform.EMAIL);
 
-        if (userResource != null) {
+        if (organisation != null && !StringUtils.isNotBlank(organisation.getId())) {
 
-            List<RoleRepresentation> roleReps = new ArrayList<>();
+            OrganisationDTO org = organisationService.findById(individual.getOrganisation().id());
 
-            for (String role : user.getRoles()) {
-                RolesResource rolesResource = keycloakService.getRealmRolesResource();
-                rolesResource.get(role);
+            if (org != null) {
 
-                RoleRepresentation roleRep = rolesResource.get(role).toRepresentation();
-                if (StringUtils.isNotBlank(roleRep.getId())) {
-                    roleReps.add(roleRep);
+                if (StringUtils.isNotBlank(org.getContactEmailAddress())) {
+                    message.setCcs(List.of(org.getContactEmailAddress()));
                 }
-            }
 
-            if (CollectionUtils.isNotEmpty(roleReps)) {
-                userResource.roles().realmLevel().add(roleReps);
-            }
+                String messageStr = String.format(newOrgUserTemplate, nameBuilder.toString(),
+                        individual.getOrganisation(),
+                        adminWebUrl, user.getUsername(),
+                        user.getPassword());
 
-        } else {
-            throw new WebApplicationException("User not created!");
-        }
+                message.setText(messageStr);
 
-        return user;
-    }
-
-    public Collection<UserDTO> loadUsers() {
-
-        UserDTO loggedInUser = this.getLoggedInUser();
-        boolean hasBranch = loggedInUser.getBranch() != null;
-        boolean hasOrganisation = loggedInUser.getOrganisation() != null;
-
-        UsersResource usersResource = keycloakService.getUsersResource();
-
-        List<UserRepresentation> userRep = null;
-
-        if(hasBranch) {
-            userRep = usersResource.searchByAttributes("branchId:" + loggedInUser.getOrganisationId() );
-        } else if (hasOrganisation) {
-            userRep = usersResource.searchByAttributes("organisationId:" + loggedInUser.getOrganisationId());
-            
-        } else {
-            userRep = usersResource.list();
-        }
-
-        Collection<UserDTO> users = new ArrayList<>();
-
-        for (UserRepresentation user : userRep) {
-            UserDTO vo = this.userRepresentationUserDTO(user);
-            users.add(vo);
-        }
-
-        return users;
-    }
-
-    public UserDTO updateUserName(String username, String userId) {
-
-        return null;
-    }
-
-    private List<UserDTO> userRepsToVOs(List<UserRepresentation> usersRep) {
-
-        if (CollectionUtils.isEmpty(usersRep)) {
-            return new ArrayList<>();
-        }
-
-        List<UserDTO> users = new ArrayList<>();
-
-        for (UserRepresentation rep : usersRep) {
-            users.add(userRepresentationUserDTO(rep));
-        }
-
-        return users;
-    }
-
-    public List<UserDTO> searchByAttributes(String criteria) {
-
-        List<UserRepresentation> usersRep = keycloakService.getUsersResource().searchByAttributes(criteria);
-
-        return this.userRepsToVOs(usersRep);
-    }
-
-    public List<UserDTO> search(String criteria) {
-
-        UserDTO loggedInUser = this.getLoggedInUser();
-        boolean hasBranch = loggedInUser.getBranch() != null;
-        boolean hasOrganisation = loggedInUser.getOrganisation() != null;
-
-        List<UserRepresentation> usersRep = null;
-
-        if(hasBranch) {
-            usersRep = keycloakService.getUsersResource()
-                    .searchByAttributes("branchId:" + loggedInUser.getOrganisationId());
-        } else if (hasOrganisation) {
-
-            usersRep = keycloakService.getUsersResource()
-                    .searchByAttributes("organisationId:" + loggedInUser.getOrganisationId());
-            
-        } else {
-
-            if(StringUtils.isBlank(criteria)) {
-                usersRep = keycloakService.getUsersResource().list();
             } else {
-                usersRep = keycloakService.getUsersResource().search(criteria);
+                String messageStr = String.format(newUserTemplate, nameBuilder.toString(), settings.getKycPortalLink(),
+                        user.getUsername(),
+                        user.getPassword());
+
+                message.setText(messageStr);
             }
+        } else {
+
+            String messageStr = String.format(newUserTemplate, nameBuilder.toString(), settings.getKycPortalLink(),
+                    user.getUsername(),
+                    user.getPassword());
+
+            message.setText(messageStr);
         }
 
-        if (StringUtils.isNotBlank(criteria)) {
+        return message;
 
-            String lower = criteria.toLowerCase();
-
-            usersRep = usersRep.stream().filter(user -> {
-                return user.getUsername().toLowerCase().contains(lower)
-                        || user.getEmail().toLowerCase().contains(lower)
-                        || user.getFirstName().toLowerCase().contains(lower)
-                        || user.getLastName().toLowerCase().contains(lower);
-            }).collect(Collectors.toList());
-        }
-
-        return this.userRepsToVOs(usersRep);
     }
 
-    public UserDTO addClientRoles(String clientId, Set<String> roles, String userId) {
-        List<RoleRepresentation> roleReps = new ArrayList<>();
-        UserResource userResource = keycloakService.getUsersResource().get(userId);
-        RolesResource rolesResource = keycloakService.getRealmRolesResource();
-        UserRepresentation rep = userResource.toRepresentation();
+    // -------------------- CRUD OPERATIONS --------------------
 
-        if (StringUtils.isBlank(rep.getId())) {
-            return null;
-        }
+    public UserDTO findByUsername(String username) {
+        return keycloakService.withRealm(realm -> {
+            List<UserRepresentation> users = realm.users().search(username, true);
+            return CollectionUtils.isEmpty(users) ? null : toUserDTO(users.get(0));
+        });
+    }
 
-        for (String role : roles) {
+    public UserDTO findByEmail(String email) {
+        return keycloakService.withRealm(realm -> {
+            List<UserRepresentation> users = realm.users().searchByEmail(email, true);
+            return CollectionUtils.isEmpty(users) ? null : toUserDTO(users.get(0));
+        });
+    }
 
-            RoleRepresentation roleRep = rolesResource.get(role).toRepresentation();
-            if (StringUtils.isNotBlank(roleRep.getId())) {
-                roleReps.add(roleRep);
-            }
-        }
-
-        if (CollectionUtils.isNotEmpty(roleReps)) {
-            userResource.roles().clientLevel(clientId).add(roleReps);
-        }
-
-        return userRepresentationUserDTO(rep);
+    public UserDTO getLoggedInUser() {
+        return keycloakService.withRealm(realm -> {
+            String userId = keycloakService.getJwt().getSubject();
+            UserRepresentation rep = realm.users().get(userId).toRepresentation();
+            return toUserDTO(rep);
+        });
     }
 
     public UserDTO findUserById(String userId) {
-        UserRepresentation rep = keycloakService.getUsersResource().get(userId).toRepresentation();
-
-        if (StringUtils.isNotBlank(rep.getId())) {
-            return userRepresentationUserDTO(rep);
-        }
-
-        return null;
+        return keycloakService.withRealm(realm -> {
+            UserRepresentation rep = realm.users().get(userId).toRepresentation();
+            return rep == null ? null : toUserDTO(rep);
+        });
     }
 
-    public boolean updateUserRoles(String userId, String role, int action) {
+    public UserDTO createUser(UserDTO user) {
+        return keycloakService.withRealm(realm -> {
+            UserRepresentation rep = toUserRepresentation(user);
+            Response response = realm.users().create(rep);
+            String userId = getCreatedId(response);
+            user.setUserId(userId);
 
-        RoleResource roleResource = keycloakService.getRealmRolesResource().get(role);
+            // Assign organization safely
+            if (StringUtils.isNotBlank(user.getOrganisationId())) {
+                keycloakService.runWithOrganization(user.getOrganisationId(),
+                        org -> org.members().addMember(userId));
+            }
 
-        if (roleResource == null) {
-            throw new RuntimeException("Role not found!");
+            // Assign roles
+            if (CollectionUtils.isNotEmpty(user.getRoles())) {
+                List<RoleRepresentation> roleReps = user.getRoles().stream()
+                        .map(roleName -> realm.roles().get(roleName).toRepresentation())
+                        .filter(r -> StringUtils.isNotBlank(r.getId()))
+                        .collect(Collectors.toList());
+                if (!roleReps.isEmpty())
+                    realm.users().get(userId).roles().realmLevel().add(roleReps);
+            }
+
+            return user;
+        });
+    }
+
+    public UserDTO createRegistrationUser(UserDTO user) {
+
+        if (StringUtils.isNotBlank(user.getUserId())) {
+
+            throw new RuntimeException("User ID must be blank when creating a new registration user.");
         }
 
-        UserResource userResource = keycloakService.getUsersResource().get(userId);
+        if(CollectionUtils.isEmpty(user.getRealmRoles())) {
 
-        if (userResource == null) {
-            throw new RuntimeException("User not found!");
+            user.setRealmRoles(Set.of(realmUserRole));
         }
 
-        RoleScopeResource roleScopeResource = userResource.roles().realmLevel();
+        if(CollectionUtils.isEmpty(user.getUserPortalRoles())) {
 
-        RoleRepresentation roleRep = roleResource.toRepresentation();
-
-        if (action > 0) {
-
-            roleScopeResource.add(Arrays.asList(roleRep));
-
-        } else {
-            roleScopeResource.remove(Arrays.asList(roleRep));
+            user.setUserPortalRoles(Set.of(userPortalRole));
         }
 
+        if(CollectionUtils.isEmpty(user.getApiRoles())) {
+
+            user.setApiRoles(Set.of(apiUserRole));
+        }
+
+        return keycloakService.withRegistrationRealm(realm -> {
+            UserRepresentation rep = toUserRepresentation(user);
+            Response response = realm.users().create(rep);
+            String userId = getCreatedId(response);
+            user.setUserId(userId);
+
+            // Assign organization safely
+            if (StringUtils.isNotBlank(user.getOrganisationId())) {
+                keycloakService.runWithOrganization(user.getOrganisationId(),
+                        org -> org.members().addMember(userId));
+            }
+
+            // Assign roles
+            if (CollectionUtils.isNotEmpty(user.getRoles())) {
+                List<RoleRepresentation> roleReps = user.getRoles().stream()
+                        .map(roleName -> {
+                            RolesResource rs = realm.roles();
+
+                            RoleRepresentation r = rs.get(roleName).toRepresentation();
+
+                            return r;
+                        })
+                        .filter(r -> {
+
+                            return StringUtils.isNotBlank(r.getId());
+                        })
+                        .collect(Collectors.toList());
+                if (!roleReps.isEmpty())
+                    realm.users().get(userId).roles().realmLevel().add(roleReps);
+            }
+
+            return user;
+        });
+    }
+
+    public void updateUser(UserDTO user) {
+        keycloakService.runWithRealm(realm -> {
+            UserResource userResource = realm.users().get(user.getUserId());
+            UserRepresentation rep = userResource.toRepresentation();
+            rep.setEmail(user.getEmail());
+            rep.setFirstName(user.getFirstName());
+            rep.setLastName(user.getLastName());
+            rep.setEnabled(user.getEnabled());
+            userResource.update(rep);
+        });
+    }
+
+    public boolean updateUserPassword(String userId, String newPassword) {
+        keycloakService.runWithRealm(realm -> {
+            String id = StringUtils.isNotBlank(userId) ? userId : keycloakService.getJwt().getSubject();
+            UserResource userResource = realm.users().get(id);
+            userResource.resetPassword(createCredential(CredentialRepresentation.PASSWORD, newPassword, false));
+        });
         return true;
+    }
+
+    // -------------------- SEARCH / LIST --------------------
+
+    public List<UserDTO> search(String criteria) {
+        return keycloakService.withRealm(realm -> {
+            List<UserRepresentation> reps;
+            if (StringUtils.isBlank(criteria)) {
+                reps = realm.users().list();
+            } else {
+                reps = realm.users().search(criteria);
+            }
+            return toUserDTOs(reps);
+        });
+    }
+
+    public List<UserDTO> searchByAttributes(String criteria) {
+        return keycloakService.withRealm(realm -> toUserDTOs(realm.users().searchByAttributes(criteria)));
+    }
+
+    public Collection<UserDTO> getUsersByRealmRoles(Set<String> roles) {
+        return keycloakService.withRealm(realm -> collectUsersByRoles(realm.roles(), roles, realm));
+    }
+
+    public Collection<UserDTO> getUsersByClientRoles(String clientId, Set<String> roles) {
+        return keycloakService
+                .withRealm(realm -> collectUsersByRoles(realm.clients().get(clientId).roles(), roles, realm));
+    }
+
+    // -------------------- PRIVATE HELPERS --------------------
+
+    private Collection<UserDTO> collectUsersByRoles(RolesResource rolesResource, Set<String> roles,
+            RealmResource realm) {
+        Map<String, UserDTO> users = new HashMap<>();
+        for (String role : roles) {
+            Set<UserDTO> uvo = rolesResource.get(role).getRoleUserMembers().stream()
+                    .map(this::toUserDTO)
+                    .collect(Collectors.toSet());
+            uvo.forEach(user -> users.put(user.getUserId(), user));
+        }
+        return users.values();
+    }
+
+    public UserDTO getUserByIdentityNo(String identityNo) {
+        if (StringUtils.isBlank(identityNo))
+            return null;
+
+        return keycloakService.withRealm(realm -> {
+            List<UserRepresentation> users = realm.users()
+                    .searchByAttributes("identityNo:" + identityNo);
+
+            UserRepresentation userRep = users.stream()
+                    .filter(rep -> {
+                        Map<String, List<String>> attrs = rep.getAttributes();
+                        return attrs != null
+                                && attrs.containsKey("identityNo")
+                                && CollectionUtils.isNotEmpty(attrs.get("identityNo"))
+                                && identityNo.equalsIgnoreCase(attrs.get("identityNo").get(0));
+                    })
+                    .findFirst()
+                    .orElse(null);
+
+            return (userRep != null) ? this.findUserById(userRep.getId()) : null;
+        });
+    }
+
+    public UserDTO getUserByEmail(String email) {
+        if (StringUtils.isBlank(email))
+            return null;
+
+        return keycloakService.withRealm(realm -> {
+            // Search users by email
+            List<UserRepresentation> users = realm.users().searchByEmail(email, true);
+
+            UserRepresentation userRep = CollectionUtils.isEmpty(users) ? null : users.get(0);
+
+            // If user found, fetch full UserDTO
+            return (userRep != null) ? this.findUserById(userRep.getId()) : null;
+        });
+    }
+
+    public UserDTO addClientRoles(String clientId, Set<String> roles, String userId) {
+        return keycloakService.withRealm(realm -> {
+            // Get the user
+            UserResource userResource = realm.users().get(userId);
+            UserRepresentation userRep = userResource.toRepresentation();
+
+            if (StringUtils.isBlank(userRep.getId())) {
+                return null;
+            }
+
+            List<RoleRepresentation> roleReps = roles.stream()
+                    .map(roleName -> {
+                        RoleRepresentation roleRep = realm.roles().get(roleName).toRepresentation();
+                        return StringUtils.isNotBlank(roleRep.getId()) ? roleRep : null;
+                    })
+                    .filter(r -> r != null)
+                    .toList();
+
+            if (CollectionUtils.isNotEmpty(roleReps)) {
+                userResource.roles().clientLevel(clientId).add(roleReps);
+            }
+
+            return toUserDTO(userRep);
+        });
+    }
+
+    public boolean updateUserRoles(String userId, String roleName, int action) {
+        return keycloakService.withRealm(realm -> {
+            // Get the role
+            RoleResource roleResource = realm.roles().get(roleName);
+            if (roleResource == null) {
+                throw new RuntimeException("Role not found: " + roleName);
+            }
+
+            // Get the user
+            UserResource userResource = realm.users().get(userId);
+            if (userResource == null) {
+                throw new RuntimeException("User not found: " + userId);
+            }
+
+            // Get realm-level role scope
+            RoleScopeResource roleScopeResource = userResource.roles().realmLevel();
+            RoleRepresentation roleRep = roleResource.toRepresentation();
+
+            if (action > 0) {
+                // Add role
+                roleScopeResource.add(List.of(roleRep));
+            } else {
+                // Remove role
+                roleScopeResource.remove(List.of(roleRep));
+            }
+
+            return true;
+        });
+    }
+
+    /**
+     * Find all users
+     * 
+     * @return
+     */
+    public Collection<UserDTO> findAll() {
+        return keycloakService.withRealm(realm -> toUserDTOs(realm.users().list()));
+    }
+
+    /**
+     * Get users belonging to a branch
+     * 
+     * @param branchId
+     * @return
+     */
+    public Collection<UserDTO> getBranchUsers(String branchId) {
+
+        if (StringUtils.isBlank(branchId))
+            return Collections.emptyList();
+
+        return keycloakService.withRealm(realm -> {
+            List<UserRepresentation> users = realm.users()
+                    .searchByAttributes("branchId:" + branchId);
+
+            List<UserRepresentation> branchUsers = users.stream()
+                    .filter(rep -> {
+                        Map<String, List<String>> attrs = rep.getAttributes();
+                        return attrs != null
+                                && attrs.containsKey("branchId")
+                                && CollectionUtils.isNotEmpty(attrs.get("branchId"))
+                                && branchId.equalsIgnoreCase(attrs.get("branchId").get(0));
+                    })
+                    .toList();
+
+            return toUserDTOs(branchUsers);
+        });
+
+    }
+
+    /**
+     * Get users belonging to an organisation
+     * 
+     * @param organisationId
+     * @return
+     */
+    public Collection<UserDTO> getOrganisationUsers(String organisationId) {
+
+        if (StringUtils.isBlank(organisationId))
+            return Collections.emptyList();
+
+        return keycloakService.withRealm(realm -> {
+            List<UserRepresentation> users = realm.users()
+                    .searchByAttributes("organisationId:" + organisationId);
+            List<UserRepresentation> orgUsers = users.stream()
+                    .filter(rep -> {
+                        Map<String, List<String>> attrs = rep.getAttributes();
+                        return attrs != null
+                                && attrs.containsKey("organisationId")
+                                && CollectionUtils.isNotEmpty(attrs.get("organisationId"))
+                                && organisationId.equalsIgnoreCase(attrs.get("organisationId").get(0));
+                    })
+                    .toList();
+
+            return toUserDTOs(orgUsers);
+        });
+    }
+
+    /**
+     * 
+     * Register user for individual
+     * 
+     * @param individual
+     * @return
+     */
+    public UserDTO registerUser(IndividualDTO individual, OrganisationDTO organisation) {
+
+        if (StringUtils.isNotBlank(individual.getId())) {
+            Collection<ClientRequestDTO> clientRequests = clientRequestService.findByIndividual(individual.getId());
+
+            if (CollectionUtils.isEmpty(clientRequests)) {
+                throw new RuntimeException("No client requests found for individual: " + individual.getId());
+            }
+        }
+
+        settings = settingsService.getAll().stream().findFirst().orElse(null);
+
+        if (individual.getHasUser() == null || !individual.getHasUser()) {
+
+            throw new RuntimeException("Individual is not set to have a user account.");
+        }
+
+        Collection<UserDTO> usersByIdentityNo = searchByAttributes("identityNo:" + individual.getIdentityNo());
+
+        if (CollectionUtils.isNotEmpty(usersByIdentityNo)) {
+
+            boolean userExists = usersByIdentityNo.stream()
+                    .anyMatch(user -> individual.getEmailAddress().equalsIgnoreCase(user.getEmail()));
+
+            if (userExists) {
+                throw new RuntimeException("User with identity number " + individual.getIdentityNo() +
+                        " and email " + individual.getEmailAddress() + " already exists. Contact support.");
+            }
+        }
+
+        UserDTO user = new UserDTO();
+        user.setFirstName(individual.getFirstName());
+        user.setLastName(individual.getSurname());
+        user.setEmail(individual.getEmailAddress());
+        user.setUsername(individual.getEmailAddress());
+        user.setIdentityNo(individual.getIdentityNo());
+        String password = kycUtils.generatePassword();
+        user.setPassword(password);
+        user.setEnabled(true);
+        user.setRoles(List.of("KYC_USER"));
+
+        if (individual.getBranch() != null && !StringUtils.isBlank(individual.getBranch().getId())) {
+
+            user.setBranchId(individual.getBranch().getId());
+            user.setBranch(individual.getBranch().getName());
+        }
+
+        if (individual.getOrganisation() != null
+                && StringUtils.isNotBlank(individual.getOrganisation().id())) {
+            user.setOrganisation(individual.getOrganisation().name());
+            user.setOrganisationId(individual.getOrganisation().id());
+            user.setRoles(Set.of(organisationManagerRole));
+        }
+
+        user = createRegistrationUser(user);
+
+        if (user == null || StringUtils.isBlank(user.getUserId())) {
+            throw new RuntimeException("Failed to create user for individual: " + individual.getId());
+        }
+
+        CommMessageDTO message = newUserMessage(individual, user, organisation);
+
+        // Call messaging service to send the email
+        // For now, just print to console (not recommended for production)
+
+        return user;
+    }
+
+    /**
+     * 
+     * Register user for individual by id
+     * 
+     * @param individualId
+     * @return
+     */
+    public UserDTO registerUser(String individualId) {
+
+        IndividualDTO individual = individualService.findById(individualId);
+
+        OrganisationDTO org = new OrganisationDTO();
+        org.setId(individual.getOrganisation().id());
+        org.setName(individual.getOrganisation().name());
+        org.setCode(individual.getOrganisation().code());
+        org.setRegistrationNo(individual.getOrganisation().registrationNo());
+
+        return registerUser(individual, org);
     }
 }

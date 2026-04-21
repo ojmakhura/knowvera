@@ -9,35 +9,41 @@
 package bw.co.centralkyc.individual;
 
 import java.util.Collection;
+import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
+import bw.co.centralkyc.kyc.KycComplianceStatus;
+import bw.co.centralkyc.organisation.client.ClientRequest;
+import bw.co.centralkyc.organisation.client.ClientRequestRepository;
 
 /**
  * @see bw.co.centralkyc.individual.IndividualService
  */
 @Service("individualService")
-@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 public class IndividualServiceImpl
         extends IndividualServiceBase {
-    public IndividualServiceImpl(
-            IndividualDao individualDao,
-            IndividualRepository individualRepository,
-            MessageSource messageSource) {
 
-        super(
-                individualDao,
-                individualRepository,
-                messageSource);
+    private final ClientRequestRepository clientRequestRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public IndividualServiceImpl(IndividualDao individualDao, IndividualRepository individualRepository,
+            IndividualMapper individualMapper, MessageSource messageSource, ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder) {
+        super(individualDao, individualRepository, individualMapper, messageSource);
+        // TODO Auto-generated constructor stub
+
+        this.clientRequestRepository = clientRequestRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -47,8 +53,9 @@ public class IndividualServiceImpl
     protected IndividualDTO handleFindById(String id)
             throws Exception {
 
-        Individual individual = individualRepository.getReferenceById(id);
-        return individualDao.toIndividualDTO(individual);
+        Individual individual = individualRepository.getReferenceById(UUID.fromString(id));
+
+        return individualMapper.toIndividualDTO(individual);
     }
 
     /**
@@ -58,7 +65,7 @@ public class IndividualServiceImpl
     protected Collection<IndividualListDTO> handleGetAll()
             throws Exception {
 
-        return individualDao.toIndividualListDTOCollection(individualRepository.findAll());
+        return individualMapper.toIndividualListDTOCollection(individualRepository.findAll());
     }
 
     /**
@@ -71,7 +78,7 @@ public class IndividualServiceImpl
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
         Page<Individual> individuals = individualRepository.findAll(pageRequest);
 
-        return individuals.map(individual -> individualDao.toIndividualListDTO(individual));
+        return individuals.map(individual -> individualMapper.toIndividualListDTO(individual));
     }
 
     /**
@@ -81,7 +88,7 @@ public class IndividualServiceImpl
     protected boolean handleRemove(String id)
             throws Exception {
 
-        Individual individual = individualRepository.findById(id)
+        Individual individual = individualRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new IndividualServiceException("Individual not found with id: " + id));
 
         individualRepository.delete(individual);
@@ -98,45 +105,50 @@ public class IndividualServiceImpl
         Individual entity = individualDao.individualDTOToEntity(individual);
         entity = individualRepository.save(entity);
 
-        return individualDao.toIndividualDTO(entity);
+        return individualMapper.toIndividualDTO(entity);
     }
 
     private Specification<Individual> createSpecification(IndividualSearchCriteria criteria) {
 
-        Specification<Individual> spec = Specification.unrestricted();
+        Specification<Individual> spec = ((root, query, builder) -> builder.conjunction());
 
-        if(StringUtils.isNotBlank(criteria.getEmailAddress())) {
+        if (StringUtils.isNotBlank(criteria.getEmailAddress())) {
 
-            spec = spec.and((root, query, builder) ->
-                    builder.equal(builder.lower(root.get("email")), criteria.getEmailAddress().toLowerCase()));
-
-        }
-
-        if(StringUtils.isNotBlank(criteria.getFirstName())) {
-
-            spec = spec.and((root, query, builder) ->
-                    builder.equal(builder.lower(root.get("firstName")), criteria.getFirstName().toLowerCase()));
+            Specification<Individual> tmp = ((root, query, builder) -> builder.like(builder.lower(root.get("email")),
+                    "%" + criteria.getEmailAddress().toLowerCase() + "%"));
+            spec = spec == null ? tmp : spec.and(tmp);
 
         }
 
-        if(StringUtils.isNotBlank(criteria.getSurname())) {
+        if (StringUtils.isNotBlank(criteria.getFirstName())) {
 
-            spec = spec.and((root, query, builder) ->
-                    builder.equal(builder.lower(root.get("surname")), criteria.getSurname().toLowerCase()));
-
-        }
-
-        if(StringUtils.isNotBlank(criteria.getMiddleName())) {
-
-            spec = spec.and((root, query, builder) ->
-                    builder.equal(builder.lower(root.get("middleName")), criteria.getMiddleName().toLowerCase()));
+            Specification<Individual> tmp = ((root, query, builder) -> builder
+                    .like(builder.lower(root.get("firstName")), "%" + criteria.getFirstName().toLowerCase() + "%"));
+            spec = spec == null ? tmp : spec.and(tmp);
 
         }
 
-        if(StringUtils.isNotBlank(criteria.getIdentityNo())) {
+        if (StringUtils.isNotBlank(criteria.getSurname())) {
 
-            spec = spec.and((root, query, builder) ->
-                    builder.equal(builder.lower(root.get("identityNo")), criteria.getIdentityNo().toLowerCase()));
+            Specification<Individual> tmp = ((root, query, builder) -> builder.like(builder.lower(root.get("surname")),
+                    "%" + criteria.getSurname().toLowerCase() + "%"));
+            spec = spec == null ? tmp : spec.and(tmp);
+
+        }
+
+        if (StringUtils.isNotBlank(criteria.getMiddleName())) {
+
+            Specification<Individual> tmp = ((root, query, builder) -> builder
+                    .like(builder.lower(root.get("middleName")), "%" + criteria.getMiddleName().toLowerCase() + "%"));
+            spec = spec == null ? tmp : spec.and(tmp);
+
+        }
+
+        if (StringUtils.isNotBlank(criteria.getIdentityNo())) {
+
+            Specification<Individual> tmp = ((root, query, builder) -> builder
+                    .equal(builder.lower(root.get("identityNo")), criteria.getIdentityNo().toLowerCase()));
+            spec = spec == null ? tmp : spec.and(tmp);
 
         }
 
@@ -147,12 +159,15 @@ public class IndividualServiceImpl
      * @see bw.co.centralkyc.individual.IndividualService#search(String)
      */
     @Override
-    protected Collection<IndividualListDTO> handleSearch(IndividualSearchCriteria criteria, PropertySearchOrder orderings)
+    protected Collection<IndividualListDTO> handleSearch(IndividualSearchCriteria criteria,
+            Set<PropertySearchOrder> orderings)
             throws Exception {
 
         Specification<Individual> spec = createSpecification(criteria);
 
-        return individualDao.toIndividualListDTOCollection(individualRepository.findAll(spec));
+        return individualMapper.toIndividualListDTOCollection(
+                spec == null ? individualRepository.findAll(Sort.by(Sort.Direction.ASC, "surname"))
+                        : individualRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "surname")));
     }
 
     /**
@@ -166,22 +181,99 @@ public class IndividualServiceImpl
         Specification<Individual> spec = createSpecification(criteria.getCriteria());
 
         PageRequest pageRequest = PageRequest.of(criteria.getPageNumber(), criteria.getPageSize());
-        Page<Individual> individuals = individualRepository.findAll(spec, pageRequest);
+        Page<Individual> individuals = spec == null ? individualRepository.findAll(pageRequest)
+                : individualRepository.findAll(spec, pageRequest);
 
-        return individuals.map(individual -> individualDao.toIndividualListDTO(individual));
+        return individuals.map(individual -> individualMapper.toIndividualListDTO(individual));
     }
 
     @Override
-    protected Collection<IndividualDTO> handleGetOrganisationClients(String organisationId) throws Exception {
+    protected Collection<IndividualListDTO> handleGetOrganisationClients(String organisationId) throws Exception {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'handleGetOrganisationClients'");
     }
 
     @Override
-    protected Collection<IndividualDTO> handleGetOrganisationClients(String organisationId, Integer pageNumber,
+    protected Page<IndividualListDTO> handleGetOrganisationClients(String organisationId, Integer pageNumber,
             Integer pageSize) throws Exception {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'handleGetOrganisationClients'");
+    }
+
+    @Override
+    protected IndividualDTO handleFindByIdentityNoAndIdentityType(String identityNo,
+            IndividualIdentityType identityType)
+            throws Exception {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'handleFindByIdentityNoAndIdentityType'");
+    }
+
+    @Override
+    protected Long handleCountByPepStatus(PepStatus pepStatus) throws Exception {
+
+        return this.individualRepository.countByPepStatus(pepStatus).orElse(0L);
+    }
+
+    @Override
+    protected Long handleCount() throws Exception {
+        // TODO Auto-generated method stub
+        return this.individualRepository.count();
+    }
+
+    @Override
+    protected Long handleCountByKycStatus(KycComplianceStatus kycStatus) throws Exception {
+
+        return this.individualRepository.countByKycStatus(kycStatus).orElse(0L);
+    }
+
+    @Override
+    protected Long handleCountByEmploymentStatus(EmploymentStatus employmentStatus) throws Exception {
+
+        return this.individualRepository.countByEmploymentStatus(employmentStatus).orElse(0L);
+    }
+
+    @Override
+    protected Long handleCountBySex(Sex sex) throws Exception {
+
+        return this.individualRepository.countBySex(sex).orElse(0L);
+    }
+
+    @Override
+    protected IndividualDTO handleLoadRequestIndividual(String requestId, String identityConfirmationToken,
+            String identityNo) throws Exception {
+
+        ClientRequest clientRequest = clientRequestRepository.findById(UUID.fromString(requestId))
+                .orElseThrow(() -> new IndividualServiceException("ClientRequest not found"));
+
+        String token = clientRequest.getIdentityConfirmationToken();
+
+        boolean matches = passwordEncoder.matches(identityConfirmationToken, token);
+
+        if (!matches) {
+            throw new IndividualServiceException("Invalid confirmation token");
+        }
+
+        Individual individual = individualRepository.findByIdentityNo(identityNo)
+                .orElseThrow(() -> new Exception("Individual not found for identityNo: " + identityNo));
+
+        if (individual == null) {
+            throw new IndividualServiceException("Individual not found with identityNo: " + identityNo);
+        }
+
+        if (!individual.getId().equals(UUID.fromString(clientRequest.getTargetId()))) {
+
+            throw new IndividualServiceException("Individual does not match ClientRequest target");
+        }
+
+        return individualMapper.toIndividualDTO(individual);
+    }
+
+    @Override
+    protected IndividualDTO handleFindByUserId(String userId) throws Exception {
+
+        Individual individual = individualRepository.findByUserId(userId)
+                .orElseThrow(() -> new IndividualServiceException("Individual not found for userId: " + userId));
+        return individualMapper.toIndividualDTO(individual);
     }
 
 }

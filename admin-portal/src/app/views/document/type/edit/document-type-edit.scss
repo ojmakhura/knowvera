@@ -1,0 +1,642 @@
+:host {
+	display: block;
+
+	--vault-primary: #001735;
+	--vault-primary-container: #0e2c52;
+	--vault-primary-fixed: #d6e3ff;
+	--vault-surface: #f7f9fb;
+	--vault-surface-container-lowest: #ffffff;
+	--vault-surface-container-low: #f2f4f6;
+	--vault-surface-container: #eceef0;
+	--vault-surface-container-high: #e6e8ea;
+	--vault-surface-container-highest: #e0e3e5;
+	--vault-on-surface: #191c1e;
+	--vault-on-surface-variant: #43474f;
+	--vault-on-primary: #ffffff;
+	--vault-outline-ghost: rgb(196 198 208 / 20%);
+	--vault-outline-strong: rgb(196 198 208 / 35%);
+	--vault-shadow: 0 4px 20px rgb(25 28 30 / 4%), 0 8px 40px rgb(25 28 30 / 8%);
+	--vault-error: #ba1a1a;
+	--vault-error-container: #ffdad6;
+	--vault-secondary-container: #d5e3fc;
+	--vault-on-secondary-container: #57657a;
+}
+
+.edit-page {
+	min-height: 100%;
+	padding: 1.5rem 2rem 3rem;
+	display: grid;
+	gap: 1.75rem;
+	background:
+		radial-gradient(circle at top right, rgb(14 44 82 / 7%), transparent 18rem),
+		linear-gradient(180deg, #fbfcfd 0%, var(--vault-surface) 14rem);
+	color: var(--vault-on-surface);
+}
+
+.edit-header,
+.header-actions,
+.section-head-between,
+.section-title-row {
+	display: flex;
+	align-items: center;
+}
+
+.edit-header,
+.section-head-between {
+	justify-content: space-between;
+}
+
+.edit-header {
+	position: sticky;
+	top: 0;
+	z-index: 5;
+	gap: 1rem;
+	padding: 1rem 1.25rem;
+	border-radius: 1rem;
+	background: rgb(247 249 251 / 88%);
+	backdrop-filter: blur(18px);
+	box-shadow: 0 4px 24px rgb(25 28 30 / 6%);
+}
+
+.page-title,
+.page-subtitle,
+.step-label,
+.section-title,
+.form-label,
+.fields-head p {
+	margin: 0;
+}
+
+.page-title {
+	color: var(--vault-primary);
+	font-size: clamp(1.95rem, 4vw, 2.6rem);
+	font-weight: 800;
+	letter-spacing: -0.03em;
+	line-height: 1.05;
+}
+
+.page-subtitle {
+	margin-top: 0.4rem;
+	color: var(--vault-on-surface-variant);
+	font-size: 0.95rem;
+	line-height: 1.55;
+}
+
+.header-actions {
+	gap: 0.75rem;
+}
+
+.btn-secondary,
+.add-btn,
+.delete-btn {
+	transition:
+		background-color 160ms ease,
+		color 160ms ease,
+		transform 160ms ease,
+		box-shadow 160ms ease;
+}
+
+:host ::ng-deep .btn-secondary.mat-mdc-button {
+	min-height: 2.9rem;
+	border-radius: 0.8rem;
+	color: var(--vault-on-surface-variant);
+}
+
+:host ::ng-deep .add-btn.mat-mdc-button {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.45rem;
+	min-height: 2.65rem;
+	padding-inline: 1rem;
+	border-radius: 999px;
+	border: 1px solid rgb(0 23 53 / 12%);
+	background: linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(242 244 246 / 92%));
+	color: var(--vault-primary) !important;
+	font-weight: 800;
+	font-size: 0.72rem;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	box-shadow: 0 2px 10px rgb(25 28 30 / 6%);
+
+	.mat-icon {
+		width: 1rem;
+		height: 1rem;
+		font-size: 1rem;
+	}
+
+	&:hover {
+		border-color: rgb(0 23 53 / 24%);
+		background: linear-gradient(180deg, rgb(255 255 255 / 100%), rgb(236 238 240 / 96%));
+		transform: translateY(-1px);
+		box-shadow: 0 8px 18px rgb(25 28 30 / 10%);
+	}
+
+	&:active {
+		transform: translateY(0);
+		box-shadow: 0 2px 8px rgb(25 28 30 / 8%);
+	}
+}
+
+:host ::ng-deep .add-btn.subtle-btn.mat-mdc-button {
+	border-color: rgb(67 71 79 / 20%);
+	background: linear-gradient(180deg, rgb(255 255 255 / 92%), rgb(247 249 251 / 88%));
+	color: var(--vault-on-surface-variant) !important;
+
+	.mat-icon {
+		padding: 0.2rem;
+		border-radius: 999px;
+		background: rgb(67 71 79 / 10%);
+	}
+
+	&:hover {
+		border-color: rgb(67 71 79 / 34%);
+		background: linear-gradient(180deg, rgb(255 255 255 / 98%), rgb(242 244 246 / 94%));
+	}
+}
+
+.workspace-shell {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 1.75rem;
+	align-items: start;
+}
+.panel-card {
+	border-radius: 1rem;
+	border: 0;
+	box-shadow: none;
+}
+
+.content-canvas,
+.editor-section,
+.stack-6,
+.field-block {
+	display: grid;
+}
+
+.content-canvas {
+	gap: 2rem;
+}
+
+.editor-section {
+	gap: 0.9rem;
+}
+
+.section-title-row {
+	gap: 0.65rem;
+	align-items: baseline;
+}
+
+.step-label {
+	color: var(--vault-on-surface-variant);
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.section-title {
+	color: var(--vault-on-surface);
+	font-size: 1.2rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+}
+
+.panel-card {
+	background: rgb(255 255 255 / 84%);
+	backdrop-filter: blur(18px);
+	box-shadow: var(--vault-shadow);
+}
+
+.panel-card mat-card-content {
+	padding: 1.5rem;
+}
+
+.stack-6 {
+	gap: 1.25rem;
+}
+
+.field-grid {
+	display: grid;
+	gap: 1rem;
+}
+
+.field-grid-two {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-label,
+.fields-head p {
+	color: var(--vault-on-surface-variant);
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.field-block {
+	gap: 0.45rem;
+}
+
+.tab-pane-content {
+	padding-top: 1.5rem;
+}
+
+.tab-panel-surface {
+	padding: 1.25rem;
+	border-radius: 1rem;
+	background: rgb(242 244 246 / 82%);
+	box-shadow: inset 0 0 0 1px rgb(196 198 208 / 20%);
+}
+
+.fields-head,
+.fields-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1.6fr) minmax(5.5rem, 0.8fr) minmax(8rem, 1.1fr) minmax(7rem, 1fr) minmax(8rem, 1.1fr) minmax(8rem, 1.1fr) minmax(8rem, 1.1fr) minmax(5.5rem, 0.8fr) auto;
+	gap: 0.9rem;
+	align-items: center;
+}
+
+@media (max-width: 1024px) {
+	.fields-head,
+	.fields-row {
+		grid-template-columns: minmax(0, 1.4fr) minmax(5rem, 0.7fr) minmax(7rem, 1fr) minmax(6rem, 0.9fr) minmax(7rem, 1fr) minmax(7rem, 1fr) minmax(7rem, 1fr) minmax(5rem, 0.7fr) auto;
+	}
+}
+
+@media (max-width: 768px) {
+	.fields-head,
+	.fields-row {
+		grid-template-columns: minmax(0, 1.2fr) minmax(4.5rem, 0.7fr) minmax(6.5rem, 1fr) minmax(5.5rem, 0.8fr) minmax(6.5rem, 1fr) minmax(6.5rem, 1fr) minmax(6.5rem, 1fr) minmax(4.5rem, 0.7fr) auto;
+		gap: 0.6rem;
+	}
+}
+
+@media (max-width: 640px) {
+	.fields-head,
+	.fields-row {
+		grid-template-columns: 1fr auto;
+		gap: 0.5rem;
+	}
+
+	.fields-head {
+		display: none;
+	}
+
+	.fields-row {
+		grid-template-columns: 1fr;
+		padding: 1rem;
+	}
+
+	.fields-row mat-form-field,
+	.fields-row .centered,
+	.fields-row .row-action-wrap {
+		grid-column: 1;
+		width: 100%;
+	}
+
+	.centered {
+		justify-content: flex-start;
+		padding-top: 0.5rem;
+	}
+
+	.row-action-wrap {
+		justify-content: flex-start;
+		padding-top: 0.5rem;
+	}
+}
+
+.table-card {
+	background: transparent;
+}
+
+.fields-head {
+	padding: 0 0.2rem 0.8rem;
+}
+
+.fields-body {
+	display: grid;
+	gap: 0.9rem;
+}
+
+.fields-row {
+	padding: 0.95rem;
+	border-radius: 0.95rem;
+	background: var(--vault-surface-container-lowest);
+	box-shadow: inset 0 0 0 1px var(--vault-outline-ghost);
+}
+
+.centered {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.centered-field {
+	text-align: center;
+}
+
+.checkbox-cell {
+	min-height: 3rem;
+}
+
+.row-action-wrap,
+.prompt-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.2rem;
+}
+
+:host ::ng-deep .edit-btn.mat-mdc-icon-button {
+	color: var(--vault-primary);
+	background: rgb(214 227 255 / 72%);
+}
+
+:host ::ng-deep :is(.edit-btn, .delete-btn).mat-mdc-icon-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+:host ::ng-deep :is(.edit-btn, .delete-btn).mat-mdc-icon-button .mat-icon {
+	margin: 0;
+	line-height: 1;
+	width: 1.1rem;
+	height: 1.1rem;
+	font-size: 1.1rem;
+}
+
+:host ::ng-deep .delete-btn.mat-mdc-icon-button {
+	color: var(--vault-error);
+	background: rgb(255 218 214 / 72%);
+}
+
+.expected-fields-table-wrap {
+	overflow-x: auto;
+	border-radius: 0.95rem;
+	box-shadow: inset 0 0 0 1px var(--vault-outline-ghost);
+	background: var(--vault-surface-container-lowest);
+}
+
+.expected-fields-table {
+	width: 100%;
+	min-width: 980px;
+	border-collapse: collapse;
+
+	thead th {
+		padding: 0.8rem 0.9rem;
+		text-align: left;
+		color: var(--vault-on-surface-variant);
+		font-size: 0.68rem;
+		font-weight: 800;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		background: rgb(242 244 246 / 82%);
+		white-space: nowrap;
+	}
+
+	tbody td {
+		padding: 0.8rem 0.9rem;
+		border-top: 1px solid var(--vault-outline-ghost);
+		font-size: 0.86rem;
+		vertical-align: middle;
+		white-space: nowrap;
+	}
+
+	tbody tr:hover {
+		background: rgb(242 244 246 / 48%);
+	}
+}
+
+.prompt-layout {
+	display: grid;
+	grid-template-columns: minmax(9rem, 11rem) minmax(0, 1fr) 2.75rem;
+	gap: 1.1rem;
+	align-items: start;
+}
+
+.verification-config-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 1rem;
+	align-items: start;
+	padding: 0.95rem;
+	border-radius: 0.95rem;
+	background: var(--vault-surface-container-lowest);
+	box-shadow: inset 0 0 0 1px var(--vault-outline-ghost);
+}
+
+.verification-config-main {
+	display: grid;
+	gap: 0.75rem;
+}
+
+.expected-field-row .verification-config-main {
+	width: 100%;
+}
+
+.expected-field-row .verification-config-action {
+	padding-top: 0;
+	align-self: start;
+}
+
+:host ::ng-deep .expected-field-row .verification-config-action .mat-mdc-icon-button {
+	width: 2.5rem;
+	height: 2.5rem;
+	padding: 0;
+}
+
+.expected-field-grid {
+	gap: 0.95rem 1rem;
+}
+
+.expected-field-value {
+	margin: 0;
+	font-size: 0.9rem;
+	line-height: 1.45;
+	color: var(--vault-on-surface);
+	word-break: break-word;
+}
+
+.verification-config-nav {
+	display: grid;
+	grid-template-columns: auto 1fr auto;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.verification-config-position {
+	margin: 0;
+	text-align: center;
+	color: var(--vault-on-surface-variant);
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+:host ::ng-deep .nav-btn.mat-mdc-outlined-button {
+	min-height: 2.4rem;
+	border-radius: 999px;
+	padding-inline: 0.8rem;
+}
+
+.verification-key-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 0.5rem;
+	padding: 0.75rem;
+	border-radius: 0.75rem;
+	background: rgb(242 244 246 / 82%);
+	box-shadow: inset 0 0 0 1px rgb(196 198 208 / 20%);
+}
+
+.verification-config-action {
+	padding-top: 1.45rem;
+}
+
+.prompt-role,
+.prompt-content {
+	align-content: start;
+	min-width: 0;
+}
+
+.prompt-role .vault-field,
+.prompt-content .vault-field {
+	margin: 0;
+	width: 100%;
+}
+
+.prompt-actions {
+	width: 2.75rem;
+	min-width: 2.75rem;
+	justify-content: center;
+	align-self: start;
+	padding-top: 0;
+}
+
+.prompt-actions .delete-btn {
+	margin-top: 1.55rem;
+}
+
+.empty-state-card {
+	display: grid;
+	place-items: center;
+	gap: 0.5rem;
+	padding: 2rem 1rem;
+	border-radius: 1rem;
+	background: var(--vault-surface-container-lowest);
+	box-shadow: inset 0 0 0 1px var(--vault-outline-ghost);
+	text-align: center;
+}
+
+.empty-state-card .mat-icon {
+	width: 1.8rem;
+	height: 1.8rem;
+	font-size: 1.8rem;
+	color: var(--vault-primary);
+}
+
+.empty-state-card p {
+	margin: 0;
+	color: var(--vault-on-surface-variant);
+	font-size: 0.84rem;
+}
+
+.textarea-field :is(textarea) {
+	resize: vertical;
+}
+
+.compact-field :is(input, textarea) {
+	font-size: 0.88rem;
+}
+
+@media (max-width: 768px) {
+	.compact-field {
+		width: 100% !important;
+	}
+
+	.compact-field :is(input, textarea) {
+		font-size: 0.85rem;
+	}
+}
+
+@media (max-width: 640px) {
+	.compact-field {
+		width: 100% !important;
+	}
+
+	.compact-field :is(input, textarea) {
+		font-size: 0.82rem;
+	}
+}
+
+.extraction-textarea :is(textarea) {
+	min-height: 8rem;
+}
+
+@media (max-width: 1180px) {
+	.workspace-shell {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 960px) {
+	.field-grid-two,
+	.prompt-layout,
+	.verification-config-row,
+	.section-head-between,
+	.edit-header {
+		grid-template-columns: 1fr;
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.verification-key-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.verification-config-nav {
+		grid-template-columns: 1fr;
+	}
+
+	.fields-head,
+	.fields-row {
+		grid-template-columns: 1fr;
+	}
+
+	.fields-head {
+		display: none;
+	}
+
+	.centered,
+	.row-action-wrap,
+	.prompt-actions {
+		justify-content: flex-start;
+	}
+
+	.verification-config-action {
+		padding-top: 0;
+	}
+}
+
+@media (max-width: 720px) {
+	.edit-page {
+		padding: 1rem 1rem 2rem;
+	}
+
+	.header-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.panel-card mat-card-content {
+		padding: 1rem;
+	}
+
+	:host ::ng-deep .btn-secondary.mat-mdc-button,
+	.add-btn {
+		width: 100%;
+	}
+}

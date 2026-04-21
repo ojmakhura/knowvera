@@ -1,19 +1,24 @@
-import { ApplicationConfig, isDevMode, importProvidersFrom, inject, provideAppInitializer } from '@angular/core';
-import { RouteReuseStrategy, provideRouter, withHashLocation } from '@angular/router';
+import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { provideRouter, RouteReuseStrategy } from '@angular/router';
 
 import { routes } from './app.routes';
-import { TranslateModule } from '@ngx-translate/core';
-import { StoreDevtoolsModule, provideStoreDevtools } from '@ngrx/store-devtools';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { environment } from '@env/environment';
-import { UseCaseScope } from './utils/use-case-scope';
-import { withInterceptors, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { RouteReusableStrategy } from './@shared';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import {
+  provideHttpClient,
+  withFetch,
+  withInterceptors,
+  withInterceptorsFromDi,
+  HttpClient,
+} from '@angular/common/http';
+import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatDateFormats } from '@angular/material/core';
+import { RouteReusableStrategy } from './@core/route-reusable-strategy';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { apiPrefixInterceptor } from './@core/http/api-prefix.interceptor';
 import { errorHandlerInterceptor } from './@core/http/error-handler.interceptor';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { provideToastr } from 'ngx-toastr';
-import { AppEnvStore } from './store/app-env.state';
 import {
   AutoRefreshTokenService,
   createInterceptorCondition,
@@ -24,9 +29,18 @@ import {
   UserActivityService,
   withAutoRefreshToken,
 } from 'keycloak-angular';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
-import { MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatDateFormats } from '@angular/material/core';
+
+export class CustomTranslateLoader implements TranslateLoader {
+  constructor(private http: HttpClient) {}
+
+  getTranslation(lang: string): Observable<any> {
+    return this.http.get(`/i18n/${lang}.json`).pipe(catchError(() => of({})));
+  }
+}
+
+export function HttpLoaderFactory(http: HttpClient) {
+  return new CustomTranslateLoader(http);
+}
 
 export const provideKeycloakAndInterceptor = (env: any) => {
   const urlConditions = [
@@ -56,6 +70,7 @@ export const provideKeycloakAndInterceptor = (env: any) => {
       initOptions: {
         onLoad: 'check-sso',
         checkLoginIframe: true,
+        silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html'
       },
       features: [
         withAutoRefreshToken({
@@ -70,9 +85,9 @@ export const provideKeycloakAndInterceptor = (env: any) => {
 };
 
 export function initFactory() {
-  const envStore = inject(AppEnvStore);
+  // const envStore = inject(AppEnvStore);
 
-  return async () => { };
+  return async () => {};
 }
 
 export const MY_DATE_FORMATS: MatDateFormats = {
@@ -90,29 +105,49 @@ export const MY_DATE_FORMATS: MatDateFormats = {
 export const appConfig = (env: any) => {
   return {
     providers: [
-      UseCaseScope,
-      provideRouter(routes, withHashLocation()),
+      provideRouter(routes),
       provideKeycloakAndInterceptor(env),
       provideAnimations(),
       provideHttpClient(
+        withFetch(),
         withInterceptorsFromDi(),
-        withInterceptors([apiPrefixInterceptor, errorHandlerInterceptor, includeBearerTokenInterceptor]),
+        withInterceptors([
+          apiPrefixInterceptor,
+          errorHandlerInterceptor,
+          includeBearerTokenInterceptor,
+        ])
       ),
-      provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
-      provideToastr(),
+      provideToastr({
+        timeOut: 3000,
+        positionClass: 'toast-top-right',
+        preventDuplicates: true,
+        progressBar: true,
+        closeButton: true,
+        newestOnTop: true,
+        enableHtml: true,
+        tapToDismiss: true,
+        maxOpened: 5,
+        autoDismiss: true,
+      }),
       importProvidersFrom(
-        StoreDevtoolsModule.instrument({}),
-        TranslateModule.forRoot(),
-        ServiceWorkerModule.register('./ngsw-worker.js', { enabled: environment.production }),
+        TranslateModule.forRoot({
+          defaultLanguage: 'en',
+          loader: {
+            provide: TranslateLoader,
+            useFactory: HttpLoaderFactory,
+            deps: [HttpClient],
+          },
+        })
       ),
       { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
-      { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
-      { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
       {
         provide: RouteReuseStrategy,
         useClass: RouteReusableStrategy,
       },
-      provideAppInitializer(() => initFactory()()),
+      // { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
+      { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
+      { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+      { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
     ],
   } as ApplicationConfig;
 };

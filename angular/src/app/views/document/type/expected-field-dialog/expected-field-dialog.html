@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>
+  @if (data.expectedField) {
+  <span>{{ 'edit.field' | translate }}</span>
+  } @else {
+  <span>{{ 'add.field' | translate }}</span>
+  }
+</h2>
+
+<mat-dialog-content>
+  <form class="expected-field-dialog-form" [formGroup]="form">
+    <mat-form-field>
+      <mat-label translate>field</mat-label>
+      <input matInput type="text" formControlName="field" />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label translate>key.field</mat-label>
+      <mat-select formControlName="keyField">
+        @for (keyFieldOption of keyFieldOptions; track keyFieldOption) {
+        @let keyFieldValue = `key.field.${keyFieldOption}`;
+        <mat-option [value]="keyFieldMap[keyFieldOption]">{{ keyFieldValue | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label translate>format</mat-label>
+      <input matInput type="text" formControlName="format" />
+    </mat-form-field>
+
+    <mat-checkbox formControlName="mandatory" color="primary">
+      <span translate>mandatory</span>
+    </mat-checkbox>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button type="button" mat-button (click)="close()">
+    <span translate>action.cancel</span>
+  </button>
+  <button type="button" mat-flat-button color="primary" (click)="save()" [disabled]="form.invalid">
+    <span translate>save</span>
+  </button>
+</mat-dialog-actions>

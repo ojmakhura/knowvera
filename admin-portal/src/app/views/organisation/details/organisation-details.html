@@ -1,0 +1,320 @@
+<div class="details-page">
+	<header class="details-header">
+		<div class="header-left">
+			<div class="title-row">
+				<h1 class="org-title">{{ organisation().name || 'Organisation' }}</h1>
+				<span class="org-code-chip">{{ organisation().code || 'ORG-CODE' }}</span>
+			</div>
+
+			<div class="status-row">
+				<span class="status-pill verified-enterprise">
+					<mat-icon>verified</mat-icon>
+					Verified Enterprise
+				</span>
+				<span class="status-pill compliant-pill">
+					<mat-icon>verified_user</mat-icon>
+					{{ organisation().kycStatus || 'KYC Compliant' }}
+				</span>
+			</div>
+		</div>
+
+		<div class="header-actions">
+			<button mat-stroked-button class="btn-edit" [routerLink]="['/organisation/edit', organisation().id || id]">
+				Edit Organisation
+			</button>
+			<button mat-flat-button class="btn-audit">
+				New Audit
+			</button>
+		</div>
+	</header>
+
+	<section class="main-grid">
+		<mat-card class="vault-card card-core">
+			<div class="section-head">
+				<div class="icon-wrap">
+					<mat-icon>fingerprint</mat-icon>
+				</div>
+				<h2>Core Identity</h2>
+			</div>
+
+			<div class="core-grid">
+				<div class="meta-item">
+					<label>Registration Number</label>
+					<p>{{ organisation().registrationNo || 'Not available' }}</p>
+				</div>
+
+				<div class="meta-item">
+					<label>Jurisdiction</label>
+					<p>{{ organisation().countryOfRegistration || 'Not available' }}</p>
+				</div>
+
+				<div class="meta-item full-row">
+					<label>Description</label>
+					<p class="description">{{ organisation().description || 'No description available.' }}</p>
+				</div>
+			</div>
+		</mat-card>
+
+		<mat-card class="vault-card card-infra">
+			<div class="section-head">
+				<div class="icon-wrap icon-wrap-alt">
+					<mat-icon>dns</mat-icon>
+				</div>
+				<h2>Infrastructure</h2>
+			</div>
+
+			<label class="section-label">Verified Domains</label>
+			<div class="domain-list">
+				@for (domain of organisation().domains || []; track domain) {
+				<div class="domain-row">
+					<span>{{ $any(domain).name || '-' }}</span>
+					<mat-icon class="domain-verified">verified</mat-icon>
+				</div>
+				} @empty {
+				<p class="empty-text">No domains configured.</p>
+				}
+			</div>
+		</mat-card>
+
+		<mat-card class="vault-card card-contact">
+			<div class="section-head">
+				<div class="icon-wrap">
+					<mat-icon>contact_support</mat-icon>
+				</div>
+				<h2>Contact Information</h2>
+			</div>
+
+			<div class="contact-grid">
+				<div class="meta-item">
+					<label>Email Address</label>
+					<a class="contact-link" [href]="'mailto:' + (organisation().contactEmailAddress || '')">
+						{{ organisation().contactEmailAddress || 'Not available' }}
+					</a>
+				</div>
+
+				<div class="meta-item">
+					<label>Physical Address</label>
+					<p class="multiline">{{ organisation().physicalAddress || 'Not available' }}</p>
+				</div>
+
+				<div class="meta-item">
+					<label>Postal Address</label>
+					<p class="multiline">{{ organisation().postalAddress || 'Not available' }}</p>
+				</div>
+
+				<div class="meta-item full-row">
+					<label>Phone Numbers</label>
+					<ul class="phone-list">
+						@for (phone of organisation().phoneNumbers || []; track phone) {
+						<li>{{ $any(phone).phoneNumber }} <span class="phone-type">({{ $any(phone).type }})</span></li>
+						} @empty {
+						<li>Not available</li>
+						}
+					</ul>
+				</div>
+			</div>
+		</mat-card>
+	</section>
+
+	<section class="operations-tabs">
+		<mat-tab-group>
+			<mat-tab label="Uploaded Documents">
+				<div class="tab-content tab-documents">
+					<mat-card class="ops-card table-card">
+						<div class="table-head">
+							<h3>Uploaded Documents</h3>
+						</div>
+
+						<div class="document-upload-toolbar">
+							<mat-form-field appearance="outline" class="upload-type-field">
+								<mat-label>Document Type</mat-label>
+								<mat-select [value]="documentTypeIdForUpload()"
+									(selectionChange)="selectUploadDocumentType($any($event.value))">
+									@for (documentType of settings().organisationDocuments || []; track documentType.id ||
+									documentType.code) {
+									<mat-option [value]="$any(documentType).id">
+										{{ $any(documentType).name || $any(documentType).code || $any(documentType).id }}
+									</mat-option>
+									} @empty {
+									<mat-option disabled>No document types available</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+
+							<input type="file" #documentUploadInput hidden (change)="onDocumentFileSelected($event)" />
+
+							<button mat-stroked-button type="button" (click)="documentUploadInput.click()">
+								<mat-icon>attach_file</mat-icon>
+								Choose File
+							</button>
+
+							<button mat-flat-button type="button" class="btn-upload-document"
+								[disabled]="!selectedDocumentFile() || !documentTypeIdForUpload().trim() || isUploadingDocument()"
+								(click)="uploadOrganisationDocument(documentUploadInput)">
+								<mat-icon>upload_file</mat-icon>
+								{{ isUploadingDocument() ? 'Uploading...' : 'Upload' }}
+							</button>
+
+							<span class="selected-upload-file">{{ selectedDocumentFile()?.name || 'No file selected' }}</span>
+						</div>
+
+						<table class="simple-table">
+							<thead>
+								<tr>
+									<th>File Name</th>
+									<th>Type</th>
+									<th>Verification</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (document of organisation().documents || []; track document.id || document.fileName) {
+								<tr>
+									<td>
+										<mat-icon>description</mat-icon>
+										{{ $any(document).fileName || '-' }}
+									</td>
+									<td>{{ $any(document).documentType || '-' }}</td>
+									<td>
+										@if ($any(document).verificationStatus === 'VERIFIED') {
+										<span class="verify-ok"><mat-icon>verified</mat-icon> Verified</span>
+										} @else if ($any(document).verificationStatus === 'REJECTED') {
+										<span class="verify-rejected"><mat-icon>cancel</mat-icon> Rejected</span>
+										} @else {
+										<span class="verify-review"><mat-icon>schedule</mat-icon> In Review</span>
+										}
+									</td>
+									<td>
+										<div class="doc-actions">
+											<button mat-icon-button title="Document details" (click)="openDocumentDetails($any(document))">
+												<mat-icon>visibility</mat-icon>
+											</button>
+											<button mat-icon-button title="Edit document" (click)="openDocumentEdit($any(document))">
+												<mat-icon>edit</mat-icon>
+											</button>
+										</div>
+									</td>
+								</tr>
+								} @empty {
+								<tr>
+									<td colspan="4">No documents uploaded.</td>
+								</tr>
+								}
+							</tbody>
+						</table>
+					</mat-card>
+				</div>
+			</mat-tab>
+			<mat-tab label="Branches">
+				<div class="tab-content tab-branches">
+					<section class="branches-section">
+						<div class="branches-head">
+							<div class="section-head">
+								<div class="icon-wrap">
+									<mat-icon>account_tree</mat-icon>
+								</div>
+								<h2>Registered Branches</h2>
+							</div>
+							<div class="branches-head-actions">
+								<span class="branches-count">{{ branches().length }} Branches Active</span>
+								<button mat-flat-button class="btn-add-branch" (click)="openAddBranchDialog()">
+									<mat-icon>add</mat-icon>
+									Add Branch
+								</button>
+							</div>
+						</div>
+
+						<div class="branches-grid">
+							@for (branch of branches(); track branch.id || branch.code) {
+							<mat-card class="branch-card" [class.branch-primary]="$index === 0">
+								<div class="branch-head">
+									<h3>{{ branch.name || 'Unnamed Branch' }}</h3>
+									<span class="branch-code">{{ branch.code || '-' }}</span>
+								</div>
+								<p class="branch-address">{{ branch.physicalAddress || 'Address not provided' }}</p>
+								<div class="branch-footer">
+									<div class="branch-status" [class.pending]="$index !== 0">
+										<mat-icon>{{ $index === 0 ? 'check_circle' : 'history' }}</mat-icon>
+										{{ $index === 0 ? 'Verified Primary' : 'Pending Validation' }}
+									</div>
+									<div class="branch-actions">
+										<button mat-icon-button class="branch-action-btn" title="Edit branch"
+											(click)="openEditBranchDialog(branch)">
+											<mat-icon>edit</mat-icon>
+										</button>
+										<button mat-icon-button class="branch-action-btn branch-action-delete" title="Delete branch"
+											(click)="deleteBranch(branch)">
+											<mat-icon>delete</mat-icon>
+										</button>
+									</div>
+								</div>
+							</mat-card>
+							} @empty {
+							<p class="empty-text">No branches available.</p>
+							}
+						</div>
+					</section>
+				</div>
+			</mat-tab>
+
+			<mat-tab label="Client Requests">
+				<div class="tab-content tab-client-requests">
+					@if (organisation().isClient) {
+					<mat-card class="ops-card table-card">
+						<div class="table-head">
+							<h3>Active Client Requests</h3>
+							<span class="live-chip">Live</span>
+						</div>
+						<table mat-table [dataSource]="clientRequestsDataSource" class="vault-table">
+							<ng-container matColumnDef="organisation">
+								<th mat-header-cell *matHeaderCellDef>Name / Registration</th>
+								<td mat-cell *matCellDef="let request">
+									<div class="cell-strong">{{ request.organisation || '-' }}</div>
+									<div class="cell-sub">{{ request.id || '-' }}</div>
+								</td>
+							</ng-container>
+
+							<ng-container matColumnDef="createdAt">
+								<th mat-header-cell *matHeaderCellDef>Email</th>
+								<td mat-cell *matCellDef="let request">{{ request.createdBy || '-' }}</td>
+							</ng-container>
+
+							<ng-container matColumnDef="status">
+								<th mat-header-cell *matHeaderCellDef>Status</th>
+								<td mat-cell *matCellDef="let request">
+									<span class="table-status" [class.flagged]="request.status === 'FLAGGED'"
+										[class.pending]="request.status !== 'FLAGGED'">
+										{{ request.status || 'Pending' }}
+									</span>
+								</td>
+							</ng-container>
+
+							<tr mat-header-row *matHeaderRowDef="clientRequestsColumns"></tr>
+							<tr mat-row *matRowDef="let row; columns: clientRequestsColumns"></tr>
+						</table>
+
+						<mat-paginator [length]="clientRequestsTotalElements()" [pageIndex]="clientRequestsCurrentPage()"
+							[pageSize]="clientRequestsPageSize()" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons
+							(page)="onClientRequestsPageChange($event)"></mat-paginator>
+					</mat-card>
+					} @else {
+					<p class="empty-text">Client requests are available only for client organisations.</p>
+					}
+				</div>
+			</mat-tab>
+
+			
+		</mat-tab-group>
+	</section>
+
+	<footer class="details-footer">
+		<div class="footer-brand">
+			<mat-icon>shield</mat-icon>
+			<span>Central KYC Engine</span>
+		</div>
+		<div class="footer-updated">
+			Last updated: {{ (organisation().modifiedAt | date: 'yyyy-MM-dd HH:mm') || 'N/A' }} UTC
+		</div>
+	</footer>
+</div>
+<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>

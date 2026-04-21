@@ -8,10 +8,10 @@ package bw.co.centralkyc.document;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
@@ -28,23 +32,35 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import bw.co.centralkyc.AuditTracker;
-import bw.co.centralkyc.RestApiResponse;
+import bw.co.centralkyc.QueueObject;
+import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.TargetEntity;
+import bw.co.centralkyc.document.processor.DocumentProcessorService;
 import bw.co.centralkyc.minio.MinioService;
+import bw.co.centralkyc.properties.RabbitProperties;
+import jakarta.validation.Valid;
 
 @RestController
-public class DocumentApiImpl extends DocumentApiBase {
+public class DocumentApiImpl implements DocumentApi {
 
     private final MinioService minioService;
+    private final DocumentService documentService;
+    private final DocumentProcessorService documentProcessor;
+    private final RabbitTemplate rabbitTemplate;
+    private final RabbitProperties rabbitProperties;
 
-    public DocumentApiImpl(DocumentService documentService, MinioService minioService) {
+    public DocumentApiImpl(DocumentService documentService, RabbitTemplate rabbitTemplate, MinioService minioService,
+            DocumentProcessorService documentProcessor, RabbitProperties rabbitProperties) {
 
-        super(documentService);
+        this.documentService = documentService;
         this.minioService = minioService;
+        this.documentProcessor = documentProcessor;
+        this.rabbitTemplate = rabbitTemplate;
+        this.rabbitProperties = rabbitProperties;
     }
 
     @Override
-    public ResponseEntity<Collection<DocumentDTO>> handleFindByDocumentType(String documentTypeId) {
+    public ResponseEntity<Collection<DocumentListDTO>> findByDocumentType(String documentTypeId) {
 
         try {
 
@@ -58,7 +74,7 @@ public class DocumentApiImpl extends DocumentApiBase {
     }
 
     @Override
-    public ResponseEntity<DocumentDTO> handleFindById(String id) {
+    public ResponseEntity<DocumentDTO> findById(String id) {
 
         try {
 
@@ -71,7 +87,7 @@ public class DocumentApiImpl extends DocumentApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<DocumentDTO>> handleFindByTarget(
+    public ResponseEntity<Collection<DocumentListDTO>> findByTarget(
             bw.co.centralkyc.TargetEntity target, String targetId) {
 
         try {
@@ -84,13 +100,13 @@ public class DocumentApiImpl extends DocumentApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<DocumentDTO>> handleGetAll() {
+    public ResponseEntity<Collection<DocumentListDTO>> getAll() {
         return ResponseEntity.ok(documentService.getAll());
 
     }
 
     @Override
-    public ResponseEntity<Page<DocumentDTO>> handleGetAllPaged(Integer pageNumber, Integer pageSize) {
+    public ResponseEntity<Page<DocumentListDTO>> getAllPaged(Integer pageNumber, Integer pageSize) {
 
         try {
 
@@ -104,9 +120,16 @@ public class DocumentApiImpl extends DocumentApiBase {
     }
 
     @Override
-    public ResponseEntity<Boolean> handleRemove(String id) {
+    public ResponseEntity<Boolean> remove(String id) {
 
         try {
+
+            DocumentDTO document = documentService.findById(id);
+            if (document == null) {
+                throw new IllegalArgumentException("Document not found with id: " + id);
+            }
+
+            // minioService.deleteFile(document.getUrl());
 
             return ResponseEntity.ok(documentService.remove(id));
 
@@ -118,7 +141,7 @@ public class DocumentApiImpl extends DocumentApiBase {
     }
 
     @Override
-    public ResponseEntity<DocumentDTO> handleSave(DocumentDTO document) {
+    public ResponseEntity<DocumentDTO> save(DocumentDTO document) {
 
         try {
 
@@ -134,11 +157,11 @@ public class DocumentApiImpl extends DocumentApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<DocumentDTO>> handleSearch(String criteria) {
+    public ResponseEntity<Collection<DocumentListDTO>> search(SearchObject<DocumentSearchCriteria> criteria) {
 
         try {
 
-            return ResponseEntity.ok(documentService.search(criteria));
+            return ResponseEntity.ok(documentService.search(criteria.getCriteria(), Set.copyOf(criteria.getSortings())));
         } catch (Exception e) {
 
             throw e;
@@ -146,11 +169,17 @@ public class DocumentApiImpl extends DocumentApiBase {
 
     }
 
-    private String constructFilePath(TargetEntity target, String targetId, String fileName) {
+    private String constructFilePath(TargetEntity target, String targetId, String purpose, String fileName) {
         StringBuilder filePath = new StringBuilder();
-        filePath.append(target).append(targetId).append("/").append(fileName);
+        filePath.append(target).append("/").append(targetId);
 
-        return fileName;
+        if (StringUtils.isNotBlank(purpose)) {
+            filePath.append("/").append(purpose);
+        }
+
+        filePath.append("/").append(fileName);
+
+        return filePath.toString();
     }
 
     private String uploadToMinio(MultipartFile file, String fileName) throws Exception {
@@ -158,7 +187,6 @@ public class DocumentApiImpl extends DocumentApiBase {
         try (InputStream inputStream = file.getInputStream()) {
 
             String url = minioService.uploadFile(fileName, inputStream, file.getSize(), file.getContentType());
-            System.out.println("File uploaded to MinIO: " + url);
             return url;
 
         } catch (IOException e) {
@@ -167,37 +195,20 @@ public class DocumentApiImpl extends DocumentApiBase {
         }
     }
 
-    // private InputStreamResource downloadFromMinio(String objectName) throws Exception {
-    //     // Download the file from MinIO
-    //     try (InputStream inputStream = minioService.downloadFile(objectName)) {
-    //         // Process the input stream as needed
-    //         System.out.println("File downloaded from MinIO: " + objectName);
-    //         InputStreamResource resource = new InputStreamResource(inputStream);
-    //         // byte[] fileBytes = inputStream.readAllBytes();
-    //         inputStream.close();
-    //         return resource;
-
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //         throw new DocumentServiceException("Error downloading file: " + objectName);
-    //     }
-    // }
-
     @Override
-    public ResponseEntity<DocumentDTO> handleUpload(TargetEntity target, String targetId,
-            String documentTypeId, MultipartFile file) {
+    public ResponseEntity<DocumentDTO> upload(TargetEntity target, String targetId,
+            String documentTypeId, String purpose, MultipartFile file) {
 
         try {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            System.out.println(authentication);
             Jwt jwt = (Jwt) authentication.getPrincipal();
-
-            System.out.println(jwt.getClaims());
 
             String username = jwt.getClaimAsString("preferred_username");
 
             DocumentDTO document = new DocumentDTO();
+            document.setAnalyticsStatus(DocumentAnalyticsStatus.INITIALISED);
+            document.setVerificationStatus(DocumentVerificationStatus.UNVERIFIED);
             document.setCreatedAt(LocalDateTime.now());
             document.setCreatedBy(username);
             document.setTarget(target);
@@ -211,7 +222,7 @@ public class DocumentApiImpl extends DocumentApiBase {
 
             document.setMetadata(metadata);
 
-            String filePath = constructFilePath(target, targetId, file.getOriginalFilename());
+            String filePath = constructFilePath(target, targetId, purpose, file.getOriginalFilename());
             try {
                 document.setUrl(uploadToMinio(file, filePath));
             } catch (Exception e) {
@@ -222,7 +233,16 @@ public class DocumentApiImpl extends DocumentApiBase {
 
             document.setDocumentTypeId(documentTypeId);
 
-            return ResponseEntity.ok(documentService.save(document)); 
+            document = documentService.save(document);
+            QueueObject queueObject = new QueueObject(
+                    document.getId(),
+                    target,
+                    targetId);
+
+            rabbitTemplate.convertAndSend(rabbitProperties.getTextExtractionQueueExchange(),
+                    rabbitProperties.getTextExtractionQueueRoutingKey(), queueObject);
+
+            return ResponseEntity.ok(document);
 
         } catch (Exception e) {
 
@@ -230,19 +250,18 @@ public class DocumentApiImpl extends DocumentApiBase {
         }
 
     }
-    
+
     private InputStreamResource downloadFromMinio(String url) throws Exception {
 
         // Download the file from MinIO
         InputStream inputStream = minioService.downloadFile(url);
         // Process the input stream as needed
-        System.out.println("File downloaded from MinIO: " + url);
         InputStreamResource resource = new InputStreamResource(inputStream);
         return resource;
     }
 
     @Override
-    public ResponseEntity<InputStreamResource> handleDownloadFile(String id) {
+    public ResponseEntity<InputStreamResource> downloadFile(String id) {
         try {
 
             DocumentDTO document = documentService.findById(id);
@@ -260,7 +279,7 @@ public class DocumentApiImpl extends DocumentApiBase {
         }
     }
 
-    public ResponseEntity<InputStreamResource> handleDownloadFileByUrl(@RequestParam String objectName) throws Exception {
+    public ResponseEntity<InputStreamResource> downloadFileByUrl(@RequestParam String objectName) throws Exception {
 
         InputStreamResource data = downloadFromMinio(objectName);
         ResponseEntity<InputStreamResource> response = ResponseEntity.status(HttpStatus.OK)
@@ -269,6 +288,145 @@ public class DocumentApiImpl extends DocumentApiBase {
                 .body(data);
 
         return response;
+
+    }
+
+    @Override
+    public ResponseEntity<DocumentDTO> updateDocument(String id, MultipartFile file) throws Exception {
+
+        DocumentDTO document = documentService.findById(id);
+        if (document == null) {
+            throw new IllegalArgumentException("Document not found with id: " + id);
+        }
+
+        String fileName = file.getOriginalFilename();
+        if (fileName == null || fileName.isBlank()) {
+            throw new IllegalArgumentException("Uploaded file must have a name");
+        }
+
+        String filePath;
+        if (StringUtils.isNotBlank(document.getUrl())) {
+            int lastSlash = document.getUrl().lastIndexOf("/");
+            String basePath = lastSlash > 0 ? document.getUrl().substring(0, lastSlash) : "";
+            filePath = basePath + "/" + fileName;
+        } else {
+            filePath = constructFilePath(document.getTarget(), document.getTargetId(), id, fileName);
+        }
+
+        if (filePath == null || filePath.isBlank()) {
+            throw new IllegalArgumentException("Computed filePath is null or empty for document: " + id);
+        }
+
+        // Upload to MinIO
+        String url = uploadToMinio(file, filePath);
+        document.setUrl(url);
+        document.setFileName(fileName);
+
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("fileSize", file.getSize());
+        metadata.put("fileType", file.getContentType());
+        metadata.put("contentType", file.getContentType());
+        document.setMetadata(metadata);
+
+        document = documentService.save(document);
+
+        // Send to queue
+        rabbitTemplate.convertAndSend(
+                rabbitProperties.getTextExtractionQueueExchange(),
+                rabbitProperties.getTextExtractionQueueRoutingKey(),
+                new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
+
+        return ResponseEntity.ok(document);
+
+    }
+
+    @Override
+    public @Nullable ResponseEntity<Page<DocumentListDTO>> searchPaged(
+            @Valid SearchObject<DocumentSearchCriteria> criteria) throws Exception {
+        
+        try {
+//            throw  new DocumentServiceException("Search operation not implemented yet");
+
+            Page<DocumentListDTO> results = documentService.search(criteria);
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            throw e;
+        }
+        
+    }
+
+    @Override
+    public ResponseEntity<Page<DocumentListDTO>> findMyDocumentsPaged(TargetEntity target, @Nullable Integer pageNumber,
+            @Nullable Integer pageSize) throws Exception {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByDocumentsPaged'");
+    }
+
+    @Override
+    public @Nullable ResponseEntity<Collection<DocumentListDTO>> findMyDocuments(TargetEntity target) throws Exception {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findMyDocuments'");
+    }
+
+    @Override
+    public ResponseEntity<DocumentDTO> analyseDocument(String id) throws Exception {
+
+        try {
+            DocumentDTO document = documentService.findById(id);
+            if (document == null) {
+                throw new IllegalArgumentException("Document not found with id: " + id);
+            }
+
+            QueueObject queueObject = new QueueObject(
+                    document.getId(),
+                    document.getTarget(),
+                    document.getTargetId());
+
+            rabbitTemplate.convertAndSend(rabbitProperties.getTextExtractionQueueExchange(),
+                    rabbitProperties.getTextExtractionQueueRoutingKey(), queueObject);
+
+            return ResponseEntity.ok(documentService.findById(id));
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    public ResponseEntity<DocumentDTO> updateFileContent(String id, String content) throws Exception {
+        
+        try {
+
+//            DocumentDTO doc = documentService.findById(id);
+
+            // QueueObject queueObject = new QueueObject(
+            //         doc.getId(),
+            //         doc.getTarget(),
+            //         doc.getTargetId());
+
+            // rabbitTemplate.convertAndSend(rabbitProperties.getTextCleanupQueueExchange(),
+            //         rabbitProperties.getTextCleanupQueueRoutingKey(), queueObject);
+
+            return ResponseEntity.ok(documentService.updateFileContent(id, content));
+        } catch (Exception e) {
+            throw e;
+        }
+
+    }
+
+    @Override
+    public ResponseEntity<DocumentDTO> verifyData(String id) throws Exception {
+       
+        try {
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+
+            String username = jwt.getClaimAsString("preferred_username");
+            
+            return ResponseEntity.ok(documentService.verifyData(id, username));
+        } catch (Exception e) {
+            throw e;
+        }
 
     }
 }

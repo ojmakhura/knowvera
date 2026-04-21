@@ -12,6 +12,9 @@ import bw.co.centralkyc.document.type.DocumentTypeDTO;
 import bw.co.centralkyc.document.type.DocumentTypeRepository;
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.Collection;
+import java.util.UUID;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Repository;
 
@@ -20,14 +23,12 @@ import org.springframework.stereotype.Repository;
  */
 @Repository("settingsDao")
 public class SettingsDaoImpl
-    extends SettingsDaoBase
-{
-    
+        extends SettingsDaoBase {
 
     public SettingsDaoImpl(DocumentTypeRepository documentTypeRepository, DocumentRepository documentRepository,
-            SettingsRepository settingsRepository) {
-        super(documentTypeRepository, documentRepository, settingsRepository);
-        //TODO Auto-generated constructor stub
+            SalaryRangeRepository salaryRangeRepository, SettingsRepository settingsRepository) {
+        super(documentTypeRepository, documentRepository, salaryRangeRepository, settingsRepository);
+        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -35,63 +36,83 @@ public class SettingsDaoImpl
      */
     @Override
     public void toSettingsDTO(
-        Settings source,
-        SettingsDTO target)
-    {
+            Settings source,
+            SettingsDTO target) {
         // TODO verify behavior of toSettingsDTO
         super.toSettingsDTO(source, target);
-        // WARNING! No conversion for target.organisationDocuments (can't convert source.getOrganisationDocuments():bw.co.centralkyc.document.type.DocumentType to bw.co.centralkyc.document.type.DocumentTypeDTO
-        if(CollectionUtils.isNotEmpty(source.getOrganisationDocuments())) {
-            target.setOrganisationDocuments(this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getOrganisationDocuments()));
+        // WARNING! No conversion for target.organisationDocuments (can't convert
+        // source.getOrganisationDocuments():bw.co.centralkyc.document.type.DocumentType
+        // to bw.co.centralkyc.document.type.DocumentTypeDTO
+        if (CollectionUtils.isNotEmpty(source.getOrganisationDocuments())) {
+            target.setOrganisationDocuments(
+                    this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getOrganisationDocuments()));
 
         }
-        // WARNING! No conversion for target.individualDocuments (can't convert source.getIndividualDocuments():bw.co.centralkyc.document.type.DocumentType to bw.co.centralkyc.document.type.DocumentTypeDTO
-        if(CollectionUtils.isNotEmpty(source.getIndividualDocuments())) {
-            target.setIndividualDocuments(this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getIndividualDocuments()));
+        // WARNING! No conversion for target.individualDocuments (can't convert
+        // source.getIndividualDocuments():bw.co.centralkyc.document.type.DocumentType
+        // to bw.co.centralkyc.document.type.DocumentTypeDTO
+        if (CollectionUtils.isNotEmpty(source.getIndividualDocuments())) {
+            target.setIndividualDocuments(
+                    this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getIndividualDocuments()));
         }
-        // WARNING! No conversion for target.orgKycDocuments (can't convert source.getOrgKycDocuments():bw.co.centralkyc.document.type.DocumentType to bw.co.centralkyc.document.type.DocumentTypeDTO
-        if(CollectionUtils.isNotEmpty(source.getOrgKycDocuments())) {
-            target.setOrgKycDocuments(this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getOrgKycDocuments()));
+        // WARNING! No conversion for target.orgKycDocuments (can't convert
+        // source.getOrgKycDocuments():bw.co.centralkyc.document.type.DocumentType to
+        // bw.co.centralkyc.document.type.DocumentTypeDTO
+        if (CollectionUtils.isNotEmpty(source.getOrgKycDocuments())) {
+            target.setOrgKycDocuments(
+                    this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getOrgKycDocuments()));
         }
 
-        // WARNING! No conversion for target.indKycDocuments (can't convert source.getIndKycDocuments():bw.co.centralkyc.document.type.DocumentType to bw.co.centralkyc.document.type.DocumentTypeDTO
-        if(CollectionUtils.isNotEmpty(source.getIndKycDocuments())) {
-            target.setIndKycDocuments(this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getIndKycDocuments()));
+        // WARNING! No conversion for target.indKycDocuments (can't convert
+        // source.getIndKycDocuments():bw.co.centralkyc.document.type.DocumentType to
+        // bw.co.centralkyc.document.type.DocumentTypeDTO
+        if (CollectionUtils.isNotEmpty(source.getIndKycDocuments())) {
+            target.setIndKycDocuments(
+                    this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getIndKycDocuments()));
         }
 
-        if(source.getInvoiceDocumentType() != null) {
+        if(CollectionUtils.isNotEmpty(source.getSalaryRanges())) {
+
+            target.setSalaryRanges(this.getSalaryRangeDao().toSalaryRangeDTOCollection(source.getSalaryRanges()));
+
+        }
+
+        if (source.getInvoiceDocumentType() != null) {
 
             target.setInvoiceDocumentType(this.getDocumentTypeDao().toDocumentTypeDTO(source.getInvoiceDocumentType()));
         }
 
-        if(source.getInvoiceTemplateType() != null) {
+        if (source.getInvoiceTemplateType() != null) {
 
             target.setInvoiceTemplateType(this.getDocumentTypeDao().toDocumentTypeDTO(source.getInvoiceTemplateType()));
         }
 
-        if(source.getInvoiceTemplate() != null) {
+        if (source.getInvoiceTemplate() != null) {
 
             target.setInvoiceTemplate(this.getDocumentDao().toDocumentDTO(source.getInvoiceTemplate()));
         }
 
-        if(source.getQuotationDocumentType() != null) {
+        if (source.getQuotationDocumentType() != null) {
 
-            target.setQuotationDocumentType(this.getDocumentTypeDao().toDocumentTypeDTO(source.getQuotationDocumentType()));
+            target.setQuotationDocumentType(
+                    this.getDocumentTypeDao().toDocumentTypeDTO(source.getQuotationDocumentType()));
         }
 
-        if(source.getQuotationTemplateType() != null) {
+        if (source.getQuotationTemplateType() != null) {
 
-            target.setQuotationTemplateType(this.getDocumentTypeDao().toDocumentTypeDTO(source.getQuotationTemplateType()));
+            target.setQuotationTemplateType(
+                    this.getDocumentTypeDao().toDocumentTypeDTO(source.getQuotationTemplateType()));
         }
 
-        if(source.getQuotationTemplate() != null) {
+        if (source.getQuotationTemplate() != null) {
 
             target.setQuotationTemplate(this.getDocumentDao().toDocumentDTO(source.getQuotationTemplate()));
         }
 
-        if(source.getClientRequestFileType() != null) {
+        if (source.getClientRequestFileType() != null) {
 
-            target.setClientRequestFileType(this.getDocumentTypeDao().toDocumentTypeDTO(source.getClientRequestFileType()));
+            target.setClientRequestFileType(
+                    this.getDocumentTypeDao().toDocumentTypeDTO(source.getClientRequestFileType()));
         }
     }
 
@@ -99,35 +120,30 @@ public class SettingsDaoImpl
      * {@inheritDoc}
      */
     @Override
-    public SettingsDTO toSettingsDTO(final Settings entity)
-    {
+    public SettingsDTO toSettingsDTO(final Settings entity) {
         // TODO verify behavior of toSettingsDTO
         return super.toSettingsDTO(entity);
     }
 
     /**
-     * Retrieves the entity object that is associated with the specified value object
+     * Retrieves the entity object that is associated with the specified value
+     * object
      * from the object store. If no such entity object exists in the object store,
      * a new, blank entity is created
      */
-    private Settings loadSettingsFromSettingsDTO(SettingsDTO settingsDTO)
-    {
-        if (settingsDTO.getId() == null)
-        {
-            return  Settings.Factory.newInstance();
-        }
-        else
-        {
-            return this.settingsRepository.findById(settingsDTO.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Entity not found for id: " + settingsDTO.getId()));
+    private Settings loadSettingsFromSettingsDTO(SettingsDTO settingsDTO) {
+        if (settingsDTO.getId() == null) {
+            return Settings.Factory.newInstance();
+        } else {
+            return this.settingsRepository.findById(UUID.fromString(settingsDTO.getId()))
+                    .orElseThrow(() -> new EntityNotFoundException("Entity not found for id: " + settingsDTO.getId()));
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public Settings settingsDTOToEntity(SettingsDTO settingsDTO)
-    {
+    public Settings settingsDTOToEntity(SettingsDTO settingsDTO) {
         // TODO verify behavior of settingsDTOToEntity
         Settings entity = this.loadSettingsFromSettingsDTO(settingsDTO);
         this.settingsDTOToEntity(settingsDTO, entity, true);
@@ -139,84 +155,115 @@ public class SettingsDaoImpl
      */
     @Override
     public void settingsDTOToEntity(
-        SettingsDTO source,
-        Settings target,
-        boolean copyIfNull)
-    {
+            SettingsDTO source,
+            Settings target,
+            boolean copyIfNull) {
         // TODO verify behavior of settingsDTOToEntity
         super.settingsDTOToEntity(source, target, copyIfNull);
 
-        // if(CollectionUtils.isNotEmpty(source.getOrganisationDocuments())) {
+        // if (CollectionUtils.isNotEmpty(source.getOrganisationDocuments())) {
 
-        //     for(DocumentTypeDTO documentTypeDTO : source.getOrganisationDocuments()) {
+        //     for (DocumentTypeDTO documentTypeDTO : source.getOrganisationDocuments()) {
 
         //         DocumentType type = documentTypeDao.documentTypeDTOToEntity(documentTypeDTO);
         //         target.getOrganisationDocuments().add(type);
         //     }
         // }
 
-        // if(CollectionUtils.isNotEmpty(source.getIndividualDocuments())) {
+        // if (CollectionUtils.isNotEmpty(source.getIndividualDocuments())) {
 
-        //     for(DocumentTypeDTO documentTypeDTO : source.getIndividualDocuments()) {
+        //     for (DocumentTypeDTO documentTypeDTO : source.getIndividualDocuments()) {
 
         //         DocumentType type = documentTypeDao.documentTypeDTOToEntity(documentTypeDTO);
         //         target.getIndividualDocuments().add(type);
         //     }
         // }
 
-        // if(CollectionUtils.isNotEmpty(source.getOrgKycDocuments())) {
+        // if (CollectionUtils.isNotEmpty(source.getOrgKycDocuments())) {
 
-        //     for(DocumentTypeDTO documentTypeDTO : source.getOrgKycDocuments()) {
+        //     for (DocumentTypeDTO documentTypeDTO : source.getOrgKycDocuments()) {
 
         //         DocumentType type = documentTypeDao.documentTypeDTOToEntity(documentTypeDTO);
         //         target.getOrgKycDocuments().add(type);
         //     }
         // }
 
-        // if(CollectionUtils.isNotEmpty(source.getIndKycDocuments())) {
+        // if (CollectionUtils.isNotEmpty(source.getIndKycDocuments())) {
 
-        //     for(DocumentTypeDTO documentTypeDTO : source.getIndKycDocuments()) {
+        //     for (DocumentTypeDTO documentTypeDTO : source.getIndKycDocuments()) {
 
         //         DocumentType type = documentTypeDao.documentTypeDTOToEntity(documentTypeDTO);
         //         target.getIndKycDocuments().add(type);
         //     }
         // }
 
+        if (CollectionUtils.isNotEmpty(source.getSalaryRanges())) {
 
-        if(source.getInvoiceDocumentType() != null && source.getInvoiceDocumentType().getId() != null) {
+            Collection<SalaryRange> ranges = target.getSalaryRanges();
+            
+            for (SalaryRangeDTO salaryRangeDTO : source.getSalaryRanges()) {
 
-            target.setInvoiceDocumentType(documentTypeRepository.getReferenceById(source.getInvoiceDocumentType().getId()));
+                if (salaryRangeDTO.getId() == null) {
+
+                    SalaryRange salaryRange = salaryRangeDao.salaryRangeDTOToEntity(salaryRangeDTO);
+                    salaryRange.setSettings(target);
+                    salaryRange = salaryRangeRepository.save(salaryRange);
+                    ranges.add(salaryRange);
+
+                } else {
+
+                    target.getSalaryRanges().stream()
+                            .filter(sr -> sr.getId().equals(salaryRangeDTO.getId()))
+                            .findFirst()
+                            .ifPresent(sr -> {
+                                salaryRangeDao.salaryRangeDTOToEntity(salaryRangeDTO, sr, copyIfNull);
+                            });
+
+                }
+
+            }
+
         }
 
-        if(source.getInvoiceTemplateType() != null && source.getInvoiceTemplateType().getId() != null) {
+        if (source.getInvoiceDocumentType() != null && source.getInvoiceDocumentType().getId() != null) {
 
-            target.setInvoiceTemplateType(documentTypeRepository.getReferenceById(source.getInvoiceTemplateType().getId()));
+            target.setInvoiceDocumentType(
+                    documentTypeRepository.getReferenceById(UUID.fromString(source.getInvoiceDocumentType().getId())));
         }
 
-        if(source.getInvoiceTemplate() != null && source.getInvoiceTemplate().getId() != null) {
+        if (source.getInvoiceTemplateType() != null && source.getInvoiceTemplateType().getId() != null) {
+
+            target.setInvoiceTemplateType(
+                    documentTypeRepository.getReferenceById(UUID.fromString(source.getInvoiceTemplateType().getId())));
+        }
+
+        if (source.getInvoiceTemplate() != null && source.getInvoiceTemplate().getId() != null) {
 
             target.setInvoiceTemplate(documentDao.documentDTOToEntity(source.getInvoiceTemplate()));
 
         }
 
-        if(source.getQuotationDocumentType() != null && source.getQuotationDocumentType().getId() != null) {
+        if (source.getQuotationDocumentType() != null && source.getQuotationDocumentType().getId() != null) {
 
-            target.setQuotationDocumentType(documentTypeRepository.getReferenceById(source.getQuotationDocumentType().getId()));
+            target.setQuotationDocumentType(
+                    documentTypeRepository.getReferenceById(UUID.fromString(source.getQuotationDocumentType().getId())));
         }
 
-        if(source.getQuotationTemplateType() != null && source.getQuotationTemplateType().getId() != null) {
+        if (source.getQuotationTemplateType() != null && source.getQuotationTemplateType().getId() != null) {
 
-            target.setQuotationTemplateType(documentTypeRepository.getReferenceById(source.getQuotationTemplateType().getId()));
+            target.setQuotationTemplateType(
+                    documentTypeRepository.getReferenceById(UUID.fromString(source.getQuotationTemplateType().getId())));
         }
 
-        if(source.getQuotationTemplate() != null && source.getQuotationTemplate().getId() != null) {
+        if (source.getQuotationTemplate() != null && source.getQuotationTemplate().getId() != null) {
 
             target.setQuotationTemplate(documentDao.documentDTOToEntity(source.getQuotationTemplate()));
         }
 
-        if(source.getClientRequestFileType() != null && source.getClientRequestFileType().getId() != null) {
+        if (source.getClientRequestFileType() != null && source.getClientRequestFileType().getId() != null) {
 
-            target.setClientRequestFileType(documentTypeRepository.getReferenceById(source.getClientRequestFileType().getId()));
+            target.setClientRequestFileType(
+                    documentTypeRepository.getReferenceById(UUID.fromString(source.getClientRequestFileType().getId())));
         }
 
     }

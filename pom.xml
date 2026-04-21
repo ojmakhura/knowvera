@@ -6,29 +6,24 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.0</version>
+        <version>4.0.5</version>
         <relativePath />
     </parent>
     <groupId>bw.co.centralkyc</groupId>
     <artifactId>centralkyc</artifactId>
     <packaging>pom</packaging>
     <version>0.0.1</version>
-    <name>Centalised KYC</name>
-    <description>The Centalised KYC Project.</description>
-    <inceptionYear></inceptionYear>
+    <name>The Centalised KYC Project</name>
+    <description>The The Centalised KYC Project Project.</description>
+    <inceptionYear>2025</inceptionYear>
     <url>http://andromda.sourceforge.net/</url>
     <issueManagement>
         <system></system>
         <url></url>
     </issueManagement>
-    <scm>
-        <connection></connection>
-        <developerConnection></developerConnection>
-        <url></url>
-    </scm>
     <organization>
-        <name></name>
-        <url></url>
+        <name>Rogue Systems</name>
+        <url>roguesystems.co.bw</url>
     </organization>
     <licenses>
         <license>
@@ -55,7 +50,7 @@
         </developer>
     </developers>
     <dependencyManagement>
-        <dependencies>
+        <dependencies> 
             <dependency>
                 <groupId>org.andromda</groupId>
                 <artifactId>andromda-core</artifactId>
@@ -114,6 +109,11 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>bw.co.roguesystems.comm</groupId>
+                <artifactId>roguecomm-common</artifactId>
+                <version>0.0.1</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
                 <version>1.11.0</version>
@@ -150,20 +150,15 @@
                 <version>1.3</version>
             </dependency>
             <!-- <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>1.2</version>
-            </dependency> -->
-            <dependency>
                 <groupId>org.jboss.spec</groupId>
                 <artifactId>jboss-jboss-jakartaee-8.0</artifactId>
                 <version>1.0.1.Final</version>
                 <scope>provided</scope>
-            </dependency>
+            </dependency> -->
             <dependency>
                 <groupId>io.minio</groupId>
                 <artifactId>minio</artifactId>
-                <version>8.5.3</version>
+                <version>9.0.0</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -180,28 +175,43 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>3.0-rc5</version>
+                <version>2.21</version>
             </dependency>
             <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-                <version>2.8.13</version>
-            </dependency>
-            <!-- For Working with Json Web Tokens (JWT) -->
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt</artifactId>
-                <version>0.9.0</version>
+                <version>3.0.0</version>
             </dependency>
             <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-common</artifactId>
+                <version>3.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-core</artifactId>
+                <version>5.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>1.6.3</version>
+            </dependency> 
+            <dependency> 
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>1.6.3</version>
+                <scope>provided</scope> 
+            </dependency> 
+            <dependency> 
                 <groupId>org.keycloak</groupId>
-                <artifactId>keycloak-spring-boot-starter</artifactId>
+                <artifactId>keycloak-spring-boot-starter</artifactId> 
                 <version>${keycloak.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-admin-client</artifactId>
-                <version>26.0.7</version>
+                <version>26.0.8</version>
             </dependency>
             <dependency>
                 <groupId>bw.co.roguesystems.comm</groupId>
@@ -219,6 +229,41 @@
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>pdfbox</artifactId>
                 <version>3.0.6</version>
+            </dependency> 
+            <dependency>
+                <groupId>com.google.zxing</groupId>
+                <artifactId>javase</artifactId>
+                <version>3.5.4</version> 
+            </dependency>
+            <dependency>
+                <groupId>com.bucket4j</groupId> 
+                <artifactId>bucket4j_jdk17-core</artifactId>
+                <version>8.16.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>1.60.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency> 
+            <dependency> 
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
+                <version>2.26.1-alpha</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>5.3.2</version>
+                <!-- <scope>compile</scope> -->
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp-jvm</artifactId>
+                <version>5.3.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -303,8 +348,8 @@
         war=$war
         ear=$ear
         appServer=$appServer
-        databaseType=h2
-        testDatabase=$testDatabase
+        databaseType=postgres
+        testDatabase=h2
         transactionPersistenceType=spring
         jsr181Webservice=$jsr181Webservice
         ejb=$ejb
@@ -332,21 +377,17 @@
         <module>angular</module>
     </modules>
     <properties>
+        <andromda.version>6.0-SNAPSHOT</andromda.version>
         <!-- Java 21 LTS Configuration -->
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <maven.compiler.release>21</maven.compiler.release>
-
-        <andromda.version>5.0-SNAPSHOT</andromda.version> 
         <downloadSources>true</downloadSources>
         <createChecksum>true</createChecksum>
         <uniqueVersion>false</uniqueVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <stagingDirectory>${project.build.outputDirectory}/target/site</stagingDirectory>
-        <testdb.groupId>com.h2database</testdb.groupId>
-        <testdb.artifactId>h2</testdb.artifactId>
-        <testdb.version>2.2.224</testdb.version>
         <testdb.groupId>com.h2database</testdb.groupId>
         <testdb.artifactId>h2</testdb.artifactId>
         <testdb.version>2.2.224</testdb.version>
@@ -405,17 +446,19 @@
         <tomcat.home>${env.CATALINA_HOME}</tomcat.home>
         <application.id>centralkyc</application.id>
         <application.package>bw.co.centralkyc</application.package>
-        <application.name>Centalised KYC</application.name>
+        <application.name>The Centalised KYC Project</application.name>
         <application.version>0.0.1</application.version>
         <dataSource.name>jdbc/${application.id}</dataSource.name>
         <dataSource>java:comp/env/${dataSource.name}</dataSource>
         <!-- Set andromda.xml hibernateVersion=7, sessionFactory and localTransactionManager to
         hibernate4.-->
         <hibernate.version>7.1.10.Final</hibernate.version>
+        <!-- Set andromda.xml hibernateVersion=7, sessionFactory and localTransactionManager to
+        hibernate4.-->
         <!-- v 9.x only supports JDK7 and you cannot configure jetty.port from maven.-->
         <!-- v5 migration needed -->
         <!-- <spring.version>5.3.2</spring.version> -->
-        <spring-boot.version>3.2.5</spring-boot.version>
+        <spring-boot.version>4.0.1</spring-boot.version>
         <openapi.version>1.6.13</openapi.version>
         <!-- To override parent default settings for compiler plugin and compliance checks-->
         <dependencyConvergence>true</dependencyConvergence>
@@ -473,20 +516,20 @@
                 </jdbc.driver>
                 <!--
                     Change connection url for appropriate database
-                    For H2 use: jdbc:h2:~/sigmaproduce
-                    For MySQL use: jdbc:mysql://localhost:3306/sigmaproduce
-                    For Hypersonic use: jdbc:hsqldb:hsql://127.0.0.1/sigmaproduce or
-                jdbc:hsqldb:file:<path>/sigmaproduce;shutdown=true
+                    For H2 use: jdbc:h2:~/centralkyc
+                    For MySQL use: jdbc:mysql://localhost:3306/centralkyc
+                    For Hypersonic use: jdbc:hsqldb:hsql://127.0.0.1/centralkyc or
+                jdbc:hsqldb:file:<path>/centralkyc;shutdown=true
                     For Oracle9i use: jdbc:oracle:thin:@localhost:1521:yoursid
-                    For DB2 use: jdbc:db2:sigmaproduce
-                    For Informix use: jdbc:informix-sqli://localhost:1557/sigmaproduce:INFORMIXSERVER=myserver
-                    For MSSQL use: jdbc:microsoft:sqlserver://localhost:1433;DatabaseName=sigmaproduce
+                    For DB2 use: jdbc:db2:centralkyc
+                    For Informix use: jdbc:informix-sqli://localhost:1557/centralkyc:INFORMIXSERVER=myserver
+                    For MSSQL use: jdbc:microsoft:sqlserver://localhost:1433;DatabaseName=centralkyc
                     For Pointbase use:
-                jdbc:pointbase:server://@pointbase.server@:@pointbase.port/pointbase.sigmaproduce@,new
-                    For Postgres use: jdbc:postgresql://localhost/sigmaproduce
-                    For Sybase use: jdbc:sybase:Tds:localhost:5000/sigmaproduce?JCONNECT_VERSION=6
-                    For SapDB use: jdbc:sapdb://127.0.0.1/sigmaproduce
-                    For Progress use: jdbc:JdbcProgress:T:localhost:3305:sigmaproduce
+                jdbc:pointbase:server://@pointbase.server@:@pointbase.port/pointbase.centralkyc@,new
+                    For Postgres use: jdbc:postgresql://localhost/centralkyc
+                    For Sybase use: jdbc:sybase:Tds:localhost:5000/centralkyc?JCONNECT_VERSION=6
+                    For SapDB use: jdbc:sapdb://127.0.0.1/centralkyc
+                    For Progress use: jdbc:JdbcProgress:T:localhost:3305:centralkyc
                 -->
                 <jdbc.url>
                     ${DATABASE_URL:jdbc:postgresql://localhost/centralkyc}
@@ -638,6 +681,10 @@
             <id>sonatype</id>
             <name>Sonatype AndroMDA Repository</name>
             <url>http://oss.sonatype.org/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <url>https://repo.spring.io/milestone</url>
         </repository>
     </repositories>
     <pluginRepositories>

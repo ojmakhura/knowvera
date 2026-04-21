@@ -6,30 +6,49 @@
  */
 package bw.co.centralkyc.individual;
 
+import bw.co.centralkyc.PhoneNumber;
 import bw.co.centralkyc.document.DocumentRepository;
 import bw.co.centralkyc.individual.employment.EmploymentRecordRepository;
+import bw.co.centralkyc.kyc.KycComplianceStatus;
 import bw.co.centralkyc.kyc.KycRecordRepository;
+import bw.co.centralkyc.organisation.OrganisationListDTO;
+import bw.co.centralkyc.organisation.OrganisationMapper;
+import bw.co.centralkyc.organisation.OrganisationRepository;
+import bw.co.centralkyc.organisation.branch.BranchDTO;
+import bw.co.centralkyc.organisation.branch.BranchRepository;
 import bw.co.centralkyc.organisation.client.ClientRequestRepository;
 import jakarta.persistence.EntityNotFoundException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @see Individual
  */
 @Repository("individualDao")
 public class IndividualDaoImpl
-    extends IndividualDaoBase
-{
-    
-    
-    public IndividualDaoImpl(DocumentRepository documentRepository, KycRecordRepository kycRecordRepository,
-            EmploymentRecordRepository employmentRecordRepository, ClientRequestRepository clientRequestRepository,
-            IndividualRepository individualRepository) {
-                
-        super(documentRepository, kycRecordRepository, employmentRecordRepository, clientRequestRepository,
+        extends IndividualDaoBase {
+
+    private final JsonMapper jsonMapper;
+    private final OrganisationMapper organisationMapper;
+
+    public IndividualDaoImpl(DocumentRepository documentRepository,
+            EmploymentRecordRepository employmentRecordRepository, BranchRepository branchRepository,
+            OrganisationRepository organisationRepository, IndividualRepository individualRepository,
+            JsonMapper jsonMapper, OrganisationMapper organisationMapper) {
+        super(documentRepository, employmentRecordRepository, branchRepository, organisationRepository,
                 individualRepository);
+        this.organisationMapper = organisationMapper;
+        // TODO Auto-generated constructor stub
+        this.jsonMapper = jsonMapper;
     }
 
     /**
@@ -37,46 +56,65 @@ public class IndividualDaoImpl
      */
     @Override
     public void toIndividualDTO(
-        Individual source,
-        IndividualDTO target)
-    {
+            Individual source,
+            IndividualDTO target) {
         // TODO verify behavior of toIndividualDTO
         super.toIndividualDTO(source, target);
+
+        if (source.getBranch() != null) {
+
+            target.setBranch(new BranchDTO());
+            branchDao.toBranchDTO(source.getBranch(), target.getBranch());
+            target.getBranch().setId(source.getBranch().getId().toString());
+
+            OrganisationListDTO org = organisationMapper.toOrganisationListDTO(source.getOrganisation());
+            target.setOrganisation(org);
+        } else {
+
+            if (source.getOrganisation() != null) {
+
+                OrganisationListDTO org = organisationMapper.toOrganisationListDTO(source.getOrganisation());
+                target.setOrganisation(org);
+            }
+        }
+
+        if (!CollectionUtils.isEmpty(source.getPhoneNumbers())) {
+
+            target.setPhoneNumbers(
+                    jsonMapper.convertValue(source.getPhoneNumbers(), new TypeReference<List<PhoneNumber>>() {
+                    }));
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public IndividualDTO toIndividualDTO(final Individual entity)
-    {
+    public IndividualDTO toIndividualDTO(final Individual entity) {
         // TODO verify behavior of toIndividualDTO
         return super.toIndividualDTO(entity);
     }
 
     /**
-     * Retrieves the entity object that is associated with the specified value object
+     * Retrieves the entity object that is associated with the specified value
+     * object
      * from the object store. If no such entity object exists in the object store,
      * a new, blank entity is created
      */
-    private Individual loadIndividualFromIndividualDTO(IndividualDTO individualDTO)
-    {
-        if (individualDTO.getId() == null)
-        {
-            return  Individual.Factory.newInstance();
-        }
-        else
-        {
-            return this.individualRepository.findById(individualDTO.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Entity not found for id: " + individualDTO.getId()));
+    private Individual loadIndividualFromIndividualDTO(IndividualDTO individualDTO) {
+        if (individualDTO.getId() == null) {
+            return Individual.Factory.newInstance();
+        } else {
+            return this.individualRepository.findById(UUID.fromString(individualDTO.getId()))
+                    .orElseThrow(
+                            () -> new EntityNotFoundException("Entity not found for id: " + individualDTO.getId()));
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public Individual individualDTOToEntity(IndividualDTO individualDTO)
-    {
+    public Individual individualDTOToEntity(IndividualDTO individualDTO) {
         // TODO verify behavior of individualDTOToEntity
         Individual entity = this.loadIndividualFromIndividualDTO(individualDTO);
         this.individualDTOToEntity(individualDTO, entity, true);
@@ -88,95 +126,81 @@ public class IndividualDaoImpl
      */
     @Override
     public void individualDTOToEntity(
-        IndividualDTO source,
-        Individual target,
-        boolean copyIfNull)
-    {
+            IndividualDTO source,
+            Individual target,
+            boolean copyIfNull) {
         // TODO verify behavior of individualDTOToEntity
         super.individualDTOToEntity(source, target, copyIfNull);
+
+        if (source.getBranch() != null && source.getBranch().getId() != null) {
+
+            target.setBranch(this.branchRepository.findById(UUID.fromString(source.getBranch().getId()))
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Entity not found for id: " + source.getBranch().getId())));
+
+        } else if (source.getOrganisation() != null && source.getOrganisation().id() != null) {
+
+            target.setOrganisation(organisationRepository.findById(UUID.fromString(source.getOrganisation().id()))
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Entity not found for id: " + source.getOrganisation().id())));
+        }
+
+        if (target.getHasUser() == null) {
+
+            target.setHasUser(Boolean.FALSE);
+        }
     }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void toIndividualListDTO(
-        Individual source,
-        IndividualListDTO target)
-    {
-        // TODO verify behavior of toIndividualListDTO
-        super.toIndividualListDTO(source, target);
+    public IndividualListDTO toIndividualListDTO(final Individual entity) {
 
-        StringBuilder fullName = new StringBuilder();
-        if(source.getFirstName() != null) {
-            fullName.append(source.getFirstName());
+        // No conversion for target.id (can't convert entity.getId():java.lang.Long to
+        // String)
+        String id = entity.getId().toString();
+        // No matching property found for target.name in entity Individual
+        StringBuilder nameBuilder = new StringBuilder();
+        if (StringUtils.isNotBlank(entity.getFirstName())) {
+            nameBuilder.append(entity.getFirstName());
         }
 
-        if(StringUtils.isNotBlank(source.getMiddleName())) {
-
-            if(fullName.length() > 0) {
-                fullName.append(" ");
+        if (StringUtils.isNotBlank(entity.getMiddleName())) {
+            if (nameBuilder.length() > 0) {
+                nameBuilder.append(" ");
             }
-            fullName.append(source.getMiddleName());
+            nameBuilder.append(entity.getMiddleName());
         }
 
-        if(source.getSurname() != null) {
-            if(fullName.length() > 0) {
-                fullName.append(" ");
+        if (StringUtils.isNotBlank(entity.getSurname())) {
+            if (nameBuilder.length() > 0) {
+                nameBuilder.append(" ");
             }
-            fullName.append(source.getSurname());
+            nameBuilder.append(entity.getSurname());
         }
-        target.setName(fullName.toString());
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public IndividualListDTO toIndividualListDTO(final Individual entity)
-    {
-        // TODO verify behavior of toIndividualListDTO
-        return super.toIndividualListDTO(entity);
-    }
+        String name = nameBuilder.toString();
+        String identityNo = entity.getIdentityNo();
+        IndividualIdentityType identityType = entity.getIdentityType();
+        String emailAddress = entity.getEmailAddress();
+        KycComplianceStatus kycStatus = entity.getKycStatus();
+        Sex sex = entity.getSex();
+        PepStatus pepStatus = entity.getPepStatus();
+        Boolean userCreated = entity.getUserCreated();
 
-    /**
-     * Retrieves the entity object that is associated with the specified value object
-     * from the object store. If no such entity object exists in the object store,
-     * a new, blank entity is created
-     */
-    private Individual loadIndividualFromIndividualListDTO(IndividualListDTO individualListDTO)
-    {
-        if (individualListDTO.getId() == null)
-        {
-            return  Individual.Factory.newInstance();
-        }
-        else
-        {
-            return this.individualRepository.findById(individualListDTO.getId())
-                .orElseThrow(() -> new EntityNotFoundException("Entity not found for id: " + individualListDTO.getId()));
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Individual individualListDTOToEntity(IndividualListDTO individualListDTO)
-    {
-        // TODO verify behavior of individualListDTOToEntity
-        Individual entity = this.loadIndividualFromIndividualListDTO(individualListDTO);
-        this.individualListDTOToEntity(individualListDTO, entity, true);
-        return entity;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void individualListDTOToEntity(
-        IndividualListDTO source,
-        Individual target,
-        boolean copyIfNull)
-    {
-        // TODO verify behavior of individualListDTOToEntity
-        super.individualListDTOToEntity(source, target, copyIfNull);
+        return new IndividualListDTO(
+                id,
+                name,
+                identityNo,
+                identityType,
+                emailAddress,
+                kycStatus,
+                sex,
+                pepStatus,
+                userCreated,
+                entity.getPhysicalAddress(),
+                entity.getPostalAddress()
+        );
     }
 }

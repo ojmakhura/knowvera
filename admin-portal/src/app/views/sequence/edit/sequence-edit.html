@@ -1,0 +1,258 @@
+<div class="sequence-edit-page">
+	<header class="page-header">
+		<div>
+			<nav class="page-breadcrumb" aria-label="Breadcrumb">
+				<span>Registry</span>
+				<mat-icon>chevron_right</mat-icon>
+				<span class="page-breadcrumb-current">Sequence Editor</span>
+			</nav>
+
+			<h1>Edit Sequence Generator</h1>
+			<p>Define the structural logic for unique identifier generation across the protocol.</p>
+		</div>
+
+		<div class="draft-badge">{{ isDraft() ? 'Draft State' : 'Published' }}</div>
+	</header>
+
+	<div class="page-grid">
+		<main class="main-content">
+			<mat-card class="vault-card">
+				<mat-card-content>
+					<h2 class="section-label">
+						<mat-icon>info</mat-icon>
+						Core Identity
+					</h2>
+
+					<div class="identity-grid">
+						<div>
+							<label class="field-label">Sequence Name</label>
+							<mat-form-field appearance="outline" class="vault-field">
+								<input matInput [value]="editSequenceSignal().name || ''" (input)="editSequenceSignal.update((value) => ({ ...value, name: $any($event.target).value }))" placeholder="e.g. USER_GEN_01" />
+							</mat-form-field>
+						</div>
+
+						<div>
+							<label class="field-label">Target Entity</label>
+							<mat-form-field appearance="outline" class="vault-field">
+								<mat-select [value]="editSequenceSignal().targetEntity" (selectionChange)="editSequenceSignal.update((value) => ({ ...value, targetEntity: $event.value }))">
+									@for (option of TargetEntityOptions; track option) {
+										<mat-option [value]="option">{{ targetEntityLabel(option) }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+					</div>
+				</mat-card-content>
+			</mat-card>
+
+			<mat-card class="vault-card structure-card">
+				<div class="structure-head">
+					<h2 class="section-label section-label-no-margin">
+						<mat-icon>reorder</mat-icon>
+						Sequence Structure
+					</h2>
+
+					<button mat-button type="button" class="add-part-button" (click)="openAddPartDialog()">
+						<mat-icon>add_circle</mat-icon>
+						Add Component
+					</button>
+				</div>
+
+				<div class="parts-table">
+					<div class="parts-header">
+						<div>Pos</div>
+						<div>Name & Type</div>
+						<div>Initial</div>
+						<div>Range (Min/Max)</div>
+						<div>Random</div>
+						<div class="text-right">Actions</div>
+					</div>
+
+					<div class="parts-list">
+						@for (part of editSequenceSignal().sequenceParts; track part.id ?? part.position ?? $index) {
+							<div class="part-row">
+								<div class="part-position">
+									<mat-icon>drag_indicator</mat-icon>
+									<span>{{ part.position || ($index + 1) | number: '2.0-0' }}</span>
+								</div>
+
+								<div>
+									<div class="part-name">{{ part.name || 'Untitled Part' }}</div>
+									<div class="part-type">{{ partTypeLabel(part.type) }}</div>
+								</div>
+
+								<div>
+									<span class="token-pill">{{ initialLabel(part) }}</span>
+								</div>
+
+								<div class="range-copy">{{ rangeLabel(part) }}</div>
+
+								<div class="toggle-cell">
+									<mat-slide-toggle [checked]="!!part.randomised" disabled></mat-slide-toggle>
+								</div>
+
+								<div class="actions-cell">
+									<button mat-icon-button type="button" (click)="removeSequencePart($index)">
+										<mat-icon>delete</mat-icon>
+									</button>
+								</div>
+							</div>
+						} @empty {
+							<div class="empty-state">No sequence parts configured yet.</div>
+						}
+					</div>
+				</div>
+			</mat-card>
+
+			<mat-card class="vault-card audit-card">
+				<mat-card-content>
+					<h2 class="section-label">
+						<mat-icon>history</mat-icon>
+						Audit Trail
+					</h2>
+
+					<div class="audit-grid">
+						<div>
+							<div class="audit-label">Created At</div>
+							<div class="audit-value">{{ isDraft() ? 'Not saved yet' : 'Stored in registry' }}</div>
+						</div>
+
+						<div>
+							<div class="audit-label">Last Modified</div>
+							<div class="audit-value">{{ loading() ? 'Saving changes...' : 'Latest local state' }}</div>
+						</div>
+
+						<div>
+							<div class="audit-label">Modified By</div>
+							<div class="audit-value">Current operator session</div>
+						</div>
+
+						<div>
+							<div class="audit-label">Version</div>
+							<div class="audit-value">{{ auditVersion() }}</div>
+						</div>
+					</div>
+				</mat-card-content>
+			</mat-card>
+		</main>
+
+		<aside class="side-content">
+			<mat-card class="preview-card">
+				<mat-card-content>
+					<div class="preview-label">Generated Result Preview</div>
+					<div class="preview-value">{{ generatedPreview() }}</div>
+					<p>
+						This is an example of how the next identifier will appear in the system based on your
+						current settings.
+					</p>
+				</mat-card-content>
+				<div class="preview-accent" aria-hidden="true">
+					<mat-icon>qr_code_2</mat-icon>
+				</div>
+			</mat-card>
+
+			<mat-card class="tips-card">
+				<mat-card-content>
+					<h3>Sequence Logic Tips</h3>
+
+					<ul>
+						<li>
+							<mat-icon>check_circle</mat-icon>
+							<span>Use ISO dates for chronological sorting efficiency in high-load databases.</span>
+						</li>
+						<li>
+							<mat-icon>check_circle</mat-icon>
+							<span>Enabled randomisation prevents predictable user ID enumeration.</span>
+						</li>
+						<li>
+							<mat-icon>lock</mat-icon>
+							<span>Initial values cannot be lower than the current database cursor.</span>
+						</li>
+					</ul>
+				</mat-card-content>
+			</mat-card>
+		</aside>
+	</div>
+
+	<div class="sticky-footer">
+		<div class="sticky-meta">
+			<mat-icon>cloud_done</mat-icon>
+			<span>All changes autosaved to local cache</span>
+		</div>
+
+		<div class="sticky-actions">
+			<button mat-button type="button" (click)="cancel()">Discard Changes</button>
+			<button mat-flat-button color="primary" type="button" [disabled]="loading()" (click)="saveSequence()">
+				Save Sequence
+				<mat-icon>arrow_forward</mat-icon>
+			</button>
+		</div>
+	</div>
+
+	@if (dialogOpen()) {
+		<div class="dialog-backdrop" (click)="closeAddPartDialog()">
+			<mat-card class="dialog-card" (click)="$event.stopPropagation()">
+				<mat-card-header>
+					<mat-card-title>Add Sequence Component</mat-card-title>
+				</mat-card-header>
+
+				<mat-card-content>
+					<div class="dialog-grid">
+						<div class="dialog-full">
+							<label class="field-label">Name</label>
+							<mat-form-field appearance="outline" class="vault-field">
+								<input matInput [value]="newPart().name" (input)="updateNewPart('name', $any($event.target).value)" />
+							</mat-form-field>
+						</div>
+
+						<div class="dialog-full">
+							<label class="field-label">Type</label>
+							<mat-form-field appearance="outline" class="vault-field">
+								<mat-select [value]="newPart().type" (selectionChange)="updateNewPart('type', $event.value)">
+									@for (partType of SequencePartTypeOptions; track partType) {
+										<mat-option [value]="partType">{{ partTypeLabel(partType) }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<div>
+							<label class="field-label">Initial</label>
+							<mat-form-field appearance="outline" class="vault-field">
+								<input matInput [value]="newPart().initialValue" (input)="updateNewPart('initialValue', $any($event.target).value)" />
+							</mat-form-field>
+						</div>
+
+						<div>
+							<label class="field-label">Min</label>
+							<mat-form-field appearance="outline" class="vault-field">
+								<input matInput [value]="newPart().min" (input)="updateNewPart('min', $any($event.target).value)" />
+							</mat-form-field>
+						</div>
+
+						<div>
+							<label class="field-label">Max</label>
+							<mat-form-field appearance="outline" class="vault-field">
+								<input matInput [value]="newPart().max" (input)="updateNewPart('max', $any($event.target).value)" />
+							</mat-form-field>
+						</div>
+
+						<div class="toggle-editor">
+							<label class="field-label">Randomisation</label>
+							<mat-checkbox [checked]="newPart().randomised" (change)="updateNewPart('randomised', $event.checked)">
+								Enable randomised generation
+							</mat-checkbox>
+						</div>
+					</div>
+				</mat-card-content>
+
+				<mat-divider></mat-divider>
+
+				<mat-card-actions align="end">
+					<button mat-button type="button" (click)="closeAddPartDialog()">Cancel</button>
+					<button mat-flat-button color="primary" type="button" (click)="addSequencePart()">Add Component</button>
+				</mat-card-actions>
+			</mat-card>
+		</div>
+	}
+</div>

@@ -9,6 +9,8 @@
 package bw.co.centralkyc.organisation.branch;
 
 import java.util.Collection;
+import java.util.UUID;
+
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,17 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class BranchServiceImpl
     extends BranchServiceBase
 {
-    public BranchServiceImpl(
-        BranchDao branchDao,
-        BranchRepository branchRepository,
-        MessageSource messageSource
-    ) {
-        
-        super(
-            branchDao,
-            branchRepository,
-            messageSource
-        );
+    
+    public BranchServiceImpl(BranchDao branchDao, BranchRepository branchRepository, BranchMapper branchMapper,
+            MessageSource messageSource) {
+        super(branchDao, branchRepository, branchMapper, messageSource);
+        //TODO Auto-generated constructor stub
     }
 
     /**
@@ -48,7 +44,7 @@ public class BranchServiceImpl
     protected BranchDTO handleFindById(String id)
         throws Exception
     {
-        Branch branch = branchRepository.getReferenceById(id);
+        Branch branch = branchRepository.getReferenceById(UUID.fromString(id));
         return this.getBranchDao().toBranchDTO(branch);
     }
 
@@ -72,7 +68,7 @@ public class BranchServiceImpl
     protected boolean handleRemove(String id)
         throws Exception
     {
-        branchRepository.deleteById(id);
+        branchRepository.deleteById(UUID.fromString(id));
         return true;
     }
 
@@ -146,7 +142,7 @@ public class BranchServiceImpl
     {
 
         Specification<Branch> spec = (root, query, builder) -> 
-            builder.equal(root.get("organisationId"), organisationId);
+            builder.equal(root.get("organisation").get("id"), UUID.fromString(organisationId));
         Collection<Branch> branches = branchRepository.findAll(spec, Sort.by(Direction.ASC, "name"));
         return this.getBranchDao().toBranchDTOCollection(branches);
     }
@@ -161,7 +157,7 @@ public class BranchServiceImpl
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Direction.ASC, "name"));
         Specification<Branch> spec = (root, query, builder) -> 
-            builder.equal(root.get("organisationId"), organisationId);
+            builder.equal(root.get("organisation").get("id"), UUID.fromString(organisationId));
         Page<Branch> branchPage = branchRepository.findAll(spec, pageable);
         return this.getBranchDao().toBranchDTOCollection(branchPage.getContent());
     }

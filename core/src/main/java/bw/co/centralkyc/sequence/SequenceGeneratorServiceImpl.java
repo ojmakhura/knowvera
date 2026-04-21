@@ -11,6 +11,7 @@ package bw.co.centralkyc.sequence;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.MessageSource;
@@ -27,38 +28,35 @@ import org.springframework.transaction.annotation.Transactional;
 public class SequenceGeneratorServiceImpl
     extends SequenceGeneratorServiceBase
 {
-    public SequenceGeneratorServiceImpl(
-        SequenceGeneratorDao sequenceGeneratorDao,
-        SequenceGeneratorRepository sequenceGeneratorRepository,
-        MessageSource messageSource
-    ) {
-        
-        super(
-            sequenceGeneratorDao,
-            sequenceGeneratorRepository,
-            messageSource
-        );
+    public SequenceGeneratorServiceImpl(SequenceGeneratorDao sequenceGeneratorDao,
+            SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorMapper sequenceGeneratorMapper,
+            MessageSource messageSource) {
+        super(sequenceGeneratorDao, sequenceGeneratorRepository, sequenceGeneratorMapper, messageSource);
+        //TODO Auto-generated constructor stub
     }
 
     /**
      * @see bw.co.centralkyc.sequence.SequenceGeneratorService#findById(String)
      */
     @Override
-    protected SequenceGenerator handleFindById(String id)
+    protected SequenceGeneratorDTO handleFindById(String id)
         throws Exception
     {
 
-        return this.sequenceGeneratorRepository.findById(id).orElse(null);
+        SequenceGenerator generator = this.sequenceGeneratorRepository.findById(UUID.fromString(id)).orElse(null);
+        return this.sequenceGeneratorMapper.toSequenceGeneratorDTO(generator);
     }
 
     /**
      * @see bw.co.centralkyc.sequence.SequenceGeneratorService#save(SequenceGenerator)
      */
     @Override
-    protected SequenceGenerator handleSave(SequenceGenerator sequenceGenerator)
+    protected SequenceGeneratorDTO handleSave(SequenceGeneratorDTO sequenceGenerator)
         throws Exception
     {
-        return this.sequenceGeneratorRepository.save(sequenceGenerator);
+        SequenceGenerator generator = this.sequenceGeneratorMapper.sequenceGeneratorDTOToEntity(sequenceGenerator);
+        generator = this.sequenceGeneratorRepository.save(generator);
+        return this.sequenceGeneratorMapper.toSequenceGeneratorDTO(generator);
     }
 
     /**
@@ -69,7 +67,7 @@ public class SequenceGeneratorServiceImpl
         throws Exception
     {
 
-        this.sequenceGeneratorRepository.deleteById(id);
+        this.sequenceGeneratorRepository.deleteById(UUID.fromString(id));
         return true;
     }
 
@@ -77,17 +75,19 @@ public class SequenceGeneratorServiceImpl
      * @see bw.co.centralkyc.sequence.SequenceGeneratorService#getAll()
      */
     @Override
-    protected Collection<SequenceGenerator> handleGetAll()
+    protected Collection<SequenceGeneratorDTO> handleGetAll()
         throws Exception
     {
-        return this.sequenceGeneratorRepository.findAll();
+        return this.sequenceGeneratorRepository.findAll().stream()
+            .map(this.sequenceGeneratorMapper::toSequenceGeneratorDTO)
+            .toList();
     }
 
     /**
      * @see bw.co.centralkyc.sequence.SequenceGeneratorService#search(String)
      */
     @Override
-    protected Collection<SequenceGenerator> handleSearch(String name)
+    protected Collection<SequenceGeneratorDTO> handleSearch(String name)
         throws Exception
     {
 
@@ -97,7 +97,9 @@ public class SequenceGeneratorServiceImpl
         };
 
 
-        return this.sequenceGeneratorRepository.findAll(specification);
+        return this.sequenceGeneratorRepository.findAll(specification).stream()
+            .map(this.sequenceGeneratorMapper::toSequenceGeneratorDTO)
+            .toList();
     }
 
     /**
@@ -175,9 +177,12 @@ public class SequenceGeneratorServiceImpl
     }
 
     @Override
-    protected SequenceGenerator handleFindByName(String name) throws Exception {
+    protected SequenceGeneratorDTO handleFindByName(String name) throws Exception {
         
-        return this.sequenceGeneratorRepository.findByName(name);
-    }
+        SequenceGenerator generator = this.sequenceGeneratorRepository.findByName(name).orElseThrow(() -> new IllegalArgumentException(
+            String.format("No SequenceGenerator found with name '%s'", name)
+        ));
 
+        return this.sequenceGeneratorMapper.toSequenceGeneratorDTO(generator);
+    }
 }

@@ -1,0 +1,751 @@
+<!-- Redesigned Individual Details Component - Display Only -->
+@defer (when individual()) {
+<div class="details-container">
+  <div class="breadcrumb-section">
+    <mat-icon class="breadcrumb-icon">home</mat-icon>
+    <span class="breadcrumb-text">{{ 'home.title' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text">{{ 'individual' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ individual().firstName }} {{ individual().middleName }} {{
+      individual().surname }} </span>
+  </div>
+  <!-- Header Section -->
+  <mat-card class="header-card" appearance="outlined">
+    <mat-card-header>
+      <div class="header-content">
+        <div class="title-section">
+          <mat-icon class="title-icon">person</mat-icon>
+          <div class="title-text">
+            <h1 class="item-title">
+              {{ individual().firstName }} {{ individual().middleName }} {{ individual().surname }}
+            </h1>
+            <p class="item-subtitle">{{ individual().identityType }} • {{ individual().identityNo }}</p>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button mat-raised-button type="button" color="primary" (click)="individualDetailsEdit()"
+            class="action-button">
+            <mat-icon>edit</mat-icon>
+            {{ 'edit' | translate }}
+          </button>
+          <button mat-stroked-button color="primary" type="button" (click)="individualDetailsFormReset()"
+            class="action-button">
+            <mat-icon>refresh</mat-icon>
+            {{ 'refresh' | translate }}
+          </button>
+        </div>
+      </div>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Loading State -->
+  @if (loading()) {
+  <div class="loading-container">
+    <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+  </div>
+  }
+
+  <!-- Main Content -->
+  <div class="item-display">
+    <!-- Basic Information Section -->
+    <mat-card class="section-card basic-info-section" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">account_circle</mat-icon>
+          {{ 'basic.information' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="display-grid">
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">public</mat-icon>
+              <span>{{ 'nationality' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ individual().nationality || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">favorite</mat-icon>
+              <span>{{ 'marital.status' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ individual().maritalStatus || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">work</mat-icon>
+              <span>{{ 'employment.status' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ individual().employmentStatus || 'N/A' }}
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Contact Information Section -->
+    <mat-card class="section-card contact-info-section" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">contact_phone</mat-icon>
+          {{ 'contact.information' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="display-grid">
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">phone</mat-icon>
+              <span>{{ 'phone.numbers' | translate }}</span>
+            </div>
+            @if (individual().phoneNumbers && (individual().phoneNumbers || []).length > 0) {
+            @for (phone of individual().phoneNumbers; track $index) {
+            <div class="display-value">
+              <div class="phone-numbers">
+                {{ phone.type }}: {{ phone.phoneNumber || 'N/A' }}
+              </div>
+            </div>
+            }
+            } @else {
+            N/A
+            }
+          </div>
+
+          <div class="display-item full-width">
+            <div class="display-label">
+              <mat-icon class="field-icon">email</mat-icon>
+              <span>{{ 'email.address' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ individual().emailAddress || 'N/A' }}
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Address Information Section -->
+    <mat-card class="section-card address-info-section" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">location_on</mat-icon>
+          {{ 'address.information' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="address-display">
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">mail</mat-icon>
+              <span>{{ 'postal.address' | translate }}</span>
+            </div>
+            <div class="display-value address-value">
+              {{ individual().postalAddress || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">place</mat-icon>
+              <span>{{ 'physical.address' | translate }}</span>
+            </div>
+            <div class="display-value address-value">
+              {{ individual().physicalAddress || 'N/A' }}
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Tabbed Sections -->
+    <mat-card class="section-card tabs-section" appearance="outlined">
+      <mat-card-content>
+        <mat-tab-group>
+          <!-- Documents Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">folder_shared</mat-icon>
+              {{ 'individual.documents' | translate }}
+            </ng-template>
+            <!-- Documents Section -->
+            <mat-card class="section-card documents-section" appearance="outlined">
+              <mat-card-content>
+                @if (individualDocumentTypes() && individualDocumentTypes().length > 0) {
+                <div class="grid-2">
+                  @for (docType of individualDocumentTypes(); track docType.id) {
+                  <div class="document-type-item">
+                    <div class="document-info">
+                      <mat-icon>description</mat-icon>
+                      <div class="document-details">
+                        <div class="document-name">{{ docType.name }}</div>
+                        @if (docType.description) {
+                        <div class="document-type">{{ docType.description }}</div>
+                        }
+                      </div>
+                      @if (!getUploadedDocument(docType.id)) {
+                      <button mat-stroked-button type="button" color="primary" (click)="fileInput.click()">
+                        <mat-icon>attach_file</mat-icon>
+                        {{ 'attach' | translate }}
+                      </button>
+                      }
+                      <input type="file" #fileInput (change)="onFileSelected($event, docType)"
+                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display: none" />
+                    </div>
+
+                    @if (getUploadedDocument(docType.id)) {
+                    <div class="document-info" style="margin-top: 12px;">
+                      <mat-icon>insert_drive_file</mat-icon>
+                      <div class="document-details">
+                        <div class="document-name">{{ getUploadedDocument(docType.id)?.fileName }}</div>
+                        <div class="document-type">
+                          {{ formatFileSize(getUploadedDocument(docType.id)?.metadata?.fileSize || 0) }}
+                        </div>
+                      </div>
+                      <button mat-icon-button type="button" color="primary" matTooltip="{{ 'download' | translate }}"
+                        (click)="getUploadedDocument(docType.id) && downloadDocument(getUploadedDocument(docType.id)!)">
+                        <mat-icon>download</mat-icon>
+                      </button>
+                      <button mat-icon-button type="button" color="warn" matTooltip="{{ 'delete' | translate }}"
+                        (click)="deleteDocument(docType.id)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                    } @else {
+                    <div class="empty-state" style="margin-top: 12px;">
+                      <mat-icon>cloud_upload</mat-icon>
+                      <p>{{ 'no.document.attached' | translate }}</p>
+                    </div>
+                    }
+
+                    <!-- @if (isUploading(docType.id)) {
+                    <mat-progress-bar mode="determinate" [value]="getUploadProgress(docType.id)" style="margin-top: 12px;"></mat-progress-bar>
+                    <p class="upload-progress" style="margin-top: 8px; text-align: center;">{{ getUploadProgress(docType.id) }}% {{ 'uploading' | translate }}</p>
+                    } -->
+                  </div>
+                  }
+                </div>
+                } @else {
+                <div class="empty-state">
+                  <mat-icon>folder_open</mat-icon>
+                  <p>{{ 'no.document.types.configured' | translate }}</p>
+                  <p style="margin-top: 4px;">No document types have been configured for upload.</p>
+                </div>
+                }
+              </mat-card-content>
+            </mat-card>
+
+          </mat-tab>
+
+          <!-- KYC Records Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">verified_user</mat-icon>
+              {{ 'kyc.records' | translate }}
+            </ng-template>
+            <div class="tab-content">
+              <mat-card class="section-card" appearance="outlined" style="margin-bottom: 16px;">
+                <mat-card-header>
+                  <mat-card-title
+                    style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                      <mat-icon>verified_user</mat-icon>
+                      {{ 'kyc.records' | translate }}
+                    </span>
+                    <button mat-mini-fab type="button" color="primary" matTooltip="{{ 'add.kyc.record' | translate }}"
+                      (click)="addKycRecord()">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  @if (kycRecords() && kycRecords().length > 0) {
+                  <div class="kyc-records-list">
+                    @for (kycRecord of kycRecords(); track kycRecord.id; let i = $index) {
+                    <mat-card class="standard-card" appearance="outlined" style="margin-bottom: 24px;">
+                      <mat-card-header>
+                        <mat-icon mat-card-avatar
+                          [class]="kycRecord.kycStatus === KycComplianceStatusT.APPROVED ? 'status-approved' : 'status-pending'">
+                          @if (kycRecord.kycStatus === KycComplianceStatusT.APPROVED) {
+                          check_circle
+                          } @else if (kycRecord.kycStatus === KycComplianceStatusT.PENDING) {
+                          schedule
+                          } @else if (kycRecord.kycStatus === KycComplianceStatusT.REJECTED) {
+                          cancel
+                          } @else {
+                          help
+                          }
+                        </mat-icon>
+                        <mat-card-title>{{ kycRecord.name || 'KYC Record' }}</mat-card-title>
+                        <mat-card-subtitle>
+                          {{ 'identity.no' | translate }}: {{ kycRecord.identityNo || individual()?.identityNo }}
+                        </mat-card-subtitle>
+                        <span style="margin-left: auto;">
+                          <mat-chip class="status-chip"
+                            [class.approved]="kycRecord.kycStatus === KycComplianceStatusT.APPROVED"
+                            [class.pending]="kycRecord.kycStatus === KycComplianceStatusT.PENDING"
+                            [class.rejected]="kycRecord.kycStatus === KycComplianceStatusT.REJECTED">
+                            @if (kycRecord.kycStatus === KycComplianceStatusT.APPROVED) {
+                            {{ 'approved' | translate }}
+                            } @else if (kycRecord.kycStatus === KycComplianceStatusT.PENDING) {
+                            {{ 'pending' | translate }}
+                            } @else if (kycRecord.kycStatus === KycComplianceStatusT.REJECTED) {
+                            {{ 'rejected' | translate }}
+                            } @else {
+                            {{ 'unknown' | translate }}
+                            }
+                          </mat-chip>
+                        </span>
+                      </mat-card-header>
+                      <mat-card-content>
+                        <div class="grid-4" style="margin-bottom: 24px;">
+                          <div class="display-item">
+                            <div class="display-label">
+                              <mat-icon class="field-icon">event</mat-icon>
+                              <span>{{ 'upload.date' | translate }}</span>
+                            </div>
+                            <div class="display-value">
+                              @if (kycRecord.uploadDate) {
+                              {{ kycRecord.uploadDate | date:'MMM dd, yyyy' }}
+                              } @else {
+                              -
+                              }
+                            </div>
+                          </div>
+
+                          <div class="display-item">
+                            <div class="display-label">
+                              <mat-icon class="field-icon">schedule</mat-icon>
+                              <span>{{ 'expiry.date' | translate }}</span>
+                            </div>
+                            <div class="display-value">
+                              @if (kycRecord.expiryDate) {
+                              {{ kycRecord.expiryDate | date:'MMM dd, yyyy' }}
+                              } @else {
+                              -
+                              }
+                            </div>
+                          </div>
+
+                          <div class="display-item">
+                            <div class="display-label">
+                              <mat-icon class="field-icon">info</mat-icon>
+                              <span>{{ 'status' | translate }}</span>
+                            </div>
+                            <div class="display-value">
+                              @if (kycRecord.kycStatus === KycComplianceStatusT.APPROVED) {
+                              {{ 'approved' | translate }}
+                              } @else if (kycRecord.kycStatus === KycComplianceStatusT.PENDING) {
+                              {{ 'pending' | translate }}
+                              } @else if (kycRecord.kycStatus === KycComplianceStatusT.REJECTED) {
+                              {{ 'rejected' | translate }}
+                              } @else {
+                              {{ 'unknown' | translate }}
+                              }
+                            </div>
+                          </div>
+
+                          <div class="display-item">
+                            <div class="display-label">
+                              <mat-icon class="field-icon">folder</mat-icon>
+                              <span>{{ 'documents.count' | translate }}</span>
+                            </div>
+                            <div class="display-value">
+                              {{ kycRecord.documents?.length || 0 }} {{ 'documents' | translate }}
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- KYC Documents Grid -->
+                        @if (kycRecord.documents && kycRecord.documents.length > 0) {
+                        <div class="kyc-documents-section">
+                          <h5 class="documents-title">{{ 'kyc.documents' | translate }}</h5>
+                          <div class="grid-2">
+                            @for (document of kycRecord.documents; track document.id) {
+                            <div class="document-info">
+                              <mat-icon>
+                                @if (document.fileName?.toLowerCase()?.includes('.pdf')) {
+                                picture_as_pdf
+                                } @else if (document.fileName?.toLowerCase()?.includes('.jpg') ||
+                                document.fileName?.toLowerCase()?.includes('.jpeg') ||
+                                document.fileName?.toLowerCase()?.includes('.png')) {
+                                image
+                                } @else if (document.fileName?.toLowerCase()?.includes('.doc') ||
+                                document.fileName?.toLowerCase()?.includes('.docx')) {
+                                description
+                                } @else {
+                                insert_drive_file
+                                }
+                              </mat-icon>
+                              <div class="document-details">
+                                <div class="document-name">{{ document.fileName }}</div>
+                                <div class="document-type">{{ formatFileSize(document.metadata?.fileSize || 0) }}</div>
+                              </div>
+                              <button mat-icon-button type="button" color="primary"
+                                matTooltip="{{ 'download' | translate }}" (click)="downloadDocument(document)">
+                                <mat-icon>download</mat-icon>
+                              </button>
+                              <button mat-icon-button type="button" color="warn" matTooltip="{{ 'delete' | translate }}"
+                                (click)="deleteDocument(document.id)">
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            </div>
+                            }
+                          </div>
+                        </div>
+                        }
+
+                        <!-- Add Documents Section for this KYC Record -->
+                        @if (kycIndDocumentTypes() && kycIndDocumentTypes().length > 0) {
+                        <div class="add-kyc-documents-section">
+                          <h5 class="documents-title">{{ 'add.kyc.documents' | translate }}</h5>
+                          <div class="grid-2">
+                            @for (docType of kycIndDocumentTypes(); track docType.id) {
+                            <div class="document-info">
+                              <mat-icon>security</mat-icon>
+                              <div class="document-details">
+                                <div class="document-name">{{ docType.name }}</div>
+                                @if (docType.description) {
+                                <div class="document-type">{{ docType.description }}</div>
+                                }
+                              </div>
+                              <input type="file" #kycFileInput (change)="onFileSelected($event, docType)"
+                                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display: none" />
+                              <button mat-stroked-button type="button" color="primary" (click)="kycFileInput.click()">
+                                <mat-icon>upload</mat-icon>
+                                {{ 'upload' | translate }}
+                              </button>
+                            </div>
+                            }
+                          </div>
+                        </div>
+                        }
+
+                        <!-- KYC Record Actions -->
+                        <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+                          <button mat-stroked-button type="button" color="primary">
+                            <mat-icon>edit</mat-icon>
+                            {{ 'edit' | translate }}
+                          </button>
+                          <button mat-stroked-button type="button" color="warn">
+                            <mat-icon>delete</mat-icon>
+                            {{ 'delete' | translate }}
+                          </button>
+                          @if (kycRecord.kycStatus !== KycComplianceStatusT.APPROVED) {
+                          <button mat-raised-button type="button" color="primary">
+                            <mat-icon>check_circle</mat-icon>
+                            {{ 'submit.for.approval' | translate }}
+                          </button>
+                          }
+                        </div>
+                      </mat-card-content>
+                    </mat-card>
+                    }
+                  </div>
+                  } @else {
+                  <div class="empty-state">
+                    <mat-icon>verified_user</mat-icon>
+                    <h4 style="margin: 12px 0 8px 0; font-size: 1.25rem; color: #37474f;">{{ 'no.kyc.records' |
+                      translate }}</h4>
+                    <p>{{ 'no.kyc.records.description' | translate }}</p>
+                    <button mat-raised-button type="button" color="primary" (click)="addKycRecord()"
+                      style="margin-top: 16px;">
+                      <mat-icon>add</mat-icon>
+                      {{ 'add.first.kyc.record' | translate }}
+                    </button>
+                  </div>
+                  }
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </mat-tab>
+
+          <!-- Employment Records Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">work</mat-icon>
+              {{ 'employment.records' | translate }}
+            </ng-template>
+            <div class="tab-content">
+              <div class="employment-section-wrapper">
+                <mat-card class="employment-section modern-card">
+                  <!-- <mat-card-header class="modern-header">
+              <div class="section-header">
+                <div class="section-icon">
+                  <mat-icon>work</mat-icon>
+                </div>
+                <div class="section-title">
+                  <h3>{{ 'employment.records' | translate }}</h3>
+                  <p class="section-subtitle">{{ 'employment.records.description' | translate }}</p>
+                </div>
+              </div>
+            </mat-card-header> -->
+                  <mat-card-content class="modern-content">
+                    @if (employmentRecords() && employmentRecords().length > 0) {
+                    <div class="employment-records-list">
+                      @for (employment of employmentRecords(); track $index; let i = $index) {
+                      <div class="employment-record-card modern-record-card">
+                        <div class="record-header">
+                          <div class="record-icon">
+                            <mat-icon>business</mat-icon>
+                          </div>
+                          <!-- <div class="record-info">
+                            <h4 class="record-title">{{ employment.companyName || 'Unknown Company' }}</h4>
+                            <p class="record-subtitle">{{ employment.position || 'Position not specified' }}</p>
+                          </div> -->
+                          <!-- <div class="record-status">
+                            <span class="status-badge" [class.current]="employment.isCurrent">
+                              {{ employment.isCurrent ? ('current' | translate) : ('previous' | translate) }}
+                            </span>
+                          </div> -->
+                        </div>
+
+                        <div class="record-details">
+                          <div class="detail-grid">
+                            <div class="detail-item">
+                              <label class="detail-label">{{ 'start.date' | translate }}</label>
+                              <div class="detail-value">
+                                <mat-icon class="detail-icon">event</mat-icon>
+                                @if (employment.employmentStart) {
+                                {{ employment.employmentEnd | date:'MMM yyyy' }}
+                                } @else {
+                                -
+                                }
+                              </div>
+                            </div>
+
+                            <!-- <div class="detail-item">
+                              <label class="detail-label">{{ 'end.date' | translate }}</label>
+                              <div class="detail-value">
+                                <mat-icon class="detail-icon">event</mat-icon>
+                                @if (employment.isCurrent) {
+                                {{ 'present' | translate }}
+                                } @else if (employment.employmentEnd) {
+                                {{ employment.employmentEnd | date:'MMM yyyy' }}
+                                } @else {
+                                -
+                                }
+                              </div>
+                            </div> -->
+
+                            <!-- <div class="detail-item">
+                              <label class="detail-label">{{ 'department' | translate }}</label>
+                              <div class="detail-value">
+                                <mat-icon class="detail-icon">business_center</mat-icon>
+                                {{ employment.department || '-' }}
+                              </div>
+                            </div> -->
+
+                            <!-- <div class="detail-item">
+                              <label class="detail-label">{{ 'salary' | translate }}</label>
+                              <div class="detail-value">
+                                <mat-icon class="detail-icon">attach_money</mat-icon>
+                                @if (employment.salary) {
+                                {{ employment.salary | currency:'BWP':'symbol':'1.0-0' }}
+                                } @else {
+                                -
+                                }
+                              </div>
+                            </div> -->
+
+                            <!-- @if (employment.contactPerson) {
+                            <div class="detail-item">
+                              <label class="detail-label">{{ 'contact.person' | translate }}</label>
+                              <div class="detail-value">
+                                <mat-icon class="detail-icon">person</mat-icon>
+                                {{ employment.contactPerson }}
+                              </div>
+                            </div>
+                            } -->
+
+                            <!-- @if (employment.contactPhone) {
+                            <div class="detail-item">
+                              <label class="detail-label">{{ 'contact.phone' | translate }}</label>
+                              <div class="detail-value">
+                                <mat-icon class="detail-icon">phone</mat-icon>
+                                {{ employment.contactPhone }}
+                              </div>
+                            </div>
+                            } -->
+                          </div>
+
+                          <!-- @if (employment.description) {
+                          <div class="employment-description">
+                            <label class="detail-label">{{ 'job.description' | translate }}</label>
+                            <div class="description-text">{{ employment.description }}</div>
+                          </div>
+                          } -->
+
+                          <!-- @if (employment.address) {
+                          <div class="employment-address">
+                            <label class="detail-label">{{ 'company.address' | translate }}</label>
+                            <div class="address-text">
+                              <mat-icon class="detail-icon">location_on</mat-icon>
+                              {{ employment.address }}
+                            </div>
+                          </div>
+                          } -->
+                        </div>
+                      </div>
+                      }
+                    </div>
+                    } @else {
+                    <div class="no-employment-records modern-no-records">
+                      <div class="empty-state">
+                        <mat-icon class="empty-icon">work_off</mat-icon>
+                        <h4>{{ 'no.employment.records' | translate }}</h4>
+                        <p>{{ 'no.employment.records.description' | translate }}</p>
+                      </div>
+                    </div>
+                    }
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Client Requests Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">assignment</mat-icon>
+              {{ 'client.requests' | translate }}
+            </ng-template>
+            <div class="tab-content">
+
+              <div class="client-requests-section-wrapper">
+                <mat-card class="client-requests-section modern-card">
+                  <mat-card-header class="modern-header">
+                    <div class="section-header">
+                      <div class="action-buttons">
+                        <button mat-mini-fab type="button" color="primary" matTooltip="{{ 'refresh' | translate }}"
+                          (click)="loadClientRequests(individual().id)">
+                          <mat-icon>refresh</mat-icon>
+                        </button>
+                        <button mat-mini-fab type="button" color="primary"
+                          matTooltip="{{ 'add.client.request' | translate }}" (click)="addClientRequest()">
+                          <mat-icon>add</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </mat-card-header>
+                  <mat-card-content class="modern-content">
+                    @if (clientRequests() && clientRequests().length > 0) {
+                    <div class="client-requests-table">
+                      <table mat-table [dataSource]="clientRequests()" class="modern-table">
+                        <!-- Name Column -->
+                        <ng-container matColumnDef="name">
+                          <th mat-header-cell *matHeaderCellDef>{{ 'name' | translate }}</th>
+                          <td mat-cell *matCellDef="let request">{{ request.name || 'N/A' }}</td>
+                        </ng-container>
+
+                        <!-- Registration Column -->
+                        <ng-container matColumnDef="registration">
+                          <th mat-header-cell *matHeaderCellDef>{{ 'registration' | translate }}</th>
+                          <td mat-cell *matCellDef="let request">{{ request.registration || 'N/A' }}</td>
+                        </ng-container>
+
+                        <!-- Email Column -->
+                        <ng-container matColumnDef="email">
+                          <th mat-header-cell *matHeaderCellDef>{{ 'email.address' | translate }}</th>
+                          <td mat-cell *matCellDef="let request">{{ request.emailAddress || 'N/A' }}</td>
+                        </ng-container>
+
+                        <!-- Organisation Column -->
+                        <ng-container matColumnDef="organisation">
+                          <th mat-header-cell *matHeaderCellDef>{{ 'organisation' | translate }}</th>
+                          <td mat-cell *matCellDef="let request">{{ request.organisation || 'N/A' }}</td>
+                        </ng-container>
+
+                        <!-- Status Column -->
+                        <ng-container matColumnDef="status">
+                          <th mat-header-cell *matHeaderCellDef>{{ 'status' | translate }}</th>
+                          <td mat-cell *matCellDef="let request">
+                            <mat-form-field appearance="outline" class="status-select">
+                              <mat-select [value]="request.status"
+                                (selectionChange)="onClientRequestStatusChange(request, $event.value)">
+                                @for (status of clientRequestStatuses; track status) {
+                                <mat-option [value]="status">
+                                  <span [class]="'status-badge ' + status.toLowerCase()">
+                                    {{ status | translate }}
+                                  </span>
+                                </mat-option>
+                                }
+                              </mat-select>
+                            </mat-form-field>
+                          </td>
+                        </ng-container>
+
+                        <!-- Created Date Column -->
+                        <ng-container matColumnDef="createdAt">
+                          <th mat-header-cell *matHeaderCellDef>{{ 'created' | translate }}</th>
+                          <td mat-cell *matCellDef="let request">
+                            @if (request.createdAt) {
+                            {{ request.createdAt | date:'dd-MM-yyyy' }}
+                            } @else {
+                            -
+                            }
+                          </td>
+                        </ng-container>
+
+                        <!-- Actions Column -->
+                        <ng-container matColumnDef="actions">
+                          <th mat-header-cell *matHeaderCellDef>{{ 'actions' | translate }}</th>
+                          <td mat-cell *matCellDef="let request">
+                            <button mat-icon-button type="button" [matMenuTriggerFor]="menu" color="primary">
+                              <mat-icon>more_vert</mat-icon>
+                            </button>
+                            <mat-menu #menu="matMenu">
+                              <button mat-menu-item type="button">
+                                <mat-icon>visibility</mat-icon>
+                                <span>{{ 'view' | translate }}</span>
+                              </button>
+                              <button mat-menu-item type="button">
+                                <mat-icon>edit</mat-icon>
+                                <span>{{ 'edit' | translate }}</span>
+                              </button>
+                              <button mat-menu-item type="button">
+                                <mat-icon>delete</mat-icon>
+                                <span>{{ 'delete' | translate }}</span>
+                              </button>
+                            </mat-menu>
+                          </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="['createdAt', 'organisation', 'status', 'actions']"></tr>
+                        <tr mat-row *matRowDef="let row; columns: ['createdAt', 'organisation', 'status', 'actions'];">
+                        </tr>
+                      </table>
+                      <mat-paginator [length]="clientRequestsTotalElements()" [pageSize]="clientRequestsPageSize()"
+                        [pageIndex]="clientRequestsPageIndex()" [pageSizeOptions]="[5, 10, 25, 50, 100]"
+                        (page)="onClientRequestsPageChange($event)" showFirstLastButtons>
+                      </mat-paginator>
+                    </div>
+                    } @else {
+                    <div class="no-client-requests modern-no-records">
+                      <div class="empty-state">
+                        <mat-icon class="empty-icon">assignment</mat-icon>
+                        <h4>{{ 'no.client.requests' | translate }}</h4>
+                        <p>{{ 'no.client.requests.description' | translate }}</p>
+                      </div>
+                    </div>
+                    }
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+}

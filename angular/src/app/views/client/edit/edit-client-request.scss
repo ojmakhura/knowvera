@@ -1,0 +1,32 @@
+// @import '../../../styles/common';
+
+// Component-specific overrides
+.document-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .document-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+
+    mat-icon {
+      color: #1976d2;
+    }
+
+    span {
+      flex: 1;
+      font-weight: 500;
+      color: #37474f;
+    }
+
+    a {
+      color: #1976d2;
+    }
+  }
+}

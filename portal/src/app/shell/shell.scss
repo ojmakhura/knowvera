@@ -1,0 +1,355 @@
+.vault-shell {
+  --sidebar-width: 16rem;
+  min-height: 100vh;
+  background: var(--vault-surface);
+  color: var(--vault-on-surface);
+}
+
+.vault-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--vault-surface-container-low);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  z-index: 30;
+  transition: transform 0.25s ease, width 0.25s ease;
+
+  &--collapsed {
+    width: 4.75rem;
+  }
+
+  &__brand {
+    margin-bottom: 2.5rem;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: var(--vault-font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--vault-primary);
+  }
+
+  &__subtitle {
+    margin: 0.25rem 0 0;
+    font-size: 0.75rem;
+    color: var(--vault-on-surface-variant);
+  }
+
+  &__footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--vault-outline-ghost);
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  &__support {
+    border: 0;
+    border-radius: var(--vault-radius-md);
+    background: var(--vault-surface-container-high);
+    color: var(--vault-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.66rem;
+    font-weight: 700;
+    padding: 0.7rem;
+    cursor: pointer;
+  }
+}
+
+.vault-nav {
+  flex: 1;
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  &__link {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    border: 0;
+    border-radius: var(--vault-radius-md);
+    background: transparent;
+    color: var(--vault-on-surface-variant);
+    padding: 0.8rem 0.9rem;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.9rem;
+    font-family: var(--vault-font-body);
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.5);
+      color: var(--vault-primary-container);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--vault-primary-container);
+      outline-offset: 2px;
+    }
+
+    mat-icon {
+      font-size: 1.15rem;
+      width: 1.15rem;
+      height: 1.15rem;
+    }
+
+    &--active {
+      background: var(--vault-surface-container-lowest);
+      color: var(--vault-primary-container);
+      font-weight: 600;
+      transform: translateX(0.18rem);
+      box-shadow: var(--vault-ambient-shadow);
+    }
+
+    &--logout {
+      color: var(--vault-on-surface-variant);
+
+      &:hover {
+        color: var(--vault-error);
+      }
+    }
+  }
+}
+
+.vault-topbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  background: rgba(250, 248, 255, 0.82);
+  backdrop-filter: blur(20px);
+  z-index: 20;
+
+  &--with-sidebar {
+    left: var(--sidebar-width);
+  }
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__menu {
+    border: 0;
+    width: 2.3rem;
+    height: 2.3rem;
+    border-radius: 999px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: var(--vault-surface-container-low);
+    color: var(--vault-on-surface-variant);
+    cursor: pointer;
+  }
+
+  &__product {
+    font-family: var(--vault-font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--vault-primary-container);
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__icon {
+    border: 0;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--vault-on-surface-variant);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--vault-surface-container-low);
+      color: var(--vault-primary-container);
+    }
+  }
+}
+
+.vault-user {
+  min-height: 2.75rem;
+  padding: 0.35rem 0.45rem 0.35rem 1rem;
+  border-left: 1px solid rgba(116, 119, 129, 0.2);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  line-height: 1;
+  transition: background-color 0.18s ease, box-shadow 0.18s ease;
+
+  &:hover {
+    background: var(--vault-surface-container-low);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--vault-primary-container);
+    outline-offset: 2px;
+  }
+
+  &.mat-mdc-button-base {
+    min-width: auto;
+  }
+
+  .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  &__text {
+    text-align: right;
+    display: grid;
+    gap: 0.12rem;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--vault-on-surface);
+    letter-spacing: 0.01em;
+  }
+
+  &__tier {
+    margin: 0;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--vault-on-surface-variant);
+  }
+
+  &__avatar {
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vault-surface-container-lowest);
+    color: var(--vault-primary-container);
+    box-shadow: inset 0 0 0 1px rgba(116, 119, 129, 0.2);
+
+    mat-icon {
+      width: 1.5rem;
+      height: 1.5rem;
+      font-size: 1.5rem;
+    }
+  }
+}
+
+.vault-content {
+  min-height: 100vh;
+  padding: 5rem 3rem 3rem;
+
+  &--with-sidebar {
+    margin-left: var(--sidebar-width);
+  }
+}
+
+.vault-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(19, 27, 46, 0.2);
+  backdrop-filter: blur(3px);
+  z-index: 10;
+}
+
+.user-dropdown {
+  min-width: 17rem;
+}
+
+.user-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+}
+
+.profile-avatar mat-icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  font-size: 2.2rem;
+  color: var(--vault-primary-container);
+}
+
+.profile-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--vault-on-surface);
+}
+
+.profile-email {
+  font-size: 0.78rem;
+  color: var(--vault-on-surface-variant);
+}
+
+.logout-item mat-icon,
+.logout-item {
+  color: var(--vault-error) !important;
+}
+
+.login-btn {
+  border-radius: var(--vault-radius-md) !important;
+}
+
+@media (max-width: 1024px) {
+  .vault-shell {
+    --sidebar-width: 0;
+  }
+
+  .vault-sidebar {
+    transform: translateX(-100%);
+
+    &--mobile-open {
+      transform: translateX(0);
+    }
+  }
+
+  .vault-topbar {
+    left: 0;
+    padding: 0 1rem;
+
+    &__menu {
+      display: inline-flex;
+    }
+  }
+
+  .vault-content {
+    margin-left: 0;
+    padding: 6.5rem 1rem 1.5rem;
+  }
+
+  .vault-user__text {
+    display: none;
+  }
+
+  .vault-user {
+    border-left: 0;
+    padding-left: 0.45rem;
+  }
+}

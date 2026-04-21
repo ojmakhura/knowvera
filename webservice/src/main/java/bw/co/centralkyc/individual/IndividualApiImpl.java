@@ -5,9 +5,12 @@
 //
 package bw.co.centralkyc.individual;
 
+import bw.co.centralkyc.organisation.OrganisationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.SecureRandom;
 import java.util.Collection;
@@ -26,15 +29,14 @@ import bw.co.centralkyc.keycloak.KeycloakOrganisationService;
 import bw.co.centralkyc.keycloak.KeycloakUserService;
 import bw.co.centralkyc.organisation.OrganisationDTO;
 import bw.co.centralkyc.organisation.OrganisationListDTO;
-import bw.co.centralkyc.organisation.branch.BranchDTO;
 import bw.co.centralkyc.organisation.branch.BranchService;
 import bw.co.centralkyc.user.UserDTO;
 import bw.co.roguesystems.comm.ContentType;
 import bw.co.roguesystems.comm.MessagingPlatform;
 import bw.co.roguesystems.comm.message.CommMessageDTO;
 
-@org.springframework.web.bind.annotation.RestController
-public class IndividualApiImpl extends IndividualApiBase {
+@RestController
+public class IndividualApiImpl implements IndividualApi {
 
     @Value("${app.organisation.manager-role}")
     private String organisationManagerRole;
@@ -52,13 +54,9 @@ public class IndividualApiImpl extends IndividualApiBase {
     private final KeycloakOrganisationService keycloakOrgService;
     private final BranchService branchService;
     private final EmailService emailService;
+    private final IndividualService individualService;
 
-    private static final SecureRandom RANDOM = new SecureRandom();
-
-    private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";
-    private static final String DIGITS = "0123456789";
-    private static final String SYMBOLS = "@#$%!";
+    private final OrganisationService organisationService;
 
     private static final String newUserTemplate = """
             Dear %s,
@@ -77,17 +75,19 @@ public class IndividualApiImpl extends IndividualApiBase {
             """;
 
     public IndividualApiImpl(IndividualService individualService, KeycloakUserService keycloakUserService,
+            OrganisationService organisationService,
             BranchService branchService, EmailService emailService, KeycloakOrganisationService keycloakOrgService) {
 
-        super(individualService);
+        this.individualService = individualService;
         this.keycloakUserService = keycloakUserService;
         this.branchService = branchService;
         this.emailService = emailService;
         this.keycloakOrgService = keycloakOrgService;
+        this.organisationService = organisationService;
     }
 
     @Override
-    public ResponseEntity<IndividualDTO> handleFindById(String id) {
+    public ResponseEntity<IndividualDTO> findById(String id) {
 
         try {
 
@@ -95,37 +95,34 @@ public class IndividualApiImpl extends IndividualApiBase {
 
             if (data.getHasUser()) {
 
-                UserDTO user = keycloakUserService.getUserByIdentityNo(data.getIdentityNo());
+                if (data.getOrganisation() != null && StringUtils.isNotBlank(data.getOrganisation().id())) {
 
-                if (user != null) {
+                    OrganisationDTO org = organisationService.findById(data.getOrganisation().id());
+                    OrganisationListDTO o = new OrganisationListDTO(
+                            org.getId(),
+                            org.getCode(),
+                            org.getName(),
+                            org.getRegistrationNo(),
+                            org.getStatus(),
+                            org.getContactEmailAddress(),
+                            org.getKycStatus(),
+                            org.getIsClient(),
+                            org.getKeycloakId(),
+                            org.getPhysicalAddress(),
+                            org.getPostalAddress());
 
-                    if (StringUtils.isNotBlank(user.getBranchId())) {
-
-                        BranchDTO branch = branchService.findById(user.getBranchId());
-                        data.setBranch(branch);
-                    }
-
-                    if (StringUtils.isNotBlank(user.getOrganisationId())) {
-
-                        OrganisationListDTO orgList = new OrganisationListDTO();
-                        orgList.setId(user.getOrganisationId());
-                        orgList.setName(user.getOrganisation());
-
-                        data.setOrganisation(orgList);
-                    }
+                    data.setOrganisation(o);
                 }
-
             }
 
             return ResponseEntity.ok(data);
         } catch (Exception e) {
             throw e;
         }
-
     }
 
     @Override
-    public ResponseEntity<Collection<IndividualListDTO>> handleGetAll() {
+    public ResponseEntity<Collection<IndividualListDTO>> getAll() {
 
         try {
 
@@ -136,7 +133,7 @@ public class IndividualApiImpl extends IndividualApiBase {
     }
 
     @Override
-    public ResponseEntity<Page<IndividualListDTO>> handleGetAllPaged(Integer pageNumber,
+    public ResponseEntity<Page<IndividualListDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) {
 
         try {
@@ -148,7 +145,7 @@ public class IndividualApiImpl extends IndividualApiBase {
     }
 
     @Override
-    public ResponseEntity<Page<IndividualListDTO>> handlePagedSearch(
+    public ResponseEntity<Page<IndividualListDTO>> pagedSearch(
             SearchObject<IndividualSearchCriteria> criteria) {
 
         try {
@@ -161,7 +158,7 @@ public class IndividualApiImpl extends IndividualApiBase {
     }
 
     @Override
-    public ResponseEntity<Boolean> handleRemove(String id) {
+    public ResponseEntity<Boolean> remove(String id) {
 
         try {
 
@@ -171,29 +168,6 @@ public class IndividualApiImpl extends IndividualApiBase {
             throw e;
         }
 
-    }
-
-    private String generatePassword() {
-        if (minPasswordLength < 8) {
-            throw new IllegalArgumentException("Password length must be at least 8");
-        }
-
-        List<String> groups = List.of(UPPER, LOWER, DIGITS, SYMBOLS);
-        String all = UPPER + LOWER + DIGITS + SYMBOLS;
-
-        StringBuilder password = new StringBuilder();
-
-        // Ensure at least one char from each group
-        for (String group : groups) {
-            password.append(group.charAt(RANDOM.nextInt(group.length())));
-        }
-
-        // Fill remaining chars
-        for (int i = password.length(); i < minPasswordLength; i++) {
-            password.append(all.charAt(RANDOM.nextInt(all.length())));
-        }
-
-        return password.toString();
     }
 
     private CommMessageDTO newUserMessage(IndividualDTO individual, UserDTO user) {
@@ -222,14 +196,14 @@ public class IndividualApiImpl extends IndividualApiBase {
         message.setText(messageStr);
         message.setPlatform(MessagingPlatform.EMAIL);
 
-        OrganisationDTO org = keycloakOrgService.findById(individual.getOrganisation().getId());
+        OrganisationDTO org = keycloakOrgService.findById(individual.getOrganisation().id());
 
-        if(org != null) {
+        if (org != null) {
 
-            if(StringUtils.isNotBlank(org.getContactEmailAddress())) {
+            if (StringUtils.isNotBlank(org.getContactEmailAddress())) {
                 message.setCcs(List.of(org.getContactEmailAddress()));
             }
-            
+
         }
 
         return message;
@@ -237,7 +211,7 @@ public class IndividualApiImpl extends IndividualApiBase {
     }
 
     @Override
-    public ResponseEntity<IndividualDTO> handleSave(IndividualDTO individual) {
+    public ResponseEntity<IndividualDTO> save(IndividualDTO individual) {
 
         try {
 
@@ -251,7 +225,8 @@ public class IndividualApiImpl extends IndividualApiBase {
 
                 UserDTO existing = keycloakUserService.getUserByEmail(individual.getEmailAddress());
 
-                boolean createUser = isNewUser = existing == null;
+                boolean createUser = isNewUser = (existing == null)
+                        && (individual.getHasUser() != null && individual.getHasUser());
 
                 if (createUser) {
 
@@ -266,34 +241,26 @@ public class IndividualApiImpl extends IndividualApiBase {
                         }
                     }
 
-                    user = new UserDTO();
-                    user.setFirstName(individual.getFirstName());
-                    user.setLastName(individual.getSurname());
-                    user.setEmail(individual.getEmailAddress());
-                    user.setUsername(individual.getEmailAddress());
-                    user.setIdentityNo(individual.getIdentityNo());
-                    user.setPassword(generatePassword());
-                    user.setEnabled(true);
+                    OrganisationDTO org = null;
 
-                    if (individual.getBranch() != null && !StringUtils.isBlank(individual.getBranch().getId())) {
-
-                        user.setBranchId(individual.getBranch().getId());
-                        user.setBranch(individual.getBranch().getName());
+                    if (individual.getOrganisation() != null) {
+                        org = new OrganisationDTO();
+                        org.setId(individual.getOrganisation().id());
+                        org.setName(individual.getOrganisation().name());
+                        org.setContactEmailAddress(individual.getOrganisation().contactEmailAddress());
+                        org.setRegistrationNo(individual.getOrganisation().registrationNo());
+                        org.setCode(individual.getOrganisation().code());
                     }
 
-                    if (individual.getOrganisation() == null
-                            || StringUtils.isBlank(individual.getOrganisation().getId())) {
-                        throw new IndividualServiceException(
-                                "Organisation information is required to create user for individual.");
-                    }
-
-                    user.setOrganisation(individual.getOrganisation().getName());
-                    user.setOrganisationId(individual.getOrganisation().getId());
-                    user.setRoles(Set.of(organisationManagerRole));
-
-                    keycloakUserService.createUser(user);
+                    user = keycloakUserService.registerUser(individual, org);
+                } else if(existing != null) {
+                    user = existing;
                 }
+            }
 
+            if (user != null && StringUtils.isNotBlank(user.getUserId())) {
+                individual.setHasUser(true);
+                individual.setUserId(user.getUserId());
             }
 
             individual = individualService.save(individual);
@@ -317,13 +284,20 @@ public class IndividualApiImpl extends IndividualApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<IndividualListDTO>> handleSearch(
+    public ResponseEntity<Collection<IndividualListDTO>> search(
             SearchObject<IndividualSearchCriteria> criteria) {
 
         try {
 
+            Set<PropertySearchOrder> sortings = new java.util.HashSet<>();
+
+            if (criteria.getSortings() != null) {
+
+                sortings.addAll(criteria.getSortings());
+            }
+
             return ResponseEntity
-                    .ok(individualService.search(criteria.getCriteria(), (PropertySearchOrder) criteria.getSortings()));
+                    .ok(individualService.search(criteria.getCriteria(), sortings));
 
         } catch (Exception e) {
             throw e;
@@ -332,7 +306,7 @@ public class IndividualApiImpl extends IndividualApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<IndividualListDTO>> handleGetOrganisationClients(
+    public ResponseEntity<Collection<IndividualListDTO>> getOrganisationClients(
             String organisationId) throws Exception {
 
         try {
@@ -346,13 +320,48 @@ public class IndividualApiImpl extends IndividualApiBase {
     }
 
     @Override
-    public ResponseEntity<Page<IndividualListDTO>> handleGetOrganisationClientsPaged(
+    public ResponseEntity<Page<IndividualListDTO>> getOrganisationClientsPaged(
             String criteria, Integer pageNumber, Integer pageSize) throws Exception {
 
         try {
 
             return ResponseEntity
                     .ok(null);
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    public ResponseEntity<IndividualDTO> loadRequestIndividual(String requestId, String identityConfirmationToken,
+            String identityNo) throws Exception {
+
+        try {
+            IndividualDTO individual = individualService.loadRequestIndividual(requestId, identityConfirmationToken,
+                    identityNo);
+
+            return ResponseEntity.ok(individual);
+
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    public ResponseEntity<IndividualDTO> loadMe() throws Exception {
+
+        try {
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (!authentication.isAuthenticated()) {
+                throw new IndividualServiceException("Unauthenticated");
+            }
+
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            String userId = jwt.getSubject();
+
+            return ResponseEntity.ok(individualService.findByUserId(userId));
 
         } catch (Exception e) {
             throw e;

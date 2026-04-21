@@ -10,6 +10,7 @@ package bw.co.centralkyc.organisation;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
@@ -19,32 +20,37 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
+import bw.co.centralkyc.GeneralStatus;
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
+import bw.co.centralkyc.individual.IndividualDTO;
+import bw.co.centralkyc.kyc.KycComplianceStatus;
+import bw.co.centralkyc.organisation.client.ClientRequestRepository;
 
 /**
  * @see bw.co.centralkyc.organisation.OrganisationService
  */
 @Service("organisationService")
-@Transactional(propagation = Propagation.REQUIRED, readOnly=false)
 public class OrganisationServiceImpl
-    extends OrganisationServiceBase
-{
-    public OrganisationServiceImpl(
-        OrganisationDao organisationDao,
-        OrganisationRepository organisationRepository,
-        MessageSource messageSource
-    ) {
-        
-        super(
-            organisationDao,
-            organisationRepository,
-            messageSource
-        );
+        extends OrganisationServiceBase {
+
+    private final OrganisationRepository organisationRepository;
+    private final ClientRequestRepository clientRequestRepository;
+    private final PasswordEncoder passwordEncoder;
+
+
+    public OrganisationServiceImpl(OrganisationDao organisationDao, OrganisationRepository organisationRepository, OrganisationMapper organisationMapper,
+            ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder,
+            MessageSource messageSource) {
+        super(organisationDao, organisationRepository, organisationMapper, messageSource);
+        this.organisationRepository = organisationRepository;
+        // TODO Auto-generated constructor stub
+
+        this.clientRequestRepository = clientRequestRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -52,13 +58,12 @@ public class OrganisationServiceImpl
      */
     @Override
     protected OrganisationDTO handleFindById(String id)
-        throws Exception
-    {
+            throws Exception {
 
-        Organisation org = organisationRepository.getReferenceById(id);
+        Organisation org = organisationRepository.getReferenceById(UUID.fromString(id));
         org = organisationRepository.save(org);
 
-        return organisationDao.toOrganisationDTO(org);
+        return organisationMapper.toOrganisationDTO(org);
     }
 
     /**
@@ -66,26 +71,22 @@ public class OrganisationServiceImpl
      */
     @Override
     protected Collection<OrganisationListDTO> handleGetAll()
-        throws Exception
-    {
+            throws Exception {
 
         Collection<Organisation> orgs = organisationRepository.findAll();
-        return organisationDao.toOrganisationListDTOCollection(orgs);
+        return organisationMapper.toOrganisationListDTOCollection(orgs);
 
     }
 
     /**
-     * @see bw.co.centralkyc.organisation.OrganisationService#getAll(Integer, Integer)
+     * @see bw.co.centralkyc.organisation.OrganisationService#getAll(Integer,
+     *      Integer)
      */
     @Override
     protected Page<OrganisationListDTO> handleGetAll(Integer pageNumber, Integer pageSize)
-        throws Exception
-    {
+            throws Exception {
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Direction.ASC, "name"));
-        Page<Organisation> page = organisationRepository.findAll(pageable);
-
-        return page.map(org -> organisationDao.toOrganisationListDTO(org));
+        return null;
     }
 
     /**
@@ -93,10 +94,14 @@ public class OrganisationServiceImpl
      */
     @Override
     protected boolean handleRemove(String id)
-        throws Exception
-    {
-        organisationRepository.deleteById(id);
-        return true;
+            throws Exception {
+
+        if(organisationRepository.existsById(UUID.fromString(id))) {
+            organisationRepository.deleteById(UUID.fromString(id));
+            return true;
+        }   
+
+        return false;
     }
 
     /**
@@ -104,45 +109,60 @@ public class OrganisationServiceImpl
      */
     @Override
     protected OrganisationDTO handleSave(OrganisationDTO organisation)
-        throws Exception
-    {
-        Organisation org = organisationDao.organisationDTOToEntity(organisation);
-        org = organisationRepository.save(org);
+            throws Exception {
 
-        return organisationDao.toOrganisationDTO(org);
+        Organisation orgEntity = organisationMapper.organisationDTOToEntity(organisation);
+        orgEntity = organisationRepository.save(orgEntity); 
+
+        return organisationMapper.toOrganisationDTO(orgEntity);
     }
 
     private Specification<Organisation> createSpecification(OrganisationSearchCriteria criteria) {
 
-        Specification<Organisation> spec = Specification.unrestricted();
+        Specification<Organisation> spec = ((root, query, builder) -> builder.conjunction());
 
-        if(criteria == null) {
+        if (criteria == null) {
             return spec;
         }
 
-        if(StringUtils.isNotBlank(criteria.getId())) {
-            spec = spec.and((root, query, builder) ->
-                builder.equal(root.get("id"), criteria.getId()));
+        if (StringUtils.isNotBlank(criteria.getId())) {
+
+            Specification<Organisation> tmp = ((root, query, builder) -> builder.equal(root.get("id"),
+                    criteria.getId()));
+            spec = spec == null ? tmp : spec.and(tmp);
+
         }
 
         if (StringUtils.isNotBlank(criteria.getName())) {
-            spec = spec.and((root, query, builder) ->
-                builder.like(builder.upper(root.get("name")), "%" + criteria.getName().toUpperCase() + "%"));
+            Specification<Organisation> tmp = ((root, query, builder) -> builder.like(builder.upper(root.get("name")),
+                    "%" + criteria.getName().toUpperCase() + "%"));
+            spec = spec == null ? tmp : spec.and(tmp);
         }
 
         if (StringUtils.isNotBlank(criteria.getRegistrationNo())) {
-            spec = spec.and((root, query, builder) ->
-                builder.equal(root.get("registrationNo"), criteria.getRegistrationNo()));
+            Specification<Organisation> tmp = ((root, query, builder) -> builder.equal(root.get("registrationNo"),
+                    criteria.getRegistrationNo()));
+            spec = spec == null ? tmp : spec.and(tmp);
         }
 
-        if(StringUtils.isNotBlank(criteria.getContactEmailAddress())) {
-            spec = spec.and((root, query, builder) ->
-                builder.like(builder.upper(root.get("contactEmailAddress")), "%" + criteria.getContactEmailAddress().toUpperCase() + "%"));
+        if (StringUtils.isNotBlank(criteria.getContactEmailAddress())) {
+            Specification<Organisation> tmp = ((root, query, builder) -> builder.like(
+                    builder.upper(root.get("contactEmailAddress")),
+                    "%" + criteria.getContactEmailAddress().toUpperCase() + "%"));
+            spec = spec == null ? tmp : spec.and(tmp);
         }
 
-        if(criteria.getStatus() != null) {
-            spec = spec.and((root, query, builder) ->
-                builder.equal(root.get("status"), criteria.getStatus()));
+        if (criteria.getStatus() != null) {
+            Specification<Organisation> tmp = ((root, query, builder) -> builder.equal(root.get("status"),
+                    criteria.getStatus()));
+            spec = spec == null ? tmp : spec.and(tmp);
+        }
+
+        if(criteria.getIsClient() != null) {
+
+            spec = spec.and(
+                    (root, query, builder) -> builder.equal(root.get("isClient"), criteria.getIsClient())
+            );
         }
 
         return spec;
@@ -152,28 +172,111 @@ public class OrganisationServiceImpl
      * @see bw.co.centralkyc.organisation.OrganisationService#search(String)
      */
     @Override
-    protected Collection<OrganisationListDTO> handleSearch(OrganisationSearchCriteria criteria, Set<PropertySearchOrder> orderings)
-        throws Exception
-    {
-        Specification<Organisation> spec = createSpecification(criteria);
-        Collection<Organisation> orgs = organisationRepository.findAll(spec, Sort.by(Direction.ASC, "name"));
+    protected Collection<OrganisationListDTO> handleSearch(OrganisationSearchCriteria criteria,
+            Set<PropertySearchOrder> orderings)
+            throws Exception {
 
-        return organisationDao.toOrganisationListDTOCollection(orgs);
+        Specification<Organisation> spec = createSpecification(criteria);
+
+        Collection<Organisation> orgs = organisationRepository.findAll(spec);
+
+        return organisationMapper.toOrganisationListDTOCollection(orgs);
 
     }
 
     /**
-     * @see bw.co.centralkyc.organisation.OrganisationService#search(Integer, Integer, String)
+     * @see bw.co.centralkyc.organisation.OrganisationService#search(Integer,
+     *      Integer, String)
      */
     @Override
     protected Page<OrganisationListDTO> handleSearch(SearchObject<OrganisationSearchCriteria> criteria)
-        throws Exception
-    {
-        Specification<Organisation> spec = createSpecification(criteria.getCriteria());
-        Pageable pageable = PageRequest.of(criteria.getPageNumber(), criteria.getPageSize(), Sort.by(Direction.ASC, "name"));
-        Page<Organisation> page = organisationRepository.findAll(spec, pageable);
+            throws Exception {
 
-        return page.map(org -> organisationDao.toOrganisationListDTO(org));
+        Specification<Organisation> spec = createSpecification(criteria.getCriteria());
+
+        Pageable pageable = PageRequest.of(
+                criteria.getPageNumber() != null && criteria.getPageNumber() >= 0 ? criteria.getPageNumber() : 0,
+                criteria.getPageSize() != null && criteria.getPageSize() > 0 ? criteria.getPageSize()
+                        : Integer.MAX_VALUE,
+                Sort.by(Direction.ASC, "name") // Default sorting
+        );
+
+        Page<Organisation> orgs = organisationRepository.findAll(spec, pageable);
+
+        return orgs.map(organisation -> organisationMapper.toOrganisationListDTO(organisation));
+    }
+
+    @Override
+    protected Long handleCountByKycStatus(KycComplianceStatus kycStatus) throws Exception {
+        
+        return organisationRepository.countByKycStatus(kycStatus).orElse(0L);
+    }
+
+    @Override
+    protected Long handleCountByStatus(GeneralStatus status) throws Exception {
+        
+        return organisationRepository.countByStatus(status).orElse(0L);
+    }
+
+    @Override
+    protected Long handleCountByIsClientFalse() throws Exception {
+        
+        return organisationRepository.countByIsClientFalse().orElse(0L);
+    }
+
+    @Override
+    protected Long handleCountByIsClientTrue() throws Exception {
+        
+        return organisationRepository.countByIsClientTrue().orElse(0L);
+    }
+
+    @Override
+    protected Long handleCount() throws Exception {
+        
+        return organisationRepository.count();
+    }
+
+    @Override
+    protected OrganisationDTO handleLoadRequestOrganisation(String requestId, String identityConfirmationToken,
+            String registrationNo) throws Exception {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'handleLoadRequestOrganisation'");
+    }
+
+    @Override
+    protected OrganisationDTO handleFindByCode(String code) throws Exception {
+
+        Organisation org = organisationRepository.findByCode(code).orElse(null);
+
+        if(org == null) {
+            return null;
+        }
+
+        return organisationMapper.toOrganisationDTO(org);
+    }
+
+    @Override
+    protected OrganisationDTO handleFindByName(String name) throws Exception {
+        Organisation org = organisationRepository.findByName(name).orElse(null);
+
+        if(org == null) {
+            return null;
+        }
+
+        return organisationMapper.toOrganisationDTO(org);
+    }
+
+    @Override
+    protected OrganisationDTO handleFindByRegistrationNo(String registrationNo) throws Exception {
+        
+        Organisation org = organisationRepository.findByRegistrationNo(registrationNo).orElse(null);
+
+        if(org == null) {
+            return null;
+        }
+
+        return organisationMapper.toOrganisationDTO(org);
+
     }
 
 }

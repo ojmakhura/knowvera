@@ -1,0 +1,94 @@
+<div class="min-vh-100">
+  <aside id="sidebar">
+    <div class="d-flex align-items-center mb-5 px-2">
+      <div class="brand-logo">
+        <span class="material-symbols-outlined">shield_lock</span>
+      </div>
+      <div>
+        <h1 class="h6 fw-bold mb-0 text-dark">Vault Compliance</h1>
+        <small class="text-uppercase text-muted fw-bold" style="font-size: 9px; letter-spacing: 1px;">SaaS Enterprise</small>
+      </div>
+    </div>
+
+    <button class="btn-new-verification w-100 d-flex align-items-center justify-content-center gap-2">
+      <span class="material-symbols-outlined">add</span>
+      New Verification
+    </button>
+
+    <nav class="nav flex-column gap-1">
+    @for (item of menus; track item.routerLink) {
+      <a  
+         class="nav-link" 
+         [routerLink]="item.routerLink" routerLinkActive="active">
+        <span class="material-symbols-outlined">{{ item.icon }}</span>
+        <span>{{ item.titleKey | translate }}</span>
+      </a>
+    }
+    </nav>
+
+    <!-- <div class="user-footer shell-footer">
+      @if (appEnvState.isLoggedIn()) {
+        <div class="d-flex align-items-center gap-2 px-2 mb-2">
+          <div class="avatar-small d-flex align-items-center justify-content-center bg-light">
+            <span class="material-symbols-outlined fs-6 text-primary">person</span>
+          </div>
+          <div class="overflow-hidden">
+            <p class="small fw-bold mb-0 text-dark text-truncate">{{ userDisplayName }}</p>
+            <p class="text-muted mb-0 text-truncate" style="font-size: 10px;">{{ userEmail }}</p>
+          </div>
+        </div>
+        <div class="d-flex gap-2 px-2">
+          <button class="btn btn-sm btn-outline-primary flex-fill" type="button" (click)="openUserProfile()">Profile</button>
+          <button class="btn btn-sm btn-outline-danger flex-fill" type="button" (click)="logout()">Logout</button>
+        </div>
+      } @else {
+        <div class="px-2 d-grid">
+          <button class="btn btn-sm btn-primary" type="button" (click)="login()">Login</button>
+        </div>
+      }
+    </div> -->
+  </aside>
+
+  <!-- Top Navigation Bar -->
+  <header id="topbar" class="shell-header">
+    <div class="d-flex align-items-center w-100">
+      <h5 class="fw-bold mb-0 me-5 text-dark d-none d-lg-block">The Digital Vault</h5>
+      <div class="search-container me-auto">
+        <span class="material-symbols-outlined">search</span>
+        <input class="form-control" placeholder="Search verifications or entities..." type="text" />
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-link text-muted p-1">
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <button class="btn btn-link text-muted p-1">
+          <span class="material-symbols-outlined">help_outline</span>
+        </button>
+        <div class="vr mx-2" style="height: 24px;"></div>
+        @if (appEnvState.isLoggedIn()) {
+          <button class="btn btn-link text-decoration-none d-flex align-items-center gap-2" type="button" (click)="openUserProfile()">
+            <div class="rounded-circle bg-light p-1 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <span class="material-symbols-outlined text-primary fs-5">person</span>
+            </div>
+            <span class="small fw-semibold text-primary">{{ userDisplayName }}</span>
+          </button>
+          <button class="btn btn-sm btn-outline-danger" type="button" (click)="logout()">Logout</button>
+        } @else {
+          <button class="btn btn-sm btn-primary" type="button" (click)="login()">Login</button>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="shell-main">
+    <div class="container-fluid px-5 py-4">
+        <router-outlet/>
+    </div>
+  </main>
+
+  <!-- Support FAB -->
+  <!-- <button class="fab-support">
+    <span class="material-symbols-outlined fs-4">chat_bubble</span>
+  </button> -->
+</div>

@@ -7,8 +7,9 @@
 package bw.co.centralkyc.organisation.document;
 
 import bw.co.centralkyc.document.type.DocumentTypeRepository;
-import bw.co.centralkyc.organisation.OrganisationRepository;
 import jakarta.persistence.EntityNotFoundException;
+
+import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
@@ -21,13 +22,11 @@ public class OrganisationDocumentDaoImpl
 {
     
     public OrganisationDocumentDaoImpl(
-        OrganisationRepository organisationRepository,
         DocumentTypeRepository documentTypeRepository,
         OrganisationDocumentRepository organisationDocumentRepository
     ) {
 
         super(
-            organisationRepository,
             documentTypeRepository,
             organisationDocumentRepository
         );
@@ -70,7 +69,7 @@ public class OrganisationDocumentDaoImpl
         }
         else
         {
-            return this.organisationDocumentRepository.findById(organisationDocumentDTO.getId())
+            return this.organisationDocumentRepository.findById(UUID.fromString(organisationDocumentDTO.getId()))
                 .orElseThrow(() -> new EntityNotFoundException("Entity not found for id: " + organisationDocumentDTO.getId()));
         }
     }

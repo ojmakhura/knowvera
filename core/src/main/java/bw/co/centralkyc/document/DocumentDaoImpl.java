@@ -9,6 +9,8 @@ package bw.co.centralkyc.document;
 import bw.co.centralkyc.document.type.DocumentTypeRepository;
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.UUID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
@@ -45,7 +47,7 @@ public class DocumentDaoImpl
         if(source.getDocumentType() != null) {
 
             target.setDocumentType(source.getDocumentType().getName());
-            target.setDocumentTypeId(source.getDocumentType().getId());
+            target.setDocumentTypeId(source.getDocumentType().getId().toString());
         }
     }
 
@@ -72,7 +74,7 @@ public class DocumentDaoImpl
         }
         else
         {
-            return this.documentRepository.findById(documentDTO.getId())
+            return this.documentRepository.findById(UUID.fromString(documentDTO.getId()))
                 .orElseThrow(() -> new EntityNotFoundException("Entity not found for id: " + documentDTO.getId()));
         }
     }
@@ -102,8 +104,14 @@ public class DocumentDaoImpl
 
         if(StringUtils.isNotBlank(source.getDocumentTypeId())) {
 
-            target.setDocumentType(this.documentTypeRepository.findById(source.getDocumentTypeId())
+            target.setDocumentType(this.documentTypeRepository.findById(UUID.fromString(source.getDocumentTypeId()))
                 .orElseThrow(() -> new EntityNotFoundException("Entity not found for id: " + source.getDocumentTypeId())));
         }
+    }
+
+    @Override
+    public DocumentListDTO toDocumentListDTO(Document entity) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'toDocumentListDTO'");
     }
 }

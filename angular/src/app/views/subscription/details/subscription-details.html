@@ -1,0 +1,208 @@
+<!-- Redesigned Subscription Details Component -->
+<div class="details-container">
+  <div class="details-container">
+    <div class="breadcrumb-section">
+    <mat-icon class="breadcrumb-icon">home</mat-icon>
+    <span class="breadcrumb-text">{{ 'home' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text">{{ 'subscription' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ subscriptionDetailsSignal().ref || 'N/A' }} </span>
+  </div>
+  <!-- Header Section -->
+  <mat-card class="header-card" appearance="outlined">
+    <mat-card-header>
+      <div class="header-content">
+        <div class="title-section">
+          <mat-icon class="title-icon">card_membership</mat-icon>
+          <div class="title-text">
+            <h1 class="item-title">{{ 'subscription.details' | translate }}</h1>
+            <p class="item-subtitle">{{ subscriptionDetailsSignal().ref || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button mat-raised-button color="primary" [routerLink]="['/subscription', 'edit']" [queryParams]="{ id: subscriptionDetailsSignal().id }" routerLinkActive="router-link-active" class="action-button">
+            <mat-icon>edit</mat-icon>
+            {{ 'edit' | translate }}
+          </button>
+          <button mat-stroked-button color="primary" (click)="subscriptionDetailsFormReset()" class="action-button">
+            <mat-icon>refresh</mat-icon>
+            {{ 'reset' | translate }}
+          </button>
+        </div>
+      </div>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="loading-container">
+      <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+    </div>
+  }
+
+  <!-- Main Content -->
+  <div class="item-display">
+    <!-- Status Section -->
+    <mat-card class="section-card status-section" appearance="outlined">
+      <mat-card-content>
+        <div class="display-item">
+          <div class="display-label">
+            <mat-icon class="field-icon">flag</mat-icon>
+            <span>{{ 'status' | translate }}</span>
+          </div>
+          <div class="display-value">
+            <mat-chip class="status-chip" [ngClass]="'status-' + subscriptionDetailsSignal().status">
+              {{ KycSubsciptionStatusT[subscriptionDetailsSignal().status] || 'N/A' }}
+            </mat-chip>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Basic Information Section -->
+    <mat-card class="section-card basic-info-section" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">info</mat-icon>
+          Organisation
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="display-grid">
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">tag</mat-icon>
+              <span>{{ 'organisation.code' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ subscriptionDetailsSignal().organisationCode || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">domain</mat-icon>
+              <span>{{ 'organisation.name' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ subscriptionDetailsSignal().organisationName || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">business</mat-icon>
+              <span>{{ 'organisation.registration.no' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ subscriptionDetailsSignal().organisationRegistrationNo || 'N/A' }}
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="section-card basic-info-section" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">info</mat-icon>
+          {{ 'subscription.information' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="display-grid">
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">confirmation_number</mat-icon>
+              <span>{{ 'ref' | translate }}</span>
+            </div>
+            <div class="display-value primary-value">
+              {{ subscriptionDetailsSignal().ref || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">schedule</mat-icon>
+              <span>{{ 'period' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ TimePeriodT[subscriptionDetailsSignal().period] || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">payments</mat-icon>
+              <span>{{ 'amount' | translate }}</span>
+            </div>
+            <div class="display-value primary-value">
+              {{ (subscriptionDetailsSignal().amount | currency: 'BWP') || 'N/A' }}
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Date Information Section -->
+    <mat-card class="section-card contact-info-section" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">event</mat-icon>
+          {{ 'subscription.period' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="display-grid">
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">event_available</mat-icon>
+              <span>{{ 'start.date' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ (subscriptionDetailsSignal().startDate | date: 'dd-MM-yyyy') || 'N/A' }}
+            </div>
+          </div>
+
+          <div class="display-item">
+            <div class="display-label">
+              <mat-icon class="field-icon">event_busy</mat-icon>
+              <span>{{ 'end.date' | translate }}</span>
+            </div>
+            <div class="display-value">
+              {{ (subscriptionDetailsSignal().endDate | date: 'dd-MM-yyyy') || 'N/A' }}
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Invoices Section -->
+    <mat-card class="section-card branches-section" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">receipt</mat-icon>
+          {{ 'invoices' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <button mat-raised-button color="primary" (click)="addInvoice()" class="action-button">
+          <mat-icon>add</mat-icon>
+          {{ 'invoice.add' | translate }}
+        </button>
+        <app-table
+          #invoicesTable
+          [dataColumns]="invoicesTableColumns"
+          [showActions]="showInvoicesActions"
+          [paged]="invoicesTablePaged"
+          [actions]="invoicesTableColumnsActions"
+          (actionClicked)="invoicesTableActionClicked($event)"
+          [dataSignal]="invoicesTableSignal"
+        >
+        </app-table>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

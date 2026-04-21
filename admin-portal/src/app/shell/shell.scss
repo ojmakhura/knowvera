@@ -1,0 +1,255 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+p,
+h1,
+h2 {
+  margin: 0;
+}
+
+.shell-layout {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.shell-sidebar {
+  width: 280px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: var(--vault-primary, #673ab7);
+  font-size: 16px;
+}
+
+.brand-title {
+  color: var(--vault-primary, #673ab7);
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.new-btn {
+  margin-bottom: 16px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.08);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+}
+
+.officer-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--vault-primary, #673ab7);
+}
+
+.officer-mail {
+  font-size: 12px;
+  color: #666;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+}
+
+.topbar-title {
+  font-size: 18px;
+  margin-right: 16px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.topbar-search-field {
+  width: 100%;
+  max-width: 400px;
+  margin-right: 16px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.account-btn {
+  display: flex;
+  align-items: center;
+}
+
+.account-avatar {
+  background: var(--vault-primary, #673ab7);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.account-label {
+  margin-right: 4px;
+  font-weight: 500;
+}
+
+.account-menu {
+  min-width: 260px;
+}
+
+.account-menu-head {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  gap: 12px;
+  background: rgba(0,0,0,0.02);
+}
+
+.menu-avatar {
+  background: var(--vault-primary, #673ab7);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.menu-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0;
+}
+
+.menu-email {
+  color: #666;
+  font-size: 12px;
+  margin: 0;
+}
+
+.menu-link-danger .warn-text {
+  color: #f44336;
+}
+
+.content {
+  padding: 24px;
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+}
+
+.login-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 64px);
+}
+
+.login-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 3.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 1.25rem;
+  text-align: center;
+  max-width: 26rem;
+  width: 100%;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.07);
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+}
+
+.login-brand-mark {
+  font-size: 1.75rem;
+  color: var(--vault-primary, #673ab7);
+  line-height: 1;
+}
+
+.login-brand-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.login-heading {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.login-sub {
+  font-size: 0.9375rem;
+  color: rgba(0, 0, 0, 0.5);
+  margin: 0 0 2.25rem;
+  line-height: 1.6;
+}
+
+.login-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 2rem;
+  height: 3rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+
+  mat-icon {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+

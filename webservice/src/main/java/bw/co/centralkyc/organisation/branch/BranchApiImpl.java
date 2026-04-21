@@ -11,32 +11,29 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
-import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 
 import bw.co.centralkyc.AuditTracker;
-import bw.co.centralkyc.RestApiResponse;
-import bw.co.centralkyc.keycloak.KeycloakOrganisationService;
 import bw.co.centralkyc.organisation.OrganisationDTO;
+import bw.co.centralkyc.organisation.OrganisationService;
 
 @RestController
-public class BranchApiImpl extends BranchApiBase {
+public class BranchApiImpl implements BranchApi {
 
-    private final KeycloakOrganisationService orgService;
-    
-    public BranchApiImpl(BranchService branchService, KeycloakOrganisationService orgService) {
+    private final OrganisationService orgService;
+    private final BranchService branchService;
+
+    public BranchApiImpl(BranchService branchService, OrganisationService orgService) {
         
-        super(branchService);
-
         this.orgService = orgService;
+        this.branchService = branchService;
     }
 
 
     @Override
-    public ResponseEntity<BranchDTO> handleFindById(String id) {
+    public ResponseEntity<BranchDTO> findById(String id) {
         
         try {
 
@@ -49,10 +46,10 @@ public class BranchApiImpl extends BranchApiBase {
 
             OrganisationDTO org = orgService.findById(branch.getOrganisationId());
             branch.setOrganisation(org.getName());
-            
+
             return ResponseEntity.ok(branchService.findById(id));
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            // logger.error(e.getMessage());
             e.printStackTrace();
             throw e;
         }
@@ -61,13 +58,13 @@ public class BranchApiImpl extends BranchApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<BranchDTO>> handleFindByOrganisation(String organisationId) {
+    public ResponseEntity<Collection<BranchDTO>> findByOrganisation(String organisationId) {
         
         try {
             OrganisationDTO org = orgService.findById(organisationId);
             return ResponseEntity.ok(branchService.findByOrganisation(org.getId()));
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            // logger.error(e.getMessage());
             e.printStackTrace();
             throw e;
         }
@@ -76,7 +73,7 @@ public class BranchApiImpl extends BranchApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<BranchDTO>> handleFindByOrganisationPaged(String organisationId, Integer pageNumber, Integer pageSize) {
+    public ResponseEntity<Collection<BranchDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber, Integer pageSize) {
         
         try {
             OrganisationDTO org = orgService.findById(organisationId);
@@ -88,12 +85,10 @@ public class BranchApiImpl extends BranchApiBase {
             e.printStackTrace();
             throw e;
         }
-
-
     }
 
     @Override
-    public ResponseEntity<Collection<BranchDTO>> handleGetAll() {
+    public ResponseEntity<Collection<BranchDTO>> getAll() {
         
         try {
             return ResponseEntity.ok(branchService.getAll());
@@ -106,7 +101,7 @@ public class BranchApiImpl extends BranchApiBase {
     }
 
     @Override
-    public ResponseEntity<Page<BranchDTO>> handleGetAllPaged(Integer pageNumber, Integer pageSize) {
+    public ResponseEntity<Page<BranchDTO>> getAllPaged(Integer pageNumber, Integer pageSize) {
         
         try {
             return ResponseEntity.ok(branchService.getAll(pageNumber, pageSize));
@@ -119,13 +114,13 @@ public class BranchApiImpl extends BranchApiBase {
     }
 
     @Override
-    public ResponseEntity<Page<BranchDTO>> handlePagedSearch(String criteria, Integer pageNumber, Integer pageSize) {
+    public ResponseEntity<Page<BranchDTO>> pagedSearch(String criteria, Integer pageNumber, Integer pageSize) {
         
         try {
             return ResponseEntity.ok(branchService.search(criteria, pageNumber, pageSize));
             
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            // logger.error(e.getMessage());
             e.printStackTrace();
             throw e;
         }
@@ -134,14 +129,14 @@ public class BranchApiImpl extends BranchApiBase {
     }
 
     @Override
-    public ResponseEntity<Boolean> handleRemove(String id) {
+    public ResponseEntity<Boolean> remove(String id) {
         
         try {
 
             return ResponseEntity.ok(branchService.remove(id));
 
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            // logger.error(e.getMessage());
             e.printStackTrace();
             throw e;
         }
@@ -150,17 +145,15 @@ public class BranchApiImpl extends BranchApiBase {
     }
 
     @Override
-    public ResponseEntity<BranchDTO> handleSave(BranchDTO branch) {
+    public ResponseEntity<BranchDTO> save(BranchDTO branch) {
         
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             AuditTracker.auditTrail(branch, authentication);
-            OrganisationDTO org = orgService.findById(branch.getOrganisationId());
-            branch.setOrganisation(org.getName());
             return ResponseEntity.ok(branchService.save(branch));
 
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            // logger.error(e.getMessage());
             e.printStackTrace();
 
             throw e;
@@ -170,13 +163,13 @@ public class BranchApiImpl extends BranchApiBase {
     }
 
     @Override
-    public ResponseEntity<Collection<BranchDTO>> handleSearch(String criteria) {
+    public ResponseEntity<Collection<BranchDTO>> search(String criteria) {
         
         try {
             return ResponseEntity.ok(branchService.search(criteria));
             
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            // logger.error(e.getMessage());
             e.printStackTrace();
             throw e;
         }

@@ -1,0 +1,176 @@
+<!-- Redesigned edit component using global styles -->
+<div class="edit-container">
+  <div class="breadcrumb-section">
+    <mat-icon class="breadcrumb-icon">home</mat-icon>
+    <span class="breadcrumb-text">{{ 'home' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text">{{ 'invoice.title' | translate }}</span>
+    <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+    <span class="breadcrumb-text active">{{ 'edit.invoice.title' | translate }}</span>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h2 class="page-title">
+        <mat-icon>receipt</mat-icon>
+        {{ 'edit.invoice.title' | translate }}
+      </h2>
+    </div>
+    <div class="action-buttons">
+      <button mat-stroked-button color="primary" (click)="editInvoiceSearch()">
+        <mat-icon>search</mat-icon>
+        <span>{{ 'search' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+  <div class="loading-overlay">
+    <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+  </div>
+  }
+
+  <!-- Form Content -->
+  <div class="form-container">
+    <form class="edit-form">
+      <!-- Invoice Details -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>info</mat-icon>
+            {{ 'invoice.details' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="organisation_label" for="organisation">
+                <span translate>organisation</span>
+              </mat-label>
+              <mat-select id="organisation" [compareWith]="organisationCompare"
+                [formField]="editInvoiceSignalForm.organisation">
+                <mat-option>
+                  <ngx-mat-select-search placeholderLabel="Search" [formField]="editInvoiceSignalForm.organisationFilter"
+                    (keyup.enter)="filterOrganisation()" noEntriesFoundLabel="'No Entries Found'"></ngx-mat-select-search>
+                </mat-option>
+                @for(item of organisationFilteredList(); track item) {
+                <mat-option [value]="item">
+                  {{ item.name }}
+                </mat-option>
+                }
+              </mat-select>
+              @for (error of editInvoiceSignalForm.organisation().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="ref_label" for="ref">
+                <span translate>ref</span>
+              </mat-label>
+              <input matInput type="text" id="ref" [formField]="editInvoiceSignalForm.ref" />
+            </mat-form-field>
+
+            <mat-form-field class="field-half">
+              <mat-label id="subscriptionPeriod_label" for="subscriptionPeriod">
+                <span translate>subscription.period</span>
+              </mat-label>
+              <mat-select id="subscriptionPeriod" [formField]="editInvoiceSignalForm.subscriptionPeriod">
+                <mat-option></mat-option>
+                @for(key of TimePeriodOptions; track key) {
+                <mat-option [value]="key">
+                  {{ TimePeriodT[key] }}
+                </mat-option>
+                }
+              </mat-select>
+              @for (error of editInvoiceSignalForm.subscriptionPeriod().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="startDate_label" for="startDate">
+                <span translate>start.date</span>
+              </mat-label>
+              <input matInput type="date" id="startDate" [formField]="editInvoiceSignalForm.startDate" />
+            </mat-form-field>
+
+            <mat-form-field class="field-half">
+              <mat-label id="endDate_label" for="endDate">
+                <span translate>end.date</span>
+              </mat-label>
+              <input matInput type="date" id="endDate" [formField]="editInvoiceSignalForm.endDate" />
+            </mat-form-field>
+          </div>
+
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="amount_label" for="amount">
+                <span translate>amount</span>
+              </mat-label>
+              <input matInput type="number" id="amount" [formField]="editInvoiceSignalForm.amount" />
+              @for (error of editInvoiceSignalForm.amount().errors(); track error) {
+              <mat-error translate>{{error.message}}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Payment Information -->
+      <mat-card class="form-section">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>payment</mat-icon>
+            {{ 'payment.information' | translate }}
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="field-row">
+            <mat-checkbox id="paid" [formField]="editInvoiceSignalForm.paid" (click)="$event.preventDefault()">
+              <span translate>paid</span>
+            </mat-checkbox>
+          </div>
+
+          <div class="field-row">
+            <mat-form-field class="field-half">
+              <mat-label id="paymentDate_label" for="paymentDate">
+                <span translate>payment.date</span>
+              </mat-label>
+              <input matInput type="date" id="paymentDate" [formField]="editInvoiceSignalForm.paymentDate" />
+            </mat-form-field>
+
+            <mat-form-field class="field-half">
+              <mat-label id="paymentReference_label" for="paymentReference">
+                <span translate>payment.reference</span>
+              </mat-label>
+              <input matInput type="text" id="paymentReference" [formField]="editInvoiceSignalForm.paymentReference" />
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Form Actions (Bottom) -->
+      <div class="form-actions">
+        <button mat-raised-button type="button" color="primary" class="action-primary" (click)="editInvoiceSave()">
+          <mat-icon>save</mat-icon>
+          <span>{{ 'save' | translate }}</span>
+        </button>
+        <button mat-stroked-button type="button" color="warn" class="action-secondary" (click)="editInvoiceDelete()"
+          *ngIf="deleteUnrestricted()">
+          <mat-icon>delete</mat-icon>
+          <span>{{ 'delete' | translate }}</span>
+        </button>
+        <button mat-stroked-button type="button" (click)="editInvoiceFormReset()" class="action-secondary">
+          <mat-icon>restore</mat-icon>
+          <span>{{ 'reset' | translate }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

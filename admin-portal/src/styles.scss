@@ -1,0 +1,1521 @@
+
+@use 'ngx-toastr/toastr';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "quill/dist/quill.snow.css";
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/Inter-Light.otf') format('opentype');
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/Inter-Regular.otf') format('opentype');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/Inter-Medium.otf') format('opentype');
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/Inter-SemiBold.otf') format('opentype');
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/Inter-Bold.otf') format('opentype');
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('/fonts/Inter-ExtraBold.otf') format('opentype');
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('/fonts/Roboto-Light.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('/fonts/Roboto-Regular.woff2') format('woff2'),
+        url('/fonts/Roboto-Regular.woff') format('woff');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('/fonts/Roboto-Medium.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('/fonts/Roboto-Bold.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
+:root {
+    --vault-primary: #001735;
+    --vault-primary-container: #0e2c52;
+    --vault-primary-fixed: #6f87a4;
+    --vault-error: #b3261e;
+
+    --vault-surface: #f7f9fb;
+    --vault-surface-variant: #d8dbe2;
+    --vault-surface-container-lowest: #ffffff;
+    --vault-surface-container-low: #f1f3f7;
+    --vault-surface-container: #eceef0;
+    --vault-surface-container-high: #e3e8ef;
+    --vault-surface-container-highest: #dce2ea;
+
+    --vault-on-surface: #191c1e;
+    --vault-on-surface-variant: #43474f;
+
+    --vault-secondary-container: #d2e4f7;
+    --vault-on-secondary-container: #0e2b4e;
+    --vault-error-container: #f4d5d8;
+    --vault-on-error-container: #5f0f17;
+
+    --vault-space-2_5: 0.5rem;
+    --vault-space-4: 0.9rem;
+    --vault-space-8: 1.75rem;
+    --vault-space-12: 2.75rem;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--vault-surface);
+    color: var(--vault-on-surface);
+}
+
+.search-results-card {
+    overflow: hidden;
+    border-radius: 1rem;
+}
+
+.search-results-table-wrap {
+    overflow-x: auto;
+}
+
+.search-results-table {
+    width: 100%;
+    min-width: 56rem;
+    background: transparent;
+}
+
+.search-results-table .mat-mdc-header-row,
+.search-results-table .mat-mdc-row,
+.search-results-table .mdc-data-table__content,
+.search-results-footer .mat-mdc-paginator,
+.search-results-footer .mat-mdc-paginator-container {
+    background: transparent;
+}
+
+.search-results-table .mat-mdc-header-row {
+    background: var(--vault-surface-container-low);
+}
+
+.search-results-table .mat-mdc-header-cell {
+    border-bottom: 0;
+    padding: 1rem 1.1rem;
+    color: var(--vault-on-surface-variant);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.search-results-table .mat-mdc-cell {
+    border-bottom: 1px solid rgb(196 198 208 / 18%);
+    padding: 1rem 1.1rem;
+    vertical-align: middle;
+    color: var(--vault-on-surface);
+}
+
+.search-results-table .mat-mdc-row {
+    transition: background-color 160ms ease;
+}
+
+.search-results-table .mat-mdc-row:hover .mat-mdc-cell {
+    background: var(--vault-surface-container-low);
+}
+
+.search-results-table .mat-column-actions,
+.search-results-table .cdk-column-actions {
+    text-align: right;
+}
+
+.search-results-table .empty-row .mat-mdc-cell,
+.search-results-table .empty-row .mat-cell {
+    padding: 2rem 1.25rem;
+    text-align: center;
+    border-bottom: 0;
+}
+
+.search-results-table .empty-state {
+    display: grid;
+    place-items: center;
+    gap: 0.5rem;
+    color: var(--vault-on-surface-variant);
+    text-align: center;
+}
+
+.search-results-table .empty-state h3,
+.search-results-table .empty-state p {
+    margin: 0;
+}
+
+.search-results-table .empty-state .mat-icon,
+.search-results-table .empty-state mat-icon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 2rem;
+    color: var(--vault-primary-container);
+}
+
+.search-results-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    border-top: 1px solid rgb(196 198 208 / 18%);
+    background: rgb(242 244 246 / 38%);
+}
+
+.search-results-summary {
+    margin: 0;
+    color: var(--vault-on-surface-variant);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.search-results-footer .mat-mdc-paginator-page-size-label,
+.search-results-footer .mat-mdc-paginator-range-label {
+    color: var(--vault-on-surface-variant);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.search-results-footer .mat-mdc-paginator-container {
+    min-height: auto;
+    padding: 0;
+    gap: 0.5rem;
+}
+
+.search-results-footer .mat-mdc-icon-button {
+    --mdc-icon-button-state-layer-size: 30px;
+}
+
+.mat-mdc-form-field {
+    --mat-form-field-focus-state-layer-opacity: 0;
+}
+
+@media (max-width: 960px) {
+    .search-results-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .search-results-table {
+        min-width: 42rem;
+    }
+
+    .search-results-table .mat-column-actions,
+    .search-results-table .cdk-column-actions {
+        text-align: left;
+    }
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-focus-overlay {
+    opacity: 0 !important;
+}
+
+.vault-field {
+    --mdc-outlined-text-field-outline-color: rgb(196 198 208 / 35%);
+    --mdc-outlined-text-field-hover-outline-color: rgb(116 119 128 / 45%);
+    --mdc-outlined-text-field-focus-outline-color: var(--vault-primary);
+    --mdc-outlined-text-field-caret-color: var(--vault-primary);
+    width: 100%;
+    display: block;
+}
+
+.vault-field .mdc-notched-outline__leading {
+    border-radius: 0.5rem 0 0 0.5rem;
+}
+
+.vault-field .mdc-notched-outline__trailing {
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.vault-field .mdc-notched-outline__notch {
+    border-top: 1px solid;
+}
+
+.vault-field .mat-mdc-text-field-wrapper {
+    background: var(--vault-surface-container-low) !important;
+    border-radius: 0.5rem !important;
+}
+
+.vault-field .mdc-notched-outline__leading,
+.vault-field .mdc-notched-outline__notch,
+.vault-field .mdc-notched-outline__trailing {
+    border-color: rgb(196 198 208 / 35%) !important;
+}
+
+.vault-field.mat-focused .mdc-notched-outline__leading,
+.vault-field.mat-focused .mdc-notched-outline__notch,
+.vault-field.mat-focused .mdc-notched-outline__trailing {
+    border-color: var(--vault-primary) !important;
+    border-width: 1.5px !important;
+}
+
+.vault-field.mat-form-field-invalid .mdc-notched-outline__leading,
+.vault-field.mat-form-field-invalid .mdc-notched-outline__notch,
+.vault-field.mat-form-field-invalid .mdc-notched-outline__trailing,
+.vault-field.mat-mdc-form-field-invalid .mdc-notched-outline__leading,
+.vault-field.mat-mdc-form-field-invalid .mdc-notched-outline__notch,
+.vault-field.mat-mdc-form-field-invalid .mdc-notched-outline__trailing,
+.vault-field.mat-form-field-invalid.mat-focused .mdc-notched-outline__leading,
+.vault-field.mat-form-field-invalid.mat-focused .mdc-notched-outline__notch,
+.vault-field.mat-form-field-invalid.mat-focused .mdc-notched-outline__trailing,
+.vault-field.mat-mdc-form-field-invalid.mat-focused .mdc-notched-outline__leading,
+.vault-field.mat-mdc-form-field-invalid.mat-focused .mdc-notched-outline__notch,
+.vault-field.mat-mdc-form-field-invalid.mat-focused .mdc-notched-outline__trailing {
+    border-color: var(--vault-error) !important;
+    border-width: 1.5px !important;
+}
+
+.vault-field .mat-mdc-form-field-infix {
+    min-height: 46px !important;
+    padding-top: 12px !important;
+    padding-bottom: 10px !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper,
+.mat-mdc-form-field.mat-mdc-form-field-has-icon-suffix.mat-focused .mat-mdc-text-field-wrapper,
+.mat-mdc-form-field.mat-mdc-form-field-has-icon-prefix.mat-focused .mat-mdc-text-field-wrapper {
+    box-shadow: none !important;
+    background-image: none;
+}
+
+.mat-mdc-form-field input.mat-mdc-input-element:focus,
+.mat-mdc-form-field input.mat-mdc-input-element:focus-visible,
+.mat-mdc-form-field textarea.mat-mdc-input-element:focus,
+.mat-mdc-form-field textarea.mat-mdc-input-element:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.vault-field input.mat-mdc-input-element,
+.vault-field textarea.mat-mdc-input-element,
+.vault-field .mat-mdc-select-value-text,
+.vault-field .mat-mdc-select-placeholder {
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: var(--vault-on-surface) !important;
+}
+
+.vault-field .mdc-floating-label {
+    color: var(--vault-on-surface-variant) !important;
+}
+
+.vault-textarea .mat-mdc-form-field-infix {
+    min-height: 100px !important;
+}
+
+.vault-textarea textarea.mat-mdc-input-element {
+    resize: none;
+}
+
+.mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__trailing,
+.mat-mdc-form-field.mat-mdc-form-field-invalid .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-mdc-form-field-invalid .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-mdc-form-field-invalid .mdc-notched-outline__trailing,
+.mat-mdc-form-field .mdc-text-field--invalid .mdc-notched-outline__leading,
+.mat-mdc-form-field .mdc-text-field--invalid .mdc-notched-outline__notch,
+.mat-mdc-form-field .mdc-text-field--invalid .mdc-notched-outline__trailing {
+    border-color: var(--vault-error) !important;
+}
+
+.mat-mdc-form-field.mat-form-field-invalid input.mat-mdc-input-element,
+.mat-mdc-form-field.mat-form-field-invalid textarea.mat-mdc-input-element,
+.mat-mdc-form-field.mat-form-field-invalid .mat-mdc-select-value-text,
+.mat-mdc-form-field.mat-form-field-invalid .mat-mdc-select-placeholder,
+.mat-mdc-form-field.mat-mdc-form-field-invalid input.mat-mdc-input-element,
+.mat-mdc-form-field.mat-mdc-form-field-invalid textarea.mat-mdc-input-element,
+.mat-mdc-form-field.mat-mdc-form-field-invalid .mat-mdc-select-value-text,
+.mat-mdc-form-field.mat-mdc-form-field-invalid .mat-mdc-select-placeholder,
+.mat-mdc-form-field .mdc-text-field--invalid input.mat-mdc-input-element,
+.mat-mdc-form-field .mdc-text-field--invalid textarea.mat-mdc-input-element,
+.mat-mdc-form-field .mdc-text-field--invalid .mat-mdc-select-value-text,
+.mat-mdc-form-field .mdc-text-field--invalid .mat-mdc-select-placeholder,
+.mat-mdc-form-field .mat-mdc-form-field-error,
+.error-message {
+    color: var(--vault-error) !important;
+}
+
+.vault-field .mat-mdc-form-field-subscript-wrapper,
+.compact-field .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}
+
+.emphasis-field .mat-mdc-text-field-wrapper {
+    background: rgba(213, 227, 252, 0.3) !important;
+}
+
+.emphasis-field .mdc-notched-outline__leading,
+.emphasis-field .mdc-notched-outline__notch,
+.emphasis-field .mdc-notched-outline__trailing {
+    border-color: #d5e3fc !important;
+    border-width: 2px !important;
+}
+
+.edit-page,
+.edit-page .editor-canvas,
+.edit-page .section-nav,
+.edit-page .stack-8,
+.edit-page .stack-6,
+.edit-page .stack-4,
+.edit-page .field-block,
+.edit-page .audit-list,
+.edit-page .preview-body,
+.edit-page .preview-lines,
+.edit-page .editor-section,
+.edit-page .fields-body {
+    display: grid
+}
+
+.edit-page,
+.edit-page .editor-canvas,
+.edit-page .stack-8 {
+    gap: var(--vault-space-8)
+}
+
+.edit-page .stack-6 {
+    gap: 1.5rem
+}
+
+.edit-page .stack-4,
+.edit-page .section-nav,
+.edit-page .audit-list,
+.edit-page .editor-section {
+    gap: var(--vault-space-4)
+}
+
+.edit-page .field-block,
+.edit-page .preview-body,
+.edit-page .preview-lines {
+    gap: .5rem
+}
+
+.edit-page .edit-header,
+.edit-page .header-actions,
+.edit-page .section-title-row,
+.edit-page .section-head-between,
+.edit-page .status-head,
+.edit-page .extraction-head,
+.edit-page .audit-item,
+.edit-page .preview-footer,
+.edit-page .section-link {
+    display: flex;
+    align-items: center
+}
+
+.edit-page .edit-header,
+.edit-page .section-head-between,
+.edit-page .preview-footer {
+    justify-content: space-between
+}
+
+.edit-page .workspace-grid {
+    display: grid;
+    grid-template-columns: 16rem minmax(0, 1fr) 18rem;
+    gap: var(--vault-space-8);
+    align-items: start
+}
+
+.edit-page .local-sidebar,
+.edit-page .helper-rail {
+    position: sticky;
+    top: var(--vault-space-8)
+}
+
+.edit-page .page-title,
+.edit-page .section-title,
+.edit-page .mini-title,
+.edit-page .audit-title {
+    color: var(--vault-primary)
+}
+
+.edit-page .page-title {
+    font-size: 2rem;
+    letter-spacing: -.02em
+}
+
+.edit-page .page-subtitle,
+.edit-page .status-copy,
+.edit-page .muted-copy,
+.edit-page .audit-time {
+    color: var(--vault-on-surface-variant)
+}
+
+.edit-page .page-subtitle {
+    margin-top: .35rem
+}
+
+.edit-page .panel-card,
+.edit-page .status-card,
+.edit-page .audit-card,
+.edit-page .preview-card,
+.edit-page .section-link-active {
+    background: var(--vault-surface-container-lowest);
+    border-radius: .75rem
+}
+
+.edit-page .panel-card,
+.edit-page .status-card,
+.edit-page .audit-card {
+    padding: var(--vault-space-8)
+}
+
+.edit-page .status-label,
+.edit-page .step-label,
+.edit-page .field-label,
+.edit-page .helper-title,
+.edit-page .helper-title-secondary,
+.edit-page .fields-head {
+    color: var(--vault-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-size: .75rem;
+    font-weight: 700
+}
+
+.edit-page .section-link {
+    gap: .7rem;
+    padding: .9rem 1rem;
+    color: var(--vault-on-surface-variant);
+    text-decoration: none
+}
+
+.edit-page .section-link-active {
+    color: var(--vault-primary);
+    box-shadow: 0 4px 20px rgb(25 28 30 / 4%), 0 8px 40px rgb(25 28 30 / 8%)
+}
+
+.edit-page .section-icon,
+.edit-page .status-mark,
+.edit-page .psychology-mark,
+.edit-page .preview-image {
+    display: grid;
+    place-items: center
+}
+
+.edit-page .section-icon {
+    width: 1rem;
+    font-size: .75rem
+}
+
+.edit-page .status-mark,
+.edit-page .psychology-mark {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px
+}
+
+.edit-page .status-card {
+    background: linear-gradient(135deg, var(--vault-primary-container), var(--vault-primary))
+}
+
+.edit-page .status-card .status-label,
+.edit-page .status-card .status-copy,
+.edit-page .status-card .status-mark {
+    color: #fff
+}
+
+.edit-page .status-mark {
+    background: rgb(255 255 255 /.18)
+}
+
+.edit-page .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--vault-space-4)
+}
+
+/* Harmonize the remaining edit routes with the organisation/subscription visual system. */
+.edit-page,
+.invoice-edit-page,
+.sequence-edit-page,
+.client-request-edit-page,
+.document-edit-page {
+    min-height: 100%;
+    padding: 1.5rem 2.5rem 4rem !important;
+    background:
+        radial-gradient(circle at top right, rgb(214 227 255 / 0.32), transparent 24rem),
+        linear-gradient(180deg, #fbfcfd 0%, var(--vault-surface) 15rem) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.edit-page .top-bar,
+.edit-page .edit-header,
+.invoice-edit-page .page-header,
+.sequence-edit-page .page-header,
+.client-request-edit-page .page-header,
+.document-edit-page .edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1.5rem;
+    margin-bottom: 2.25rem !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    backdrop-filter: none !important;
+}
+
+.edit-page .page-title,
+.invoice-edit-page .page-title-group h1,
+.sequence-edit-page h1,
+.client-request-edit-page .page-title,
+.document-edit-page .heading-row h1 {
+    margin: 0;
+    color: var(--vault-primary) !important;
+    font-size: clamp(1.9rem, 4vw, 2.6rem) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.04em !important;
+    line-height: 1.05 !important;
+    text-transform: none !important;
+}
+
+.edit-page .page-subtitle,
+.invoice-edit-page .page-title-group p,
+.sequence-edit-page .page-header p,
+.client-request-edit-page .page-subtitle,
+.document-edit-page .header-copy p {
+    margin-top: 0.6rem !important;
+    max-width: 46rem;
+    color: var(--vault-on-surface-variant) !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.6 !important;
+    text-transform: none !important;
+}
+
+.invoice-edit-page .page-shell,
+.document-edit-page .edit-shell,
+.client-request-edit-page .content-stack,
+.sequence-edit-page .page-grid,
+.edit-page .edit-form,
+.edit-page .workspace-shell {
+    width: 100%;
+    max-width: 80rem;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.edit-page .header-btns,
+.edit-page .top-actions,
+.invoice-edit-page .header-actions,
+.client-request-edit-page .header-actions,
+.document-edit-page .header-actions,
+.sequence-edit-page .sticky-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.edit-page .btn-cancel,
+.edit-page .cancel-btn,
+.invoice-edit-page .secondary-action,
+.client-request-edit-page .discard-btn,
+.document-edit-page .cancel-btn,
+.sequence-edit-page .sticky-actions button:first-child {
+    min-height: 2.8rem;
+    padding-inline: 1.2rem;
+    border-radius: 0.8rem !important;
+    background: var(--vault-surface-container) !important;
+    color: #515f74 !important;
+    border-color: transparent !important;
+    font-weight: 700 !important;
+    box-shadow: none !important;
+}
+
+.primary-action,
+.secondary-action {
+	min-height: 3rem;
+	border-radius: 0.75rem;
+}
+
+.primary-action {
+	color: #fff !important;
+	background: linear-gradient(135deg, #001735, #0e2c52) !important;
+}
+
+.edit-page .btn-save,
+.edit-page .save-btn,
+.invoice-edit-page .primary-action,
+.client-request-edit-page .save-btn,
+.document-edit-page .save-btn,
+.sequence-edit-page .sticky-actions button:last-child,
+.sequence-edit-page .add-part-button,
+.document-type-edit-page .btn-save {
+    min-height: 2.8rem;
+    padding-inline: 1.35rem;
+    border-radius: 0.8rem !important;
+    background: var(--vault-primary) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    box-shadow: 0 10px 24px rgb(0 23 53 / 14%) !important;
+}
+
+.edit-page .vault-card,
+.invoice-edit-page .vault-card,
+.sequence-edit-page .vault-card,
+.client-request-edit-page .audit-card,
+.client-request-edit-page .panel-card,
+.client-request-edit-page .status-card,
+.document-edit-page .edit-card {
+    border: 0 !important;
+    border-radius: 1rem !important;
+    background: rgb(255 255 255 / 88%) !important;
+    box-shadow: 0 4px 20px rgb(25 28 30 / 4%), 0 8px 40px rgb(25 28 30 / 8%) !important;
+    backdrop-filter: blur(18px);
+}
+
+.edit-page .section-header,
+.invoice-edit-page .section-heading,
+.sequence-edit-page .section-label,
+.client-request-edit-page .section-heading,
+.document-edit-page .section-head {
+    margin-bottom: 1.35rem !important;
+}
+
+.edit-page .section-header h2,
+.invoice-edit-page .section-heading h2,
+.sequence-edit-page .section-label,
+.client-request-edit-page .section-heading h2,
+.document-edit-page .section-head h2,
+.edit-page .field-block label,
+.invoice-edit-page .field-label,
+.sequence-edit-page .field-label,
+.client-request-edit-page .result-list-label,
+.client-request-edit-page .status-label,
+.document-edit-page .field-label,
+.document-type-edit-page .form-label {
+    color: var(--vault-on-surface-variant) !important;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+}
+
+.edit-page .toggle-card,
+.edit-page .summary-chip-row,
+.client-request-edit-page .selected-target,
+.invoice-edit-page .audit-item,
+.sequence-edit-page .draft-badge,
+.document-edit-page .compliance-panel {
+    border-radius: 0.9rem !important;
+}
+
+.sequence-edit-page .draft-badge,
+.invoice-edit-page .title-mark,
+.client-request-edit-page .page-subtitle {
+    background: var(--vault-secondary-container) !important;
+    color: var(--vault-on-secondary-container) !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px !important;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    width: fit-content;
+}
+
+.client-request-edit-page .page-subtitle {
+    margin-top: 0.75rem !important;
+}
+
+.sequence-edit-page .sticky-footer,
+.client-request-edit-page .page-footer,
+.document-edit-page .trust-footer,
+.edit-page .footer-stamp {
+    width: 100%;
+    max-width: 80rem;
+    margin: 1.5rem auto 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgb(196 198 208 / 0.3);
+    color: var(--vault-on-surface-variant);
+}
+
+@media (max-width: 960px) {
+    .edit-page,
+    .invoice-edit-page,
+    .sequence-edit-page,
+    .client-request-edit-page,
+    .document-edit-page {
+        padding: 1.25rem 1rem 3rem !important;
+    }
+
+    .edit-page .top-bar,
+    .edit-page .edit-header,
+    .invoice-edit-page .page-header,
+    .sequence-edit-page .page-header,
+    .client-request-edit-page .page-header,
+    .document-edit-page .edit-header,
+    .sequence-edit-page .sticky-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .edit-page .header-btns,
+    .edit-page .top-actions,
+    .invoice-edit-page .header-actions,
+    .client-request-edit-page .header-actions,
+    .document-edit-page .header-actions,
+    .sequence-edit-page .sticky-actions {
+        justify-content: stretch;
+    }
+
+    .edit-page .header-btns > *,
+    .edit-page .top-actions > *,
+    .invoice-edit-page .header-actions > *,
+    .client-request-edit-page .header-actions > *,
+    .document-edit-page .header-actions > *,
+    .sequence-edit-page .sticky-actions > * {
+        flex: 1;
+    }
+}
+.edit-page .btn-secondary,
+.edit-page .add-btn,
+.edit-page .text-action,
+.edit-page .delete-btn {
+    font: inherit
+}
+
+.edit-page .field-input,
+.edit-page .table-input,
+.edit-page .format-select {
+    width: 100%;
+    padding: .9rem 1rem;
+    border: 1px solid rgb(196 198 208 / 20%);
+    border-radius: .75rem;
+    background: var(--vault-surface-container-low);
+    color: var(--vault-on-surface)
+}
+
+.edit-page .field-input:focus-visible,
+.edit-page .table-input:focus-visible,
+.edit-page .format-select:focus-visible {
+    outline: none;
+    border-color: var(--vault-primary);
+    box-shadow: 0 0 0 2px rgb(111 135 164 / 30%)
+}
+
+:host ::ng-deep .vault-field input.mat-mdc-input-element:focus,
+:host ::ng-deep .vault-field input.mat-mdc-input-element:focus-visible,
+:host ::ng-deep .vault-field textarea.mat-mdc-input-element:focus,
+:host ::ng-deep .vault-field textarea.mat-mdc-input-element:focus-visible {
+	outline: none;
+	box-shadow: none;
+}
+
+.edit-page .field-input-mono,
+.edit-page .table-input {
+    font-family: ui-monospace, 'SFMono-Regular', 'SF Mono', Consolas, 'Liberation Mono', monospace
+}
+
+.edit-page .field-textarea {
+    resize: vertical
+}
+
+.edit-page .btn-primary,
+.edit-page .add-btn {
+    border: 0;
+    background: linear-gradient(135deg, var(--vault-primary), var(--vault-primary-container));
+    color: #fff
+}
+
+.edit-page .btn-primary,
+.edit-page .btn-secondary,
+.edit-page .add-btn,
+.edit-page .text-action {
+    padding: .85rem 1rem;
+    cursor: pointer
+}
+
+.edit-page .btn-secondary,
+.edit-page .text-action {
+    border: 0;
+    background: var(--vault-surface-container);
+    color: var(--vault-on-surface-variant)
+}
+
+.edit-page .fields-head,
+.edit-page .fields-row {
+    display: grid;
+    grid-template-columns: 2fr .8fr .9fr 1.4fr .5fr;
+    gap: var(--vault-space-4);
+    align-items: center
+}
+
+.edit-page .fields-row {
+    padding: var(--vault-space-4) 0
+}
+
+.edit-page .centered {
+    text-align: center
+}
+
+.edit-page .row-action-wrap {
+    display: flex;
+    justify-content: end
+}
+
+.edit-page .delete-btn {
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    background: transparent;
+    color: var(--vault-on-error-container)
+}
+
+.edit-page .prompt-card {
+    display: grid;
+    grid-template-columns: 13rem 1fr;
+    gap: var(--vault-space-8)
+}
+
+.edit-page .prompt-card-accent {
+    box-shadow: inset 4px 0 0 rgb(0 23 53 / 10%)
+}
+
+.edit-page .select-input,
+.edit-page .format-select {
+    appearance: none
+}
+
+.edit-page .psychology-mark {
+    background: color-mix(in srgb, var(--vault-secondary-container) 30%, transparent);
+    color: var(--vault-primary)
+}
+
+.edit-page .preview-card {
+    overflow: hidden
+}
+
+.edit-page .preview-head,
+.edit-page .preview-footer,
+.edit-page .preview-body {
+    padding: 1rem
+}
+
+.edit-page .preview-head span,
+.edit-page .preview-lines span,
+.edit-page .preview-pill {
+    display: block;
+    height: .45rem;
+    border-radius: 999px;
+    background: var(--vault-surface-container-high)
+}
+
+.edit-page .preview-head span {
+    width: 50%
+}
+
+.edit-page .preview-image {
+    min-height: 6rem;
+    border-radius: .75rem;
+    background: color-mix(in srgb, var(--vault-surface-container) 50%, transparent);
+    color: rgb(25 28 30 / 20%);
+    font-size: 2rem
+}
+
+.edit-page .preview-lines span:nth-child(2) {
+    width: 80%
+}
+
+.edit-page .preview-lines span:nth-child(3) {
+    width: 66%
+}
+
+.edit-page .preview-footer {
+    background: color-mix(in srgb, var(--vault-surface-container-high) 30%, transparent)
+}
+
+.edit-page .preview-dot {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: rgb(0 23 53 / 10%)
+}
+
+.edit-page .preview-pill {
+    width: 5rem;
+    height: 1.5rem;
+    background: rgb(0 23 53 / 10%)
+}
+
+.edit-page .audit-list {
+    list-style: none;
+    padding: 0;
+    margin: 0
+}
+
+.edit-page .audit-item {
+    gap: var(--vault-space-4)
+}
+
+.edit-page .audit-dot {
+    width: .45rem;
+    height: .45rem;
+    margin-top: .35rem;
+    border-radius: 999px;
+    background: var(--vault-primary-fixed)
+}
+
+.edit-page .audit-time {
+    margin-top: .2rem;
+    font-size: .8rem
+}
+
+@media (max-width:1320px) {
+    .edit-page .workspace-grid {
+        grid-template-columns: 14rem minmax(0, 1fr)
+    }
+
+    .edit-page .helper-rail {
+        grid-column: 1/-1;
+        position: static
+    }
+}
+
+@media (max-width:1080px) {
+
+    .edit-page .workspace-grid,
+    .edit-page .prompt-card,
+    .edit-page .field-grid,
+    .edit-page .fields-head,
+    .edit-page .fields-row {
+        grid-template-columns: 1fr
+    }
+
+    .edit-page .local-sidebar,
+    .edit-page .helper-rail {
+        position: static
+    }
+
+    .edit-page .centered,
+    .edit-page .row-action-wrap {
+        text-align: left;
+        justify-content: start
+    }
+}
+
+@media (max-width:720px) {
+
+	.header-btns {
+		justify-content: stretch;
+	}
+
+	.header-btns .mdc-button {
+		flex: 1;
+	}
+
+    .edit-page .edit-header,
+    .edit-page .header-actions,
+    .edit-page .section-head-between {
+        flex-direction: column;
+        align-items: stretch
+    }
+
+    .edit-page .panel-card,
+    .edit-page .status-card,
+    .edit-page .audit-card {
+        padding: var(--vault-space-4)
+    }
+}
+
+.documents-page,
+.documents-page .search-grid,
+.documents-page .search-side,
+.documents-page .results-card,
+.documents-page .table-body,
+.documents-page .vault-grid,
+.documents-page .field-block {
+    display: grid
+}
+
+.documents-page,
+.documents-page .results-card {
+    gap: var(--vault-space-8)
+}
+
+.documents-page .search-side,
+.documents-page .field-block {
+    gap: var(--vault-space-4)
+}
+
+.documents-page .search-grid,
+.documents-page .vault-grid {
+    gap: 1.5rem
+}
+
+.documents-page .documents-header,
+.documents-page .results-head,
+.documents-page .results-footer,
+.documents-page .file-cell,
+.documents-page .actions-cell {
+    display: flex;
+    align-items: center
+}
+
+.documents-page .results-head,
+.documents-page .results-footer {
+    justify-content: space-between
+}
+
+.documents-page .documents-header,
+.documents-page .file-cell,
+.documents-page .actions-cell {
+    gap: var(--vault-space-4)
+}
+
+.documents-page .page-title,
+.documents-page .results-title,
+.documents-page .vault-content h3 {
+    margin: 0;
+    color: var(--vault-primary);
+    letter-spacing: -.02em
+}
+
+.documents-page .page-title {
+    font-size: 2.2rem;
+    text-transform: uppercase
+}
+
+.documents-page .page-copy,
+.documents-page .muted-text,
+.documents-page .footer-note,
+.documents-page .vault-content p {
+    margin: 0;
+    color: var(--vault-on-surface-variant);
+    line-height: 1.55
+}
+
+.documents-page .page-copy {
+    max-width: 42rem
+}
+
+.documents-page .header-mark,
+.documents-page .search-panel,
+.documents-page .results-card,
+.documents-page .table-row,
+.documents-page .vault-card {
+    border-radius: .75rem
+}
+
+.documents-page .search-panel,
+.documents-page .results-card,
+.documents-page .table-row {
+    background: var(--vault-surface-container-lowest)
+}
+
+.documents-page .search-panel,
+.documents-page .results-head,
+.documents-page .results-footer {
+    padding: var(--vault-space-8)
+}
+
+.documents-page .header-mark {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: grid;
+    place-items: center;
+    background: var(--vault-primary);
+    color: #fff;
+    font-size: 1.1rem
+}
+
+.documents-page .search-grid {
+    grid-template-columns: 2fr 1fr
+}
+
+.documents-page .search-main {
+    display: grid;
+    gap: var(--vault-space-4)
+}
+
+.documents-page .dual-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--vault-space-4)
+}
+
+.documents-page .field-label,
+.documents-page .table-head,
+.documents-page .results-chip {
+    color: var(--vault-on-surface-variant);
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-weight: 700
+}
+
+.documents-page .field-input,
+.documents-page .execute-btn,
+.documents-page .icon-action,
+.documents-page .page-btn {
+    font: inherit
+}
+
+.documents-page .field-input {
+    width: 100%;
+    padding: .9rem 1rem;
+    border: 1px solid rgb(196 198 208 / 20%);
+    border-radius: .5rem;
+    background: var(--vault-surface-container-low);
+    color: var(--vault-on-surface)
+}
+
+// .documents-page .field-input:focus-visible {
+//     outline: none;
+//     border-color: var(--vault-primary);
+//     box-shadow: 0 0 0 2px rgb(111 135 164 / 30%)
+// }
+
+.documents-page .execute-btn {
+    padding: 1rem;
+    border: 0;
+    border-radius: .5rem;
+    background: linear-gradient(135deg, var(--vault-primary), var(--vault-primary-container));
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer
+}
+
+.documents-page .results-chip {
+    padding: .35rem .7rem;
+    border-radius: 999px;
+    background: var(--vault-surface-container);
+    font-size: .65rem
+}
+
+.documents-page .results-table {
+    display: grid
+}
+
+.documents-page .table-head,
+.documents-page .table-row {
+    display: grid;
+    grid-template-columns: 2.1fr 1.5fr 1.4fr 1fr .8fr;
+    gap: var(--vault-space-4);
+    align-items: center
+}
+
+.documents-page .table-head {
+    padding: 0 var(--vault-space-8);
+    background: var(--vault-surface-container-low)
+}
+
+.documents-page .table-head p,
+.documents-page .table-row p,
+.documents-page .results-title,
+.documents-page .vault-content h3 {
+    margin: 0
+}
+
+.documents-page .table-row {
+    padding: 1.2rem var(--vault-space-8);
+    border-radius: 0
+}
+
+.documents-page .table-row:hover {
+    background: var(--vault-surface-container-high)
+}
+
+.documents-page .file-icon {
+    width: 1.2rem;
+    text-align: center;
+    color: var(--vault-primary-fixed)
+}
+
+.documents-page .file-icon-flagged {
+    color: var(--vault-on-error-container)
+}
+
+.documents-page .file-name {
+    color: var(--vault-on-surface);
+    font-weight: 500
+}
+
+.documents-page .status-badge {
+    display: inline-flex;
+    padding: .35rem .55rem;
+    border-radius: 999px;
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase
+}
+
+.documents-page .status-verified {
+    color: var(--vault-on-secondary-container);
+    background: var(--vault-secondary-container)
+}
+
+.documents-page .status-pending {
+    color: #fff3e0;
+    background: rgb(255 179 0 / 15%)
+}
+
+.documents-page .status-flagged {
+    color: var(--vault-on-error-container);
+    background: var(--vault-error-container)
+}
+
+.documents-page .align-end {
+    text-align: right
+}
+
+.documents-page .actions-cell {
+    justify-content: end
+}
+
+.documents-page .icon-action,
+.documents-page .page-btn {
+    border: 0;
+    background: transparent;
+    color: var(--vault-on-surface-variant);
+    cursor: pointer
+}
+
+.documents-page .page-btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: .35rem
+}
+
+.documents-page .page-btn-active {
+    background: var(--vault-primary);
+    color: #fff
+}
+
+.documents-page .pagination {
+    display: flex;
+    gap: .25rem
+}
+
+.documents-page .vault-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr))
+}
+
+.documents-page .vault-card {
+    position: relative;
+    min-height: 7rem;
+    overflow: hidden;
+    background: linear-gradient(135deg, #081d3d, #163764)
+}
+
+.documents-page .vault-card-alt {
+    background: linear-gradient(135deg, #94a3b8, #233a5d)
+}
+
+.documents-page .vault-card-portrait {
+    background: linear-gradient(135deg, #0c1831, #10294d)
+}
+
+.documents-page .vault-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent, rgb(0 23 53 /.78))
+}
+
+.documents-page .vault-content {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1
+}
+
+.documents-page .vault-content h3,
+.documents-page .vault-content p {
+    color: #fff
+}
+
+.documents-page .vault-content p {
+    font-size: .75rem;
+    opacity: .75
+}
+
+@media (max-width:1080px) {
+
+    .documents-page .search-grid,
+    .documents-page .vault-grid,
+    .documents-page .dual-fields,
+    .documents-page .table-head,
+    .documents-page .table-row {
+        grid-template-columns: 1fr
+    }
+
+    .documents-page .align-end,
+    .documents-page .actions-cell {
+        text-align: left;
+        justify-content: start
+    }
+}
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+
+.header-btns {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.btn-cancel.mdc-button {
+	font-size: 0.8rem;
+	font-weight: 700;
+	color: #515f74;
+	background: #eceef0;
+	border-radius: 8px;
+	padding: 0 1.5rem;
+	height: 40px;
+
+	&:hover {
+		background: #e0e3e5;
+	}
+}
+
+.error-message {
+	position: absolute;
+	bottom: 0.1rem;
+	left: 0;
+	margin: 0;
+	font-size: 0.7rem;
+	line-height: 1.4;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 100%;
+}
+
+.btn-save.mdc-button {
+	font-size: 0.8rem;
+	font-weight: 700;
+	background: #001735;
+	color: #fff;
+	border-radius: 8px;
+	padding: 0 2rem;
+	height: 40px;
+
+	&:hover {
+		background: #0e2c52;
+	}
+}
+
+
+.page-shell {
+	display: grid;
+	gap: 1.5rem;
+	max-width: 68rem;
+	margin: 0 auto;
+	width: 100%;
+}
+
+.vault-card {
+	border: 0;
+	border-radius: 1rem;
+	background: #fff;
+	box-shadow: 0 4px 20px rgba(25, 28, 30, 0.04);
+}
+
+.section-heading {
+	margin-bottom: 1.25rem;
+}
+
+.section-heading h2,
+.field-label,
+.audit-label {
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.section-heading h2 {
+	color: #43474f;
+}
+
+.field-grid,
+.split-grid,
+.audit-grid {
+	display: grid;
+	gap: 1rem;
+}
+
+.field-grid.two-column,
+.split-grid,
+.audit-grid {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}

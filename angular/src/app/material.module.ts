@@ -8,12 +8,11 @@
 
 import { NgModule } from '@angular/core';
 import {
-  MatCommonModule,
   MatLineModule,
   MatNativeDateModule,
   MatOptionModule,
   MatPseudoCheckboxModule,
-  MatRippleModule
+  MatRippleModule,
 } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -59,7 +58,6 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
     MatCardModule,
     MatCheckboxModule,
     MatChipsModule,
-    MatCommonModule,
     MatDatepickerModule,
     MatDialogModule,
     MatDividerModule,
@@ -91,7 +89,7 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
     MatToolbarModule,
     MatTooltipModule,
     MatTreeModule,
-    NgxMatSelectSearchModule
-  ]
+    NgxMatSelectSearchModule,
+  ],
 })
-export class MaterialModule { }
+export class MaterialModule {}

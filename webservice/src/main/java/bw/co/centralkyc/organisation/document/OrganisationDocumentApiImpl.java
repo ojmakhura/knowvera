@@ -15,19 +15,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class OrganisationDocumentApiImpl extends OrganisationDocumentApiBase {
+public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
+
+    private final OrganisationDocumentService organisationDocumentService;
     
     public OrganisationDocumentApiImpl(
         OrganisationDocumentService organisationDocumentService    ) {
         
-        super(
-            organisationDocumentService        );
+        this.organisationDocumentService = organisationDocumentService;
     }
 
 
 
     @Override
-    public ResponseEntity<OrganisationDocumentDTO> handleFindById(String id) throws Exception {
+    public ResponseEntity<OrganisationDocumentDTO> findById(String id) throws Exception {
         try {
             return ResponseEntity.ok(organisationDocumentService.findById(id));
         } catch (Exception e) {
@@ -39,7 +40,7 @@ public class OrganisationDocumentApiImpl extends OrganisationDocumentApiBase {
 
 
     @Override
-    public ResponseEntity<Collection<OrganisationDocumentDTO>> handleFindByOrganisation(String organisationId) throws Exception {
+    public ResponseEntity<Collection<OrganisationDocumentDTO>> findByOrganisation(String organisationId) throws Exception {
         try {
             return ResponseEntity.ok(organisationDocumentService.findByOrganisation(organisationId));
         } catch (Exception e) {
@@ -51,7 +52,7 @@ public class OrganisationDocumentApiImpl extends OrganisationDocumentApiBase {
 
 
     @Override
-    public ResponseEntity<Page<OrganisationDocumentDTO>> handleFindByOrganisationPaged(String organisationId, Integer pageNumber, Integer pageSize) throws Exception {
+    public ResponseEntity<Page<OrganisationDocumentDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber, Integer pageSize) throws Exception {
         try {
             return ResponseEntity.ok(organisationDocumentService.findByOrganisation(organisationId, pageNumber, pageSize));
         } catch (Exception e) {
@@ -63,7 +64,7 @@ public class OrganisationDocumentApiImpl extends OrganisationDocumentApiBase {
 
 
     @Override
-    public ResponseEntity<Collection<OrganisationDocumentDTO>> handleFindByStatus(OrganisationDocumentStatus status) throws Exception {
+    public ResponseEntity<Collection<OrganisationDocumentDTO>> findByStatus(OrganisationDocumentStatus status) throws Exception {
         try {
             return ResponseEntity.ok(organisationDocumentService.findByStatus(status));
         } catch (Exception e) {
@@ -75,7 +76,7 @@ public class OrganisationDocumentApiImpl extends OrganisationDocumentApiBase {
 
 
     @Override
-    public ResponseEntity<Page<OrganisationDocumentDTO>> handleFindByStatusPaged(OrganisationDocumentStatus status, Integer pageNumber, Integer pageSize) throws Exception {
+    public ResponseEntity<Page<OrganisationDocumentDTO>> findByStatusPaged(OrganisationDocumentStatus status, Integer pageNumber, Integer pageSize) throws Exception {
         try {
             return ResponseEntity.ok(organisationDocumentService.findByStatus(status, pageNumber, pageSize));
         } catch (Exception e) {
@@ -87,7 +88,7 @@ public class OrganisationDocumentApiImpl extends OrganisationDocumentApiBase {
 
 
     @Override
-    public ResponseEntity<Collection<OrganisationDocumentDTO>> handleGetAll() throws Exception {
+    public ResponseEntity<Collection<OrganisationDocumentDTO>> getAll() throws Exception {
         try {
             return ResponseEntity.ok(organisationDocumentService.getAll());
         } catch (Exception e) {
@@ -99,7 +100,7 @@ public class OrganisationDocumentApiImpl extends OrganisationDocumentApiBase {
 
 
     @Override
-    public ResponseEntity<Page<OrganisationDocumentDTO>> handleGetAllPaged(Integer pageNumber, Integer pageSize) throws Exception {
+    public ResponseEntity<Page<OrganisationDocumentDTO>> getAllPaged(Integer pageNumber, Integer pageSize) throws Exception {
         try {
             return ResponseEntity.ok(organisationDocumentService.getAll(pageNumber, pageSize));
         } catch (Exception e) {
@@ -111,7 +112,7 @@ public class OrganisationDocumentApiImpl extends OrganisationDocumentApiBase {
 
 
     @Override
-    public ResponseEntity<Page<OrganisationDocumentDTO>> handlePagedSearch(SearchObject<OrganisationDocumentSearchCriteria> criteria) throws Exception {
+    public ResponseEntity<Page<OrganisationDocumentDTO>> pagedSearch(SearchObject<OrganisationDocumentSearchCriteria> criteria) throws Exception {
         try {
             return ResponseEntity.ok(organisationDocumentService.search(criteria));
         } catch (Exception e) {
@@ -123,7 +124,7 @@ public class OrganisationDocumentApiImpl extends OrganisationDocumentApiBase {
 
 
     @Override
-    public ResponseEntity<Boolean> handleRemove(String id) throws Exception {
+    public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
             return ResponseEntity.ok(organisationDocumentService.remove(id));
         } catch (Exception e) {
@@ -135,7 +136,7 @@ public class OrganisationDocumentApiImpl extends OrganisationDocumentApiBase {
 
 
     @Override
-    public ResponseEntity<OrganisationDocumentDTO> handleSave(OrganisationDocumentDTO clientRequest) throws Exception {
+    public ResponseEntity<OrganisationDocumentDTO> save(OrganisationDocumentDTO clientRequest) throws Exception {
         try {
             
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -150,9 +151,9 @@ public class OrganisationDocumentApiImpl extends OrganisationDocumentApiBase {
 
 
     @Override
-    public ResponseEntity<Collection<OrganisationDocumentDTO>> handleSearch(SearchObject<OrganisationDocumentSearchCriteria> criteria) throws Exception {
+    public ResponseEntity<Collection<OrganisationDocumentDTO>> search(SearchObject<OrganisationDocumentSearchCriteria> criteria) throws Exception {
         try {
-            return ResponseEntity.ok(organisationDocumentService.search(criteria.getCriteria(), criteria.getSortings()));
+            return ResponseEntity.ok(null);
         } catch (Exception e) {
 
             e.printStackTrace();
