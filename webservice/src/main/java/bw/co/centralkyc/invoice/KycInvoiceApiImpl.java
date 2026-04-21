@@ -20,8 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 import bw.co.centralkyc.AuditTracker;
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
+@Tag(name = "KYC Invoices", description = "Operations related to KYC invoices.")
 public class KycInvoiceApiImpl implements KycInvoiceApi {
 
     private final KycInvoiceService kycInvoiceService;
@@ -33,6 +36,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Invoice by ID", description = "Find a KYC invoice by its ID")
     public ResponseEntity<KycInvoiceDTO> findById(String id) throws Exception {
         try {
             KycInvoiceDTO invoice = kycInvoiceService.findById(id);
@@ -46,6 +50,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     }
 
     @Override
+    @Operation(summary = "Get All KYC Invoices", description = "Get all KYC invoices")
     public ResponseEntity<Collection<KycInvoiceDTO>> getAll() throws Exception {
         try {
             Collection<KycInvoiceDTO> invoices = kycInvoiceService.getAll();
@@ -58,6 +63,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     }
 
     @Override
+    @Operation(summary = "Get All KYC Invoices Paged", description = "Get all KYC invoices with pagination")
     public ResponseEntity<Page<KycInvoiceDTO>> getAllPaged(Integer pageNumber, Integer pageSize) throws Exception {
         try {
             Page<KycInvoiceDTO> invoices = kycInvoiceService.getAll(pageNumber, pageSize);
@@ -70,6 +76,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     }
 
     @Override
+    @Operation(summary = "Paged Search KYC Invoices", description = "Search KYC invoices with pagination")
     public ResponseEntity<Page<KycInvoiceDTO>> pagedSearch(SearchObject<InvoiceSearchCriteria> criteria) throws Exception {
         try {
             Page<KycInvoiceDTO> invoices = kycInvoiceService.search(criteria);
@@ -82,6 +89,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     }
 
     @Override
+    @Operation(summary = "Remove KYC Invoice", description = "Remove a KYC invoice by its ID")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
             return ResponseEntity.ok(kycInvoiceService.remove(id));
@@ -93,6 +101,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     }
 
     @Override
+    @Operation(summary = "Save KYC Invoice", description = "Save a KYC invoice. If the ID is not provided, a new invoice will be created.")
     public ResponseEntity<KycInvoiceDTO> save(KycInvoiceDTO invoice) throws Exception {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -107,6 +116,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     }
 
     @Override
+    @Operation(summary = "Search KYC Invoices", description = "Search KYC invoices by criteria")
     public ResponseEntity<Collection<KycInvoiceDTO>> search(SearchObject<InvoiceSearchCriteria> criteria) throws Exception {
         try {
 
@@ -124,6 +134,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     }
 
     @Override
+    @Operation(summary = "Upload KYC Invoice", description = "Upload a file for a KYC invoice")
     public ResponseEntity<KycInvoiceDTO> upload(String id, UploadPurpose purpose, MultipartFile file)
             throws Exception {
         // TODO Auto-generated method stub
@@ -131,6 +142,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     }
 
     @Override
+    @Operation(summary = "Generate KYC Invoice", description = "Generate KYC invoices for a subscription")
     public ResponseEntity<Collection<KycInvoiceDTO>> generateInvoice(String subscriptionId) throws Exception {
         
         try {
@@ -152,6 +164,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Invoices by Organisation", description = "Find all KYC invoices for a given organisation ID")
     public ResponseEntity<Collection<KycInvoiceDTO>> findByOrganisation(String organisationId) throws Exception {
         
         try {
@@ -166,6 +179,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Invoices by Subscription", description = "Find all KYC invoices for a given subscription ID")
     public ResponseEntity<Collection<KycInvoiceDTO>> findBySubscription(String subscriptionId) throws Exception {
         
         try {
@@ -181,6 +195,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Invoices by Organisation Paged", description = "Find all KYC invoices for a given organisation ID with pagination")
     public ResponseEntity<Page<KycInvoiceDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber,
             Integer pageSize) throws Exception {
         
@@ -197,6 +212,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Invoices by Subscription Paged", description = "Find all KYC invoices for a given subscription ID with pagination")
     public ResponseEntity<Page<KycInvoiceDTO>> findBySubscriptionPaged(String subscriptionId, Integer pageNumber,
             Integer pageSize) throws Exception {
         

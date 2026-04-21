@@ -25,6 +25,36 @@
 	margin-bottom: var(--vault-space-12);
 }
 
+.page-breadcrumb {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	margin-bottom: 0.4rem;
+	color: var(--vault-on-surface-variant);
+	font-size: 0.7rem;
+	font-weight: 600;
+
+	a {
+		color: inherit;
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	.mat-icon {
+		width: 0.9rem;
+		height: 0.9rem;
+		font-size: 0.9rem;
+	}
+}
+
+.page-breadcrumb-current {
+	color: var(--vault-primary);
+	font-weight: 700;
+}
+
 .page-title {
 	margin: 0;
 	color: var(--vault-primary);

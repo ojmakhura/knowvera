@@ -114,7 +114,7 @@ export const OrganisationApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Loaded ${response.page.size} organisations on page ${response.page.number + 1} successfully!!`],
                     error: false,
                   }
                 );
@@ -146,7 +146,7 @@ export const OrganisationApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Loaded ${response.page.size} organisations on page ${response.page.number + 1} successfully!!`],
                     error: false,
                   }
                 );

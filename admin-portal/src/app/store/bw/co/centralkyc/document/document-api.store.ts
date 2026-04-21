@@ -113,7 +113,7 @@ export const DocumentApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`${response.length || 'No'} document(s) found for the given document type!!`],
                     error: false,
                   }
                 );
@@ -145,7 +145,7 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Document "${response?.fileName || 'unknown'}" loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -177,7 +177,7 @@ export const DocumentApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`${response.length || 'No'} document(s) found for the given target!!`],
                     error: false,
                   }
                 );
@@ -209,7 +209,7 @@ export const DocumentApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`${response.length || 'No'} document(s) found!!`],
                     error: false,
                   }
                 );
@@ -241,7 +241,7 @@ export const DocumentApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`${response.content.length || 'No'} document(s) found!!`],
                     error: false,
                   }
                 );
@@ -272,7 +272,7 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Document removed successfully!!`],
                     error: false,
                   }
                 );
@@ -304,7 +304,7 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Document "${response?.fileName || 'unknown'}" saved successfully!!`],
                     error: false,
                   }
                 );
@@ -336,7 +336,7 @@ export const DocumentApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`${response.length || 'No'} document(s) found for the given criteria!!`],
                     error: false,
                   }
                 );
@@ -368,7 +368,7 @@ export const DocumentApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`${response.content.length || 'No'} document(s) found!!`],
                     error: false,
                   }
                 );
@@ -432,7 +432,7 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Update successful!!'],
+                    messages: [`Document "${response?.fileName || 'unknown'}" updated successfully!!`],
                     error: false,
                   }
                 );
@@ -464,7 +464,7 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Analysis successful!!'],
+                    messages: [`Document "${response?.fileName || 'unknown'}" analysis happening in the background!!`],
                     error: false,
                   }
                 );
@@ -496,7 +496,7 @@ export const DocumentApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Verification successful!!'],
+                    messages: [`Background verification "${response?.fileName || 'unknown'}" triggered successfully!!`],
                     error: false,
                   }
                 );

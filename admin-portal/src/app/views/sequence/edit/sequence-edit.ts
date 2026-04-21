@@ -8,7 +8,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDividerModule } from '@angular/material/divider';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Input, OnDestroy, OnInit, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import { SequenceGeneratorDTO } from '@app/models/bw/co/centralkyc/sequence/sequence-generator-dto';
@@ -17,6 +17,7 @@ import { SequencePartType } from '@app/models/bw/co/centralkyc/sequence/sequence
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { SequenceGeneratorApiStore } from '@app/store/bw/co/centralkyc/sequence/sequence-generator-api.store';
 import { TranslateModule } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
 
 
 export class EditSequenceVarsForm {
@@ -73,12 +74,16 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
     max: '',
     randomised: false
   });
-  loaderMessage = signal('');
-  messages = signal({});
-  success = signal(false);
-  loading = signal(false);
-  error = signal(false);
+  loaderMessage = linkedSignal(() => this.sequenceApiStore.loaderMessage());
+  messages = linkedSignal(() => this.sequenceApiStore.messages());
+  success = linkedSignal(() => this.sequenceApiStore.success());
+  loading = linkedSignal(() => this.sequenceApiStore.loading());
+  error = linkedSignal(() => this.sequenceApiStore.error());
   selected: any = null;
+
+  saving = false;
+
+  toastr = inject(ToastrService);
 
   constructor() {
 
@@ -99,6 +104,20 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
         sequenceParts: sequence.sequenceParts ?? []
       }));
     });
+
+    effect(() => {
+      const error = this.error();
+      if (error) {
+        this.toastr.error(this.messages()[0], 'Error ');
+      }
+    });
+
+    effect(() => {
+      const success = this.success();
+      if (success) {
+        this.toastr.success(this.messages()[0], 'Success');
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -118,7 +137,7 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
     if (!formValue.name || !formValue.targetEntity) {
       return;
     }
-
+    this.saving = true;
     this.sequenceApiStore.save({
       SequenceGeneratorDTO: this.sequencePayload()
     });

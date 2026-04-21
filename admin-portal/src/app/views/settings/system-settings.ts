@@ -122,7 +122,6 @@ export class SystemSettings {
   readonly resourceLoading = signal(false);
   readonly availableDocumentTypes = signal<DocumentTypeDTO[]>([]);
   readonly availableTemplates = signal<DocumentDTO[]>([]);
-  // readonly pendingAction = signal<PendingAction>(null);
   readonly documentTypePurpose = DocumentTypePurpose;
   readonly targetEntity = TargetEntity;
 
@@ -190,6 +189,20 @@ export class SystemSettings {
       this.roleOptions = this.buildRoleOptions(settings);
     });
 
+    effect(() => {
+      const error = this.error();
+
+      if (error) {
+        this.toastr.error(this.messages()[0], 'Error');
+      }
+    });
+
+    effect(() => {
+      const success = this.success();
+      if (success) {
+        this.toastr.success(this.messages()[0], 'Success');
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -205,35 +218,22 @@ export class SystemSettings {
     (left?.id || null) === (right?.id || null);
 
   resetForm(): void {
-    // this.settingsForm = this.cloneSettings(this.settingsApiStore.data());
     this.settingsApiStore.reset()
   }
 
   saveSettings(): void {
-    // if (this.editSettingsSignalForm().invalid()) {
-    //   this.toastr.error('Complete the required settings fields before saving.');
-    //   return;
-    // }
+    if (this.editSettingsSignalForm().invalid()) {
+      this.toastr.error('Complete the required settings fields before saving.');
+      return;
+    }
 
     let val: any = this.editSettingsSignal();
     console.log(val)
     let settings = this.getSettings(val);
     this.loading.set(true);
     this.loaderMessage.set(`Saving settings`);
-    this.settingsApi.save(settings).subscribe({
-      next: (settings: SettingsDTO) => {
-        // this.settingsSignal.set(settings);
-        this.updateSettingForm(settings);
-        this.loading.set(false);
-      },
-      error: (error) => {
-        this.toastr.error(error.error?.message ? error.error.message : error.message);
-        this.loading.set(false);
-      },
-    });
 
-    // this.pendingAction.set('save');
-    // this.settingsApiStore.save({ setttings: this.cloneSettings(this.settingsForm) });
+    this.settingsApiStore.save({ settings: settings });
   }
 
   createNewSalaryRanges(): SalaryRangeDTO {

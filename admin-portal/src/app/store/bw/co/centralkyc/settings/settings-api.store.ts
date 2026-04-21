@@ -47,7 +47,7 @@ export const SettingsApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Settings loaded.`],
                     error: false,
                   }
                 );
@@ -87,7 +87,7 @@ export const SettingsApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Settings loaded.`],
                     error: false,
                   }
                 );
@@ -203,10 +203,10 @@ export const SettingsApiStore = signalStore(
           );
         }),
       ),
-      save: rxMethod<{setttings: SettingsDTO }>(
+      save: rxMethod<{settings: SettingsDTO }>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return settingsApi.save(data.setttings, ).pipe(
+          return settingsApi.save(data.settings, ).pipe(
             tapResponse({
               next: (response: SettingsDTO) => {
                 patchState(
@@ -215,7 +215,7 @@ export const SettingsApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Settings saved successfully!`],
                     error: false,
                   }
                 );

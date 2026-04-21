@@ -18,8 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 import bw.co.centralkyc.AuditTracker;
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
+@Tag(name = "KYC Subscriptions", description = "Operations related to KYC subscriptions.")
 public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     
     private final KycSubscriptionService kycSubscriptionService;
@@ -31,6 +34,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Subscription by ID", description = "Find a KYC subscription by its ID")
     public ResponseEntity<KycSubscriptionDTO> findById(String id) throws Exception {
         try {
 
@@ -44,6 +48,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     }
 
     @Override
+    @Operation(summary = "Get All KYC Subscriptions", description = "Retrieve all KYC subscriptions")
     public ResponseEntity<Collection<KycSubscriptionDTO>> getAll() throws Exception {
         try {
             Collection<KycSubscriptionDTO> subscriptions = kycSubscriptionService.getAll();
@@ -57,6 +62,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
  
 
     @Override
+    @Operation(summary = "Get All KYC Subscriptions Paged", description = "Retrieve all KYC subscriptions with pagination") 
     public ResponseEntity<Page<KycSubscriptionDTO>> getAllPaged(Integer pageNumber, Integer pageSize) throws Exception {
         try {
             Page<KycSubscriptionDTO> page = kycSubscriptionService.getAll(pageNumber, pageSize);
@@ -69,6 +75,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     }
 
     @Override
+    @Operation(summary = "Paged Search KYC Subscriptions", description = "Search KYC subscriptions with pagination")
     public ResponseEntity<Page<KycSubscriptionDTO>> pagedSearch(SearchObject<SubscriptionSearchCriteria> criteria) throws Exception {
         try {
             Page<KycSubscriptionDTO> page = kycSubscriptionService.search(criteria);
@@ -82,6 +89,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     }
 
     @Override
+    @Operation(summary = "Remove KYC Subscription", description = "Remove a KYC subscription by its ID")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
             return ResponseEntity.ok(kycSubscriptionService.remove(id));
@@ -93,6 +101,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     }
 
     @Override
+    @Operation(summary = "Save KYC Subscription", description = "Save a KYC subscription")
     public ResponseEntity<KycSubscriptionDTO> save(KycSubscriptionDTO subscription) throws Exception {
 
         try {
@@ -108,6 +117,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     }
 
     @Override
+    @Operation(summary = "Search KYC Subscriptions", description = "Search KYC subscriptions based on criteria")
     public ResponseEntity<Collection<KycSubscriptionDTO>> search(SearchObject<SubscriptionSearchCriteria> criteria) throws Exception {
         try {
 
@@ -126,6 +136,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Subscriptions by Organisation", description = "Find KYC subscriptions by organisation ID")
     public ResponseEntity<Collection<KycSubscriptionDTO>> findByOrganisation(String arg0) throws Exception {
         
         try {

@@ -124,6 +124,22 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
         this.toaster.error(this.messages()?.[0] || 'Failed to save document');
       }
     });
+
+    effect(() => {
+      const error = this.error();
+      
+      if (error) {
+        this.toaster.error(this.messages()?.[0] || 'An error occurred while loading document details.');
+      }
+    });
+
+    effect(() => {
+      const success = this.success();
+
+      if (success && this.document()) {
+        this.toaster.success(this.messages()?.[0] || 'Document details loaded successfully.');
+      }
+    });
   }
 
   ngOnInit(): void {

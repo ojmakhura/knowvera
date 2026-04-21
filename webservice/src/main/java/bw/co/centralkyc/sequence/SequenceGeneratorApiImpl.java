@@ -12,7 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
+@Tag(name = "Sequence Generators", description = "Operations related to sequence generators.")
 public class SequenceGeneratorApiImpl implements SequenceGeneratorApi {
 
     private static final Logger logger = LoggerFactory.getLogger(SequenceGeneratorApiImpl.class);
@@ -27,6 +31,7 @@ public class SequenceGeneratorApiImpl implements SequenceGeneratorApi {
 
 
     @Override
+    @Operation(summary = "Find Sequence Generator by ID", description = "Find a sequence generator by its ID")
     public ResponseEntity<SequenceGeneratorDTO> findById(String id) throws Exception {
         try {
             return ResponseEntity.ok(this.getSequenceGeneratorService().findById(id));
@@ -39,6 +44,7 @@ public class SequenceGeneratorApiImpl implements SequenceGeneratorApi {
 
 
     @Override
+    @Operation(summary = "Find Sequence Generator by Name", description = "Find a sequence generator by its name")
     public ResponseEntity<SequenceGeneratorDTO> findByName(String name) throws Exception {
         try {
             return ResponseEntity.ok(this.getSequenceGeneratorService().findByName(name));
@@ -51,6 +57,7 @@ public class SequenceGeneratorApiImpl implements SequenceGeneratorApi {
 
 
     @Override
+    @Operation(summary = "Get All Sequence Generators", description = "Retrieve all sequence generators")
     public ResponseEntity<Collection<SequenceGeneratorDTO>> getAll() throws Exception {
         try {
             return ResponseEntity.ok(this.getSequenceGeneratorService().getAll());
@@ -63,6 +70,7 @@ public class SequenceGeneratorApiImpl implements SequenceGeneratorApi {
 
 
     @Override
+    @Operation(summary = "Remove Sequence Generator", description = "Remove a sequence generator by its ID")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
             return ResponseEntity.ok(this.getSequenceGeneratorService().remove(id));
@@ -73,8 +81,8 @@ public class SequenceGeneratorApiImpl implements SequenceGeneratorApi {
         } 
     }
 
-
     @Override
+    @Operation(summary = "Save Sequence Generator", description = "Save a sequence generator")
     public ResponseEntity<SequenceGeneratorDTO> save(@Valid SequenceGeneratorDTO sequenceGenerator) throws Exception {
         try {
             return ResponseEntity.ok(this.getSequenceGeneratorService().save(sequenceGenerator));
@@ -85,8 +93,8 @@ public class SequenceGeneratorApiImpl implements SequenceGeneratorApi {
         } 
     }
 
-
     @Override
+    @Operation(summary = "Search Sequence Generators", description = "Search sequence generators based on criteria")
     public ResponseEntity<Collection<SequenceGeneratorDTO>> search(String criteria) throws Exception {
         try {
             return ResponseEntity.ok(this.getSequenceGeneratorService().search(criteria));

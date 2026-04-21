@@ -134,6 +134,15 @@ export class Documents implements OnInit {
         this.toastr.error(this.messages()[0] || 'An error occurred while fetching documents.');
       }
     });
+
+    effect(() => {
+      let success = this.success();
+      
+      if(success) {
+        console.log('Success state changed:', success, this.messages());
+        this.toastr.success(this.messages()[0] || 'Documents fetched successfully.');
+      }
+    });
   }
 
   ngOnInit(): void {

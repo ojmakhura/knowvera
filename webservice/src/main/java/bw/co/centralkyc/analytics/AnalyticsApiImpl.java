@@ -13,10 +13,13 @@ import bw.co.centralkyc.kyc.KycComplianceStatus;
 import bw.co.centralkyc.organisation.OrganisationService;
 import bw.co.centralkyc.organisation.client.ClientRequestService;
 import bw.co.centralkyc.subscription.KycSubscriptionService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Analytics", description = "The analytics API")
 public class AnalyticsApiImpl implements AnalyticsApi {
     protected final ClientRequestService clientRequestService;
     protected final IndividualService individualService;

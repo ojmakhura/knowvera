@@ -21,6 +21,8 @@ import bw.co.centralkyc.organisation.OrganisationService;
 import bw.co.centralkyc.settings.SettingsDTO;
 import bw.co.centralkyc.settings.SettingsService;
 import bw.co.centralkyc.user.UserDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.io.InputStream;
 import java.util.Collection;
@@ -41,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
+@Tag(name = "Client Requests", description = "Operations related to client requests.")
 public class ClientRequestApiImpl implements ClientRequestApi {
 
     private final SettingsService settingsService;
@@ -70,6 +73,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Client Request by ID", description = "Find a client request by its ID")
     public ResponseEntity<ClientRequestDTO> findById(String id) throws Exception {
         try {
 
@@ -84,6 +88,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Client Requests by Individual", description = "Find client requests by individual ID")
     public ResponseEntity<Collection<ClientRequestDTO>> findByIndividual(String individualId) throws Exception {
         try {
             Collection<ClientRequestDTO> requests = clientRequestService.findByIndividual(individualId);
@@ -96,6 +101,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Client Requests by Individual (Paged)", description = "Find client requests by individual ID with pagination")
     public ResponseEntity<Page<ClientRequestDTO>> findByIndividualPaged(String individualId, Integer pageNumber,
             Integer pageSize) throws Exception {
         try {
@@ -109,6 +115,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Client Requests by Organisation", description = "Find client requests by organisation ID")
     public ResponseEntity<Collection<ClientRequestDTO>> findByOrganisation(String organisationId, TargetEntity target)
             throws Exception {
         try {
@@ -122,6 +129,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Client Requests by Organisation (Paged)", description = "Find client requests by organisation ID with pagination")
     public ResponseEntity<Page<ClientRequestDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber,
             Integer pageSize, TargetEntity target) throws Exception {
         try {
@@ -137,6 +145,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Client Requests by Status", description = "Find client requests by their status")
     public ResponseEntity<Collection<ClientRequestDTO>> findByStatus(ClientRequestStatus status) throws Exception {
         try {
             Collection<ClientRequestDTO> requests = clientRequestService.findByStatus(status);
@@ -150,6 +159,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Get All Client Requests", description = "Retrieve all client requests")
     public ResponseEntity<Collection<ClientRequestDTO>> getAll() throws Exception {
         try {
             Collection<ClientRequestDTO> requests = clientRequestService.getAll();
@@ -162,6 +172,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Get All Client Requests (Paged)", description = "Retrieve all client requests with pagination")
     public ResponseEntity<Page<ClientRequestDTO>> getAllPaged(Integer pageNumber, Integer pageSize) throws Exception {
         try {
             Page<ClientRequestDTO> requests = clientRequestService.getAll(pageNumber, pageSize);
@@ -174,6 +185,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Paged Search Client Requests", description = "Search client requests with pagination")
     public ResponseEntity<Page<ClientRequestDTO>> pagedSearch(SearchObject<ClientRequestSearchCriteria> criteria)
             throws Exception {
         try {
@@ -187,6 +199,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Remove Client Request", description = "Remove a client request by its ID")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
 
@@ -199,6 +212,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Save Client Request", description = "Save a client request")
     public ResponseEntity<ClientRequestDTO> save(ClientRequestDTO clientRequest) throws Exception {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -214,6 +228,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Search Client Requests", description = "Search client requests based on criteria")
     public ResponseEntity<Collection<ClientRequestDTO>> search(SearchObject<ClientRequestSearchCriteria> criteria)
             throws Exception {
         try {
@@ -233,6 +248,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Client Requests by Document", description = "Find client requests by document ID")
     public ResponseEntity<Collection<ClientRequestDTO>> findByDocument(String documentId) throws Exception {
 
         try {
@@ -246,6 +262,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Client Requests by Document (Paged)", description = "Find client requests by document ID with pagination")
     public ResponseEntity<Page<ClientRequestDTO>> findByDocumentPaged(String documentId, Integer pageNumber,
             Integer pageSize) throws Exception {
 
@@ -259,6 +276,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Client Requests by Status", description = "Find client requests by their status with pagination")
     public ResponseEntity<Page<ClientRequestDTO>> findByStatusPaged(ClientRequestStatus status,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -272,6 +290,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Upload Client Requests", description = "Upload client requests from a file")
     public ResponseEntity<Page<ClientRequestDTO>> uploadRequests(MultipartFile file, String organisationId,
             TargetEntity target) throws Exception {
 
@@ -303,6 +322,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Download Client Request Template", description = "Download the template file for client requests")
     public ResponseEntity<InputStreamResource> downloadRequestTemplate() throws Exception {
 
         try {
@@ -353,6 +373,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Client Requests by Target", description = "Find client requests by their target entity and target ID")
     public ResponseEntity<Collection<ClientRequestDTO>> findByTarget(TargetEntity target, String targetId)
             throws Exception {
 
@@ -367,6 +388,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Client Requests by Target (Paged)", description = "Find client requests by their target entity and target ID with pagination")
     public ResponseEntity<Page<ClientRequestDTO>> findByTargetPaged(TargetEntity target,
             String targetId, Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -382,6 +404,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Individuals by Organisation", description = "Find individual client requests by organisation ID")
     public ResponseEntity<Collection<ClientRequestDTO>> findIndividualsByOrganisation(String organisationId)
             throws Exception {
 
@@ -397,6 +420,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Individuals by Organisation (Paged)", description = "Find individual client requests by organisation ID with pagination")
     public ResponseEntity<Page<ClientRequestDTO>> findIndividualsByOrganisationPaged(String organisationId,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -412,6 +436,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Organisations by Organisation", description = "Find organisation client requests by organisation ID")
     public ResponseEntity<Collection<ClientRequestDTO>> findOrganisationsByOrganisation(String organisationId)
             throws Exception {
         try {
@@ -426,6 +451,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find Organisations by Organisation (Paged)", description = "Find organisation client requests by organisation ID with pagination")
     public ResponseEntity<Page<ClientRequestDTO>> findOrganisationsByOrganisationPaged(String organisationId,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -441,6 +467,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Update Client Request Status", description = "Update the status of a client request")
     public ResponseEntity<ClientRequestDTO> updateStatus(String id, ClientRequestStatus status) throws Exception {
 
         try {
@@ -478,6 +505,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Confirm Client Request Token", description = "Confirm the token for a client request")
     public ResponseEntity<String> confirmToken(String requestId, String token) throws Exception {
 
         try {
@@ -519,6 +547,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Confirm Client Registration", description = "Confirm the registration for a client request")
     public ResponseEntity<Boolean> confirmRegistration(String id, Boolean confirm, String registrationToken)
             throws Exception {
 
@@ -589,6 +618,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find User Ready Requests", description = "Find client requests that are ready for the user")
     public ResponseEntity<ClientRequestDTO> findUserReadyRequests() throws Exception {
 
         try {
@@ -603,6 +633,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find User Ready Requests (Paged)", description = "Find client requests that are ready for the user with pagination")
     public ResponseEntity<ClientRequestDTO> findUserReadyRequestsPaged(Integer pageNumber, Integer pageSize)
             throws Exception {
 
@@ -615,6 +646,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find My Organisation Requests", description = "Find client requests for the organisation associated with the current user")
     public ResponseEntity<Collection<ClientRequestDTO>> findMyOrganisationRequests() throws Exception {
 
         String username = "anonymousUser";
@@ -643,6 +675,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
+    @Operation(summary = "Find My Requests", description = "Find client requests for the current user")
     public ResponseEntity<Collection<ClientRequestDTO>> findMyRequests() throws Exception {
 
         String username = "anonymousUser";

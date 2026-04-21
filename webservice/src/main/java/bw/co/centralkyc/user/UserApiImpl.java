@@ -18,8 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import bw.co.centralkyc.keycloak.KeycloakUserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
+@Tag(name = "Users", description = "Operations related to users.")
 public class UserApiImpl implements UserApi {
 
     protected Logger logger = LoggerFactory.getLogger(UserApiImpl.class);    
@@ -32,6 +35,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Add Client Roles", description = "Add roles to a user for a specific client")
     public ResponseEntity<UserDTO> addClientRoles(
             String clientId, Set<String> roles, String userId) {
         try {
@@ -49,6 +53,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Add Role", description = "Add a role to a user")
     public ResponseEntity<Boolean> addRole(String userId,
             String role) {
 
@@ -64,6 +69,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Change Password", description = "Change the password of a user")
     public ResponseEntity<String> changePassword(String userId,
             String newPassword) {
         try {
@@ -79,6 +85,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Find Users by Client Roles", description = "Find users by their roles for a specific client")
     public ResponseEntity<Collection<UserDTO>> findByClientRoles(
             Set<String> roles, String clientId) {
         try {
@@ -92,6 +99,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Find Users by Realm Roles", description = "Find users by their roles for the realm")
     public ResponseEntity<Collection<UserDTO>> findByRealmRoles(
             Set<String> roles) {
         try {
@@ -105,6 +113,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Find User by ID", description = "Find a user by their ID")
     public ResponseEntity<UserDTO> findUserById(String userId) {
         try {
             logger.debug("Search user by Id " + userId);
@@ -119,6 +128,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Load All Users", description = "Load all users from the system")
     public ResponseEntity<Collection<UserDTO>> loadUsers() {
         try {
             
@@ -133,6 +143,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Remove Role", description = "Remove a role from a user")
     public ResponseEntity<Boolean> removeRole(String userId,
             String role) {
         try {
@@ -146,6 +157,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Save User", description = "Save a user")
     public ResponseEntity<UserDTO> saveUser(
             UserDTO user) {
         try {
@@ -167,6 +179,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Search Users", description = "Search users based on criteria")
     public ResponseEntity<Collection<UserDTO>> search(String criteria) {
         try {
             
@@ -184,6 +197,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Update User Name", description = "Update the username of a user")
     public ResponseEntity<Boolean> updateUserName(String userId,
             String username) {
         try {
@@ -199,6 +213,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Find Users by Branch ID", description = "Find users by their branch ID")
     public ResponseEntity<Collection<UserDTO>> findByBranchId(String branchId) {
 
         try {
@@ -213,6 +228,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Find Users by Branch Name", description = "Find users by their branch name")
     public ResponseEntity<Collection<UserDTO>> findByBranchName(String branch) {
 
         try {
@@ -228,6 +244,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Find Users by Organisation ID", description = "Find users by their organisation ID")
     public ResponseEntity<Collection<UserDTO>> findByOrganisationId(String organisationId) {
 
         try {
@@ -241,6 +258,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Find Users by Organisation Name", description = "Find users by their organisation name")
     public ResponseEntity<Collection<UserDTO>> findByOrganisationName(String organisation) {
 
         try {
@@ -256,6 +274,7 @@ public class UserApiImpl implements UserApi {
     }
 
     @Override
+    @Operation(summary = "Find User by Identity No", description = "Find a user by their identity number")
     public ResponseEntity<UserDTO> findByIdentityNo(String identityNo) {
 
         try {

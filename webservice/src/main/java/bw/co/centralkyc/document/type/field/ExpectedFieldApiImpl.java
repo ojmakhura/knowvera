@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import bw.co.centralkyc.AuditTracker;
 
 @RestController
-@Tag(name = "Document Type", description = "Managing document types.")
+@Tag(name = "Expected Fields", description = "Fields expected in document types.")
 public class ExpectedFieldApiImpl implements ExpectedFieldApi {
 
     private static final Logger logger = LoggerFactory.getLogger(ExpectedFieldApiImpl.class);
@@ -35,7 +35,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
     }
 
     @Override
-    @Operation(summary = "Find Document Type", description = "Get the document type with the given id")
+    @Operation(summary = "Find Expected Field", description = "Get the expected field with the given id")
     public ResponseEntity<ExpectedFieldDTO> findById(String id) throws Exception {
         try {
             return ResponseEntity.ok(expectedFieldService.findById(id));
@@ -47,6 +47,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
     }
 
     @Override
+    @Operation(summary = "Remove Expected Field", description = "Remove the expected field with the given id")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
             return ResponseEntity.ok(expectedFieldService.remove(id));
@@ -58,6 +59,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
     }
 
     @Override
+    @Operation(summary = "Save Expected Field", description = "Save the expected field. If the id is not provided, a new expected field will be created.")
     public ResponseEntity<ExpectedFieldDTO> save(@Valid ExpectedFieldDTO expectedField) throws Exception {
         try {
 
@@ -82,6 +84,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
     }
 
     @Override
+    @Operation(summary = "Find Expected Fields by Document Type", description = "Get the expected fields for the given document type id")
     public ResponseEntity<Collection<ExpectedFieldDTO>> findByDocumentType(String documentTypeId) throws Exception {
 
         try {
@@ -95,6 +98,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
     }
 
     @Override
+    @Operation(summary = "Find Expected Fields by Document Type with Pagination", description = "Get the expected fields for the given document type id with pagination")
     public ResponseEntity<Page<ExpectedFieldDTO>> findByDocumentTypePage(String documentTypeId, Integer pageNumber,
             Integer pageSize) throws Exception {
         try {

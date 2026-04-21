@@ -38,9 +38,12 @@ import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.processor.DocumentProcessorService;
 import bw.co.centralkyc.minio.MinioService;
 import bw.co.centralkyc.properties.RabbitProperties;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
+@Tag(name = "Document Management", description = "APIs for managing documents in the Central KYC system")
 public class DocumentApiImpl implements DocumentApi {
 
     private final MinioService minioService;
@@ -60,6 +63,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Find Documents by Type", description = "Get the documents with the given document type id")
     public ResponseEntity<Collection<DocumentListDTO>> findByDocumentType(String documentTypeId) {
 
         try {
@@ -74,6 +78,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Find Document by ID", description = "Get the document with the given id")
     public ResponseEntity<DocumentDTO> findById(String id) {
 
         try {
@@ -87,6 +92,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Find Documents by Target", description = "Get the documents with the given target entity and target id")
     public ResponseEntity<Collection<DocumentListDTO>> findByTarget(
             bw.co.centralkyc.TargetEntity target, String targetId) {
 
@@ -100,12 +106,14 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Get All Documents", description = "Get all documents in the system")
     public ResponseEntity<Collection<DocumentListDTO>> getAll() {
         return ResponseEntity.ok(documentService.getAll());
 
     }
 
     @Override
+    @Operation(summary = "Get All Documents Paged", description = "Get all documents in the system with pagination")
     public ResponseEntity<Page<DocumentListDTO>> getAllPaged(Integer pageNumber, Integer pageSize) {
 
         try {
@@ -120,6 +128,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Remove Document", description = "Remove the document with the given id")
     public ResponseEntity<Boolean> remove(String id) {
 
         try {
@@ -141,6 +150,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Save Document", description = "Save the document")
     public ResponseEntity<DocumentDTO> save(DocumentDTO document) {
 
         try {
@@ -157,6 +167,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Search Documents", description = "Search for documents based on the given criteria")
     public ResponseEntity<Collection<DocumentListDTO>> search(SearchObject<DocumentSearchCriteria> criteria) {
 
         try {
@@ -196,6 +207,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Upload Document", description = "Upload a document for the given target entity and target id")
     public ResponseEntity<DocumentDTO> upload(TargetEntity target, String targetId,
             String documentTypeId, String purpose, MultipartFile file) {
 
@@ -261,6 +273,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Download Document", description = "Download the document with the given id")
     public ResponseEntity<InputStreamResource> downloadFile(String id) {
         try {
 
@@ -279,6 +292,8 @@ public class DocumentApiImpl implements DocumentApi {
         }
     }
 
+    @Override
+    @Operation(summary = "Download Document by URL", description = "Download the document with the given URL")
     public ResponseEntity<InputStreamResource> downloadFileByUrl(@RequestParam String objectName) throws Exception {
 
         InputStreamResource data = downloadFromMinio(objectName);
@@ -292,6 +307,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Update Document", description = "Update the document with the given id")
     public ResponseEntity<DocumentDTO> updateDocument(String id, MultipartFile file) throws Exception {
 
         DocumentDTO document = documentService.findById(id);
@@ -341,6 +357,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Search Documents Paged", description = "Search for documents based on the given criteria with pagination")
     public @Nullable ResponseEntity<Page<DocumentListDTO>> searchPaged(
             @Valid SearchObject<DocumentSearchCriteria> criteria) throws Exception {
         
@@ -356,6 +373,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Find My Documents Paged", description = "Find documents for the current user based on the given criteria with pagination")
     public ResponseEntity<Page<DocumentListDTO>> findMyDocumentsPaged(TargetEntity target, @Nullable Integer pageNumber,
             @Nullable Integer pageSize) throws Exception {
         // TODO Auto-generated method stub
@@ -363,12 +381,14 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Find My Documents", description = "Find documents for the current user based on the given criteria")
     public @Nullable ResponseEntity<Collection<DocumentListDTO>> findMyDocuments(TargetEntity target) throws Exception {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findMyDocuments'");
     }
 
     @Override
+    @Operation(summary = "Analyse Document", description = "Analyse the document with the given id")
     public ResponseEntity<DocumentDTO> analyseDocument(String id) throws Exception {
 
         try {
@@ -392,6 +412,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Update File Content", description = "Update the content of the document with the given id")
     public ResponseEntity<DocumentDTO> updateFileContent(String id, String content) throws Exception {
         
         try {
@@ -414,6 +435,7 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
+    @Operation(summary = "Verify Document Data", description = "Verify the data of the document with the given id")
     public ResponseEntity<DocumentDTO> verifyData(String id) throws Exception {
        
         try {

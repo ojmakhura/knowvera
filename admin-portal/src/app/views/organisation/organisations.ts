@@ -143,7 +143,7 @@ export class Organisations implements OnInit, OnDestroy {
   }
 
   openDetails(id: string): void {
-    this.router.navigate(['organisation', 'details', id]);
+    this.router.navigate(['organisation', id]);
   }
 
   createNewOrganisation(): void {

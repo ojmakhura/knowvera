@@ -45,7 +45,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`${response.name} loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -77,7 +77,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`${response.name} loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -109,7 +109,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`${response.length} sequence generators loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -141,7 +141,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Sequence generator removed successfully!!`],
                     error: false,
                   }
                 );
@@ -173,7 +173,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Sequence generator "${response.name}" saved successfully!!`],
                     error: false,
                   }
                 );
@@ -205,7 +205,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`${response.length} sequence generators loaded successfully!!`],
                     error: false,
                   }
                 );

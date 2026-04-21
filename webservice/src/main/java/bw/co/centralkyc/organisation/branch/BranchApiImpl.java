@@ -18,8 +18,11 @@ import org.springframework.data.domain.Page;
 import bw.co.centralkyc.AuditTracker;
 import bw.co.centralkyc.organisation.OrganisationDTO;
 import bw.co.centralkyc.organisation.OrganisationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
+@Tag(name = "Branches", description = "Operations related to organisation branches.")
 public class BranchApiImpl implements BranchApi {
 
     private final OrganisationService orgService;
@@ -33,6 +36,7 @@ public class BranchApiImpl implements BranchApi {
 
 
     @Override
+    @Operation(summary = "Find Branch by ID", description = "Find a branch by its ID")
     public ResponseEntity<BranchDTO> findById(String id) {
         
         try {
@@ -58,6 +62,7 @@ public class BranchApiImpl implements BranchApi {
     }
 
     @Override
+    @Operation(summary = "Find Branches by Organisation", description = "Find branches for a specific organisation")
     public ResponseEntity<Collection<BranchDTO>> findByOrganisation(String organisationId) {
         
         try {
@@ -73,6 +78,7 @@ public class BranchApiImpl implements BranchApi {
     }
 
     @Override
+    @Operation(summary = "Find Branches by Organisation (Paged)", description = "Find branches for a specific organisation with pagination")
     public ResponseEntity<Collection<BranchDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber, Integer pageSize) {
         
         try {
@@ -88,6 +94,7 @@ public class BranchApiImpl implements BranchApi {
     }
 
     @Override
+    @Operation(summary = "Get All Branches", description = "Get all branches")
     public ResponseEntity<Collection<BranchDTO>> getAll() {
         
         try {
@@ -96,11 +103,10 @@ public class BranchApiImpl implements BranchApi {
             e.printStackTrace();
             throw e;
         }
-
-
     }
 
     @Override
+    @Operation(summary = "Get All Branches Paged", description = "Get all branches with pagination")
     public ResponseEntity<Page<BranchDTO>> getAllPaged(Integer pageNumber, Integer pageSize) {
         
         try {
@@ -114,6 +120,7 @@ public class BranchApiImpl implements BranchApi {
     }
 
     @Override
+    @Operation(summary = "Paged Search Branches", description = "Search branches with pagination")
     public ResponseEntity<Page<BranchDTO>> pagedSearch(String criteria, Integer pageNumber, Integer pageSize) {
         
         try {
@@ -124,11 +131,10 @@ public class BranchApiImpl implements BranchApi {
             e.printStackTrace();
             throw e;
         }
-
-
     }
 
     @Override
+    @Operation(summary = "Remove Branch", description = "Remove a branch by its ID")
     public ResponseEntity<Boolean> remove(String id) {
         
         try {
@@ -140,11 +146,10 @@ public class BranchApiImpl implements BranchApi {
             e.printStackTrace();
             throw e;
         }
-
-
     }
 
     @Override
+    @Operation(summary = "Save Branch", description = "Save a branch")
     public ResponseEntity<BranchDTO> save(BranchDTO branch) {
         
         try {
@@ -158,11 +163,10 @@ public class BranchApiImpl implements BranchApi {
 
             throw e;
         }
-
-
     }
 
     @Override
+    @Operation(summary = "Search Branches", description = "Search branches based on criteria")
     public ResponseEntity<Collection<BranchDTO>> search(String criteria) {
         
         try {
@@ -173,7 +177,5 @@ public class BranchApiImpl implements BranchApi {
             e.printStackTrace();
             throw e;
         }
-
-
     }
 }

@@ -6,28 +6,47 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
 import { ClientRequestStatus } from '@app/models/bw/co/centralkyc/organisation/client/client-request-status';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
+import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
+import { IndividualListDTO } from '@app/models/bw/co/centralkyc/individual/individual-list-dto';
+import { form, FormField } from '@angular/forms/signals';
+import { required } from '@angular/forms/signals';
+import { ClientRequestApiStore } from '@app/store/bw/co/centralkyc/organisation/client/client-request-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
+import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
+import { ActivatedRoute } from '@angular/router';
+import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
+import { ClientRequestDTO } from '@app/models/bw/co/centralkyc/organisation/client/client-request-dto';
+import { ToastrService } from 'ngx-toastr';
+import { SearchObject } from '@app/models/search-object';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
+import { IndividualSearchCriteria } from '@app/models/bw/co/centralkyc/individual/individual-search-criteria';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { TranslateModule } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
+import Swal from 'sweetalert2';
 
-type AuditField = {
-  label: string;
-  value: string;
-};
-
-type TargetRecord = {
-  id: string;
-  name: string;
-  reference: string;
-};
-
-type OrganisationRecord = {
-  id: string;
-  name: string;
-  registration: string;
-};
+export class EditClientRequestForm {
+  id: string = '';
+  createdAt: Date | null = null;
+  createdBy: string = '';
+  modifiedAt: Date | null = null;
+  modifiedBy: string = '';
+  targetKycStatus: string | null = null;
+  status: ClientRequestStatus = ClientRequestStatus.PENDING;
+  organisation: OrganisationListDTO | null = null;
+  organisationFilter: string = '';
+  documentId: string = '';
+  fileName: string = '';
+  fileUrl: string = '';
+  target: TargetEntity | null = null;
+  targetObject: OrganisationListDTO | IndividualListDTO | null = null;
+  targetObjectFilter: string = '';
+}
 
 @Component({
   selector: 'app-client-request-edit',
@@ -43,10 +62,23 @@ type OrganisationRecord = {
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    MatFormFieldModule
-  ]
+    MatFormFieldModule,
+    FormField,
+    NgxMatSelectSearchModule,
+    TranslateModule,
+    RouterLink
+]
 })
-export class ClientRequestEdit {
+export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
+  
+
+  @Input() id?: string;
+
+  readonly clientRequestApiStore = inject(ClientRequestApiStore);
+  readonly organisationApiStore = inject(OrganisationApiStore);
+  readonly individualApiStore = inject(IndividualApiStore);
+  protected route: ActivatedRoute = inject(ActivatedRoute);
+
   readonly targetOptions = [TargetEntity.ORGANISATION, TargetEntity.INDIVIDUAL];
   readonly requestStatuses = [
     ClientRequestStatus.CONTACTED,
@@ -61,83 +93,292 @@ export class ClientRequestEdit {
     KycComplianceStatus.EXPIRED,
   ];
 
-  readonly auditFields = signal<AuditField[]>([
-    { label: 'Request ID', value: 'REQ-90021-A' },
-    { label: 'Created At', value: 'Oct 24, 2023 • 14:32' },
-    { label: 'Created By', value: 'System / Auto-Provision' },
-    { label: 'Modified At', value: 'Jan 12, 2024 • 09:15' },
-    { label: 'Modified By', value: 'm.sterling@veritas.io' },
-  ]);
+  editClientRequestSignal = signal<EditClientRequestForm>(new EditClientRequestForm());
+
+  editClientRequestForm = form(this.editClientRequestSignal, (path) => {
+    required(path.status, { message: 'status.required' })
+    required(path.target, { message: 'target.entity.required' })
+  });
+
+  loading = computed(
+    () => this.clientRequestApiStore.loading() ||
+      this.organisationApiStore.loading() ||
+      this.individualApiStore.loading(),
+  );
+
+  messages =  linkedSignal(() => this.clientRequestApiStore.messages().concat(this.organisationApiStore.messages(), this.individualApiStore.messages()));
+  success = linkedSignal(() => this.clientRequestApiStore.success() || this.organisationApiStore.success() || this.individualApiStore.success());
+  error = linkedSignal(() => this.clientRequestApiStore.error() || this.organisationApiStore.error() || this.individualApiStore.error());
 
   readonly targetFilter = signal('Alexander');
   readonly organisationFilter = signal('Veritas');
   readonly selectedTargetType = signal<TargetEntity>(TargetEntity.INDIVIDUAL);
-  readonly selectedTarget = signal<TargetRecord>({
-    id: '550e8400-e29b-41d4-a716-446655440000',
-    name: 'Alexander Vance Sterling',
-    reference: 'UUID: 550e8400-e29b-41d4-a716-446655440000',
-  });
-  readonly targetResults = signal<TargetRecord[]>([
-    {
-      id: '550e8400-e29b-41d4-a716-446655440000',
-      name: 'Alexander Vance Sterling',
-      reference: 'UUID: 550e8400-e29b-41d4-a716-446655440000',
-    },
-    {
-      id: '770e8400-e29b-41d4-a716-446655440111',
-      name: 'Alicia Sterling',
-      reference: 'UUID: 770e8400-e29b-41d4-a716-446655440111',
-    },
-  ]);
-  readonly organisationResults = signal<OrganisationRecord[]>([
-    {
-      id: 'org-01',
-      name: 'Global Tech Holdings LLC',
-      registration: 'Registration: US-DE-99201',
-    },
-    {
-      id: 'org-02',
-      name: 'Veritas Financial Partners',
-      registration: 'Registration: UK-GB-11200',
-    },
-  ]);
-  readonly selectedOrganisationId = signal('org-02');
-  readonly documentId = signal('DOC-2024-XP-001');
-  readonly fileName = signal('KYC_Passport_Sterling_V2.pdf');
-  readonly selectedRequestStatus = signal<ClientRequestStatus>(ClientRequestStatus.PENDING);
-  readonly selectedKycStatus = signal<KycComplianceStatus>(KycComplianceStatus.INCOMPLETE);
+  // readonly selectedTarget = signal<TargetRecord>({
+  //   id: '550e8400-e29b-41d4-a716-446655440000',
+  //   name: 'Alexander Vance Sterling',
+  //   reference: 'UUID: 550e8400-e29b-41d4-a716-446655440000',
+  // });
+  
+  organisationList = linkedSignal(() => this.organisationApiStore.dataList());
+  targetOrganisationList = linkedSignal(() => this.organisationApiStore.dataList());
+  targetIndividualList = linkedSignal(() => this.individualApiStore.dataList());
+
+  clientRequest = this.clientRequestApiStore.data;
+
+  // Enum options
+  ClientRequestStatusT: any = ClientRequestStatus;
+  ClientRequestStatusOptions = Object.keys(this.ClientRequestStatusT);
+
+  TargetEntityT: any = TargetEntity;
+  TargetEntityOptions = [TargetEntity.ORGANISATION, TargetEntity.INDIVIDUAL];
+
+  IndividualIdentityTypeT: any = IndividualIdentityType;
+  IndividualIdentityTypeOptions = Object.keys(this.IndividualIdentityTypeT);
+
+  toastr = inject(ToastrService);
+
+  constructor() {
+    effect(() => {
+      let clientRequest = this.clientRequestApiStore.data();
+
+      this.handleClientRequestUpdate(clientRequest!);
+    });
+
+    effect(() => {
+      let messages = this.messages();
+
+      if (this.success() && !this.loading()) {
+        this.toastr.success(messages[0]);
+      }
+
+      if (this.error() && !this.loading()) {
+        this.toastr.error(messages[0]);
+      }
+    })
+
+    effect(() => {
+
+      let individual = this.individualApiStore.data();
+
+      if (!individual) {
+        return;
+      }
+
+      let target: IndividualListDTO = {
+        id: individual.id,
+        name: individual.firstName + ' ' + individual.surname,
+        identityType: individual.identityType,
+        identityNo: individual.identityNo,
+        emailAddress: individual.emailAddress,
+        kycStatus: individual.kycStatus,
+        sex: individual.sex,
+        pepStatus: individual.pepStatus,
+        userCreated: individual.userCreated,
+        physicalAddress: individual.physicalAddress,
+        postalAddress: individual.postalAddress,
+      }
+
+      this.targetIndividualList.set([{
+        ...target
+      }]);
+
+      this.editClientRequestSignal.update((value) => ({
+        ...value,
+        targetObject: target
+      }));
+    });
+
+    effect(() => {
+
+      let organisation = this.organisationApiStore.data();
+
+      if (!organisation) {
+        return;
+      }
+
+      let target: OrganisationListDTO = {
+        id: organisation.id,
+        code: organisation.code,
+        name: organisation.name,
+        registrationNo: organisation.registrationNo,
+        contactEmailAddress: organisation.contactEmailAddress,
+        status: organisation.status,
+        isClient: organisation.isClient,
+        kycStatus: organisation.kycStatus,
+        keycloakId: organisation.keycloakId,
+        postalAddress: organisation.postalAddress,
+        physicalAddress: organisation.physicalAddress,
+      }
+
+      this.targetOrganisationList.set([{
+        ...target
+      }]);
+
+      this.editClientRequestSignal.update((value) => ({
+        ...value,
+        targetObject: target
+      }));
+    });
+
+  }
+
+  ngOnInit(): void {
+  }
+
+  ngAfterViewInit(): void {
+  }
+
+  ngOnDestroy(): void {
+  }
+
+  saveChanges(): void {
+    if (this.editClientRequestForm().invalid()) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Form Invalid',
+        text: 'Please fill in all required fields before saving.',
+      });
+      return;
+    }
+
+    const formData = this.editClientRequestSignal();
+    const clientRequest = new ClientRequestDTO();
+
+    clientRequest.id = formData.id;
+    clientRequest.createdAt = formData.createdAt;
+    clientRequest.createdBy = formData.createdBy;
+    clientRequest.modifiedAt = formData.modifiedAt;
+    clientRequest.modifiedBy = formData.modifiedBy;
+    clientRequest.status = formData.status;
+    clientRequest.organisationId = formData.organisation?.id;
+    clientRequest.organisation = formData.organisation ? formData.organisation.name : '';
+    clientRequest.organisationRegistrationNo = formData.organisation ? formData.organisation.registrationNo : '';
+    clientRequest.target = formData.target;
+    clientRequest.targetId = formData.targetObject?.id;
+    clientRequest.documentId = formData.documentId;
+    clientRequest.fileName = formData.fileName;
+    clientRequest.fileUrl = formData.fileUrl;
+
+    if (formData.target === TargetEntity.ORGANISATION) {
+
+      clientRequest.name = (formData.targetObject as OrganisationListDTO)?.name;
+      clientRequest.registration = (formData.targetObject as OrganisationListDTO)?.registrationNo;
+
+    } else if (formData.target === TargetEntity.INDIVIDUAL) {
+
+      clientRequest.name = ((formData.targetObject as IndividualListDTO)?.name) ;
+      clientRequest.registration = (formData.targetObject as IndividualListDTO)?.identityNo;
+      clientRequest.identityType = (formData.targetObject as IndividualListDTO)?.identityType || null;
+
+    }
+
+    this.clientRequestApiStore.save({ clientRequest: clientRequest });
+  }
 
   discardChanges(): void {
-    this.targetFilter.set('Alexander');
-    this.organisationFilter.set('Veritas');
-    this.selectedTargetType.set(TargetEntity.INDIVIDUAL);
-    this.selectedRequestStatus.set(ClientRequestStatus.PENDING);
-    this.selectedKycStatus.set(KycComplianceStatus.INCOMPLETE);
-    this.selectedOrganisationId.set('org-02');
-    this.documentId.set('DOC-2024-XP-001');
-    this.fileName.set('KYC_Passport_Sterling_V2.pdf');
+
+    this.editClientRequestSignal.set(new EditClientRequestForm());
   }
 
-  saveChanges(): void {}
+  handleClientRequestUpdate(clientRequest: ClientRequestDTO) {
+    if (!clientRequest) {
+        return;
+      }
 
-  selectTarget(record: TargetRecord): void {
-    this.selectedTarget.set(record);
+      let org: OrganisationListDTO = new OrganisationListDTO();
+      org.id = clientRequest.organisationId;
+      org.name = clientRequest.organisation;
+      org.registrationNo = clientRequest.organisationRegistrationNo;
+      org.contactEmailAddress = '';
+      org.status = '';
+      org.postalAddress = '';
+      org.physicalAddress = '';
+
+
+      let target: OrganisationListDTO | IndividualListDTO;
+
+      if(clientRequest.target === TargetEntity.ORGANISATION) {
+
+        target = new OrganisationListDTO();
+        (target as OrganisationListDTO).id = clientRequest.targetId;
+        (target as OrganisationListDTO).name = clientRequest.name;
+        (target as OrganisationListDTO).registrationNo = clientRequest.registration;
+        (target as OrganisationListDTO).contactEmailAddress = '';
+        (target as OrganisationListDTO).status = '';
+
+        this.targetOrganisationList.set([{
+          ...(target as OrganisationListDTO)
+        }]);
+
+      } else {
+
+        target = new IndividualListDTO();
+        (target as IndividualListDTO).id = clientRequest.targetId;
+        (target as IndividualListDTO).name = clientRequest.name;
+        (target as IndividualListDTO).identityType = clientRequest.identityType || null;
+        (target as IndividualListDTO).identityNo = clientRequest.registration;
+        (target as IndividualListDTO).emailAddress = '';
+
+        this.targetIndividualList.set([{
+          ...(target as IndividualListDTO)
+        }]);
+      }
+
+      this.editClientRequestSignal.update((value) => ({
+        ...value,
+        id: clientRequest.id,
+        createdAt: clientRequest.createdAt,
+        createdBy: clientRequest.createdBy,
+        modifiedAt: clientRequest.modifiedAt,
+        modifiedBy: clientRequest.modifiedBy,
+        status: clientRequest.status,
+        organisationId: clientRequest.organisationId,
+        organisation: clientRequest.organisationId ? org : null,
+        documentId: clientRequest.documentId,
+        fileName: clientRequest.fileName,
+        fileUrl: clientRequest.fileUrl,
+        target: clientRequest.target || null,
+        targetObject: target || null,
+        organisationFilter: '',
+        targetOrganisationFilter: '',
+        targetIndividualFilter: '',
+        targetKycStatus: clientRequest.targetKycStatus || null,
+      }));
+
+      if (clientRequest.organisationId) {
+        this.organisationList.set([{
+          ...org
+        }]);
+      }
   }
 
-  selectOrganisation(record: OrganisationRecord): void {
-    this.selectedOrganisationId.set(record.id);
-  }
+  // selectTarget(record: TargetRecord): void {
+  //   this.selectedTarget.set(record);
+  // }
+
+  // selectOrganisation(record: OrganisationRecord): void {
+  //   this.selectedOrganisationId.set(record.id);
+  // }
 
   setTargetType(value: TargetEntity): void {
     this.selectedTargetType.set(value);
+    this.editClientRequestSignal.update(v => ({ ...v, target: value, targetObject: null }));
   }
 
   setRequestStatus(value: ClientRequestStatus): void {
-    this.selectedRequestStatus.set(value);
+    this.editClientRequestSignal.update(v => ({ ...v, status: value }));
   }
 
   setKycStatus(value: KycComplianceStatus): void {
-    this.selectedKycStatus.set(value);
+    this.editClientRequestSignal.update(v => ({ ...v, targetKycStatus: value }));
+  }
+
+  isCurrentRequestStatus(value: ClientRequestStatus): boolean {
+    return this.editClientRequestSignal().status === value;
+  }
+
+  isCurrentKycStatus(value: KycComplianceStatus): boolean {
+    return this.editClientRequestSignal().targetKycStatus === value;
   }
 
   updateTargetFilter(value: string): void {
@@ -148,13 +389,6 @@ export class ClientRequestEdit {
     this.organisationFilter.set(value);
   }
 
-  updateDocumentId(value: string): void {
-    this.documentId.set(value);
-  }
-
-  updateFileName(value: string): void {
-    this.fileName.set(value);
-  }
 
   targetTypeLabel(value: TargetEntity): string {
     return value === TargetEntity.INDIVIDUAL ? 'Individual' : 'Organisation';
@@ -188,17 +422,9 @@ export class ClientRequestEdit {
     }
   }
 
-  isOrganisationSelected(record: OrganisationRecord): boolean {
-    return this.selectedOrganisationId() === record.id;
-  }
-
-  isCurrentKycStatus(value: KycComplianceStatus): boolean {
-    return this.selectedKycStatus() === value;
-  }
-
-  isCurrentRequestStatus(value: ClientRequestStatus): boolean {
-    return this.selectedRequestStatus() === value;
-  }
+  // isOrganisationSelected(record: OrganisationRecord): boolean {
+  //   return this.selectedOrganisationId() === record.id;
+  // }
 
   kycToneClass(value: KycComplianceStatus): string {
     switch (value) {
@@ -227,5 +453,50 @@ export class ClientRequestEdit {
       default:
         return 'neutral';
     }
+  }
+
+
+  // Organisation filter methods
+  filterOrganisation(): void {
+    let criteria = new SearchObject<OrganisationSearchCriteria>();
+    criteria.criteria = {
+      registrationNo: this.editClientRequestSignal().organisationFilter,
+      name: this.editClientRequestSignal().organisationFilter,
+      isClient: true
+    }
+    this.organisationApiStore.search({ criteria: criteria });
+  }
+
+  organisationCompare(o1: OrganisationListDTO | any, o2: OrganisationListDTO | any) {
+    return o1 && o2 ? o1.id === o2.id : false;
+  }
+
+  // Target organisation filter methods
+  filterTargetOrganisation(): void {
+    let criteria = new SearchObject<OrganisationSearchCriteria>();
+    criteria.criteria = {
+      registrationNo: this.editClientRequestSignal().targetObjectFilter,
+      name: this.editClientRequestSignal().targetObjectFilter
+    }
+    this.organisationApiStore.search({ criteria: criteria });
+  }
+
+  targetOrganisationCompare(o1: OrganisationListDTO | any, o2: OrganisationListDTO | any) {
+    return o1 && o2 ? o1.id === o2.id : false;
+  }
+
+  // Target individual filter methods
+  filterTargetIndividual(): void {
+    let criteria = new SearchObject<IndividualSearchCriteria>();
+    criteria.criteria = {
+      identityNo: this.editClientRequestSignal().targetObjectFilter,
+      firstName: this.editClientRequestSignal().targetObjectFilter,
+      surname: this.editClientRequestSignal().targetObjectFilter
+    }
+    this.individualApiStore.search({ criteria: criteria });
+  }
+
+  individualCompare(o1: IndividualListDTO | any, o2: IndividualListDTO | any) {
+    return o1 && o2 ? o1.id === o2.id : false;
   }
 }

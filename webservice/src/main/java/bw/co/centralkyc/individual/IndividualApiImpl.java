@@ -34,8 +34,11 @@ import bw.co.centralkyc.user.UserDTO;
 import bw.co.roguesystems.comm.ContentType;
 import bw.co.roguesystems.comm.MessagingPlatform;
 import bw.co.roguesystems.comm.message.CommMessageDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
+@Tag(name = "Individuals", description = "Individuals API")
 public class IndividualApiImpl implements IndividualApi {
 
     @Value("${app.organisation.manager-role}")
@@ -87,6 +90,7 @@ public class IndividualApiImpl implements IndividualApi {
     }
 
     @Override
+    @Operation(summary = "Find Individual by ID", description = "Get the individual with the given id")
     public ResponseEntity<IndividualDTO> findById(String id) {
 
         try {
@@ -122,6 +126,7 @@ public class IndividualApiImpl implements IndividualApi {
     }
 
     @Override
+    @Operation(summary = "Get All Individuals", description = "Get all individuals")
     public ResponseEntity<Collection<IndividualListDTO>> getAll() {
 
         try {
@@ -133,6 +138,7 @@ public class IndividualApiImpl implements IndividualApi {
     }
 
     @Override
+    @Operation(summary = "Get All Individuals Paged", description = "Get all individuals with pagination")
     public ResponseEntity<Page<IndividualListDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) {
 
@@ -145,6 +151,7 @@ public class IndividualApiImpl implements IndividualApi {
     }
 
     @Override
+    @Operation(summary = "Search Individuals Paged", description = "Search individuals with pagination")
     public ResponseEntity<Page<IndividualListDTO>> pagedSearch(
             SearchObject<IndividualSearchCriteria> criteria) {
 
@@ -158,6 +165,7 @@ public class IndividualApiImpl implements IndividualApi {
     }
 
     @Override
+    @Operation(summary = "Remove Individual", description = "Remove the individual with the given id")
     public ResponseEntity<Boolean> remove(String id) {
 
         try {
@@ -211,6 +219,7 @@ public class IndividualApiImpl implements IndividualApi {
     }
 
     @Override
+    @Operation(summary = "Save Individual", description = "Save the individual. If the id is not provided, a new individual will be created.")
     public ResponseEntity<IndividualDTO> save(IndividualDTO individual) {
 
         try {
@@ -284,6 +293,7 @@ public class IndividualApiImpl implements IndividualApi {
     }
 
     @Override
+    @Operation(summary = "Search Individuals", description = "Search individuals by criteria")
     public ResponseEntity<Collection<IndividualListDTO>> search(
             SearchObject<IndividualSearchCriteria> criteria) {
 
@@ -306,6 +316,7 @@ public class IndividualApiImpl implements IndividualApi {
     }
 
     @Override
+    @Operation(summary = "Get Organisation Clients", description = "Get all clients for a given organisation")
     public ResponseEntity<Collection<IndividualListDTO>> getOrganisationClients(
             String organisationId) throws Exception {
 
@@ -320,6 +331,7 @@ public class IndividualApiImpl implements IndividualApi {
     }
 
     @Override
+    @Operation(summary = "Get Organisation Clients Paged", description = "Get all clients for a given organisation with pagination")
     public ResponseEntity<Page<IndividualListDTO>> getOrganisationClientsPaged(
             String criteria, Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -334,6 +346,7 @@ public class IndividualApiImpl implements IndividualApi {
     }
 
     @Override
+    @Operation(summary = "Load Request Individual", description = "Load an individual based on request ID, identity confirmation token, and identity number")
     public ResponseEntity<IndividualDTO> loadRequestIndividual(String requestId, String identityConfirmationToken,
             String identityNo) throws Exception {
 
@@ -349,6 +362,7 @@ public class IndividualApiImpl implements IndividualApi {
     }
 
     @Override
+    @Operation(summary = "Load Me", description = "Load the currently authenticated individual")
     public ResponseEntity<IndividualDTO> loadMe() throws Exception {
 
         try {

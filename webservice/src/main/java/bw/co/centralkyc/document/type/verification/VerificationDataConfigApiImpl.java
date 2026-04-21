@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import bw.co.centralkyc.AuditTracker;
 
 @RestController
-@Tag(name = "Document Type", description = "Managing document types.")
+@Tag(name = "Verification Data Config", description = "Managing verification data configurations in the Central KYC system")
 public class VerificationDataConfigApiImpl implements VerificationDataConfigApi {
 
     private static final Logger logger = LoggerFactory.getLogger(VerificationDataConfigApiImpl.class);
@@ -33,7 +33,7 @@ public class VerificationDataConfigApiImpl implements VerificationDataConfigApi 
 
 
     @Override
-    @Operation(summary = "Find Document Type", description = "Get the document type with the given id")
+    @Operation(summary = "Find Verification Data Config", description = "Get the verification data config with the given id")
     public ResponseEntity<VerificationDataConfigDTO> findById(String id) throws Exception {
         try {
             return ResponseEntity.ok(verificationDataConfigService.findById(id));
@@ -46,6 +46,7 @@ public class VerificationDataConfigApiImpl implements VerificationDataConfigApi 
 
 
     @Override
+    @Operation(summary = "Remove Verification Data Config", description = "Remove the verification data config with the given id")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
             return ResponseEntity.ok(verificationDataConfigService.remove(id));
@@ -58,6 +59,7 @@ public class VerificationDataConfigApiImpl implements VerificationDataConfigApi 
 
 
     @Override
+    @Operation(summary = "Save Verification Data Config", description = "Save the verification data config")
     public ResponseEntity<VerificationDataConfigDTO> save(@Valid VerificationDataConfigDTO verificationDataConfig) throws Exception {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

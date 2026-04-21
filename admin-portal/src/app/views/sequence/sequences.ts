@@ -6,13 +6,14 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { SequenceGeneratorDTO } from '@app/models/bw/co/centralkyc/sequence/sequence-generator-dto';
 import { SequencePartDTO } from '@app/models/bw/co/centralkyc/sequence/sequence-part-dto';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { SequenceGeneratorApiStore } from '@app/store/bw/co/centralkyc/sequence/sequence-generator-api.store';
+import { ToastrService } from 'ngx-toastr';
 
 export class SearchSequencesVarsForm {
   name: string = '';
@@ -46,6 +47,14 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
   searchSequencesSignal = signal(this.searchSequencesVarsForm);
 
   readonly sequenceGeneratorApiStore = inject(SequenceGeneratorApiStore);
+  loading = linkedSignal(() => this.sequenceGeneratorApiStore.loading());
+  error = linkedSignal(() => this.sequenceGeneratorApiStore.error());
+  messages = linkedSignal(() => this.sequenceGeneratorApiStore.messages());
+  loadingMessage = linkedSignal(() => this.loading() ? 'Loading sequence generators...' : null);
+  success = linkedSignal(() => this.messages()?.length ? this.messages()[0] : null);
+
+  toastr = inject(ToastrService);
+
   protected readonly allRows = signal<SequenceGeneratorDTO[]>([]);
   protected readonly rows = signal<SequenceGeneratorDTO[]>([]);
   protected readonly dataSource = new MatTableDataSource<SequenceGeneratorDTO>([]);
@@ -62,6 +71,20 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
       const rows = this.sequenceGeneratorApiStore.dataList() || [];
       this.allRows.set(rows);
       this.recomputeRows(0);
+    });
+
+    effect(() => {
+      const error = this.error();
+      if (error) {
+        this.toastr.error(String(error), 'Error loading sequence generators');
+      }
+    });
+    
+    effect(() => {
+      const message = this.success();
+      if (message) {
+        this.toastr.success(String(message), 'Success');
+      }
     });
   }
 

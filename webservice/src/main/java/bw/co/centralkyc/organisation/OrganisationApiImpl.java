@@ -23,8 +23,11 @@ import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.individual.IndividualDTO;
 import bw.co.centralkyc.keycloak.KeycloakOrganisationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
+@Tag(name = "Organisations", description = "Operations related to organisations.")
 public class OrganisationApiImpl implements OrganisationApi {
 
     private final KeycloakOrganisationService orgService;
@@ -37,6 +40,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
+    @Operation(summary = "Find Organisation by ID", description = "Find an organisation by its ID")
     public ResponseEntity<OrganisationDTO> findById(String id) {
         try {
 
@@ -58,6 +62,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
+    @Operation(summary = "Get All Organisations", description = "Retrieve all organisations")
     public ResponseEntity<Collection<OrganisationListDTO>> getAll() {
         try {
             return ResponseEntity.ok(organisationService.getAll());
@@ -69,6 +74,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
+    @Operation(summary = "Get All Organisations Paged", description = "Retrieve all organisations with pagination")
     public ResponseEntity<Page<OrganisationListDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) {
         try {
@@ -82,6 +88,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
+    @Operation(summary = "Paged Search Organisations", description = "Search organisations with pagination")
     public ResponseEntity<Page<OrganisationListDTO>> pagedSearch(
             SearchObject<OrganisationSearchCriteria> criteria) {
         try {
@@ -100,6 +107,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
+    @Operation(summary = "Remove Organisation", description = "Remove an organisation by its ID")
     public ResponseEntity<Boolean> remove(String id) {
         try {
             return ResponseEntity.ok(organisationService.remove(id));
@@ -141,6 +149,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
+    @Operation(summary = "Save Organisation", description = "Save an organisation")
     public ResponseEntity<OrganisationDTO> save(OrganisationDTO organisation) {
         try {
 
@@ -180,6 +189,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
+    @Operation(summary = "Search Organisations", description = "Search organisations based on criteria")
     public ResponseEntity<Collection<OrganisationListDTO>> search(
             SearchObject<OrganisationSearchCriteria> criteria) {
         try {
@@ -202,6 +212,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
+    @Operation(summary = "Load Request Organisation", description = "Load an organisation based on request ID, identity confirmation token, and registration number")
     public ResponseEntity<OrganisationDTO> loadRequestOrganisation(String requestId, String identityConfirmationToken,
             String registrationNo) throws Exception {
         
@@ -216,6 +227,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
+    @Operation(summary = "Load My Organisation", description = "Load the organisation associated with the authenticated user")
     public ResponseEntity<OrganisationDTO> loadMyOrganisation() throws Exception {
         
         try {
@@ -240,6 +252,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
+    @Operation(summary = "Find Organisation by Registration No", description = "Find an organisation by its registration number")
     public ResponseEntity<OrganisationDTO> findByRegistrationNo(String registrationNo) throws Exception {
         
         try {

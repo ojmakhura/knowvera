@@ -14,10 +14,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.RestController;
 
 import bw.co.centralkyc.AuditTracker;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-@org.springframework.web.bind.annotation.RestController
+@RestController
+@Tag(name = "Document Types", description = "Operations related to document types.")
 public class DocumentTypeApiImpl implements DocumentTypeApi {
 
     private final DocumentTypeService documentTypeService;
@@ -27,6 +31,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     }
 
     @Override
+    @Operation(summary = "Find Document Type", description = "Get the document type with the given id")
     public ResponseEntity<DocumentTypeDTO> findById(String id) {
 
         try {
@@ -41,6 +46,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     }
 
     @Override
+    @Operation(summary = "Get All Document Types", description = "Get all document types")
     public ResponseEntity<Collection<DocumentTypeDTO>> getAll() {
 
         try {
@@ -62,6 +68,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     }
 
     @Override
+    @Operation(summary = "Get All Document Types Paged", description = "Get all document types with pagination")
     public ResponseEntity<Page<DocumentTypeDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) {
 
@@ -81,6 +88,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     }
 
     @Override
+    @Operation(summary = "Search Document Types Paged", description = "Search document types with pagination")
     public ResponseEntity<Page<DocumentTypeDTO>> pagedSearch(String criteria,
             Integer pageNumber,
             Integer pageSize) {
@@ -104,6 +112,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     }
 
     @Override
+    @Operation(summary = "Remove Document Type", description = "Remove the document type with the given id")
     public ResponseEntity<Boolean> remove(String id) {
 
         try {
@@ -118,6 +127,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     }
 
     @Override
+    @Operation(summary = "Save Document Type", description = "Save the document type. If the id is not provided, a new document type will be created.")
     public ResponseEntity<DocumentTypeDTO> save(DocumentTypeDTO documentType) {
 
         try {
@@ -149,6 +159,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     }
 
     @Override
+    @Operation(summary = "Search Document Types", description = "Search document types by criteria")
     public ResponseEntity<Collection<DocumentTypeDTO>> search(String criteria) {
 
         try {

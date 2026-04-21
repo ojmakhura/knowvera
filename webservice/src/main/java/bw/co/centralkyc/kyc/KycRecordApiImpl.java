@@ -26,6 +26,8 @@ import bw.co.centralkyc.keycloak.KeycloakOrganisationService;
 import bw.co.centralkyc.keycloak.KeycloakUserService;
 import bw.co.centralkyc.organisation.OrganisationDTO;
 import bw.co.centralkyc.user.UserDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -36,6 +38,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 
 @RestController
+@Tag(name = "KYC Records", description = "Operations related to KYC records.")
 public class KycRecordApiImpl implements KycRecordApi {
 
     private final KycRecordService kycRecordService;
@@ -86,6 +89,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Record by ID", description = "Find a KYC record by its ID")
     public ResponseEntity<KycRecordDTO> findById(String id) throws Exception {
 
         try {
@@ -102,6 +106,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Records by Identity Number", description = "Find KYC records by their identity number")
     public ResponseEntity<Collection<KycRecordListDTO>> findByIdentityNo(String identityNo)
             throws Exception {
 
@@ -117,6 +122,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Records by Individual", description = "Find KYC records by their individual ID")
     public ResponseEntity<Collection<KycRecordListDTO>> findByIndividual(String individualId)
             throws Exception {
 
@@ -132,6 +138,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Get All KYC Records", description = "Retrieve all KYC records")
     public ResponseEntity<Collection<KycRecordListDTO>> getAll() throws Exception {
 
         try {
@@ -146,6 +153,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Get All KYC Records Paged", description = "Retrieve all KYC records with pagination")
     public ResponseEntity<Page<KycRecordListDTO>> getAllPaged(Integer pageNumber, Integer pageSize)
             throws Exception {
 
@@ -161,6 +169,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Paged Search KYC Records", description = "Search KYC records with pagination")
     public ResponseEntity<Page<KycRecordListDTO>> pagedSearch(SearchObject<KycRecordSearchCriteria> criteria)
             throws Exception {
 
@@ -176,6 +185,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Remove KYC Record", description = "Remove a KYC record by its ID")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
 
@@ -188,6 +198,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Save KYC Record", description = "Save a KYC record")
     public ResponseEntity<KycRecordDTO> save(KycRecordDTO kycRecord) throws Exception {
         try {
 
@@ -205,6 +216,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Search KYC Records", description = "Search KYC records based on criteria")
     public ResponseEntity<Collection<KycRecordListDTO>> search(KycRecordSearchCriteria criteria) throws Exception {
         try {
 
@@ -220,6 +232,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Records by Identity Number Paged", description = "Find KYC records by their identity number with pagination")
     public ResponseEntity<Page<KycRecordListDTO>> findByIdentityNoPaged(String identityNo, Integer pageNumber,
             Integer pageSize) throws Exception {
 
@@ -235,6 +248,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Records by Individual Paged", description = "Find KYC records by their individual ID with pagination")
     public ResponseEntity<Page<KycRecordListDTO>> findByIndividualPaged(String individualId, Integer pageNumber,
             Integer pageSize) throws Exception {
 
@@ -249,6 +263,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Records by Organisation", description = "Find KYC records by their organisation ID")
     public ResponseEntity<Collection<KycRecordListDTO>> findByOrganisation(String organisationId) throws Exception {
 
         try {
@@ -262,6 +277,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Records by Organisation Registration", description = "Find KYC records by their organisation registration number")
     public ResponseEntity<Collection<KycRecordListDTO>> findByOrganisationRegistration(String registrationNo)
             throws Exception {
 
@@ -284,6 +300,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Records by Organisation Registration Paged", description = "Find KYC records by their organisation registration number with pagination")
     public ResponseEntity<Page<KycRecordListDTO>> findByOrganisationRegistrationPaged(String registrationNo,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -305,6 +322,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Create Individual KYC Record", description = "Create a KYC record for an individual")
     public ResponseEntity<KycRecordDTO> createIndividualRecord(String individualId) throws Exception {
 
         try {
@@ -328,6 +346,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Create Organisation KYC Record", description = "Create a KYC record for an organisation")
     public ResponseEntity<KycRecordDTO> createOrganisationRecord(String organisationId) throws Exception {
 
         try {
@@ -352,6 +371,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Find My Current KYC Record", description = "Find the current KYC record for the authenticated user")
     public ResponseEntity<KycRecordDTO> findMyCurrentRecord(TargetEntity ownerType) throws Exception {
 
         try {
@@ -415,6 +435,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Find My KYC Records", description = "Find all KYC records for the authenticated user")
     public ResponseEntity<Collection<KycRecordListDTO>> findMyRecords() throws Exception {
 
         try {
@@ -434,6 +455,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Create New KYC Record", description = "Create a new KYC record")
     public ResponseEntity<KycRecordDTO> createNew(KycRecordDTO record,
             List<MultipartFile> files) throws Exception {
 
@@ -512,6 +534,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Remove KYC Record File", description = "Remove a file from a KYC record")
     public ResponseEntity<KycRecordDTO> removeRecordFile(String id, @Nullable String documentId) throws Exception {
         try {
 
@@ -536,6 +559,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Update KYC Record Files", description = "Update the files associated with a KYC record")
     public ResponseEntity<KycRecordDTO> updateRecordFiles(String id, List<DocumentDTO> documents,
             List<MultipartFile> files) throws Exception {
         try {
@@ -586,6 +610,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Search My KYC Records Paged", description = "Search KYC records for the authenticated user with pagination")
     public @Nullable ResponseEntity<Page<KycRecordListDTO>> findMyRecordsPaged(@Nullable Integer pageNumber,
             @Nullable Integer pageSize) throws Exception {
 
@@ -609,6 +634,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Find KYC Record Summary by ID", description = "Find a summary of a KYC record by its ID")
     public ResponseEntity<KycRecordSummary> findSummaryById(String id) throws Exception {
         
         try {
@@ -625,6 +651,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Run KYC Verification", description = "Run KYC verification for a given KYC record ID")
     public ResponseEntity<KycRecordDTO> runVerification(String id) throws Exception {
         
         try {

@@ -8,15 +8,19 @@ package bw.co.centralkyc.individual.employment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.RestController;
 
 import bw.co.centralkyc.AuditTracker;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Collection;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 
-@org.springframework.web.bind.annotation.RestController
+@RestController
+@Tag(name = "Individual Employment Records", description = "Operations related to individual employment records.")
 public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     private final EmploymentRecordService employmentRecordService;
@@ -28,6 +32,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     }
 
     @Override
+    @Operation(summary = "Find Employment Record by ID", description = "Find an employment record by its ID")
     public ResponseEntity<EmploymentRecordDTO> findById(String id) throws Exception {
 
         try {
@@ -41,6 +46,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     }
 
     @Override
+    @Operation(summary = "Find Employment Records by Individual ID", description = "Find all employment records for a given individual ID")
     public ResponseEntity<Collection<EmploymentRecordDTO>> findByIndividual(String individualId)
             throws Exception {
 
@@ -55,6 +61,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     }
 
     @Override
+    @Operation(summary = "Get All Employment Records", description = "Get all employment records")
     public ResponseEntity<Collection<EmploymentRecordDTO>> getAll() throws Exception {
 
         try {
@@ -68,6 +75,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     }
 
     @Override
+    @Operation(summary = "Get All Employment Records Paged", description = "Get all employment records with pagination")
     public ResponseEntity<Page<EmploymentRecordDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) throws Exception {
 
@@ -82,6 +90,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     }
 
     @Override
+    @Operation(summary = "Paged Search Employment Records", description = "Search employment records with pagination")
     public ResponseEntity<Page<EmploymentRecordDTO>> pagedSearch(String criteria,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -96,6 +105,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     }
 
     @Override
+    @Operation(summary = "Remove Employment Record", description = "Remove an employment record by its ID")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
         try {
@@ -109,6 +119,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     }
 
     @Override
+    @Operation(summary = "Save Employment Record", description = "Save an employment record. If the ID is not provided, a new record will be created.")
     public ResponseEntity<EmploymentRecordDTO> save(EmploymentRecordDTO employmentRecord)
             throws Exception {
 
@@ -126,6 +137,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     }
 
     @Override
+    @Operation(summary = "Search Employment Records", description = "Search employment records by criteria")
     public ResponseEntity<Collection<EmploymentRecordDTO>> search(String criteria)
             throws Exception {
 
