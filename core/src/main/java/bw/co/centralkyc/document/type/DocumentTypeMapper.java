@@ -6,11 +6,16 @@
 package bw.co.centralkyc.document.type;
 
 import bw.co.centralkyc.document.type.field.ExpectedFieldMapper;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfig;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfigDTO;
 import bw.co.centralkyc.document.type.verification.VerificationDataConfigMapper;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfigRepository;
 import bw.co.centralkyc.utils.MappingUtils;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
+
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -29,6 +34,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 )
 public abstract class DocumentTypeMapper {
     
+    @Autowired
+    protected VerificationDataConfigRepository verificationDataConfigRepository;
+
+    @Autowired
+    private VerificationDataConfigMapper verificationDataConfigMapper;
     
     /**
      * Converts this entity to an object of type {@link DocumentTypeDTO}.
@@ -36,8 +46,21 @@ public abstract class DocumentTypeMapper {
      * @return DocumentTypeDTO
      */
     // @Mapping(source = "expectedFields", target = "expectedFields")
-    // @Mapping(source = "verificationDataConfigs", target = "verificationDataConfigs")
+    @Mapping(target = "verificationDataConfigs", expression = "java(mapVerificationDataConfigs(entity.getVerificationDataConfigs()))")
     public abstract DocumentTypeDTO toDocumentTypeDTO(DocumentType entity);
+
+    protected Collection<VerificationDataConfigDTO> mapVerificationDataConfigs(Collection<VerificationDataConfig> verificationDataConfigs) {
+
+        Collection<UUID> ids = verificationDataConfigs.stream()
+            .filter(config -> config.getId() != null)
+            .map(VerificationDataConfig::getId)
+            .toList();
+
+        Collection<VerificationDataConfig> configs = verificationDataConfigRepository.findAllById(ids);
+        return configs.stream()
+            .map(verificationDataConfigMapper::toVerificationDataConfigDTO)
+            .toList();
+    }
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link DocumentTypeDTO}.

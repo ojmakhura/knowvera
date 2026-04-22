@@ -42,16 +42,6 @@ public class DocumentTypeDaoImpl
      * {@inheritDoc}
      */
     @Override
-    protected Collection<DocumentType> handleFindByCriteria(String criteria)
-    {
-        // TODO implement public Collection<DocumentType> handleFindByCriteria(String criteria)
-        return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void toDocumentTypeDTO(
         DocumentType source,
         DocumentTypeDTO target)

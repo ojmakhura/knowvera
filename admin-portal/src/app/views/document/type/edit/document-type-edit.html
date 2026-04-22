@@ -249,7 +249,7 @@
                             @for (option of documentTypeFields(); track option) {
                             <mat-checkbox [checked]="isVerificationDataConfigKeySelected(index, option)"
                               (change)="toggleVerificationDataConfigKey(index, option, $event.checked)">
-                              <span translate>{{ option.field }}</span>
+                              <span translate>{{ option.fieldLabel || option.field }}</span>
                             </mat-checkbox>
                             }
                           </div>
