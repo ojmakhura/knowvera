@@ -36,6 +36,7 @@ import { Loader } from '@app/@shared/loader/loader';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
 import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
+import { CreateClientRequestDialogComponent } from './create-client-request-dialog';
 
 @Component({
   selector: 'app-organisation-details',
@@ -64,6 +65,7 @@ import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-
 export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() id: string = '';
+  targetEntity = TargetEntity;
   organisationApiStore = inject(OrganisationApiStore);
   settingsApiStore = inject(SettingsApiStore);
   settings = linkedSignal(() => this.settingsApiStore.data());
@@ -353,11 +355,11 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private doSearchRequests(pageNumber: number = 0, pageSize: number = 10, target?: TargetEntity): void {
-    let org = this.organisation();
-    if (org?.id) {
+    console.log(this.id)
+    if (this.id) {
       this.clientRequestApiStore.findByTargetPaged({
         target: TargetEntity.ORGANISATION,
-        targetId: org.id,
+        targetId: this.id,
         pageNumber,
         pageSize,
       });
@@ -370,9 +372,8 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   // Branches Management Methods
   loadBranches(): void {
-    const org = this.organisation();
-    if (org?.id) {
-      this.branchApiStore.findByOrganisation({ organisationId: org.id });
+    if (this.id) {
+      this.branchApiStore.findByOrganisation({ organisationId: this.id });
     }
   }
 
@@ -383,8 +384,8 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   // Invoices Management Methods
   loadInvoices(): void {
     const org = this.organisation();
-    if (org?.id) {
-      this.kycInvoiceApiStore.findByOrganisation({ organisationId: org.id });
+    if (this.id) {
+      this.kycInvoiceApiStore.findByOrganisation({ organisationId: this.id });
     }
   }
 
@@ -394,9 +395,8 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   // Subscriptions Management Methods
   loadSubscriptions(): void {
-    const org = this.organisation();
-    if (org?.id) {
-      this.kycSubscriptionApiStore.findByOrganisation({ organisationId: org.id });
+    if (this.id) {
+      this.kycSubscriptionApiStore.findByOrganisation({ organisationId: this.id });
     }
   }
 
@@ -407,10 +407,9 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   // Client Requests Management Methods
   loadIndividualClientRequests(pageNumber: number = 0, pageSize: number = 10): void {
 
-    const org = this.organisation();
-    if (org?.id) {
+    if (this.id) {
       this.clientRequestApiStore.findIndividualsByOrganisationPaged({
-        organisationId: org.id,
+        organisationId: this.id,
         pageNumber,
         pageSize
       });
@@ -418,13 +417,124 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadOrganisationClientRequests(pageNumber: number = 0, pageSize: number = 10): void {
-    const org = this.organisation();
-    if (org?.id) {
+    if (this.id) {
       this.clientRequestApiStore.findOrganisationsByOrganisationPaged({
-        organisationId: org.id,
+        organisationId: this.id,
         pageNumber,
         pageSize
       });
     }
+  }
+
+  onIndividualClientRequestFileSelected(event: Event, fileInput: HTMLInputElement): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files.length > 0 ? input.files[0] : null;
+
+    if (!file) {
+      return;
+    }
+
+    if (!this.isSupportedClientRequestFile(file.name)) {
+      this.toaster.warning('Please select a valid Excel or CSV file (.xlsx, .xls, .csv).');
+      fileInput.value = '';
+      return;
+    }
+
+    this.isUploadingIndividualClientRequestFile.set(true);
+    this.clientRequestApi.uploadRequests(file, this.id, TargetEntity.INDIVIDUAL)
+      .pipe(finalize(() => {
+        this.isUploadingIndividualClientRequestFile.set(false);
+        fileInput.value = '';
+      }))
+      .subscribe({
+        next: () => {
+          this.toaster.success('Individual client requests uploaded successfully.');
+          const page = this.individualClientRequests().page;
+          this.loadIndividualClientRequests(page.number || 0, page.size || 10);
+        },
+        error: (error: any) => {
+          const message = error?.error?.message || 'Failed to upload individual client requests.';
+          this.toaster.error(message);
+        }
+      });
+  }
+
+  onOrganisationClientRequestFileSelected(event: Event, fileInput: HTMLInputElement): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files.length > 0 ? input.files[0] : null;
+
+    if (!file) {
+      return;
+    }
+
+    if (!this.isSupportedClientRequestFile(file.name)) {
+      this.toaster.warning('Please select a valid Excel or CSV file (.xlsx, .xls, .csv).');
+      fileInput.value = '';
+      return;
+    }
+
+    this.isUploadingOrganisationClientRequestFile.set(true);
+    this.clientRequestApi.uploadRequests(file, this.id, TargetEntity.ORGANISATION)
+      .pipe(finalize(() => {
+        this.isUploadingOrganisationClientRequestFile.set(false);
+        fileInput.value = '';
+      }))
+      .subscribe({
+        next: () => {
+          this.toaster.success('Organisation client requests uploaded successfully.');
+          const page = this.organisationClientRequests().page;
+          this.loadOrganisationClientRequests(page.number || 0, page.size || 10);
+        },
+        error: (error: any) => {
+          const message = error?.error?.message || 'Failed to upload organisation client requests.';
+          this.toaster.error(message);
+        }
+      });
+  }
+
+  private isSupportedClientRequestFile(fileName: string): boolean {
+    return /\.(xlsx|xls|csv)$/i.test(fileName || '');
+  }
+
+  openCreateClientRequestDialog(defaultTarget: TargetEntity): void {
+    const organisation = this.organisation();
+
+    if (!this.id) {
+      this.toaster.warning('Organisation must be loaded before creating a client request.');
+      return;
+    }
+
+    const ref = this.dialog.open(CreateClientRequestDialogComponent, {
+      width: '520px',
+      data: { defaultTarget },
+    });
+
+    ref.afterClosed().subscribe((result: any) => {
+      if (!result) {
+        return;
+      }
+
+      const { target, individual, organisation: selectedOrg } = result;
+      const queryParams: any = {
+        organisationId: this.id,
+        organisationName: organisation?.name || '',
+        organisationRegistrationNo: organisation?.registrationNo || '',
+        target,
+      };
+
+      // Add target entity details based on selection
+      if (target === TargetEntity.INDIVIDUAL && individual) {
+        queryParams.targetId = individual.id;
+        queryParams.targetName = individual.name;
+        queryParams.targetIdentityNo = individual.identityNo;
+        queryParams.targetIdentityType = individual.identityType;
+      } else if (target === TargetEntity.ORGANISATION && selectedOrg) {
+        queryParams.targetId = selectedOrg.id;
+        queryParams.targetName = selectedOrg.name;
+        queryParams.targetRegistrationNo = selectedOrg.registrationNo;
+      }
+
+      this.router.navigate(['/request/edit'], { queryParams });
+    });
   }
 }

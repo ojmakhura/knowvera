@@ -18,7 +18,7 @@ import { required } from '@angular/forms/signals';
 import { ClientRequestApiStore } from '@app/store/bw/co/centralkyc/organisation/client/client-request-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
 import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
 import { ClientRequestDTO } from '@app/models/bw/co/centralkyc/organisation/client/client-request-dto';
 import { ToastrService } from 'ngx-toastr';
@@ -223,6 +223,8 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const query = this.route.snapshot.queryParamMap;
+    this.prefillFromQuery(query);
   }
 
   ngAfterViewInit(): void {
@@ -498,5 +500,72 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
 
   individualCompare(o1: IndividualListDTO | any, o2: IndividualListDTO | any) {
     return o1 && o2 ? o1.id === o2.id : false;
+  }
+
+  private prefillFromQuery(query: ParamMap): void {
+    const target = query.get('target');
+    const organisationId = query.get('organisationId');
+    const organisationName = query.get('organisationName') || '';
+    const organisationRegistrationNo = query.get('organisationRegistrationNo') || '';
+
+    if (target === TargetEntity.INDIVIDUAL || target === TargetEntity.ORGANISATION) {
+      this.setTargetType(target);
+    }
+
+    if (!organisationId) {
+      return;
+    }
+
+    const organisation = new OrganisationListDTO();
+    organisation.id = organisationId;
+    organisation.name = organisationName;
+    organisation.registrationNo = organisationRegistrationNo;
+    organisation.contactEmailAddress = '';
+    organisation.status = '';
+    organisation.postalAddress = '';
+    organisation.physicalAddress = '';
+
+    this.organisationList.set([{ ...organisation }]);
+    this.editClientRequestSignal.update((value) => ({
+      ...value,
+      organisation,
+      organisationFilter: '',
+    }));
+
+    // Prefill target entity if provided
+    const targetId = query.get('targetId');
+    const targetName = query.get('targetName');
+
+    if (target === TargetEntity.INDIVIDUAL && targetId && targetName) {
+      const individual = new IndividualListDTO();
+      individual.id = targetId;
+      individual.name = targetName;
+      individual.identityNo = query.get('targetIdentityNo') || '';
+      individual.identityType = query.get('targetIdentityType') || null;
+      individual.emailAddress = '';
+
+      this.targetIndividualList.set([{ ...individual }]);
+      this.editClientRequestSignal.update((value) => ({
+        ...value,
+        targetObject: individual,
+        targetObjectFilter: '',
+      }));
+    } else if (target === TargetEntity.ORGANISATION && targetId && targetName) {
+      const targetOrg = new OrganisationListDTO();
+      targetOrg.id = targetId;
+      targetOrg.name = targetName;
+      targetOrg.registrationNo = query.get('targetRegistrationNo') || '';
+      targetOrg.contactEmailAddress = '';
+      targetOrg.status = '';
+      targetOrg.postalAddress = '';
+      targetOrg.physicalAddress = '';
+
+      this.targetOrganisationList.set([{ ...targetOrg }]);
+      this.editClientRequestSignal.update((value) => ({
+        ...value,
+        targetObject: targetOrg,
+        targetObjectFilter: '',
+      }));
+    }
   }
 }

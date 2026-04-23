@@ -257,15 +257,45 @@
 				</div>
 			</mat-tab>
 
-			<mat-tab label="Client Requests">
+			<mat-tab label="Individual Client Requests">
 				<div class="tab-content tab-client-requests">
 					@if (organisation().isClient) {
 					<mat-card class="ops-card table-card">
 						<div class="table-head">
-							<h3>Active Client Requests</h3>
-							<span class="live-chip">Live</span>
+							<h3>Individual Client Requests</h3>
+							<div class="table-head-actions">
+								<span class="live-chip">Live</span>
+								<button
+									mat-flat-button
+									type="button"
+									(click)="openCreateClientRequestDialog(targetEntity.INDIVIDUAL)"
+								>
+									<mat-icon>add</mat-icon>
+									Create Request
+								</button>
+								<input
+									type="file"
+									#individualRequestsUploadInput
+									hidden
+									accept=".xlsx,.xls,.csv"
+									(change)="onIndividualClientRequestFileSelected($event, individualRequestsUploadInput)"
+								/>
+								<button
+									mat-stroked-button
+									type="button"
+									(click)="individualRequestsUploadInput.click()"
+									[disabled]="isUploadingIndividualClientRequestFile()"
+								>
+									<mat-icon>upload_file</mat-icon>
+									{{ isUploadingIndividualClientRequestFile() ? 'Uploading...' : 'Upload Excel' }}
+								</button>
+							</div>
 						</div>
-						<table mat-table [dataSource]="clientRequestsDataSource" class="vault-table">
+						<table
+							mat-table
+							[dataSource]="$any(individualClientRequests().content) || []"
+							class="vault-table"
+						>
 							<ng-container matColumnDef="organisation">
 								<th mat-header-cell *matHeaderCellDef>Name / Registration</th>
 								<td mat-cell *matCellDef="let request">
@@ -293,9 +323,95 @@
 							<tr mat-row *matRowDef="let row; columns: clientRequestsColumns"></tr>
 						</table>
 
-						<mat-paginator [length]="clientRequestsTotalElements()" [pageIndex]="clientRequestsCurrentPage()"
-							[pageSize]="clientRequestsPageSize()" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons
-							(page)="onClientRequestsPageChange($event)"></mat-paginator>
+						<mat-paginator
+							[length]="$any(individualClientRequests().page.totalElements) || $any(individualClientRequests().totalElements) || 0"
+							[pageIndex]="$any(individualClientRequests().page.number) || 0"
+							[pageSize]="$any(individualClientRequests().page.size) || 10"
+							[pageSizeOptions]="[5, 10, 25]"
+							showFirstLastButtons
+							(page)="loadIndividualClientRequests($event.pageIndex, $event.pageSize)"
+						></mat-paginator>
+					</mat-card>
+					} @else {
+					<p class="empty-text">Client requests are available only for client organisations.</p>
+					}
+				</div>
+			</mat-tab>
+
+			<mat-tab label="Organisation Client Requests">
+				<div class="tab-content tab-client-requests">
+					@if (organisation().isClient) {
+					<mat-card class="ops-card table-card">
+						<div class="table-head">
+							<h3>Organisation Client Requests</h3>
+							<div class="table-head-actions">
+								<span class="live-chip">Live</span>
+								<button
+									mat-flat-button
+									type="button"
+									(click)="openCreateClientRequestDialog(targetEntity.ORGANISATION)"
+								>
+									<mat-icon>add</mat-icon>
+									Create Request
+								</button>
+								<input
+									type="file"
+									#organisationRequestsUploadInput
+									hidden
+									accept=".xlsx,.xls,.csv"
+									(change)="onOrganisationClientRequestFileSelected($event, organisationRequestsUploadInput)"
+								/>
+								<button
+									mat-stroked-button
+									type="button"
+									(click)="organisationRequestsUploadInput.click()"
+									[disabled]="isUploadingOrganisationClientRequestFile()"
+								>
+									<mat-icon>upload_file</mat-icon>
+									{{ isUploadingOrganisationClientRequestFile() ? 'Uploading...' : 'Upload Excel' }}
+								</button>
+							</div>
+						</div>
+						<table
+							mat-table
+							[dataSource]="$any(organisationClientRequests().content) || []"
+							class="vault-table"
+						>
+							<ng-container matColumnDef="organisation">
+								<th mat-header-cell *matHeaderCellDef>Name / Registration</th>
+								<td mat-cell *matCellDef="let request">
+									<div class="cell-strong">{{ request.organisation || '-' }}</div>
+									<div class="cell-sub">{{ request.id || '-' }}</div>
+								</td>
+							</ng-container>
+
+							<ng-container matColumnDef="createdAt">
+								<th mat-header-cell *matHeaderCellDef>Email</th>
+								<td mat-cell *matCellDef="let request">{{ request.createdBy || '-' }}</td>
+							</ng-container>
+
+							<ng-container matColumnDef="status">
+								<th mat-header-cell *matHeaderCellDef>Status</th>
+								<td mat-cell *matCellDef="let request">
+									<span class="table-status" [class.flagged]="request.status === 'FLAGGED'"
+										[class.pending]="request.status !== 'FLAGGED'">
+										{{ request.status || 'Pending' }}
+									</span>
+								</td>
+							</ng-container>
+
+							<tr mat-header-row *matHeaderRowDef="clientRequestsColumns"></tr>
+							<tr mat-row *matRowDef="let row; columns: clientRequestsColumns"></tr>
+						</table>
+
+						<mat-paginator
+							[length]="$any(organisationClientRequests().page.totalElements) || $any(organisationClientRequests().totalElements) || 0"
+							[pageIndex]="$any(organisationClientRequests().page.number) || 0"
+							[pageSize]="$any(organisationClientRequests().page.size) || 10"
+							[pageSizeOptions]="[5, 10, 25]"
+							showFirstLastButtons
+							(page)="loadOrganisationClientRequests($event.pageIndex, $event.pageSize)"
+						></mat-paginator>
 					</mat-card>
 					} @else {
 					<p class="empty-text">Client requests are available only for client organisations.</p>

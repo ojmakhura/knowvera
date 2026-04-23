@@ -64,7 +64,7 @@ export class ClientRequests implements OnInit {
   private readonly organisationApiStore = inject(OrganisationApiStore);
   private readonly clientRequestApiStore = inject(ClientRequestApiStore);
 
-  readonly displayedColumns = ['client', 'email', 'status', 'organisation', 'documents', 'target', 'actions'];
+  readonly displayedColumns = ['client', 'email', 'status', 'organisation', 'actions'];
   readonly filters = signal<ClientRequestSearchForm>({ ...INITIAL_FILTERS });
   readonly organisations = signal<OrganisationListDTO[]>([]);
   readonly rows = signal<ClientRequestDTO[]>([]);
