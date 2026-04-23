@@ -8,6 +8,7 @@
  */
 package bw.co.centralkyc.subscription;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -96,7 +97,7 @@ public class KycSubscriptionServiceImpl
                 sequenceGenerator.setName(SEQUENCE_NAME);
                 sequenceGenerator.setTargetEntity(TargetEntity.SUBSCRIPTION);
 
-                Collection<SequencePart> sequenceParts = new HashSet<SequencePart>();
+                List<SequencePart> sequenceParts = new ArrayList<>();
 
                 SequencePart counterPart = new SequencePart();
                 counterPart.setPosition(0);

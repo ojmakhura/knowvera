@@ -27,6 +27,11 @@ import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.individual.Sex;
 import bw.co.centralkyc.kyc.KycComplianceStatus;
 import bw.co.centralkyc.messaging.ClientRequestNotification;
+import bw.co.centralkyc.sequence.SequenceGenerator;
+import bw.co.centralkyc.sequence.SequenceGeneratorRepository;
+import bw.co.centralkyc.sequence.SequenceGeneratorService;
+import bw.co.centralkyc.sequence.SequencePart;
+import bw.co.centralkyc.sequence.SequencePartType;
 import bw.co.centralkyc.settings.SettingsDao;
 import bw.co.centralkyc.settings.SettingsMapper;
 import bw.co.centralkyc.settings.SettingsRepository;
@@ -84,11 +89,18 @@ public class ClientRequestServiceImpl
     @Value("${app.request-token-length}")
     private int requestTokenLength;
 
+     private static final String SEQUENCE_NAME = "CLIENT_REQUEST_REF";
+
     private final PasswordEncoder passwordEncoder;
     private final ClientRequestNotification clientRequestNotification;
+    private final SequenceGeneratorRepository sequenceGeneratorRepository;
+    private final SequenceGeneratorService sequenceGeneratorService;
 
     public ClientRequestServiceImpl(ClientRequestDao clientRequestDao, ClientRequestRepository clientRequestRepository,
-            ClientRequestMapper clientRequestMapper, IndividualDao individualDao, PasswordEncoder passwordEncoder, ClientRequestNotification clientRequestNotification, IndividualRepository individualRepository, IndividualMapper individualMapper, DocumentDao documentDao,
+            ClientRequestMapper clientRequestMapper, IndividualDao individualDao, PasswordEncoder passwordEncoder,
+            ClientRequestNotification clientRequestNotification, IndividualRepository individualRepository,
+            IndividualMapper individualMapper, DocumentDao documentDao,
+            SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorService sequenceGeneratorService,
             DocumentRepository documentRepository, DocumentMapper documentMapper, SettingsDao settingsDao,
             SettingsRepository settingsRepository, SettingsMapper settingsMapper, MessageSource messageSource) {
         super(clientRequestDao, clientRequestRepository, clientRequestMapper, individualDao, individualRepository,
@@ -97,6 +109,8 @@ public class ClientRequestServiceImpl
         // TODO Auto-generated constructor stub
         this.passwordEncoder = passwordEncoder;
         this.clientRequestNotification = clientRequestNotification;
+        this.sequenceGeneratorRepository = sequenceGeneratorRepository;
+        this.sequenceGeneratorService = sequenceGeneratorService;
     }
 
     /**
@@ -120,6 +134,58 @@ public class ClientRequestServiceImpl
             throws Exception {
 
         ClientRequest clientRequestEntity = clientRequestDao.clientRequestDTOToEntity(clientRequest);
+
+        if (StringUtils.isBlank(clientRequestEntity.getRef())) {
+
+            SequenceGenerator sequenceGenerator = sequenceGeneratorRepository.findByName(SEQUENCE_NAME).orElse(null);
+
+            if (sequenceGenerator == null) {
+
+                sequenceGenerator = new SequenceGenerator();
+                sequenceGenerator.setName(SEQUENCE_NAME);
+                sequenceGenerator.setTargetEntity(TargetEntity.CLIENT_REQUEST);
+
+                List<SequencePart> sequenceParts = new ArrayList<>();
+
+                SequencePart counterPart = new SequencePart();
+                counterPart.setPosition(0);
+                counterPart.setType(SequencePartType.STATIC);
+                counterPart.setInitialValue("KR-");
+                counterPart.setName(SEQUENCE_NAME + "_PREFIX");
+                counterPart.setSequenceGenerator(sequenceGenerator);
+                sequenceParts.add(counterPart);
+
+                counterPart = new SequencePart();
+                counterPart.setPosition(1);
+                counterPart.setType(SequencePartType.YEAR);
+                counterPart.setName(SEQUENCE_NAME + "_YEAR");
+                counterPart.setInitialValue("");
+                counterPart.setSequenceGenerator(sequenceGenerator);
+                sequenceParts.add(counterPart);
+
+                counterPart = new SequencePart();
+                counterPart.setPosition(2);
+                counterPart.setType(SequencePartType.STATIC);
+                counterPart.setInitialValue("/");
+                counterPart.setName(SEQUENCE_NAME + "_YEAR_SLASH");
+                counterPart.setSequenceGenerator(sequenceGenerator);
+                sequenceParts.add(counterPart);
+
+                counterPart = new SequencePart();
+                counterPart.setPosition(3);
+                counterPart.setType(SequencePartType.COUNTER);
+                counterPart.setName(SEQUENCE_NAME + "_COUNTER");
+                counterPart.setInitialValue("0000000");
+                counterPart.setSequenceGenerator(sequenceGenerator);
+                sequenceParts.add(counterPart);
+
+                sequenceGenerator.setSequenceParts(sequenceParts);
+                sequenceGenerator = sequenceGeneratorRepository.save(sequenceGenerator);
+            }
+
+            String nextRef = sequenceGeneratorService.generateNextSequenceValue(SEQUENCE_NAME, true);
+            clientRequestEntity.setRef(nextRef);
+        }
 
         boolean isNew = StringUtils.isBlank(clientRequest.getId());
         String token = null;

@@ -76,7 +76,7 @@ public class ContactServiceImpl
                 sequenceGenerator.setName(SEQUENCE_NAME);
                 sequenceGenerator.setTargetEntity(TargetEntity.CONTACT);
 
-                Collection<SequencePart> sequenceParts = new ArrayList<>();
+                List<SequencePart> sequenceParts = new ArrayList<>();
 
                 SequencePart counterPart = new SequencePart();
                 counterPart.setPosition(0);

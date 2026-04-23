@@ -10,6 +10,7 @@ package bw.co.centralkyc.invoice;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -265,7 +266,7 @@ public class KycInvoiceServiceImpl
             sequenceGenerator.setName(SEQUENCE_NAME);
             sequenceGenerator.setTargetEntity(TargetEntity.INVOICE);
 
-            Collection<SequencePart> sequenceParts = new HashSet<SequencePart>();
+            List<SequencePart> sequenceParts = new ArrayList<>();
 
             SequencePart counterPart = new SequencePart();
             counterPart.setPosition(0);

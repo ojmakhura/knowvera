@@ -443,7 +443,7 @@ public class KycRecordServiceImpl
                 sequenceGenerator.setName(SEQUENCE_NAME);
                 sequenceGenerator.setTargetEntity(TargetEntity.KYC_RECORD);
 
-                Collection<SequencePart> sequenceParts = new HashSet<SequencePart>();
+                List<SequencePart> sequenceParts = new ArrayList<>();
 
                 SequencePart counterPart = new SequencePart();
                 counterPart.setPosition(0);
