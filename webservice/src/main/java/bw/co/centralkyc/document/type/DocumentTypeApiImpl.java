@@ -6,6 +6,7 @@
 package bw.co.centralkyc.document.type;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -47,11 +48,11 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
     @Override
     @Operation(summary = "Get All Document Types", description = "Get all document types")
-    public ResponseEntity<Collection<DocumentTypeDTO>> getAll() {
+    public ResponseEntity<List<DocumentTypeDTO>> getAll() {
 
         try {
 
-            Collection<DocumentTypeDTO> results = documentTypeService.getAll();
+            List<DocumentTypeDTO> results = documentTypeService.getAll();
 
             if (CollectionUtils.isEmpty(results)) {
 
@@ -160,10 +161,10 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
     @Override
     @Operation(summary = "Search Document Types", description = "Search document types by criteria")
-    public ResponseEntity<Collection<DocumentTypeDTO>> search(String criteria) {
+    public ResponseEntity<List<DocumentTypeDTO>> search(String criteria) {
 
         try {
-            Collection<DocumentTypeDTO> results = documentTypeService.search(criteria);
+            List<DocumentTypeDTO> results = documentTypeService.search(criteria);
 
             if (CollectionUtils.isEmpty(results)) {
 

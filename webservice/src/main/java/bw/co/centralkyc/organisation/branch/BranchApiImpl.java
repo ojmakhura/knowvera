@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -63,7 +64,7 @@ public class BranchApiImpl implements BranchApi {
 
     @Override
     @Operation(summary = "Find Branches by Organisation", description = "Find branches for a specific organisation")
-    public ResponseEntity<Collection<BranchDTO>> findByOrganisation(String organisationId) {
+    public ResponseEntity<List<BranchDTO>> findByOrganisation(String organisationId) {
         
         try {
             OrganisationDTO org = orgService.findById(organisationId);
@@ -79,7 +80,7 @@ public class BranchApiImpl implements BranchApi {
 
     @Override
     @Operation(summary = "Find Branches by Organisation (Paged)", description = "Find branches for a specific organisation with pagination")
-    public ResponseEntity<Collection<BranchDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber, Integer pageSize) {
+    public ResponseEntity<Page<BranchDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber, Integer pageSize) {
         
         try {
             OrganisationDTO org = orgService.findById(organisationId);
@@ -95,7 +96,7 @@ public class BranchApiImpl implements BranchApi {
 
     @Override
     @Operation(summary = "Get All Branches", description = "Get all branches")
-    public ResponseEntity<Collection<BranchDTO>> getAll() {
+    public ResponseEntity<List<BranchDTO>> getAll() {
         
         try {
             return ResponseEntity.ok(branchService.getAll());
@@ -167,7 +168,7 @@ public class BranchApiImpl implements BranchApi {
 
     @Override
     @Operation(summary = "Search Branches", description = "Search branches based on criteria")
-    public ResponseEntity<Collection<BranchDTO>> search(String criteria) {
+    public ResponseEntity<List<BranchDTO>> search(String criteria) {
         
         try {
             return ResponseEntity.ok(branchService.search(criteria));

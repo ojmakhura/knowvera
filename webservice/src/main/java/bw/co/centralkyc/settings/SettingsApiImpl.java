@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +51,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Get All Settings", description = "Retrieve all settings")
-    public ResponseEntity<Collection<SettingsDTO>> getAll() {
+    public ResponseEntity<List<SettingsDTO>> getAll() {
         try {
             return ResponseEntity.ok(settingsService.getAll());
 
@@ -121,7 +122,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Search Settings", description = "Search settings based on criteria")
-    public ResponseEntity<Collection<SettingsDTO>> search(String criteria) {
+    public ResponseEntity<List<SettingsDTO>> search(String criteria) {
         try {
             return ResponseEntity.ok(null);
 

@@ -138,9 +138,9 @@ public class ContactServiceImpl
      * @see bw.co.centralkyc.contact.ContactService#getAll()
      */
     @Override
-    protected Collection<ContactDTO> handleGetAll()
+    protected List<ContactDTO> handleGetAll()
             throws Exception {
-        // TODO implement protected Collection<ContactDTO> handleGetAll()
+        // TODO implement protected List<ContactDTO> handleGetAll()
         throw new UnsupportedOperationException(
                 "bw.co.centralkyc.contact.ContactService.handleGetAll() Not implemented!");
     }
@@ -149,9 +149,9 @@ public class ContactServiceImpl
      * @see bw.co.centralkyc.contact.ContactService#search(String)
      */
     @Override
-    protected Collection<ContactDTO> handleSearch(String criteria)
+    protected List<ContactDTO> handleSearch(String criteria)
             throws Exception {
-        // TODO implement protected Collection<ContactDTO> handleSearch(String criteria)
+        // TODO implement protected List<ContactDTO> handleSearch(String criteria)
         throw new UnsupportedOperationException(
                 "bw.co.centralkyc.contact.ContactService.handleSearch(String criteria) Not implemented!");
     }

@@ -107,11 +107,11 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     @Operation(summary = "Find KYC Records by Identity Number", description = "Find KYC records by their identity number")
-    public ResponseEntity<Collection<KycRecordListDTO>> findByIdentityNo(String identityNo)
+    public ResponseEntity<List<KycRecordListDTO>> findByIdentityNo(String identityNo)
             throws Exception {
 
         try {
-            Collection<KycRecordListDTO> records = kycRecordService.findByIdentityNo(identityNo);
+            List<KycRecordListDTO> records = kycRecordService.findByIdentityNo(identityNo);
             // updateOrganisations(records);
             return ResponseEntity.ok(records);
 
@@ -123,11 +123,11 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     @Operation(summary = "Find KYC Records by Individual", description = "Find KYC records by their individual ID")
-    public ResponseEntity<Collection<KycRecordListDTO>> findByIndividual(String individualId)
+    public ResponseEntity<List<KycRecordListDTO>> findByIndividual(String individualId)
             throws Exception {
 
         try {
-            Collection<KycRecordListDTO> records = kycRecordService.findByIndividual(individualId);
+            List<KycRecordListDTO> records = kycRecordService.findByIndividual(individualId);
             // updateOrganisations(records);
             return ResponseEntity.ok(records);
 
@@ -139,10 +139,10 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     @Operation(summary = "Get All KYC Records", description = "Retrieve all KYC records")
-    public ResponseEntity<Collection<KycRecordListDTO>> getAll() throws Exception {
+    public ResponseEntity<List<KycRecordListDTO>> getAll() throws Exception {
 
         try {
-            Collection<KycRecordListDTO> records = kycRecordService.getAll();
+            List<KycRecordListDTO> records = kycRecordService.getAll();
             // updateOrganisations(records);
             return ResponseEntity.ok(records);
 
@@ -217,10 +217,10 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     @Operation(summary = "Search KYC Records", description = "Search KYC records based on criteria")
-    public ResponseEntity<Collection<KycRecordListDTO>> search(KycRecordSearchCriteria criteria) throws Exception {
+    public ResponseEntity<List<KycRecordListDTO>> search(KycRecordSearchCriteria criteria) throws Exception {
         try {
 
-            Collection<KycRecordListDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
+            List<KycRecordListDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
             // updateOrganisations(records);
 
             return ResponseEntity.ok(records);
@@ -264,10 +264,10 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     @Operation(summary = "Find KYC Records by Organisation", description = "Find KYC records by their organisation ID")
-    public ResponseEntity<Collection<KycRecordListDTO>> findByOrganisation(String organisationId) throws Exception {
+    public ResponseEntity<List<KycRecordListDTO>> findByOrganisation(String organisationId) throws Exception {
 
         try {
-            Collection<KycRecordListDTO> records = kycRecordService.findByOrganisation(organisationId);
+            List<KycRecordListDTO> records = kycRecordService.findByOrganisation(organisationId);
             // updateOrganisations(records);
             return ResponseEntity.ok(records);
         } catch (Exception e) {
@@ -278,7 +278,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     @Operation(summary = "Find KYC Records by Organisation Registration", description = "Find KYC records by their organisation registration number")
-    public ResponseEntity<Collection<KycRecordListDTO>> findByOrganisationRegistration(String registrationNo)
+    public ResponseEntity<List<KycRecordListDTO>> findByOrganisationRegistration(String registrationNo)
             throws Exception {
 
         try {
@@ -289,7 +289,7 @@ public class KycRecordApiImpl implements KycRecordApi {
                 throw new Exception("Organisation not found for registration no: " + registrationNo);
             }
 
-            Collection<KycRecordListDTO> records = kycRecordService.findByOrganisation(org.getId());
+            List<KycRecordListDTO> records = kycRecordService.findByOrganisation(org.getId());
             // updateOrganisations(records);
 
             return ResponseEntity.ok(records);
@@ -436,13 +436,13 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     @Operation(summary = "Find My KYC Records", description = "Find all KYC records for the authenticated user")
-    public ResponseEntity<Collection<KycRecordListDTO>> findMyRecords() throws Exception {
+    public ResponseEntity<List<KycRecordListDTO>> findMyRecords() throws Exception {
 
         try {
 
             KycRecordSearchCriteria criteria = buildSearchCriteriaForCurrentUser();
 
-            Collection<KycRecordListDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
+            List<KycRecordListDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
             // updateOrganisations(records);
 
             return ResponseEntity.ok(records);
@@ -621,7 +621,7 @@ public class KycRecordApiImpl implements KycRecordApi {
         searchObject.setPageNumber(pageNumber);
         searchObject.setPageSize(pageSize);
 
-        Collection<PropertySearchOrder> sortings = new HashSet<>();
+        List<PropertySearchOrder> sortings = new ArrayList<>();
         sortings.add(new PropertySearchOrder("uploadDate", SortOrder.DESC));
 
         searchObject.setSortings(sortings);

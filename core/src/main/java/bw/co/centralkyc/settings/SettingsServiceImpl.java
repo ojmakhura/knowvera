@@ -10,6 +10,7 @@ package bw.co.centralkyc.settings;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.cglib.core.Local;
@@ -85,11 +86,11 @@ public class SettingsServiceImpl
      * @see bw.co.centralkyc.settings.SettingsService#getAll()
      */
     @Override
-    protected Collection<SettingsDTO> handleGetAll()
+    protected List<SettingsDTO> handleGetAll()
             throws Exception {
 
         Collection<Settings> entities = this.getSettingsRepository().findAll();
-        return this.getSettingsDao().toSettingsDTOCollection(entities);
+        return settingsMapper.toSettingsDTOCollection(entities);
 
     }
 
@@ -97,9 +98,9 @@ public class SettingsServiceImpl
      * @see bw.co.centralkyc.settings.SettingsService#search(String)
      */
     @Override
-    protected Collection<SettingsDTO> handleSearch(String criteria)
+    protected List<SettingsDTO> handleSearch(String criteria)
             throws Exception {
-        // TODO implement protected Collection<SettingsDTO> handleSearch(String
+        // TODO implement protected List<SettingsDTO> handleSearch(String
         // criteria)
         throw new UnsupportedOperationException(
                 "bw.co.centralkyc.settings.SettingsService.handleSearch(String criteria) Not implemented!");

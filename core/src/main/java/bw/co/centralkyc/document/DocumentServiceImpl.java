@@ -197,9 +197,9 @@ public class DocumentServiceImpl
      * @see bw.co.centralkyc.document.DocumentService#getAll()
      */
     @Override
-    protected Collection<DocumentListDTO> handleGetAll()
+    protected List<DocumentListDTO> handleGetAll()
             throws Exception {
-        Collection<Document> all = documentRepository.findAll();
+        List<Document> all = documentRepository.findAll();
         return documentMapper.toDocumentListDTOCollection(all).stream()
                 .map(this::setTargetLabel)
                 .toList();
@@ -226,14 +226,14 @@ public class DocumentServiceImpl
      * @see bw.co.centralkyc.document.DocumentService#findByDocumentType(String)
      */
     @Override
-    protected Collection<DocumentListDTO> handleFindByDocumentType(String documentTypeId)
+    protected List<DocumentListDTO> handleFindByDocumentType(String documentTypeId)
             throws Exception {
 
         Specification<Document> spec = (root, cq, cb) -> {
             return cb.equal(root.get("documentType").get("id"), documentTypeId);
         };
 
-        Collection<Document> docs = documentRepository.findAll(spec, Sort.by(Direction.ASC, "fileName"));
+        List<Document> docs = documentRepository.findAll(spec, Sort.by(Direction.ASC, "fileName"));
 
         return documentMapper.toDocumentListDTOCollection(docs).stream()
                 .map(this::setTargetLabel)
@@ -259,7 +259,7 @@ public class DocumentServiceImpl
      *      String)
      */
     @Override
-    protected Collection<DocumentListDTO> handleFindByTarget(TargetEntity target, String targetId)
+    protected List<DocumentListDTO> handleFindByTarget(TargetEntity target, String targetId)
             throws Exception {
         Specification<Document> spec = (root, cq, cb) -> {
             return cb.and(
@@ -267,7 +267,7 @@ public class DocumentServiceImpl
                     cb.equal(root.get("targetId"), targetId));
         };
 
-        Collection<Document> docs = documentRepository.findAll(spec, Sort.by(Direction.ASC, "fileName"));
+        List<Document> docs = documentRepository.findAll(spec, Sort.by(Direction.ASC, "fileName"));
 
         return documentMapper.toDocumentListDTOCollection(docs).stream()
                 .map(dto -> setTargetLabel(dto))
@@ -379,7 +379,7 @@ public class DocumentServiceImpl
     }
 
     @Override
-    protected Collection<DocumentListDTO> handleSearch(@Valid DocumentSearchCriteria criteria,
+    protected List<DocumentListDTO> handleSearch(@Valid DocumentSearchCriteria criteria,
             @Valid Set<PropertySearchOrder> orderings) throws Exception {
 
         Specification<Document> spec = buildSearchSpecification(criteria);

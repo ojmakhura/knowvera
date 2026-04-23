@@ -147,10 +147,10 @@ public class KycRecordServiceImpl
      * @see bw.co.centralkyc.individual.kyc.KycRecordService#getAll()
      */
     @Override
-    protected Collection<KycRecordListDTO> handleGetAll()
+    protected List<KycRecordListDTO> handleGetAll()
             throws Exception {
 
-        Collection<KycRecord> kycRecords = this.kycRecordRepository.findAll();
+        List<KycRecord> kycRecords = this.kycRecordRepository.findAll();
         return this.kycRecordMapper.toKycRecordListDTOCollection(kycRecords);
     }
 
@@ -178,7 +178,7 @@ public class KycRecordServiceImpl
      * @see bw.co.centralkyc.individual.kyc.KycRecordService#search(String)
      */
     @Override
-    protected Collection<KycRecordListDTO> handleSearch(KycRecordSearchCriteria criteria,
+    protected List<KycRecordListDTO> handleSearch(KycRecordSearchCriteria criteria,
             Set<PropertySearchOrder> searchOrders)
             throws Exception {
         Specification<KycRecord> spec = this.createSpecification(criteria);
@@ -280,7 +280,7 @@ public class KycRecordServiceImpl
      * @see bw.co.centralkyc.individual.kyc.KycRecordService#findByIndividual(String)
      */
     @Override
-    protected Collection<KycRecordListDTO> handleFindByIndividual(String individualId)
+    protected List<KycRecordListDTO> handleFindByIndividual(String individualId)
             throws Exception {
 
         Specification<KycRecord> specification = (root, query, cb) -> cb.and(cb.equal(root.get("target"), "INDIVIDUAL"),
@@ -294,13 +294,13 @@ public class KycRecordServiceImpl
      * @see bw.co.centralkyc.individual.kyc.KycRecordService#findByIdentityNo(String)
      */
     @Override
-    protected Collection<KycRecordListDTO> handleFindByIdentityNo(String identityNo)
+    protected List<KycRecordListDTO> handleFindByIdentityNo(String identityNo)
             throws Exception {
 
         Individual individual = this.individualRepository.findByIdentityNo(identityNo)
                 .orElseThrow(() -> new Exception("Individual not found for identityNo: " + identityNo));
 
-        Collection<KycRecordListDTO> records = this.findByIndividual(individual.getId().toString()).stream()
+        List<KycRecordListDTO> records = this.findByIndividual(individual.getId().toString()).stream()
                 .map(record -> {
 
                     String name = individual.getFirstName() + " " + individual.getSurname();
@@ -312,7 +312,7 @@ public class KycRecordServiceImpl
     }
 
     @Override
-    protected Collection<KycRecordListDTO> handleFindByOrganisation(String organisationId) throws Exception {
+    protected List<KycRecordListDTO> handleFindByOrganisation(String organisationId) throws Exception {
 
         Specification<KycRecord> specification = (root, query, cb) -> cb
                 .and(cb.equal(root.get("target"), "ORGANISATION"), cb.equal(root.get("targetId"), organisationId));

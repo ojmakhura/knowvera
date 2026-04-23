@@ -7,6 +7,8 @@ package bw.co.centralkyc.sequence;
 
 import jakarta.validation.Valid;
 import java.util.Collection;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +60,7 @@ public class SequenceGeneratorApiImpl implements SequenceGeneratorApi {
 
     @Override
     @Operation(summary = "Get All Sequence Generators", description = "Retrieve all sequence generators")
-    public ResponseEntity<Collection<SequenceGeneratorDTO>> getAll() throws Exception {
+    public ResponseEntity<List<SequenceGeneratorDTO>> getAll() throws Exception {
         try {
             return ResponseEntity.ok(this.getSequenceGeneratorService().getAll());
         } catch (Exception e) {
@@ -95,7 +97,7 @@ public class SequenceGeneratorApiImpl implements SequenceGeneratorApi {
 
     @Override
     @Operation(summary = "Search Sequence Generators", description = "Search sequence generators based on criteria")
-    public ResponseEntity<Collection<SequenceGeneratorDTO>> search(String criteria) throws Exception {
+    public ResponseEntity<List<SequenceGeneratorDTO>> search(String criteria) throws Exception {
         try {
             return ResponseEntity.ok(this.getSequenceGeneratorService().search(criteria));
         } catch (Exception e) {

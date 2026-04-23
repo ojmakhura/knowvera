@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -47,7 +48,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     @Override
     @Operation(summary = "Find Employment Records by Individual ID", description = "Find all employment records for a given individual ID")
-    public ResponseEntity<Collection<EmploymentRecordDTO>> findByIndividual(String individualId)
+    public ResponseEntity<List<EmploymentRecordDTO>> findByIndividual(String individualId)
             throws Exception {
 
         try {
@@ -62,7 +63,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     @Override
     @Operation(summary = "Get All Employment Records", description = "Get all employment records")
-    public ResponseEntity<Collection<EmploymentRecordDTO>> getAll() throws Exception {
+    public ResponseEntity<List<EmploymentRecordDTO>> getAll() throws Exception {
 
         try {
 
@@ -138,7 +139,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     @Override
     @Operation(summary = "Search Employment Records", description = "Search employment records by criteria")
-    public ResponseEntity<Collection<EmploymentRecordDTO>> search(String criteria)
+    public ResponseEntity<List<EmploymentRecordDTO>> search(String criteria)
             throws Exception {
 
         try {

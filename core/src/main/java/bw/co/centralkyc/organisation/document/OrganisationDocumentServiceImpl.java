@@ -17,6 +17,7 @@ import bw.co.centralkyc.individual.IndividualDao;
 import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.individual.IndividualRepository;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -90,12 +91,12 @@ public class OrganisationDocumentServiceImpl
      * @see bw.co.centralkyc.organisation.document.OrganisationDocumentService#getAll()
      */
     @Override
-    protected Collection<OrganisationDocumentDTO> handleGetAll()
+    protected List<OrganisationDocumentDTO> handleGetAll()
         throws Exception
     {
 
-        Collection<OrganisationDocument> entities = organisationDocumentRepository.findAll();
-        return organisationDocumentDao.toOrganisationDocumentDTOCollection(entities);
+        List<OrganisationDocument> entities = organisationDocumentRepository.findAll();
+        return organisationDocumentMapper.toOrganisationDocumentDTOCollection(entities);
 
     }
 
@@ -103,7 +104,7 @@ public class OrganisationDocumentServiceImpl
      * @see bw.co.centralkyc.organisation.document.OrganisationDocumentService#search(OrganisationDocumentSearchCriteria, Set<PropertySearchOrder>)
      */
     @Override
-    protected Collection<OrganisationDocumentDTO> handleSearch(OrganisationDocumentSearchCriteria criteria, Set<PropertySearchOrder> sortProperties)
+    protected List<OrganisationDocumentDTO> handleSearch(OrganisationDocumentSearchCriteria criteria, Set<PropertySearchOrder> sortProperties)
         throws Exception
     {
         // TODO implement protected  Collection<OrganisationDocumentDTO> handleSearch(OrganisationDocumentSearchCriteria criteria, Set<PropertySearchOrder> sortProperties)
@@ -139,7 +140,7 @@ public class OrganisationDocumentServiceImpl
      * @see bw.co.centralkyc.organisation.document.OrganisationDocumentService#findByOrganisation(String)
      */
     @Override
-    protected Collection<OrganisationDocumentDTO> handleFindByOrganisation(String organisationId)
+    protected List<OrganisationDocumentDTO> handleFindByOrganisation(String organisationId)
         throws Exception
     {
 
@@ -165,7 +166,7 @@ public class OrganisationDocumentServiceImpl
      * @see bw.co.centralkyc.organisation.document.OrganisationDocumentService#findByStatus(OrganisationDocumentStatus)
      */
     @Override
-    protected Collection<OrganisationDocumentDTO> handleFindByStatus(OrganisationDocumentStatus status)
+    protected List<OrganisationDocumentDTO> handleFindByStatus(OrganisationDocumentStatus status)
         throws Exception
     {
         // TODO implement protected  Collection<OrganisationDocumentDTO> handleFindByStatus(OrganisationDocumentStatus status)

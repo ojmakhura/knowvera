@@ -11,6 +11,7 @@ package bw.co.centralkyc.sequence;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -75,7 +76,7 @@ public class SequenceGeneratorServiceImpl
      * @see bw.co.centralkyc.sequence.SequenceGeneratorService#getAll()
      */
     @Override
-    protected Collection<SequenceGeneratorDTO> handleGetAll()
+    protected List<SequenceGeneratorDTO> handleGetAll()
         throws Exception
     {
         return this.sequenceGeneratorRepository.findAll().stream()
@@ -87,7 +88,7 @@ public class SequenceGeneratorServiceImpl
      * @see bw.co.centralkyc.sequence.SequenceGeneratorService#search(String)
      */
     @Override
-    protected Collection<SequenceGeneratorDTO> handleSearch(String name)
+    protected List<SequenceGeneratorDTO> handleSearch(String name)
         throws Exception
     {
 

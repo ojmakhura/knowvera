@@ -44,36 +44,36 @@ public class SettingsDaoImpl
         // source.getOrganisationDocuments():bw.co.centralkyc.document.type.DocumentType
         // to bw.co.centralkyc.document.type.DocumentTypeDTO
         if (CollectionUtils.isNotEmpty(source.getOrganisationDocuments())) {
-            target.setOrganisationDocuments(
-                    this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getOrganisationDocuments()));
+            // target.setOrganisationDocuments(
+            //         this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getOrganisationDocuments()));
 
         }
         // WARNING! No conversion for target.individualDocuments (can't convert
         // source.getIndividualDocuments():bw.co.centralkyc.document.type.DocumentType
         // to bw.co.centralkyc.document.type.DocumentTypeDTO
         if (CollectionUtils.isNotEmpty(source.getIndividualDocuments())) {
-            target.setIndividualDocuments(
-                    this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getIndividualDocuments()));
+            // target.setIndividualDocuments(
+            //         this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getIndividualDocuments()));
         }
         // WARNING! No conversion for target.orgKycDocuments (can't convert
         // source.getOrgKycDocuments():bw.co.centralkyc.document.type.DocumentType to
         // bw.co.centralkyc.document.type.DocumentTypeDTO
         if (CollectionUtils.isNotEmpty(source.getOrgKycDocuments())) {
-            target.setOrgKycDocuments(
-                    this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getOrgKycDocuments()));
+            // target.setOrgKycDocuments(
+            //         this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getOrgKycDocuments()));
         }
 
         // WARNING! No conversion for target.indKycDocuments (can't convert
         // source.getIndKycDocuments():bw.co.centralkyc.document.type.DocumentType to
         // bw.co.centralkyc.document.type.DocumentTypeDTO
         if (CollectionUtils.isNotEmpty(source.getIndKycDocuments())) {
-            target.setIndKycDocuments(
-                    this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getIndKycDocuments()));
+            // target.setIndKycDocuments(
+            //         this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getIndKycDocuments()));
         }
 
         if(CollectionUtils.isNotEmpty(source.getSalaryRanges())) {
 
-            target.setSalaryRanges(this.getSalaryRangeDao().toSalaryRangeDTOCollection(source.getSalaryRanges()));
+            // target.setSalaryRanges(this.getSalaryRangeDao().toSalaryRangeDTOCollection(source.getSalaryRanges()));
 
         }
 

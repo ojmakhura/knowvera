@@ -9,6 +9,7 @@
 package bw.co.centralkyc.individual;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -62,7 +63,7 @@ public class IndividualServiceImpl
      * @see bw.co.centralkyc.individual.IndividualService#getAll()
      */
     @Override
-    protected Collection<IndividualListDTO> handleGetAll()
+    protected List<IndividualListDTO> handleGetAll()
             throws Exception {
 
         return individualMapper.toIndividualListDTOCollection(individualRepository.findAll());
@@ -159,7 +160,7 @@ public class IndividualServiceImpl
      * @see bw.co.centralkyc.individual.IndividualService#search(String)
      */
     @Override
-    protected Collection<IndividualListDTO> handleSearch(IndividualSearchCriteria criteria,
+    protected List<IndividualListDTO> handleSearch(IndividualSearchCriteria criteria,
             Set<PropertySearchOrder> orderings)
             throws Exception {
 
@@ -188,7 +189,7 @@ public class IndividualServiceImpl
     }
 
     @Override
-    protected Collection<IndividualListDTO> handleGetOrganisationClients(String organisationId) throws Exception {
+    protected List<IndividualListDTO> handleGetOrganisationClients(String organisationId) throws Exception {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'handleGetOrganisationClients'");
     }

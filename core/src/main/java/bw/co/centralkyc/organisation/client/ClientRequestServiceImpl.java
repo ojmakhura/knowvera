@@ -172,10 +172,10 @@ public class ClientRequestServiceImpl
      * @see bw.co.centralkyc.organisation.client.ClientRequestService#getAll()
      */
     @Override
-    protected Collection<ClientRequestDTO> handleGetAll()
+    protected List<ClientRequestDTO> handleGetAll()
             throws Exception {
 
-        return clientRequestDao.toClientRequestDTOCollection(clientRequestRepository.findAll());
+        return clientRequestMapper.toClientRequestDTOCollection(clientRequestRepository.findAll());
     }
 
     /**
@@ -183,7 +183,7 @@ public class ClientRequestServiceImpl
      *      Set<PropertySearchOrder>)
      */
     @Override
-    protected Collection<ClientRequestDTO> handleSearch(ClientRequestSearchCriteria criteria,
+    protected List<ClientRequestDTO> handleSearch(ClientRequestSearchCriteria criteria,
             Set<PropertySearchOrder> sortProperties)
             throws Exception {
 
@@ -195,7 +195,7 @@ public class ClientRequestServiceImpl
                 ? clientRequestRepository.findAll(spec, sort)
                 : clientRequestRepository.findAll(spec);
 
-        return clientRequestDao.toClientRequestDTOCollection(requests);
+        return clientRequestMapper.toClientRequestDTOCollection(requests);
 
     }
 
@@ -272,7 +272,7 @@ public class ClientRequestServiceImpl
      * @see bw.co.centralkyc.organisation.client.ClientRequestService#findByOrganisation(String)
      */
     @Override
-    protected Collection<ClientRequestDTO> handleFindByOrganisation(String organisationId)
+    protected List<ClientRequestDTO> handleFindByOrganisation(String organisationId)
             throws Exception {
 
         ClientRequestSearchCriteria criteria = new ClientRequestSearchCriteria();
@@ -280,9 +280,9 @@ public class ClientRequestServiceImpl
         // criteria.setStatus(ClientRequestStatus.);
 
         Specification<ClientRequest> spec = this.buildSpecificationFromCriteria(criteria);
-        Collection<ClientRequest> requests = clientRequestRepository.findAll(spec);
+        List<ClientRequest> requests = clientRequestRepository.findAll(spec);
 
-        return clientRequestDao.toClientRequestDTOCollection(requests);
+        return clientRequestMapper.toClientRequestDTOCollection(requests);
     }
 
     /**
@@ -307,14 +307,14 @@ public class ClientRequestServiceImpl
      * @see bw.co.centralkyc.organisation.client.ClientRequestService#findByStatus(ClientRequestStatus)
      */
     @Override
-    protected Collection<ClientRequestDTO> handleFindByStatus(ClientRequestStatus status)
+    protected List<ClientRequestDTO> handleFindByStatus(ClientRequestStatus status)
             throws Exception {
 
         Specification<ClientRequest> spec = (root, query, cb) -> cb.equal(root.get("status"), status);
 
-        Collection<ClientRequest> requests = clientRequestRepository.findAll(spec);
+        List<ClientRequest> requests = clientRequestRepository.findAll(spec);
 
-        return clientRequestDao.toClientRequestDTOCollection(requests);
+        return clientRequestMapper.toClientRequestDTOCollection(requests);
     }
 
     /**
@@ -577,7 +577,7 @@ public class ClientRequestServiceImpl
             String phoneNumbersStr = readString.apply(6);
             if (phoneNumbersStr != null && !phoneNumbersStr.trim().isEmpty()) {
 
-                Collection<PhoneNumber> phoneList = Arrays.stream(phoneNumbersStr.split(","))
+                List<PhoneNumber> phoneList = Arrays.stream(phoneNumbersStr.split(","))
                         .map(String::trim)
                         .filter(s -> !s.isEmpty())
                         .map(phone -> {
@@ -668,7 +668,7 @@ public class ClientRequestServiceImpl
                     : (csvRecord.size() > 6 ? csvRecord.get(6) : null);
             if (phoneNumbers != null && !phoneNumbers.trim().isEmpty()) {
                 @SuppressWarnings({ "rawtypes", "unchecked" })
-                Collection phoneList = new ArrayList<>();
+                List phoneList = new ArrayList<>();
                 String[] phones = phoneNumbers.split(",");
                 for (String phone : phones) {
                     java.util.Map<String, String> phoneMap = new java.util.HashMap<>();
@@ -780,7 +780,7 @@ public class ClientRequestServiceImpl
      * @see bw.co.centralkyc.organisation.client.ClientRequestService#findByIndividual(String)
      */
     @Override
-    protected Collection<ClientRequestDTO> handleFindByIndividual(String individualId)
+    protected List<ClientRequestDTO> handleFindByIndividual(String individualId)
             throws Exception {
 
         ClientRequestSearchCriteria criteria = new ClientRequestSearchCriteria();
@@ -788,9 +788,9 @@ public class ClientRequestServiceImpl
         criteria.setTarget(TargetEntity.INDIVIDUAL);
 
         Specification<ClientRequest> spec = this.buildSpecificationFromCriteria(criteria);
-        Collection<ClientRequest> requests = clientRequestRepository.findAll(spec);
+        List<ClientRequest> requests = clientRequestRepository.findAll(spec);
 
-        return requests.stream().map(clientRequestDao::toClientRequestDTO).collect(Collectors.toList());
+        return clientRequestMapper.toClientRequestDTOCollection(requests);
     }
 
     /**
@@ -812,7 +812,7 @@ public class ClientRequestServiceImpl
     }
 
     @Override
-    protected Collection<ClientRequestDTO> handleFindByDocument(String documentId) throws Exception {
+    protected List<ClientRequestDTO> handleFindByDocument(String documentId) throws Exception {
 
         return null; // clientRequestRepository.findByDocumentId(documentId);
     }
@@ -835,15 +835,15 @@ public class ClientRequestServiceImpl
     }
 
     @Override
-    protected Collection<ClientRequestDTO> handleFindByTarget(TargetEntity target, String targetId) throws Exception {
+    protected List<ClientRequestDTO> handleFindByTarget(TargetEntity target, String targetId) throws Exception {
 
         Specification<ClientRequest> spec = (root, query, cb) -> cb.and(
                 cb.equal(root.get("target"), target),
                 cb.equal(root.get("targetId"), targetId));
 
-        Collection<ClientRequest> requests = clientRequestRepository.findAll(spec);
+        List<ClientRequest> requests = clientRequestRepository.findAll(spec);
 
-        return clientRequestDao.toClientRequestDTOCollection(requests);
+        return clientRequestMapper.toClientRequestDTOCollection(requests);
     }
 
     @Override
@@ -860,7 +860,7 @@ public class ClientRequestServiceImpl
     }
 
     @Override
-    protected Collection<ClientRequestDTO> handleFindByTargetAndOrganisation(TargetEntity target, String targetId,
+    protected List<ClientRequestDTO> handleFindByTargetAndOrganisation(TargetEntity target, String targetId,
             String organisationId) throws Exception {
 
         ClientRequestSearchCriteria criteria = new ClientRequestSearchCriteria();
@@ -869,9 +869,9 @@ public class ClientRequestServiceImpl
         criteria.setOrganisationId(organisationId);
 
         Specification<ClientRequest> spec = this.buildSpecificationFromCriteria(criteria);
-        Collection<ClientRequest> requests = clientRequestRepository.findAll(spec);
+        List<ClientRequest> requests = clientRequestRepository.findAll(spec);
 
-        return clientRequestDao.toClientRequestDTOCollection(requests);
+        return clientRequestMapper.toClientRequestDTOCollection(requests);
     }
 
     @Override

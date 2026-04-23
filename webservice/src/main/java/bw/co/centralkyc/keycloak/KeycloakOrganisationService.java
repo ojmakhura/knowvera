@@ -137,7 +137,7 @@ public class KeycloakOrganisationService {
         }
 
         org.setDomains(rep.getDomains().stream().map(d -> new OrganisationDomain(d.getName(), d.isVerified()))
-                .collect(Collectors.toSet()));
+                .collect(Collectors.toList()));
         return org;
     }
 

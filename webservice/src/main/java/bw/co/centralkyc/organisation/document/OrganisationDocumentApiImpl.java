@@ -8,6 +8,8 @@ package bw.co.centralkyc.organisation.document;
 import bw.co.centralkyc.AuditTracker;
 import bw.co.centralkyc.SearchObject;
 import java.util.Collection;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -40,7 +42,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
 
 
     @Override
-    public ResponseEntity<Collection<OrganisationDocumentDTO>> findByOrganisation(String organisationId) throws Exception {
+    public ResponseEntity<List<OrganisationDocumentDTO>> findByOrganisation(String organisationId) throws Exception {
         try {
             return ResponseEntity.ok(organisationDocumentService.findByOrganisation(organisationId));
         } catch (Exception e) {
@@ -64,7 +66,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
 
 
     @Override
-    public ResponseEntity<Collection<OrganisationDocumentDTO>> findByStatus(OrganisationDocumentStatus status) throws Exception {
+    public ResponseEntity<List<OrganisationDocumentDTO>> findByStatus(OrganisationDocumentStatus status) throws Exception {
         try {
             return ResponseEntity.ok(organisationDocumentService.findByStatus(status));
         } catch (Exception e) {
@@ -88,7 +90,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
 
 
     @Override
-    public ResponseEntity<Collection<OrganisationDocumentDTO>> getAll() throws Exception {
+    public ResponseEntity<List<OrganisationDocumentDTO>> getAll() throws Exception {
         try {
             return ResponseEntity.ok(organisationDocumentService.getAll());
         } catch (Exception e) {
@@ -151,7 +153,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
 
 
     @Override
-    public ResponseEntity<Collection<OrganisationDocumentDTO>> search(SearchObject<OrganisationDocumentSearchCriteria> criteria) throws Exception {
+    public ResponseEntity<List<OrganisationDocumentDTO>> search(SearchObject<OrganisationDocumentSearchCriteria> criteria) throws Exception {
         try {
             return ResponseEntity.ok(null);
         } catch (Exception e) {

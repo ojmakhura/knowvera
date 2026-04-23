@@ -8,6 +8,8 @@ package bw.co.centralkyc.contact;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Collection;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -43,7 +45,7 @@ public class ContactApiImpl implements ContactApi {
 
 
     @Override
-    public ResponseEntity<Collection<ContactDTO>> findByType(ContactType type) throws Exception {
+    public ResponseEntity<List<ContactDTO>> findByType(ContactType type) throws Exception {
         try {
             return ResponseEntity.ok(null);
         } catch (Exception e) {
@@ -67,7 +69,7 @@ public class ContactApiImpl implements ContactApi {
 
 
     @Override
-    public ResponseEntity<Collection<ContactDTO>> getAll() throws Exception {
+    public ResponseEntity<List<ContactDTO>> getAll() throws Exception {
         try {
             return ResponseEntity.ok(null);
         } catch (Exception e) {
@@ -115,7 +117,7 @@ public class ContactApiImpl implements ContactApi {
 
 
     @Override
-    public ResponseEntity<Collection<ContactDTO>> search(String criteria) throws Exception {
+    public ResponseEntity<List<ContactDTO>> search(String criteria) throws Exception {
         try {
             return ResponseEntity.ok(null);
         } catch (Exception e) {

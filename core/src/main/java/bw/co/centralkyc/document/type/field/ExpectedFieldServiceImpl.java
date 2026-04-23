@@ -11,6 +11,7 @@ package bw.co.centralkyc.document.type.field;
 import jakarta.validation.Valid;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.context.MessageSource;
@@ -88,7 +89,7 @@ public class ExpectedFieldServiceImpl
     }
 
     @Override
-    protected Collection<ExpectedFieldDTO> handleFindByDocumentType(String documentTypeId) throws Exception {
+    protected List<ExpectedFieldDTO> handleFindByDocumentType(String documentTypeId) throws Exception {
         Specification<ExpectedField> specification = (root, query, criteriaBuilder) -> criteriaBuilder
                 .equal(root.get("documentType").get("id"), UUID.fromString(documentTypeId));
 

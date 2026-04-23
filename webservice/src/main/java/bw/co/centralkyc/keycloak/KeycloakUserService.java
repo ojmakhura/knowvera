@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -188,7 +189,7 @@ public class KeycloakUserService {
         dto.setFirstName(rep.getFirstName());
         dto.setLastName(rep.getLastName());
         dto.setEnabled(rep.isEnabled());
-        dto.setRoles(new ArrayList<>());
+        dto.setRoles(new LinkedHashSet<>());
 
         if (rep.getAttributes() != null) {
             Optional.ofNullable(rep.getAttributes().get("branchId"))
@@ -664,7 +665,7 @@ public class KeycloakUserService {
         String password = kycUtils.generatePassword();
         user.setPassword(password);
         user.setEnabled(true);
-        user.setRoles(List.of("KYC_USER"));
+        user.setRoles(Set.of("KYC_USER"));
 
         if (individual.getBranch() != null && !StringUtils.isBlank(individual.getBranch().getId())) {
 

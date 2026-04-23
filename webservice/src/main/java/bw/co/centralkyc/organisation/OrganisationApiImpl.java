@@ -7,6 +7,7 @@ package bw.co.centralkyc.organisation;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,7 +64,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Get All Organisations", description = "Retrieve all organisations")
-    public ResponseEntity<Collection<OrganisationListDTO>> getAll() {
+    public ResponseEntity<List<OrganisationListDTO>> getAll() {
         try {
             return ResponseEntity.ok(organisationService.getAll());
 
@@ -190,7 +191,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Search Organisations", description = "Search organisations based on criteria")
-    public ResponseEntity<Collection<OrganisationListDTO>> search(
+    public ResponseEntity<List<OrganisationListDTO>> search(
             SearchObject<OrganisationSearchCriteria> criteria) {
         try {
 
@@ -200,7 +201,7 @@ public class OrganisationApiImpl implements OrganisationApi {
                 sortings.addAll(sortings);
             }
 
-            Collection<OrganisationListDTO> results = organisationService.search(criteria.getCriteria(), sortings);
+            List<OrganisationListDTO> results = organisationService.search(criteria.getCriteria(), sortings);
 
             return ResponseEntity.ok(results);
 

@@ -7,6 +7,7 @@ package bw.co.centralkyc.subscription;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.domain.Page;
@@ -49,9 +50,9 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
 
     @Override
     @Operation(summary = "Get All KYC Subscriptions", description = "Retrieve all KYC subscriptions")
-    public ResponseEntity<Collection<KycSubscriptionDTO>> getAll() throws Exception {
+    public ResponseEntity<List<KycSubscriptionDTO>> getAll() throws Exception {
         try {
-            Collection<KycSubscriptionDTO> subscriptions = kycSubscriptionService.getAll();
+            List<KycSubscriptionDTO> subscriptions = kycSubscriptionService.getAll();
             return ResponseEntity.ok(subscriptions);
         } catch (Exception e) {
 
@@ -118,7 +119,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
 
     @Override
     @Operation(summary = "Search KYC Subscriptions", description = "Search KYC subscriptions based on criteria")
-    public ResponseEntity<Collection<KycSubscriptionDTO>> search(SearchObject<SubscriptionSearchCriteria> criteria) throws Exception {
+    public ResponseEntity<List<KycSubscriptionDTO>> search(SearchObject<SubscriptionSearchCriteria> criteria) throws Exception {
         try {
 
             Set<PropertySearchOrder> sortOrders = new HashSet<>();
@@ -126,7 +127,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
                 sortOrders.addAll(criteria.getSortings());
             }
             
-            Collection<KycSubscriptionDTO> subscriptions = kycSubscriptionService.search(criteria.getCriteria(), sortOrders);
+            List<KycSubscriptionDTO> subscriptions = kycSubscriptionService.search(criteria.getCriteria(), sortOrders);
             return ResponseEntity.ok(subscriptions);
         } catch (Exception e) {
 
@@ -137,7 +138,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
 
     @Override
     @Operation(summary = "Find KYC Subscriptions by Organisation", description = "Find KYC subscriptions by organisation ID")
-    public ResponseEntity<Collection<KycSubscriptionDTO>> findByOrganisation(String arg0) throws Exception {
+    public ResponseEntity<List<KycSubscriptionDTO>> findByOrganisation(String arg0) throws Exception {
         
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -146,7 +147,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
 
                 username = authentication.getName();
             }
-            Collection<KycSubscriptionDTO> subscriptions = kycSubscriptionService.findByOrganisation(arg0, username);
+            List<KycSubscriptionDTO> subscriptions = kycSubscriptionService.findByOrganisation(arg0, username);
             return ResponseEntity.ok(subscriptions);
         } catch (Exception e) {
 

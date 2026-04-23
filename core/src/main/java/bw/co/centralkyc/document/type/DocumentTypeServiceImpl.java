@@ -9,6 +9,7 @@
 package bw.co.centralkyc.document.type;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -80,10 +81,10 @@ public class DocumentTypeServiceImpl
      * @see bw.co.centralkyc.document.type.DocumentTypeService#getAll()
      */
     @Override
-    protected Collection<DocumentTypeDTO> handleGetAll()
+    protected List<DocumentTypeDTO> handleGetAll()
             throws Exception {
 
-        Collection<DocumentType> types = documentTypeRepository.findAll();
+        List<DocumentType> types = documentTypeRepository.findAll();
 
         return documentTypeMapper.toDocumentTypeDTOCollection(types);
     }
@@ -106,14 +107,14 @@ public class DocumentTypeServiceImpl
      * @see bw.co.centralkyc.document.type.DocumentTypeService#search(String)
      */
     @Override
-    protected Collection<DocumentTypeDTO> handleSearch(String criteria)
+    protected List<DocumentTypeDTO> handleSearch(String criteria)
             throws Exception {
-        // TODO implement protected Collection<DocumentTypeDTO> handleSearch(String
+        // TODO implement protected List<DocumentTypeDTO> handleSearch(String
         // criteria)
 
         Specification<DocumentType> spec = this.createSpecification(criteria);
 
-        Collection<DocumentType> types = spec == null ? documentTypeRepository.findAll(Sort.by(Direction.ASC, "name"))
+        List<DocumentType> types = spec == null ? documentTypeRepository.findAll(Sort.by(Direction.ASC, "name"))
                 : documentTypeRepository.findAll(spec, Sort.by(Direction.ASC, "name"));
 
         return documentTypeMapper.toDocumentTypeDTOCollection(types);

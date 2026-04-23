@@ -9,6 +9,7 @@
 package bw.co.centralkyc.organisation;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -70,10 +71,10 @@ public class OrganisationServiceImpl
      * @see bw.co.centralkyc.organisation.OrganisationService#getAll()
      */
     @Override
-    protected Collection<OrganisationListDTO> handleGetAll()
+    protected List<OrganisationListDTO> handleGetAll()
             throws Exception {
 
-        Collection<Organisation> orgs = organisationRepository.findAll();
+        List<Organisation> orgs = organisationRepository.findAll();
         return organisationMapper.toOrganisationListDTOCollection(orgs);
 
     }
@@ -172,13 +173,13 @@ public class OrganisationServiceImpl
      * @see bw.co.centralkyc.organisation.OrganisationService#search(String)
      */
     @Override
-    protected Collection<OrganisationListDTO> handleSearch(OrganisationSearchCriteria criteria,
+    protected List<OrganisationListDTO> handleSearch(OrganisationSearchCriteria criteria,
             Set<PropertySearchOrder> orderings)
             throws Exception {
 
         Specification<Organisation> spec = createSpecification(criteria);
 
-        Collection<Organisation> orgs = organisationRepository.findAll(spec);
+        List<Organisation> orgs = organisationRepository.findAll(spec);
 
         return organisationMapper.toOrganisationListDTOCollection(orgs);
 

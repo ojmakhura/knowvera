@@ -10,6 +10,7 @@ package bw.co.centralkyc.subscription;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -141,11 +142,11 @@ public class KycSubscriptionServiceImpl
      * @see bw.co.centralkyc.subscription.KycSubscriptionService#getAll()
      */
     @Override
-    protected Collection<KycSubscriptionDTO> handleGetAll()
+    protected List<KycSubscriptionDTO> handleGetAll()
             throws Exception {
 
-        Collection<KycSubscription> subscriptions = kycSubscriptionRepository.findAll();
-        return kycSubscriptionDao.toKycSubscriptionDTOCollection(subscriptions);
+        List<KycSubscription> subscriptions = kycSubscriptionRepository.findAll();
+        return kycSubscriptionMapper.toKycSubscriptionDTOCollection(subscriptions);
     }
 
     private Specification<KycSubscription> createSearchSpecification(SubscriptionSearchCriteria criteria) {
@@ -210,7 +211,7 @@ public class KycSubscriptionServiceImpl
      * @see bw.co.centralkyc.subscription.KycSubscriptionService#search(String)
      */
     @Override
-    protected Collection<KycSubscriptionDTO> handleSearch(SubscriptionSearchCriteria criteria,
+    protected List<KycSubscriptionDTO> handleSearch(SubscriptionSearchCriteria criteria,
             Set<PropertySearchOrder> sortOrders)
             throws Exception {
 
@@ -222,8 +223,8 @@ public class KycSubscriptionServiceImpl
             sortOrders = Set.of(def);
         }
 
-        Collection<KycSubscription> subscriptions = kycSubscriptionRepository.findAll(specification, SortOrderFactory.createSortOrder(sortOrders));
-        return kycSubscriptionDao.toKycSubscriptionDTOCollection(subscriptions);
+        List<KycSubscription> subscriptions = kycSubscriptionRepository.findAll(specification, SortOrderFactory.createSortOrder(sortOrders));
+        return kycSubscriptionMapper.toKycSubscriptionDTOCollection(subscriptions);
     }
 
     /**
@@ -268,15 +269,15 @@ public class KycSubscriptionServiceImpl
     }
 
     @Override
-    protected Collection<KycSubscriptionDTO> handleFindByOrganisation(String organisationId, String user)
+    protected List<KycSubscriptionDTO> handleFindByOrganisation(String organisationId, String user)
             throws Exception {
 
         Specification<KycSubscription> specification = (root, query, cb) -> cb.equal(
                 root.get("organisation").get("id"),
                 UUID.fromString(organisationId));
 
-        Collection<KycSubscription> subscriptions = this.kycSubscriptionRepository.findAll(specification);
-        return this.kycSubscriptionDao.toKycSubscriptionDTOCollection(subscriptions);
+        List<KycSubscription> subscriptions = this.kycSubscriptionRepository.findAll(specification);
+        return this.kycSubscriptionMapper.toKycSubscriptionDTOCollection(subscriptions);
 
     }
 

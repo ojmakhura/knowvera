@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -64,7 +65,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Find Documents by Type", description = "Get the documents with the given document type id")
-    public ResponseEntity<Collection<DocumentListDTO>> findByDocumentType(String documentTypeId) {
+    public ResponseEntity<List<DocumentListDTO>> findByDocumentType(String documentTypeId) {
 
         try {
 
@@ -93,7 +94,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Find Documents by Target", description = "Get the documents with the given target entity and target id")
-    public ResponseEntity<Collection<DocumentListDTO>> findByTarget(
+    public ResponseEntity<List<DocumentListDTO>> findByTarget(
             bw.co.centralkyc.TargetEntity target, String targetId) {
 
         try {
@@ -107,7 +108,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Get All Documents", description = "Get all documents in the system")
-    public ResponseEntity<Collection<DocumentListDTO>> getAll() {
+    public ResponseEntity<List<DocumentListDTO>> getAll() {
         return ResponseEntity.ok(documentService.getAll());
 
     }
@@ -168,7 +169,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Search Documents", description = "Search for documents based on the given criteria")
-    public ResponseEntity<Collection<DocumentListDTO>> search(SearchObject<DocumentSearchCriteria> criteria) {
+    public ResponseEntity<List<DocumentListDTO>> search(SearchObject<DocumentSearchCriteria> criteria) {
 
         try {
 
@@ -382,7 +383,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Find My Documents", description = "Find documents for the current user based on the given criteria")
-    public @Nullable ResponseEntity<Collection<DocumentListDTO>> findMyDocuments(TargetEntity target) throws Exception {
+    public @Nullable ResponseEntity<List<DocumentListDTO>> findMyDocuments(TargetEntity target) throws Exception {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findMyDocuments'");
     }

@@ -7,6 +7,7 @@ package bw.co.centralkyc.invoice;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -51,9 +52,9 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
 
     @Override
     @Operation(summary = "Get All KYC Invoices", description = "Get all KYC invoices")
-    public ResponseEntity<Collection<KycInvoiceDTO>> getAll() throws Exception {
+    public ResponseEntity<List<KycInvoiceDTO>> getAll() throws Exception {
         try {
-            Collection<KycInvoiceDTO> invoices = kycInvoiceService.getAll();
+            List<KycInvoiceDTO> invoices = kycInvoiceService.getAll();
             return ResponseEntity.ok(invoices);
         } catch (Exception e) {
 
@@ -117,7 +118,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
 
     @Override
     @Operation(summary = "Search KYC Invoices", description = "Search KYC invoices by criteria")
-    public ResponseEntity<Collection<KycInvoiceDTO>> search(SearchObject<InvoiceSearchCriteria> criteria) throws Exception {
+    public ResponseEntity<List<KycInvoiceDTO>> search(SearchObject<InvoiceSearchCriteria> criteria) throws Exception {
         try {
 
             Set<PropertySearchOrder> sortOrders = new HashSet<>();
@@ -143,7 +144,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
 
     @Override
     @Operation(summary = "Generate KYC Invoice", description = "Generate KYC invoices for a subscription")
-    public ResponseEntity<Collection<KycInvoiceDTO>> generateInvoice(String subscriptionId) throws Exception {
+    public ResponseEntity<List<KycInvoiceDTO>> generateInvoice(String subscriptionId) throws Exception {
         
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -153,7 +154,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
                 username = authentication.getName();
             }
 
-            Collection<KycInvoiceDTO> invoices = kycInvoiceService.generateInvoice(subscriptionId, username);
+            List<KycInvoiceDTO> invoices = kycInvoiceService.generateInvoice(subscriptionId, username);
             return ResponseEntity.ok(invoices);
 
         } catch (Exception e) {
@@ -165,11 +166,11 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
 
     @Override
     @Operation(summary = "Find KYC Invoices by Organisation", description = "Find all KYC invoices for a given organisation ID")
-    public ResponseEntity<Collection<KycInvoiceDTO>> findByOrganisation(String organisationId) throws Exception {
+    public ResponseEntity<List<KycInvoiceDTO>> findByOrganisation(String organisationId) throws Exception {
         
         try {
 
-            Collection<KycInvoiceDTO> invoices = kycInvoiceService.findByOrganisation(organisationId);
+            List<KycInvoiceDTO> invoices = kycInvoiceService.findByOrganisation(organisationId);
             return ResponseEntity.ok(invoices);
         } catch (Exception e) {
 
@@ -180,11 +181,11 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
 
     @Override
     @Operation(summary = "Find KYC Invoices by Subscription", description = "Find all KYC invoices for a given subscription ID")
-    public ResponseEntity<Collection<KycInvoiceDTO>> findBySubscription(String subscriptionId) throws Exception {
+    public ResponseEntity<List<KycInvoiceDTO>> findBySubscription(String subscriptionId) throws Exception {
         
         try {
 
-            Collection<KycInvoiceDTO> invoices = kycInvoiceService.findBySubscription(subscriptionId);
+            List<KycInvoiceDTO> invoices = kycInvoiceService.findBySubscription(subscriptionId);
             return ResponseEntity.ok(invoices);
         } catch (Exception e) {
 

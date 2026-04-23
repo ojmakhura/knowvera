@@ -9,6 +9,7 @@
 package bw.co.centralkyc.organisation.branch;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.context.MessageSource;
@@ -76,11 +77,11 @@ public class BranchServiceImpl
      * @see bw.co.centralkyc.organisation.branch.BranchService#getAll()
      */
     @Override
-    protected Collection<BranchDTO> handleGetAll()
+    protected List<BranchDTO> handleGetAll()
         throws Exception
     {
-        Collection<Branch> branches = branchRepository.findAll();
-        return this.getBranchDao().toBranchDTOCollection(branches);
+        List<Branch> branches = branchRepository.findAll();
+        return branchMapper.toBranchDTOCollection(branches);
     }
 
     private Specification<Branch> createSpecification(String criteria) {
@@ -98,12 +99,12 @@ public class BranchServiceImpl
      * @see bw.co.centralkyc.organisation.branch.BranchService#search(String)
      */
     @Override
-    protected Collection<BranchDTO> handleSearch(String criteria)
+    protected List<BranchDTO> handleSearch(String criteria)
         throws Exception
     {
         Specification<Branch> spec = createSpecification(criteria);
-        Collection<Branch> branches = branchRepository.findAll(spec, Sort.by(Direction.ASC, "name"));
-        return this.getBranchDao().toBranchDTOCollection(branches);
+        List<Branch> branches = branchRepository.findAll(spec, Sort.by(Direction.ASC, "name"));
+        return branchMapper.toBranchDTOCollection(branches);
     }
 
     /**
@@ -137,21 +138,21 @@ public class BranchServiceImpl
      * @see bw.co.centralkyc.organisation.branch.BranchService#findByOrganisation(String)
      */
     @Override
-    protected Collection<BranchDTO> handleFindByOrganisation(String organisationId)
+    protected List<BranchDTO> handleFindByOrganisation(String organisationId)
         throws Exception
     {
 
         Specification<Branch> spec = (root, query, builder) -> 
             builder.equal(root.get("organisation").get("id"), UUID.fromString(organisationId));
-        Collection<Branch> branches = branchRepository.findAll(spec, Sort.by(Direction.ASC, "name"));
-        return this.getBranchDao().toBranchDTOCollection(branches);
+        List<Branch> branches = branchRepository.findAll(spec, Sort.by(Direction.ASC, "name"));
+        return branchMapper.toBranchDTOCollection(branches);
     }
 
     /**
      * @see bw.co.centralkyc.organisation.branch.BranchService#findByOrganisation(String, Integer, Integer)
      */
     @Override
-    protected Collection<BranchDTO> handleFindByOrganisation(String organisationId, Integer pageNumber, Integer pageSize)
+    protected Page<BranchDTO> handleFindByOrganisation(String organisationId, Integer pageNumber, Integer pageSize)
         throws Exception
     {
 
@@ -159,7 +160,7 @@ public class BranchServiceImpl
         Specification<Branch> spec = (root, query, builder) -> 
             builder.equal(root.get("organisation").get("id"), UUID.fromString(organisationId));
         Page<Branch> branchPage = branchRepository.findAll(spec, pageable);
-        return this.getBranchDao().toBranchDTOCollection(branchPage.getContent());
+        return branchPage.map(branch -> this.getBranchDao().toBranchDTO(branch));
     }
 
 }

@@ -9,6 +9,7 @@
 package bw.co.centralkyc.individual.employment;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.context.MessageSource;
@@ -47,7 +48,7 @@ public class EmploymentRecordServiceImpl
         EmploymentRecord employmentRecord = this.employmentRecordRepository.findById(UUID.fromString(id))
             .orElseThrow(() -> new Exception("EmploymentRecord not found for id: " + id));
         
-        return this.employmentRecordDao.toEmploymentRecordDTO(employmentRecord);
+        return this.employmentRecordMapper.toEmploymentRecordDTO(employmentRecord);
     }
 
     /**
@@ -83,19 +84,19 @@ public class EmploymentRecordServiceImpl
      * @see bw.co.centralkyc.individual.employment.EmploymentRecordService#getAll()
      */
     @Override
-    protected Collection<EmploymentRecordDTO> handleGetAll()
+    protected List<EmploymentRecordDTO> handleGetAll()
         throws Exception
     {
 
         Collection<EmploymentRecord> employmentRecords = this.employmentRecordRepository.findAll();
-        return this.employmentRecordDao.toEmploymentRecordDTOCollection(employmentRecords);
+        return this.employmentRecordMapper.toEmploymentRecordDTOCollection(employmentRecords);
     }
 
     /**
      * @see bw.co.centralkyc.individual.employment.EmploymentRecordService#search(String)
      */
     @Override
-    protected Collection<EmploymentRecordDTO> handleSearch(String criteria)
+    protected List<EmploymentRecordDTO> handleSearch(String criteria)
         throws Exception
     {
         throw new UnsupportedOperationException("bw.co.centralkyc.individual.employment.EmploymentRecordService.handleSearch(String criteria) Not implemented!");
@@ -131,7 +132,7 @@ public class EmploymentRecordServiceImpl
      * @see bw.co.centralkyc.individual.employment.EmploymentRecordService#findByIndividual(String)
      */
     @Override
-    protected Collection<EmploymentRecordDTO> handleFindByIndividual(String individualId)
+    protected List<EmploymentRecordDTO> handleFindByIndividual(String individualId)
         throws Exception
     {
 
@@ -139,7 +140,7 @@ public class EmploymentRecordServiceImpl
             criteriaBuilder.equal(root.get("individual").get("id"), UUID.fromString(individualId));
 
         Collection<EmploymentRecord> employmentRecords = this.employmentRecordRepository.findAll(specification);
-        return this.employmentRecordDao.toEmploymentRecordDTOCollection(employmentRecords);
+        return this.employmentRecordMapper.toEmploymentRecordDTOCollection(employmentRecords);
     }
 
 }

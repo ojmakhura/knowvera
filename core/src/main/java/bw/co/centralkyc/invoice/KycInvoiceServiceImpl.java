@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Flow.Subscription;
@@ -118,10 +119,10 @@ public class KycInvoiceServiceImpl
      * @see bw.co.centralkyc.invoice.KycInvoiceService#getAll()
      */
     @Override
-    protected Collection<KycInvoiceDTO> handleGetAll()
+    protected List<KycInvoiceDTO> handleGetAll()
             throws Exception {
 
-        return this.kycInvoiceDao.toKycInvoiceDTOCollection(this.kycInvoiceRepository.findAll());
+        return this.kycInvoiceMapper.toKycInvoiceDTOCollection(this.kycInvoiceRepository.findAll());
     }
 
     private Specification<KycInvoice> createSearchSpecification(InvoiceSearchCriteria criteria) {
@@ -177,7 +178,7 @@ public class KycInvoiceServiceImpl
      * @see bw.co.centralkyc.invoice.KycInvoiceService#search(String)
      */
     @Override
-    protected Collection<KycInvoiceDTO> handleSearch(InvoiceSearchCriteria criteria,
+    protected List<KycInvoiceDTO> handleSearch(InvoiceSearchCriteria criteria,
             Set<PropertySearchOrder> sortOrders)
             throws Exception {
 
@@ -193,7 +194,7 @@ public class KycInvoiceServiceImpl
         Collection<KycInvoice> invoices = specification == null
                 ? this.kycInvoiceRepository.findAll(SortOrderFactory.createSortOrder(sortOrders))
                 : this.kycInvoiceRepository.findAll(specification, SortOrderFactory.createSortOrder(sortOrders));
-        return this.kycInvoiceDao.toKycInvoiceDTOCollection(invoices);
+        return this.kycInvoiceMapper.toKycInvoiceDTOCollection(invoices);
     }
 
     /**
@@ -291,7 +292,7 @@ public class KycInvoiceServiceImpl
     }
 
     @Override
-    protected Collection<KycInvoiceDTO> handleGenerateInvoice(String subscriptionId, String user) throws Exception {
+    protected List<KycInvoiceDTO> handleGenerateInvoice(String subscriptionId, String user) throws Exception {
 
         KycSubscription subscription = this.kycSubscriptionRepository.findById(UUID.fromString(subscriptionId))
                 .orElseThrow(
@@ -356,7 +357,7 @@ public class KycInvoiceServiceImpl
     }
 
     @Override
-    protected Collection<KycInvoiceDTO> handleFindByOrganisation(String organisationId) throws Exception {
+    protected List<KycInvoiceDTO> handleFindByOrganisation(String organisationId) throws Exception {
 
         Specification<KycInvoice> specification = (root, query, cb) -> cb.equal(
                 root.get("organisation").get("id"),
@@ -364,11 +365,11 @@ public class KycInvoiceServiceImpl
 
         Collection<KycInvoice> invoices = this.kycInvoiceRepository.findAll(specification);
 
-        return this.kycInvoiceDao.toKycInvoiceDTOCollection(invoices);
+        return this.kycInvoiceMapper.toKycInvoiceDTOCollection(invoices);
     }
 
     @Override
-    protected Collection<KycInvoiceDTO> handleFindBySubscription(String subscriptionId) throws Exception {
+    protected List<KycInvoiceDTO> handleFindBySubscription(String subscriptionId) throws Exception {
 
         Specification<KycInvoice> specification = (root, query, cb) -> cb.equal(
                 root.get("kycSubscription").get("id"),
@@ -376,7 +377,7 @@ public class KycInvoiceServiceImpl
 
         Collection<KycInvoice> invoices = this.kycInvoiceRepository.findAll(specification);
 
-        return this.kycInvoiceDao.toKycInvoiceDTOCollection(invoices);
+        return this.kycInvoiceMapper.toKycInvoiceDTOCollection(invoices);
 
     }
 

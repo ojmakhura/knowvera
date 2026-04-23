@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
 
     @Override
     @Operation(summary = "Find Expected Fields by Document Type", description = "Get the expected fields for the given document type id")
-    public ResponseEntity<Collection<ExpectedFieldDTO>> findByDocumentType(String documentTypeId) throws Exception {
+    public ResponseEntity<List<ExpectedFieldDTO>> findByDocumentType(String documentTypeId) throws Exception {
 
         try {
             return ResponseEntity.ok(expectedFieldService.findByDocumentType(documentTypeId));

@@ -127,7 +127,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Get All Individuals", description = "Get all individuals")
-    public ResponseEntity<Collection<IndividualListDTO>> getAll() {
+    public ResponseEntity<List<IndividualListDTO>> getAll() {
 
         try {
 
@@ -294,7 +294,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Search Individuals", description = "Search individuals by criteria")
-    public ResponseEntity<Collection<IndividualListDTO>> search(
+    public ResponseEntity<List<IndividualListDTO>> search(
             SearchObject<IndividualSearchCriteria> criteria) {
 
         try {
@@ -317,7 +317,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Get Organisation Clients", description = "Get all clients for a given organisation")
-    public ResponseEntity<Collection<IndividualListDTO>> getOrganisationClients(
+    public ResponseEntity<List<IndividualListDTO>> getOrganisationClients(
             String organisationId) throws Exception {
 
         try {

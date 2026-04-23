@@ -86,10 +86,13 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Find Users by Client Roles", description = "Find users by their roles for a specific client")
-    public ResponseEntity<Collection<UserDTO>> findByClientRoles(
+    public ResponseEntity<List<UserDTO>> findByClientRoles(
             Set<String> roles, String clientId) {
         try {
-            return ResponseEntity.ok(this.keycloakUserService.getUsersByClientRoles(clientId, roles));
+
+            List<UserDTO> data = this.keycloakUserService.getUsersByClientRoles(clientId, roles).stream().toList();
+
+            return ResponseEntity.ok(data);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -100,10 +103,11 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Find Users by Realm Roles", description = "Find users by their roles for the realm")
-    public ResponseEntity<Collection<UserDTO>> findByRealmRoles(
+    public ResponseEntity<List<UserDTO>> findByRealmRoles(
             Set<String> roles) {
         try {
-            return ResponseEntity.ok(this.keycloakUserService.getUsersByRealmRoles(roles));
+            List<UserDTO> data = this.keycloakUserService.getUsersByRealmRoles(roles).stream().toList();
+            return ResponseEntity.ok(data);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -129,10 +133,10 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Load All Users", description = "Load all users from the system")
-    public ResponseEntity<Collection<UserDTO>> loadUsers() {
+    public ResponseEntity<List<UserDTO>> loadUsers() {
         try {
             
-            Collection<UserDTO> data = this.keycloakUserService.findAll();
+            List<UserDTO> data = this.keycloakUserService.findAll().stream().toList();
             return ResponseEntity.ok(data);
 
         } catch (Exception e) {
@@ -180,7 +184,7 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Search Users", description = "Search users based on criteria")
-    public ResponseEntity<Collection<UserDTO>> search(String criteria) {
+    public ResponseEntity<List<UserDTO>> search(String criteria) {
         try {
             
             logger.debug("Search user by criteria" + criteria);
@@ -214,11 +218,12 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Find Users by Branch ID", description = "Find users by their branch ID")
-    public ResponseEntity<Collection<UserDTO>> findByBranchId(String branchId) {
+    public ResponseEntity<List<UserDTO>> findByBranchId(String branchId) {
 
         try {
             
-            return ResponseEntity.ok(this.keycloakUserService.getBranchUsers(branchId));
+            List<UserDTO> data = this.keycloakUserService.getBranchUsers(branchId).stream().toList();
+            return ResponseEntity.ok(data);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -229,11 +234,11 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Find Users by Branch Name", description = "Find users by their branch name")
-    public ResponseEntity<Collection<UserDTO>> findByBranchName(String branch) {
+    public ResponseEntity<List<UserDTO>> findByBranchName(String branch) {
 
         try {
             
-            Optional<Collection<UserDTO>> data = Optional.empty(); // TODO: Add custom code here;
+            Optional<List<UserDTO>> data = Optional.empty(); // TODO: Add custom code here;
             return ResponseEntity.ok(data.get());
 
         } catch (Exception e) {
@@ -245,11 +250,11 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Find Users by Organisation ID", description = "Find users by their organisation ID")
-    public ResponseEntity<Collection<UserDTO>> findByOrganisationId(String organisationId) {
+    public ResponseEntity<List<UserDTO>> findByOrganisationId(String organisationId) {
 
         try {
-            
-            return ResponseEntity.ok(this.keycloakUserService.getOrganisationUsers(organisationId));
+            List<UserDTO> data = this.keycloakUserService.getOrganisationUsers(organisationId).stream().toList();
+            return ResponseEntity.ok(data);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -259,11 +264,12 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Find Users by Organisation Name", description = "Find users by their organisation name")
-    public ResponseEntity<Collection<UserDTO>> findByOrganisationName(String organisation) {
+    public ResponseEntity<List<UserDTO>> findByOrganisationName(String organisation) {
+
 
         try {
             
-            Optional<Collection<UserDTO>> data = Optional.empty(); // TODO: Add custom code here;
+            Optional<List<UserDTO>> data = Optional.empty(); // TODO: Add custom code here;
             return ResponseEntity.ok(data.get());
 
         } catch (Exception e) {

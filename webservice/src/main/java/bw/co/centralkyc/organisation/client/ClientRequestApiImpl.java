@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -89,9 +90,9 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Individual", description = "Find client requests by individual ID")
-    public ResponseEntity<Collection<ClientRequestDTO>> findByIndividual(String individualId) throws Exception {
+    public ResponseEntity<List<ClientRequestDTO>> findByIndividual(String individualId) throws Exception {
         try {
-            Collection<ClientRequestDTO> requests = clientRequestService.findByIndividual(individualId);
+            List<ClientRequestDTO> requests = clientRequestService.findByIndividual(individualId);
             return ResponseEntity.ok(requests);
         } catch (Exception e) {
 
@@ -116,10 +117,10 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Organisation", description = "Find client requests by organisation ID")
-    public ResponseEntity<Collection<ClientRequestDTO>> findByOrganisation(String organisationId, TargetEntity target)
+    public ResponseEntity<List<ClientRequestDTO>> findByOrganisation(String organisationId, TargetEntity target)
             throws Exception {
         try {
-            Collection<ClientRequestDTO> requests = clientRequestService.findByOrganisation(organisationId);
+            List<ClientRequestDTO> requests = clientRequestService.findByOrganisation(organisationId);
             return ResponseEntity.ok(requests);
         } catch (Exception e) {
 
@@ -146,9 +147,9 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Status", description = "Find client requests by their status")
-    public ResponseEntity<Collection<ClientRequestDTO>> findByStatus(ClientRequestStatus status) throws Exception {
+    public ResponseEntity<List<ClientRequestDTO>> findByStatus(ClientRequestStatus status) throws Exception {
         try {
-            Collection<ClientRequestDTO> requests = clientRequestService.findByStatus(status);
+            List<ClientRequestDTO> requests = clientRequestService.findByStatus(status);
 
             return ResponseEntity.ok(requests);
         } catch (Exception e) {
@@ -160,9 +161,9 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Get All Client Requests", description = "Retrieve all client requests")
-    public ResponseEntity<Collection<ClientRequestDTO>> getAll() throws Exception {
+    public ResponseEntity<List<ClientRequestDTO>> getAll() throws Exception {
         try {
-            Collection<ClientRequestDTO> requests = clientRequestService.getAll();
+            List<ClientRequestDTO> requests = clientRequestService.getAll();
             return ResponseEntity.ok(requests);
         } catch (Exception e) {
 
@@ -229,7 +230,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Search Client Requests", description = "Search client requests based on criteria")
-    public ResponseEntity<Collection<ClientRequestDTO>> search(SearchObject<ClientRequestSearchCriteria> criteria)
+    public ResponseEntity<List<ClientRequestDTO>> search(SearchObject<ClientRequestSearchCriteria> criteria)
             throws Exception {
         try {
             Set<PropertySearchOrder> sorting = new HashSet<>();
@@ -238,7 +239,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
                 sorting.addAll(criteria.getSortings());
             }
 
-            Collection<ClientRequestDTO> requests = clientRequestService.search(criteria.getCriteria(), sorting);
+            List<ClientRequestDTO> requests = clientRequestService.search(criteria.getCriteria(), sorting);
             return ResponseEntity.ok(requests);
         } catch (Exception e) {
 
@@ -249,10 +250,10 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Document", description = "Find client requests by document ID")
-    public ResponseEntity<Collection<ClientRequestDTO>> findByDocument(String documentId) throws Exception {
+    public ResponseEntity<List<ClientRequestDTO>> findByDocument(String documentId) throws Exception {
 
         try {
-            Collection<ClientRequestDTO> requests = clientRequestService.findByDocument(documentId);
+            List<ClientRequestDTO> requests = clientRequestService.findByDocument(documentId);
             return ResponseEntity.ok(requests);
         } catch (Exception e) {
 
@@ -374,11 +375,11 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Target", description = "Find client requests by their target entity and target ID")
-    public ResponseEntity<Collection<ClientRequestDTO>> findByTarget(TargetEntity target, String targetId)
+    public ResponseEntity<List<ClientRequestDTO>> findByTarget(TargetEntity target, String targetId)
             throws Exception {
 
         try {
-            Collection<ClientRequestDTO> requests = clientRequestService.findByTarget(target, targetId);
+            List<ClientRequestDTO> requests = clientRequestService.findByTarget(target, targetId);
             return ResponseEntity.ok(requests);
         } catch (Exception e) {
 
@@ -405,11 +406,11 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Individuals by Organisation", description = "Find individual client requests by organisation ID")
-    public ResponseEntity<Collection<ClientRequestDTO>> findIndividualsByOrganisation(String organisationId)
+    public ResponseEntity<List<ClientRequestDTO>> findIndividualsByOrganisation(String organisationId)
             throws Exception {
 
         try {
-            Collection<ClientRequestDTO> requests = clientRequestService
+            List<ClientRequestDTO> requests = clientRequestService
                     .findByTargetAndOrganisation(TargetEntity.INDIVIDUAL, null, organisationId);
             return ResponseEntity.ok(requests);
         } catch (Exception e) {
@@ -437,10 +438,10 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Organisations by Organisation", description = "Find organisation client requests by organisation ID")
-    public ResponseEntity<Collection<ClientRequestDTO>> findOrganisationsByOrganisation(String organisationId)
+    public ResponseEntity<List<ClientRequestDTO>> findOrganisationsByOrganisation(String organisationId)
             throws Exception {
         try {
-            Collection<ClientRequestDTO> requests = clientRequestService
+            List<ClientRequestDTO> requests = clientRequestService
                     .findByTargetAndOrganisation(TargetEntity.ORGANISATION, null, organisationId);
             return ResponseEntity.ok(requests);
         } catch (Exception e) {
@@ -647,7 +648,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find My Organisation Requests", description = "Find client requests for the organisation associated with the current user")
-    public ResponseEntity<Collection<ClientRequestDTO>> findMyOrganisationRequests() throws Exception {
+    public ResponseEntity<List<ClientRequestDTO>> findMyOrganisationRequests() throws Exception {
 
         String username = "anonymousUser";
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -669,14 +670,14 @@ public class ClientRequestApiImpl implements ClientRequestApi {
             return null;
         }
 
-        Collection<ClientRequestDTO> requests = clientRequestService.findByOrganisation(individual.getOrganisation().id());
+        List<ClientRequestDTO> requests = clientRequestService.findByOrganisation(individual.getOrganisation().id());
 
         return ResponseEntity.ok(requests);
     }
 
     @Override
     @Operation(summary = "Find My Requests", description = "Find client requests for the current user")
-    public ResponseEntity<Collection<ClientRequestDTO>> findMyRequests() throws Exception {
+    public ResponseEntity<List<ClientRequestDTO>> findMyRequests() throws Exception {
 
         String username = "anonymousUser";
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -700,7 +701,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
         Set<PropertySearchOrder> sortProperties = new HashSet<>();
         sortProperties.add(new PropertySearchOrder("createdAt", SortOrder.DESC));
 
-        Collection<ClientRequestDTO> requests = clientRequestService.search(criteria, sortProperties);
+        List<ClientRequestDTO> requests = clientRequestService.search(criteria, sortProperties);
 
         return ResponseEntity.ok(requests);
     }
