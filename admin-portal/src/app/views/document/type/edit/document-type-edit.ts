@@ -50,6 +50,7 @@ import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto'
 import { ExpectedFieldApiStore } from '@app/store/bw/co/centralkyc/document/type/field/expected-field-api.store';
 import { VerificationDataConfigApiStore } from '@app/store/bw/co/centralkyc/document/type/verification/verification-data-config-api.store';
 import { VerificationDataConfigApi } from '@app/services/bw/co/centralkyc/document/type/verification/verification-data-config-api';
+import { TimePeriod } from '@app/models/bw/co/centralkyc/time-period';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -62,6 +63,8 @@ export class EditDocumentTypeVarsForm {
   description: string | any = null;
   expires: boolean | any = false;
   expiryField: KeyField | any = null;
+  expiryPeriod: TimePeriod | any;
+expiresIn: number | any;
   expectedFields: Array<ExpectedFieldDTO> = [];
   validationPrompts: Array<PromptMessage> = [];
   textExtractionPrompts: Array<PromptMessage> = [];
@@ -92,6 +95,7 @@ export class EditDocumentTypeVarsForm {
 export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   @Input() id: string = '';
   protected readonly keyFieldOptions = Object.values(KeyField);
+  protected readonly timePeriodOptions = Object.values(TimePeriod);
   protected readonly promptRoleOptions = ['system', 'user', 'assistant'];
   // protected readonly verificationTagOptions = Object.values(VerificationTag);
   protected readonly expectedFieldIndex = signal(0);
@@ -599,6 +603,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       description: documentType.description,
       expires: documentType.expires,
       expiryField: documentType.expiryField,
+      expiresIn: documentType.expiresIn,
+      expiryPeriod: documentType.expiryPeriod,
       id: documentType.id,
       modifiedAt: documentType.modifiedAt,
       modifiedBy: documentType.modifiedBy,
@@ -619,6 +625,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.description = formData.description;
     docType.expires = formData.expires;
     docType.expiryField = formData.expiryField;
+    docType.expiryPeriod = formData.expiryPeriod;
+    docType.expiresIn = formData.expiresIn;
     docType.id = formData.id;
     docType.modifiedAt = formData.modifiedAt;
     docType.modifiedBy = formData.modifiedBy;
@@ -631,6 +639,10 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     this.documentTypeApiStore.save({
       documentType: docType,
     });
+  }
+
+  expiryFieldCompare(o1: ExpectedFieldDTO | null | undefined, o2: ExpectedFieldDTO | null | undefined): boolean {
+    return o1 && o2 ? o1.id === o2.id : o1 === o2;
   }
 
   trackByIndex(index: number): number {

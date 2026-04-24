@@ -137,12 +137,15 @@ public class ClientRequestServiceImpl
 
         if (StringUtils.isBlank(clientRequestEntity.getRef())) {
 
-            SequenceGenerator sequenceGenerator = sequenceGeneratorRepository.findByName(SEQUENCE_NAME).orElse(null);
+            StringBuilder sb = new StringBuilder(clientRequestEntity.getOrganisation().getCode());
+            sb.append('_').append(SEQUENCE_NAME);
+
+            SequenceGenerator sequenceGenerator = sequenceGeneratorRepository.findByName(sb.toString()).orElse(null);
 
             if (sequenceGenerator == null) {
 
                 sequenceGenerator = new SequenceGenerator();
-                sequenceGenerator.setName(SEQUENCE_NAME);
+                sequenceGenerator.setName(sb.toString());
                 sequenceGenerator.setTargetEntity(TargetEntity.CLIENT_REQUEST);
 
                 List<SequencePart> sequenceParts = new ArrayList<>();
@@ -150,32 +153,16 @@ public class ClientRequestServiceImpl
                 SequencePart counterPart = new SequencePart();
                 counterPart.setPosition(0);
                 counterPart.setType(SequencePartType.STATIC);
-                counterPart.setInitialValue("KR-");
-                counterPart.setName(SEQUENCE_NAME + "_PREFIX");
+                counterPart.setInitialValue(clientRequestEntity.getOrganisation().getCode() + '_' + "KR-");
+                counterPart.setName(sb.toString() + "_PREFIX");
                 counterPart.setSequenceGenerator(sequenceGenerator);
                 sequenceParts.add(counterPart);
 
                 counterPart = new SequencePart();
                 counterPart.setPosition(1);
-                counterPart.setType(SequencePartType.YEAR);
-                counterPart.setName(SEQUENCE_NAME + "_YEAR");
-                counterPart.setInitialValue("");
-                counterPart.setSequenceGenerator(sequenceGenerator);
-                sequenceParts.add(counterPart);
-
-                counterPart = new SequencePart();
-                counterPart.setPosition(2);
-                counterPart.setType(SequencePartType.STATIC);
-                counterPart.setInitialValue("/");
-                counterPart.setName(SEQUENCE_NAME + "_YEAR_SLASH");
-                counterPart.setSequenceGenerator(sequenceGenerator);
-                sequenceParts.add(counterPart);
-
-                counterPart = new SequencePart();
-                counterPart.setPosition(3);
                 counterPart.setType(SequencePartType.COUNTER);
-                counterPart.setName(SEQUENCE_NAME + "_COUNTER");
-                counterPart.setInitialValue("0000000");
+                counterPart.setName(sb.toString() + "_COUNTER");
+                counterPart.setInitialValue("00000000");
                 counterPart.setSequenceGenerator(sequenceGenerator);
                 sequenceParts.add(counterPart);
 
@@ -183,7 +170,7 @@ public class ClientRequestServiceImpl
                 sequenceGenerator = sequenceGeneratorRepository.save(sequenceGenerator);
             }
 
-            String nextRef = sequenceGeneratorService.generateNextSequenceValue(SEQUENCE_NAME, true);
+            String nextRef = sequenceGeneratorService.generateNextSequenceValue(sb.toString(), true);
             clientRequestEntity.setRef(nextRef);
         }
 
@@ -460,46 +447,6 @@ public class ClientRequestServiceImpl
 
         return findByTargetAndOrganisation(target, null, organisationId, 0, 10);
     }
-
-    // @Async
-    // private void queueEmailNotificationsForRequests(List<ClientRequest>
-    // clientRequests,
-    // Map<String, String> tokenMap, String organisation) {
-    // // TODO: Implementation for queuing email notifications
-    // List<CommMessageDTO> notifiedRequests = new ArrayList<>();
-    // String subject = "Client Request Notification from " + organisation;
-
-    // String tmp = requestEmailTemplate
-    // .replace("{{organisationName}}", organisation)
-    // .replace("{{platformName}}", "Central KYC Platform")
-    // .replace("{{platformUrl}}", "https://centralkyc.co.bw")
-    // .replace("{{supportContact}}", "support@centralkyc.co.bw");
-
-    // for (ClientRequest request : clientRequests) {
-    // String token = tokenMap.get(request.getTargetId());
-    // // Create and queue email notification with the token
-    // // For now, just print to console (not recommended for production)
-    // System.out.println("Queue email notification for Request ID: " +
-    // request.getId() + ", Token: " + token);
-
-    // CommMessageDTO message = new CommMessageDTO();
-    // message.setPlatform(MessagingPlatform.EMAIL);
-    // message.setContentType(ContentType.MIME);
-    // message.setSubject(subject);
-
-    // tmp = tmp.replace("{{recipientName}}", request.getTargetId())
-    // .replace("{{kycPortalLink}}",
-    // String.format("%s/%s?token=%s", registrationUrl, request.getId(), token)); //
-    // Placeholder
-
-    // System.out.println(tmp);
-
-    // message.setText(tmp);
-
-    // notifiedRequests.add(message);
-    // }
-
-    // }
 
     /**
      * Save individual entity and create client request

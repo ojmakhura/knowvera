@@ -13,7 +13,6 @@
 			</div>
 
 			<h1 class="page-title">{{ fullName() }}</h1>
-			<p class="page-subtitle">{{ summaryText() }}</p>
 		</div>
 
 		<div class="header-actions">
@@ -182,33 +181,49 @@
 				</div>
 			</mat-card>
 
-			<section class="documents-grid">
-				@for (document of documents().slice(0, 2); track document.id || document.fileName) {
-					<mat-card class="document-card">
-						<div class="document-icon" [class.pdf]="($any(document).fileName || '').toLowerCase().endsWith('.pdf')">
-							<mat-icon>{{ ($any(document).fileName || '').toLowerCase().endsWith('.pdf') ? 'picture_as_pdf' : 'description' }}</mat-icon>
-						</div>
-						<div class="document-copy">
-							<div class="document-name">{{ document.fileName || document.documentType || 'Document' }}</div>
-							<div class="document-meta">
-								Verified {{ formatDate(document.createdAt || individual().modifiedAt) }} • {{ document.documentType || 'Reference file' }}
+			<section class="documents-section">
+				<div class="documents-head">
+					<h2 class="section-label documents-label">
+						<mat-icon>description</mat-icon>
+						Individual Documents
+					</h2>
+
+					<button mat-flat-button type="button" class="primary-btn documents-add-btn" (click)="openDocumentAdd()">
+						<mat-icon>add</mat-icon>
+						Add Document
+					</button>
+				</div>
+
+				<div class="documents-grid">
+					
+					@for (document of individual().documents.slice(0, 2); track document.id || document.fileName) {
+						<mat-card class="document-card">
+							<div class="document-icon" [class.pdf]="(document.fileName || '').toLowerCase().endsWith('.pdf')">
+								<mat-icon>{{ (document.fileName || '').toLowerCase().endsWith('.pdf') ? 'picture_as_pdf' : 'description' }}</mat-icon>
 							</div>
-						</div>
-						<button mat-icon-button type="button" [attr.aria-label]="'Download ' + (document.fileName || 'document')">
-							<mat-icon>download</mat-icon>
-						</button>
-					</mat-card>
-				} @empty {
-					<mat-card class="document-card placeholder-card">
-						<div class="document-icon pdf">
-							<mat-icon>picture_as_pdf</mat-icon>
-						</div>
-						<div class="document-copy">
-							<div class="document-name">No verified documents available</div>
-							<div class="document-meta">Upload and verification records will appear here.</div>
-						</div>
-					</mat-card>
-				}
+							<div class="document-copy">
+								<div class="document-name">{{ document.fileName || document.documentType || 'Document' }}</div>
+								<div class="document-meta">
+									Verified {{ document.documentType || 'Reference file' }}
+								</div>
+							</div>
+							<button mat-icon-button type="button" [attr.aria-label]="'Edit ' + (document.fileName || 'document')"
+								(click)="openDocumentEdit($any(document))">
+								<mat-icon>edit</mat-icon>
+							</button>
+						</mat-card>
+					} @empty {
+						<mat-card class="document-card placeholder-card">
+							<div class="document-icon pdf">
+								<mat-icon>picture_as_pdf</mat-icon>
+							</div>
+							<div class="document-copy">
+								<div class="document-name">No verified documents available</div>
+								<div class="document-meta">Upload and verification records will appear here.</div>
+							</div>
+						</mat-card>
+					}
+				</div>
 			</section>
 		</div>
 	</div>

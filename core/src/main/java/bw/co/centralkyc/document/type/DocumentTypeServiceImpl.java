@@ -24,6 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import bw.co.centralkyc.document.type.field.ExpectedFieldMapper;
+import bw.co.centralkyc.document.type.field.ExpectedFieldRepository;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfig;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfigMapper;
+import bw.co.centralkyc.document.type.verification.VerificationDataConfigRepository;
+
 /**
  * @see bw.co.centralkyc.document.type.DocumentTypeService
  */
@@ -32,13 +38,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class DocumentTypeServiceImpl
         extends DocumentTypeServiceBase {
 
-
+    private final ExpectedFieldRepository expectedFieldRepository;
+    private final VerificationDataConfigRepository verificationDataConfigRepository;
+    private final VerificationDataConfigMapper verificationDataConfigMapper;
 
     public DocumentTypeServiceImpl(DocumentTypeDao documentTypeDao, DocumentTypeRepository documentTypeRepository,
-            DocumentTypeMapper documentTypeMapper, MessageSource messageSource) {
+            DocumentTypeMapper documentTypeMapper, ExpectedFieldRepository expectedFieldRepository,
+            VerificationDataConfigRepository verificationDataConfigRepository,
+            VerificationDataConfigMapper verificationDataConfigMapper, MessageSource messageSource) {
         super(documentTypeDao, documentTypeRepository, documentTypeMapper, messageSource);
-        //TODO Auto-generated constructor stub
-        }
+        // TODO Auto-generated constructor stub
+
+        this.expectedFieldRepository = expectedFieldRepository;
+        this.verificationDataConfigRepository = verificationDataConfigRepository;
+        this.verificationDataConfigMapper = verificationDataConfigMapper;
+    }
 
     /**
      * @see bw.co.centralkyc.document.type.DocumentTypeService#findById(String)
@@ -47,9 +61,15 @@ public class DocumentTypeServiceImpl
     protected DocumentTypeDTO handleFindById(String id)
             throws Exception {
 
-        DocumentType entity = documentTypeRepository.findById(UUID.fromString(id)).orElseThrow(() -> new Exception("DocumentType not found for id: " + id));
-        
-        return documentTypeMapper.toDocumentTypeDTO(entity);
+        DocumentType entity = documentTypeRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new Exception("DocumentType not found for id: " + id));
+        DocumentTypeDTO dto = documentTypeMapper.toDocumentTypeDTO(entity);
+
+        dto.setExpectedFields(expectedFieldRepository.findDtoByDocumentTypeId(entity.getId()));
+
+        List<VerificationDataConfig> verificationDataConfigs = this.verificationDataConfigRepository.findByDocumentTypeId(entity.getId());
+        dto.setVerificationDataConfigs(verificationDataConfigMapper.toVerificationDataConfigDTOCollection(verificationDataConfigs));
+        return dto;
     }
 
     /**
@@ -61,8 +81,14 @@ public class DocumentTypeServiceImpl
 
         DocumentType doc = documentTypeMapper.documentTypeDTOToEntity(documentType);
         doc = documentTypeRepository.save(doc);
+        DocumentTypeDTO dto = documentTypeMapper.toDocumentTypeDTO(doc);
 
-        return documentTypeMapper.toDocumentTypeDTO(doc);
+        dto.setExpectedFields(expectedFieldRepository.findDtoByDocumentTypeId(doc.getId()));
+
+        List<VerificationDataConfig> verificationDataConfigs = this.verificationDataConfigRepository.findByDocumentTypeId(doc.getId());
+        dto.setVerificationDataConfigs(verificationDataConfigMapper.toVerificationDataConfigDTOCollection(verificationDataConfigs));
+
+        return dto;
     }
 
     /**

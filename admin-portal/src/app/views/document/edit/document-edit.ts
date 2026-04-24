@@ -149,7 +149,10 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
 
     if(this.id && this.id != '') {
       this.loadDocumentFromRoute();
+      return;
     }
+
+    this.prefillFromQueryParams();
   }
 
   ngAfterViewInit(): void {
@@ -304,6 +307,22 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
       documentTypeFilter: null,
       analyticsStatus: document.analyticsStatus || DocumentAnalyticsStatus.INITIALISED
     });
+  }
+
+  private prefillFromQueryParams(): void {
+    const query = this.route.snapshot.queryParamMap;
+    const target = query.get('target') as TargetEntity | null;
+    const targetId = query.get('targetId');
+
+    if (!target || !targetId) {
+      return;
+    }
+
+    this.editDocumentSignal.update((value) => ({
+      ...value,
+      target,
+      targetId,
+    }));
   }
 
   filterDocumentType(): void {

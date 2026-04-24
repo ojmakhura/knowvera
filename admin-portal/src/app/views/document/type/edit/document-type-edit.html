@@ -7,7 +7,8 @@
 
     <div class="header-actions">
       <button mat-button type="button" class="btn-secondary" (click)="discardChanges()">Discard</button>
-      <button mat-flat-button type="button" [disabled]="editDocumentTypeSignalForm().invalid()" class="btn-save" (click)="saveDocumentType()">
+      <button mat-flat-button type="button" [disabled]="editDocumentTypeSignalForm().invalid()" class="btn-save"
+        (click)="saveDocumentType()">
         <mat-icon>save</mat-icon>
         <span>Save</span>
       </button>
@@ -56,12 +57,13 @@
             <div class="field-block">
               <label class="form-label" for="documentTypeDescription">Description</label>
               <mat-form-field appearance="outline" class="vault-field textarea-field">
-                <textarea id="documentTypeDescription" matInput rows="4"
+                <textarea id="documentTypeDescription" matInput rows="4" 
                   placeholder="Explain the purpose of this document type for extraction logic..."
                   [formField]="editDocumentTypeSignalForm.description"></textarea>
               </mat-form-field>
             </div>
 
+            @if(editDocumentTypeSignal().id) {
             <div class="field-grid field-grid-two">
               <div class="field-block">
                 <label class="form-label" for="documentTypeExpires">Expires</label>
@@ -75,15 +77,37 @@
               <div class="field-block">
                 <label class="form-label" for="documentTypeExpiryField">Expiry Field</label>
                 <mat-form-field appearance="outline" class="vault-field">
-                  <mat-select id="documentTypeExpiryField" [formField]="editDocumentTypeSignalForm.expiryField">
-                    @for (option of keyFieldOptions; track option) {
-                    <mat-option [value]="option"><span translate>key.field.{{ option }}</span></mat-option>
+                  <mat-select id="documentTypeExpiryField" [formField]="editDocumentTypeSignalForm.expiryField" [compareWith]="expiryFieldCompare">
+                    @for (option of editDocumentTypeSignal().expectedFields; track option.id) {
+                    <mat-option [value]="option"><span translate>{{ option.fieldLabel }}</span></mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="field-block">
+                <label class="form-label" for="documentTypeExpiresIn">Expires In</label>
+                <mat-form-field appearance="outline" class="vault-field">
+                  <input id="documentTypeExpiresIn" matInput type="number" [formField]="editDocumentTypeSignalForm.expiresIn" />
+                  @if(editDocumentTypeSignalForm.expiresIn().touched()) {
+                  @for (error of editDocumentTypeSignalForm.expiresIn().errors(); track $index) {
+                  <p class="error-message" translate>{{ error.message }}</p>
+                  }
+                  }
+                </mat-form-field>
+              </div>
+              <div class="field-block">
+                <label class="form-label" for="documentTypeExpiryPeriod">Expiry Period</label>
+                <mat-form-field appearance="outline" class="vault-field">
+                  <mat-select id="documentTypeExpiryPeriod" [formField]="editDocumentTypeSignalForm.expiryPeriod">
+                    @for (option of timePeriodOptions; track option) {
+                    <mat-option [value]="option"><span translate>time.period.{{ option }}</span></mat-option>
                     }
                   </mat-select>
                 </mat-form-field>
               </div>
               }
             </div>
+            }
           </mat-card-content>
         </mat-card>
       </section>
@@ -110,8 +134,8 @@
                   <div class="fields-body table-card tab-panel-surface">
                     @if (expectedFieldCount() > 0) {
                     <div class="verification-config-nav" role="group" aria-label="Expected field navigation">
-                      <button mat-stroked-button type="button" class="nav-btn" [disabled]="!canGoToPreviousExpectedField()"
-                        (click)="goToPreviousExpectedField()">
+                      <button mat-stroked-button type="button" class="nav-btn"
+                        [disabled]="!canGoToPreviousExpectedField()" (click)="goToPreviousExpectedField()">
                         <mat-icon>chevron_left</mat-icon>
                         <span>Previous</span>
                       </button>
@@ -175,8 +199,8 @@
                       </div>
 
                       <div class="row-action-wrap verification-config-action">
-                        <button mat-icon-button type="button" class="edit-btn" aria-label="Edit field" matTooltip="Edit field"
-                          (click)="expectedFieldsEdit(index, field)">
+                        <button mat-icon-button type="button" class="edit-btn" aria-label="Edit field"
+                          matTooltip="Edit field" (click)="expectedFieldsEdit(index, field)">
                           <mat-icon>edit</mat-icon>
                         </button>
                         <button mat-icon-button type="button" class="delete-btn" aria-label="Delete field"
@@ -373,7 +397,7 @@
                     }
                   </div>
                 </div>
-              </mat-tab>             
+              </mat-tab>
             </mat-tab-group>
           </mat-card-content>
         </mat-card>
