@@ -29,9 +29,12 @@ import { Loader } from '@app/@shared/loader/loader';
 import { ToastrService } from 'ngx-toastr';
 import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
+import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
 import { form, FormField, readonly } from '@angular/forms/signals';
 import { MatSelectModule } from '@angular/material/select';
 import Swal from 'sweetalert2';
+import Keycloak from 'keycloak-js';
+import { HasRolesDirective } from 'keycloak-angular';
 
 @Component({
   selector: 'app-document-details',
@@ -56,11 +59,23 @@ import Swal from 'sweetalert2';
     TranslateModule,
     Loader,
     FormField,
+    HasRolesDirective
   ],
 })
 export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   toaster: ToastrService = inject(ToastrService);
   readonly documentApiStore = inject(DocumentApiStore);
+  private readonly keycloak = inject(Keycloak);
+
+  readonly isDocumentReviewer = computed(() => this.keycloak.hasRealmRole('DOCUMENT_REVIEWER') || this.keycloak.hasResourceRole('DOCUMENT_REVIEWER'));
+
+  readonly verificationStatusOptions: DocumentVerificationStatus[] = [
+    DocumentVerificationStatus.UNVERIFIED,
+    DocumentVerificationStatus.VERIFIED,
+    DocumentVerificationStatus.REJECTED,
+    DocumentVerificationStatus.MANUAL_REVIEW,
+    DocumentVerificationStatus.IN_PROGRESS,
+  ];
 
   loaderMessage = linkedSignal(() => this.documentApiStore.loaderMessage());
   messages = linkedSignal(() => this.documentApiStore.messages());
@@ -112,7 +127,9 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
       const error = this.error();
       console.log('Error state changed:', error);
-
+      if (error) {
+        this.toaster.error(this.messages()[0] || 'An error occurred while processing the document. Please try again.');
+      }
     });
   }
 
@@ -145,9 +162,11 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
 
-  ngOnDestroy(): void {}
+  }
+
+  ngOnDestroy(): void { }
 
   get statusIcon(): string {
     switch (this.document()?.verificationStatus) {
@@ -174,18 +193,18 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     return this.document()?.validationResults?.match ? 'Pass' : 'Fail';
   }
 
-  entityTypeLabel = computed(() => {
-    switch (this.document()?.target) {
-      case TargetEntity.INDIVIDUAL:
-        return 'Natural Person';
-      case TargetEntity.ORGANISATION:
-        return 'Organisation';
-      case TargetEntity.BRANCH:
-        return 'Branch';
-      default:
-        return this.document()?.target ?? '—';
-    }
-  });
+  // entityTypeLabel = computed(() => {
+  //   switch (this.document()?.target) {
+  //     case TargetEntity.INDIVIDUAL:
+  //       return 'Natural Person';
+  //     case TargetEntity.ORGANISATION:
+  //       return 'Organisation';
+  //     case TargetEntity.BRANCH:
+  //       return 'Branch';
+  //     default:
+  //       return this.document()?.target ?? '—';
+  //   }
+  // });
 
   analyticsStatusLabel = computed(() => {
     const status = this.document()?.analyticsStatus;
@@ -328,5 +347,12 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     if (!documentId) return;
 
     this.documentApiStore.verifyData({ id: documentId });
+  }
+
+  updateStatus(status: DocumentVerificationStatus): void {
+    const documentId = this.document()?.id;
+    if (!documentId) return;
+
+    this.documentApiStore.updateVerificationStatus({ id: documentId, status });
   }
 }

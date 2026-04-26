@@ -246,7 +246,7 @@ public class KycRecordServiceImpl
             if (organisation != null) {
 
                 return new KycRecordListDTO(kycRecord.getId().toString(), kycRecord.getRef(),
-                        null, organisation.getName(), kycRecord.getKycStatus(), kycRecord.getExpiryDate());
+                        organisation.getRegistrationNo(), organisation.getName(), kycRecord.getKycStatus(), kycRecord.getExpiryDate());
             }
 
         }

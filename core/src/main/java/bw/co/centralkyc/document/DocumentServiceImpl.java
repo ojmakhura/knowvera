@@ -29,6 +29,7 @@ import bw.co.centralkyc.kyc.KycRecordRepository;
 import bw.co.centralkyc.matcher.UniversalStringMatcher;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
+import bw.co.centralkyc.organisation.client.ClientRequest;
 import bw.co.centralkyc.organisation.client.ClientRequestRepository;
 import bw.co.centralkyc.properties.RabbitProperties;
 import bw.co.centralkyc.subscription.KycSubscriptionRepository;
@@ -87,7 +88,8 @@ public class DocumentServiceImpl
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
 
-    public DocumentServiceImpl(DocumentDao documentDao, DocumentRepository documentRepository, VerificationDataConfigRepository verificationDataConfigRepository,
+    public DocumentServiceImpl(DocumentDao documentDao, DocumentRepository documentRepository,
+            VerificationDataConfigRepository verificationDataConfigRepository,
             OrganisationRepository organisationRepository, IndividualRepository individualRepository,
             KycRecordRepository kycRecordRepository, ClientRequestRepository clientRequestRepository,
             KycSubscriptionRepository kycSubscriptionRepository, DocumentTypeMapper documentTypeMapper,
@@ -188,8 +190,45 @@ public class DocumentServiceImpl
     protected boolean handleRemove(String id)
             throws Exception {
 
-        Document doc = documentRepository.getReferenceById(UUID.fromString(id));
+        Document doc = documentRepository.findById(UUID.fromString(id)).orElseThrow();
+
+        switch (doc.getTarget()) {
+            case ORGANISATION:
+                Organisation org = organisationRepository.findById(UUID.fromString(doc.getTargetId()))
+                        .orElseThrow(() -> new DocumentServiceException("No organisation found for document target"));
+                org.getDocuments().removeIf(document -> document.getId().equals(doc.getId()));
+                organisationRepository.save(org);
+                break;
+            case INDIVIDUAL:
+
+                Individual ind = individualRepository.findById(UUID.fromString(doc.getTargetId()))
+                        .orElseThrow(() -> new DocumentServiceException("No individual found for document target"));
+                ind.getDocuments().removeIf(document -> document.getId().equals(doc.getId()));
+                individualRepository.save(ind);
+                break;
+            case KYC_RECORD:
+
+                KycRecord record = kycRecordRepository.findById(UUID.fromString(doc.getTargetId()))
+                        .orElseThrow(() -> new DocumentServiceException("No KYC record found for document target"));
+                record.getDocuments().removeIf(document -> document.getId().equals(doc.getId()));
+                kycRecordRepository.save(record);
+                break;
+            case CLIENT_REQUEST:
+
+                ClientRequest request = clientRequestRepository.findById(UUID.fromString(doc.getTargetId()))
+                        .orElseThrow(() -> new DocumentServiceException("No client request found for document target"));
+
+                // request.
+                break;
+            case SUBSCRIPTION:
+                break;
+            // case SETTINGS
+            default:
+                break;
+        }
+
         documentRepository.delete(doc);
+        
         return true;
     }
 
@@ -541,7 +580,7 @@ public class DocumentServiceImpl
         if (docType.getExpectedFields() != null) {
             for (ExpectedField expectedField : docType.getExpectedFields()) {
 
-                if (StringUtils.isNotBlank(expectedField.getMatchTo())) {
+                if (StringUtils.isBlank(expectedField.getMatchTo())) {
                     continue;
                 }
 
@@ -605,7 +644,7 @@ public class DocumentServiceImpl
 
             for (ExpectedField expectedField : config.getExpectedFields()) {
 
-                if(expectedField.getMandatory() == null || !expectedField.getMandatory()) {
+                if (expectedField.getMandatory() == null || !expectedField.getMandatory()) {
 
                     continue;
                 }
@@ -804,57 +843,66 @@ public class DocumentServiceImpl
 
         document.setModifiedAt(LocalDateTime.now());
         document.setModifiedBy(user);
+        extractExpectedInformation(document);
         document = documentRepository.save(document);
 
         DocumentDTO dto = documentMapper.toDocumentDTO(document);
 
-//        if (document.getVerificationStatus() == DocumentVerificationStatus.REJECTED
-//                || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
-//            log.info("Document ID {} requires manual review or has been rejected (verification status: {})",
-//                    document.getId(), document.getVerificationStatus());
-//
-//            dispatchVerificationQueue(dto);
-//        }
-
+        // if (document.getVerificationStatus() == DocumentVerificationStatus.REJECTED
+        // || document.getVerificationStatus() == DocumentVerificationStatus.VERIFIED) {
+        // log.info("Document ID {} requires manual review or has been rejected
+        // (verification status: {})",
+        // document.getId(), document.getVerificationStatus());
+        //
+        // dispatchVerificationQueue(dto);
+        // }
 
         setTargetLabel(dto);
         return dto;
 
     }
 
-//    private void dispatchVerificationQueue(DocumentDTO document) {
-//        if (document.getTarget() == null || StringUtils.isBlank(document.getTargetId())) {
-//            log.warn("Skipping verification queue dispatch for document {} because target metadata is incomplete",
-//                    document.getId());
-//            return;
-//        }
-//
-//        switch (document.getTarget()) {
-//            case KYC_RECORD:
-//                KycRecord record = kycRecordRepository.findById(UUID.fromString(document.getTargetId()))
-//                        .orElseThrow(() -> new DocumentServiceException("KYC record not found for id: "
-//                                + document.getTargetId()));
-//                rabbitTemplate.convertAndSend(
-//                        rabbitProperties.getKycVerificationQueueExchange(),
-//                        rabbitProperties.getKycVerificationQueueRoutingKey(),
-//                        new QueueObject(record.getId().toString(), record.getTarget(), record.getTargetId()));
-//                break;
-//            case ORGANISATION:
-//                rabbitTemplate.convertAndSend(
-//                        rabbitProperties.getOrganisationVerificationQueueExchange(),
-//                        rabbitProperties.getOrganisationVerificationQueueRoutingKey(),
-//                        new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
-//                break;
-//            case INDIVIDUAL:
-//                rabbitTemplate.convertAndSend(
-//                        rabbitProperties.getIndividualVerificationQueueExchange(),
-//                        rabbitProperties.getIndividualVerificationQueueRoutingKey(),
-//                        new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
-//                break;
-//            default:
-//                log.debug("No verification queue configured for document target {}", document.getTarget());
-//        }
-//    }
+    // private void dispatchVerificationQueue(DocumentDTO document) {
+    // if (document.getTarget() == null ||
+    // StringUtils.isBlank(document.getTargetId())) {
+    // log.warn("Skipping verification queue dispatch for document {} because target
+    // metadata is incomplete",
+    // document.getId());
+    // return;
+    // }
+    //
+    // switch (document.getTarget()) {
+    // case KYC_RECORD:
+    // KycRecord record =
+    // kycRecordRepository.findById(UUID.fromString(document.getTargetId()))
+    // .orElseThrow(() -> new DocumentServiceException("KYC record not found for id:
+    // "
+    // + document.getTargetId()));
+    // rabbitTemplate.convertAndSend(
+    // rabbitProperties.getKycVerificationQueueExchange(),
+    // rabbitProperties.getKycVerificationQueueRoutingKey(),
+    // new QueueObject(record.getId().toString(), record.getTarget(),
+    // record.getTargetId()));
+    // break;
+    // case ORGANISATION:
+    // rabbitTemplate.convertAndSend(
+    // rabbitProperties.getOrganisationVerificationQueueExchange(),
+    // rabbitProperties.getOrganisationVerificationQueueRoutingKey(),
+    // new QueueObject(document.getTargetId(), document.getTarget(),
+    // document.getTargetId()));
+    // break;
+    // case INDIVIDUAL:
+    // rabbitTemplate.convertAndSend(
+    // rabbitProperties.getIndividualVerificationQueueExchange(),
+    // rabbitProperties.getIndividualVerificationQueueRoutingKey(),
+    // new QueueObject(document.getTargetId(), document.getTarget(),
+    // document.getTargetId()));
+    // break;
+    // default:
+    // log.debug("No verification queue configured for document target {}",
+    // document.getTarget());
+    // }
+    // }
 
     private boolean continueProcessing(ExpectedField expectedField, String expected, Object extracted) {
 
@@ -869,10 +917,14 @@ public class DocumentServiceImpl
         String extractedStr = extracted != null ? extracted.toString().toLowerCase() : "";
 
         if (expectedField.getExactMatch() != null && expectedField.getExactMatch()) {
-            return expected.equals(extracted);
+            String tmp = "";
+            if(extracted != null) {
+                tmp = extractedStr.toString().toLowerCase();
+            }
+            return expected.toLowerCase().equals(tmp);
         } else {
 
-            double score = stringMatcher.calculateFilteredSimilarity(extractedStr, expected.toString().toLowerCase());
+            double score = stringMatcher.calculateFilteredSimilarity(extractedStr, expected == null ? expected : expected.toString().toLowerCase());
             return score >= 0.8;
         }
 
@@ -906,5 +958,19 @@ public class DocumentServiceImpl
         // }
 
         // return true;
+    }
+
+    @Override
+    protected DocumentDTO handleUpdateVerificationStatus(String id, DocumentVerificationStatus verificationStatus)
+            throws Exception {
+
+        Document document = documentRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new DocumentServiceException("Document not found"));
+
+        document.setVerificationStatus(verificationStatus);
+        extractExpectedInformation(document);
+        document = documentRepository.save(document);
+
+        return documentMapper.toDocumentDTO(document);
     }
 }

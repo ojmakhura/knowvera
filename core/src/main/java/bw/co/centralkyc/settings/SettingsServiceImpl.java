@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import bw.co.centralkyc.document.type.DocumentType;
 import org.springframework.cglib.core.Local;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -66,9 +67,9 @@ public class SettingsServiceImpl
     protected SettingsDTO handleSave(SettingsDTO settings)
             throws Exception {
 
-        Settings entity = this.getSettingsDao().settingsDTOToEntity(settings);
+        Settings entity = settingsMapper.settingsDTOToEntity(settings);
         entity = this.getSettingsRepository().save(entity);
-        return this.getSettingsDao().toSettingsDTO(entity);
+        return settingsMapper.toSettingsDTO(entity);
     }
 
     /**
@@ -163,7 +164,7 @@ public class SettingsServiceImpl
 
         settings = settingsRepository.save(settings);
 
-        return settingsDao.toSettingsDTO(settings);
+        return settingsMapper.toSettingsDTO(settings);
     }
 
     @Override
@@ -196,7 +197,7 @@ public class SettingsServiceImpl
 
         settings = settingsRepository.save(settings);
 
-        return settingsDao.toSettingsDTO(settings);
+        return settingsMapper.toSettingsDTO(settings);
     }
 
     @Override
@@ -206,24 +207,26 @@ public class SettingsServiceImpl
         Settings settings = settingsRepository.findAll().stream().findFirst()
                 .orElseThrow(() -> new Exception("Settings not found"));
 
+        UUID uuid = UUID.fromString(documentTypeId);
+
         switch (purpose) {
             case ORGANISATION_KYC:
-                settings.getOrgKycDocuments().removeIf(dt -> dt.getId().equals(documentTypeId));
+                settings.getOrgKycDocuments().removeIf(dt -> dt.getId().equals(uuid));
                 break;
             case INDIVIDUAL_KYC:
-                settings.getIndKycDocuments().removeIf(dt -> dt.getId().equals(documentTypeId));
+                settings.getIndKycDocuments().removeIf(dt -> dt.getId().equals(uuid));
                 break;
             case ORGANISATION:
-                settings.getOrganisationDocuments().removeIf(dt -> dt.getId().equals(documentTypeId));
+                settings.getOrganisationDocuments().removeIf(dt -> dt.getId().equals(uuid));
                 break;
             case INDIVIDUAL:
-                settings.getIndividualDocuments().removeIf(dt -> dt.getId().equals(documentTypeId));
+                settings.getIndividualDocuments().removeIf(dt -> dt.getId().equals(uuid));
                 break;
         }
 
         settings = settingsRepository.save(settings);
 
-        return settingsDao.toSettingsDTO(settings);
+        return settingsMapper.toSettingsDTO(settings);
     }
 
 }

@@ -35,11 +35,12 @@ export class SearchRecordsVarsForm {
   emailAddress = '';
   identityNo = '';
   identityType: IndividualIdentityType | '' = '';
-  expiryFrom = '';
-  expiryTo = '';
-  uploadedFrom = '';
-  uploadedTo = '';
-  statuses: KycComplianceStatus[] = [KycComplianceStatus.CURRENT];
+  expiryFrom = null;
+  expiryTo = null;
+  uploadedFrom = null;
+  uploadedTo = null;
+  statuses: KycComplianceStatus[] = [];
+  target: TargetEntity | any = null;
 }
 
 @Component({
@@ -201,7 +202,7 @@ export class Records implements OnInit {
     criteria.criteria = {
       name: nameParts.length ? nameParts.join(' ') : null,
       registration: value.identityNo?.trim() || null,
-      target: TargetEntity.INDIVIDUAL,
+      target: value.target,
       targetIds: [],
       statuses: value.statuses.length ? value.statuses : null,
     };
@@ -336,40 +337,40 @@ export class Records implements OnInit {
     return row.id || row.ref || row.targetId || `${row.ownerDetails.identityNo}-${row.uploadDate}`;
   }
 
-  private applyClientSideFilters(rows: KycRecordDTO[]): KycRecordDTO[] {
-    const form = this.searchRecordsSignal();
+  // private applyClientSideFilters(rows: KycRecordDTO[]): KycRecordDTO[] {
+  //   const form = this.searchRecordsSignal();
 
-    return rows.filter((row) => {
-      const lowerName = (row.ownerDetails.name || '').toLowerCase();
-      const first = form.firstName.trim().toLowerCase();
-      const middle = form.middleName.trim().toLowerCase();
-      const surname = form.surname.trim().toLowerCase();
-      const identityNo = form.identityNo.trim().toLowerCase();
-      const emailAddress = form.emailAddress.trim().toLowerCase();
+  //   return rows.filter((row) => {
+  //     const lowerName = (row.ownerDetails.name || '').toLowerCase();
+  //     const first = form.firstName.trim().toLowerCase();
+  //     const middle = form.middleName.trim().toLowerCase();
+  //     const surname = form.surname.trim().toLowerCase();
+  //     const identityNo = form.identityNo.trim().toLowerCase();
+  //     const emailAddress = form.emailAddress.trim().toLowerCase();
 
-      const nameMatch =
-        (!first || lowerName.includes(first)) &&
-        (!middle || lowerName.includes(middle)) &&
-        (!surname || lowerName.includes(surname));
+  //     const nameMatch =
+  //       (!first || lowerName.includes(first)) &&
+  //       (!middle || lowerName.includes(middle)) &&
+  //       (!surname || lowerName.includes(surname));
 
-      const identityNoMatch = !identityNo || (row.ownerDetails.identityNo || '').toLowerCase().includes(identityNo);
-      const emailMatch = !emailAddress || (row.ownerDetails.emailAddress || '').toLowerCase().includes(emailAddress);
-      const identityTypeMatch = !form.identityType || row.ownerDetails.identityType === form.identityType;
-      const statusMatch = !form.statuses.length || form.statuses.includes(row.kycStatus);
-      const expiryMatch = this.matchDateRange(row.expiryDate, form.expiryFrom, form.expiryTo);
-      const uploadMatch = this.matchDateRange(row.uploadDate, form.uploadedFrom, form.uploadedTo);
+  //     const identityNoMatch = !identityNo || (row.ownerDetails.identityNo || '').toLowerCase().includes(identityNo);
+  //     const emailMatch = !emailAddress || (row.ownerDetails.emailAddress || '').toLowerCase().includes(emailAddress);
+  //     const identityTypeMatch = !form.identityType || row.ownerDetails.identityType === form.identityType;
+  //     const statusMatch = !form.statuses.length || form.statuses.includes(row.kycStatus);
+  //     const expiryMatch = this.matchDateRange(row.expiryDate, form.expiryFrom, form.expiryTo);
+  //     const uploadMatch = this.matchDateRange(row.uploadDate, form.uploadedFrom, form.uploadedTo);
 
-      return (
-        nameMatch &&
-        identityNoMatch &&
-        emailMatch &&
-        identityTypeMatch &&
-        statusMatch &&
-        expiryMatch &&
-        uploadMatch
-      );
-    });
-  }
+  //     return (
+  //       nameMatch &&
+  //       identityNoMatch &&
+  //       emailMatch &&
+  //       identityTypeMatch &&
+  //       statusMatch &&
+  //       expiryMatch &&
+  //       uploadMatch
+  //     );
+  //   });
+  // }
 
   private matchDateRange(
     value: Date | string | null | undefined,

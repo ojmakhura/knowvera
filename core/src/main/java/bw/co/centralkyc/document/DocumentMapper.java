@@ -9,9 +9,13 @@ import bw.co.centralkyc.document.type.DocumentTypeMapper;
 import bw.co.centralkyc.document.type.field.ExpectedField;
 import bw.co.centralkyc.document.type.field.ExpectedFieldMapper;
 import bw.co.centralkyc.document.type.verification.VerificationDataConfigMapper;
-import bw.co.centralkyc.individual.IndividualMapper;
+import bw.co.centralkyc.individual.Individual;
+import bw.co.centralkyc.individual.IndividualRepository;
+import bw.co.centralkyc.kyc.KycRecord;
+import bw.co.centralkyc.kyc.KycRecordRepository;
 import bw.co.centralkyc.matcher.UniversalStringMatcher;
-import bw.co.centralkyc.settings.SalaryRangeMapper;
+import bw.co.centralkyc.organisation.Organisation;
+import bw.co.centralkyc.organisation.OrganisationRepository;
 import bw.co.centralkyc.utils.MappingUtils;
 
 import java.util.Arrays;
@@ -21,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.BeanMapping;
@@ -29,25 +34,35 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(
-    componentModel = "spring",
-    uses = {
+@Mapper(componentModel = "spring", uses = {
         MappingUtils.class,
         DocumentTypeMapper.class,
         UniversalStringMatcher.class,
         VerificationDataConfigMapper.class,
         ExpectedFieldMapper.class
-    }
-)
+})
 public abstract class DocumentMapper {
-    
+
+    @Autowired
+    protected IndividualRepository individualRepository;
+
+    @Autowired
+    protected OrganisationRepository organisationRepository;
+
+    @Autowired
+    protected KycRecordRepository kycRecordRepository;
+
     /**
      * Converts this entity to an object of type {@link DocumentDTO}.
+     * 
      * @param entity
      * @return DocumentDTO
      */
-    // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String)
+    // WARNING! No conversion for target.documentType (can't convert
+    // source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to
+    // java.lang.String)
     @Mapping(target = "documentType", source = "documentType.name")
     @Mapping(source = "documentType.id", target = "documentTypeId")
     @Mapping(target = "expectedFields", expression = "java(getExpectedFields(entity))")
@@ -75,7 +90,27 @@ public abstract class DocumentMapper {
 
     protected Collection<DataComparisons> getDataComparisons(Document entity) {
         Collection<DataComparisons> expectedFieldsCollection = new java.util.ArrayList<>();
+
+        Individual individual = null;
+        Organisation organisation = null;
+        KycRecord kycRecord = null;
+
         if (entity.getDocumentType().getExpectedFields() != null) {
+
+            switch (entity.getTarget()) {
+                case INDIVIDUAL:
+                    individual = individualRepository.findById(UUID.fromString(entity.getTargetId())).orElse(null);
+                    break;
+                case ORGANISATION:
+                    organisation = organisationRepository.findById(UUID.fromString(entity.getTargetId())).orElse(null);
+                    break;
+                case KYC_RECORD:
+                    kycRecord = kycRecordRepository.findById(UUID.fromString(entity.getTargetId())).orElse(null);
+                    break;
+                default:
+                    break;
+            }
+
             Collection<ExpectedField> fields = entity.getDocumentType().getExpectedFields();
             Map expectedInformation = entity.getExpectedInformation();
 
@@ -167,14 +202,18 @@ public abstract class DocumentMapper {
         return (double) filteredLargeSet.size() / smallSet.size();
     }
 
-     /**
-     * Converts this DAO's entity to a Collection of instances of type {@link DocumentDTO}.
+    /**
+     * Converts this DAO's entity to a Collection of instances of type
+     * {@link DocumentDTO}.
+     * 
      * @param entities
-     * @return Collection<DocumentDTO>     */
+     * @return Collection<DocumentDTO>
+     */
     public abstract List<DocumentDTO> toDocumentDTOCollection(Collection<Document> entities);
 
     /**
      * Converts an instance of type {@link DocumentDTO} to this DAO's entity.
+     * 
      * @param documentDTO
      * @return Document
      */
@@ -187,22 +226,29 @@ public abstract class DocumentMapper {
 
     /**
      * Converts this entity to an object of type {@link DocumentListDTO}.
+     * 
      * @param entity
      * @return DocumentListDTO
      */
-    // WARNING! No conversion for target.documentType (can't convert source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to java.lang.String)
+    // WARNING! No conversion for target.documentType (can't convert
+    // source.getDocumentType():bw.co.centralkyc.document.type.DocumentType to
+    // java.lang.String)
     @Mapping(target = "documentType", source = "documentType.name")
     @Mapping(source = "documentType.id", target = "documentTypeId")
     public abstract DocumentListDTO toDocumentListDTO(Document entity);
 
-     /**
-     * Converts this DAO's entity to a Collection of instances of type {@link DocumentListDTO}.
+    /**
+     * Converts this DAO's entity to a Collection of instances of type
+     * {@link DocumentListDTO}.
+     * 
      * @param entities
-     * @return Collection<DocumentListDTO>     */
+     * @return Collection<DocumentListDTO>
+     */
     public abstract List<DocumentListDTO> toDocumentListDTOCollection(Collection<Document> entities);
 
     /**
      * Converts an instance of type {@link DocumentListDTO} to this DAO's entity.
+     * 
      * @param documentListDTO
      * @return Document
      */
@@ -211,6 +257,7 @@ public abstract class DocumentMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
-    public abstract void updateDocumentFromDocumentListDTO(DocumentListDTO documentListDTO, @MappingTarget Document entity);
+    public abstract void updateDocumentFromDocumentListDTO(DocumentListDTO documentListDTO,
+            @MappingTarget Document entity);
 
 }

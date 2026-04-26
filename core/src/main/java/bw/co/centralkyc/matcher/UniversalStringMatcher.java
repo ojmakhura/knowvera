@@ -62,8 +62,8 @@ public class UniversalStringMatcher {
             return 0.0;
         }
 
-        Set<String> smallSet = getTokens(shortStr);
-        Set<String> largeSet = getTokens(longStr);
+        Set<String> smallSet = getTokens(shortStr.toLowerCase());
+        Set<String> largeSet = getTokens(longStr.toLowerCase());
 
         // Swap if user put them in the wrong order
         if (smallSet.size() > largeSet.size()) {

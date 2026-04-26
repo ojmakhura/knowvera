@@ -3,10 +3,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
+import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
 import { ActivatedRoute, Router } from '@angular/router';
 import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
@@ -17,6 +20,10 @@ import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
 import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
 import { SourceOfFunds } from '@app/models/bw/co/centralkyc/source-of-funds';
+import {
+  IndividualUploadDocumentDialogComponent,
+  UploadDocumentDialogResult,
+} from '@app/views/individual/details/upload-document-dialog';
 
 @Component({
   selector: 'app-record-details',
@@ -32,6 +39,7 @@ import { SourceOfFunds } from '@app/models/bw/co/centralkyc/source-of-funds';
     MatCardModule,
     MatTooltipModule,
     MatTabsModule,
+    MatDialogModule,
   ],
 })
 export class RecordDetails implements OnInit {
@@ -40,6 +48,8 @@ export class RecordDetails implements OnInit {
   readonly toaster = inject(ToastrService);
   readonly documentApi = inject(DocumentApi);
   readonly kycRecordApiStore = inject(KycRecordApiStore);
+  readonly settingsApiStore = inject(SettingsApiStore);
+  readonly dialog = inject(MatDialog);
   protected appEnvState = inject(AppEnvStore);
   datePipe = inject(DatePipe);
 
@@ -94,6 +104,8 @@ export class RecordDetails implements OnInit {
   }
 
   ngOnInit(): void {
+    this.settingsApiStore.getAll();
+
     const routeId = this.route.snapshot.paramMap.get('id') || this.route.snapshot.queryParamMap.get('id');
     const recordId = this.id || routeId;
 
@@ -116,6 +128,52 @@ export class RecordDetails implements OnInit {
     }
 
     this.router.navigate(['/records', 'edit', id]);
+  }
+
+  openDocumentUpload(): void {
+    const record = this.record();
+    const id = record?.id || this.id;
+
+    if (!id) {
+      this.toaster.error('Unable to open document upload without a record id.');
+      return;
+    }
+
+    const settings = this.settingsApiStore.data();
+    const target = record?.target;
+    const documentTypes =
+      target === TargetEntity.ORGANISATION
+        ? settings?.orgKycDocuments || []
+        : settings?.indKycDocuments || [];
+
+    const ref = this.dialog.open(IndividualUploadDocumentDialogComponent, {
+      data: { documentTypes },
+      width: '480px',
+    });
+
+    ref.afterClosed().subscribe((result: UploadDocumentDialogResult | undefined) => {
+      if (!result) {
+        return;
+      }
+
+      this.loading.set(true);
+      this.loaderMessage.set('Uploading document...');
+
+      this.documentApi
+        .upload(TargetEntity.KYC_RECORD, id, result.documentTypeId, result.file)
+        .subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.toaster.success('Document uploaded successfully.');
+            this.kycRecordApiStore.findById({ id });
+          },
+          error: (error: any) => {
+            this.loading.set(false);
+            const message = error?.error?.message || 'Failed to upload document.';
+            this.toaster.error(message);
+          },
+        });
+    });
   }
 
   printView(): void {

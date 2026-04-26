@@ -10,6 +10,7 @@ package bw.co.centralkyc.document.type;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -24,11 +25,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import bw.co.centralkyc.document.type.field.ExpectedField;
+import bw.co.centralkyc.document.type.field.ExpectedFieldDTO;
 import bw.co.centralkyc.document.type.field.ExpectedFieldMapper;
 import bw.co.centralkyc.document.type.field.ExpectedFieldRepository;
 import bw.co.centralkyc.document.type.verification.VerificationDataConfig;
 import bw.co.centralkyc.document.type.verification.VerificationDataConfigMapper;
 import bw.co.centralkyc.document.type.verification.VerificationDataConfigRepository;
+import jakarta.validation.Valid;
 
 /**
  * @see bw.co.centralkyc.document.type.DocumentTypeService
@@ -41,10 +45,11 @@ public class DocumentTypeServiceImpl
     private final ExpectedFieldRepository expectedFieldRepository;
     private final VerificationDataConfigRepository verificationDataConfigRepository;
     private final VerificationDataConfigMapper verificationDataConfigMapper;
+    private final ExpectedFieldMapper expectedFieldMapper;
 
     public DocumentTypeServiceImpl(DocumentTypeDao documentTypeDao, DocumentTypeRepository documentTypeRepository,
             DocumentTypeMapper documentTypeMapper, ExpectedFieldRepository expectedFieldRepository,
-            VerificationDataConfigRepository verificationDataConfigRepository,
+            VerificationDataConfigRepository verificationDataConfigRepository, ExpectedFieldMapper expectedFieldMapper,
             VerificationDataConfigMapper verificationDataConfigMapper, MessageSource messageSource) {
         super(documentTypeDao, documentTypeRepository, documentTypeMapper, messageSource);
         // TODO Auto-generated constructor stub
@@ -52,6 +57,7 @@ public class DocumentTypeServiceImpl
         this.expectedFieldRepository = expectedFieldRepository;
         this.verificationDataConfigRepository = verificationDataConfigRepository;
         this.verificationDataConfigMapper = verificationDataConfigMapper;
+        this.expectedFieldMapper = expectedFieldMapper;
     }
 
     /**
@@ -177,6 +183,52 @@ public class DocumentTypeServiceImpl
 
         return types.map(type -> documentTypeMapper.toDocumentTypeDTO(type));
 
+    }
+
+    @Override
+    protected DocumentTypeDTO handleAddExpectedField(String id, @Valid Set<ExpectedFieldDTO> expectedFields)
+            throws Exception {
+
+        DocumentType documentType = documentTypeRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new Exception("DocumentType not found for id: " + id));
+
+        
+        for (ExpectedFieldDTO expectedFieldDTO : expectedFields) {
+
+            ExpectedField expectedField = expectedFieldMapper.expectedFieldDTOToEntity(expectedFieldDTO);
+            if(StringUtils.isNotBlank(expectedFieldDTO.getId())) {
+                ExpectedField f = documentType.getExpectedFields().stream()
+                        .filter(ef -> ef.getId().toString().equals(expectedFieldDTO.getId()))
+                        .findFirst()
+                        .orElse(null);
+
+                if(f != null) {
+                    f.setExactMatch(expectedField.getExactMatch());
+                    f.setField(expectedField.getField());
+                    f.setFieldLabel(expectedField.getFieldLabel());
+                    f.setFieldType(expectedField.getFieldType());
+                    f.setFormat(expectedField.getFormat());
+                    f.setMandatory(expectedField.getMandatory());
+                    f.setMany(expectedField.getMany());
+                    f.setMatchTo(expectedField.getMatchTo());
+                    f.setTargetType(expectedField.getTargetType());
+                    f.setVerificationDataConfigs(expectedField.getVerificationDataConfigs());
+
+                } else {
+                    documentType.getExpectedFields().add(expectedField);
+                }
+            } else {
+
+                documentType.getExpectedFields().add(expectedField);
+            }
+
+            expectedField.setDocumentType(documentType);
+            // expectedFieldRepository.save(expectedField);
+        }
+
+        documentType = documentTypeRepository.save(documentType);
+
+        return documentTypeMapper.toDocumentTypeDTO(documentType);
     }
 
 }

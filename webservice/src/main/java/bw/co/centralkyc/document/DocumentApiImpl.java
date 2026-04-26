@@ -139,9 +139,18 @@ public class DocumentApiImpl implements DocumentApi {
                 throw new IllegalArgumentException("Document not found with id: " + id);
             }
 
-            // minioService.deleteFile(document.getUrl());
+            boolean removed = documentService.remove(id);
+            String url = document.getUrl();
+            if (StringUtils.isNotBlank(url) && removed) {
+                try {
+                    minioService.deleteFile(url);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new DocumentServiceException("Error deleting file from MinIO for document id: " + id);
+                }
+            }
+            return ResponseEntity.ok(removed);
 
-            return ResponseEntity.ok(documentService.remove(id));
 
         } catch (Exception e) {
 
@@ -403,8 +412,8 @@ public class DocumentApiImpl implements DocumentApi {
                     document.getTarget(),
                     document.getTargetId());
 
-            rabbitTemplate.convertAndSend(rabbitProperties.getTextExtractionQueueExchange(),
-                    rabbitProperties.getTextExtractionQueueRoutingKey(), queueObject);
+            rabbitTemplate.convertAndSend(rabbitProperties.getTextProcessingQueueExchange(),
+                    rabbitProperties.getTextProcessingQueueRoutingKey(), queueObject);
 
             return ResponseEntity.ok(documentService.findById(id));
         } catch (Exception e) {
@@ -451,5 +460,16 @@ public class DocumentApiImpl implements DocumentApi {
             throw e;
         }
 
+    }
+
+    @Override
+    public ResponseEntity<DocumentDTO> updateVerificationStatus(String id,
+            DocumentVerificationStatus verificationStatus) throws Exception {
+        
+        try {
+            return ResponseEntity.ok(documentService.updateVerificationStatus(id, verificationStatus));
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

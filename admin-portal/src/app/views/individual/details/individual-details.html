@@ -16,10 +16,6 @@
 		</div>
 
 		<div class="header-actions">
-			<button mat-stroked-button type="button" class="ghost-btn">
-				<mat-icon>history</mat-icon>
-				Audit Log
-			</button>
 			<button mat-flat-button type="button" class="primary-btn" (click)="openEdit()">
 				<mat-icon>edit</mat-icon>
 				Edit Profile
@@ -69,7 +65,7 @@
 				<div class="info-stack on-dark content-layer">
 					<div>
 						<label>Document Type</label>
-						<div class="value-strong">{{ individual().identityType || individual().latestKyc?.identityType || 'Not available' }}</div>
+						<div class="value-mono">{{ individual().identityType || individual().latestKyc?.identityType || 'Not available' }}</div>
 					</div>
 
 					<div>
@@ -101,7 +97,6 @@
 								· Started {{ formatDate(latestEmploymentRecord()?.employmentStart) }}
 							}
 						} @else {
-							Verified through Architectural Trust payroll integration. Last payroll sync information is not available.
 						}
 					</p>
 				</div>
@@ -158,9 +153,9 @@
 										<p class="address-text">{{ individual().physicalAddress || individual().latestKyc?.physicalAddress || 'Not available' }}</p>
 									</div>
 								</div>
-								<div class="map-placeholder">
+								<!-- <div class="map-placeholder">
 									<div class="map-overlay">Location Overview</div>
-								</div>
+								</div> -->
 							</div>
 						</div>
 
@@ -207,10 +202,22 @@
 									Verified {{ document.documentType || 'Reference file' }}
 								</div>
 							</div>
-							<button mat-icon-button type="button" [attr.aria-label]="'Edit ' + (document.fileName || 'document')"
-								(click)="openDocumentEdit($any(document))">
-								<mat-icon>edit</mat-icon>
-							</button>
+							<div class="document-actions">
+								<button mat-icon-button type="button" title="Document details"
+									[attr.aria-label]="'View details for ' + (document.fileName || 'document')"
+									(click)="openDocumentDetails($any(document))">
+									<mat-icon>visibility</mat-icon>
+								</button>
+								<button mat-icon-button type="button" title="Edit document" [attr.aria-label]="'Edit ' + (document.fileName || 'document')"
+									(click)="openDocumentEdit($any(document))">
+									<mat-icon>edit</mat-icon>
+								</button>
+								<button mat-icon-button type="button" title="Delete document"
+									[attr.aria-label]="'Delete ' + (document.fileName || 'document')"
+									(click)="deleteDocument($any(document))">
+									<mat-icon>delete</mat-icon>
+								</button>
+							</div>
 						</mat-card>
 					} @empty {
 						<mat-card class="document-card placeholder-card">
@@ -228,7 +235,7 @@
 		</div>
 	</div>
 
-	<footer class="details-footer">
+	<!-- <footer class="details-footer">
 		<div class="audit-meta">
 			<div class="audit-block">
 				<span class="audit-label">Created By</span>
@@ -252,5 +259,5 @@
 				<mat-icon>verified_user</mat-icon>
 			</div>
 		</div>
-	</footer>
+	</footer> -->
 </main>

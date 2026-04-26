@@ -186,10 +186,10 @@ export const initialiseApp = async () => {
           toolbar: modules.toolbar,
         },
       }),
-      // { provide: MAT_DATE_FORMATS, useValue: CUSTOM_DATE_FORMATS },
+      provideNativeDateAdapter(),
       { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
-      { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
-      { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
+      // { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+      // { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
     ],
   };
 

@@ -279,7 +279,7 @@
                     (click)="filterSelectedKycIndDocument()">Search</button>
                 </mat-option>
                 @for (item of selectedKycIndDocumentFilteredList(); track item.id) {
-                <mat-option [value]="item.id">{{ item.name
+                <mat-option [value]="item">{{ item.name
                   }}</mat-option>
                 }
               </mat-select>

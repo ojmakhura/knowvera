@@ -147,6 +147,7 @@ export class RecordEdit implements OnInit {
   loading = linkedSignal(() => this.kycRecordApiStore.loading());
   private readonly saveRequested = signal(false);
   readonly allowedDocumentTypes = signal<DocumentTypeDTO[]>([]);
+  readonly bulkDocumentType = signal<DocumentTypeDTO | null>(null);
   private readonly quillEditors = new Map<string, any>();
 
   ownerOptions = linkedSignal(() => {
@@ -423,7 +424,9 @@ export class RecordEdit implements OnInit {
   onDocumentSelected(event: any): void {
     const files: FileList = event.target.files;
     if (files && files.length > 0) {
-      const defaultDocumentType = this.allowedDocumentTypes()[0] || null;
+      const configuredBulkType = this.bulkDocumentType();
+      const documentTypes = this.allowedDocumentTypes();
+      const defaultDocumentType = configuredBulkType || (documentTypes.length === 1 ? documentTypes[0] : null);
       const newFiles = Array.from(files).filter((file) =>
         !this.editRecordSignal().documentsToUpload.some((entry) => entry.file.name === file.name)
       );
@@ -452,6 +455,26 @@ export class RecordEdit implements OnInit {
     if (event.target) {
       event.target.value = '';
     }
+  }
+
+  setBulkDocumentType(documentType: DocumentTypeDTO | null): void {
+    this.bulkDocumentType.set(documentType);
+  }
+
+  applyDocumentTypeToAll(): void {
+    const selectedType = this.bulkDocumentType();
+
+    if (!selectedType) {
+      return;
+    }
+
+    this.editRecordSignal.update((form) => ({
+      ...form,
+      documentsToUpload: form.documentsToUpload.map((entry) => ({
+        ...entry,
+        documentType: selectedType,
+      })),
+    }));
   }
 
   removeDocument(index: number): void {

@@ -30,6 +30,7 @@ import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organis
 import { SearchObject } from '@app/models/search-object';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { Loader } from '@app/@shared/loader/loader';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 export class EditIndividualVarsForm {
   id: string | any = null;
@@ -52,6 +53,7 @@ export class EditIndividualVarsForm {
   physicalAddress: string | any = null;
   emailAddress: string | any = null;
   maritalStatus: MaritalStatus | any = null;
+  dateOfBirth: Date | any = null;
   employmentStatus: EmploymentStatus | any = null;
   hasUser: boolean | any = null;
   organisation: OrganisationListDTO | any = null;
@@ -76,6 +78,7 @@ export class EditIndividualVarsForm {
     MatDividerModule,
     MatAutocompleteModule,
     MatFormFieldModule,
+    MatDatepickerModule,
     FormField,
     NgxMatSelectSearchModule,
     TranslateModule,

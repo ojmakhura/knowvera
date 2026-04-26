@@ -65,8 +65,8 @@
 						</div>
 
 						<div class="kv">
-							<span class="section-label">Target ID</span>
-							<p>{{ record()?.targetId || 'Not available' }}</p>
+							<span class="section-label">Owner</span>
+							<p>{{ record()?.ownerDetails?.name || 'Not available' }}</p>
 						</div>
 
 						@if (record()?.target === TargetEntity.INDIVIDUAL) {
@@ -86,10 +86,10 @@
 							<p>{{ record()?.ownerDetails?.emailAddress || 'Not available' }}</p>
 						</div>
 
-						<div class="kv" *ngIf="record()?.target !== TargetEntity.INDIVIDUAL">
+						<!-- <div class="kv" *ngIf="record()?.target !== TargetEntity.INDIVIDUAL">
 							<span class="section-label">Legal Entity Name</span>
 							<p>{{ record()?.ownerDetails }}</p>
-						</div>
+						</div> -->
 					</div>
 				</mat-card>
 			</section>
@@ -283,6 +283,10 @@
 									<h3>{{ currentDoc.fileName || 'Untitled Document' }}</h3>
 								</div>
 								<div class="document-nav-actions">
+									<button mat-flat-button type="button" class="primary-btn" (click)="openDocumentUpload()">
+										<mat-icon>cloud_upload</mat-icon>
+										Upload More
+									</button>
 									<button mat-stroked-button type="button" (click)="showPreviousDocument()" [disabled]="!hasPreviousDocument()">
 										<mat-icon>arrow_back</mat-icon>
 										Previous

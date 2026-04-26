@@ -280,6 +280,7 @@ export class SystemSettings {
     console.log('Adding document requirement for purpose:', purpose);
     const documentTypeId = this.selectedDocumentIdFor(purpose);
     console.log('Selected document type ID:', documentTypeId);
+    console.log(this.editSettingsSignal())
 
     if (!documentTypeId) {
       return;

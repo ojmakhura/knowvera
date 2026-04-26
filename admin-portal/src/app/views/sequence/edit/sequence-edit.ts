@@ -18,6 +18,7 @@ import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { SequenceGeneratorApiStore } from '@app/store/bw/co/centralkyc/sequence/sequence-generator-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { Loader } from '@app/@shared/loader/loader';
 
 
 export class EditSequenceVarsForm {
@@ -44,7 +45,8 @@ export class EditSequenceVarsForm {
     MatFormFieldModule,
     MatCheckboxModule,
     MatSlideToggleModule,
-    MatDividerModule
+    MatDividerModule,
+    Loader
   ]
 })
 export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {

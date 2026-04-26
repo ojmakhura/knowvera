@@ -13,6 +13,7 @@ import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { DocumentSearchCriteria } from '@app/models/bw/co/centralkyc/document/document-search-criteria';
 import { DocumentListDTO } from '@app/models/bw/co/centralkyc/document/document-list-dto';
 import { HttpErrorResponse } from '@angular/common/http';
+import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
 
 export type DocumentApiState = AppState<DocumentDTO, DocumentListDTO> & {};
 
@@ -515,7 +516,39 @@ export const DocumentApiStore = signalStore(
             }),
           );
         }),
-      )
+      ),
+      updateVerificationStatus: rxMethod<{ id: string, status: DocumentVerificationStatus }>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Updating verification status ...' });
+          return documentApi.updateVerificationStatus(data.id, data.status).pipe(
+            tapResponse({
+              next: (response: DocumentDTO) => {
+                patchState(
+                  store,
+                  {
+                    data: response,
+                    loading: false,
+                    success: true,
+                    messages: [`Document "${response?.fileName || 'unknown'}" verification status updated successfully!!`],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                  status: (error?.status || 0),
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [getErrormessage(error)],
+                }
+                );
+              },
+            }),
+          );
+        }),
+      ),
     }
   }),
 );

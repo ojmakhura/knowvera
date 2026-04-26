@@ -9,6 +9,7 @@ import { SearchObject } from '@app/models/search-object';
 import { Page } from '@app/models/page.model';
 import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
 import { DocumentTypeApi } from '@app/services/bw/co/centralkyc/document/type/document-type-api';
+import { ExpectedFieldDTO } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-dto';
 
 export type DocumentTypeApiState = AppState<DocumentTypeDTO, DocumentTypeDTO> & {};
 
@@ -239,6 +240,38 @@ export const DocumentTypeApiStore = signalStore(
                     loading: false,
                     success: true,
                     messages: [`Success!!`],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
+                    success: false,
+                    error: true,
+                    messages: [getErrormessage(error)],
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      addExpectedField: rxMethod<{documentTypeId: string | any, expectedFields: ExpectedFieldDTO[] | any}>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Adding expected field(s) ...' });
+          return documentTypeApi.addExpectedField(data.documentTypeId, data.expectedFields, ).pipe(
+            tapResponse({
+              next: (response: DocumentTypeDTO | any) => {
+                patchState(
+                  store,
+                  {
+                    data: response,
+                    loading: false,
+                    success: true,
+                    messages: [`Expected field(s) added successfully!!`],
                     error: false,
                   }
                 );

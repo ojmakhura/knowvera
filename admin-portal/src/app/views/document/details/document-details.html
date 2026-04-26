@@ -12,10 +12,18 @@
     </div>
 
     <div class="status-badge-container">
-      <span class="status-label">Current Status</span>
-      <div class="status-badge">
-        <mat-icon inline>{{ statusIcon }}</mat-icon>
-        {{ document().verificationStatus || '—' }}
+      <div class="status-actions" *kaHasRoles="['DOCUMENT_REVIEWER']">
+        <span class="status-label">Current Status</span>
+        <div class="status-button-group">
+          @for (status of verificationStatusOptions; track status) {
+          <button mat-stroked-button
+            [class.active]="document().verificationStatus === status"
+            [disabled]="loading() || document().verificationStatus === status"
+            (click)="updateStatus(status)">
+            {{ status }}
+          </button>
+          }
+        </div>
       </div>
     </div>
   </div>
@@ -39,7 +47,7 @@
           <div class="id-details">
             <div class="detail-row">
               <span class="key">Entity Type</span>
-              <span class="val" translate>target.entity.{{ entityTypeLabel() }}</span>
+              <span class="val" translate>target.entity.{{ document().target }}</span>
             </div>
             <div class="detail-row">
               <span class="key">Document Type</span>

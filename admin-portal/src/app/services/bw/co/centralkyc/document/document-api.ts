@@ -7,6 +7,7 @@ import { Page } from '@models/page.model';
 import { TargetEntity } from '@models/bw/co/centralkyc/target-entity';
 import { SearchObject } from '@models/search-object';
 import { DocumentSearchCriteria } from '@models/bw/co/centralkyc/document/document-search-criteria';
+import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
 
 @Injectable({
   providedIn: 'root',
@@ -108,5 +109,9 @@ export class DocumentApi {
 
   public verifyData(id: string): Observable<DocumentDTO> {
     return this.http.get<DocumentDTO>(`${this.path}/${id}/data-verification`);
+  }
+
+  public updateVerificationStatus(id: string, status: DocumentVerificationStatus): Observable<DocumentDTO> {
+    return this.http.get<DocumentDTO>(`${this.path}/${id}/verification-status?verificationStatus=${status}`);
   }
 }

@@ -8,6 +8,7 @@ package bw.co.centralkyc.document.type;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
@@ -18,8 +19,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 import bw.co.centralkyc.AuditTracker;
+import bw.co.centralkyc.document.type.field.ExpectedFieldDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @Tag(name = "Document Types", description = "Operations related to document types.")
@@ -178,5 +181,21 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
             throw e;
         }
 
+    }
+
+    @Override
+    public ResponseEntity<DocumentTypeDTO> addExpectedField(String id, @Valid Set<ExpectedFieldDTO> expectedFields)
+            throws Exception {
+        
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            expectedFields.forEach(field -> AuditTracker.auditTrail(field, authentication));
+
+            return ResponseEntity.ok(documentTypeService.addExpectedField(id, expectedFields));
+
+        } catch (Exception e) {
+
+            throw e;
+        }
     }
 }

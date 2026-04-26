@@ -14,6 +14,7 @@ import { SequencePartDTO } from '@app/models/bw/co/centralkyc/sequence/sequence-
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { SequenceGeneratorApiStore } from '@app/store/bw/co/centralkyc/sequence/sequence-generator-api.store';
 import { ToastrService } from 'ngx-toastr';
+import { Loader } from '@app/@shared/loader/loader';
 
 export class SearchSequencesVarsForm {
   name: string = '';
@@ -37,7 +38,8 @@ export class SearchSequencesVarsForm {
     MatTableModule,
     MatPaginatorModule,
     MatFormFieldModule,
-    MatButtonModule
+    MatButtonModule,
+    Loader
   ],
 })
 export class Sequences implements OnInit, AfterViewInit, OnDestroy {

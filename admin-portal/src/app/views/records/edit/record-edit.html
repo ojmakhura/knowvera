@@ -337,9 +337,27 @@
             <mat-icon>schedule</mat-icon>
             <span>Pending upload ({{ editRecordSignal().documentsToUpload.length }})</span>
           </div>
+          <div class="doc-queue-tools">
+            <mat-form-field appearance="outline" class="vault-field doc-queue-quick-select">
+              <mat-label>Apply document type to all files</mat-label>
+              <mat-select [value]="bulkDocumentType()" [compareWith]="documentTypeCompare"
+                (valueChange)="setBulkDocumentType($event)">
+                <mat-option [value]="null">Select a type</mat-option>
+                @for (docType of allowedDocumentTypes(); track docType.id) {
+                <mat-option [value]="docType">{{ docType.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <button mat-stroked-button type="button" class="doc-apply-all-btn"
+              [disabled]="!bulkDocumentType()"
+              (click)="applyDocumentTypeToAll()">
+              <mat-icon>done_all</mat-icon>
+              <span>Apply to all</span>
+            </button>
+          </div>
           <div class="doc-queue-list">
             @for (entry of editRecordSignalForm.documentsToUpload; track $index) {
-            <!-- <div class="doc-queue-item">
+            <div class="doc-queue-item">
               <div class="doc-queue-icon">
                 <mat-icon>insert_drive_file</mat-icon>
               </div>
@@ -350,21 +368,16 @@
               <mat-form-field appearance="outline" class="vault-field doc-type-select">
                 <mat-label>Document type</mat-label>
                 <mat-select [formField]="entry.documentType" [compareWith]="documentTypeCompare">
-                  @if(editRecordSignal().target === TargetEntity.INDIVIDUAL) {
-                  @for (docType of settingsApiStore.data().indKycDocuments || []; track docType.id) {
+                  <mat-option [value]="null">Select a type</mat-option>
+                  @for (docType of allowedDocumentTypes(); track docType.id) {
                   <mat-option [value]="docType">{{ docType.name }}</mat-option>
-                  }
-                  } @else {
-                  @for (docType of settingsApiStore.data().orgKycDocuments || []; track docType.id) {
-                  <mat-option [value]="docType">{{ docType.name }}</mat-option>
-                  }
                   }
                 </mat-select>
               </mat-form-field>
               <button mat-icon-button type="button" (click)="removeDocument($index)" class="doc-remove-btn" aria-label="Remove file">
                 <mat-icon>delete_outline</mat-icon>
               </button>
-            </div> -->
+            </div>
             }
           </div>
           <div class="doc-queue-actions">

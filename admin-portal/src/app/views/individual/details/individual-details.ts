@@ -23,6 +23,7 @@ import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
+import Swal from 'sweetalert2';
 import {
   IndividualUploadDocumentDialogComponent,
   UploadDocumentDialogResult,
@@ -166,13 +167,63 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
     return this.individual().latestKyc?.documents || [];
   }
 
+  openDocumentDetails(document: DocumentDTO): void {
+    if (!document?.id) {
+      this.toaster.warning('Document details are unavailable for unsaved records.');
+      return;
+    }
+
+    this.router.navigate(['/documents/details', document.id]);
+  }
+
   openDocumentEdit(document: DocumentDTO): void {
     if (!document?.id) {
       this.toaster.warning('Cannot edit a document without an id.');
       return;
     }
 
-    this.router.navigate(['/document/edit', document.id]);
+    this.router.navigate(['/documents/edit', document.id]);
+  }
+
+  deleteDocument(document: DocumentDTO): void {
+    if (!document?.id) {
+      this.toaster.warning('Cannot delete a document without an id.');
+      return;
+    }
+
+    Swal.fire({
+      title: 'Delete Document',
+      text: `Are you sure you want to delete "${document.fileName || document.documentType || 'this document'}"? This cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+    }).then((result) => {
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      this.documentApi.remove(document.id).subscribe({
+        next: () => {
+          this.toaster.success('Document deleted successfully.');
+
+          this.individual.update((current) => {
+            const nextDocuments = (current.latestKyc?.documents || []).filter((doc: DocumentDTO) => doc.id !== document.id);
+            return { ...current, documents: nextDocuments };
+          });
+
+          const targetId = this.individual().id || this.id;
+          if (targetId) {
+            this.individualApiStore.findById({ id: targetId });
+          }
+        },
+        error: (error: any) => {
+          const message = error?.error?.message || 'Failed to delete document.';
+          this.toaster.error(message);
+        },
+      });
+    });
   }
 
   openDocumentAdd(): void {
@@ -195,12 +246,14 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
       if (!result) {
         return;
       }
-
+      this.loading.set(true);
+      this.loaderMessage.set('Uploading document...');
       this.documentApi
         .upload(TargetEntity.INDIVIDUAL, targetId, result.documentTypeId, result.file)
         .pipe(finalize(() => {}))
         .subscribe({
           next: () => {
+            this.loading.set(false);
             this.toaster.success('Document uploaded successfully.');
             this.individualApiStore.findById({ id: targetId });
           },
