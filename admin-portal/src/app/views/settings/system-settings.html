@@ -305,6 +305,80 @@
           </div>
         </article>
       </div>
+
+      <section class="kyc-fields-section">
+        <div class="requirement-head">
+          <h3>KYC Expected Fields</h3>
+        </div>
+
+        <mat-tab-group class="kyc-fields-tabs" animationDuration="0ms">
+          <mat-tab label="Individual KYC Fields">
+            <div class="kyc-fields-pane">
+              <div class="requirement-add-row">
+                <mat-form-field class="vault-field compact-field">
+                  <mat-label>Add expected field</mat-label>
+                  <mat-select [formField]="editSettingsSignalForm.selectedIndividualKycField"
+                    [compareWith]="compareExpectedField">
+                    @for (item of individualKycExpectedFieldOptions(); track $index) {
+                    <mat-option [value]="item">{{ expectedFieldLabel(item) }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <button mat-icon-button type="button" (click)="addKycExpectedField(false)">
+                  <mat-icon>add_circle</mat-icon>
+                </button>
+              </div>
+
+              <div class="requirement-list">
+                @for (item of editSettingsSignal().individualKycFields; track $index) {
+                <div class="requirement-item highlighted">
+                  <span>{{ expectedFieldLabel(item) }}</span>
+                  <button mat-icon-button type="button" color="warn" (click)="removeKycExpectedField(false, item)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+                } @empty {
+                <p class="empty-copy">No individual KYC expected fields configured.</p>
+                }
+              </div>
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Organisation KYC Fields">
+            <div class="kyc-fields-pane">
+              <div class="requirement-add-row">
+                <mat-form-field class="vault-field compact-field">
+                  <mat-label>Add expected field</mat-label>
+                  <mat-select [formField]="editSettingsSignalForm.selectedOrganisationKycField"
+                    [compareWith]="compareExpectedField">
+                    @for (item of organisationKycExpectedFieldOptions(); track $index) {
+                    <mat-option [value]="item">{{ expectedFieldLabel(item) }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <button mat-icon-button type="button" (click)="addKycExpectedField(true)">
+                  <mat-icon>add_circle</mat-icon>
+                </button>
+              </div>
+
+              <div class="requirement-list">
+                @for (item of editSettingsSignal().organisationKycFields; track $index) {
+                <div class="requirement-item highlighted">
+                  <span>{{ expectedFieldLabel(item) }}</span>
+                  <button mat-icon-button type="button" color="warn" (click)="removeKycExpectedField(true, item)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+                } @empty {
+                <p class="empty-copy">No organisation KYC expected fields configured.</p>
+                }
+              </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </section>
     </mat-card-content>
   </mat-card>
 

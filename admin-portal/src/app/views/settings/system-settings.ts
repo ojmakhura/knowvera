@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { forkJoin } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
@@ -31,18 +32,8 @@ import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/documen
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TranslateModule } from '@ngx-translate/core';
 import { SettingsApi } from '@app/services/bw/co/centralkyc/settings/settings-api';
-
-// type PendingAction = 'save' | 'attach' | 'detach' | null;
-// type SettingsDocumentListKey =
-//   | 'individualDocuments'
-//   | 'organisationDocuments'
-//   | 'orgKycDocuments'
-//   | 'indKycDocuments';
-
-// type AccountCreationOption = {
-//   value: number;
-//   label: string;
-// };
+import { ExpectedFieldDTO } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-dto';
+import { ExpectedFieldApi } from '@app/services/bw/co/centralkyc/document/type/field/expected-field-api';
 
 export class EditSettingsVarsForm {
   id: string | any = null;
@@ -70,6 +61,8 @@ export class EditSettingsVarsForm {
   selectedKycIndDocument: DocumentTypeDTO | any = null;
   selectedKycIndDocumentFilter: DocumentTypeDTO | any = null;
   indKycDocuments: Array<DocumentTypeDTO> = [];
+  selectedIndividualKycField: ExpectedFieldDTO | any = null;
+  selectedOrganisationKycField: ExpectedFieldDTO | any = null;
   invoiceDocumentType: DocumentTypeDTO | any = null;
   invoiceDocumentTypeFilter: DocumentTypeDTO | any = null;
   invoiceTemplateType: DocumentTypeDTO | any = null;
@@ -84,6 +77,8 @@ export class EditSettingsVarsForm {
   clientRequestFileTypeFilter: DocumentTypeDTO | any = null;
   salaryRanges: Array<SalaryRangeDTO> = [];
   vat: number | any = null;
+  individualKycFields: Array<ExpectedFieldDTO> = [];
+  organisationKycFields: Array<ExpectedFieldDTO> = [];
 }
 
 @Component({
@@ -105,6 +100,7 @@ export class EditSettingsVarsForm {
     MatSelectModule,
     MatSliderModule,
     MatTableModule,
+    MatTabsModule,
     FormField,
     NgxMatSelectSearchModule,
     TranslateModule,
@@ -118,6 +114,7 @@ export class SystemSettings {
   private readonly settingsApi = inject(SettingsApi);
   private readonly documentTypeApi = inject(DocumentTypeApi);
   private readonly documentApi = inject(DocumentApi);
+  private readonly expectedFieldApi = inject(ExpectedFieldApi);
 
   readonly resourceLoading = signal(false);
   readonly availableDocumentTypes = signal<DocumentTypeDTO[]>([]);
@@ -163,6 +160,8 @@ export class SystemSettings {
   selectedKycOrgDocumentFilteredList = linkedSignal<DocumentTypeDTO[]>(() => []);
   selectedIndDocumentFilteredList = linkedSignal<DocumentTypeDTO[]>(() => []);
   selectedKycIndDocumentFilteredList = linkedSignal<DocumentTypeDTO[]>(() => []);
+  readonly individualKycExpectedFieldOptions = signal<ExpectedFieldDTO[]>([]);
+  readonly organisationKycExpectedFieldOptions = signal<ExpectedFieldDTO[]>([]);
 
   TargetEntityT: any = TargetEntity;
   TargetEntityOptions = Object.keys(this.TargetEntityT);
@@ -187,6 +186,15 @@ export class SystemSettings {
 
       this.updateSettingForm(settings);
       this.roleOptions = this.buildRoleOptions(settings);
+
+      // this.expectedFieldApi.findByDocumentType(settings.indKycDocuments?.map((doc: any ) => doc.id) || []).subscribe({
+      //   next: (fields) => {
+      //     console.log(fields)
+      //   },
+      //   error: (error) => {
+
+      //   }
+      // });
     });
 
     effect(() => {
@@ -462,6 +470,8 @@ export class SystemSettings {
       individualDocuments: settings.individualDocuments || [],
       selectedKycIndDocument: null,
       indKycDocuments: settings.indKycDocuments || [],
+      selectedIndividualKycField: null,
+      selectedOrganisationKycField: null,
       invoiceDocumentType: settings.invoiceDocumentType,
       invoiceTemplateType: settings.invoiceTemplateType,
       invoiceTemplate: settings.invoiceTemplate,
@@ -486,9 +496,146 @@ export class SystemSettings {
       kycPortalLink: settings.kycPortalLink,
       organisationAdminRole: settings.organisationAdminRole,
       normalUserRole: settings.normalUserRole,
-      vat: settings.vat
+      vat: settings.vat,
+      individualKycFields: settings.individualKycFields || [],
+      organisationKycFields: settings.organisationKycFields || [],
     });
 
+    this.refreshKycExpectedFieldOptions(settings.indKycDocuments || [], settings.orgKycDocuments || []);
+
+  }
+
+  addKycExpectedField(isOrganisation: boolean): void {
+    const selectedField = isOrganisation
+      ? this.editSettingsSignal().selectedOrganisationKycField
+      : this.editSettingsSignal().selectedIndividualKycField;
+
+    if (!selectedField) {
+      return;
+    }
+
+    this.editSettingsSignal.update((value) => {
+      const targetKey = isOrganisation ? 'organisationKycFields' : 'individualKycFields';
+      const selectedKey = isOrganisation ? 'selectedOrganisationKycField' : 'selectedIndividualKycField';
+      const existingFields = (value[targetKey] || []) as ExpectedFieldDTO[];
+
+      if (this.includesExpectedField(existingFields, selectedField)) {
+        return {
+          ...value,
+          [selectedKey]: null,
+        } as EditSettingsVarsForm;
+      }
+
+      return {
+        ...value,
+        [targetKey]: [...existingFields, selectedField],
+        [selectedKey]: null,
+      } as EditSettingsVarsForm;
+    });
+  }
+
+  removeKycExpectedField(isOrganisation: boolean, field: ExpectedFieldDTO): void {
+    this.editSettingsSignal.update((value) => {
+      const targetKey = isOrganisation ? 'organisationKycFields' : 'individualKycFields';
+      const existingFields = (value[targetKey] || []) as ExpectedFieldDTO[];
+
+      return {
+        ...value,
+        [targetKey]: existingFields.filter((item) => !this.sameExpectedField(item, field)),
+      } as EditSettingsVarsForm;
+    });
+  }
+
+  expectedFieldLabel(field: ExpectedFieldDTO | null | undefined): string {
+    if (!field) {
+      return '';
+    }
+
+    const base = field.fieldLabel || field.field || 'Unnamed field';
+    const source = field.documentType ? ` (${field.documentType})` : '';
+
+    return `${base}${source}`;
+  }
+
+  compareExpectedField = (left: ExpectedFieldDTO | null, right: ExpectedFieldDTO | null): boolean =>
+    this.sameExpectedField(left, right);
+
+  private refreshKycExpectedFieldOptions(
+    individualKycDocuments: DocumentTypeDTO[],
+    organisationKycDocuments: DocumentTypeDTO[],
+  ): void {
+    this.loadExpectedFieldsForDocuments(individualKycDocuments, (fields) => {
+      this.individualKycExpectedFieldOptions.set(fields);
+    });
+
+    this.loadExpectedFieldsForDocuments(organisationKycDocuments, (fields) => {
+      this.organisationKycExpectedFieldOptions.set(fields);
+    });
+  }
+
+  private loadExpectedFieldsForDocuments(
+    documentTypes: DocumentTypeDTO[],
+    setOptions: (fields: ExpectedFieldDTO[]) => void,
+  ): void {
+    const ids = (documentTypes || []).map((item) => item?.id).filter(Boolean);
+
+    if (ids.length === 0) {
+      setOptions([]);
+      return;
+    }
+
+    this.expectedFieldApi.findByDocumentType(ids).subscribe({
+      next: (fields) => {
+        setOptions(this.uniqueExpectedFields(fields || []));
+      },
+      error: (error) => {
+        this.toastr.error(error?.error?.message || error?.message || 'Unable to load expected fields');
+        setOptions([]);
+      },
+    });
+  }
+
+  private uniqueExpectedFields(fields: ExpectedFieldDTO[]): ExpectedFieldDTO[] {
+    const seen = new Set<string>();
+
+    return (fields || []).filter((field) => {
+      const key = this.expectedFieldKey(field);
+      if (!key || seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    });
+  }
+
+  private includesExpectedField(collection: ExpectedFieldDTO[], candidate: ExpectedFieldDTO): boolean {
+    return (collection || []).some((item) => this.sameExpectedField(item, candidate));
+  }
+
+  private sameExpectedField(
+    left: ExpectedFieldDTO | null | undefined,
+    right: ExpectedFieldDTO | null | undefined,
+  ): boolean {
+    if (!left || !right) {
+      return false;
+    }
+
+    return this.expectedFieldKey(left) === this.expectedFieldKey(right);
+  }
+
+  private expectedFieldKey(field: ExpectedFieldDTO | null | undefined): string {
+    if (!field) {
+      return '';
+    }
+
+    if (field.id) {
+      return String(field.id);
+    }
+
+    const documentTypeId = field.documentTypeId || field.documentType || 'unknown';
+    const name = field.field || field.fieldLabel || 'unknown';
+    return `${documentTypeId}:${name}`;
   }
 
   private getSettings(value: any): SettingsDTO {
@@ -519,6 +666,8 @@ export class SystemSettings {
     settings.normalUserRole = value.normalUserRole;
     settings.timeToAccountCreation = value.timeToAccountCreation;
     settings.vat = value.vat;
+    settings.individualKycFields = value.individualKycFields || [];
+    settings.organisationKycFields = value.organisationKycFields || [];
 
     return settings;
   }

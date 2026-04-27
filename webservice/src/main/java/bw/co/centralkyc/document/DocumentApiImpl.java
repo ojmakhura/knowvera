@@ -467,7 +467,11 @@ public class DocumentApiImpl implements DocumentApi {
             DocumentVerificationStatus verificationStatus) throws Exception {
         
         try {
-            return ResponseEntity.ok(documentService.updateVerificationStatus(id, verificationStatus));
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+
+            String username = jwt.getClaimAsString("preferred_username");
+            return ResponseEntity.ok(documentService.updateVerificationStatus(id, verificationStatus, username));
         } catch (Exception e) {
             throw e;
         }

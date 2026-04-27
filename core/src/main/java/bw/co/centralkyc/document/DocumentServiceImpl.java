@@ -471,10 +471,7 @@ public class DocumentServiceImpl
     }
 
     private void extractExpectedInformation(Document doc) {
-        // Placeholder for document analysis logic, e.g., using OCR or metadata
-        // extraction
-        // This method can be expanded to populate additional fields in the Document
-        // entity
+        
         UUID targetId = UUID.fromString(doc.getTargetId());
 
         switch (doc.getTarget()) {
@@ -921,7 +918,12 @@ public class DocumentServiceImpl
             if(extracted != null) {
                 tmp = extractedStr.toString().toLowerCase();
             }
+            if(expected == null) {
+                return true;
+            }
+
             return expected.toLowerCase().equals(tmp);
+
         } else {
 
             double score = stringMatcher.calculateFilteredSimilarity(extractedStr, expected == null ? expected : expected.toString().toLowerCase());
@@ -961,7 +963,7 @@ public class DocumentServiceImpl
     }
 
     @Override
-    protected DocumentDTO handleUpdateVerificationStatus(String id, DocumentVerificationStatus verificationStatus)
+    protected DocumentDTO handleUpdateVerificationStatus(String id, DocumentVerificationStatus verificationStatus, String user)
             throws Exception {
 
         Document document = documentRepository.findById(UUID.fromString(id))
@@ -969,6 +971,8 @@ public class DocumentServiceImpl
 
         document.setVerificationStatus(verificationStatus);
         extractExpectedInformation(document);
+        document.setModifiedAt(LocalDateTime.now());
+        document.setModifiedBy(user);
         document = documentRepository.save(document);
 
         return documentMapper.toDocumentDTO(document);

@@ -33,10 +33,10 @@ export const ExpectedFieldApiStore = signalStore(
       reset: () => {
         patchState(store, initialState);
       },
-      findByDocumentType: rxMethod<{documentTypeId: string}>(
+      findByDocumentType: rxMethod<{documentTypeIds: string[]}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return expectedFieldApi.findByDocumentType(data.documentTypeId, ).pipe(
+          return expectedFieldApi.findByDocumentType(data.documentTypeIds, ).pipe(
             tapResponse({
               next: (response: ExpectedFieldDTO[]) => {
                 patchState(
@@ -65,10 +65,10 @@ export const ExpectedFieldApiStore = signalStore(
           );
         }),
       ),
-      findByDocumentTypePage: rxMethod<{documentTypeId: string, pageNumber: number, pageSize: number}>(
+      findByDocumentTypePage: rxMethod<{documentTypeIds: string[], pageNumber: number, pageSize: number}>(
         switchMap((data: any) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return expectedFieldApi.findByDocumentTypePage(data.documentTypeId, data.pageNumber, data.pageSize, ).pipe(
+          return expectedFieldApi.findByDocumentTypePage(data.documentTypeIds, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<ExpectedFieldDTO>) => {
                 patchState(

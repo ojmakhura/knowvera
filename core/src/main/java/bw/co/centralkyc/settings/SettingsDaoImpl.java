@@ -10,6 +10,7 @@ import bw.co.centralkyc.document.DocumentRepository;
 import bw.co.centralkyc.document.type.DocumentType;
 import bw.co.centralkyc.document.type.DocumentTypeDTO;
 import bw.co.centralkyc.document.type.DocumentTypeRepository;
+import bw.co.centralkyc.document.type.field.ExpectedFieldRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.util.Collection;
@@ -26,8 +27,9 @@ public class SettingsDaoImpl
         extends SettingsDaoBase {
 
     public SettingsDaoImpl(DocumentTypeRepository documentTypeRepository, DocumentRepository documentRepository,
-            SalaryRangeRepository salaryRangeRepository, SettingsRepository settingsRepository) {
-        super(documentTypeRepository, documentRepository, salaryRangeRepository, settingsRepository);
+            SalaryRangeRepository salaryRangeRepository, ExpectedFieldRepository expectedFieldRepository, SettingsRepository settingsRepository) {
+        super(documentTypeRepository, documentRepository, salaryRangeRepository, expectedFieldRepository,
+                settingsRepository);
         // TODO Auto-generated constructor stub
     }
 
@@ -45,7 +47,7 @@ public class SettingsDaoImpl
         // to bw.co.centralkyc.document.type.DocumentTypeDTO
         if (CollectionUtils.isNotEmpty(source.getOrganisationDocuments())) {
             // target.setOrganisationDocuments(
-            //         this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getOrganisationDocuments()));
+            // this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getOrganisationDocuments()));
 
         }
         // WARNING! No conversion for target.individualDocuments (can't convert
@@ -53,14 +55,14 @@ public class SettingsDaoImpl
         // to bw.co.centralkyc.document.type.DocumentTypeDTO
         if (CollectionUtils.isNotEmpty(source.getIndividualDocuments())) {
             // target.setIndividualDocuments(
-            //         this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getIndividualDocuments()));
+            // this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getIndividualDocuments()));
         }
         // WARNING! No conversion for target.orgKycDocuments (can't convert
         // source.getOrgKycDocuments():bw.co.centralkyc.document.type.DocumentType to
         // bw.co.centralkyc.document.type.DocumentTypeDTO
         if (CollectionUtils.isNotEmpty(source.getOrgKycDocuments())) {
             // target.setOrgKycDocuments(
-            //         this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getOrgKycDocuments()));
+            // this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getOrgKycDocuments()));
         }
 
         // WARNING! No conversion for target.indKycDocuments (can't convert
@@ -68,10 +70,10 @@ public class SettingsDaoImpl
         // bw.co.centralkyc.document.type.DocumentTypeDTO
         if (CollectionUtils.isNotEmpty(source.getIndKycDocuments())) {
             // target.setIndKycDocuments(
-            //         this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getIndKycDocuments()));
+            // this.getDocumentTypeDao().toDocumentTypeDTOCollection(source.getIndKycDocuments()));
         }
 
-        if(CollectionUtils.isNotEmpty(source.getSalaryRanges())) {
+        if (CollectionUtils.isNotEmpty(source.getSalaryRanges())) {
 
             // target.setSalaryRanges(this.getSalaryRangeDao().toSalaryRangeDTOCollection(source.getSalaryRanges()));
 
@@ -163,44 +165,44 @@ public class SettingsDaoImpl
 
         // if (CollectionUtils.isNotEmpty(source.getOrganisationDocuments())) {
 
-        //     for (DocumentTypeDTO documentTypeDTO : source.getOrganisationDocuments()) {
+        // for (DocumentTypeDTO documentTypeDTO : source.getOrganisationDocuments()) {
 
-        //         DocumentType type = documentTypeDao.documentTypeDTOToEntity(documentTypeDTO);
-        //         target.getOrganisationDocuments().add(type);
-        //     }
+        // DocumentType type = documentTypeDao.documentTypeDTOToEntity(documentTypeDTO);
+        // target.getOrganisationDocuments().add(type);
+        // }
         // }
 
         // if (CollectionUtils.isNotEmpty(source.getIndividualDocuments())) {
 
-        //     for (DocumentTypeDTO documentTypeDTO : source.getIndividualDocuments()) {
+        // for (DocumentTypeDTO documentTypeDTO : source.getIndividualDocuments()) {
 
-        //         DocumentType type = documentTypeDao.documentTypeDTOToEntity(documentTypeDTO);
-        //         target.getIndividualDocuments().add(type);
-        //     }
+        // DocumentType type = documentTypeDao.documentTypeDTOToEntity(documentTypeDTO);
+        // target.getIndividualDocuments().add(type);
+        // }
         // }
 
         // if (CollectionUtils.isNotEmpty(source.getOrgKycDocuments())) {
 
-        //     for (DocumentTypeDTO documentTypeDTO : source.getOrgKycDocuments()) {
+        // for (DocumentTypeDTO documentTypeDTO : source.getOrgKycDocuments()) {
 
-        //         DocumentType type = documentTypeDao.documentTypeDTOToEntity(documentTypeDTO);
-        //         target.getOrgKycDocuments().add(type);
-        //     }
+        // DocumentType type = documentTypeDao.documentTypeDTOToEntity(documentTypeDTO);
+        // target.getOrgKycDocuments().add(type);
+        // }
         // }
 
         // if (CollectionUtils.isNotEmpty(source.getIndKycDocuments())) {
 
-        //     for (DocumentTypeDTO documentTypeDTO : source.getIndKycDocuments()) {
+        // for (DocumentTypeDTO documentTypeDTO : source.getIndKycDocuments()) {
 
-        //         DocumentType type = documentTypeDao.documentTypeDTOToEntity(documentTypeDTO);
-        //         target.getIndKycDocuments().add(type);
-        //     }
+        // DocumentType type = documentTypeDao.documentTypeDTOToEntity(documentTypeDTO);
+        // target.getIndKycDocuments().add(type);
+        // }
         // }
 
         if (CollectionUtils.isNotEmpty(source.getSalaryRanges())) {
 
             Collection<SalaryRange> ranges = target.getSalaryRanges();
-            
+
             for (SalaryRangeDTO salaryRangeDTO : source.getSalaryRanges()) {
 
                 if (salaryRangeDTO.getId() == null) {
@@ -246,13 +248,15 @@ public class SettingsDaoImpl
         if (source.getQuotationDocumentType() != null && source.getQuotationDocumentType().getId() != null) {
 
             target.setQuotationDocumentType(
-                    documentTypeRepository.getReferenceById(UUID.fromString(source.getQuotationDocumentType().getId())));
+                    documentTypeRepository
+                            .getReferenceById(UUID.fromString(source.getQuotationDocumentType().getId())));
         }
 
         if (source.getQuotationTemplateType() != null && source.getQuotationTemplateType().getId() != null) {
 
             target.setQuotationTemplateType(
-                    documentTypeRepository.getReferenceById(UUID.fromString(source.getQuotationTemplateType().getId())));
+                    documentTypeRepository
+                            .getReferenceById(UUID.fromString(source.getQuotationTemplateType().getId())));
         }
 
         if (source.getQuotationTemplate() != null && source.getQuotationTemplate().getId() != null) {
@@ -263,7 +267,8 @@ public class SettingsDaoImpl
         if (source.getClientRequestFileType() != null && source.getClientRequestFileType().getId() != null) {
 
             target.setClientRequestFileType(
-                    documentTypeRepository.getReferenceById(UUID.fromString(source.getClientRequestFileType().getId())));
+                    documentTypeRepository
+                            .getReferenceById(UUID.fromString(source.getClientRequestFileType().getId())));
         }
 
     }

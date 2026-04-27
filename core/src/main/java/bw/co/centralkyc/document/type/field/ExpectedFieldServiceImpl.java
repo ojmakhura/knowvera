@@ -77,26 +77,19 @@ public class ExpectedFieldServiceImpl
     }
 
     @Override
-    protected Page<ExpectedFieldDTO> handleFindByDocumentType(String documentTypeId, Integer pageNumber,
+    protected Page<ExpectedFieldDTO> handleFindByDocumentType(List<String> documentTypeIds, Integer pageNumber,
             Integer pageSize) throws Exception {
 
-        Specification<ExpectedField> specification = (root, query, criteriaBuilder) -> criteriaBuilder
-                .equal(root.get("documentType").get("id"), UUID.fromString(documentTypeId));
-
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
-        Page<ExpectedField> expectedFieldsPage = this.expectedFieldRepository.findAll(specification, pageRequest);
-        return expectedFieldsPage.map(this.expectedFieldMapper::toExpectedFieldDTO);
+        List<UUID> documentTypeUUIDs = documentTypeIds.stream().map(UUID::fromString).toList();
+        return this.expectedFieldRepository.findDtoByDocumentTypeId(documentTypeUUIDs, PageRequest.of(pageNumber, pageSize));
     }
 
     @Override
-    protected List<ExpectedFieldDTO> handleFindByDocumentType(String documentTypeId) throws Exception {
-        Specification<ExpectedField> specification = (root, query, criteriaBuilder) -> criteriaBuilder
-                .equal(root.get("documentType").get("id"), UUID.fromString(documentTypeId));
+    protected List<ExpectedFieldDTO> handleFindByDocumentType(List<String> documentTypeIds) throws Exception {
 
-        return this.expectedFieldRepository.findAll(specification)
-                .stream()
-                .map(this.expectedFieldMapper::toExpectedFieldDTO)
-                .toList();
+        List<UUID> documentTypeUUIDs = documentTypeIds.stream().map(UUID::fromString).toList();
+
+        return this.expectedFieldRepository.findDtoByDocumentTypeId(documentTypeUUIDs);
     }
 
 }

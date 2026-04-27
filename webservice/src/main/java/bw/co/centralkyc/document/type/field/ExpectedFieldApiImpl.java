@@ -86,10 +86,10 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
 
     @Override
     @Operation(summary = "Find Expected Fields by Document Type", description = "Get the expected fields for the given document type id")
-    public ResponseEntity<List<ExpectedFieldDTO>> findByDocumentType(String documentTypeId) throws Exception {
+    public ResponseEntity<List<ExpectedFieldDTO>> findByDocumentType(List<String> documentTypeIds) throws Exception {
 
         try {
-            return ResponseEntity.ok(expectedFieldService.findByDocumentType(documentTypeId));
+            return ResponseEntity.ok(expectedFieldService.findByDocumentType(documentTypeIds));
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
@@ -100,10 +100,10 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
 
     @Override
     @Operation(summary = "Find Expected Fields by Document Type with Pagination", description = "Get the expected fields for the given document type id with pagination")
-    public ResponseEntity<Page<ExpectedFieldDTO>> findByDocumentTypePage(String documentTypeId, Integer pageNumber,
+    public ResponseEntity<Page<ExpectedFieldDTO>> findByDocumentTypePage(List<String> documentTypeIds, Integer pageNumber,
             Integer pageSize) throws Exception {
         try {
-            return ResponseEntity.ok(expectedFieldService.findByDocumentType(documentTypeId, pageNumber, pageSize));
+            return ResponseEntity.ok(expectedFieldService.findByDocumentType(documentTypeIds, pageNumber, pageSize));
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);

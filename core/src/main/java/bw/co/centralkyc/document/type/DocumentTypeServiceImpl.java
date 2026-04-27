@@ -71,7 +71,7 @@ public class DocumentTypeServiceImpl
                 .orElseThrow(() -> new Exception("DocumentType not found for id: " + id));
         DocumentTypeDTO dto = documentTypeMapper.toDocumentTypeDTO(entity);
 
-        dto.setExpectedFields(expectedFieldRepository.findDtoByDocumentTypeId(entity.getId()));
+        // dto.setExpectedFields(expectedFieldRepository.findDtoByDocumentTypeId(List.of(entity.getId())));
 
         List<VerificationDataConfig> verificationDataConfigs = this.verificationDataConfigRepository.findByDocumentTypeId(entity.getId());
         dto.setVerificationDataConfigs(verificationDataConfigMapper.toVerificationDataConfigDTOCollection(verificationDataConfigs));
@@ -89,7 +89,7 @@ public class DocumentTypeServiceImpl
         doc = documentTypeRepository.save(doc);
         DocumentTypeDTO dto = documentTypeMapper.toDocumentTypeDTO(doc);
 
-        dto.setExpectedFields(expectedFieldRepository.findDtoByDocumentTypeId(doc.getId()));
+        // dto.setExpectedFields(expectedFieldRepository.findDtoByDocumentTypeId(doc.getId()));
 
         List<VerificationDataConfig> verificationDataConfigs = this.verificationDataConfigRepository.findByDocumentTypeId(doc.getId());
         dto.setVerificationDataConfigs(verificationDataConfigMapper.toVerificationDataConfigDTOCollection(verificationDataConfigs));
