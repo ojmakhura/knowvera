@@ -1,11 +1,13 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
-import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import {DocumentTypeDTO} from '@models/bw/co/centralkyc/document/type/document-type-dto';
+import {DocumentListDTO} from '@models/bw/co/centralkyc/document/document-list-dto';
 import {OrganisationDomain} from '@models/bw/co/centralkyc/organisation/organisation-domain';
+import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
 import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
 import {GeneralStatus} from '@models/bw/co/centralkyc/general-status';
+import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
+import {BranchDTO} from '@models/bw/co/centralkyc/organisation/branch/branch-dto';
+import {DocumentTypeDTO} from '@models/bw/co/centralkyc/document/type/document-type-dto';
 
 export class OrganisationDTO extends AuditableDTO {
     code: string | any;
@@ -14,7 +16,7 @@ export class OrganisationDTO extends AuditableDTO {
     
     description: string | any;
     
-    documents: Array<DocumentDTO> | any;
+    documents: Array<DocumentListDTO> | any;
     
     registrationNo: string | any;
     
@@ -42,6 +44,10 @@ export class OrganisationDTO extends AuditableDTO {
     
     keycloakId: string | any;
     
+    registrationDate: Date | any;
+    
+    branches: Array<BranchDTO> | any;
+    
     constructor() {
         super();
         this.code = null;
@@ -61,5 +67,7 @@ export class OrganisationDTO extends AuditableDTO {
         this.kycStatus = null;
         this.countryOfRegistration = null;
         this.keycloakId = null;
+        this.registrationDate = null;
+        this.branches = [];
     }
 }

@@ -308,7 +308,7 @@
 
       <section class="kyc-fields-section">
         <div class="requirement-head">
-          <h3>KYC Expected Fields</h3>
+          <h3>KYC Group Fields</h3>
         </div>
 
         <mat-tab-group class="kyc-fields-tabs" animationDuration="0ms">
@@ -331,13 +331,18 @@
               </div>
 
               <div class="requirement-list">
-                @for (item of editSettingsSignal().individualKycFields; track $index) {
+                @for (group of editSettingsSignal().individualKycGroupFields; track group.id || $index) {
                 <div class="requirement-item highlighted">
+                  <span>{{ group.label || 'Individual KYC Group' }}</span>
+                </div>
+                @for (item of group.expectedFields || []; track item.id || $index) {
+                <div class="requirement-item">
                   <span>{{ expectedFieldLabel(item) }}</span>
                   <button mat-icon-button type="button" color="warn" (click)="removeKycExpectedField(false, item)">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
+                }
                 } @empty {
                 <p class="empty-copy">No individual KYC expected fields configured.</p>
                 }
@@ -364,13 +369,18 @@
               </div>
 
               <div class="requirement-list">
-                @for (item of editSettingsSignal().organisationKycFields; track $index) {
+                @for (group of editSettingsSignal().organisationKycGroupFields; track group.id || $index) {
                 <div class="requirement-item highlighted">
+                  <span>{{ group.label || 'Organisation KYC Group' }}</span>
+                </div>
+                @for (item of group.expectedFields || []; track item.id || $index) {
+                <div class="requirement-item">
                   <span>{{ expectedFieldLabel(item) }}</span>
                   <button mat-icon-button type="button" color="warn" (click)="removeKycExpectedField(true, item)">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
+                }
                 } @empty {
                 <p class="empty-copy">No organisation KYC expected fields configured.</p>
                 }
@@ -572,6 +582,24 @@
                 <mat-option [value]="item">{{ item.name }}</mat-option>
                 }
               </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="vault-field">
+              <mat-label>Document Duration Limit</mat-label>
+              <input matInput type="number" [formField]="editSettingsSignalForm.documentDurationLimit"
+                id="documentDurationLimit" />
+            </mat-form-field>
+
+            <mat-form-field class="vault-field">
+              <mat-label>Data Verification Threshold</mat-label>
+              <input matInput type="number" [formField]="editSettingsSignalForm.dataVerificationThreshold"
+                id="dataVerificationThreshold" />
+            </mat-form-field>
+
+            <mat-form-field class="vault-field">
+              <mat-label>Max Data Verification Failure Threshold</mat-label>
+              <input matInput type="number" [formField]="editSettingsSignalForm.maxDataVerificationFailureThreshold"
+                id="maxDataVerificationFailureThreshold" />
             </mat-form-field>
           </div>
 

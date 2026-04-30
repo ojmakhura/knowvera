@@ -17,12 +17,13 @@ export class ExpectedFieldDTO extends AuditableDTO {
     matchTo: string | any;
     
     targetType: TargetEntity | any;
-    fieldLabel: string | any;
     
     many: boolean | any = false;
     
     fieldType: ExpectedFieldType | any;
-
+    
+    fieldLabel: string | any;
+    
     exactMatch: boolean | any = false;
     
     constructor() {

@@ -4,7 +4,7 @@ import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { AppState } from '@app/store/app-state';
+import { AppState, getErrormessage } from '@app/store/app-state';
 import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { SequenceGeneratorApi } from '@app/services/bw/co/centralkyc/sequence/sequence-generator-api';
@@ -45,7 +45,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`${response.name} loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -57,7 +57,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -77,7 +77,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`${response.name} loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -89,7 +89,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -109,7 +109,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`${response.length} sequence generators loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -121,7 +121,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -141,7 +141,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Sequence generator removed successfully!!`],
                     error: false,
                   }
                 );
@@ -153,7 +153,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -173,7 +173,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Sequence generator "${response.name}" saved successfully!!`],
                     error: false,
                   }
                 );
@@ -185,7 +185,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -205,7 +205,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`${response.length} sequence generators loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -217,7 +217,7 @@ export const SequenceGeneratorApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },

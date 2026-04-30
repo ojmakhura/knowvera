@@ -15,6 +15,16 @@ export class ExpectedFieldApi {
 
     private http = inject(HttpClient);
 
+    public findByDocumentType(documentTypeIds: string[]): Observable<ExpectedFieldDTO[]> {
+
+        return this.http.post<ExpectedFieldDTO[]>(`${this.path}/document-types`, documentTypeIds);
+    }
+
+    public findByDocumentTypePage(documentTypeIds: string[], pageNumber: number, pageSize: number): Observable<Page<ExpectedFieldDTO>> {
+
+        return this.http.post<Page<ExpectedFieldDTO>>(`${this.path}/document-types/page?pageNumber=${pageNumber}&pageSize=${pageSize}`, documentTypeIds);
+    }
+
     public findById(id: string): Observable<ExpectedFieldDTO> {
 
         return this.http.get<ExpectedFieldDTO>(`${this.path}/${id}`);

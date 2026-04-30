@@ -1,5 +1,6 @@
 
 import {DataVerificationStatus} from '@models/bw/co/centralkyc/document/data-verification-status';
+import {KeyFieldMatchResult} from '@models/bw/co/centralkyc/key-field-match-result';
 
 export class DataVerification {
     verificationDataConfigId: string | any;
@@ -14,7 +15,9 @@ export class DataVerification {
     
     score: number | any = 0.0;
     
-    values: Array<string> | any;
+    keyFieldMatches: Array<KeyFieldMatchResult> | any;
+    
+    hasMandatoryFields: boolean | any = false;
     
     constructor() {
         this.verificationDataConfigId = null;
@@ -23,6 +26,7 @@ export class DataVerification {
         this.verificationBy = null;
         this.verificationReport = null;
         this.score = 0.0;
-        this.values = [];
+        this.keyFieldMatches = [];
+        this.hasMandatoryFields = false;
     }
 }

@@ -1,13 +1,13 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {DocumentAnalyticsStatus} from '@models/bw/co/centralkyc/document/document-analytics-status';
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
-import {DocumentValidationResults} from '@models/bw/co/centralkyc/document/document-validation-results';
-import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
-import {DataComparisons} from '@models/bw/co/centralkyc/document/data-comparisons';
-import {PromptMessage} from '@models/bw/co/centralkyc/llm/prompt-message';
 import {DataVerification} from '@models/bw/co/centralkyc/document/data-verification';
 import {VerificationDataConfigDTO} from '@models/bw/co/centralkyc/document/type/verification/verification-data-config-dto';
+import {PromptMessage} from '@models/bw/co/centralkyc/llm/prompt-message';
+import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
+import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
+import {DocumentAnalyticsStatus} from '@models/bw/co/centralkyc/document/document-analytics-status';
+import {DataComparisons} from '@models/bw/co/centralkyc/document/data-comparisons';
+import {DocumentValidationResults} from '@models/bw/co/centralkyc/document/document-validation-results';
 
 export class DocumentDTO extends AuditableDTO {
     target: TargetEntity | any;

@@ -4,7 +4,7 @@ import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { AppState } from '@app/store/app-state';
+import { AppState, getErrormessage } from '@app/store/app-state';
 import { SearchObject } from '@app/models/search-object';
 import { Page } from '@app/models/page.model';
 import { OrganisationDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-dto';
@@ -40,7 +40,7 @@ export const OrganisationApiStore = signalStore(
       },
       findById: rxMethod<{id: string }>(
         switchMap((data: any) => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          patchState(store, { loading: true, loaderMessage: 'Loading organisation ...' });
           return organisationApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: OrganisationDTO) => {
@@ -50,7 +50,7 @@ export const OrganisationApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Organisation ${response.name} loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -62,7 +62,7 @@ export const OrganisationApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [error?.error?.message || 'An error occurred while loading the organisation'],
                   }
                 );
               },
@@ -72,7 +72,7 @@ export const OrganisationApiStore = signalStore(
       ),
       getAll: rxMethod<void>(
         switchMap(() => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          patchState(store, { loading: true, loaderMessage: 'Loading all organisations ...' });
           return organisationApi.getAll().pipe(
             tapResponse({
               next: (response: OrganisationListDTO[]) => {
@@ -82,7 +82,7 @@ export const OrganisationApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`${response.length} organisations loaded successfully!!`],
                     error: false,
                   }
                 );
@@ -94,7 +94,7 @@ export const OrganisationApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -114,7 +114,7 @@ export const OrganisationApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Loaded ${response.page.size} organisations on page ${response.page.number + 1} successfully!!`],
                     error: false,
                   }
                 );
@@ -126,7 +126,7 @@ export const OrganisationApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -146,7 +146,7 @@ export const OrganisationApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Loaded ${response.page.size} organisations on page ${response.page.number + 1} successfully!!`],
                     error: false,
                   }
                 );
@@ -158,7 +158,7 @@ export const OrganisationApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -168,7 +168,7 @@ export const OrganisationApiStore = signalStore(
       ),
       remove: rxMethod<{id: string }>(
         switchMap((data: any) => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          patchState(store, { loading: true, loaderMessage: 'Removing organisation ...' });
           return organisationApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean) => {
@@ -178,7 +178,7 @@ export const OrganisationApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: ['Organisation removed successfully!!'],
                     error: false,
                   }
                 );
@@ -190,7 +190,7 @@ export const OrganisationApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -200,7 +200,7 @@ export const OrganisationApiStore = signalStore(
       ),
       save: rxMethod<{organisation: OrganisationDTO }>(
         switchMap((data: any) => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          patchState(store, { loading: true, loaderMessage: 'Saving organisation ...' });
           return organisationApi.save(data.organisation, ).pipe(
             tapResponse({
               next: (response: OrganisationDTO) => {
@@ -210,7 +210,7 @@ export const OrganisationApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Organisation ${response.name} saved successfully!!`],
                     error: false,
                   }
                 );
@@ -222,7 +222,7 @@ export const OrganisationApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -242,7 +242,7 @@ export const OrganisationApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -254,7 +254,7 @@ export const OrganisationApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -287,7 +287,7 @@ export const OrganisationApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                     registrationOrganisationLoaded: true,
                   }
                 );

@@ -35,6 +35,8 @@ export class UserDTO {
     
     adminPortalRoles: Array<string> | any;
     
+    organisationRegistrationNo: string | any;
+    
     constructor() {
         this.userId = null;
         this.username = null;
@@ -53,5 +55,6 @@ export class UserDTO {
         this.apiRoles = [];
         this.userPortalRoles = [];
         this.adminPortalRoles = [];
+        this.organisationRegistrationNo = null;
     }
 }

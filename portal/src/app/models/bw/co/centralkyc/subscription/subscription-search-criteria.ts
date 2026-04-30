@@ -1,6 +1,6 @@
 
-import {KycSubsciptionStatus} from '@models/bw/co/centralkyc/subscription/kyc-subsciption-status';
 import {TimePeriod} from '@models/bw/co/centralkyc/time-period';
+import {KycSubsciptionStatus} from '@models/bw/co/centralkyc/subscription/kyc-subsciption-status';
 
 export class SubscriptionSearchCriteria {
     ref: string | any;

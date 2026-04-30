@@ -1,11 +1,10 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {KeyField} from '@models/bw/co/centralkyc/key-field';
+import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
+import {ExpectedFieldType} from '@models/bw/co/centralkyc/document/type/field/expected-field-type';
 
 export class ExpectedFieldDTO extends AuditableDTO {
     field: string | any;
-    
-    keyField: KeyField | any;
     
     mandatory: boolean | any = false;
     
@@ -15,13 +14,30 @@ export class ExpectedFieldDTO extends AuditableDTO {
     
     documentType: string | any;
     
+    matchTo: string | any;
+    
+    targetType: TargetEntity | any;
+    
+    many: boolean | any = false;
+    
+    fieldType: ExpectedFieldType | any;
+    
+    fieldLabel: string | any;
+    
+    exactMatch: boolean | any = false;
+    
     constructor() {
         super();
         this.field = null;
-        this.keyField = null;
         this.mandatory = false;
         this.format = null;
         this.documentTypeId = null;
         this.documentType = null;
+        this.matchTo = null;
+        this.targetType = null;
+        this.many = false;
+        this.fieldType = null;
+        this.fieldLabel = null;
+        this.exactMatch = false;
     }
 }

@@ -1,8 +1,7 @@
 
-import {KeyField} from '@models/bw/co/centralkyc/key-field';
 
 export class KeyFieldMatchResult {
-    keyField: KeyField | any;
+    keyField: string | any;
     
     expectedValue: string | any;
     

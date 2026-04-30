@@ -1,5 +1,6 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
+import {DocumentListDTO} from '@models/bw/co/centralkyc/document/document-list-dto';
 
 export class BranchDTO extends AuditableDTO {
     code: string | any;
@@ -14,6 +15,8 @@ export class BranchDTO extends AuditableDTO {
     
     organisation: string | any;
     
+    documents: Array<DocumentListDTO> | any;
+    
     constructor() {
         super();
         this.code = null;
@@ -22,5 +25,6 @@ export class BranchDTO extends AuditableDTO {
         this.physicalAddress = null;
         this.organisationId = null;
         this.organisation = null;
+        this.documents = [];
     }
 }

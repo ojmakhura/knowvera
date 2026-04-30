@@ -1,13 +1,13 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
 import {DataVerification} from '@models/bw/co/centralkyc/document/data-verification';
-import {CompletionRequestMessage} from '@models/bw/co/centralkyc/lmstudio/completion-request-message';
 import {VerificationDataConfigDTO} from '@models/bw/co/centralkyc/document/type/verification/verification-data-config-dto';
+import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
+import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
+import {PromptMessage} from '@models/bw/co/centralkyc/llm/prompt-message';
+import {DocumentAnalyticsStatus} from '@models/bw/co/centralkyc/document/document-analytics-status';
 import {DataComparisons} from '@models/bw/co/centralkyc/document/data-comparisons';
 import {DocumentValidationResults} from '@models/bw/co/centralkyc/document/document-validation-results';
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
-import {DocumentAnalyticsStatus} from '@models/bw/co/centralkyc/document/document-analytics-status';
-import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
 
 export class DocumentDTO extends AuditableDTO {
     target: TargetEntity | any;
@@ -34,9 +34,9 @@ export class DocumentDTO extends AuditableDTO {
     validationResults: DocumentValidationResults | any;
     verificationStatus: DocumentVerificationStatus | any = DocumentVerificationStatus.UNVERIFIED;
     
-    validationPrompts: Array<CompletionRequestMessage> | any;
+    validationPrompts: Array<PromptMessage> | any;
     
-    textExtractionPrompts: Array<CompletionRequestMessage> | any;
+    textExtractionPrompts: Array<PromptMessage> | any;
     
     targetLabel: string | any;
     

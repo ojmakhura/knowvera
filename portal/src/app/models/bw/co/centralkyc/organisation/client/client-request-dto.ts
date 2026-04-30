@@ -1,8 +1,8 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {ClientRequestStatus} from '@models/bw/co/centralkyc/organisation/client/client-request-status';
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
 import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
+import {ClientRequestStatus} from '@models/bw/co/centralkyc/organisation/client/client-request-status';
 import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 
 export class ClientRequestDTO extends AuditableDTO {
@@ -38,6 +38,8 @@ export class ClientRequestDTO extends AuditableDTO {
     
     targetKycStatus: KycComplianceStatus | any;
     
+    ref: string | any;
+    
     constructor() {
         super();
         this.name = null;
@@ -56,5 +58,6 @@ export class ClientRequestDTO extends AuditableDTO {
         this.target = null;
         this.targetId = null;
         this.targetKycStatus = null;
+        this.ref = null;
     }
 }

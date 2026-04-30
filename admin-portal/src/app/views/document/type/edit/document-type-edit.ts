@@ -463,7 +463,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     let fields =
       this.editDocumentTypeSignal().verificationDataConfigs[configIndex]?.expectedFields || [];
 
-    let fieldIds = fields.map((f) => f.id);
+    let fieldIds = fields.map((f: any) => f.id);
 
     return fieldIds.includes(field.id) ?? false;
 

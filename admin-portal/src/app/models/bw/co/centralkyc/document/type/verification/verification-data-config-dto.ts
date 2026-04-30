@@ -1,7 +1,6 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {KeyField} from '@models/bw/co/centralkyc/key-field';
-import { ExpectedFieldDTO } from '../field/expected-field-dto';
+import {ExpectedFieldDTO} from '@models/bw/co/centralkyc/document/type/field/expected-field-dto';
 
 export class VerificationDataConfigDTO extends AuditableDTO {
     name: string | any;
@@ -9,8 +8,8 @@ export class VerificationDataConfigDTO extends AuditableDTO {
     documentTypeId: string | any;
     
     documentType: string | any;
-
-    expectedFields: ExpectedFieldDTO[] = []
+    
+    expectedFields: Array<ExpectedFieldDTO> | any;
     
     constructor() {
         super();

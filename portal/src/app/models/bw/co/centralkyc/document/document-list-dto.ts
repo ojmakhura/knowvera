@@ -1,4 +1,5 @@
 
+import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
 import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {DocumentAnalyticsStatus} from '@models/bw/co/centralkyc/document/document-analytics-status';
 
@@ -19,6 +20,8 @@ export class DocumentListDTO {
     
     analyticsStatus: DocumentAnalyticsStatus | any;
     
+    verificationStatus: DocumentVerificationStatus | any = DocumentVerificationStatus.UNVERIFIED;
+    
     constructor() {
         this.id = null;
         this.target = null;
@@ -28,5 +31,6 @@ export class DocumentListDTO {
         this.documentTypeId = null;
         this.documentType = null;
         this.analyticsStatus = null;
+        this.verificationStatus = DocumentVerificationStatus.UNVERIFIED;
     }
 }

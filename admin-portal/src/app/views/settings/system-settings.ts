@@ -34,6 +34,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { SettingsApi } from '@app/services/bw/co/centralkyc/settings/settings-api';
 import { ExpectedFieldDTO } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-dto';
 import { ExpectedFieldApi } from '@app/services/bw/co/centralkyc/document/type/field/expected-field-api';
+import { KycFieldGroupDTO } from '@app/models/bw/co/centralkyc/settings/kyc/kyc-field-group-dto';
 
 export class EditSettingsVarsForm {
   id: string | any = null;
@@ -77,8 +78,11 @@ export class EditSettingsVarsForm {
   clientRequestFileTypeFilter: DocumentTypeDTO | any = null;
   salaryRanges: Array<SalaryRangeDTO> = [];
   vat: number | any = null;
-  individualKycFields: Array<ExpectedFieldDTO> = [];
-  organisationKycFields: Array<ExpectedFieldDTO> = [];
+  documentDurationLimit: number | any = null;
+  dataVerificationThreshold: number | any = null;
+  maxDataVerificationFailureThreshold: number | any = null;
+  organisationKycGroupFields: Array<KycFieldGroupDTO> = [];
+  individualKycGroupFields: Array<KycFieldGroupDTO> = [];
 }
 
 @Component({
@@ -383,6 +387,17 @@ export class SystemSettings {
     clone.quotationTemplate = source.quotationTemplate ?? null;
     clone.clientRequestFileType = source.clientRequestFileType ?? null;
     clone.salaryRanges = (source.salaryRanges || []).map((range: SalaryRangeDTO) => ({ ...range }));
+    clone.documentDurationLimit = source.documentDurationLimit ?? null;
+    clone.dataVerificationThreshold = source.dataVerificationThreshold ?? null;
+    clone.maxDataVerificationFailureThreshold = source.maxDataVerificationFailureThreshold ?? null;
+    clone.individualKycFieldGroups = (source.individualKycFieldGroups || []).map((group: KycFieldGroupDTO) => ({
+      ...group,
+      expectedFields: [...(group?.expectedFields || [])],
+    }));
+    clone.organisationKycFieldGroups = (source.organisationKycFieldGroups || []).map((group: KycFieldGroupDTO) => ({
+      ...group,
+      expectedFields: [...(group?.expectedFields || [])],
+    }));
 
     return clone;
   }
@@ -497,8 +512,11 @@ export class SystemSettings {
       organisationAdminRole: settings.organisationAdminRole,
       normalUserRole: settings.normalUserRole,
       vat: settings.vat,
-      individualKycFields: settings.individualKycFields || [],
-      organisationKycFields: settings.organisationKycFields || [],
+      documentDurationLimit: settings.documentDurationLimit,
+      dataVerificationThreshold: settings.dataVerificationThreshold,
+      maxDataVerificationFailureThreshold: settings.maxDataVerificationFailureThreshold,
+      organisationKycGroupFields: settings.organisationKycFieldGroups || [],
+      individualKycGroupFields: settings.individualKycFieldGroups || [],
     });
 
     this.refreshKycExpectedFieldOptions(settings.indKycDocuments || [], settings.orgKycDocuments || []);
@@ -515,20 +533,28 @@ export class SystemSettings {
     }
 
     this.editSettingsSignal.update((value) => {
-      const targetKey = isOrganisation ? 'organisationKycFields' : 'individualKycFields';
+      const targetType = isOrganisation ? TargetEntity.ORGANISATION : TargetEntity.INDIVIDUAL;
+      const groupLabel = isOrganisation ? 'Organisation KYC Expected Fields' : 'Individual KYC Expected Fields';
       const selectedKey = isOrganisation ? 'selectedOrganisationKycField' : 'selectedIndividualKycField';
-      const existingFields = (value[targetKey] || []) as ExpectedFieldDTO[];
+      const targetKey = isOrganisation ? 'organisationKycGroupFields' : 'individualKycGroupFields';
+      const groups = [...((value[targetKey] || []) as KycFieldGroupDTO[])];
+      const existingIndex = groups.findIndex((group) => group?.targetType === targetType);
+      const targetGroup = existingIndex >= 0 ? groups[existingIndex] : this.createKycGroup(targetType, groupLabel);
+      const expectedFields = [...(targetGroup.expectedFields || [])];
 
-      if (this.includesExpectedField(existingFields, selectedField)) {
-        return {
-          ...value,
-          [selectedKey]: null,
-        } as EditSettingsVarsForm;
+      if (!this.includesExpectedField(expectedFields, selectedField)) {
+        targetGroup.expectedFields = [...expectedFields, selectedField];
+      }
+
+      if (existingIndex >= 0) {
+        groups[existingIndex] = targetGroup;
+      } else {
+        groups.push(targetGroup);
       }
 
       return {
         ...value,
-        [targetKey]: [...existingFields, selectedField],
+        [targetKey]: groups,
         [selectedKey]: null,
       } as EditSettingsVarsForm;
     });
@@ -536,12 +562,26 @@ export class SystemSettings {
 
   removeKycExpectedField(isOrganisation: boolean, field: ExpectedFieldDTO): void {
     this.editSettingsSignal.update((value) => {
-      const targetKey = isOrganisation ? 'organisationKycFields' : 'individualKycFields';
-      const existingFields = (value[targetKey] || []) as ExpectedFieldDTO[];
+      const targetType = isOrganisation ? TargetEntity.ORGANISATION : TargetEntity.INDIVIDUAL;
+      const targetKey = isOrganisation ? 'organisationKycGroupFields' : 'individualKycGroupFields';
+      const groups = [...((value[targetKey] || []) as KycFieldGroupDTO[])];
+
+      const updatedGroups = groups.map((group) => {
+        if (group?.targetType !== targetType) {
+          return group;
+        }
+
+        return {
+          ...group,
+          expectedFields: (group.expectedFields || []).filter(
+            (item: ExpectedFieldDTO) => !this.sameExpectedField(item, field),
+          ),
+        } as KycFieldGroupDTO;
+      });
 
       return {
         ...value,
-        [targetKey]: existingFields.filter((item) => !this.sameExpectedField(item, field)),
+        [targetKey]: updatedGroups,
       } as EditSettingsVarsForm;
     });
   }
@@ -666,10 +706,93 @@ export class SystemSettings {
     settings.normalUserRole = value.normalUserRole;
     settings.timeToAccountCreation = value.timeToAccountCreation;
     settings.vat = value.vat;
-    settings.individualKycFields = value.individualKycFields || [];
-    settings.organisationKycFields = value.organisationKycFields || [];
+    settings.documentDurationLimit = this.asNumber(value.documentDurationLimit);
+    settings.dataVerificationThreshold = this.asNumber(value.dataVerificationThreshold);
+    settings.maxDataVerificationFailureThreshold = this.asNumber(value.maxDataVerificationFailureThreshold);
+    settings.individualKycFieldGroups = this.normalizeKycGroups(
+      value.individualKycGroupFields,
+      this.settings.individualKycFieldGroups,
+      TargetEntity.INDIVIDUAL,
+      'Individual KYC Expected Fields',
+    );
+    settings.organisationKycFieldGroups = this.normalizeKycGroups(
+      value.organisationKycGroupFields,
+      this.settings.organisationKycFieldGroups,
+      TargetEntity.ORGANISATION,
+      'Organisation KYC Expected Fields',
+    );
 
     return settings;
+  }
+
+  private extractExpectedFieldsFromGroups(
+    groups: KycFieldGroupDTO[] | null | undefined,
+    legacyFields: ExpectedFieldDTO[] | null | undefined,
+  ): ExpectedFieldDTO[] {
+    const fromGroups = (groups || []).flatMap((group) => group?.expectedFields || []);
+    if (fromGroups.length > 0) {
+      return this.uniqueExpectedFields(fromGroups);
+    }
+
+    return this.uniqueExpectedFields(legacyFields || []);
+  }
+
+  private buildKycFieldGroups(
+    existingGroups: KycFieldGroupDTO[] | null | undefined,
+    targetType: TargetEntity,
+    label: string,
+    fields: ExpectedFieldDTO[],
+  ): KycFieldGroupDTO[] {
+    const existing = (existingGroups || []).find((group) => group?.targetType === targetType);
+    const group = new KycFieldGroupDTO();
+
+    group.id = existing?.id ?? null;
+    group.createdAt = existing?.createdAt ?? null;
+    group.createdBy = existing?.createdBy ?? null;
+    group.modifiedAt = existing?.modifiedAt ?? null;
+    group.modifiedBy = existing?.modifiedBy ?? null;
+    group.label = existing?.label || label;
+    group.description = existing?.description || null;
+    group.targetType = targetType;
+    group.expectedFields = this.uniqueExpectedFields(fields || []);
+
+    return [group];
+  }
+
+  private createKycGroup(targetType: TargetEntity, label: string): KycFieldGroupDTO {
+    const group = new KycFieldGroupDTO();
+    group.targetType = targetType;
+    group.label = label;
+    group.description = null;
+    group.expectedFields = [];
+    return group;
+  }
+
+  private normalizeKycGroups(
+    groups: KycFieldGroupDTO[] | null | undefined,
+    existingGroups: KycFieldGroupDTO[] | null | undefined,
+    targetType: TargetEntity,
+    fallbackLabel: string,
+  ): KycFieldGroupDTO[] {
+    const normalizedGroups = (groups || []).map((group) => {
+      const normalized = new KycFieldGroupDTO();
+      normalized.id = group?.id ?? null;
+      normalized.createdAt = group?.createdAt ?? null;
+      normalized.createdBy = group?.createdBy ?? null;
+      normalized.modifiedAt = group?.modifiedAt ?? null;
+      normalized.modifiedBy = group?.modifiedBy ?? null;
+      normalized.label = group?.label || fallbackLabel;
+      normalized.description = group?.description || null;
+      normalized.targetType = group?.targetType || targetType;
+      normalized.expectedFields = this.uniqueExpectedFields(group?.expectedFields || []);
+      return normalized;
+    });
+
+    if (normalizedGroups.length > 0) {
+      return normalizedGroups;
+    }
+
+    return this.buildKycFieldGroups(existingGroups, targetType, fallbackLabel, []);
   }
 
   filterSelectedOrgDocument(): void {

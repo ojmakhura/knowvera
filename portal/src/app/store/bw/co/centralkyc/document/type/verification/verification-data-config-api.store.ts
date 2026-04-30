@@ -4,7 +4,7 @@ import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { AppState } from '@app/store/app-state';
+import { AppState, getErrormessage } from '@app/store/app-state';
 import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { VerificationDataConfigDTO } from '@app/models/bw/co/centralkyc/document/type/verification/verification-data-config-dto';
@@ -45,7 +45,7 @@ export const VerificationDataConfigApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -57,7 +57,7 @@ export const VerificationDataConfigApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)], 
                   }
                 );
               },
@@ -77,7 +77,7 @@ export const VerificationDataConfigApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -89,7 +89,7 @@ export const VerificationDataConfigApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)], 
                   }
                 );
               },
@@ -109,7 +109,7 @@ export const VerificationDataConfigApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -121,7 +121,7 @@ export const VerificationDataConfigApiStore = signalStore(
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)], 
                   }
                 );
               },
