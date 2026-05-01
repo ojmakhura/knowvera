@@ -217,6 +217,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin-bottom: 1rem;
 
     .vault-field.compact-field {
       max-width: 320px;
@@ -252,6 +253,126 @@
         height: 16px;
         line-height: 16px;
       }
+    }
+  }
+
+  .field-groups-container {
+    display: grid;
+    gap: 1rem;
+
+    .field-group-card {
+      border-radius: 0.5rem;
+      border: 1px solid var(--vault-outline, #d0d5dd);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+
+      &:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      mat-card-header {
+        padding: 1rem;
+        border-bottom: 1px solid var(--vault-outline-variant, #e5e7eb);
+
+        .group-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 1rem;
+          width: 100%;
+
+          .group-info {
+            flex: 1;
+            min-width: 0;
+
+            h3 {
+              margin: 0 0 0.25rem 0;
+              font-size: 1rem;
+              font-weight: 600;
+              color: var(--vault-on-surface, #191c1e);
+              word-break: break-word;
+            }
+
+            .group-description {
+              margin: 0;
+              font-size: 0.875rem;
+              color: var(--vault-on-surface-variant, #49454f);
+              line-height: 1.4;
+            }
+          }
+
+          .group-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+
+            button {
+              width: 36px;
+              height: 36px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+          }
+        }
+      }
+
+      mat-card-content {
+        padding: 1rem;
+
+        .fields-list {
+          h4 {
+            margin: 0 0 0.75rem 0;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--vault-on-surface, #191c1e);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+          }
+
+          .field-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            font-size: 0.875rem;
+            color: var(--vault-on-surface-variant, #49454f);
+            border-bottom: 1px solid var(--vault-outline-variant, #f0f0f0);
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            mat-icon {
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+              color: var(--vault-primary, #001735);
+              flex-shrink: 0;
+            }
+
+            span {
+              word-break: break-word;
+            }
+          }
+
+          .no-fields {
+            margin: 0;
+            padding: 0.5rem 0;
+            color: var(--vault-on-surface-variant, #49454f);
+            font-size: 0.875rem;
+            font-style: italic;
+          }
+        }
+      }
+    }
+
+    .empty-copy {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--vault-on-surface-variant, #49454f);
+      font-size: 0.9rem;
     }
   }
 }

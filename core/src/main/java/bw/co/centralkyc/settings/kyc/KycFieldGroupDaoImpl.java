@@ -16,16 +16,12 @@ import org.springframework.stereotype.Repository;
 public class KycFieldGroupDaoImpl
     extends KycFieldGroupDaoBase
 {
-    
-    public KycFieldGroupDaoImpl(
-        ExpectedFieldRepository expectedFieldRepository,
-        KycFieldGroupRepository kycFieldGroupRepository
-    ) {
+   
 
-        super(
-            expectedFieldRepository,
-            kycFieldGroupRepository
-        );
+    public KycFieldGroupDaoImpl(GroupFieldRepository groupFieldRepository,
+            KycFieldGroupRepository kycFieldGroupRepository) {
+        super(groupFieldRepository, kycFieldGroupRepository);
+        //TODO Auto-generated constructor stub
     }
 
     /**

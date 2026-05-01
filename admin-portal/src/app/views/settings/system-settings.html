@@ -308,81 +308,113 @@
 
       <section class="kyc-fields-section">
         <div class="requirement-head">
-          <h3>KYC Group Fields</h3>
+          <h3>KYC Field Groups</h3>
         </div>
 
         <mat-tab-group class="kyc-fields-tabs" animationDuration="0ms">
-          <mat-tab label="Individual KYC Fields">
+          <mat-tab label="Individual KYC Field Groups">
             <div class="kyc-fields-pane">
               <div class="requirement-add-row">
-                <mat-form-field class="vault-field compact-field">
-                  <mat-label>Add expected field</mat-label>
-                  <mat-select [formField]="editSettingsSignalForm.selectedIndividualKycField"
-                    [compareWith]="compareExpectedField">
-                    @for (item of individualKycExpectedFieldOptions(); track $index) {
-                    <mat-option [value]="item">{{ expectedFieldLabel(item) }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-
-                <button mat-icon-button type="button" (click)="addKycExpectedField(false)">
-                  <mat-icon>add_circle</mat-icon>
+                <button mat-raised-button color="primary" type="button" (click)="openAddFieldGroupDialog()">
+                  <mat-icon>add</mat-icon>
+                  Add Field Group
                 </button>
               </div>
 
-              <div class="requirement-list">
-                @for (group of editSettingsSignal().individualKycGroupFields; track group.id || $index) {
-                <div class="requirement-item highlighted">
-                  <span>{{ group.label || 'Individual KYC Group' }}</span>
-                </div>
-                @for (item of group.expectedFields || []; track item.id || $index) {
-                <div class="requirement-item">
-                  <span>{{ expectedFieldLabel(item) }}</span>
-                  <button mat-icon-button type="button" color="warn" (click)="removeKycExpectedField(false, item)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-                }
+              <div class="field-groups-container">
+                @for (group of editSettingsSignal().individualKycFieldGroups; track group.id || $index) {
+                <mat-card class="field-group-card">
+                  <mat-card-header>
+                    <div class="group-header">
+                      <div class="group-info">
+                        <h3>{{ group.label || 'Individual KYC Group' }}</h3>
+                        @if (group.description) {
+                          <p class="group-description">{{ group.description }}</p>
+                        }
+                      </div>
+                      <div class="group-actions">
+                        <button mat-icon-button type="button" (click)="editFieldGroup(group)" matTooltip="Edit">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button type="button" color="warn" (click)="deleteFieldGroup(group)" matTooltip="Delete">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </mat-card-header>
+
+                  <mat-card-content>
+                    <div class="fields-list">
+                      @if ((group.expectedFields || []).length > 0) {
+                        <h4>Fields ({{ group.expectedFields.length }})</h4>
+                        @for (field of group.expectedFields; track field.id || $index) {
+                          <div class="field-item">
+                            <mat-icon>check_circle</mat-icon>
+                            <span>{{ expectedFieldLabel(field) }}</span>
+                          </div>
+                        }
+                      } @else {
+                        <p class="no-fields">No fields in this group</p>
+                      }
+                    </div>
+                  </mat-card-content>
+                </mat-card>
                 } @empty {
-                <p class="empty-copy">No individual KYC expected fields configured.</p>
+                <p class="empty-copy">No individual KYC field groups configured. Click "Add Field Group" to create one.</p>
                 }
               </div>
             </div>
           </mat-tab>
 
-          <mat-tab label="Organisation KYC Fields">
+          <mat-tab label="Organisation KYC Field Groups">
             <div class="kyc-fields-pane">
               <div class="requirement-add-row">
-                <mat-form-field class="vault-field compact-field">
-                  <mat-label>Add expected field</mat-label>
-                  <mat-select [formField]="editSettingsSignalForm.selectedOrganisationKycField"
-                    [compareWith]="compareExpectedField">
-                    @for (item of organisationKycExpectedFieldOptions(); track $index) {
-                    <mat-option [value]="item">{{ expectedFieldLabel(item) }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-
-                <button mat-icon-button type="button" (click)="addKycExpectedField(true)">
-                  <mat-icon>add_circle</mat-icon>
+                <button mat-raised-button color="primary" type="button" (click)="openAddOrganisationFieldGroupDialog()">
+                  <mat-icon>add</mat-icon>
+                  Add Field Group
                 </button>
               </div>
 
-              <div class="requirement-list">
-                @for (group of editSettingsSignal().organisationKycGroupFields; track group.id || $index) {
-                <div class="requirement-item highlighted">
-                  <span>{{ group.label || 'Organisation KYC Group' }}</span>
-                </div>
-                @for (item of group.expectedFields || []; track item.id || $index) {
-                <div class="requirement-item">
-                  <span>{{ expectedFieldLabel(item) }}</span>
-                  <button mat-icon-button type="button" color="warn" (click)="removeKycExpectedField(true, item)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-                }
+              <div class="field-groups-container">
+                @for (group of editSettingsSignal().organisationKycFieldGroups; track group.id || $index) {
+                <mat-card class="field-group-card">
+                  <mat-card-header>
+                    <div class="group-header">
+                      <div class="group-info">
+                        <h3>{{ group.label || 'Organisation KYC Group' }}</h3>
+                        @if (group.description) {
+                          <p class="group-description">{{ group.description }}</p>
+                        }
+                      </div>
+                      <div class="group-actions">
+                        <button mat-icon-button type="button" (click)="editOrganisationFieldGroup(group)" matTooltip="Edit">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button type="button" color="warn" (click)="deleteOrganisationFieldGroup(group)" matTooltip="Delete">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  </mat-card-header>
+
+                  <mat-card-content>
+                    <div class="fields-list">
+                      @if ((group.expectedFields || []).length > 0) {
+                        <h4>Fields ({{ group.expectedFields.length }})</h4>
+                        @for (field of group.expectedFields; track field.id || $index) {
+                          <div class="field-item">
+                            <mat-icon>check_circle</mat-icon>
+                            <span>{{ expectedFieldLabel(field) }}</span>
+                          </div>
+                        }
+                      } @else {
+                        <p class="no-fields">No fields in this group</p>
+                      }
+                    </div>
+                  </mat-card-content>
+                </mat-card>
                 } @empty {
-                <p class="empty-copy">No organisation KYC expected fields configured.</p>
+                <p class="empty-copy">No organisation KYC field groups configured. Click "Add Field Group" to create one.</p>
                 }
               </div>
             </div>

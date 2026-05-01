@@ -1,6 +1,6 @@
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, linkedSignal, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, linkedSignal, signal, Inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,6 +13,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatDialogModule, MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { forkJoin } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
@@ -81,8 +83,8 @@ export class EditSettingsVarsForm {
   documentDurationLimit: number | any = null;
   dataVerificationThreshold: number | any = null;
   maxDataVerificationFailureThreshold: number | any = null;
-  organisationKycGroupFields: Array<KycFieldGroupDTO> = [];
-  individualKycGroupFields: Array<KycFieldGroupDTO> = [];
+  organisationKycFieldGroups: Array<KycFieldGroupDTO> = [];
+  individualKycFieldGroups: Array<KycFieldGroupDTO> = [];
 }
 
 @Component({
@@ -105,6 +107,8 @@ export class EditSettingsVarsForm {
     MatSliderModule,
     MatTableModule,
     MatTabsModule,
+    MatDialogModule,
+    MatCheckboxModule,
     FormField,
     NgxMatSelectSearchModule,
     TranslateModule,
@@ -119,6 +123,7 @@ export class SystemSettings {
   private readonly documentTypeApi = inject(DocumentTypeApi);
   private readonly documentApi = inject(DocumentApi);
   private readonly expectedFieldApi = inject(ExpectedFieldApi);
+  private readonly dialog = inject(MatDialog);
 
   readonly resourceLoading = signal(false);
   readonly availableDocumentTypes = signal<DocumentTypeDTO[]>([]);
@@ -515,8 +520,8 @@ export class SystemSettings {
       documentDurationLimit: settings.documentDurationLimit,
       dataVerificationThreshold: settings.dataVerificationThreshold,
       maxDataVerificationFailureThreshold: settings.maxDataVerificationFailureThreshold,
-      organisationKycGroupFields: settings.organisationKycFieldGroups || [],
-      individualKycGroupFields: settings.individualKycFieldGroups || [],
+      organisationKycFieldGroups: settings.organisationKycFieldGroups || [],
+      individualKycFieldGroups: settings.individualKycFieldGroups || [],
     });
 
     this.refreshKycExpectedFieldOptions(settings.indKycDocuments || [], settings.orgKycDocuments || []);
@@ -536,7 +541,7 @@ export class SystemSettings {
       const targetType = isOrganisation ? TargetEntity.ORGANISATION : TargetEntity.INDIVIDUAL;
       const groupLabel = isOrganisation ? 'Organisation KYC Expected Fields' : 'Individual KYC Expected Fields';
       const selectedKey = isOrganisation ? 'selectedOrganisationKycField' : 'selectedIndividualKycField';
-      const targetKey = isOrganisation ? 'organisationKycGroupFields' : 'individualKycGroupFields';
+      const targetKey = isOrganisation ? 'organisationKycFieldGroups' : 'individualKycFieldGroups';
       const groups = [...((value[targetKey] || []) as KycFieldGroupDTO[])];
       const existingIndex = groups.findIndex((group) => group?.targetType === targetType);
       const targetGroup = existingIndex >= 0 ? groups[existingIndex] : this.createKycGroup(targetType, groupLabel);
@@ -563,7 +568,7 @@ export class SystemSettings {
   removeKycExpectedField(isOrganisation: boolean, field: ExpectedFieldDTO): void {
     this.editSettingsSignal.update((value) => {
       const targetType = isOrganisation ? TargetEntity.ORGANISATION : TargetEntity.INDIVIDUAL;
-      const targetKey = isOrganisation ? 'organisationKycGroupFields' : 'individualKycGroupFields';
+      const targetKey = isOrganisation ? 'organisationKycFieldGroups' : 'individualKycFieldGroups';
       const groups = [...((value[targetKey] || []) as KycFieldGroupDTO[])];
 
       const updatedGroups = groups.map((group) => {
@@ -1172,5 +1177,387 @@ export class SystemSettings {
 
   documentCompare(o1: DocumentTypeDTO | any, o2: DocumentTypeDTO | any) {
     return o1 && o2 ? o1.id === o2.id : o1 === o2;
+  }
+
+  openAddFieldGroupDialog(): void {
+    const indKycDocuments = this.editSettingsSignal().indKycDocuments || [];
+    
+    this.dialog.open(AddKycFieldGroupDialog, {
+      width: '600px',
+      data: {
+        kycDocuments: indKycDocuments,
+        existingGroups: this.editSettingsSignal().individualKycFieldGroups || [],
+        groupTypeLabel: 'Individual KYC Field Group',
+        suiteLabel: 'Ind. KYC Suite',
+        suiteDescription: 'individual KYC suite documents',
+        targetType: TargetEntity.INDIVIDUAL,
+      }
+    }).afterClosed().subscribe((result) => {
+      if (result) {
+        this.editSettingsSignal.update((value) => ({
+          ...value,
+          individualKycFieldGroups: [...(value.individualKycFieldGroups || []), result]
+        }));
+      }
+    });
+  }
+
+  editFieldGroup(group: KycFieldGroupDTO): void {
+    const indKycDocuments = this.editSettingsSignal().indKycDocuments || [];
+    
+    this.dialog.open(AddKycFieldGroupDialog, {
+      width: '600px',
+      data: {
+        kycDocuments: indKycDocuments,
+        existingGroups: this.editSettingsSignal().individualKycFieldGroups || [],
+        editingGroup: group,
+        groupTypeLabel: 'Individual KYC Field Group',
+        suiteLabel: 'Ind. KYC Suite',
+        suiteDescription: 'individual KYC suite documents',
+        targetType: TargetEntity.INDIVIDUAL,
+      }
+    }).afterClosed().subscribe((result) => {
+      if (result) {
+        this.editSettingsSignal.update((value) => {
+          const groups = [...(value.individualKycFieldGroups || [])];
+          const index = groups.findIndex((g) => g.id === group.id || g === group);
+          if (index >= 0) {
+            groups[index] = result;
+          }
+          return { ...value, individualKycFieldGroups: groups };
+        });
+      }
+    });
+  }
+
+  deleteFieldGroup(group: KycFieldGroupDTO): void {
+    Swal.fire({
+      title: 'Delete field group?',
+      text: `This will remove the field group "${group.label || 'Individual KYC Group'}" and all its fields.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.editSettingsSignal.update((value) => ({
+          ...value,
+          individualKycFieldGroups: (value.individualKycFieldGroups || []).filter((g) => g !== group)
+        }));
+      }
+    });
+  }
+
+  openAddOrganisationFieldGroupDialog(): void {
+    const orgKycDocuments = this.editSettingsSignal().orgKycDocuments || [];
+
+    this.dialog.open(AddKycFieldGroupDialog, {
+      width: '600px',
+      data: {
+        kycDocuments: orgKycDocuments,
+        existingGroups: this.editSettingsSignal().organisationKycFieldGroups || [],
+        groupTypeLabel: 'Organisation KYC Field Group',
+        suiteLabel: 'Org. KYC Suite',
+        suiteDescription: 'organisation KYC suite documents',
+        targetType: TargetEntity.ORGANISATION,
+      }
+    }).afterClosed().subscribe((result) => {
+      if (result) {
+        this.editSettingsSignal.update((value) => ({
+          ...value,
+          organisationKycFieldGroups: [...(value.organisationKycFieldGroups || []), result]
+        }));
+      }
+    });
+  }
+
+  editOrganisationFieldGroup(group: KycFieldGroupDTO): void {
+    const orgKycDocuments = this.editSettingsSignal().orgKycDocuments || [];
+
+    this.dialog.open(AddKycFieldGroupDialog, {
+      width: '600px',
+      data: {
+        kycDocuments: orgKycDocuments,
+        existingGroups: this.editSettingsSignal().organisationKycFieldGroups || [],
+        editingGroup: group,
+        groupTypeLabel: 'Organisation KYC Field Group',
+        suiteLabel: 'Org. KYC Suite',
+        suiteDescription: 'organisation KYC suite documents',
+        targetType: TargetEntity.ORGANISATION,
+      }
+    }).afterClosed().subscribe((result) => {
+      if (result) {
+        this.editSettingsSignal.update((value) => {
+          const groups = [...(value.organisationKycFieldGroups || [])];
+          const index = groups.findIndex((g) => g.id === group.id || g === group);
+          if (index >= 0) {
+            groups[index] = result;
+          }
+          return { ...value, organisationKycFieldGroups: groups };
+        });
+      }
+    });
+  }
+
+  deleteOrganisationFieldGroup(group: KycFieldGroupDTO): void {
+    Swal.fire({
+      title: 'Delete field group?',
+      text: `This will remove the field group "${group.label || 'Organisation KYC Group'}" and all its fields.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.editSettingsSignal.update((value) => ({
+          ...value,
+          organisationKycFieldGroups: (value.organisationKycFieldGroups || []).filter((g) => g !== group)
+        }));
+      }
+    });
+  }
+}
+
+@Component({
+  selector: 'app-add-kyc-field-group-dialog',
+  standalone: true,
+  template: `
+    <div class="dialog-container">
+      <h2 mat-dialog-title>{{ data.editingGroup ? 'Edit' : 'Add' }} {{ data.groupTypeLabel }}</h2>
+      
+      <mat-dialog-content>
+        <div class="field-group-form">
+          <mat-form-field class="full-width">
+            <mat-label>Group Label</mat-label>
+            <input matInput [(ngModel)]="groupLabel" placeholder="e.g., Basic Personal Information" />
+          </mat-form-field>
+
+          <mat-form-field class="full-width">
+            <mat-label>Group Description</mat-label>
+            <textarea matInput [(ngModel)]="groupDescription" placeholder="Optional description" rows="3"></textarea>
+          </mat-form-field>
+
+          <div class="fields-section">
+            <h3>Expected Fields from {{ data.suiteLabel }}</h3>
+            <p class="helper-text">Select expected fields from the {{ data.suiteDescription }}</p>
+            
+            <div class="fields-list">
+              @for (field of availableFields; track field.id || $index) {
+                <div class="field-checkbox-item">
+                  <mat-checkbox 
+                    [(ngModel)]="selectedFieldIds[field.id || field.field]"
+                    (change)="onFieldSelected(field)">
+                    <span class="field-name">{{ field.fieldLabel || field.field }}</span>
+                    <span class="field-doc" *ngIf="field.documentType">({{ field.documentType }})</span>
+                  </mat-checkbox>
+                </div>
+              }
+              @empty {
+                <p class="no-fields-message">No fields available from {{ data.suiteLabel }}</p>
+              }
+            </div>
+          </div>
+
+          <div class="selected-fields-summary">
+            <h4>Selected Fields ({{ selectedFields.length }})</h4>
+            @for (field of selectedFields; track field.id || $index) {
+              <div class="selected-field-tag">
+                <span>{{ field.fieldLabel || field.field }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </mat-dialog-content>
+
+      <mat-dialog-actions align="end">
+        <button mat-button (click)="dialogRef.close()">Cancel</button>
+        <button mat-raised-button color="primary" (click)="save()" [disabled]="!isValid()">
+          {{ data.editingGroup ? 'Update' : 'Add' }} Group
+        </button>
+      </mat-dialog-actions>
+    </div>
+  `,
+  styles: [`
+    .dialog-container {
+      padding: 10px;
+    }
+    
+    .full-width {
+      width: 100%;
+    }
+    
+    .fields-section {
+      margin-top: 24px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 16px;
+      background-color: #fafafa;
+    }
+    
+    .fields-section h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .helper-text {
+      margin: 0 0 12px 0;
+      color: #666;
+      font-size: 12px;
+    }
+    
+    .fields-list {
+      max-height: 250px;
+      overflow-y: auto;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 8px;
+      background: white;
+    }
+    
+    .field-checkbox-item {
+      padding: 8px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .field-checkbox-item:last-child {
+      border-bottom: none;
+    }
+    
+    .field-name {
+      font-size: 13px;
+    }
+    
+    .field-doc {
+      color: #999;
+      font-size: 11px;
+      margin-left: 4px;
+    }
+    
+    .no-fields-message {
+      text-align: center;
+      color: #999;
+      padding: 16px 8px;
+      font-size: 12px;
+    }
+    
+    .selected-fields-summary {
+      margin-top: 16px;
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+    
+    .selected-fields-summary h4 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    
+    .selected-field-tag {
+      display: inline-block;
+      background: #e3f2fd;
+      color: #1976d2;
+      padding: 6px 12px;
+      border-radius: 4px;
+      margin-right: 8px;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+  `],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    FormsModule
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class AddKycFieldGroupDialog {
+  readonly dialogRef = inject(MatDialogRef<KycFieldGroupDTO>);
+  readonly data = inject(MAT_DIALOG_DATA);
+  
+  groupLabel = '';
+  groupDescription = '';
+  availableFields: ExpectedFieldDTO[] = [];
+  selectedFields: ExpectedFieldDTO[] = [];
+  selectedFieldIds: { [key: string]: boolean } = {};
+  private expectedFieldApi = inject(ExpectedFieldApi);
+
+  constructor() {
+    this.loadAvailableFields();
+    if (this.data.editingGroup) {
+      this.groupLabel = this.data.editingGroup.label || '';
+      this.groupDescription = this.data.editingGroup.description || '';
+      this.selectedFields = [...(this.data.editingGroup.expectedFields || [])];
+      this.selectedFields.forEach((field) => {
+        this.selectedFieldIds[field.id || field.field] = true;
+      });
+    }
+  }
+
+  private loadAvailableFields(): void {
+    const documentIds = (this.data.kycDocuments || [])
+      .map((doc: DocumentTypeDTO) => doc.id)
+      .filter(Boolean);
+
+    if (documentIds.length === 0) {
+      this.availableFields = [];
+      return;
+    }
+
+    this.expectedFieldApi.findByDocumentType(documentIds).subscribe({
+      next: (fields) => {
+        this.availableFields = this.uniqueFields(fields || []);
+      },
+      error: () => {
+        this.availableFields = [];
+      }
+    });
+  }
+
+  onFieldSelected(field: ExpectedFieldDTO): void {
+    const key = field.id || field.field;
+    const isSelected = this.selectedFieldIds[key];
+
+    if (isSelected) {
+      this.selectedFields.push(field);
+    } else {
+      this.selectedFields = this.selectedFields.filter((f) => (f.id || f.field) !== key);
+    }
+  }
+
+  save(): void {
+    if (!this.isValid()) {
+      return;
+    }
+
+    const group = this.data.editingGroup || new KycFieldGroupDTO();
+    group.label = this.groupLabel;
+    group.description = this.groupDescription;
+    group.expectedFields = this.selectedFields;
+    group.targetType = this.data.targetType;
+
+    this.dialogRef.close(group);
+  }
+
+  isValid(): boolean {
+    return !!this.groupLabel && this.selectedFields.length > 0;
+  }
+
+  private uniqueFields(fields: ExpectedFieldDTO[]): ExpectedFieldDTO[] {
+    const seen = new Set<string>();
+    return (fields || []).filter((field) => {
+      const key = field.id || field.field;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
   }
 }

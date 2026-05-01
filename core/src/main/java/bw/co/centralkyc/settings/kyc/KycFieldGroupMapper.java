@@ -28,7 +28,6 @@ public abstract class KycFieldGroupMapper {
      * @param entity
      * @return KycFieldGroupDTO
      */
-    @Mapping(source = "expectedFields", target = "expectedFields")
     public abstract KycFieldGroupDTO toKycFieldGroupDTO(KycFieldGroup entity);
 
      /**
