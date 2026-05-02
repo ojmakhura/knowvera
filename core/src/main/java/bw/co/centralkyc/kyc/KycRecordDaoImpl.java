@@ -16,6 +16,7 @@ import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.individual.employment.EmploymentRecordDTO;
 import bw.co.centralkyc.individual.employment.EmploymentRecordMapper;
 import bw.co.centralkyc.individual.employment.EmploymentRecordRepository;
+import bw.co.centralkyc.kyc.fields.KycReportSectionRepository;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -39,9 +40,9 @@ public class KycRecordDaoImpl
     private final DocumentMapper documentMapper;
 
     public KycRecordDaoImpl(DocumentRepository documentRepository, IndividualRepository individualRepository,
-            EmploymentRecordMapper employmentRecordMapper, DocumentMapper documentMapper,
+            EmploymentRecordMapper employmentRecordMapper, DocumentMapper documentMapper, KycReportSectionRepository kycReportSectionRepository,
             EmploymentRecordRepository employmentRecordRepository, KycRecordRepository kycRecordRepository, OrganisationRepository organisationRepository) {
-        super(documentRepository, employmentRecordRepository, kycRecordRepository);
+        super(documentRepository, employmentRecordRepository, kycReportSectionRepository, kycRecordRepository);
         // TODO Auto-generated constructor stub
 
         this.individualRepository = individualRepository;

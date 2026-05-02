@@ -1,6 +1,6 @@
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, linkedSignal, signal, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, linkedSignal, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,7 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatDialogModule, MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { forkJoin } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
@@ -33,10 +33,12 @@ import { form, required, FormField, applyEach } from '@angular/forms/signals';
 import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TranslateModule } from '@ngx-translate/core';
-import { SettingsApi } from '@app/services/bw/co/centralkyc/settings/settings-api';
 import { ExpectedFieldDTO } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-dto';
 import { ExpectedFieldApi } from '@app/services/bw/co/centralkyc/document/type/field/expected-field-api';
 import { KycFieldGroupDTO } from '@app/models/bw/co/centralkyc/settings/kyc/kyc-field-group-dto';
+import { AddKycFieldGroupDialog } from './add-kyc-field-group-dialog/add-kyc-field-group-dialog';
+import { KycFieldGroupApi } from '@app/services/bw/co/centralkyc/settings/kyc/kyc-field-group-api';
+import { GroupFieldDTO } from '@app/models/bw/co/centralkyc/settings/kyc/group-field-dto';
 
 export class EditSettingsVarsForm {
   id: string | any = null;
@@ -119,10 +121,10 @@ export class SystemSettings {
   private readonly destroyRef = inject(DestroyRef);
   private readonly toastr = inject(ToastrService);
   private readonly settingsApiStore = inject(SettingsApiStore);
-  private readonly settingsApi = inject(SettingsApi);
   private readonly documentTypeApi = inject(DocumentTypeApi);
   private readonly documentApi = inject(DocumentApi);
   private readonly expectedFieldApi = inject(ExpectedFieldApi);
+  private readonly kycFieldGroupApi = inject(KycFieldGroupApi);
   private readonly dialog = inject(MatDialog);
 
   readonly resourceLoading = signal(false);
@@ -133,10 +135,6 @@ export class SystemSettings {
 
   readonly salaryRangeColumns = ['label', 'min', 'max', 'active', 'actions'];
   documentFilter = '';
-  selectedIndividualDocumentId: string | null = null;
-  selectedOrganisationDocumentId: string | null = null;
-  selectedOrganisationKycDocumentId: string | null = null;
-  selectedIndividualKycDocumentId: string | null = null;
   roleOptions: string[] = ['SUPER_ADMIN', 'ADMIN', 'COMPLIANCE_ADMIN', 'VERIFIED_USER', 'USER'];
 
   editSettingsVarsForm: EditSettingsVarsForm = new EditSettingsVarsForm();
@@ -184,6 +182,7 @@ export class SystemSettings {
   selected: any = null;
   settings: SettingsDTO = new SettingsDTO();
 
+
   constructor() {
     effect(() => {
       const settings = this.settingsApiStore.data();
@@ -196,14 +195,10 @@ export class SystemSettings {
       this.updateSettingForm(settings);
       this.roleOptions = this.buildRoleOptions(settings);
 
-      // this.expectedFieldApi.findByDocumentType(settings.indKycDocuments?.map((doc: any ) => doc.id) || []).subscribe({
-      //   next: (fields) => {
-      //     console.log(fields)
-      //   },
-      //   error: (error) => {
-
-      //   }
-      // });
+      this.refreshKycExpectedFieldOptions(
+        settings.indKycDocuments || [],
+        settings.orgKycDocuments || [],
+      );
     });
 
     effect(() => {
@@ -245,7 +240,6 @@ export class SystemSettings {
     }
 
     let val: any = this.editSettingsSignal();
-    console.log(val)
     let settings = this.getSettings(val);
     this.loading.set(true);
     this.loaderMessage.set(`Saving settings`);
@@ -294,10 +288,7 @@ export class SystemSettings {
   }
 
   addDocumentRequirement(purpose: DocumentTypePurpose): void {
-    console.log('Adding document requirement for purpose:', purpose);
     const documentTypeId = this.selectedDocumentIdFor(purpose);
-    console.log('Selected document type ID:', documentTypeId);
-    console.log(this.editSettingsSignal())
 
     if (!documentTypeId) {
       return;
@@ -363,50 +354,6 @@ export class SystemSettings {
     );
   }
 
-  private cloneSettings(settings: SettingsDTO | null | undefined): SettingsDTO {
-    const source = settings || new SettingsDTO();
-    const clone = new SettingsDTO();
-
-    clone.id = source.id;
-    clone.createdAt = source.createdAt;
-    clone.createdBy = source.createdBy;
-    clone.modifiedAt = source.modifiedAt;
-    clone.modifiedBy = source.modifiedBy;
-    clone.kycDuration = source.kycDuration ?? 14;
-    clone.timeToAccountCreation = source.timeToAccountCreation ?? 0;
-    clone.platformName = source.platformName ?? '';
-    clone.platformUrl = source.platformUrl ?? '';
-    clone.kycPortalLink = source.kycPortalLink ?? '';
-    clone.supportContact = source.supportContact ?? '';
-    clone.organisationAdminRole = source.organisationAdminRole ?? 'SUPER_ADMIN';
-    clone.normalUserRole = source.normalUserRole ?? 'VERIFIED_USER';
-    clone.individualDocuments = [...(source.individualDocuments || [])];
-    clone.organisationDocuments = [...(source.organisationDocuments || [])];
-    clone.orgKycDocuments = [...(source.orgKycDocuments || [])];
-    clone.indKycDocuments = [...(source.indKycDocuments || [])];
-    clone.invoiceDocumentType = source.invoiceDocumentType ?? null;
-    clone.invoiceTemplateType = source.invoiceTemplateType ?? null;
-    clone.invoiceTemplate = source.invoiceTemplate ?? null;
-    clone.quotationDocumentType = source.quotationDocumentType ?? null;
-    clone.quotationTemplateType = source.quotationTemplateType ?? null;
-    clone.quotationTemplate = source.quotationTemplate ?? null;
-    clone.clientRequestFileType = source.clientRequestFileType ?? null;
-    clone.salaryRanges = (source.salaryRanges || []).map((range: SalaryRangeDTO) => ({ ...range }));
-    clone.documentDurationLimit = source.documentDurationLimit ?? null;
-    clone.dataVerificationThreshold = source.dataVerificationThreshold ?? null;
-    clone.maxDataVerificationFailureThreshold = source.maxDataVerificationFailureThreshold ?? null;
-    clone.individualKycFieldGroups = (source.individualKycFieldGroups || []).map((group: KycFieldGroupDTO) => ({
-      ...group,
-      expectedFields: [...(group?.expectedFields || [])],
-    }));
-    clone.organisationKycFieldGroups = (source.organisationKycFieldGroups || []).map((group: KycFieldGroupDTO) => ({
-      ...group,
-      expectedFields: [...(group?.expectedFields || [])],
-    }));
-
-    return clone;
-  }
-
   private buildRoleOptions(settings: SettingsDTO): string[] {
     const baseRoles = ['SUPER_ADMIN', 'ADMIN', 'COMPLIANCE_ADMIN', 'VERIFIED_USER', 'USER'];
     return Array.from(
@@ -428,37 +375,18 @@ export class SystemSettings {
   }
 
   private clearSelectedDocumentId(purpose: DocumentTypePurpose): void {
-    switch (purpose) {
-      case DocumentTypePurpose.INDIVIDUAL:
-        this.selectedIndividualDocumentId = null;
-        break;
-      case DocumentTypePurpose.ORGANISATION:
-        this.selectedOrganisationDocumentId = null;
-        break;
-      case DocumentTypePurpose.ORGANISATION_KYC:
-        this.selectedOrganisationKycDocumentId = null;
-        break;
-      case DocumentTypePurpose.INDIVIDUAL_KYC:
-        this.selectedIndividualKycDocumentId = null;
-        break;
-    }
-  }
-
-  private formatAuditDate(value: Date | string | null | undefined): string {
-    if (!value) {
-      return 'Not verified yet';
-    }
-
-    const date = value instanceof Date ? value : new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      return String(value);
-    }
-
-    return new Intl.DateTimeFormat('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    }).format(date);
+    this.editSettingsSignal.update((value) => {
+      switch (purpose) {
+        case DocumentTypePurpose.INDIVIDUAL:
+          return { ...value, selectedIndDocument: null };
+        case DocumentTypePurpose.ORGANISATION:
+          return { ...value, selectedOrgDocument: null };
+        case DocumentTypePurpose.ORGANISATION_KYC:
+          return { ...value, selectedKycOrgDocument: null };
+        case DocumentTypePurpose.INDIVIDUAL_KYC:
+          return { ...value, selectedKycIndDocument: null };
+      }
+    });
   }
 
   private asNumber(value: number | string | null | undefined): number | null {
@@ -472,8 +400,6 @@ export class SystemSettings {
 
 
   updateSettingForm(settings: SettingsDTO) {
-
-    console.log(settings)
 
     this.editSettingsSignal.set({
       id: settings.id,
@@ -545,10 +471,10 @@ export class SystemSettings {
       const groups = [...((value[targetKey] || []) as KycFieldGroupDTO[])];
       const existingIndex = groups.findIndex((group) => group?.targetType === targetType);
       const targetGroup = existingIndex >= 0 ? groups[existingIndex] : this.createKycGroup(targetType, groupLabel);
-      const expectedFields = [...(targetGroup.expectedFields || [])];
+      const groupFields = [...(targetGroup.groupFields || [])];
 
-      if (!this.includesExpectedField(expectedFields, selectedField)) {
-        targetGroup.expectedFields = [...expectedFields, selectedField];
+      if (!this.includesExpectedField(groupFields, selectedField)) {
+        targetGroup.groupFields = [...groupFields, selectedField];
       }
 
       if (existingIndex >= 0) {
@@ -565,6 +491,44 @@ export class SystemSettings {
     });
   }
 
+  removeGroupField(isOrganisation: boolean, groupField: GroupFieldDTO, index: number): void {
+
+    const targetType = isOrganisation ? TargetEntity.ORGANISATION : TargetEntity.INDIVIDUAL;
+    const targetKey = isOrganisation ? 'organisationKycFieldGroups' : 'individualKycFieldGroups';
+
+    let groups = isOrganisation ? this.editSettingsSignal().organisationKycFieldGroups : this.editSettingsSignal().individualKycFieldGroups;
+
+    Swal.fire({
+      title: 'Remove field group?',
+      text: `This will remove the field group ${groupField.field} from ${isOrganisation ? 'organisation' : 'individual'} KYC settings.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Remove',
+    }).then((result) => {
+      console.log('Swal result', result);
+      if (result.isConfirmed) {
+        let group = groups[index];
+        this.kycFieldGroupApi.removeField(group.id, groupField.id).subscribe({
+          next: (group: KycFieldGroupDTO) => {
+            
+            this.editSettingsSignal.update((value) => {
+              const groups = [...(value.individualKycFieldGroups || [])];
+              const index = groups.findIndex((g) => g.id === group?.id || g === group);
+              if (index >= 0) {
+                groups[index] = group;
+              }
+              return { ...value, individualKycFieldGroups: groups };
+            });
+            this.toastr.success('Field group updated successfully');
+          },
+          error: (error) => {
+            this.toastr.error(error?.error?.message || error?.message || 'Unable to remove field from group');
+          }
+        });
+      }
+    });
+  }
+
   removeKycExpectedField(isOrganisation: boolean, field: ExpectedFieldDTO): void {
     this.editSettingsSignal.update((value) => {
       const targetType = isOrganisation ? TargetEntity.ORGANISATION : TargetEntity.INDIVIDUAL;
@@ -578,8 +542,8 @@ export class SystemSettings {
 
         return {
           ...group,
-          expectedFields: (group.expectedFields || []).filter(
-            (item: ExpectedFieldDTO) => !this.sameExpectedField(item, field),
+          groupFields: (group.groupFields || []).filter(
+            (item: any) => !this.sameExpectedField(item, field),
           ),
         } as KycFieldGroupDTO;
       });
@@ -715,31 +679,19 @@ export class SystemSettings {
     settings.dataVerificationThreshold = this.asNumber(value.dataVerificationThreshold);
     settings.maxDataVerificationFailureThreshold = this.asNumber(value.maxDataVerificationFailureThreshold);
     settings.individualKycFieldGroups = this.normalizeKycGroups(
-      value.individualKycGroupFields,
+      value.individualKycFieldGroups,
       this.settings.individualKycFieldGroups,
       TargetEntity.INDIVIDUAL,
       'Individual KYC Expected Fields',
     );
     settings.organisationKycFieldGroups = this.normalizeKycGroups(
-      value.organisationKycGroupFields,
+      value.organisationKycFieldGroups,
       this.settings.organisationKycFieldGroups,
       TargetEntity.ORGANISATION,
       'Organisation KYC Expected Fields',
     );
 
     return settings;
-  }
-
-  private extractExpectedFieldsFromGroups(
-    groups: KycFieldGroupDTO[] | null | undefined,
-    legacyFields: ExpectedFieldDTO[] | null | undefined,
-  ): ExpectedFieldDTO[] {
-    const fromGroups = (groups || []).flatMap((group) => group?.expectedFields || []);
-    if (fromGroups.length > 0) {
-      return this.uniqueExpectedFields(fromGroups);
-    }
-
-    return this.uniqueExpectedFields(legacyFields || []);
   }
 
   private buildKycFieldGroups(
@@ -759,7 +711,7 @@ export class SystemSettings {
     group.label = existing?.label || label;
     group.description = existing?.description || null;
     group.targetType = targetType;
-    group.expectedFields = this.uniqueExpectedFields(fields || []);
+    group.groupFields = this.uniqueExpectedFields(fields || []) as any;
 
     return [group];
   }
@@ -769,7 +721,7 @@ export class SystemSettings {
     group.targetType = targetType;
     group.label = label;
     group.description = null;
-    group.expectedFields = [];
+    group.groupFields = [];
     return group;
   }
 
@@ -789,7 +741,7 @@ export class SystemSettings {
       normalized.label = group?.label || fallbackLabel;
       normalized.description = group?.description || null;
       normalized.targetType = group?.targetType || targetType;
-      normalized.expectedFields = this.uniqueExpectedFields(group?.expectedFields || []);
+      normalized.groupFields = this.uniqueExpectedFields(group?.groupFields || []) as any;
       return normalized;
     });
 
@@ -944,46 +896,6 @@ export class SystemSettings {
     );
   }
 
-  onAddToIndDocumentsClick() {
-    let val: any = this.editSettingsSignal();
-    let settings = this.getSettings(val);
-    let found = settings.individualDocuments?.find(
-      (d: DocumentTypeDTO) => d.id === this.editSettingsSignal().selectedIndDocument.id
-    );
-    if (!found) {
-      settings.individualDocuments?.push(this.editSettingsSignal().selectedIndDocument);
-    }
-    this.settingsApiStore.attachDocumentType({
-      documentTypeId: this.editSettingsSignal().selectedIndDocument.id,
-      purpose: DocumentTypePurpose.INDIVIDUAL,
-    });
-  }
-
-  onAddToKycOrgDocumentsClick() {
-
-    this.settingsApiStore.attachDocumentType({
-      documentTypeId: this.editSettingsSignal().selectedKycOrgDocument.id,
-      purpose: DocumentTypePurpose.ORGANISATION_KYC,
-    });
-
-  }
-
-  onAddToOrgDocumentsClick() {
-
-    this.settingsApiStore.attachDocumentType({
-      documentTypeId: this.editSettingsSignal().selectedOrgDocument.id,
-      purpose: DocumentTypePurpose.ORGANISATION,
-    });
-  }
-
-  onAddToKycIndDocumentsClick() {
-    // console.log(this.editSettingsSignal().selectedKycIndDocument);
-    this.settingsApiStore.attachDocumentType({
-      documentTypeId: this.editSettingsSignal().selectedKycIndDocument.id,
-      purpose: DocumentTypePurpose.INDIVIDUAL_KYC,
-    });
-  }
-
   attachInvoiceTemplate(): void {
     const input = document.createElement('input');
     input.type = 'file';
@@ -1019,8 +931,6 @@ export class SystemSettings {
 
   private handleQuotationTemplateUpload(file: File): void {
     // TODO: Implement quotation template upload logic
-    console.log('Quotation template upload:', file.name);
-
     this.settingsApiStore.uploadTemplate({ template: file, target: TargetEntity.QUOTATION });
   }
 
@@ -1065,127 +975,13 @@ export class SystemSettings {
     });
   }
 
-  organisationDocumentsTableActionClicked(event: any): void {
-
-    console.log(event)
-
-    switch (event.action) {
-      case 'settings-detach-org-documents':
-        Swal.fire({
-          title: 'Are you sure?',
-          text: 'You are about to detach this document type from organisation documents. This action cannot be undone.',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Yes',
-          cancelButtonText: 'No',
-        }).then((result) => {
-          if (result.isConfirmed) {
-            this.settingsApiStore.detachDocumentType({
-              documentTypeId: event.row.id,
-              purpose: DocumentTypePurpose.ORGANISATION,
-            });
-            Swal.fire('Detached!', 'The document type has been detached from organisation documents.', 'success');
-          }
-        });
-
-        break;
-    }
-  }
-
-  individualDocumentsTableActionClicked(event: any): void {
-    switch (event.action) {
-      case 'settings-detach-individual-documents':
-        // TODO: Implement the action
-
-        Swal.fire({
-          title: 'Are you sure?',
-          text: 'You are about to detach this document type from individual documents. This action cannot be undone.',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Yes',
-          cancelButtonText: 'No',
-        }).then((result) => {
-          if (result.isConfirmed) {
-
-            this.settingsApiStore.detachDocumentType({
-              documentTypeId: event.row.id,
-              purpose: DocumentTypePurpose.INDIVIDUAL,
-            });
-            Swal.fire('Detached!', 'The document type has been detached from individual documents.', 'success');
-          }
-        });
-
-        break;
-    }
-  }
-
-  orgKycDocumentsTableActionClicked(event: any): void {
-    switch (event.action) {
-      case 'settings-detach-org-kyc-documents':
-        // TODO: Implement the action
-        Swal.fire({
-          title: 'Are you sure?',
-          text: 'You are about to detach this document type from organisation KYC documents. This action cannot be undone.',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Yes',
-          cancelButtonText: 'No',
-        }).then((result) => {
-          if (result.isConfirmed) {
-
-            this.settingsApiStore.detachDocumentType({
-              documentTypeId: event.row.id,
-              purpose: DocumentTypePurpose.ORGANISATION_KYC,
-            });
-            Swal.fire('Detached!', 'The document type has been detached from organisation KYC documents.', 'success');
-          }
-        });
-        break;
-    }
-  }
-
-  indKycDocumentsTableActionClicked(event: any): void {
-    let form: any = {};
-    let queryParams: any = {};
-    let params: any = {};
-
-    switch (event.action) {
-      case 'settings-detach-ind-kyc-documents':
-        // TODO: Implement the action
-
-        Swal.fire({
-          title: 'Are you sure?',
-          text: 'You are about to detach this document type from individual KYC documents. This action cannot be undone.',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Yes',
-          cancelButtonText: 'No',
-        }).then((result) => {
-          if (result.isConfirmed) {
-
-            this.settingsApiStore.detachDocumentType({
-              documentTypeId: event.row.id,
-              purpose: DocumentTypePurpose.INDIVIDUAL_KYC,
-            });
-            Swal.fire('Detached!', 'The document type has been detached from individual KYC documents.', 'success');
-          }
-        });
-
-        break;
-    }
-  }
-
-  documentCompare(o1: DocumentTypeDTO | any, o2: DocumentTypeDTO | any) {
-    return o1 && o2 ? o1.id === o2.id : o1 === o2;
-  }
-
   openAddFieldGroupDialog(): void {
-    const indKycDocuments = this.editSettingsSignal().indKycDocuments || [];
-    
+
     this.dialog.open(AddKycFieldGroupDialog, {
-      width: '600px',
+      width: 'min(96vw, 920px)',
+      maxWidth: '100vw',
       data: {
-        kycDocuments: indKycDocuments,
+        expectedFieldOptions: this.individualKycExpectedFieldOptions() || [],
         existingGroups: this.editSettingsSignal().individualKycFieldGroups || [],
         groupTypeLabel: 'Individual KYC Field Group',
         suiteLabel: 'Ind. KYC Suite',
@@ -1194,21 +990,36 @@ export class SystemSettings {
       }
     }).afterClosed().subscribe((result) => {
       if (result) {
-        this.editSettingsSignal.update((value) => ({
-          ...value,
-          individualKycFieldGroups: [...(value.individualKycFieldGroups || []), result]
-        }));
+        result.settingsId = this.editSettingsSignal().id;
+
+        this.kycFieldGroupApi.save(result).subscribe({
+          next: (savedGroup) => {
+            this.editSettingsSignal.update((value) => ({
+              ...value,
+              individualKycFieldGroups: [...(value.individualKycFieldGroups || []), savedGroup]
+            }));
+            this.toastr.success('Field group created successfully');
+          },
+          error: (error) => {
+            this.toastr.error(error?.error?.message || error?.message || 'Failed to create field group');
+          }
+        });
+
+        // this.editSettingsSignal.update((value) => ({
+        //   ...value,
+        //   individualKycFieldGroups: [...(value.individualKycFieldGroups || []), result]
+        // }));
       }
     });
   }
 
-  editFieldGroup(group: KycFieldGroupDTO): void {
-    const indKycDocuments = this.editSettingsSignal().indKycDocuments || [];
-    
+  editFieldGroup(group?: KycFieldGroupDTO): void {
+
     this.dialog.open(AddKycFieldGroupDialog, {
-      width: '600px',
+      width: 'min(96vw, 920px)',
+      maxWidth: '100vw',
       data: {
-        kycDocuments: indKycDocuments,
+        expectedFieldOptions: this.individualKycExpectedFieldOptions() || [],
         existingGroups: this.editSettingsSignal().individualKycFieldGroups || [],
         editingGroup: group,
         groupTypeLabel: 'Individual KYC Field Group',
@@ -1218,14 +1029,23 @@ export class SystemSettings {
       }
     }).afterClosed().subscribe((result) => {
       if (result) {
-        this.editSettingsSignal.update((value) => {
-          const groups = [...(value.individualKycFieldGroups || [])];
-          const index = groups.findIndex((g) => g.id === group.id || g === group);
-          if (index >= 0) {
-            groups[index] = result;
+        this.kycFieldGroupApi.save(result).subscribe({
+          next: (savedGroup) => {
+            this.editSettingsSignal.update((value) => {
+              const groups = [...(value.individualKycFieldGroups || [])];
+              const index = groups.findIndex((g) => g.id === group?.id || g === group);
+              if (index >= 0) {
+                groups[index] = savedGroup;
+              }
+              return { ...value, individualKycFieldGroups: groups };
+            });
+            this.toastr.success('Field group updated successfully');
+          },
+          error: (error) => {
+            this.toastr.error(error?.error?.message || error?.message || 'Failed to update field group');
           }
-          return { ...value, individualKycFieldGroups: groups };
         });
+
       }
     });
   }
@@ -1240,21 +1060,29 @@ export class SystemSettings {
       cancelButtonText: 'Cancel',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.editSettingsSignal.update((value) => ({
-          ...value,
-          individualKycFieldGroups: (value.individualKycFieldGroups || []).filter((g) => g !== group)
-        }));
+
+        this.kycFieldGroupApi.remove(group.id || '').subscribe({
+          next: () => {
+            this.toastr.success('Field group removed successfully');
+            this.editSettingsSignal.update((value) => ({
+              ...value,
+              individualKycFieldGroups: (value.individualKycFieldGroups || []).filter((g) => g !== group)
+            }));
+          },
+          error: (error) => {
+            this.toastr.error(error?.error?.message || error?.message || 'Failed to remove field group');
+          }
+        });
       }
     });
   }
 
   openAddOrganisationFieldGroupDialog(): void {
-    const orgKycDocuments = this.editSettingsSignal().orgKycDocuments || [];
-
     this.dialog.open(AddKycFieldGroupDialog, {
-      width: '600px',
+      width: 'min(96vw, 920px)',
+      maxWidth: '100vw',
       data: {
-        kycDocuments: orgKycDocuments,
+        expectedFieldOptions: this.organisationKycExpectedFieldOptions() || [],
         existingGroups: this.editSettingsSignal().organisationKycFieldGroups || [],
         groupTypeLabel: 'Organisation KYC Field Group',
         suiteLabel: 'Org. KYC Suite',
@@ -1263,21 +1091,30 @@ export class SystemSettings {
       }
     }).afterClosed().subscribe((result) => {
       if (result) {
-        this.editSettingsSignal.update((value) => ({
-          ...value,
-          organisationKycFieldGroups: [...(value.organisationKycFieldGroups || []), result]
-        }));
+        result.settingsId = this.editSettingsSignal().id;
+
+        this.kycFieldGroupApi.save(result).subscribe({
+          next: (savedGroup) => {
+            this.editSettingsSignal.update((value) => ({
+              ...value,
+              organisationKycFieldGroups: [...(value.organisationKycFieldGroups || []), savedGroup]
+            }));
+            this.toastr.success('Field group created successfully');
+          },
+          error: (error) => {
+            this.toastr.error(error?.error?.message || error?.message || 'Failed to create field group');
+          }
+        });
       }
     });
   }
 
   editOrganisationFieldGroup(group: KycFieldGroupDTO): void {
-    const orgKycDocuments = this.editSettingsSignal().orgKycDocuments || [];
-
     this.dialog.open(AddKycFieldGroupDialog, {
-      width: '600px',
+      width: 'min(96vw, 920px)',
+      maxWidth: '100vw',
       data: {
-        kycDocuments: orgKycDocuments,
+        expectedFieldOptions: this.organisationKycExpectedFieldOptions() || [],
         existingGroups: this.editSettingsSignal().organisationKycFieldGroups || [],
         editingGroup: group,
         groupTypeLabel: 'Organisation KYC Field Group',
@@ -1287,13 +1124,21 @@ export class SystemSettings {
       }
     }).afterClosed().subscribe((result) => {
       if (result) {
-        this.editSettingsSignal.update((value) => {
-          const groups = [...(value.organisationKycFieldGroups || [])];
-          const index = groups.findIndex((g) => g.id === group.id || g === group);
-          if (index >= 0) {
-            groups[index] = result;
+        this.kycFieldGroupApi.save(result).subscribe({
+          next: (savedGroup) => {
+            this.editSettingsSignal.update((value) => {
+              const groups = [...(value.organisationKycFieldGroups || [])];
+              const index = groups.findIndex((g) => g.id === group.id || g === group);
+              if (index >= 0) {
+                groups[index] = savedGroup;
+              }
+              return { ...value, organisationKycFieldGroups: groups };
+            });
+            this.toastr.success('Field group updated successfully');
+          },
+          error: (error) => {
+            this.toastr.error(error?.error?.message || error?.message || 'Failed to update field group');
           }
-          return { ...value, organisationKycFieldGroups: groups };
         });
       }
     });
@@ -1309,255 +1154,23 @@ export class SystemSettings {
       cancelButtonText: 'Cancel',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.editSettingsSignal.update((value) => ({
-          ...value,
-          organisationKycFieldGroups: (value.organisationKycFieldGroups || []).filter((g) => g !== group)
-        }));
+
+        // this.kycFieldGroupApi.removeField(group.id || '', '').subscribe({
+        //   next: () => {
+        //     this.toastr.success('Field group removed successfully');
+        //     this.editSettingsSignal.update((value) => ({
+        //       ...value,
+        //       organisationKycFieldGroups: (value.organisationKycFieldGroups || []).filter((g) => g !== group)
+        //     }));
+        //   },
+        //   error: (error) => {
+        //     this.toastr.error(error?.error?.message || error?.message || 'Failed to remove field group');
+        //   }
+        // });
+
+
       }
     });
   }
 }
 
-@Component({
-  selector: 'app-add-kyc-field-group-dialog',
-  standalone: true,
-  template: `
-    <div class="dialog-container">
-      <h2 mat-dialog-title>{{ data.editingGroup ? 'Edit' : 'Add' }} {{ data.groupTypeLabel }}</h2>
-      
-      <mat-dialog-content>
-        <div class="field-group-form">
-          <mat-form-field class="full-width">
-            <mat-label>Group Label</mat-label>
-            <input matInput [(ngModel)]="groupLabel" placeholder="e.g., Basic Personal Information" />
-          </mat-form-field>
-
-          <mat-form-field class="full-width">
-            <mat-label>Group Description</mat-label>
-            <textarea matInput [(ngModel)]="groupDescription" placeholder="Optional description" rows="3"></textarea>
-          </mat-form-field>
-
-          <div class="fields-section">
-            <h3>Expected Fields from {{ data.suiteLabel }}</h3>
-            <p class="helper-text">Select expected fields from the {{ data.suiteDescription }}</p>
-            
-            <div class="fields-list">
-              @for (field of availableFields; track field.id || $index) {
-                <div class="field-checkbox-item">
-                  <mat-checkbox 
-                    [(ngModel)]="selectedFieldIds[field.id || field.field]"
-                    (change)="onFieldSelected(field)">
-                    <span class="field-name">{{ field.fieldLabel || field.field }}</span>
-                    <span class="field-doc" *ngIf="field.documentType">({{ field.documentType }})</span>
-                  </mat-checkbox>
-                </div>
-              }
-              @empty {
-                <p class="no-fields-message">No fields available from {{ data.suiteLabel }}</p>
-              }
-            </div>
-          </div>
-
-          <div class="selected-fields-summary">
-            <h4>Selected Fields ({{ selectedFields.length }})</h4>
-            @for (field of selectedFields; track field.id || $index) {
-              <div class="selected-field-tag">
-                <span>{{ field.fieldLabel || field.field }}</span>
-              </div>
-            }
-          </div>
-        </div>
-      </mat-dialog-content>
-
-      <mat-dialog-actions align="end">
-        <button mat-button (click)="dialogRef.close()">Cancel</button>
-        <button mat-raised-button color="primary" (click)="save()" [disabled]="!isValid()">
-          {{ data.editingGroup ? 'Update' : 'Add' }} Group
-        </button>
-      </mat-dialog-actions>
-    </div>
-  `,
-  styles: [`
-    .dialog-container {
-      padding: 10px;
-    }
-    
-    .full-width {
-      width: 100%;
-    }
-    
-    .fields-section {
-      margin-top: 24px;
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      padding: 16px;
-      background-color: #fafafa;
-    }
-    
-    .fields-section h3 {
-      margin-top: 0;
-      margin-bottom: 8px;
-      font-size: 14px;
-      font-weight: 500;
-    }
-    
-    .helper-text {
-      margin: 0 0 12px 0;
-      color: #666;
-      font-size: 12px;
-    }
-    
-    .fields-list {
-      max-height: 250px;
-      overflow-y: auto;
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      padding: 8px;
-      background: white;
-    }
-    
-    .field-checkbox-item {
-      padding: 8px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .field-checkbox-item:last-child {
-      border-bottom: none;
-    }
-    
-    .field-name {
-      font-size: 13px;
-    }
-    
-    .field-doc {
-      color: #999;
-      font-size: 11px;
-      margin-left: 4px;
-    }
-    
-    .no-fields-message {
-      text-align: center;
-      color: #999;
-      padding: 16px 8px;
-      font-size: 12px;
-    }
-    
-    .selected-fields-summary {
-      margin-top: 16px;
-      padding: 12px;
-      background: #f5f5f5;
-      border-radius: 4px;
-    }
-    
-    .selected-fields-summary h4 {
-      margin-top: 0;
-      margin-bottom: 8px;
-      font-size: 13px;
-    }
-    
-    .selected-field-tag {
-      display: inline-block;
-      background: #e3f2fd;
-      color: #1976d2;
-      padding: 6px 12px;
-      border-radius: 4px;
-      margin-right: 8px;
-      margin-bottom: 4px;
-      font-size: 12px;
-    }
-  `],
-  imports: [
-    CommonModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatCheckboxModule,
-    FormsModule
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush
-})
-export class AddKycFieldGroupDialog {
-  readonly dialogRef = inject(MatDialogRef<KycFieldGroupDTO>);
-  readonly data = inject(MAT_DIALOG_DATA);
-  
-  groupLabel = '';
-  groupDescription = '';
-  availableFields: ExpectedFieldDTO[] = [];
-  selectedFields: ExpectedFieldDTO[] = [];
-  selectedFieldIds: { [key: string]: boolean } = {};
-  private expectedFieldApi = inject(ExpectedFieldApi);
-
-  constructor() {
-    this.loadAvailableFields();
-    if (this.data.editingGroup) {
-      this.groupLabel = this.data.editingGroup.label || '';
-      this.groupDescription = this.data.editingGroup.description || '';
-      this.selectedFields = [...(this.data.editingGroup.expectedFields || [])];
-      this.selectedFields.forEach((field) => {
-        this.selectedFieldIds[field.id || field.field] = true;
-      });
-    }
-  }
-
-  private loadAvailableFields(): void {
-    const documentIds = (this.data.kycDocuments || [])
-      .map((doc: DocumentTypeDTO) => doc.id)
-      .filter(Boolean);
-
-    if (documentIds.length === 0) {
-      this.availableFields = [];
-      return;
-    }
-
-    this.expectedFieldApi.findByDocumentType(documentIds).subscribe({
-      next: (fields) => {
-        this.availableFields = this.uniqueFields(fields || []);
-      },
-      error: () => {
-        this.availableFields = [];
-      }
-    });
-  }
-
-  onFieldSelected(field: ExpectedFieldDTO): void {
-    const key = field.id || field.field;
-    const isSelected = this.selectedFieldIds[key];
-
-    if (isSelected) {
-      this.selectedFields.push(field);
-    } else {
-      this.selectedFields = this.selectedFields.filter((f) => (f.id || f.field) !== key);
-    }
-  }
-
-  save(): void {
-    if (!this.isValid()) {
-      return;
-    }
-
-    const group = this.data.editingGroup || new KycFieldGroupDTO();
-    group.label = this.groupLabel;
-    group.description = this.groupDescription;
-    group.expectedFields = this.selectedFields;
-    group.targetType = this.data.targetType;
-
-    this.dialogRef.close(group);
-  }
-
-  isValid(): boolean {
-    return !!this.groupLabel && this.selectedFields.length > 0;
-  }
-
-  private uniqueFields(fields: ExpectedFieldDTO[]): ExpectedFieldDTO[] {
-    const seen = new Set<string>();
-    return (fields || []).filter((field) => {
-      const key = field.id || field.field;
-      if (seen.has(key)) {
-        return false;
-      }
-      seen.add(key);
-      return true;
-    });
-  }
-}

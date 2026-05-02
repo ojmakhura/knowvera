@@ -322,7 +322,7 @@
               </div>
 
               <div class="field-groups-container">
-                @for (group of editSettingsSignal().individualKycFieldGroups; track group.id || $index) {
+                @for (group of editSettingsSignal().individualKycFieldGroups; let i = $index; track group.id || i) {
                 <mat-card class="field-group-card">
                   <mat-card-header>
                     <div class="group-header">
@@ -345,12 +345,22 @@
 
                   <mat-card-content>
                     <div class="fields-list">
-                      @if ((group.expectedFields || []).length > 0) {
-                        <h4>Fields ({{ group.expectedFields.length }})</h4>
-                        @for (field of group.expectedFields; track field.id || $index) {
+                      @if ((group.groupFields || []).length > 0) {
+                        <h4>Fields ({{ group.groupFields.length }})</h4>
+                        @for (field of group.groupFields; let j = $index; track field.id || j) {
                           <div class="field-item">
                             <mat-icon>check_circle</mat-icon>
-                            <span>{{ expectedFieldLabel(field) }}</span>
+                            <span>{{ expectedFieldLabel(field) }} : {{ field.documentType }}</span>
+                            <button
+                              mat-icon-button
+                              type="button"
+                              color="warn"
+                              (click)="removeGroupField(false, field, i)"
+                              matTooltip="Remove field"
+                              aria-label="Remove field from group"
+                            >
+                              <mat-icon>close</mat-icon>
+                            </button>
                           </div>
                         }
                       } @else {
@@ -399,12 +409,22 @@
 
                   <mat-card-content>
                     <div class="fields-list">
-                      @if ((group.expectedFields || []).length > 0) {
-                        <h4>Fields ({{ group.expectedFields.length }})</h4>
-                        @for (field of group.expectedFields; track field.id || $index) {
+                      @if ((group.groupFields || []).length > 0) {
+                        <h4>Fields ({{ group.groupFields.length }})</h4>
+                        @for (field of group.groupFields; track field.id || $index) {
                           <div class="field-item">
                             <mat-icon>check_circle</mat-icon>
                             <span>{{ expectedFieldLabel(field) }}</span>
+                            <button
+                              mat-icon-button
+                              type="button"
+                              color="warn"
+                              (click)="removeKycExpectedField(true, field)"
+                              matTooltip="Remove field"
+                              aria-label="Remove field from group"
+                            >
+                              <mat-icon>close</mat-icon>
+                            </button>
                           </div>
                         }
                       } @else {

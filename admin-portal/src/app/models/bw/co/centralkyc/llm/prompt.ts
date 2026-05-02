@@ -1,6 +1,6 @@
 
-import {PromptMessage} from '@models/bw/co/centralkyc/llm/prompt-message';
 import {OllamaFormat} from '@models/bw/co/centralkyc/llm/ollama-format';
+import {PromptMessage} from '@models/bw/co/centralkyc/llm/prompt-message';
 
 export class Prompt {
     model: string | any;

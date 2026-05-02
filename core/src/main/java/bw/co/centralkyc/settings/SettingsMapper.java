@@ -8,6 +8,9 @@ package bw.co.centralkyc.settings;
 import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.document.type.DocumentTypeMapper;
 import bw.co.centralkyc.document.type.field.ExpectedFieldMapper;
+import bw.co.centralkyc.settings.kyc.GroupFieldMapper;
+import bw.co.centralkyc.settings.kyc.KycFieldGroupMapper;
+import bw.co.centralkyc.utils.MappingUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -24,7 +27,10 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         DocumentTypeMapper.class,
         DocumentMapper.class,
         SalaryRangeMapper.class,
-        ExpectedFieldMapper.class
+        ExpectedFieldMapper.class,
+        KycFieldGroupMapper.class,
+        GroupFieldMapper.class,
+        MappingUtils.class
     }
 )
 public abstract class SettingsMapper {
@@ -46,6 +52,8 @@ public abstract class SettingsMapper {
     @Mapping(source = "quotationTemplate", target = "quotationTemplate")
     @Mapping(source = "clientRequestFileType", target = "clientRequestFileType")
     @Mapping(source = "salaryRanges", target = "salaryRanges")
+    @Mapping(source = "individualKycFieldGroups", target = "individualKycFieldGroups")
+    @Mapping(source = "organisationKycFieldGroups", target = "organisationKycFieldGroups")
     public abstract SettingsDTO toSettingsDTO(Settings entity);
 
      /**

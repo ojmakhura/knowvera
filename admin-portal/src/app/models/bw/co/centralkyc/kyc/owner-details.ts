@@ -1,6 +1,6 @@
 
-import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
 import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
+import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
 
 export class OwnerDetails {
     phoneNumbers: Array<PhoneNumber> | any;

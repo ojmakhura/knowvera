@@ -2,14 +2,14 @@
 import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 
 export class QueueObject {
-    documentId: string | any;
+    objectId: string | any;
     
     target: TargetEntity | any;
     
     targetId: string | any;
     
     constructor() {
-        this.documentId = null;
+        this.objectId = null;
         this.target = null;
         this.targetId = null;
     }

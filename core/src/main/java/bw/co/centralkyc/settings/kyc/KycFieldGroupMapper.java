@@ -5,9 +5,10 @@
 //
 package bw.co.centralkyc.settings.kyc;
 
-import bw.co.centralkyc.document.type.field.ExpectedFieldMapper;
 import java.util.Collection;
 import java.util.List;
+
+import bw.co.centralkyc.settings.SettingsMapper;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -15,10 +16,17 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import bw.co.centralkyc.document.type.field.ExpectedFieldMapper;
+import bw.co.centralkyc.utils.MappingUtils;
+
 @Mapper(
     componentModel = "spring"
     , uses = {
-        ExpectedFieldMapper.class    
+        GroupFieldMapper.class,
+        ExpectedFieldMapper.class,
+        KycFieldGroupMapper.class,
+        SettingsMapper.class,
+        MappingUtils.class
     }
 )
 public abstract class KycFieldGroupMapper {
@@ -28,6 +36,8 @@ public abstract class KycFieldGroupMapper {
      * @param entity
      * @return KycFieldGroupDTO
      */
+    @Mapping(source = "groupFields", target = "groupFields")
+    @Mapping(source = "settings.id", target = "settingsId")
     public abstract KycFieldGroupDTO toKycFieldGroupDTO(KycFieldGroup entity);
 
      /**

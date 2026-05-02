@@ -68,6 +68,14 @@ public class KycFieldGroupApiImpl implements KycFieldGroupApi {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             AuditTracker.auditTrail(fieldGroup, authentication);
+
+            if(fieldGroup.getGroupFields() != null) {
+
+                for(GroupFieldDTO field : fieldGroup.getGroupFields()) {
+                    AuditTracker.auditTrail(field, authentication);
+                }
+            }
+
             return ResponseEntity.ok(this.kycFieldGroupService.save(fieldGroup));
         } catch (Exception e) {
 
@@ -97,5 +105,19 @@ public class KycFieldGroupApiImpl implements KycFieldGroupApi {
             logger.error("An error occurred while processing the request", e);
             throw e.getCause() != null ? new Exception(e.getCause()) : e;
         } 
+    }
+
+
+
+    @Override
+    public ResponseEntity<KycFieldGroupDTO> removeField(String id, String fieldId) throws Exception {
+        
+        try {
+            return ResponseEntity.ok(this.kycFieldGroupService.removeField(id, fieldId));
+        } catch (Exception e) {
+
+            logger.error("An error occurred while processing the request", e);
+            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+        }
     }
 }

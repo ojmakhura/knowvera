@@ -129,6 +129,38 @@ export const KycFieldGroupApiStore = signalStore(
           );
         }),
       ),
+      removeField: rxMethod<{id: string, fieldId: string}>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Removing field ...' });
+          return kycFieldGroupApi.removeField(data.id, data.fieldId).pipe(
+            tapResponse({
+              next: (response: KycFieldGroupDTO) => {
+                patchState(
+                  store, 
+                  {
+                    data: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
     }
   }),
 );

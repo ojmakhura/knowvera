@@ -10,6 +10,7 @@ import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.individual.employment.EmploymentRecordMapper;
+import bw.co.centralkyc.kyc.fields.KycReportSectionMapper;
 import bw.co.centralkyc.utils.MappingUtils;
 
 import java.util.Collection;
@@ -28,6 +29,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         EmploymentRecordMapper.class,
         IndividualRepository.class,
         IndividualMapper.class,
+        KycReportSectionMapper.class,
         MappingUtils.class    
     }
 )

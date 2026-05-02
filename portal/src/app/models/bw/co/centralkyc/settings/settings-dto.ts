@@ -1,9 +1,9 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
 import {SalaryRangeDTO} from '@models/bw/co/centralkyc/settings/salary-range-dto';
-import {ExpectedFieldDTO} from '@models/bw/co/centralkyc/document/type/field/expected-field-dto';
+import {KycFieldGroupDTO} from '@models/bw/co/centralkyc/settings/kyc/kyc-field-group-dto';
 import {DocumentTypeDTO} from '@models/bw/co/centralkyc/document/type/document-type-dto';
+import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
 
 export class SettingsDTO extends AuditableDTO {
     kycDuration: number | any;
@@ -54,9 +54,9 @@ export class SettingsDTO extends AuditableDTO {
     
     maxDataVerificationFailureThreshold: number | any;
     
-    individualKycFields: Array<ExpectedFieldDTO> | any;
+    individualKycFieldGroups: Array<KycFieldGroupDTO> | any;
     
-    organisationKycFields: Array<ExpectedFieldDTO> | any;
+    organisationKycFieldGroups: Array<KycFieldGroupDTO> | any;
     
     constructor() {
         super();
@@ -84,7 +84,7 @@ export class SettingsDTO extends AuditableDTO {
         this.documentDurationLimit = null;
         this.dataVerificationThreshold = null;
         this.maxDataVerificationFailureThreshold = null;
-        this.individualKycFields = [];
-        this.organisationKycFields = [];
+        this.individualKycFieldGroups = [];
+        this.organisationKycFieldGroups = [];
     }
 }

@@ -1,7 +1,7 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {TimePeriod} from '@models/bw/co/centralkyc/time-period';
 import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
+import {TimePeriod} from '@models/bw/co/centralkyc/time-period';
 
 export class KycInvoiceDTO extends AuditableDTO {
     amount: number | any;

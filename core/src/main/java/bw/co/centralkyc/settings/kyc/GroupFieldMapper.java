@@ -6,37 +6,47 @@
 package bw.co.centralkyc.settings.kyc;
 
 import bw.co.centralkyc.document.type.field.ExpectedFieldMapper;
+import bw.co.centralkyc.utils.MappingUtils;
+
 import java.util.Collection;
 import java.util.List;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(
-    componentModel = "spring"
-    , uses = {
+@Mapper(componentModel = "spring", uses = {
         ExpectedFieldMapper.class,
-        KycFieldGroupMapper.class    }
-)
+        KycFieldGroupMapper.class,
+        MappingUtils.class
+})
 public abstract class GroupFieldMapper {
-    
+
     /**
      * Converts this entity to an object of type {@link GroupFieldDTO}.
+     * 
      * @param entity
      * @return GroupFieldDTO
      */
+    @Mapping(target = "fieldId", source = "expectedField.id")
+    @Mapping(target = "field", source = "expectedField.field")
+    @Mapping(target = "fieldGroupId", source = "kycFieldGroup.id")
     public abstract GroupFieldDTO toGroupFieldDTO(GroupField entity);
 
-     /**
-     * Converts this DAO's entity to a Collection of instances of type {@link GroupFieldDTO}.
+    /**
+     * Converts this DAO's entity to a Collection of instances of type
+     * {@link GroupFieldDTO}.
+     * 
      * @param entities
-     * @return Collection<GroupFieldDTO>     */
+     * @return Collection<GroupFieldDTO>
+     */
     public abstract List<GroupFieldDTO> toGroupFieldDTOCollection(Collection<GroupField> entities);
 
     /**
      * Converts an instance of type {@link GroupFieldDTO} to this DAO's entity.
+     * 
      * @param groupFieldDTO
      * @return GroupField
      */
@@ -45,6 +55,7 @@ public abstract class GroupFieldMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
-    public abstract void updateGroupFieldFromGroupFieldDTO(GroupFieldDTO groupFieldDTO, @MappingTarget GroupField entity);
+    public abstract void updateGroupFieldFromGroupFieldDTO(GroupFieldDTO groupFieldDTO,
+            @MappingTarget GroupField entity);
 
 }

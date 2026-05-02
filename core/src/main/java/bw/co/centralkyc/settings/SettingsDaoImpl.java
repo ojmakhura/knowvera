@@ -11,6 +11,7 @@ import bw.co.centralkyc.document.type.DocumentType;
 import bw.co.centralkyc.document.type.DocumentTypeDTO;
 import bw.co.centralkyc.document.type.DocumentTypeRepository;
 import bw.co.centralkyc.document.type.field.ExpectedFieldRepository;
+import bw.co.centralkyc.settings.kyc.KycFieldGroupRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.util.Collection;
@@ -27,11 +28,11 @@ public class SettingsDaoImpl
         extends SettingsDaoBase {
 
     public SettingsDaoImpl(DocumentTypeRepository documentTypeRepository, DocumentRepository documentRepository,
-            SalaryRangeRepository salaryRangeRepository, ExpectedFieldRepository expectedFieldRepository, SettingsRepository settingsRepository) {
-        super(documentTypeRepository, documentRepository, salaryRangeRepository, expectedFieldRepository,
-                settingsRepository);
-        // TODO Auto-generated constructor stub
-    }
+            SalaryRangeRepository salaryRangeRepository, KycFieldGroupRepository kycFieldGroupRepository,
+            SettingsRepository settingsRepository) {
+        super(documentTypeRepository, documentRepository, salaryRangeRepository, kycFieldGroupRepository, settingsRepository);
+        //TODO Auto-generated constructor stub
+        }
 
     /**
      * {@inheritDoc}

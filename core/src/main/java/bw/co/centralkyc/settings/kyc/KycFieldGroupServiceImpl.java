@@ -28,10 +28,14 @@ import bw.co.centralkyc.TargetEntity;
 @Validated
 public class KycFieldGroupServiceImpl
         extends KycFieldGroupServiceBase {
+
+    private final GroupFieldRepository groupFieldRepository;
+
     public KycFieldGroupServiceImpl(
             KycFieldGroupDao kycFieldGroupDao,
             KycFieldGroupRepository kycFieldGroupRepository,
             KycFieldGroupMapper kycFieldGroupMapper,
+            GroupFieldRepository groupFieldRepository,
             MessageSource messageSource) {
 
         super(
@@ -39,6 +43,8 @@ public class KycFieldGroupServiceImpl
                 kycFieldGroupRepository,
                 kycFieldGroupMapper,
                 messageSource);
+
+        this.groupFieldRepository = groupFieldRepository;
     }
 
     /**
@@ -64,6 +70,14 @@ public class KycFieldGroupServiceImpl
             throws Exception {
 
         KycFieldGroup kycFieldGroup = kycFieldGroupMapper.kycFieldGroupDTOToEntity(expectedField);
+
+        if (kycFieldGroup.getGroupFields() != null) {
+
+            for (GroupField field : kycFieldGroup.getGroupFields()) {
+                field.setKycFieldGroup(kycFieldGroup);
+            }
+
+        }
 
         kycFieldGroup = this.kycFieldGroupRepository.save(kycFieldGroup);
 
@@ -97,4 +111,15 @@ public class KycFieldGroupServiceImpl
         return this.kycFieldGroupMapper.toKycFieldGroupDTOCollection(kycFieldGroups);
     }
 
+    @Override
+    protected KycFieldGroupDTO handleRemoveField(String id, String fieldId) throws Exception {
+
+        groupFieldRepository.deleteById(UUID.fromString(fieldId));;
+
+        KycFieldGroup kycFieldGroup = this.kycFieldGroupRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new KycFieldGroupServiceException(
+                        messageSource.getMessage("kycFieldGroup.notFound", new Object[] { id }, null)));
+
+        return this.kycFieldGroupMapper.toKycFieldGroupDTO(kycFieldGroup);
+    }
 }
