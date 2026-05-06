@@ -7,8 +7,11 @@ package bw.co.centralkyc.settings.kyc;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
+import bw.co.centralkyc.settings.Settings;
 import bw.co.centralkyc.settings.SettingsMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -53,11 +56,21 @@ public abstract class KycFieldGroupMapper {
      * @return KycFieldGroup
      */
     @InheritInverseConfiguration
-    @Mapping(target = "individualSettings", ignore = true)
-    @Mapping(target = "organisationSettings", ignore = true)
+    @Mapping(target = "individualSettings", expression = "java(createKycFieldGroupDTO(kycFieldGroupDTO.getIndividualSettingsId()))")
+    @Mapping(target = "organisationSettings", expression = "java(createKycFieldGroupDTO(kycFieldGroupDTO.getOrganisationSettingsId()))")
     public abstract KycFieldGroup kycFieldGroupDTOToEntity(KycFieldGroupDTO kycFieldGroupDTO);
 
+    Settings createKycFieldGroupDTO(String settingId) {
 
+        if(StringUtils.isBlank(settingId)) {
+            return null;
+        }
+
+        Settings settings = new Settings();
+        settings.setId(UUID.fromString(settingId));
+
+        return settings;
+    }
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration

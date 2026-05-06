@@ -11,6 +11,7 @@ package bw.co.centralkyc.kyc;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
@@ -32,8 +33,11 @@ import bw.co.centralkyc.document.Document;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentRepository;
 import bw.co.centralkyc.document.DocumentVerificationStatus;
+import bw.co.centralkyc.document.type.DocumentType;
 import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
+import bw.co.centralkyc.kyc.fields.GroupFieldValue;
+import bw.co.centralkyc.kyc.fields.KycReportSection;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
 import bw.co.centralkyc.sequence.SequenceGenerator;
@@ -43,6 +47,8 @@ import bw.co.centralkyc.sequence.SequencePart;
 import bw.co.centralkyc.sequence.SequencePartType;
 import bw.co.centralkyc.settings.Settings;
 import bw.co.centralkyc.settings.SettingsRepository;
+import bw.co.centralkyc.settings.kyc.GroupField;
+import bw.co.centralkyc.settings.kyc.KycFieldGroup;
 import bw.co.centralkyc.user.UserDTO;
 import jakarta.validation.Valid;
 
@@ -246,7 +252,8 @@ public class KycRecordServiceImpl
             if (organisation != null) {
 
                 return new KycRecordListDTO(kycRecord.getId().toString(), kycRecord.getRef(),
-                        organisation.getRegistrationNo(), organisation.getName(), kycRecord.getKycStatus(), kycRecord.getExpiryDate());
+                        organisation.getRegistrationNo(), organisation.getName(), kycRecord.getKycStatus(),
+                        kycRecord.getExpiryDate());
             }
 
         }
@@ -395,7 +402,7 @@ public class KycRecordServiceImpl
             Individual individual = this.individualRepository.findById(UUID.fromString(kycRecord.getTargetId()))
                     .orElseThrow(() -> new Exception("Individual not found for id: " + kycRecord.getTargetId()));
 
-            if(individual == null || individual.getId() == null) {
+            if (individual == null || individual.getId() == null) {
                 return false;
             }
 
@@ -411,7 +418,7 @@ public class KycRecordServiceImpl
             Organisation organisation = this.organisationRepository.findById(UUID.fromString(user.getOrganisationId()))
                     .orElseThrow(() -> new Exception("Organisation not found for id: " + user.getOrganisationId()));
 
-            if(organisation == null || organisation.getId() == null) {
+            if (organisation == null || organisation.getId() == null) {
                 return false;
             }
 
@@ -687,16 +694,18 @@ public class KycRecordServiceImpl
                         if (allValid) {
                             kycRecord.setKycStatus(KycComplianceStatus.CURRENT);
                         } else {
-                            
+
                             boolean hasUnverified = kycRecord.getDataVerificationSummaries().stream()
-                                    .anyMatch(summary -> summary.verificationStatus() == DataVerificationStatus.UNVERIFIED);
+                                    .anyMatch(summary -> summary
+                                            .verificationStatus() == DataVerificationStatus.UNVERIFIED);
 
                             if (hasUnverified) {
                                 kycRecord.setKycStatus(KycComplianceStatus.INCOMPLETE);
                             } else {
-                                
+
                                 boolean allProcessed = kycRecord.getDataVerificationSummaries().stream()
-                                        .allMatch(summary -> summary.verificationStatus() != DataVerificationStatus.UNVERIFIED);
+                                        .allMatch(summary -> summary
+                                                .verificationStatus() != DataVerificationStatus.UNVERIFIED);
                                 if (allProcessed) {
                                     kycRecord.setKycStatus(KycComplianceStatus.DOCUMENT_VERIFICATION_FAILED);
                                 } else {
@@ -729,5 +738,57 @@ public class KycRecordServiceImpl
 
         return this.kycRecordDao.toKycRecordDTO(kycRecord);
 
+    }
+
+    @Override
+    protected KycRecordDTO handleGenerateKycReport(String id, String user) throws Exception {
+
+        Settings settings = this.settingsRepository.findAll().stream().findFirst()
+                .orElseThrow(() -> new Exception("Settings not found"));
+
+        KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + id));
+
+        List<KycFieldGroup> kycFieldGroups = kycRecord.getTarget() == TargetEntity.INDIVIDUAL
+                ? settings.getIndividualKycFieldGroups()
+                : settings.getOrganisationKycFieldGroups();
+
+        List<DocumentVerificationStatus> documentVerificationStatuses = List.of(DocumentVerificationStatus.VERIFIED,
+                DocumentVerificationStatus.REJECTED);
+
+        List<Document> completedDocuments = kycRecord.getDocuments().stream()
+                .filter(r -> documentVerificationStatuses.contains(r.getVerificationStatus()))
+                .toList();
+
+        Map<UUID, Document> documentMap = completedDocuments.stream()
+                .collect(Collectors.toMap(doc -> doc.getDocumentType().getId(), doc -> doc));
+
+        for (KycFieldGroup group : kycFieldGroups) {
+
+            KycReportSection section = new KycReportSection();
+            section.setLabel(group.getLabel());
+            section.setPosition(group.getPosition());
+
+            for (GroupField field : group.getGroupFields()) {
+
+                DocumentType documentType = field.getExpectedField().getDocumentType();
+
+                Document document = documentMap.get(documentType.getId());
+
+                if(document != null) {
+
+                    GroupFieldValue fieldValue = new GroupFieldValue();
+                    fieldValue.setExpectedField(field.getExpectedField());
+                    fieldValue.setPosition(field.getPosition());
+                    fieldValue.setKycReportSection(section);
+
+                    // document.get
+                }
+
+            }
+
+        }
+
+        return this.kycRecordMapper.toKycRecordDTO(kycRecord);
     }
 }

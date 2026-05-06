@@ -331,6 +331,7 @@
                         @if (group.description) {
                           <p class="group-description">{{ group.description }}</p>
                         }
+                        <span class="group-position"><mat-icon>tag</mat-icon>Position: {{ group.position ?? '—' }}</span>
                       </div>
                       <div class="group-actions">
                         <button mat-icon-button type="button" (click)="editFieldGroup(group)" matTooltip="Edit">
@@ -344,9 +345,9 @@
                   </mat-card-header>
 
                   <mat-card-content>
-                    <div class="fields-list">
+                    <details class="fields-list" closed>
+                      <summary>Fields ({{ (group.groupFields || []).length }})</summary>
                       @if ((group.groupFields || []).length > 0) {
-                        <h4>Fields ({{ group.groupFields.length }})</h4>
                         @for (field of group.groupFields; let j = $index; track field.id || j) {
                           <div class="field-item">
                             <mat-icon>check_circle</mat-icon>
@@ -366,7 +367,7 @@
                       } @else {
                         <p class="no-fields">No fields in this group</p>
                       }
-                    </div>
+                    </details>
                   </mat-card-content>
                 </mat-card>
                 } @empty {
@@ -386,7 +387,7 @@
               </div>
 
               <div class="field-groups-container">
-                @for (group of editSettingsSignal().organisationKycFieldGroups; track group.id || $index) {
+                @for (group of editSettingsSignal().organisationKycFieldGroups; let i = $index; track group.id || $index) {
                 <mat-card class="field-group-card">
                   <mat-card-header>
                     <div class="group-header">
@@ -395,12 +396,13 @@
                         @if (group.description) {
                           <p class="group-description">{{ group.description }}</p>
                         }
+                        <span class="group-position"><mat-icon>tag</mat-icon>Position: {{ group.position ?? '—' }}</span>
                       </div>
                       <div class="group-actions">
                         <button mat-icon-button type="button" (click)="editOrganisationFieldGroup(group)" matTooltip="Edit">
                           <mat-icon>edit</mat-icon>
                         </button>
-                        <button mat-icon-button type="button" color="warn" (click)="deleteOrganisationFieldGroup(group)" matTooltip="Delete">
+                        <button mat-icon-button type="button" color="warn" (click)="deleteFieldGroup(group)" matTooltip="Delete">
                           <mat-icon>delete</mat-icon>
                         </button>
                       </div>
@@ -408,10 +410,10 @@
                   </mat-card-header>
 
                   <mat-card-content>
-                    <div class="fields-list">
+                    <details class="fields-list" closed>
+                      <summary>Fields ({{ (group.groupFields || []).length }})</summary>
                       @if ((group.groupFields || []).length > 0) {
-                        <h4>Fields ({{ group.groupFields.length }})</h4>
-                        @for (field of group.groupFields; track field.id || $index) {
+                        @for (field of group.groupFields; let j = $index; track field.id || $index) {
                           <div class="field-item">
                             <mat-icon>check_circle</mat-icon>
                             <span>{{ expectedFieldLabel(field) }}</span>
@@ -419,7 +421,7 @@
                               mat-icon-button
                               type="button"
                               color="warn"
-                              (click)="removeKycExpectedField(true, field)"
+                              (click)="removeGroupField(false, field, i)"
                               matTooltip="Remove field"
                               aria-label="Remove field from group"
                             >
@@ -430,7 +432,7 @@
                       } @else {
                         <p class="no-fields">No fields in this group</p>
                       }
-                    </div>
+                    </details>
                   </mat-card-content>
                 </mat-card>
                 } @empty {

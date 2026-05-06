@@ -510,7 +510,7 @@ export class SystemSettings {
         let group = groups[index];
         this.kycFieldGroupApi.removeField(group.id, groupField.id).subscribe({
           next: (group: KycFieldGroupDTO) => {
-            
+
             this.editSettingsSignal.update((value) => {
               const groups = [...(value.individualKycFieldGroups || [])];
               const index = groups.findIndex((g) => g.id === group?.id || g === group);
@@ -1004,11 +1004,6 @@ export class SystemSettings {
             this.toastr.error(error?.error?.message || error?.message || 'Failed to create field group');
           }
         });
-
-        // this.editSettingsSignal.update((value) => ({
-        //   ...value,
-        //   individualKycFieldGroups: [...(value.individualKycFieldGroups || []), result]
-        // }));
       }
     });
   }
@@ -1051,6 +1046,9 @@ export class SystemSettings {
   }
 
   deleteFieldGroup(group: KycFieldGroupDTO): void {
+
+    let isOrg = group.targetType === TargetEntity.ORGANISATION;
+
     Swal.fire({
       title: 'Delete field group?',
       text: `This will remove the field group "${group.label || 'Individual KYC Group'}" and all its fields.`,
@@ -1059,15 +1057,25 @@ export class SystemSettings {
       confirmButtonText: 'Delete',
       cancelButtonText: 'Cancel',
     }).then((result) => {
+
+      console.log('Deleting group', group, result);
       if (result.isConfirmed) {
 
         this.kycFieldGroupApi.remove(group.id || '').subscribe({
           next: () => {
             this.toastr.success('Field group removed successfully');
-            this.editSettingsSignal.update((value) => ({
-              ...value,
-              individualKycFieldGroups: (value.individualKycFieldGroups || []).filter((g) => g !== group)
-            }));
+
+            if (!isOrg) {
+              this.editSettingsSignal.update((value) => ({
+                ...value,
+                individualKycFieldGroups: (value.individualKycFieldGroups || []).filter((g) => g !== group)
+              }));
+            } else {
+              this.editSettingsSignal.update((value) => ({
+                ...value,
+                organisationKycFieldGroups: (value.organisationKycFieldGroups || []).filter((g) => g !== group)
+              }));
+            }
           },
           error: (error) => {
             this.toastr.error(error?.error?.message || error?.message || 'Failed to remove field group');
@@ -1144,33 +1152,5 @@ export class SystemSettings {
     });
   }
 
-  deleteOrganisationFieldGroup(group: KycFieldGroupDTO): void {
-    Swal.fire({
-      title: 'Delete field group?',
-      text: `This will remove the field group "${group.label || 'Organisation KYC Group'}" and all its fields.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      cancelButtonText: 'Cancel',
-    }).then((result) => {
-      if (result.isConfirmed) {
-
-        // this.kycFieldGroupApi.removeField(group.id || '', '').subscribe({
-        //   next: () => {
-        //     this.toastr.success('Field group removed successfully');
-        //     this.editSettingsSignal.update((value) => ({
-        //       ...value,
-        //       organisationKycFieldGroups: (value.organisationKycFieldGroups || []).filter((g) => g !== group)
-        //     }));
-        //   },
-        //   error: (error) => {
-        //     this.toastr.error(error?.error?.message || error?.message || 'Failed to remove field group');
-        //   }
-        // });
-
-
-      }
-    });
-  }
 }
 

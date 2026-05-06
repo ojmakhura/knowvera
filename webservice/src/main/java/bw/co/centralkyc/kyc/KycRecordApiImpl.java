@@ -651,6 +651,11 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    public ResponseEntity<KycRecordDTO> generateKycReport(String id) throws Exception {
+        return null;
+    }
+
+    @Override
     @Operation(summary = "Run KYC Verification", description = "Run KYC verification for a given KYC record ID")
     public ResponseEntity<KycRecordDTO> runVerification(String id) throws Exception {
         

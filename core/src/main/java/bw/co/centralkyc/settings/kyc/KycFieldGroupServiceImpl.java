@@ -92,8 +92,8 @@ public class KycFieldGroupServiceImpl
 
             if(kycFieldGroup.getTargetType() == TargetEntity.INDIVIDUAL) {
 
-                settings.getOrganisationKycFieldGroups().add(kycFieldGroup);
-                kycFieldGroup.setOrganisationSettings(settings);
+                settings.getIndividualKycFieldGroups().add(kycFieldGroup);
+                kycFieldGroup.setIndividualSettings(settings);
 
             } else if(kycFieldGroup.getTargetType() == TargetEntity.ORGANISATION) {
 
