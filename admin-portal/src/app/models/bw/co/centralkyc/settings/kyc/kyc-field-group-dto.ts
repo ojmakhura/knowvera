@@ -14,7 +14,9 @@ export class KycFieldGroupDTO extends AuditableDTO {
     
     position: number | any;
     
-    settingsId: string | any;
+    individualSettingsId: string | any;
+    
+    organisationSettingsId: string | any;
     
     constructor() {
         super();
@@ -23,7 +25,9 @@ export class KycFieldGroupDTO extends AuditableDTO {
         this.groupFields = [];
         this.targetType = null;
         this.position = null;
-        this.settingsId = null;
+        this.individualSettingsId = null;
+        this.organisationSettingsId = null;
     }
 }
+
 

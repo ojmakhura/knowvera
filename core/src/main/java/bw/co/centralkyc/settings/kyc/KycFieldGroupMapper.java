@@ -37,7 +37,8 @@ public abstract class KycFieldGroupMapper {
      * @return KycFieldGroupDTO
      */
     @Mapping(source = "groupFields", target = "groupFields")
-    @Mapping(source = "settings.id", target = "settingsId")
+    @Mapping(source = "individualSettings.id", target = "individualSettingsId", conditionExpression = "java(entity.getIndividualSettings() != null)")
+    @Mapping(source = "organisationSettings.id", target = "organisationSettingsId", conditionExpression = "java(entity.getOrganisationSettings() != null)")
     public abstract KycFieldGroupDTO toKycFieldGroupDTO(KycFieldGroup entity);
 
      /**
@@ -52,7 +53,11 @@ public abstract class KycFieldGroupMapper {
      * @return KycFieldGroup
      */
     @InheritInverseConfiguration
+    @Mapping(target = "individualSettings", ignore = true)
+    @Mapping(target = "organisationSettings", ignore = true)
     public abstract KycFieldGroup kycFieldGroupDTOToEntity(KycFieldGroupDTO kycFieldGroupDTO);
+
+
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration

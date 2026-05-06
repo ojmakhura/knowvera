@@ -8,6 +8,8 @@
  */
 package bw.co.centralkyc.settings.kyc;
 
+import bw.co.centralkyc.settings.Settings;
+import bw.co.centralkyc.settings.SettingsRepository;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Set;
@@ -30,12 +32,14 @@ public class KycFieldGroupServiceImpl
         extends KycFieldGroupServiceBase {
 
     private final GroupFieldRepository groupFieldRepository;
+    private final SettingsRepository settingsRepository;
 
     public KycFieldGroupServiceImpl(
             KycFieldGroupDao kycFieldGroupDao,
             KycFieldGroupRepository kycFieldGroupRepository,
             KycFieldGroupMapper kycFieldGroupMapper,
             GroupFieldRepository groupFieldRepository,
+            SettingsRepository settingsRepository,
             MessageSource messageSource) {
 
         super(
@@ -45,6 +49,7 @@ public class KycFieldGroupServiceImpl
                 messageSource);
 
         this.groupFieldRepository = groupFieldRepository;
+        this.settingsRepository = settingsRepository;
     }
 
     /**
@@ -66,10 +71,12 @@ public class KycFieldGroupServiceImpl
      *      KycFieldGroupDTO)
      */
     @Override
-    protected KycFieldGroupDTO handleSave(@Valid KycFieldGroupDTO expectedField)
+    protected KycFieldGroupDTO handleSave(@Valid KycFieldGroupDTO fieldGroup)
             throws Exception {
 
-        KycFieldGroup kycFieldGroup = kycFieldGroupMapper.kycFieldGroupDTOToEntity(expectedField);
+        KycFieldGroup kycFieldGroup = kycFieldGroupMapper.kycFieldGroupDTOToEntity(fieldGroup);
+
+        boolean isNew = kycFieldGroup.getId() == null;
 
         if (kycFieldGroup.getGroupFields() != null) {
 
@@ -79,7 +86,29 @@ public class KycFieldGroupServiceImpl
 
         }
 
-        kycFieldGroup = this.kycFieldGroupRepository.save(kycFieldGroup);
+        Settings settings = settingsRepository.findAll().get(0);
+
+        if (isNew) {
+
+            if(kycFieldGroup.getTargetType() == TargetEntity.INDIVIDUAL) {
+
+                settings.getOrganisationKycFieldGroups().add(kycFieldGroup);
+                kycFieldGroup.setOrganisationSettings(settings);
+
+            } else if(kycFieldGroup.getTargetType() == TargetEntity.ORGANISATION) {
+
+                settings.getOrganisationKycFieldGroups().add(kycFieldGroup);
+                kycFieldGroup.setOrganisationSettings(settings);
+            }
+
+//            settings = settingsRepository.save(settings);
+            kycFieldGroup = this.kycFieldGroupRepository.save(kycFieldGroup);
+
+        } else {
+
+            kycFieldGroup = this.kycFieldGroupRepository.save(kycFieldGroup);
+        }
+
 
         return this.kycFieldGroupMapper.toKycFieldGroupDTO(kycFieldGroup);
     }
