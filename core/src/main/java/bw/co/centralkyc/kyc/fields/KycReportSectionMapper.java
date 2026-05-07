@@ -11,6 +11,7 @@ import java.util.List;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
@@ -27,6 +28,9 @@ public abstract class KycReportSectionMapper {
      * @param entity
      * @return KycReportSectionDTO
      */
+    @Mapping(source = "groupFieldValues", target = "fieldValues")
+    @Mapping(source = "kycRecord.id", target = "kycRecordId")
+    @Mapping(source = "kycRecord.ref", target = "kycRecordRef")
     public abstract KycReportSectionDTO toKycReportSectionDTO(KycReportSection entity);
 
      /**

@@ -651,8 +651,24 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Operation(summary = "Generate KYC Report", description = "Generate a KYC report for a given KYC record ID")
     public ResponseEntity<KycRecordDTO> generateKycReport(String id) throws Exception {
-        return null;
+        try {
+
+            String username = "anonymousUser";
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null) {
+
+                username = authentication.getName();
+            }
+
+            return ResponseEntity.ok(kycRecordService.generateKycReport(id, username));
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @Override

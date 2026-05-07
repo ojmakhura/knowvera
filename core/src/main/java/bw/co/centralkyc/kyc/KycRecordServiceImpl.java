@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.springframework.context.MessageSource;
@@ -25,9 +26,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import bw.co.centralkyc.KeyFieldMatchResult;
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.TargetEntity;
+import bw.co.centralkyc.document.DataVerification;
 import bw.co.centralkyc.document.DataVerificationStatus;
 import bw.co.centralkyc.document.Document;
 import bw.co.centralkyc.document.DocumentDTO;
@@ -749,6 +752,13 @@ public class KycRecordServiceImpl
         KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + id));
 
+        // Clean up existing report sections to avoid duplication when regenerating the report
+        if(CollectionUtils.isNotEmpty(kycRecord.getKycReportSections())) {
+            kycRecord.getKycReportSections().clear();
+        }
+
+        kycRecord.setKycReportSections(new ArrayList<>());
+
         List<KycFieldGroup> kycFieldGroups = kycRecord.getTarget() == TargetEntity.INDIVIDUAL
                 ? settings.getIndividualKycFieldGroups()
                 : settings.getOrganisationKycFieldGroups();
@@ -763,31 +773,59 @@ public class KycRecordServiceImpl
         Map<UUID, Document> documentMap = completedDocuments.stream()
                 .collect(Collectors.toMap(doc -> doc.getDocumentType().getId(), doc -> doc));
 
+        Map<String, KeyFieldMatchResult> matchResultMap = completedDocuments.stream()
+                .flatMap(doc -> doc.getDataVerifications().stream())
+                .flatMap(verification -> verification.getKeyFieldMatches().stream())
+                .collect(Collectors.toMap(match -> match.getKeyField(), match -> match));
+
         for (KycFieldGroup group : kycFieldGroups) {
 
             KycReportSection section = new KycReportSection();
             section.setLabel(group.getLabel());
             section.setPosition(group.getPosition());
 
+            section.setGroupFieldValues(new ArrayList<>());
+
             for (GroupField field : group.getGroupFields()) {
 
                 DocumentType documentType = field.getExpectedField().getDocumentType();
-
                 Document document = documentMap.get(documentType.getId());
 
-                if(document != null) {
+                if(document == null || document.getDataVerifications() == null || document.getDataVerifications().isEmpty()) {
 
-                    GroupFieldValue fieldValue = new GroupFieldValue();
-                    fieldValue.setExpectedField(field.getExpectedField());
-                    fieldValue.setPosition(field.getPosition());
-                    fieldValue.setKycReportSection(section);
-
-                    // document.get
+                    continue;
                 }
 
+                if (document != null) {
+
+                    KeyFieldMatchResult matchResult = matchResultMap.get(field.getExpectedField().getField());
+                    if (matchResult != null) {
+                        GroupFieldValue fieldValue = new GroupFieldValue();
+                        fieldValue.setExpectedField(field.getExpectedField());
+                        fieldValue.setPosition(field.getPosition());
+                        fieldValue.setKycReportSection(section);
+
+                        Map<String, Object> data = new LinkedHashMap<>();
+                        data.put("similarity", matchResult.getSimilarity());
+                        data.put("expectedValue", matchResult.getExpectedValue());
+                        data.put("extractedValue", matchResult.getExtractedValue());
+                        data.put("mandatory", matchResult.getMandatory());
+                        data.put("success", matchResult.getSuccess());
+
+                        fieldValue.setData(data);
+
+                        section.getGroupFieldValues().add(fieldValue);
+                    }
+                }
             }
 
+            section.setKycRecord(kycRecord);
+            kycRecord.getKycReportSections().add(section);
         }
+
+        kycRecord.setModifiedAt(LocalDateTime.now());
+        kycRecord.setModifiedBy(user);
+        kycRecord = this.kycRecordRepository.save(kycRecord);
 
         return this.kycRecordMapper.toKycRecordDTO(kycRecord);
     }

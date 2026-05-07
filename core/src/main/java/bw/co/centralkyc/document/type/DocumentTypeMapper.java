@@ -45,8 +45,8 @@ public abstract class DocumentTypeMapper {
      * @param entity
      * @return DocumentTypeDTO
      */
-    @Mapping(target = "expectedFields", ignore = true)
-    @Mapping(target = "verificationDataConfigs", ignore = true)
+    @Mapping(target = "expectedFields", source = "expectedFields")
+    @Mapping(target = "verificationDataConfigs", source = "verificationDataConfigs")
     public abstract DocumentTypeDTO toDocumentTypeDTO(DocumentType entity);
 
     protected Collection<VerificationDataConfigDTO> mapVerificationDataConfigs(Collection<VerificationDataConfig> verificationDataConfigs) {
