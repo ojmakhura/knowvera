@@ -30,8 +30,6 @@ public class VerificationDataConfigApiImpl implements VerificationDataConfigApi 
         this.verificationDataConfigService = verificationDataConfigService;
     }
 
-
-
     @Override
     @Operation(summary = "Find Verification Data Config", description = "Get the verification data config with the given id")
     public ResponseEntity<VerificationDataConfigDTO> findById(String id) throws Exception {

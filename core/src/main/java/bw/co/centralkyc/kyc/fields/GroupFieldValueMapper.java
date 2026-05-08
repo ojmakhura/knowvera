@@ -35,6 +35,7 @@ public abstract class GroupFieldValueMapper {
     @Mapping(source = "kycReportSection.id", target = "reportSectionId")
     @Mapping(source = "expectedField.id", target = "fieldId")
     @Mapping(source = "expectedField.field", target = "field")
+    @Mapping(source = "expectedField.fieldLabel", target = "fieldLabel")
     @Mapping(target = "fieldGroupId", ignore = true)
     public abstract GroupFieldValueDTO toGroupFieldValueDTO(GroupFieldValue entity);
 

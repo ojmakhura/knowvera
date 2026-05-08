@@ -8,6 +8,7 @@ import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {OwnerDetails} from '@models/bw/co/centralkyc/kyc/owner-details';
 import {EmploymentRecordDTO} from '@models/bw/co/centralkyc/individual/employment/employment-record-dto';
 import {DeclarationDTO} from '@models/bw/co/centralkyc/kyc/declaration-dto';
+import { KycReportSectionDTO } from './fields/kyc-report-section-dto';
 
 export class KycRecordDTO extends AuditableDTO {
     expiryDate: Date | any;
@@ -38,6 +39,8 @@ export class KycRecordDTO extends AuditableDTO {
     
     dataVerificationSummaries: Array<VerificationSummaryEntry> | any;
     
+    kycReportSections: Array<KycReportSectionDTO> | any;
+    
     constructor() {
         super();
         this.expiryDate = null;
@@ -54,5 +57,6 @@ export class KycRecordDTO extends AuditableDTO {
         this.ownerDetails = null;
         this.recordSummary = null;
         this.dataVerificationSummaries = [];
+        this.kycReportSections = [];
     }
 }

@@ -41,6 +41,7 @@ import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.kyc.fields.GroupFieldValue;
 import bw.co.centralkyc.kyc.fields.KycReportSection;
+import bw.co.centralkyc.kyc.fields.ValueData;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
 import bw.co.centralkyc.sequence.SequenceGenerator;
@@ -130,6 +131,7 @@ public class KycRecordServiceImpl
         this.checkRef(kycRecordEntity);
 
         kycRecordEntity = this.kycRecordRepository.save(kycRecordEntity);
+        updateOwnerStatus(kycRecordEntity);
 
         return this.kycRecordDao.toKycRecordDTO(kycRecordEntity);
     }
@@ -382,6 +384,7 @@ public class KycRecordServiceImpl
         record.setExpiryDate(record.getUploadDate().plusDays(settings.getKycDuration()));
 
         record = this.kycRecordRepository.save(record);
+        updateOwnerStatus(record);
 
         return this.kycRecordDao.toKycRecordDTO(record);
     }
@@ -527,6 +530,7 @@ public class KycRecordServiceImpl
         this.checkRef(kycRecord);
 
         kycRecord = this.kycRecordRepository.save(kycRecord);
+        updateOwnerStatus(kycRecord);
         if (docs != null && docs.size() > 0) {
             for (Document doc : docs) {
 
@@ -596,13 +600,8 @@ public class KycRecordServiceImpl
             }
         }
 
-        // record.getDocuments().forEach(doc -> {
-        // if(doc.getVerificationStatus() == DocumentVerificationStatus.REJECTED) {
-        // // record.setKycStatus(KycComplianceStatus.);
-        // }
-        // });
-
         record = this.kycRecordRepository.save(record);
+        updateOwnerStatus(record);
 
         return this.kycRecordDao.toKycRecordDTO(record);
     }
@@ -738,9 +737,33 @@ public class KycRecordServiceImpl
         kycRecord.setModifiedAt(LocalDateTime.now());
         kycRecord.setModifiedBy(user);
         kycRecord = this.kycRecordRepository.save(kycRecord);
+        updateOwnerStatus(kycRecord);
 
         return this.kycRecordDao.toKycRecordDTO(kycRecord);
 
+    }
+
+    private void updateOwnerStatus(KycRecord kycRecord) {
+
+        if (kycRecord.getTarget() == TargetEntity.INDIVIDUAL) {
+
+            Individual individual = this.individualRepository.findById(UUID.fromString(kycRecord.getTargetId()))
+                    .orElse(null);
+
+            if (individual != null) {
+                individual.setKycStatus(kycRecord.getKycStatus());
+                this.individualRepository.save(individual);
+            }
+        } else if (kycRecord.getTarget() == TargetEntity.ORGANISATION) {
+
+            Organisation organisation = this.organisationRepository.findById(UUID.fromString(kycRecord.getTargetId()))
+                    .orElse(null);
+
+            if (organisation != null) {
+                organisation.setKycStatus(kycRecord.getKycStatus());
+                this.organisationRepository.save(organisation);
+            }
+        }
     }
 
     @Override
@@ -755,6 +778,7 @@ public class KycRecordServiceImpl
         // Clean up existing report sections to avoid duplication when regenerating the report
         if(CollectionUtils.isNotEmpty(kycRecord.getKycReportSections())) {
             kycRecord.getKycReportSections().clear();
+            kycRecord = this.kycRecordRepository.save(kycRecord);
         }
 
         kycRecord.setKycReportSections(new ArrayList<>());
@@ -805,12 +829,12 @@ public class KycRecordServiceImpl
                         fieldValue.setPosition(field.getPosition());
                         fieldValue.setKycReportSection(section);
 
-                        Map<String, Object> data = new LinkedHashMap<>();
-                        data.put("similarity", matchResult.getSimilarity());
-                        data.put("expectedValue", matchResult.getExpectedValue());
-                        data.put("extractedValue", matchResult.getExtractedValue());
-                        data.put("mandatory", matchResult.getMandatory());
-                        data.put("success", matchResult.getSuccess());
+                        ValueData data = new ValueData();
+                        data.setSimilarity(matchResult.getSimilarity());
+                        data.setExpectedValue(matchResult.getExpectedValue());
+                        data.setExtractedValue(matchResult.getExtractedValue());
+                        data.setMandatory(matchResult.getMandatory());
+                        data.setSuccess(matchResult.getSuccess());
 
                         fieldValue.setData(data);
 
@@ -826,6 +850,7 @@ public class KycRecordServiceImpl
         kycRecord.setModifiedAt(LocalDateTime.now());
         kycRecord.setModifiedBy(user);
         kycRecord = this.kycRecordRepository.save(kycRecord);
+        updateOwnerStatus(kycRecord);
 
         return this.kycRecordMapper.toKycRecordDTO(kycRecord);
     }

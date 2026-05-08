@@ -95,7 +95,7 @@
 			</section>
 
 			<mat-card class="panel record-tabs-card">
-				<mat-tab-group [selectedIndex]="selectedSectionTabIndex" (selectedIndexChange)="setSectionTab($event)">
+				<mat-tab-group [selectedIndex]="selectedSectionTabIndex()" (selectedIndexChange)="setSectionTab($event)">
 					<mat-tab label="KYC Verification">
 						<section class="tab-pane">
 							<!-- Address & Compliance Declaration -->
@@ -153,95 +153,6 @@
 								}
 							</mat-card>
 
-							<!-- <mat-card class="panel verification-panel">
-								<h3 class="section-label">KYC Verification</h3>
-								<div class="verification-grid">
-									<div class="verification-item">
-										<div class="verification-head">
-											<span>Identity</span>
-											<span class="verification-status"
-												[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.identityVerification)">
-												{{ verificationStatusLabel(record()?.kycVerification?.identityVerification) }}
-											</span>
-										</div>
-										<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.identityVerificationBy) }}</p>
-										<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.identityVerificationReport) }}</p>
-									</div>
-
-									<div class="verification-item">
-										<div class="verification-head">
-											<span>Address</span>
-											<span class="verification-status"
-												[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.addressVerification)">
-												{{ verificationStatusLabel(record()?.kycVerification?.addressVerification) }}
-											</span>
-										</div>
-										<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.addressVerificationBy) }}</p>
-										<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.addressVerificationReport) }}</p>
-									</div>
-
-									<div class="verification-item">
-										<div class="verification-head">
-											<span>Employment</span>
-											<span class="verification-status"
-												[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.employmentVerification)">
-												{{ verificationStatusLabel(record()?.kycVerification?.employmentVerification) }}
-											</span>
-										</div>
-										<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.employmentVerificationBy) }}</p>
-										<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.employmentVerificationReport) }}</p>
-									</div>
-
-									<div class="verification-item">
-										<div class="verification-head">
-											<span>Source of Funds</span>
-											<span class="verification-status"
-												[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.sourceOfFundsVerification)">
-												{{ verificationStatusLabel(record()?.kycVerification?.sourceOfFundsVerification) }}
-											</span>
-										</div>
-										<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.sourceOfFundsVerificationBy) }}</p>
-										<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.sourceOfFundsVerificationReport) }}</p>
-									</div>
-
-									<div class="verification-item">
-										<div class="verification-head">
-											<span>PEP Status</span>
-											<span class="verification-status"
-												[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.pepStatusVerification)">
-												{{ verificationStatusLabel(record()?.kycVerification?.pepStatusVerification) }}
-											</span>
-										</div>
-										<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.pepStatusVerificationBy) }}</p>
-										<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.pepStatusVerificationReport) }}</p>
-									</div>
-
-									<div class="verification-item">
-										<div class="verification-head">
-											<span>Sanctions Details</span>
-											<span class="verification-status"
-												[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.sanctionsDetailsVerification)">
-												{{ verificationStatusLabel(record()?.kycVerification?.sanctionsDetailsVerification) }}
-											</span>
-										</div>
-										<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.sanctionsDetailsVerificationBy) }}</p>
-										<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.sanctionsDetailsVerificationReport) }}</p>
-									</div>
-
-									<div class="verification-item">
-										<div class="verification-head">
-											<span>Sanctions Match</span>
-											<span class="verification-status"
-												[class]="'verification-status ' + verificationStatusClass(record()?.kycVerification?.sanctionsMatchVerification)">
-												{{ verificationStatusLabel(record()?.kycVerification?.sanctionsMatchVerification) }}
-											</span>
-										</div>
-										<p class="verification-meta">By: {{ verificationByLabel(record()?.kycVerification?.sanctionsMatchVerificationBy) }}</p>
-										<p class="verification-report">{{ verificationReportLabel(record()?.kycVerification?.sanctionsMatchVerificationReport) }}</p>
-									</div>
-								</div>
-							</mat-card> -->
-
 							<section class="meta-grid">
 								<mat-card class="panel meta-panel">
 									<span class="section-label">Original Entry</span>
@@ -276,6 +187,14 @@
 
 					<mat-tab label="Documents">
 						<section class="tab-pane documents-tab-pane">
+							<!-- Upload Action (always visible) -->
+							<section class="document-actions-row" style="margin-bottom: 1.5rem;">
+								<button mat-flat-button type="button" class="primary-btn" (click)="openDocumentUpload()">
+									<mat-icon>cloud_upload</mat-icon>
+									Upload More
+								</button>
+							</section>
+
 							@if (currentDocument(); as currentDoc) {
 							<section class="document-nav-row">
 								<div class="document-nav-title">
@@ -283,10 +202,6 @@
 									<h3>{{ currentDoc.fileName || 'Untitled Document' }}</h3>
 								</div>
 								<div class="document-nav-actions">
-									<button mat-flat-button type="button" class="primary-btn" (click)="openDocumentUpload()">
-										<mat-icon>cloud_upload</mat-icon>
-										Upload More
-									</button>
 									<button mat-stroked-button type="button" (click)="showPreviousDocument()" [disabled]="!hasPreviousDocument()">
 										<mat-icon>arrow_back</mat-icon>
 										Previous
@@ -304,7 +219,7 @@
 								<button
 									type="button"
 									class="doc-chip"
-									[class.active]="$index === currentDocumentIndex"
+									[class.active]="$index === currentDocumentIndex()"
 									(click)="selectDocument($index)">
 									{{ $index + 1 }}. {{ doc.documentType || doc.documentTypeId || 'Document' }}
 								</button>
@@ -395,6 +310,84 @@
 							}
 						</section>
 					</mat-tab>
+
+					<mat-tab label="Report">
+						<section class="tab-pane report-sections-tab-pane">
+							<!-- Generate Report Action -->
+							<section class="report-actions-row" style="margin-bottom: 1.5rem;">
+								<button mat-flat-button type="button" class="primary-btn" (click)="generateReport()">
+									<mat-icon>description</mat-icon>
+									Generate Report
+								</button>
+							</section>
+
+							@if (reportSectionsList().length > 0) {
+							<!-- Nav row -->
+							<section class="report-section-nav-row">
+								<div class="report-section-nav-title">
+									<span class="section-label">Report Sections</span>
+									<h3>{{ currentReportSection()?.label || 'Section ' + (currentReportSectionIndex() + 1) }}</h3>
+								</div>
+								<div class="report-section-nav-actions">
+									<button mat-stroked-button type="button" (click)="showPreviousReportSection()" [disabled]="!hasPreviousReportSection()">
+										<mat-icon>arrow_back</mat-icon>
+										Previous
+									</button>
+									<span class="section-position">{{ currentReportSectionPositionLabel() }}</span>
+									<button mat-stroked-button type="button" (click)="showNextReportSection()" [disabled]="!hasNextReportSection()">
+										Next
+										<mat-icon>arrow_forward</mat-icon>
+									</button>
+								</div>
+							</section>
+
+							<!-- Section index chips -->
+							<section class="report-section-index-row">
+								@for (section of reportSectionsList(); track section.id || $index) {
+								<button
+									type="button"
+									class="section-chip"
+									[class.active]="$index === currentReportSectionIndex()"
+									(click)="selectReportSection($index)">
+									{{ $index + 1 }}. {{ section.label || 'Section ' + ($index + 1) }}
+								</button>
+								}
+							</section>
+
+							<!-- Active section fields -->
+							@if (currentReportSection(); as section) {
+							<mat-card class="panel report-section-content-panel">
+								<div class="report-section-content-head">
+									<div>
+										<span class="section-label">Section {{ currentReportSectionIndex() + 1 }}</span>
+										<h3>{{ section.label || 'Untitled Section' }}</h3>
+									</div>
+									<span class="document-count">{{ section.fieldValues?.length || 0 }} fields</span>
+								</div>
+
+								@if (section.fieldValues?.length > 0) {
+								<div class="report-section-fields-grid">
+									@for (fieldValue of section.fieldValues; track fieldValue.id || $index) {
+									<div class="report-field-kv">
+										<span class="section-label">{{ fieldValue.fieldLabel || fieldValue.field || fieldValue.fieldId || 'Field' }}</span>
+										<p>{{ fieldValue.data?.expectedValue ? fieldValue.data?.expectedValue : fieldValue.data?.extractedValue }}</p>
+									</div>
+									}
+								</div>
+								} @else {
+								<p class="no-data-text">No field values recorded for this section.</p>
+								}
+							</mat-card>
+							}
+							} @else {
+							<mat-card class="panel empty-sections-panel">
+								<mat-icon>article</mat-icon>
+								<h3>No report sections available</h3>
+								<p>Report sections will appear here once they are added to this KYC record.</p>
+							</mat-card>
+							}
+						</section>
+					</mat-tab>
 				</mat-tab-group>
 			</mat-card>
 		</div>
@@ -469,3 +462,4 @@
 		</mat-card>
 	}
 </section>
+<app-loader [isLoading]="loading()" [message]="loaderMessage()"></app-loader>

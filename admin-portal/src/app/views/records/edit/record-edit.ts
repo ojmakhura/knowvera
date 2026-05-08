@@ -48,6 +48,7 @@ import { EmploymentRecordDTO } from '@app/models/bw/co/centralkyc/individual/emp
 import Swal from 'sweetalert2';
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
 import { VerificationSummaryEntry } from '@app/models/bw/co/centralkyc/kyc/verification-summary-entry';
+import { KycReportSectionDTO } from '@app/models/bw/co/centralkyc/kyc/fields/kyc-report-section-dto';
 
 type QueuedDocumentUpload = {
   file: File;
@@ -77,6 +78,7 @@ export class EditRecordVarsForm {
   dataVerificationSummaries: VerificationSummaryEntry[] = [];
   employmentRecord: EmploymentRecordDTO | any = new EmploymentRecordDTO();
   recordSummary: string | any = null;
+  kycReportSections: KycReportSectionDTO[] | any = [];
 
   constructor() {
     this.declaration = new DeclarationDTO();
@@ -310,6 +312,7 @@ export class RecordEdit implements OnInit {
       employmentRecord: this.editRecordSignal().employmentRecord,
       dataVerificationSummaries: this.editRecordSignal().dataVerificationSummaries,
       recordSummary: this.editRecordSignal().recordSummary,
+      kycReportSections: this.editRecordSignal().kycReportSections,
     }
 
     console.log('Saving record with data:', this.editRecordSignal());

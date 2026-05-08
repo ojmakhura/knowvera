@@ -687,6 +687,64 @@ export const KycRecordApiStore = signalStore(
           );
         }),
       ),
+      runVerifications: rxMethod<{ id: string }>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Running verifications ...' });
+          return kycRecordApi.runVerifications(data.id).pipe(
+            tapResponse({
+              next: (response: KycRecordDTO) => {
+                patchState(store, {
+                  data: response,
+                  loading: false,
+                  success: true,
+                  messages: ['Verifications run successfully!!'],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [
+                    getErrormessage(error),
+                  ],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      generateKycReport: rxMethod<{ id: string }>(
+        switchMap((data: any) => {
+          patchState(store, { loading: true, loaderMessage: 'Generating KYC report ...' });
+          return kycRecordApi.generateKycReport(data.id).pipe(
+            tapResponse({
+              next: (response: KycRecordDTO) => {
+                patchState(store, {
+                  data: response,
+                  loading: false,
+                  success: true,
+                  messages: ['KYC report generated successfully!!'],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [
+                    getErrormessage(error),
+                  ],
+                });
+              },
+            }),
+          );
+        }),
+      ),
     };
   }),
 );

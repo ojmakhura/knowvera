@@ -2,16 +2,12 @@
 import {GroupFieldValueDTO} from '@models/bw/co/centralkyc/kyc/fields/group-field-value-dto';
 
 export class KycReportSectionDTO {
+
     label: string | any;
-    
     position: number | any;
-    
     id: string | any;
-    
     fieldValues: Array<GroupFieldValueDTO> | any;
-    
     kycRecordId: string | any;
-    
     kycRecordRef: string | any;
     
     constructor() {
