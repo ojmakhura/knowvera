@@ -1,7 +1,7 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {OrganisationDocumentStatus} from '@models/bw/co/centralkyc/organisation/document/organisation-document-status';
 import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
+import {OrganisationDocumentStatus} from '@models/bw/co/centralkyc/organisation/document/organisation-document-status';
 
 export class OrganisationDocumentDTO extends AuditableDTO {
     status: OrganisationDocumentStatus | any = OrganisationDocumentStatus.ACTIVE;

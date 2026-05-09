@@ -1,7 +1,7 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 import {GroupFieldDTO} from '@models/bw/co/centralkyc/settings/kyc/group-field-dto';
+import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
 
 export class KycFieldGroupDTO extends AuditableDTO {
     label: string | any;
@@ -14,6 +14,10 @@ export class KycFieldGroupDTO extends AuditableDTO {
     
     position: number | any;
     
+    individualSettingsId: string | any;
+    
+    organisationSettingsId: string | any;
+    
     constructor() {
         super();
         this.label = null;
@@ -21,5 +25,9 @@ export class KycFieldGroupDTO extends AuditableDTO {
         this.groupFields = [];
         this.targetType = null;
         this.position = null;
+        this.individualSettingsId = null;
+        this.organisationSettingsId = null;
     }
 }
+
+

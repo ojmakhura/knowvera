@@ -41,6 +41,7 @@ import bw.co.centralkyc.individual.Individual;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.kyc.fields.GroupFieldValue;
 import bw.co.centralkyc.kyc.fields.KycReportSection;
+import bw.co.centralkyc.kyc.fields.KycReportSectionRepository;
 import bw.co.centralkyc.kyc.fields.ValueData;
 import bw.co.centralkyc.organisation.Organisation;
 import bw.co.centralkyc.organisation.OrganisationRepository;
@@ -73,13 +74,14 @@ public class KycRecordServiceImpl
     private final DocumentRepository documentRepository;
     private final SequenceGeneratorRepository sequenceGeneratorRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
+    private final KycReportSectionRepository kycReportSectionRepository;
 
     public KycRecordServiceImpl(KycRecordDao kycRecordDao, KycRecordRepository kycRecordRepository,
             KycRecordMapper kycRecordMapper, MessageSource messageSource,
             SettingsRepository settingsRepository, KycRecordMapper kycRecordMpper,
             IndividualRepository individualRepository, DocumentRepository documentRepository,
             SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorService sequenceGeneratorService,
-            OrganisationRepository organisationRepository) {
+            KycReportSectionRepository kycReportSectionRepository, OrganisationRepository organisationRepository) {
         super(kycRecordDao, kycRecordRepository, kycRecordMapper, messageSource);
         // TODO Auto-generated constructor stub
         this.individualRepository = individualRepository;
@@ -89,6 +91,7 @@ public class KycRecordServiceImpl
         this.documentRepository = documentRepository;
         this.sequenceGeneratorRepository = sequenceGeneratorRepository;
         this.sequenceGeneratorService = sequenceGeneratorService;
+        this.kycReportSectionRepository = kycReportSectionRepository;
     }
 
     /**
@@ -767,6 +770,7 @@ public class KycRecordServiceImpl
     }
 
     @Override
+    @Transactional
     protected KycRecordDTO handleGenerateKycReport(String id, String user) throws Exception {
 
         Settings settings = this.settingsRepository.findAll().stream().findFirst()
@@ -775,8 +779,10 @@ public class KycRecordServiceImpl
         KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + id));
 
-        // Clean up existing report sections to avoid duplication when regenerating the report
-        if(CollectionUtils.isNotEmpty(kycRecord.getKycReportSections())) {
+        // Clean up existing report sections to avoid duplication when regenerating the
+        // report
+        if (CollectionUtils.isNotEmpty(kycRecord.getKycReportSections())) {
+            kycReportSectionRepository.deleteAll(kycRecord.getKycReportSections());
             kycRecord.getKycReportSections().clear();
             kycRecord = this.kycRecordRepository.save(kycRecord);
         }
@@ -797,10 +803,31 @@ public class KycRecordServiceImpl
         Map<UUID, Document> documentMap = completedDocuments.stream()
                 .collect(Collectors.toMap(doc -> doc.getDocumentType().getId(), doc -> doc));
 
+        // Map<String, KeyFieldMatchResult> matchResultMap = completedDocuments.stream()
+        //         .flatMap(doc -> doc.getDataVerifications().stream())
+        //         .flatMap(verification -> verification.getKeyFieldMatches().stream())
+        //         .collect(Collectors.toMap(match -> match.getKeyField(), match -> match));
+
         Map<String, KeyFieldMatchResult> matchResultMap = completedDocuments.stream()
                 .flatMap(doc -> doc.getDataVerifications().stream())
                 .flatMap(verification -> verification.getKeyFieldMatches().stream())
-                .collect(Collectors.toMap(match -> match.getKeyField(), match -> match));
+                .collect(Collectors.toMap(
+                        KeyFieldMatchResult::getKeyField,
+                        match -> match,
+                        (existing, replacement) -> {
+
+                            if(StringUtils.isNotBlank(replacement.getExtractedValue())) {
+
+                                existing.setExtractedValue(existing.getExtractedValue() + ", " + replacement.getExtractedValue());
+                            }
+                            
+                            if(StringUtils.isNotBlank(replacement.getExpectedValue())) {
+
+                                existing.setExpectedValue(existing.getExpectedValue() + ", " + replacement.getExpectedValue());
+                            }
+
+                            return existing;
+                        }));
 
         for (KycFieldGroup group : kycFieldGroups) {
 
@@ -815,7 +842,8 @@ public class KycRecordServiceImpl
                 DocumentType documentType = field.getExpectedField().getDocumentType();
                 Document document = documentMap.get(documentType.getId());
 
-                if(document == null || document.getDataVerifications() == null || document.getDataVerifications().isEmpty()) {
+                if (document == null || document.getDataVerifications() == null
+                        || document.getDataVerifications().isEmpty()) {
 
                     continue;
                 }

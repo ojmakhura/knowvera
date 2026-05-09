@@ -1,16 +1,16 @@
 import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
 
+import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
 import {OrganisationListDTO} from '@models/bw/co/centralkyc/organisation/organisation-list-dto';
-import {BranchDTO} from '@models/bw/co/centralkyc/organisation/branch/branch-dto';
 import {DocumentListDTO} from '@models/bw/co/centralkyc/document/document-list-dto';
 import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import {PepStatus} from '@models/bw/co/centralkyc/individual/pep-status';
-import {EmploymentRecordDTO} from '@models/bw/co/centralkyc/individual/employment/employment-record-dto';
-import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
 import {MaritalStatus} from '@models/bw/co/centralkyc/individual/marital-status';
-import {EmploymentStatus} from '@models/bw/co/centralkyc/individual/employment-status';
+import {BranchDTO} from '@models/bw/co/centralkyc/organisation/branch/branch-dto';
 import {KycRecordDTO} from '@models/bw/co/centralkyc/kyc/kyc-record-dto';
+import {EmploymentRecordDTO} from '@models/bw/co/centralkyc/individual/employment/employment-record-dto';
+import {PepStatus} from '@models/bw/co/centralkyc/individual/pep-status';
 import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
+import {EmploymentStatus} from '@models/bw/co/centralkyc/individual/employment-status';
 import {Sex} from '@models/bw/co/centralkyc/individual/sex';
 
 export class IndividualDTO extends AuditableDTO {

@@ -33,6 +33,7 @@ import { CommonModule } from '@angular/common';
 import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
 import { KycRecordApi } from '@app/services/bw/co/centralkyc/kyc/kyc-record-api';
 import { Loader } from '@app/@shared/loader/loader';
+import { KycReportSectionDTO } from '@app/models/bw/co/centralkyc/kyc/fields/kyc-report-section-dto';
 
 type QueuedDocumentUpload = {
   file: File;
@@ -62,6 +63,7 @@ class EditKycRecordValue {
   dataVerificationSummaries: VerificationSummaryEntry[] = [];
   employmentRecord: EmploymentRecordDTO | any = new EmploymentRecordDTO();
   recordSummary: string | any = null;
+  kycReportSections: KycReportSectionDTO[] | any = [];
 
   constructor() {
     this.declaration = new DeclarationDTO();
@@ -198,8 +200,8 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       documentsToUpload: [],
       files: [],
       recordSummary: record.recordSummary,
-      recordOwnerFilter: ''
-
+      recordOwnerFilter: '',
+      kycReportSections: record.kycReportSections || [],
     } : new EditKycRecordValue();
   });
 
@@ -483,6 +485,7 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       employmentRecord: formValue.employmentRecord,
       dataVerificationSummaries: formValue.dataVerificationSummaries,
       recordSummary: formValue.recordSummary,
+      kycReportSections: formValue.kycReportSections,
     }
 
     let files: File[] = formValue.documentsToUpload.map((doc) => doc.file);

@@ -1,7 +1,7 @@
 
 import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
-import {DocumentAnalyticsStatus} from '@models/bw/co/centralkyc/document/document-analytics-status';
 import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
+import {DocumentAnalyticsStatus} from '@models/bw/co/centralkyc/document/document-analytics-status';
 
 export class DocumentListDTO {
     id: string | any;

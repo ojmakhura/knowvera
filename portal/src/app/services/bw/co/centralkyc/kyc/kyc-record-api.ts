@@ -140,4 +140,14 @@ export class KycRecordApi {
 
     return this.http.delete<KycRecordDTO>(`${this.path}/${id}/remove-file/${documentId}`);
   }
+
+  runVerifications(id: string): Observable<KycRecordDTO> {
+
+    return this.http.get<KycRecordDTO>(`${this.path}/${id}/verification`);
+  }
+
+  generateKycReport(id: string): Observable<KycRecordDTO> {
+
+    return this.http.get<KycRecordDTO>(`${this.path}/${id}/report`);
+  }
 }

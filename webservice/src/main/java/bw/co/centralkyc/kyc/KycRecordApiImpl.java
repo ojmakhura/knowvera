@@ -32,6 +32,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.LocalDate;
 import java.util.*;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.jspecify.annotations.Nullable;
@@ -95,6 +96,17 @@ public class KycRecordApiImpl implements KycRecordApi {
         try {
 
             KycRecordDTO record = kycRecordService.findById(id);
+
+            if (CollectionUtils.isEmpty(record.getKycReportSections())) {
+                String username = "anonymousUser";
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                if (authentication != null) {
+
+                    username = authentication.getName();
+                }
+                record = kycRecordService.generateKycReport(id, username);
+            }
+
             updateOrganisations(List.of(record));
 
             return ResponseEntity.ok(record);
@@ -564,16 +576,19 @@ public class KycRecordApiImpl implements KycRecordApi {
             List<MultipartFile> files) throws Exception {
         try {
 
-            // Ensure all documents are associated with the record and have valid targets before proceeding with uploads
+            // Ensure all documents are associated with the record and have valid targets
+            // before proceeding with uploads
             documents.forEach(doc -> {
 
-                if(doc.getTarget() != null && doc.getTarget() != TargetEntity.KYC_RECORD) {
-                    throw new RuntimeException("Document with id: " + doc.getId() + " is not associated with a KYC record");
-                }   
+                if (doc.getTarget() != null && doc.getTarget() != TargetEntity.KYC_RECORD) {
+                    throw new RuntimeException(
+                            "Document with id: " + doc.getId() + " is not associated with a KYC record");
+                }
 
-                if(StringUtils.isNotBlank(doc.getTargetId()) && !doc.getTargetId().equals(id)) {
+                if (StringUtils.isNotBlank(doc.getTargetId()) && !doc.getTargetId().equals(id)) {
 
-                    throw new RuntimeException("Document with id: " + doc.getId() + " is not associated with KYC record with id: " + id);
+                    throw new RuntimeException(
+                            "Document with id: " + doc.getId() + " is not associated with KYC record with id: " + id);
                 }
 
             });
@@ -636,7 +651,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Find KYC Record Summary by ID", description = "Find a summary of a KYC record by its ID")
     public ResponseEntity<KycRecordSummary> findSummaryById(String id) throws Exception {
-        
+
         try {
 
             KycRecordSummary summary = kycRecordService.findSummaryById(id);
@@ -674,7 +689,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Run KYC Verification", description = "Run KYC verification for a given KYC record ID")
     public ResponseEntity<KycRecordDTO> runVerification(String id) throws Exception {
-        
+
         try {
 
             String username = "anonymousUser";
@@ -683,7 +698,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
                 username = authentication.getName();
             }
-            
+
             KycRecordDTO record = kycRecordService.runVerification(id, username);
 
             return ResponseEntity.ok(record);

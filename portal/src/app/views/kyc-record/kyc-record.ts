@@ -1,5 +1,5 @@
 import { CommonModule, JsonPipe } from '@angular/common';
-import { AfterViewInit, Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import Swal from 'sweetalert2';
@@ -37,6 +37,10 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
   myRecords = linkedSignal(() => this.kycRecordApiStore.data());
 
   record = linkedSignal(() => this.kycRecordApiStore.data());
+
+  selectedDocumentIndex = signal(0);
+  showUploadForm = signal(false);
+  selectedAnalysisTab = signal<'report' | 'documents'>('report');
 
   availableDocumentTypes = computed(() => {
     const record = this.record();
@@ -113,6 +117,14 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
         this.updateDocumentFile();
       }
     }
+  }
+
+  triggerFileInput(): void {
+    this.showUploadForm.set(true);
+    setTimeout(() => {
+      const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+      if (fileInput) fileInput.click();
+    }, 100);
   }
 
   onDocumentTypeSelected(event: Event): void {
