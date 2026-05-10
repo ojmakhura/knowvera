@@ -32,7 +32,6 @@ public class VerificationDataConfigServiceImpl
     private final ExpectedFieldRepository expectedFieldRepository;
     private final JdbcTemplate jdbcTemplate;
     public VerificationDataConfigServiceImpl(
-        VerificationDataConfigDao verificationDataConfigDao,
         VerificationDataConfigRepository verificationDataConfigRepository,
         VerificationDataConfigMapper verificationDataConfigMapper,
         DocumentTypeRepository typeRepository,
@@ -42,7 +41,6 @@ public class VerificationDataConfigServiceImpl
     ) {
         
         super(
-            verificationDataConfigDao,
             verificationDataConfigRepository,
             verificationDataConfigMapper,
             messageSource

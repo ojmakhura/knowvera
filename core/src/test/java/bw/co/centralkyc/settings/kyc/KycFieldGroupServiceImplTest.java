@@ -3,7 +3,7 @@ package bw.co.centralkyc.settings.kyc;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,8 +26,6 @@ import bw.co.centralkyc.settings.SettingsRepository;
 class KycFieldGroupServiceImplTest {
 
     @Mock
-    private KycFieldGroupDao kycFieldGroupDao;
-    @Mock
     private KycFieldGroupRepository kycFieldGroupRepository;
     @Mock
     private KycFieldGroupMapper kycFieldGroupMapper;
@@ -43,7 +41,6 @@ class KycFieldGroupServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new KycFieldGroupServiceImpl(
-                kycFieldGroupDao,
                 kycFieldGroupRepository,
                 kycFieldGroupMapper,
                 groupFieldRepository,
@@ -54,6 +51,9 @@ class KycFieldGroupServiceImplTest {
     @Test
     void handleSaveNewIndividualGroupAttachesSettingsAndSetsFieldBackRef() throws Exception {
         KycFieldGroupDTO input = new KycFieldGroupDTO();
+        input.setLabel("Identity");
+        input.setDescription("Identity fields");
+        input.setTargetType(TargetEntity.INDIVIDUAL);
         KycFieldGroup entity = KycFieldGroup.Factory.newInstance();
         entity.setTargetType(TargetEntity.INDIVIDUAL);
         GroupField field = GroupField.Factory.newInstance();
@@ -67,7 +67,7 @@ class KycFieldGroupServiceImplTest {
         when(kycFieldGroupRepository.save(entity)).thenReturn(entity);
         when(kycFieldGroupMapper.toKycFieldGroupDTO(entity)).thenReturn(expected);
 
-        KycFieldGroupDTO actual = service.handleSave(input);
+        KycFieldGroupDTO actual = service.save(input);
 
         assertSame(expected, actual);
         assertSame(entity, field.getKycFieldGroup());
@@ -82,7 +82,7 @@ class KycFieldGroupServiceImplTest {
                 .thenReturn("not found");
         when(kycFieldGroupRepository.existsById(id)).thenReturn(false);
 
-        assertThrows(KycFieldGroupServiceException.class, () -> service.handleRemove(id.toString()));
+        assertThrows(KycFieldGroupServiceException.class, () -> service.remove(id.toString()));
     }
 
     @Test
@@ -95,9 +95,83 @@ class KycFieldGroupServiceImplTest {
         when(kycFieldGroupRepository.findById(groupId)).thenReturn(Optional.of(entity));
         when(kycFieldGroupMapper.toKycFieldGroupDTO(entity)).thenReturn(expected);
 
-        KycFieldGroupDTO actual = service.handleRemoveField(groupId.toString(), fieldId.toString());
+        KycFieldGroupDTO actual = service.removeField(groupId.toString(), fieldId.toString());
 
         assertSame(expected, actual);
         verify(groupFieldRepository).deleteById(fieldId);
+    }
+
+    @Test
+    void handleFindByIdReturnsMappedGroup() throws Exception {
+        UUID id = UUID.randomUUID();
+        KycFieldGroup entity = KycFieldGroup.Factory.newInstance();
+        KycFieldGroupDTO expected = new KycFieldGroupDTO();
+
+        when(kycFieldGroupRepository.findById(id)).thenReturn(Optional.of(entity));
+        when(kycFieldGroupMapper.toKycFieldGroupDTO(entity)).thenReturn(expected);
+
+        KycFieldGroupDTO actual = service.findById(id.toString());
+
+        assertSame(expected, actual);
+    }
+
+    @Test
+    void handleFindByTargetReturnsMappedCollection() throws Exception {
+        List<KycFieldGroup> entities = List.of(KycFieldGroup.Factory.newInstance());
+        List<KycFieldGroupDTO> expected = List.of(new KycFieldGroupDTO());
+
+        when(kycFieldGroupRepository.findAll(org.mockito.ArgumentMatchers.<org.springframework.data.jpa.domain.Specification<KycFieldGroup>>any()))
+                .thenReturn(entities);
+        when(kycFieldGroupMapper.toKycFieldGroupDTOCollection(entities)).thenReturn(expected);
+
+        List<KycFieldGroupDTO> actual = service.findByTarget(TargetEntity.INDIVIDUAL);
+
+        assertEquals(1, actual.size());
+        assertSame(expected.get(0), actual.get(0));
+    }
+
+    @Test
+    void handleRemoveDeletesWhenGroupExists() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(kycFieldGroupRepository.existsById(id)).thenReturn(true);
+
+        boolean removed = service.remove(id.toString());
+
+        assertTrue(removed);
+        verify(kycFieldGroupRepository).deleteById(id);
+    }
+
+    @Test
+    void serviceBaseGuardsRejectInvalidArguments() {
+        assertThrows(IllegalArgumentException.class, () -> service.findById(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findById(" "));
+        assertThrows(IllegalArgumentException.class, () -> service.save(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove("\n"));
+        assertThrows(IllegalArgumentException.class, () -> service.findByTarget(null));
+        assertThrows(IllegalArgumentException.class, () -> service.removeField(null, UUID.randomUUID().toString()));
+        assertThrows(IllegalArgumentException.class, () -> service.removeField(" ", UUID.randomUUID().toString()));
+        assertThrows(IllegalArgumentException.class, () -> service.removeField(UUID.randomUUID().toString(), null));
+        assertThrows(IllegalArgumentException.class, () -> service.removeField(UUID.randomUUID().toString(), "\t"));
+
+        KycFieldGroupDTO missingLabel = validFieldGroup();
+        missingLabel.setLabel(" ");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingLabel));
+
+        KycFieldGroupDTO missingDescription = validFieldGroup();
+        missingDescription.setDescription(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingDescription));
+
+        KycFieldGroupDTO missingTargetType = validFieldGroup();
+        missingTargetType.setTargetType(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingTargetType));
+    }
+
+    private static KycFieldGroupDTO validFieldGroup() {
+        KycFieldGroupDTO input = new KycFieldGroupDTO();
+        input.setLabel("Identity");
+        input.setDescription("Identity fields");
+        input.setTargetType(TargetEntity.INDIVIDUAL);
+        return input;
     }
 }

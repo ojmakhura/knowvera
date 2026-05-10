@@ -10,8 +10,6 @@ import bw.co.centralkyc.document.DocumentAnalyticsStatus;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
 import bw.co.centralkyc.document.DocumentVerificationStatus;
-import bw.co.centralkyc.kyc.KycRecordDTO;
-import bw.co.centralkyc.kyc.KycRecordService;
 import bw.co.centralkyc.properties.RabbitProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 public class InformationConfirmationService {
 
   private final DocumentService documentService;
-  private final KycRecordService kycRecordService;
   private final RabbitTemplate rabbitTemplate;
   private final RabbitProperties rabbitProperties;
 
@@ -37,6 +34,7 @@ public class InformationConfirmationService {
           document.getExtractedInformation());
     } else {
       log.warn("Document not found for ID: {}", queueObject.objectId());
+      return;
     }
 
     switch (document.getTarget()) {
@@ -77,7 +75,7 @@ public class InformationConfirmationService {
       this.rabbitTemplate.convertAndSend(
           rabbitProperties.getKycVerificationQueueExchange(),
           rabbitProperties.getKycVerificationQueueRoutingKey(),
-          new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
+          new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
     }
   }
 
@@ -96,7 +94,7 @@ public class InformationConfirmationService {
       this.rabbitTemplate.convertAndSend(
           rabbitProperties.getOrganisationVerificationQueueExchange(),
           rabbitProperties.getOrganisationVerificationQueueRoutingKey(),
-          document);
+          new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
     }
   }
 
@@ -109,7 +107,7 @@ public class InformationConfirmationService {
       this.rabbitTemplate.convertAndSend(
           rabbitProperties.getIndividualVerificationQueueExchange(),
           rabbitProperties.getIndividualVerificationQueueRoutingKey(),
-          document);
+          new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
     }
   }
 }

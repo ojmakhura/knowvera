@@ -1,5 +1,6 @@
 package bw.co.centralkyc.document.type.field;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -23,8 +24,6 @@ import org.springframework.data.domain.PageImpl;
 class ExpectedFieldServiceImplTest {
 
     @Mock
-    private ExpectedFieldDao expectedFieldDao;
-    @Mock
     private ExpectedFieldRepository expectedFieldRepository;
     @Mock
     private ExpectedFieldMapper expectedFieldMapper;
@@ -36,7 +35,6 @@ class ExpectedFieldServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new ExpectedFieldServiceImpl(
-                expectedFieldDao,
                 expectedFieldRepository,
                 expectedFieldMapper,
                 messageSource);
@@ -51,7 +49,7 @@ class ExpectedFieldServiceImplTest {
         when(expectedFieldRepository.findById(id)).thenReturn(Optional.of(entity));
         when(expectedFieldMapper.toExpectedFieldDTO(entity)).thenReturn(expected);
 
-        ExpectedFieldDTO actual = service.handleFindById(id.toString());
+        ExpectedFieldDTO actual = service.findById(id.toString());
 
         assertSame(expected, actual);
     }
@@ -64,7 +62,7 @@ class ExpectedFieldServiceImplTest {
         when(expectedFieldRepository.findDtoByDocumentTypeId(List.of(typeId), org.springframework.data.domain.PageRequest.of(1, 10)))
                 .thenReturn(expected);
 
-        Page<ExpectedFieldDTO> actual = service.handleFindByDocumentType(List.of(typeId.toString()), 1, 10);
+        Page<ExpectedFieldDTO> actual = service.findByDocumentType(List.of(typeId.toString()), 1, 10);
 
         assertSame(expected, actual);
     }
@@ -73,7 +71,7 @@ class ExpectedFieldServiceImplTest {
     void handleRemoveDeletesById() throws Exception {
         UUID id = UUID.randomUUID();
 
-        boolean removed = service.handleRemove(id.toString());
+        boolean removed = service.remove(id.toString());
 
         assertTrue(removed);
         verify(expectedFieldRepository).deleteById(id);
@@ -87,13 +85,16 @@ class ExpectedFieldServiceImplTest {
 
         org.junit.jupiter.api.Assertions.assertThrows(
                 RuntimeException.class,
-                () -> service.handleFindById(id.toString()),
+                () -> service.findById(id.toString()),
                 "ExpectedField not found for id: " + id);
     }
 
     @Test
     void handleSaveConvertsAndSavesExpectedField() throws Exception {
         ExpectedFieldDTO input = new ExpectedFieldDTO();
+        input.setField("firstName");
+        input.setTargetType(bw.co.centralkyc.TargetEntity.INDIVIDUAL);
+        input.setFieldType(ExpectedFieldType.STRING);
         ExpectedField entity = ExpectedField.Factory.newInstance();
         ExpectedField savedEntity = ExpectedField.Factory.newInstance();
         ExpectedFieldDTO expected = new ExpectedFieldDTO();
@@ -102,7 +103,7 @@ class ExpectedFieldServiceImplTest {
         when(expectedFieldRepository.save(entity)).thenReturn(savedEntity);
         when(expectedFieldMapper.toExpectedFieldDTO(savedEntity)).thenReturn(expected);
 
-        ExpectedFieldDTO actual = service.handleSave(input);
+        ExpectedFieldDTO actual = service.save(input);
 
         assertSame(expected, actual);
         verify(expectedFieldMapper).expectedFieldDTOToEntity(input);
@@ -119,7 +120,7 @@ class ExpectedFieldServiceImplTest {
         when(expectedFieldRepository.findDtoByDocumentTypeId(List.of(typeId1, typeId2)))
                 .thenReturn(expected);
 
-        List<ExpectedFieldDTO> actual = service.handleFindByDocumentType(List.of(typeId1.toString(), typeId2.toString()));
+        List<ExpectedFieldDTO> actual = service.findByDocumentType(List.of(typeId1.toString(), typeId2.toString()));
 
         assertSame(expected, actual);
         verify(expectedFieldRepository).findDtoByDocumentTypeId(List.of(typeId1, typeId2));
@@ -133,9 +134,49 @@ class ExpectedFieldServiceImplTest {
         when(expectedFieldRepository.findDtoByDocumentTypeId(List.of(typeId)))
                 .thenReturn(expected);
 
-        List<ExpectedFieldDTO> actual = service.handleFindByDocumentType(List.of(typeId.toString()));
+        List<ExpectedFieldDTO> actual = service.findByDocumentType(List.of(typeId.toString()));
 
         assertTrue(actual.isEmpty());
         verify(expectedFieldRepository).findDtoByDocumentTypeId(List.of(typeId));
+    }
+
+    @Test
+    void serviceBaseGuardsRejectInvalidArguments() {
+        assertThrows(IllegalArgumentException.class, () -> service.findById(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findById(" "));
+        assertThrows(IllegalArgumentException.class, () -> service.save(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove("\t"));
+    }
+
+    @Test
+    void serviceBaseSaveGuardsRejectMissingRequiredFields() {
+        ExpectedFieldDTO missingField = validExpectedField();
+        missingField.setField(" ");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingField));
+
+        ExpectedFieldDTO missingTargetType = validExpectedField();
+        missingTargetType.setTargetType(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingTargetType));
+
+        ExpectedFieldDTO missingFieldType = validExpectedField();
+        missingFieldType.setFieldType(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingFieldType));
+    }
+
+    @Test
+    void serviceBaseRoutesInvalidDocumentTypeToServiceException() {
+        assertThrows(ExpectedFieldServiceException.class,
+                () -> service.findByDocumentType(List.of("not-a-uuid"), 0, 10));
+        assertThrows(ExpectedFieldServiceException.class,
+                () -> service.findByDocumentType(List.of("not-a-uuid")));
+    }
+
+    private static ExpectedFieldDTO validExpectedField() {
+        ExpectedFieldDTO dto = new ExpectedFieldDTO();
+        dto.setField("firstName");
+        dto.setTargetType(bw.co.centralkyc.TargetEntity.INDIVIDUAL);
+        dto.setFieldType(ExpectedFieldType.STRING);
+        return dto;
     }
 }

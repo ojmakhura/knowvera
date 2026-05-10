@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 import bw.co.centralkyc.GeneralStatus;
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
-import bw.co.centralkyc.individual.IndividualDTO;
 import bw.co.centralkyc.kyc.KycComplianceStatus;
 import bw.co.centralkyc.organisation.client.ClientRequestRepository;
 
@@ -43,10 +42,10 @@ public class OrganisationServiceImpl
     private final PasswordEncoder passwordEncoder;
 
 
-    public OrganisationServiceImpl(OrganisationDao organisationDao, OrganisationRepository organisationRepository, OrganisationMapper organisationMapper,
+    public OrganisationServiceImpl(OrganisationRepository organisationRepository, OrganisationMapper organisationMapper,
             ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder,
             MessageSource messageSource) {
-        super(organisationDao, organisationRepository, organisationMapper, messageSource);
+        super( organisationRepository, organisationMapper, messageSource);
         this.organisationRepository = organisationRepository;
         // TODO Auto-generated constructor stub
 

@@ -44,7 +44,6 @@ import bw.co.centralkyc.settings.SettingsDTO;
 import bw.co.centralkyc.settings.SettingsService;
 import bw.co.centralkyc.subscription.KycSubsciptionStatus;
 import bw.co.centralkyc.subscription.KycSubscription;
-import bw.co.centralkyc.subscription.KycSubscriptionDao;
 import bw.co.centralkyc.subscription.KycSubscriptionMapper;
 import bw.co.centralkyc.subscription.KycSubscriptionRepository;
 
@@ -61,12 +60,13 @@ public class KycInvoiceServiceImpl
     private final SequenceGeneratorRepository sequenceGeneratorRepository;
     private final SettingsService settingsService;
 
-    public KycInvoiceServiceImpl(KycInvoiceDao kycInvoiceDao, KycInvoiceRepository kycInvoiceRepository,
-            KycInvoiceMapper kycInvoiceMapper, KycSubscriptionDao kycSubscriptionDao,
+    public KycInvoiceServiceImpl(KycInvoiceRepository kycInvoiceRepository,
+            KycInvoiceMapper kycInvoiceMapper,
             SequenceGeneratorService sequenceGeneratorService, SequenceGeneratorRepository sequenceGeneratorRepository,
-            KycSubscriptionRepository kycSubscriptionRepository, KycSubscriptionMapper kycSubscriptionMapper, SettingsService settingsService,
+            KycSubscriptionRepository kycSubscriptionRepository, KycSubscriptionMapper kycSubscriptionMapper,
+            SettingsService settingsService,
             MessageSource messageSource) {
-        super(kycInvoiceDao, kycInvoiceRepository, kycInvoiceMapper, kycSubscriptionDao, kycSubscriptionRepository,
+        super(kycInvoiceRepository, kycInvoiceMapper, kycSubscriptionRepository,
                 kycSubscriptionMapper, messageSource);
         // TODO Auto-generated constructor stub
         this.sequenceGeneratorService = sequenceGeneratorService;
@@ -83,7 +83,7 @@ public class KycInvoiceServiceImpl
 
         KycInvoice kycInvoice = this.kycInvoiceRepository.findById(UUID.fromString(id)).orElse(null);
 
-        return this.kycInvoiceDao.toKycInvoiceDTO(kycInvoice);
+        return this.kycInvoiceMapper.toKycInvoiceDTO(kycInvoice);
     }
 
     /**
@@ -93,7 +93,7 @@ public class KycInvoiceServiceImpl
     protected KycInvoiceDTO handleSave(KycInvoiceDTO invoice)
             throws Exception {
 
-        KycInvoice kycInvoice = this.kycInvoiceDao.kycInvoiceDTOToEntity(invoice);
+        KycInvoice kycInvoice = this.kycInvoiceMapper.kycInvoiceDTOToEntity(invoice);
 
         if (StringUtils.isBlank(kycInvoice.getRef())) {
 
@@ -102,7 +102,7 @@ public class KycInvoiceServiceImpl
 
         kycInvoice = this.kycInvoiceRepository.save(kycInvoice);
 
-        return this.kycInvoiceDao.toKycInvoiceDTO(kycInvoice);
+        return this.kycInvoiceMapper.toKycInvoiceDTO(kycInvoice);
     }
 
     /**
@@ -215,7 +215,7 @@ public class KycInvoiceServiceImpl
 
         Page<KycInvoice> invoicePage = this.kycInvoiceRepository.findAll(page);
 
-        return invoicePage.map(kycInvoice -> this.kycInvoiceDao.toKycInvoiceDTO(kycInvoice));
+        return invoicePage.map(kycInvoice -> this.kycInvoiceMapper.toKycInvoiceDTO(kycInvoice));
     }
 
     /**
@@ -245,7 +245,7 @@ public class KycInvoiceServiceImpl
         Page<KycInvoice> invoicePage = specification == null ? this.kycInvoiceRepository.findAll(page)
                 : this.kycInvoiceRepository.findAll(specification, page);
 
-        return invoicePage.map(kycInvoice -> this.kycInvoiceDao.toKycInvoiceDTO(kycInvoice));
+        return invoicePage.map(kycInvoice -> this.kycInvoiceMapper.toKycInvoiceDTO(kycInvoice));
 
     }
 
@@ -343,7 +343,7 @@ public class KycInvoiceServiceImpl
 
         double amount = subscription.getAmount();
         SettingsDTO settings = settingsService.getAll().stream().findFirst().orElse(null);
-        
+
         if (settings != null && settings.getVat() != null) {
             invoice.setVat(settings.getVat());
             double vat = amount * settings.getVat() / 100;

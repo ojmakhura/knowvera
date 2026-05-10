@@ -47,11 +47,11 @@ public class DocumentTypeServiceImpl
     private final VerificationDataConfigMapper verificationDataConfigMapper;
     private final ExpectedFieldMapper expectedFieldMapper;
 
-    public DocumentTypeServiceImpl(DocumentTypeDao documentTypeDao, DocumentTypeRepository documentTypeRepository,
+    public DocumentTypeServiceImpl(DocumentTypeRepository documentTypeRepository,
             DocumentTypeMapper documentTypeMapper, ExpectedFieldRepository expectedFieldRepository,
             VerificationDataConfigRepository verificationDataConfigRepository, ExpectedFieldMapper expectedFieldMapper,
             VerificationDataConfigMapper verificationDataConfigMapper, MessageSource messageSource) {
-        super(documentTypeDao, documentTypeRepository, documentTypeMapper, messageSource);
+        super(documentTypeRepository, documentTypeMapper, messageSource);
         // TODO Auto-generated constructor stub
 
         this.expectedFieldRepository = expectedFieldRepository;

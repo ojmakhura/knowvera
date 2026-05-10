@@ -29,10 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class SequenceGeneratorServiceImpl
     extends SequenceGeneratorServiceBase
 {
-    public SequenceGeneratorServiceImpl(SequenceGeneratorDao sequenceGeneratorDao,
-            SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorMapper sequenceGeneratorMapper,
+    public SequenceGeneratorServiceImpl(SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorMapper sequenceGeneratorMapper,
             MessageSource messageSource) {
-        super(sequenceGeneratorDao, sequenceGeneratorRepository, sequenceGeneratorMapper, messageSource);
+        super(sequenceGeneratorRepository, sequenceGeneratorMapper, messageSource);
         //TODO Auto-generated constructor stub
     }
 

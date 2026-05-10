@@ -76,13 +76,13 @@ public class KycRecordServiceImpl
     private final SequenceGeneratorService sequenceGeneratorService;
     private final KycReportSectionRepository kycReportSectionRepository;
 
-    public KycRecordServiceImpl(KycRecordDao kycRecordDao, KycRecordRepository kycRecordRepository,
+    public KycRecordServiceImpl(KycRecordRepository kycRecordRepository,
             KycRecordMapper kycRecordMapper, MessageSource messageSource,
             SettingsRepository settingsRepository, KycRecordMapper kycRecordMpper,
             IndividualRepository individualRepository, DocumentRepository documentRepository,
             SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorService sequenceGeneratorService,
             KycReportSectionRepository kycReportSectionRepository, OrganisationRepository organisationRepository) {
-        super(kycRecordDao, kycRecordRepository, kycRecordMapper, messageSource);
+        super(kycRecordRepository, kycRecordMapper, messageSource);
         // TODO Auto-generated constructor stub
         this.individualRepository = individualRepository;
         this.settingsRepository = settingsRepository;
@@ -136,7 +136,7 @@ public class KycRecordServiceImpl
         kycRecordEntity = this.kycRecordRepository.save(kycRecordEntity);
         updateOwnerStatus(kycRecordEntity);
 
-        return this.kycRecordDao.toKycRecordDTO(kycRecordEntity);
+        return this.kycRecordMapper.toKycRecordDTO(kycRecordEntity);
     }
 
     /**
@@ -389,7 +389,7 @@ public class KycRecordServiceImpl
         record = this.kycRecordRepository.save(record);
         updateOwnerStatus(record);
 
-        return this.kycRecordDao.toKycRecordDTO(record);
+        return this.kycRecordMapper.toKycRecordDTO(record);
     }
 
     @Override
@@ -445,7 +445,7 @@ public class KycRecordServiceImpl
         KycRecord record = kycRecordRepository.findLatestValidForOwner(ownerId, ownerType, today)
                 .orElse(null);
 
-        return record == null ? null : kycRecordDao.toKycRecordDTO(record);
+        return record == null ? null : kycRecordMapper.toKycRecordDTO(record);
     }
 
     private void checkRef(KycRecord kycRecord) {
@@ -568,7 +568,7 @@ public class KycRecordServiceImpl
 
         kycRecord.getDocuments().remove(document);
 
-        return this.kycRecordDao.toKycRecordDTO(kycRecord);
+        return this.kycRecordMapper.toKycRecordDTO(kycRecord);
     }
 
     @Override
@@ -606,7 +606,7 @@ public class KycRecordServiceImpl
         record = this.kycRecordRepository.save(record);
         updateOwnerStatus(record);
 
-        return this.kycRecordDao.toKycRecordDTO(record);
+        return this.kycRecordMapper.toKycRecordDTO(record);
     }
 
     @Override
@@ -739,10 +739,10 @@ public class KycRecordServiceImpl
 
         kycRecord.setModifiedAt(LocalDateTime.now());
         kycRecord.setModifiedBy(user);
-        kycRecord = this.kycRecordRepository.save(kycRecord);
         updateOwnerStatus(kycRecord);
+        kycRecord = this.kycRecordRepository.save(kycRecord);
 
-        return this.kycRecordDao.toKycRecordDTO(kycRecord);
+        return this.generateKycReport(id, user);
 
     }
 

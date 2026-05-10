@@ -2,6 +2,7 @@ package bw.co.centralkyc.contact;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -28,8 +29,6 @@ import bw.co.centralkyc.sequence.SequenceGeneratorService;
 class ContactServiceImplTest {
 
     @Mock
-    private ContactDao contactDao;
-    @Mock
     private ContactRepository contactRepository;
     @Mock
     private ContactMapper contactMapper;
@@ -45,7 +44,6 @@ class ContactServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new ContactServiceImpl(
-                contactDao,
                 contactRepository,
                 contactMapper,
                 sequenceGeneratorService,
@@ -56,6 +54,8 @@ class ContactServiceImplTest {
     @Test
     void handleSaveCreatesSequenceDefinitionForNewContacts() throws Exception {
         ContactDTO input = new ContactDTO();
+        input.setMessage("Need help");
+        input.setEmail("user@example.com");
         Contact contact = Contact.Factory.newInstance();
         ContactDTO expected = new ContactDTO();
 
@@ -67,7 +67,7 @@ class ContactServiceImplTest {
         when(contactRepository.save(contact)).thenReturn(contact);
         when(contactMapper.toContactDTO(contact)).thenReturn(expected);
 
-        ContactDTO actual = service.handleSave(input);
+        ContactDTO actual = service.save(input);
 
         ArgumentCaptor<SequenceGenerator> captor = ArgumentCaptor.forClass(SequenceGenerator.class);
         verify(sequenceGeneratorRepository).save(captor.capture());
@@ -80,6 +80,8 @@ class ContactServiceImplTest {
     @Test
     void handleSaveSkipsSequenceGenerationForExistingContacts() throws Exception {
         ContactDTO input = new ContactDTO();
+        input.setMessage("Need help");
+        input.setEmail("user@example.com");
         Contact contact = Contact.Factory.newInstance();
         contact.setId(UUID.randomUUID());
         ContactDTO expected = new ContactDTO();
@@ -88,7 +90,7 @@ class ContactServiceImplTest {
         when(contactRepository.save(contact)).thenReturn(contact);
         when(contactMapper.toContactDTO(contact)).thenReturn(expected);
 
-        ContactDTO actual = service.handleSave(input);
+        ContactDTO actual = service.save(input);
 
         assertSame(expected, actual);
         verify(sequenceGeneratorRepository, never()).findByName(any());
@@ -100,9 +102,9 @@ class ContactServiceImplTest {
         String id = UUID.randomUUID().toString();
 
         org.junit.jupiter.api.Assertions.assertThrows(
-                UnsupportedOperationException.class,
-                () -> service.handleFindById(id),
-                "bw.co.centralkyc.contact.ContactService.handleFindById(String id) Not implemented!");
+            ContactServiceException.class,
+                () -> service.findById(id),
+                "bw.co.centralkyc.contact.ContactService.findById(String id) Not implemented!");
     }
 
     @Test
@@ -110,17 +112,17 @@ class ContactServiceImplTest {
         String id = UUID.randomUUID().toString();
 
         org.junit.jupiter.api.Assertions.assertThrows(
-                UnsupportedOperationException.class,
-                () -> service.handleRemove(id),
-                "bw.co.centralkyc.contact.ContactService.handleRemove(String id) Not implemented!");
+            ContactServiceException.class,
+                () -> service.remove(id),
+                "bw.co.centralkyc.contact.ContactService.remove(String id) Not implemented!");
     }
 
     @Test
     void handleGetAllNoArgsThrowsUnsupportedOperationException() {
         org.junit.jupiter.api.Assertions.assertThrows(
-                UnsupportedOperationException.class,
-                () -> service.handleGetAll(),
-                "bw.co.centralkyc.contact.ContactService.handleGetAll() Not implemented!");
+            ContactServiceException.class,
+                () -> service.getAll(),
+                "bw.co.centralkyc.contact.ContactService.getAll() Not implemented!");
     }
 
     @Test
@@ -128,9 +130,9 @@ class ContactServiceImplTest {
         String criteria = "test criteria";
 
         org.junit.jupiter.api.Assertions.assertThrows(
-                UnsupportedOperationException.class,
-                () -> service.handleSearch(criteria),
-                "bw.co.centralkyc.contact.ContactService.handleSearch(String criteria) Not implemented!");
+            ContactServiceException.class,
+                () -> service.search(criteria),
+                "bw.co.centralkyc.contact.ContactService.search(String criteria) Not implemented!");
     }
 
     @Test
@@ -139,9 +141,9 @@ class ContactServiceImplTest {
         Integer pageSize = 10;
 
         org.junit.jupiter.api.Assertions.assertThrows(
-                UnsupportedOperationException.class,
-                () -> service.handleGetAll(pageNumber, pageSize),
-                "bw.co.centralkyc.contact.ContactService.handleGetAll(Integer pageNumber, Integer pageSize) Not implemented!");
+            ContactServiceException.class,
+                () -> service.getAll(pageNumber, pageSize),
+                "bw.co.centralkyc.contact.ContactService.getAll(Integer pageNumber, Integer pageSize) Not implemented!");
     }
 
     @Test
@@ -149,9 +151,9 @@ class ContactServiceImplTest {
         ContactType type = ContactType.ENQUIRY;
 
         org.junit.jupiter.api.Assertions.assertThrows(
-                UnsupportedOperationException.class,
-                () -> service.handleFindByType(type),
-                "bw.co.centralkyc.contact.ContactService.handleFindByType(ContactType type) Not implemented!");
+            ContactServiceException.class,
+                () -> service.findByType(type),
+                "bw.co.centralkyc.contact.ContactService.findByType(ContactType type) Not implemented!");
     }
 
     @Test
@@ -161,8 +163,59 @@ class ContactServiceImplTest {
         Integer pageSize = 10;
 
         org.junit.jupiter.api.Assertions.assertThrows(
-                UnsupportedOperationException.class,
-                () -> service.handleFindByType(type, pageNumber, pageSize),
-                "bw.co.centralkyc.contact.ContactService.handleFindByType(ContactType type, Integer pageNumber, Integer pageSize) Not implemented!");
+            ContactServiceException.class,
+                () -> service.findByType(type, pageNumber, pageSize),
+                "bw.co.centralkyc.contact.ContactService.findByType(ContactType type, Integer pageNumber, Integer pageSize) Not implemented!");
+    }
+
+    @Test
+    void serviceBaseFindByIdRejectsNullId() {
+        assertThrows(IllegalArgumentException.class, () -> service.findById(null));
+    }
+
+    @Test
+    void serviceBaseFindByIdRejectsBlankId() {
+        assertThrows(IllegalArgumentException.class, () -> service.findById("   "));
+    }
+
+    @Test
+    void serviceBaseSaveRejectsNullDocument() {
+        assertThrows(IllegalArgumentException.class, () -> service.save(null));
+    }
+
+    @Test
+    void serviceBaseSaveRejectsMissingMessage() {
+        ContactDTO input = new ContactDTO();
+        input.setEmail("user@example.com");
+
+        assertThrows(IllegalArgumentException.class, () -> service.save(input));
+    }
+
+    @Test
+    void serviceBaseSaveRejectsMissingEmail() {
+        ContactDTO input = new ContactDTO();
+        input.setMessage("Need help");
+
+        assertThrows(IllegalArgumentException.class, () -> service.save(input));
+    }
+
+    @Test
+    void serviceBaseRemoveRejectsNullId() {
+        assertThrows(IllegalArgumentException.class, () -> service.remove(null));
+    }
+
+    @Test
+    void serviceBaseRemoveRejectsBlankId() {
+        assertThrows(IllegalArgumentException.class, () -> service.remove("\t\n"));
+    }
+
+    @Test
+    void serviceBaseFindByTypeRejectsNullType() {
+        assertThrows(IllegalArgumentException.class, () -> service.findByType(null));
+    }
+
+    @Test
+    void serviceBaseFindByTypeWithPagingRejectsNullType() {
+        assertThrows(IllegalArgumentException.class, () -> service.findByType(null, 0, 10));
     }
 }

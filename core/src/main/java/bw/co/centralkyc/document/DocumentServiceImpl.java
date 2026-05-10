@@ -88,14 +88,14 @@ public class DocumentServiceImpl
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
 
-    public DocumentServiceImpl(DocumentDao documentDao, DocumentRepository documentRepository,
+    public DocumentServiceImpl(DocumentRepository documentRepository,
             VerificationDataConfigRepository verificationDataConfigRepository,
             OrganisationRepository organisationRepository, IndividualRepository individualRepository,
             KycRecordRepository kycRecordRepository, ClientRequestRepository clientRequestRepository,
             KycSubscriptionRepository kycSubscriptionRepository, DocumentTypeMapper documentTypeMapper,
             UniversalStringMatcher stringMatcher, RabbitProperties rabbitProperties, RabbitTemplate rabbitTemplate,
             DocumentMapper documentMapper, MessageSource messageSource, DocumentTypeRepository documentTypeRepository) {
-        super(documentDao, documentRepository, documentMapper, messageSource);
+        super(documentRepository, documentMapper, messageSource);
         // TODO Auto-generated constructor stub
 
         this.organisationRepository = organisationRepository;
@@ -138,7 +138,7 @@ public class DocumentServiceImpl
     protected DocumentDTO handleSave(DocumentDTO document)
             throws Exception {
 
-        Document entity = documentDao.documentDTOToEntity(document);
+        Document entity = documentMapper.documentDTOToEntity(document);
 
         boolean isNew = entity.getId() == null;
 

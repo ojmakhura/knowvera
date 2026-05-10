@@ -16,11 +16,9 @@ import bw.co.centralkyc.SortOrderFactory;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.Document;
 import bw.co.centralkyc.document.DocumentDTO;
-import bw.co.centralkyc.document.DocumentDao;
 import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.document.DocumentRepository;
 import bw.co.centralkyc.individual.Individual;
-import bw.co.centralkyc.individual.IndividualDao;
 import bw.co.centralkyc.individual.IndividualIdentityType;
 import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.individual.IndividualRepository;
@@ -32,7 +30,6 @@ import bw.co.centralkyc.sequence.SequenceGeneratorRepository;
 import bw.co.centralkyc.sequence.SequenceGeneratorService;
 import bw.co.centralkyc.sequence.SequencePart;
 import bw.co.centralkyc.sequence.SequencePartType;
-import bw.co.centralkyc.settings.SettingsDao;
 import bw.co.centralkyc.settings.SettingsMapper;
 import bw.co.centralkyc.settings.SettingsRepository;
 import bw.co.roguesystems.comm.ContentType;
@@ -96,15 +93,15 @@ public class ClientRequestServiceImpl
     private final SequenceGeneratorRepository sequenceGeneratorRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
 
-    public ClientRequestServiceImpl(ClientRequestDao clientRequestDao, ClientRequestRepository clientRequestRepository,
-            ClientRequestMapper clientRequestMapper, IndividualDao individualDao, PasswordEncoder passwordEncoder,
+    public ClientRequestServiceImpl(ClientRequestRepository clientRequestRepository,
+            ClientRequestMapper clientRequestMapper,PasswordEncoder passwordEncoder,
             ClientRequestNotification clientRequestNotification, IndividualRepository individualRepository,
-            IndividualMapper individualMapper, DocumentDao documentDao,
+            IndividualMapper individualMapper,
             SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorService sequenceGeneratorService,
-            DocumentRepository documentRepository, DocumentMapper documentMapper, SettingsDao settingsDao,
+            DocumentRepository documentRepository, DocumentMapper documentMapper,
             SettingsRepository settingsRepository, SettingsMapper settingsMapper, MessageSource messageSource) {
-        super(clientRequestDao, clientRequestRepository, clientRequestMapper, individualDao, individualRepository,
-                individualMapper, documentDao, documentRepository, documentMapper, settingsDao, settingsRepository,
+        super(clientRequestRepository, clientRequestMapper, individualRepository,
+                individualMapper, documentRepository, documentMapper, settingsRepository,
                 settingsMapper, messageSource);
         // TODO Auto-generated constructor stub
         this.passwordEncoder = passwordEncoder;
@@ -123,7 +120,7 @@ public class ClientRequestServiceImpl
         ClientRequest clientRequest = clientRequestRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new ClientRequestServiceException("ClientRequest not found"));
 
-        return clientRequestDao.toClientRequestDTO(clientRequest);
+        return clientRequestMapper.toClientRequestDTO(clientRequest);
     }
 
     /**
@@ -133,7 +130,7 @@ public class ClientRequestServiceImpl
     protected ClientRequestDTO handleSave(ClientRequestDTO clientRequest)
             throws Exception {
 
-        ClientRequest clientRequestEntity = clientRequestDao.clientRequestDTOToEntity(clientRequest);
+        ClientRequest clientRequestEntity = clientRequestMapper.clientRequestDTOToEntity(clientRequest);
 
         if (StringUtils.isBlank(clientRequestEntity.getRef())) {
 
@@ -203,7 +200,7 @@ public class ClientRequestServiceImpl
 
         }
 
-        return clientRequestDao.toClientRequestDTO(clientRequestEntity);
+        return clientRequestMapper.toClientRequestDTO(clientRequestEntity);
     }
 
     /**
@@ -263,7 +260,7 @@ public class ClientRequestServiceImpl
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
         Page<ClientRequest> requests = clientRequestRepository.findAll(pageRequest);
 
-        return requests.map(clientRequestDao::toClientRequestDTO);
+        return requests.map(clientRequestMapper::toClientRequestDTO);
     }
 
     /**
@@ -284,7 +281,7 @@ public class ClientRequestServiceImpl
                 : PageRequest.of(pageNumber, pageSize);
         Page<ClientRequest> requests = clientRequestRepository.findAll(spec, pageRequest);
 
-        return requests.map(clientRequestDao::toClientRequestDTO);
+        return requests.map(clientRequestMapper::toClientRequestDTO);
     }
 
     private Specification<ClientRequest> buildSpecificationFromCriteria(ClientRequestSearchCriteria criteria) {
@@ -353,7 +350,7 @@ public class ClientRequestServiceImpl
         Specification<ClientRequest> spec = this.buildSpecificationFromCriteria(criteria);
         Page<ClientRequest> requests = clientRequestRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
 
-        return requests.map(clientRequestDao::toClientRequestDTO);
+        return requests.map(clientRequestMapper::toClientRequestDTO);
     }
 
     /**
@@ -391,7 +388,7 @@ public class ClientRequestServiceImpl
             // Try to detect if it's Excel or CSV by attempting to read as Excel first
             inputStream.mark(Integer.MAX_VALUE); // Mark the stream so we can reset if needed
 
-            Document d = documentDao.documentDTOToEntity(document);
+            Document d = documentMapper.documentDTOToEntity(document);
 
             try {
                 // Try reading as Excel (.xlsx)
@@ -821,7 +818,7 @@ public class ClientRequestServiceImpl
         Specification<ClientRequest> spec = this.buildSpecificationFromCriteria(criteria);
         Page<ClientRequest> requests = clientRequestRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
 
-        return requests.map(clientRequestDao::toClientRequestDTO);
+        return requests.map(clientRequestMapper::toClientRequestDTO);
     }
 
     @Override
@@ -844,7 +841,7 @@ public class ClientRequestServiceImpl
         Specification<ClientRequest> spec = (root, query, cb) -> cb.equal(root.get("status"), status);
 
         Page<ClientRequest> requests = clientRequestRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
-        return requests.map(clientRequestDao::toClientRequestDTO);
+        return requests.map(clientRequestMapper::toClientRequestDTO);
     }
 
     @Override
@@ -869,7 +866,7 @@ public class ClientRequestServiceImpl
 
         Page<ClientRequest> requests = clientRequestRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
 
-        return requests.map(clientRequestDao::toClientRequestDTO);
+        return requests.map(clientRequestMapper::toClientRequestDTO);
     }
 
     @Override
@@ -899,7 +896,7 @@ public class ClientRequestServiceImpl
         Specification<ClientRequest> spec = this.buildSpecificationFromCriteria(criteria);
         Page<ClientRequest> requests = clientRequestRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
 
-        return requests.map(clientRequestDao::toClientRequestDTO);
+        return requests.map(clientRequestMapper::toClientRequestDTO);
     }
 
     @Override
@@ -915,7 +912,7 @@ public class ClientRequestServiceImpl
             // Additional actions on approval can be handled here
         }
 
-        return clientRequestDao.toClientRequestDTO(clientRequest);
+        return clientRequestMapper.toClientRequestDTO(clientRequest);
     }
 
     @Override

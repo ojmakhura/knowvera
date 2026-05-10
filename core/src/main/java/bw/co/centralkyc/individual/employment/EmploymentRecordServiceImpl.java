@@ -30,10 +30,9 @@ public class EmploymentRecordServiceImpl
 {
     
 
-    public EmploymentRecordServiceImpl(EmploymentRecordDao employmentRecordDao,
-            EmploymentRecordRepository employmentRecordRepository, EmploymentRecordMapper employmentRecordMapper,
+    public EmploymentRecordServiceImpl(EmploymentRecordRepository employmentRecordRepository, EmploymentRecordMapper employmentRecordMapper,
             MessageSource messageSource) {
-        super(employmentRecordDao, employmentRecordRepository, employmentRecordMapper, messageSource);
+        super(employmentRecordRepository, employmentRecordMapper, messageSource);
         //TODO Auto-generated constructor stub
     }
 
@@ -59,9 +58,9 @@ public class EmploymentRecordServiceImpl
         throws Exception
     {
 
-        EmploymentRecord entity = this.employmentRecordDao.employmentRecordDTOToEntity(employmentRecord);
+        EmploymentRecord entity = this.employmentRecordMapper.employmentRecordDTOToEntity(employmentRecord);
         entity = this.employmentRecordRepository.save(entity);
-        return this.employmentRecordDao.toEmploymentRecordDTO(entity);
+        return this.employmentRecordMapper.toEmploymentRecordDTO(entity);
     }
 
     /**
@@ -113,7 +112,7 @@ public class EmploymentRecordServiceImpl
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
         Page<EmploymentRecord> employmentRecords = this.employmentRecordRepository.findAll(pageRequest);
 
-        return employmentRecords.map(employmentRecord -> this.employmentRecordDao.toEmploymentRecordDTO(employmentRecord));
+        return employmentRecords.map(employmentRecord -> this.employmentRecordMapper.toEmploymentRecordDTO(employmentRecord));
 
     }
 

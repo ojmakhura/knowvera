@@ -43,8 +43,6 @@ import bw.co.centralkyc.organisation.client.ClientRequestRepository;
 class IndividualServiceImplTest {
 
     @Mock
-    private IndividualDao individualDao;
-    @Mock
     private IndividualRepository individualRepository;
     @Mock
     private IndividualMapper individualMapper;
@@ -60,7 +58,6 @@ class IndividualServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new IndividualServiceImpl(
-                individualDao,
                 individualRepository,
                 individualMapper,
                 messageSource,
@@ -85,7 +82,7 @@ class IndividualServiceImplTest {
         when(individualRepository.findByIdentityNo("OMANG-1")).thenReturn(Optional.of(individual));
         when(individualMapper.toIndividualDTO(individual)).thenReturn(expected);
 
-        IndividualDTO actual = service.handleLoadRequestIndividual(requestId.toString(), "plain-token", "OMANG-1");
+        IndividualDTO actual = service.loadRequestIndividual(requestId.toString(), "plain-token", "OMANG-1");
 
         assertSame(expected, actual);
     }
@@ -101,7 +98,7 @@ class IndividualServiceImplTest {
 
         assertThrows(
                 IndividualServiceException.class,
-                () -> service.handleLoadRequestIndividual(requestId.toString(), "wrong-token", "OMANG-1"));
+                () -> service.loadRequestIndividual(requestId.toString(), "wrong-token", "OMANG-1"));
     }
 
     @Test
@@ -111,7 +108,7 @@ class IndividualServiceImplTest {
 
         when(individualRepository.findById(id)).thenReturn(Optional.of(individual));
 
-        service.handleRemove(id.toString());
+        service.remove(id.toString());
 
         verify(individualRepository).delete(individual);
     }
@@ -125,7 +122,7 @@ class IndividualServiceImplTest {
         when(individualRepository.getReferenceById(id)).thenReturn(individual);
         when(individualMapper.toIndividualDTO(individual)).thenReturn(expected);
 
-        IndividualDTO actual = service.handleFindById(id.toString());
+        IndividualDTO actual = service.findById(id.toString());
 
         assertSame(expected, actual);
     }
@@ -139,7 +136,7 @@ class IndividualServiceImplTest {
         when(individualRepository.findAll()).thenReturn(entities);
         when(individualMapper.toIndividualListDTOCollection(entities)).thenReturn(expected);
 
-        List<IndividualListDTO> actual = service.handleGetAll();
+        List<IndividualListDTO> actual = service.getAll();
 
         assertSame(expected, actual);
     }
@@ -154,7 +151,7 @@ class IndividualServiceImplTest {
         when(individualRepository.findAll(PageRequest.of(0, 5))).thenReturn(page);
         when(individualMapper.toIndividualListDTO(entity)).thenReturn(mapped);
 
-        Page<IndividualListDTO> actual = service.handleGetAll(0, 5);
+        Page<IndividualListDTO> actual = service.getAll(0, 5);
 
         assertEquals(1, actual.getContent().size());
         assertSame(mapped, actual.getContent().get(0));
@@ -163,14 +160,23 @@ class IndividualServiceImplTest {
     @Test
     void handleSaveMapsPersistsAndMapsBack() throws Exception {
         IndividualDTO input = new IndividualDTO();
+        input.setFirstName("John");
+        input.setSurname("Doe");
+        input.setIdentityNo("OMANG-100");
+        input.setIdentityType(IndividualIdentityType.OMANG);
+        input.setKycStatus(KycComplianceStatus.CURRENT);
+        input.setSex(Sex.MALE);
+        input.setNationality("BW");
+        input.setMaritalStatus(MaritalStatus.SINGLE);
+        input.setEmploymentStatus(EmploymentStatus.EMPLOYED);
         Individual entity = Individual.Factory.newInstance();
         IndividualDTO expected = new IndividualDTO();
 
-        when(individualDao.individualDTOToEntity(input)).thenReturn(entity);
+        when(individualMapper.individualDTOToEntity(input)).thenReturn(entity);
         when(individualRepository.save(entity)).thenReturn(entity);
         when(individualMapper.toIndividualDTO(entity)).thenReturn(expected);
 
-        IndividualDTO actual = service.handleSave(input);
+        IndividualDTO actual = service.save(input);
 
         assertSame(expected, actual);
     }
@@ -180,7 +186,7 @@ class IndividualServiceImplTest {
         UUID id = UUID.randomUUID();
         when(individualRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(IndividualServiceException.class, () -> service.handleRemove(id.toString()));
+        assertThrows(IndividualServiceException.class, () -> service.remove(id.toString()));
     }
 
     @Test
@@ -196,7 +202,7 @@ class IndividualServiceImplTest {
                 .thenReturn(entities);
         when(individualMapper.toIndividualListDTOCollection(entities)).thenReturn(expected);
 
-        List<IndividualListDTO> actual = service.handleSearch(criteria, Set.of(new PropertySearchOrder("surname", SortOrder.ASC)));
+        List<IndividualListDTO> actual = service.search(criteria, Set.of(new PropertySearchOrder("surname", SortOrder.ASC)));
 
         assertSame(expected, actual);
     }
@@ -220,7 +226,7 @@ class IndividualServiceImplTest {
                 .thenReturn(page);
         when(individualMapper.toIndividualListDTO(entity)).thenReturn(mapped);
 
-        Page<IndividualListDTO> actual = service.handleSearch(criteria);
+        Page<IndividualListDTO> actual = service.search(criteria);
 
         assertEquals(1, actual.getContent().size());
         assertSame(mapped, actual.getContent().get(0));
@@ -243,27 +249,27 @@ class IndividualServiceImplTest {
                 });
         when(individualMapper.toIndividualListDTOCollection(entities)).thenReturn(List.of());
 
-        List<IndividualListDTO> actual = service.handleSearch(criteria, Set.of());
+        List<IndividualListDTO> actual = service.search(criteria, Set.of());
 
         assertTrue(actual.isEmpty());
     }
 
     @Test
     void handleGetOrganisationClientsThrowsUnsupportedOperationException() {
-        assertThrows(UnsupportedOperationException.class,
-                () -> service.handleGetOrganisationClients(UUID.randomUUID().toString()));
+        assertThrows(IndividualServiceException.class,
+                () -> service.getOrganisationClients(UUID.randomUUID().toString()));
     }
 
     @Test
     void handleGetOrganisationClientsPagedThrowsUnsupportedOperationException() {
-        assertThrows(UnsupportedOperationException.class,
-                () -> service.handleGetOrganisationClients(UUID.randomUUID().toString(), 0, 10));
+        assertThrows(IndividualServiceException.class,
+                () -> service.getOrganisationClients(UUID.randomUUID().toString(), 0, 10));
     }
 
     @Test
     void handleFindByIdentityNoAndIdentityTypeThrowsUnsupportedOperationException() {
-        assertThrows(UnsupportedOperationException.class,
-                () -> service.handleFindByIdentityNoAndIdentityType("123", IndividualIdentityType.OMANG));
+        assertThrows(IndividualServiceException.class,
+                () -> service.findByIdentityNoAndIdentityType("123", IndividualIdentityType.OMANG));
     }
 
     @Test
@@ -271,15 +277,15 @@ class IndividualServiceImplTest {
         when(individualRepository.countByPepStatus(PepStatus.PEP_SELF)).thenReturn(Optional.of(3L));
         when(individualRepository.countByPepStatus(PepStatus.NOT_PEP)).thenReturn(Optional.empty());
 
-        assertEquals(3L, service.handleCountByPepStatus(PepStatus.PEP_SELF));
-        assertEquals(0L, service.handleCountByPepStatus(PepStatus.NOT_PEP));
+        assertEquals(3L, service.countByPepStatus(PepStatus.PEP_SELF));
+        assertEquals(0L, service.countByPepStatus(PepStatus.NOT_PEP));
     }
 
     @Test
     void handleCountReturnsRepositoryCount() throws Exception {
         when(individualRepository.count()).thenReturn(9L);
 
-        assertEquals(9L, service.handleCount());
+        assertEquals(9L, service.count());
     }
 
     @Test
@@ -287,8 +293,8 @@ class IndividualServiceImplTest {
         when(individualRepository.countByKycStatus(KycComplianceStatus.CURRENT)).thenReturn(Optional.of(2L));
         when(individualRepository.countByKycStatus(KycComplianceStatus.EXPIRED)).thenReturn(Optional.empty());
 
-        assertEquals(2L, service.handleCountByKycStatus(KycComplianceStatus.CURRENT));
-        assertEquals(0L, service.handleCountByKycStatus(KycComplianceStatus.EXPIRED));
+        assertEquals(2L, service.countByKycStatus(KycComplianceStatus.CURRENT));
+        assertEquals(0L, service.countByKycStatus(KycComplianceStatus.EXPIRED));
     }
 
     @Test
@@ -296,8 +302,8 @@ class IndividualServiceImplTest {
         when(individualRepository.countByEmploymentStatus(EmploymentStatus.EMPLOYED)).thenReturn(Optional.of(4L));
         when(individualRepository.countByEmploymentStatus(EmploymentStatus.UNEMPLOYED)).thenReturn(Optional.empty());
 
-        assertEquals(4L, service.handleCountByEmploymentStatus(EmploymentStatus.EMPLOYED));
-        assertEquals(0L, service.handleCountByEmploymentStatus(EmploymentStatus.UNEMPLOYED));
+        assertEquals(4L, service.countByEmploymentStatus(EmploymentStatus.EMPLOYED));
+        assertEquals(0L, service.countByEmploymentStatus(EmploymentStatus.UNEMPLOYED));
     }
 
     @Test
@@ -305,8 +311,8 @@ class IndividualServiceImplTest {
         when(individualRepository.countBySex(Sex.MALE)).thenReturn(Optional.of(7L));
         when(individualRepository.countBySex(Sex.FEMALE)).thenReturn(Optional.empty());
 
-        assertEquals(7L, service.handleCountBySex(Sex.MALE));
-        assertEquals(0L, service.handleCountBySex(Sex.FEMALE));
+        assertEquals(7L, service.countBySex(Sex.MALE));
+        assertEquals(0L, service.countBySex(Sex.FEMALE));
     }
 
     @Test
@@ -315,7 +321,7 @@ class IndividualServiceImplTest {
         when(clientRequestRepository.findById(requestId)).thenReturn(Optional.empty());
 
         assertThrows(IndividualServiceException.class,
-                () -> service.handleLoadRequestIndividual(requestId.toString(), "token", "OMANG-1"));
+                () -> service.loadRequestIndividual(requestId.toString(), "token", "OMANG-1"));
     }
 
     @Test
@@ -331,7 +337,7 @@ class IndividualServiceImplTest {
         when(individualRepository.findByIdentityNo("OMANG-1")).thenReturn(Optional.empty());
 
         assertThrows(Exception.class,
-                () -> service.handleLoadRequestIndividual(requestId.toString(), "plain-token", "OMANG-1"));
+                () -> service.loadRequestIndividual(requestId.toString(), "plain-token", "OMANG-1"));
     }
 
     @Test
@@ -352,7 +358,7 @@ class IndividualServiceImplTest {
         when(individualRepository.findByIdentityNo("OMANG-1")).thenReturn(Optional.of(individual));
 
         assertThrows(IndividualServiceException.class,
-                () -> service.handleLoadRequestIndividual(requestId.toString(), "plain-token", "OMANG-1"));
+                () -> service.loadRequestIndividual(requestId.toString(), "plain-token", "OMANG-1"));
     }
 
     @Test
@@ -363,7 +369,7 @@ class IndividualServiceImplTest {
         when(individualRepository.findByUserId("user-1")).thenReturn(Optional.of(individual));
         when(individualMapper.toIndividualDTO(individual)).thenReturn(expected);
 
-        IndividualDTO actual = service.handleFindByUserId("user-1");
+        IndividualDTO actual = service.findByUserId("user-1");
 
         assertSame(expected, actual);
     }
@@ -372,14 +378,101 @@ class IndividualServiceImplTest {
     void handleFindByUserIdThrowsWhenNotFound() {
         when(individualRepository.findByUserId("user-1")).thenReturn(Optional.empty());
 
-        assertThrows(IndividualServiceException.class, () -> service.handleFindByUserId("user-1"));
+        assertThrows(IndividualServiceException.class, () -> service.findByUserId("user-1"));
     }
 
+        @Test
+        void serviceBaseGuardsRejectInvalidArguments() {
+        assertThrows(IllegalArgumentException.class, () -> service.findById(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findById(" "));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove("\t"));
+        assertThrows(IllegalArgumentException.class, () -> service.save(null));
+        assertThrows(IllegalArgumentException.class, () -> service.getOrganisationClients(null));
+        assertThrows(IllegalArgumentException.class, () -> service.getOrganisationClients("\n"));
+        assertThrows(IllegalArgumentException.class, () -> service.getOrganisationClients(null, 0, 10));
+        assertThrows(IllegalArgumentException.class, () -> service.getOrganisationClients("", 0, 10));
+        assertThrows(IllegalArgumentException.class, () -> service.findByIdentityNoAndIdentityType(null, IndividualIdentityType.OMANG));
+        assertThrows(IllegalArgumentException.class, () -> service.findByIdentityNoAndIdentityType(" ", IndividualIdentityType.OMANG));
+        assertThrows(IllegalArgumentException.class, () -> service.findByIdentityNoAndIdentityType("123", null));
+        assertThrows(IllegalArgumentException.class, () -> service.countByPepStatus(null));
+        assertThrows(IllegalArgumentException.class, () -> service.countByKycStatus(null));
+        assertThrows(IllegalArgumentException.class, () -> service.countByEmploymentStatus(null));
+        assertThrows(IllegalArgumentException.class, () -> service.countBySex(null));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.loadRequestIndividual(null, "token", "OMANG-1"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.loadRequestIndividual(" ", "token", "OMANG-1"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.loadRequestIndividual(UUID.randomUUID().toString(), null, "OMANG-1"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.loadRequestIndividual(UUID.randomUUID().toString(), "\t", "OMANG-1"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.loadRequestIndividual(UUID.randomUUID().toString(), "token", null));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.loadRequestIndividual(UUID.randomUUID().toString(), "token", "\n"));
+        assertThrows(IllegalArgumentException.class, () -> service.findByUserId(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findByUserId(" "));
+        }
+
+        @Test
+        void serviceBaseSaveGuardsRejectMissingRequiredFields() {
+        IndividualDTO missingFirstName = validIndividual();
+        missingFirstName.setFirstName(" ");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingFirstName));
+
+        IndividualDTO missingSurname = validIndividual();
+        missingSurname.setSurname(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingSurname));
+
+        IndividualDTO missingIdentityNo = validIndividual();
+        missingIdentityNo.setIdentityNo("\t");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingIdentityNo));
+
+        IndividualDTO missingIdentityType = validIndividual();
+        missingIdentityType.setIdentityType(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingIdentityType));
+
+        IndividualDTO missingKycStatus = validIndividual();
+        missingKycStatus.setKycStatus(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingKycStatus));
+
+        IndividualDTO missingSex = validIndividual();
+        missingSex.setSex(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingSex));
+
+        IndividualDTO missingNationality = validIndividual();
+        missingNationality.setNationality("");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingNationality));
+
+        IndividualDTO missingMaritalStatus = validIndividual();
+        missingMaritalStatus.setMaritalStatus(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingMaritalStatus));
+
+        IndividualDTO missingEmploymentStatus = validIndividual();
+        missingEmploymentStatus.setEmploymentStatus(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingEmploymentStatus));
+        }
+
+        private static IndividualDTO validIndividual() {
+        IndividualDTO dto = new IndividualDTO();
+        dto.setFirstName("John");
+        dto.setSurname("Doe");
+        dto.setIdentityNo("OMANG-100");
+        dto.setIdentityType(IndividualIdentityType.OMANG);
+        dto.setKycStatus(KycComplianceStatus.CURRENT);
+        dto.setSex(Sex.MALE);
+        dto.setNationality("BW");
+        dto.setMaritalStatus(MaritalStatus.SINGLE);
+        dto.setEmploymentStatus(EmploymentStatus.EMPLOYED);
+        return dto;
+        }
+
+    @SuppressWarnings("unchecked")
     private void evaluateSpecification(Specification<Individual> specification) {
-        Root<Individual> root = org.mockito.Mockito.mock(Root.class);
-        @SuppressWarnings("unchecked")
+        Root<Individual> root = (Root<Individual>) org.mockito.Mockito.mock(Root.class);
         Path<Object> path = org.mockito.Mockito.mock(Path.class);
-        CriteriaQuery<Object> query = org.mockito.Mockito.mock(CriteriaQuery.class);
+        CriteriaQuery<Object> query = (CriteriaQuery<Object>) org.mockito.Mockito.mock(CriteriaQuery.class);
         CriteriaBuilder builder = org.mockito.Mockito.mock(CriteriaBuilder.class);
         Predicate predicate = org.mockito.Mockito.mock(Predicate.class);
 

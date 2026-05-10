@@ -30,8 +30,6 @@ import bw.co.centralkyc.document.type.DocumentTypeRepository;
 class SettingsServiceImplTest {
 
     @Mock
-    private SettingsDao settingsDao;
-    @Mock
     private SettingsRepository settingsRepository;
     @Mock
     private SettingsMapper settingsMapper;
@@ -42,8 +40,6 @@ class SettingsServiceImplTest {
     @Mock
     private SalaryRangeMapper salaryRangeMapper;
     @Mock
-    private SalaryRangeDao salaryRangeDao;
-    @Mock
     private SalaryRangeRepository salaryRangeRepository;
     @Mock
     private MessageSource messageSource;
@@ -53,13 +49,11 @@ class SettingsServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new SettingsServiceImpl(
-                settingsDao,
                 settingsRepository,
                 settingsMapper,
                 documentRepository,
                 documentTypeRepository,
                 salaryRangeMapper,
-                salaryRangeDao,
                 salaryRangeRepository,
                 messageSource);
     }
@@ -67,8 +61,8 @@ class SettingsServiceImplTest {
     @Test
     void handleUploadTemplateRejectsUnsupportedTargets() {
         assertThrows(
-                IllegalArgumentException.class,
-                () -> service.handleUploadTemplate("template-url", TargetEntity.INDIVIDUAL, "tester"));
+                SettingsServiceException.class,
+                () -> service.uploadTemplate("template-url", TargetEntity.INDIVIDUAL, "tester"));
     }
 
     @Test
@@ -83,7 +77,7 @@ class SettingsServiceImplTest {
         when(settingsRepository.save(settings)).thenReturn(settings);
         when(settingsMapper.toSettingsDTO(settings)).thenReturn(expected);
 
-        SettingsDTO actual = service.handleUploadTemplate("invoice-template.pdf", TargetEntity.INVOICE, "tester");
+        SettingsDTO actual = service.uploadTemplate("invoice-template.pdf", TargetEntity.INVOICE, "tester");
 
         assertSame(expected, actual);
         assertSame(savedDocument, settings.getInvoiceTemplate());
@@ -100,14 +94,14 @@ class SettingsServiceImplTest {
         when(settingsRepository.findAll()).thenReturn(settings);
         when(settingsMapper.toSettingsDTOCollection(settings)).thenReturn(expected);
 
-        List<SettingsDTO> actual = service.handleGetAll();
+        List<SettingsDTO> actual = service.getAll();
 
         assertSame(expected, actual);
     }
 
     @Test
     void handleFindByIdThrowsUnsupportedOperationException() {
-        assertThrows(UnsupportedOperationException.class, () -> service.handleFindById(UUID.randomUUID().toString()));
+        assertThrows(SettingsServiceException.class, () -> service.findById(UUID.randomUUID().toString()));
     }
 
     @Test
@@ -120,29 +114,29 @@ class SettingsServiceImplTest {
         when(settingsRepository.save(entity)).thenReturn(entity);
         when(settingsMapper.toSettingsDTO(entity)).thenReturn(expected);
 
-        SettingsDTO actual = service.handleSave(input);
+        SettingsDTO actual = service.save(input);
 
         assertSame(expected, actual);
     }
 
     @Test
     void handleRemoveThrowsUnsupportedOperationException() {
-        assertThrows(UnsupportedOperationException.class, () -> service.handleRemove(UUID.randomUUID().toString()));
+        assertThrows(SettingsServiceException.class, () -> service.remove(UUID.randomUUID().toString()));
     }
 
     @Test
     void handleSearchThrowsUnsupportedOperationException() {
-        assertThrows(UnsupportedOperationException.class, () -> service.handleSearch("q"));
+        assertThrows(SettingsServiceException.class, () -> service.search("q"));
     }
 
     @Test
     void handleGetAllPagedThrowsUnsupportedOperationException() {
-        assertThrows(UnsupportedOperationException.class, () -> service.handleGetAll(0, 10));
+        assertThrows(SettingsServiceException.class, () -> service.getAll(0, 10));
     }
 
     @Test
     void handleSearchPagedThrowsUnsupportedOperationException() {
-        assertThrows(UnsupportedOperationException.class, () -> service.handleSearch("q", 0, 10));
+        assertThrows(SettingsServiceException.class, () -> service.search("q", 0, 10));
     }
 
     @Test
@@ -157,7 +151,7 @@ class SettingsServiceImplTest {
         when(settingsRepository.save(settings)).thenReturn(settings);
         when(settingsMapper.toSettingsDTO(settings)).thenReturn(expected);
 
-        SettingsDTO actual = service.handleUploadTemplate("quotation-template.pdf", TargetEntity.QUOTATION, "tester");
+        SettingsDTO actual = service.uploadTemplate("quotation-template.pdf", TargetEntity.QUOTATION, "tester");
 
         assertSame(expected, actual);
         assertSame(savedDocument, settings.getQuotationTemplate());
@@ -168,7 +162,7 @@ class SettingsServiceImplTest {
         when(settingsRepository.findAll()).thenReturn(List.of());
 
         assertThrows(Exception.class,
-                () -> service.handleUploadTemplate("invoice-template.pdf", TargetEntity.INVOICE, "tester"));
+                () -> service.uploadTemplate("invoice-template.pdf", TargetEntity.INVOICE, "tester"));
     }
 
     @Test
@@ -183,10 +177,10 @@ class SettingsServiceImplTest {
         when(settingsRepository.save(settings)).thenReturn(settings);
         when(settingsMapper.toSettingsDTO(settings)).thenReturn(new SettingsDTO());
 
-        service.handleAttachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION);
-        service.handleAttachDocumentType(docTypeId.toString(), DocumentTypePurpose.INDIVIDUAL);
-        service.handleAttachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION_KYC);
-        service.handleAttachDocumentType(docTypeId.toString(), DocumentTypePurpose.INDIVIDUAL_KYC);
+        service.attachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION);
+        service.attachDocumentType(docTypeId.toString(), DocumentTypePurpose.INDIVIDUAL);
+        service.attachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION_KYC);
+        service.attachDocumentType(docTypeId.toString(), DocumentTypePurpose.INDIVIDUAL_KYC);
 
         assertTrue(settings.getOrganisationDocuments().contains(documentType));
         assertTrue(settings.getIndividualDocuments().contains(documentType));
@@ -203,7 +197,7 @@ class SettingsServiceImplTest {
         when(documentTypeRepository.findById(docTypeId)).thenReturn(Optional.empty());
 
         assertThrows(Exception.class,
-                () -> service.handleAttachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION));
+                () -> service.attachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION));
     }
 
         @Test
@@ -215,13 +209,13 @@ class SettingsServiceImplTest {
         when(documentTypeRepository.findById(docTypeId)).thenReturn(Optional.empty());
 
         assertThrows(Exception.class,
-            () -> service.handleAttachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION));
+            () -> service.attachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION));
         assertThrows(Exception.class,
-            () -> service.handleAttachDocumentType(docTypeId.toString(), DocumentTypePurpose.INDIVIDUAL));
+            () -> service.attachDocumentType(docTypeId.toString(), DocumentTypePurpose.INDIVIDUAL));
         assertThrows(Exception.class,
-            () -> service.handleAttachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION_KYC));
+            () -> service.attachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION_KYC));
         assertThrows(Exception.class,
-            () -> service.handleAttachDocumentType(docTypeId.toString(), DocumentTypePurpose.INDIVIDUAL_KYC));
+            () -> service.attachDocumentType(docTypeId.toString(), DocumentTypePurpose.INDIVIDUAL_KYC));
         }
 
     @Test
@@ -240,10 +234,10 @@ class SettingsServiceImplTest {
         when(settingsRepository.save(settings)).thenReturn(settings);
         when(settingsMapper.toSettingsDTO(settings)).thenReturn(new SettingsDTO());
 
-        service.handleDetachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION);
-        service.handleDetachDocumentType(docTypeId.toString(), DocumentTypePurpose.INDIVIDUAL);
-        service.handleDetachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION_KYC);
-        service.handleDetachDocumentType(docTypeId.toString(), DocumentTypePurpose.INDIVIDUAL_KYC);
+        service.detachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION);
+        service.detachDocumentType(docTypeId.toString(), DocumentTypePurpose.INDIVIDUAL);
+        service.detachDocumentType(docTypeId.toString(), DocumentTypePurpose.ORGANISATION_KYC);
+        service.detachDocumentType(docTypeId.toString(), DocumentTypePurpose.INDIVIDUAL_KYC);
 
         assertTrue(settings.getOrganisationDocuments().isEmpty());
         assertTrue(settings.getIndividualDocuments().isEmpty());
@@ -257,6 +251,36 @@ class SettingsServiceImplTest {
         when(settingsRepository.findAll()).thenReturn(List.of());
 
         assertThrows(Exception.class,
-                () -> service.handleDetachDocumentType(id.toString(), DocumentTypePurpose.INDIVIDUAL));
+                () -> service.detachDocumentType(id.toString(), DocumentTypePurpose.INDIVIDUAL));
     }
+
+        @Test
+        void serviceBaseGuardsRejectInvalidArguments() {
+        assertThrows(IllegalArgumentException.class, () -> service.findById(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findById("\t"));
+        assertThrows(IllegalArgumentException.class, () -> service.save(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(" "));
+        assertThrows(IllegalArgumentException.class, () -> service.search(null));
+        assertThrows(IllegalArgumentException.class, () -> service.search("\n"));
+        assertThrows(IllegalArgumentException.class, () -> service.search(null, 0, 10));
+        assertThrows(IllegalArgumentException.class, () -> service.search("", 0, 10));
+        assertThrows(IllegalArgumentException.class, () -> service.uploadTemplate(null, TargetEntity.INVOICE, "tester"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.uploadTemplate("invoice-template.pdf", null, "tester"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.uploadTemplate("invoice-template.pdf", TargetEntity.INVOICE, " "));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.attachDocumentType(null, DocumentTypePurpose.INDIVIDUAL));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.attachDocumentType("\n", DocumentTypePurpose.INDIVIDUAL));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.attachDocumentType(UUID.randomUUID().toString(), null));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.detachDocumentType(null, DocumentTypePurpose.INDIVIDUAL));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.detachDocumentType("\t", DocumentTypePurpose.INDIVIDUAL));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.detachDocumentType(UUID.randomUUID().toString(), null));
+        }
 }

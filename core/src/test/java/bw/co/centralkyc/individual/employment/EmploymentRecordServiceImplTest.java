@@ -3,12 +3,14 @@ package bw.co.centralkyc.individual.employment;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.TreeSet;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,12 +18,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 
 @ExtendWith(MockitoExtension.class)
 class EmploymentRecordServiceImplTest {
 
-    @Mock
-    private EmploymentRecordDao employmentRecordDao;
     @Mock
     private EmploymentRecordRepository employmentRecordRepository;
     @Mock
@@ -34,7 +38,6 @@ class EmploymentRecordServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new EmploymentRecordServiceImpl(
-                employmentRecordDao,
                 employmentRecordRepository,
                 employmentRecordMapper,
                 messageSource);
@@ -49,7 +52,7 @@ class EmploymentRecordServiceImplTest {
         when(employmentRecordRepository.findById(id)).thenReturn(Optional.of(entity));
         when(employmentRecordMapper.toEmploymentRecordDTO(entity)).thenReturn(expected);
 
-        EmploymentRecordDTO actual = service.handleFindById(id.toString());
+        EmploymentRecordDTO actual = service.findById(id.toString());
 
         assertSame(expected, actual);
     }
@@ -59,7 +62,7 @@ class EmploymentRecordServiceImplTest {
         UUID id = UUID.randomUUID();
         when(employmentRecordRepository.existsById(id)).thenReturn(false);
 
-        assertThrows(EmploymentRecordServiceException.class, () -> service.handleRemove(id.toString()));
+        assertThrows(EmploymentRecordServiceException.class, () -> service.remove(id.toString()));
     }
 
     @Test
@@ -70,7 +73,7 @@ class EmploymentRecordServiceImplTest {
         when(employmentRecordRepository.findAll()).thenReturn(entities);
         when(employmentRecordMapper.toEmploymentRecordDTOCollection(entities)).thenReturn(expected);
 
-        List<EmploymentRecordDTO> actual = service.handleGetAll();
+        List<EmploymentRecordDTO> actual = service.getAll();
 
         assertSame(expected, actual);
     }
@@ -80,9 +83,86 @@ class EmploymentRecordServiceImplTest {
         UUID id = UUID.randomUUID();
         when(employmentRecordRepository.existsById(id)).thenReturn(true);
 
-        boolean removed = service.handleRemove(id.toString());
+        boolean removed = service.remove(id.toString());
 
         assertTrue(removed);
         verify(employmentRecordRepository).deleteById(id);
+    }
+
+    @Test
+    void handleSaveMapsPersistsAndReturnsDto() throws Exception {
+        EmploymentRecordDTO input = validEmploymentRecord();
+        EmploymentRecord entity = EmploymentRecord.Factory.newInstance();
+        EmploymentRecordDTO expected = new EmploymentRecordDTO();
+
+        when(employmentRecordMapper.employmentRecordDTOToEntity(input)).thenReturn(entity);
+        when(employmentRecordRepository.save(entity)).thenReturn(entity);
+        when(employmentRecordMapper.toEmploymentRecordDTO(entity)).thenReturn(expected);
+
+        EmploymentRecordDTO actual = service.save(input);
+
+        assertSame(expected, actual);
+    }
+
+    @Test
+    void handleGetAllWithPagingMapsPageContent() throws Exception {
+        EmploymentRecord entity = EmploymentRecord.Factory.newInstance();
+        EmploymentRecordDTO dto = new EmploymentRecordDTO();
+        Page<EmploymentRecord> page = new PageImpl<>(List.of(entity));
+
+        when(employmentRecordRepository.findAll(PageRequest.of(0, 10))).thenReturn(page);
+        when(employmentRecordMapper.toEmploymentRecordDTO(entity)).thenReturn(dto);
+
+        Page<EmploymentRecordDTO> actual = service.getAll(0, 10);
+
+        assertEquals(1, actual.getContent().size());
+        assertSame(dto, actual.getContent().get(0));
+    }
+
+    @Test
+    void handleFindByIndividualMapsRepositoryResults() throws Exception {
+        List<EmploymentRecord> entities = List.of(EmploymentRecord.Factory.newInstance());
+        List<EmploymentRecordDTO> expected = List.of(new EmploymentRecordDTO());
+
+        when(employmentRecordRepository.findAll(org.mockito.ArgumentMatchers.<Specification<EmploymentRecord>>any()))
+                .thenReturn(entities);
+        when(employmentRecordMapper.toEmploymentRecordDTOCollection(entities)).thenReturn(expected);
+
+        List<EmploymentRecordDTO> actual = service.findByIndividual(UUID.randomUUID().toString());
+
+        assertSame(expected, actual);
+    }
+
+    @Test
+    void serviceBaseRoutesUnsupportedSearchPathsToServiceException() {
+        assertThrows(EmploymentRecordServiceException.class, () -> service.search("criteria"));
+        assertThrows(EmploymentRecordServiceException.class, () -> service.search("criteria", 0, 10));
+    }
+
+    @Test
+    void serviceBaseGuardsRejectInvalidArguments() {
+        assertThrows(IllegalArgumentException.class, () -> service.findById(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findById("\t"));
+        assertThrows(IllegalArgumentException.class, () -> service.save(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(" "));
+        assertThrows(IllegalArgumentException.class, () -> service.findByIndividual(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findByIndividual("\n"));
+
+        EmploymentRecordDTO missingName = validEmploymentRecord();
+        missingName.setName(" ");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingName));
+
+        EmploymentRecordDTO missingIdentityNo = validEmploymentRecord();
+        missingIdentityNo.setIdentityNo(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingIdentityNo));
+    }
+
+    private static EmploymentRecordDTO validEmploymentRecord() {
+        EmploymentRecordDTO input = new EmploymentRecordDTO();
+        input.setPositions(new TreeSet<>(java.util.Set.of("Developer")));
+        input.setName("Jane Doe");
+        input.setIdentityNo("ID-123");
+        return input;
     }
 }

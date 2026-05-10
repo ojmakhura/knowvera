@@ -9,7 +9,6 @@
 package bw.co.centralkyc.subscription;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,10 +29,6 @@ import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.SortOrder;
 import bw.co.centralkyc.SortOrderFactory;
 import bw.co.centralkyc.TargetEntity;
-import bw.co.centralkyc.invoice.InvoiceSearchCriteria;
-import bw.co.centralkyc.invoice.KycInvoice;
-import bw.co.centralkyc.invoice.KycInvoiceDTO;
-import bw.co.centralkyc.invoice.KycInvoiceDao;
 import bw.co.centralkyc.invoice.KycInvoiceMapper;
 import bw.co.centralkyc.invoice.KycInvoiceRepository;
 import bw.co.centralkyc.sequence.SequenceGenerator;
@@ -54,12 +49,11 @@ public class KycSubscriptionServiceImpl
     private final SequenceGeneratorRepository sequenceGeneratorRepository;
     private static final String SEQUENCE_NAME = "KYC_SUBSCRIPTION_REF";
 
-    public KycSubscriptionServiceImpl(KycSubscriptionDao kycSubscriptionDao,
-            KycSubscriptionRepository kycSubscriptionRepository, KycInvoiceDao kycInvoiceDao,
+    public KycSubscriptionServiceImpl(KycSubscriptionRepository kycSubscriptionRepository, 
             SequenceGeneratorService sequenceGeneratorService, SequenceGeneratorRepository sequenceGeneratorRepository, KycSubscriptionMapper kycSubscriptionMapper,
             KycInvoiceRepository kycInvoiceRepository, KycInvoiceMapper kycInvoiceMapper, MessageSource messageSource) {
 
-        super(kycSubscriptionDao, kycSubscriptionRepository, kycSubscriptionMapper, kycInvoiceDao,
+        super(kycSubscriptionRepository, kycSubscriptionMapper,
                 kycInvoiceRepository, kycInvoiceMapper, messageSource);
 
         this.sequenceGeneratorService = sequenceGeneratorService;
@@ -75,7 +69,7 @@ public class KycSubscriptionServiceImpl
 
         KycSubscription subscription = kycSubscriptionRepository.findById(UUID.fromString(id)).orElse(null);
 
-        return this.getKycSubscriptionDao().toKycSubscriptionDTO(subscription);
+        return kycSubscriptionMapper.toKycSubscriptionDTO(subscription);
     }
 
     /**
@@ -85,7 +79,7 @@ public class KycSubscriptionServiceImpl
     protected KycSubscriptionDTO handleSave(KycSubscriptionDTO subscription)
             throws Exception {
 
-        KycSubscription entity = kycSubscriptionDao.kycSubscriptionDTOToEntity(subscription);
+        KycSubscription entity = kycSubscriptionMapper.kycSubscriptionDTOToEntity(subscription);
 
         if (StringUtils.isBlank(subscription.getRef())) {
 
@@ -125,7 +119,7 @@ public class KycSubscriptionServiceImpl
 
         entity = kycSubscriptionRepository.save(entity);
 
-        return kycSubscriptionDao.toKycSubscriptionDTO(entity);
+        return kycSubscriptionMapper.toKycSubscriptionDTO(entity);
     }
 
     /**
@@ -238,7 +232,7 @@ public class KycSubscriptionServiceImpl
 
         Page<KycSubscription> subscriptions = kycSubscriptionRepository.findAll(PageRequest.of(pageNumber, pageSize));
 
-        return subscriptions.map(arg0 -> kycSubscriptionDao.toKycSubscriptionDTO(arg0));
+        return subscriptions.map(arg0 -> kycSubscriptionMapper.toKycSubscriptionDTO(arg0));
     }
 
     /**
@@ -266,7 +260,7 @@ public class KycSubscriptionServiceImpl
 
         Page<KycSubscription> subscriptions = kycSubscriptionRepository.findAll(specification, page);
 
-        return subscriptions.map(arg0 -> kycSubscriptionDao.toKycSubscriptionDTO(arg0));
+        return subscriptions.map(arg0 -> kycSubscriptionMapper.toKycSubscriptionDTO(arg0));
     }
 
     @Override

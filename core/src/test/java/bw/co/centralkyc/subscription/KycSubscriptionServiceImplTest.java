@@ -3,6 +3,7 @@ package bw.co.centralkyc.subscription;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
@@ -36,7 +37,6 @@ import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.SortOrder;
 import bw.co.centralkyc.TargetEntity;
-import bw.co.centralkyc.invoice.KycInvoiceDao;
 import bw.co.centralkyc.invoice.KycInvoiceMapper;
 import bw.co.centralkyc.invoice.KycInvoiceRepository;
 import bw.co.centralkyc.sequence.SequenceGenerator;
@@ -47,11 +47,7 @@ import bw.co.centralkyc.sequence.SequenceGeneratorService;
 class KycSubscriptionServiceImplTest {
 
     @Mock
-    private KycSubscriptionDao kycSubscriptionDao;
-    @Mock
     private KycSubscriptionRepository kycSubscriptionRepository;
-    @Mock
-    private KycInvoiceDao kycInvoiceDao;
     @Mock
     private SequenceGeneratorService sequenceGeneratorService;
     @Mock
@@ -70,9 +66,7 @@ class KycSubscriptionServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new KycSubscriptionServiceImpl(
-                kycSubscriptionDao,
                 kycSubscriptionRepository,
-                kycInvoiceDao,
                 sequenceGeneratorService,
                 sequenceGeneratorRepository,
                 kycSubscriptionMapper,
@@ -84,17 +78,22 @@ class KycSubscriptionServiceImplTest {
     @Test
     void handleSaveCreatesSequenceDefinitionWhenRefIsBlank() throws Exception {
         KycSubscriptionDTO input = new KycSubscriptionDTO();
+        input.setStartDate(new java.util.Date());
+        input.setPeriod(bw.co.centralkyc.TimePeriod.MONTH);
+        input.setOrganisationCode("ORG");
+        input.setOrganisationName("Organisation");
+        input.setOrganisationRegistrationNo("REG-1");
         KycSubscription entity = KycSubscription.Factory.newInstance();
         KycSubscriptionDTO expected = new KycSubscriptionDTO();
 
-        when(kycSubscriptionDao.kycSubscriptionDTOToEntity(input)).thenReturn(entity);
+        when(kycSubscriptionMapper.kycSubscriptionDTOToEntity(input)).thenReturn(entity);
         when(sequenceGeneratorRepository.findByName("KYC_SUBSCRIPTION_REF")).thenReturn(Optional.empty());
         when(sequenceGeneratorRepository.save(any(SequenceGenerator.class))).thenAnswer(inv -> inv.getArgument(0));
         when(sequenceGeneratorService.generateNextSequenceValue("KYC_SUBSCRIPTION_REF", true)).thenReturn("SUB-000001");
         when(kycSubscriptionRepository.save(entity)).thenReturn(entity);
-        when(kycSubscriptionDao.toKycSubscriptionDTO(entity)).thenReturn(expected);
+        when(kycSubscriptionMapper.toKycSubscriptionDTO(entity)).thenReturn(expected);
 
-        KycSubscriptionDTO actual = service.handleSave(input);
+        KycSubscriptionDTO actual = service.save(input);
 
         ArgumentCaptor<SequenceGenerator> captor = ArgumentCaptor.forClass(SequenceGenerator.class);
         verify(sequenceGeneratorRepository).save(captor.capture());
@@ -110,9 +109,9 @@ class KycSubscriptionServiceImplTest {
         KycSubscriptionDTO expected = new KycSubscriptionDTO();
 
         when(kycSubscriptionRepository.findById(id)).thenReturn(Optional.of(entity));
-        when(kycSubscriptionDao.toKycSubscriptionDTO(entity)).thenReturn(expected);
+        when(kycSubscriptionMapper.toKycSubscriptionDTO(entity)).thenReturn(expected);
 
-        KycSubscriptionDTO actual = service.handleFindById(id.toString());
+        KycSubscriptionDTO actual = service.findById(id.toString());
 
         assertSame(expected, actual);
     }
@@ -121,7 +120,7 @@ class KycSubscriptionServiceImplTest {
     void handleCountByStatusReturnsZeroWhenRepositoryHasNoValue() throws Exception {
         when(kycSubscriptionRepository.countByStatus(KycSubsciptionStatus.ACTIVE)).thenReturn(Optional.empty());
 
-        long actual = service.handleCountByStatus(KycSubsciptionStatus.ACTIVE);
+        long actual = service.countByStatus(KycSubsciptionStatus.ACTIVE);
 
         assertEquals(0L, actual);
     }
@@ -130,7 +129,7 @@ class KycSubscriptionServiceImplTest {
     void handleRemoveDeletesById() throws Exception {
         UUID id = UUID.randomUUID();
 
-        boolean removed = service.handleRemove(id.toString());
+        boolean removed = service.remove(id.toString());
 
         assertTrue(removed);
         verify(kycSubscriptionRepository).deleteById(id);
@@ -139,17 +138,22 @@ class KycSubscriptionServiceImplTest {
     @Test
     void handleSaveUsesExistingSequenceGeneratorWhenAlreadyConfigured() throws Exception {
         KycSubscriptionDTO input = new KycSubscriptionDTO();
+        input.setStartDate(new java.util.Date());
+        input.setPeriod(bw.co.centralkyc.TimePeriod.MONTH);
+        input.setOrganisationCode("ORG");
+        input.setOrganisationName("Organisation");
+        input.setOrganisationRegistrationNo("REG-1");
         KycSubscription entity = KycSubscription.Factory.newInstance();
         entity.setRef(null);
         KycSubscriptionDTO expected = new KycSubscriptionDTO();
 
-        when(kycSubscriptionDao.kycSubscriptionDTOToEntity(input)).thenReturn(entity);
+        when(kycSubscriptionMapper.kycSubscriptionDTOToEntity(input)).thenReturn(entity);
         when(sequenceGeneratorRepository.findByName("KYC_SUBSCRIPTION_REF")).thenReturn(Optional.of(SequenceGenerator.Factory.newInstance()));
         when(sequenceGeneratorService.generateNextSequenceValue("KYC_SUBSCRIPTION_REF", true)).thenReturn("SUB-000222");
         when(kycSubscriptionRepository.save(entity)).thenReturn(entity);
-        when(kycSubscriptionDao.toKycSubscriptionDTO(entity)).thenReturn(expected);
+        when(kycSubscriptionMapper.toKycSubscriptionDTO(entity)).thenReturn(expected);
 
-        KycSubscriptionDTO actual = service.handleSave(input);
+        KycSubscriptionDTO actual = service.save(input);
 
         assertSame(expected, actual);
         assertEquals("SUB-000222", entity.getRef());
@@ -159,16 +163,21 @@ class KycSubscriptionServiceImplTest {
     @Test
     void handleSaveSkipsSequenceGenerationWhenRefAlreadyProvided() throws Exception {
         KycSubscriptionDTO input = new KycSubscriptionDTO();
+        input.setStartDate(new java.util.Date());
+        input.setPeriod(bw.co.centralkyc.TimePeriod.MONTH);
+        input.setOrganisationCode("ORG");
+        input.setOrganisationName("Organisation");
+        input.setOrganisationRegistrationNo("REG-1");
         input.setRef("SUB-CUSTOM");
         KycSubscription entity = KycSubscription.Factory.newInstance();
         entity.setRef("SUB-CUSTOM");
         KycSubscriptionDTO expected = new KycSubscriptionDTO();
 
-        when(kycSubscriptionDao.kycSubscriptionDTOToEntity(input)).thenReturn(entity);
+        when(kycSubscriptionMapper.kycSubscriptionDTOToEntity(input)).thenReturn(entity);
         when(kycSubscriptionRepository.save(entity)).thenReturn(entity);
-        when(kycSubscriptionDao.toKycSubscriptionDTO(entity)).thenReturn(expected);
+        when(kycSubscriptionMapper.toKycSubscriptionDTO(entity)).thenReturn(expected);
 
-        KycSubscriptionDTO actual = service.handleSave(input);
+        KycSubscriptionDTO actual = service.save(input);
 
         assertSame(expected, actual);
         verify(sequenceGeneratorRepository, never()).findByName("KYC_SUBSCRIPTION_REF");
@@ -183,7 +192,7 @@ class KycSubscriptionServiceImplTest {
         when(kycSubscriptionRepository.findAll()).thenReturn(entities);
         when(kycSubscriptionMapper.toKycSubscriptionDTOCollection(entities)).thenReturn(expected);
 
-        List<KycSubscriptionDTO> actual = service.handleGetAll();
+        List<KycSubscriptionDTO> actual = service.getAll();
 
         assertSame(expected, actual);
     }
@@ -200,7 +209,7 @@ class KycSubscriptionServiceImplTest {
                 .thenReturn(entities);
         when(kycSubscriptionMapper.toKycSubscriptionDTOCollection(entities)).thenReturn(expected);
 
-        List<KycSubscriptionDTO> actual = service.handleSearch(criteria, null);
+        List<KycSubscriptionDTO> actual = service.search(criteria, null);
 
         assertSame(expected, actual);
     }
@@ -216,7 +225,7 @@ class KycSubscriptionServiceImplTest {
                 .thenReturn(entities);
         when(kycSubscriptionMapper.toKycSubscriptionDTOCollection(entities)).thenReturn(expected);
 
-        List<KycSubscriptionDTO> actual = service.handleSearch(criteria, sort);
+        List<KycSubscriptionDTO> actual = service.search(criteria, sort);
 
         assertSame(expected, actual);
     }
@@ -240,7 +249,7 @@ class KycSubscriptionServiceImplTest {
                 });
         when(kycSubscriptionMapper.toKycSubscriptionDTOCollection(entities)).thenReturn(List.of());
 
-        List<KycSubscriptionDTO> actual = service.handleSearch(criteria, Set.of());
+        List<KycSubscriptionDTO> actual = service.search(criteria, Set.of());
 
         assertTrue(actual.isEmpty());
     }
@@ -252,9 +261,9 @@ class KycSubscriptionServiceImplTest {
         Page<KycSubscription> page = new PageImpl<>(List.of(entity));
 
         when(kycSubscriptionRepository.findAll(PageRequest.of(0, 10))).thenReturn(page);
-        when(kycSubscriptionDao.toKycSubscriptionDTO(entity)).thenReturn(dto);
+        when(kycSubscriptionMapper.toKycSubscriptionDTO(entity)).thenReturn(dto);
 
-        Page<KycSubscriptionDTO> actual = service.handleGetAll(0, 10);
+        Page<KycSubscriptionDTO> actual = service.getAll(0, 10);
 
         assertEquals(1, actual.getContent().size());
         assertSame(dto, actual.getContent().get(0));
@@ -274,9 +283,9 @@ class KycSubscriptionServiceImplTest {
 
         when(kycSubscriptionRepository.findAll(org.mockito.ArgumentMatchers.<Specification<KycSubscription>>any(), any(PageRequest.class)))
                 .thenReturn(page);
-        when(kycSubscriptionDao.toKycSubscriptionDTO(entity)).thenReturn(dto);
+        when(kycSubscriptionMapper.toKycSubscriptionDTO(entity)).thenReturn(dto);
 
-        Page<KycSubscriptionDTO> actual = service.handleSearch(criteria);
+        Page<KycSubscriptionDTO> actual = service.search(criteria);
 
         assertEquals(1, actual.getContent().size());
         assertSame(dto, actual.getContent().get(0));
@@ -293,7 +302,7 @@ class KycSubscriptionServiceImplTest {
         when(kycSubscriptionRepository.findAll(org.mockito.ArgumentMatchers.<Specification<KycSubscription>>any(), any(PageRequest.class)))
                 .thenReturn(Page.empty());
 
-        Page<KycSubscriptionDTO> actual = service.handleSearch(criteria);
+        Page<KycSubscriptionDTO> actual = service.search(criteria);
 
         assertTrue(actual.isEmpty());
     }
@@ -311,7 +320,7 @@ class KycSubscriptionServiceImplTest {
                 });
         when(kycSubscriptionMapper.toKycSubscriptionDTOCollection(entities)).thenReturn(expected);
 
-        List<KycSubscriptionDTO> actual = service.handleFindByOrganisation(orgId.toString(), "tester");
+        List<KycSubscriptionDTO> actual = service.findByOrganisation(orgId.toString(), "tester");
 
         assertSame(expected, actual);
     }
@@ -320,7 +329,7 @@ class KycSubscriptionServiceImplTest {
     void handleCountByStatusReturnsRepositoryValue() throws Exception {
         when(kycSubscriptionRepository.countByStatus(KycSubsciptionStatus.ACTIVE)).thenReturn(Optional.of(12L));
 
-        long actual = service.handleCountByStatus(KycSubsciptionStatus.ACTIVE);
+        long actual = service.countByStatus(KycSubsciptionStatus.ACTIVE);
 
         assertEquals(12L, actual);
     }
@@ -329,16 +338,65 @@ class KycSubscriptionServiceImplTest {
     void handleCountReturnsRepositoryCount() throws Exception {
         when(kycSubscriptionRepository.count()).thenReturn(20L);
 
-        long actual = service.handleCount();
+        long actual = service.count();
 
         assertEquals(20L, actual);
     }
 
+    @Test
+    void serviceBaseGuardsRejectInvalidArguments() {
+        assertThrows(IllegalArgumentException.class, () -> service.findById(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findById(" "));
+        assertThrows(IllegalArgumentException.class, () -> service.save(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove("\n"));
+        assertThrows(KycSubscriptionServiceException.class, () -> service.search(null, Set.of()));
+        assertThrows(KycSubscriptionServiceException.class, () -> service.search((SearchObject<SubscriptionSearchCriteria>) null));
+        assertThrows(IllegalArgumentException.class, () -> service.findByOrganisation(null, "tester"));
+        assertThrows(IllegalArgumentException.class, () -> service.findByOrganisation("\t", "tester"));
+        assertThrows(IllegalArgumentException.class, () -> service.findByOrganisation(UUID.randomUUID().toString(), null));
+        assertThrows(IllegalArgumentException.class, () -> service.findByOrganisation(UUID.randomUUID().toString(), " "));
+        assertThrows(IllegalArgumentException.class, () -> service.countByStatus(null));
+    }
+
+    @Test
+    void serviceBaseSaveGuardRejectsMissingFields() {
+        KycSubscriptionDTO missingStartDate = validSubscription();
+        missingStartDate.setStartDate(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingStartDate));
+
+        KycSubscriptionDTO missingPeriod = validSubscription();
+        missingPeriod.setPeriod(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingPeriod));
+
+        KycSubscriptionDTO missingOrganisationCode = validSubscription();
+        missingOrganisationCode.setOrganisationCode(" ");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingOrganisationCode));
+
+        KycSubscriptionDTO missingOrganisationName = validSubscription();
+        missingOrganisationName.setOrganisationName(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingOrganisationName));
+
+        KycSubscriptionDTO missingOrganisationRegNo = validSubscription();
+        missingOrganisationRegNo.setOrganisationRegistrationNo("\t");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingOrganisationRegNo));
+    }
+
+    private static KycSubscriptionDTO validSubscription() {
+        KycSubscriptionDTO dto = new KycSubscriptionDTO();
+        dto.setStartDate(new java.util.Date());
+        dto.setPeriod(bw.co.centralkyc.TimePeriod.MONTH);
+        dto.setOrganisationCode("ORG");
+        dto.setOrganisationName("Organisation");
+        dto.setOrganisationRegistrationNo("REG-1");
+        return dto;
+    }
+
+    @SuppressWarnings("unchecked")
     private void evaluateSpecification(Specification<KycSubscription> specification) {
-        Root<KycSubscription> root = org.mockito.Mockito.mock(Root.class);
-        @SuppressWarnings("unchecked")
-        Path<Object> path = org.mockito.Mockito.mock(Path.class);
-        CriteriaQuery<Object> query = org.mockito.Mockito.mock(CriteriaQuery.class);
+        Root<KycSubscription> root = (Root<KycSubscription>) org.mockito.Mockito.mock(Root.class);
+        Path<Object> path = (Path<Object>) org.mockito.Mockito.mock(Path.class);
+        CriteriaQuery<Object> query = (CriteriaQuery<Object>) org.mockito.Mockito.mock(CriteriaQuery.class);
         CriteriaBuilder builder = org.mockito.Mockito.mock(CriteriaBuilder.class);
         Predicate predicate = org.mockito.Mockito.mock(Predicate.class);
 

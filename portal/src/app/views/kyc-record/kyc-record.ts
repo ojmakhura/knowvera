@@ -22,7 +22,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   providers: [
     CommonModule,
     Loader,
-
+    TranslateModule
   ]
 })
 export class KycRecord implements OnInit, OnDestroy, AfterViewInit {

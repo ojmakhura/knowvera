@@ -35,7 +35,6 @@ public class KycFieldGroupServiceImpl
     private final SettingsRepository settingsRepository;
 
     public KycFieldGroupServiceImpl(
-            KycFieldGroupDao kycFieldGroupDao,
             KycFieldGroupRepository kycFieldGroupRepository,
             KycFieldGroupMapper kycFieldGroupMapper,
             GroupFieldRepository groupFieldRepository,
@@ -43,7 +42,6 @@ public class KycFieldGroupServiceImpl
             MessageSource messageSource) {
 
         super(
-                kycFieldGroupDao,
                 kycFieldGroupRepository,
                 kycFieldGroupMapper,
                 messageSource);

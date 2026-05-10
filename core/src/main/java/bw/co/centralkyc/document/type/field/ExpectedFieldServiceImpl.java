@@ -27,13 +27,11 @@ import org.springframework.stereotype.Service;
 public class ExpectedFieldServiceImpl
         extends ExpectedFieldServiceBase {
     public ExpectedFieldServiceImpl(
-            ExpectedFieldDao expectedFieldDao,
             ExpectedFieldRepository expectedFieldRepository,
             ExpectedFieldMapper expectedFieldMapper,
             MessageSource messageSource) {
 
         super(
-                expectedFieldDao,
                 expectedFieldRepository,
                 expectedFieldMapper,
                 messageSource);

@@ -32,9 +32,9 @@ public class BranchServiceImpl
     extends BranchServiceBase
 {
     
-    public BranchServiceImpl(BranchDao branchDao, BranchRepository branchRepository, BranchMapper branchMapper,
+    public BranchServiceImpl(BranchRepository branchRepository, BranchMapper branchMapper,
             MessageSource messageSource) {
-        super(branchDao, branchRepository, branchMapper, messageSource);
+        super(branchRepository, branchMapper, messageSource);
         //TODO Auto-generated constructor stub
     }
 
@@ -46,7 +46,7 @@ public class BranchServiceImpl
         throws Exception
     {
         Branch branch = branchRepository.getReferenceById(UUID.fromString(id));
-        return this.getBranchDao().toBranchDTO(branch);
+        return branchMapper.toBranchDTO(branch);
     }
 
     /**
@@ -57,9 +57,9 @@ public class BranchServiceImpl
         throws Exception
     {
 
-        Branch branchEntity = this.getBranchDao().branchDTOToEntity(branch);
+        Branch branchEntity = branchMapper.branchDTOToEntity(branch);
         branchEntity = branchRepository.save(branchEntity);
-        return this.getBranchDao().toBranchDTO(branchEntity);
+        return branchMapper.toBranchDTO(branchEntity);
     }
 
     /**
@@ -117,7 +117,7 @@ public class BranchServiceImpl
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Direction.ASC, "name"));
         Page<Branch> branchPage = branchRepository.findAll(pageable);
-        return branchPage.map(branch -> this.getBranchDao().toBranchDTO(branch));
+        return branchPage.map(branch -> branchMapper.toBranchDTO(branch));
     }
 
     /**
@@ -131,7 +131,7 @@ public class BranchServiceImpl
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Direction.ASC, "name"));
         Specification<Branch> spec = createSpecification(criteria);
         Page<Branch> branchPage = branchRepository.findAll(spec, pageable);
-        return branchPage.map(branch -> this.getBranchDao().toBranchDTO(branch));
+        return branchPage.map(branch -> branchMapper.toBranchDTO(branch));
     }
 
     /**
@@ -160,7 +160,7 @@ public class BranchServiceImpl
         Specification<Branch> spec = (root, query, builder) -> 
             builder.equal(root.get("organisation").get("id"), UUID.fromString(organisationId));
         Page<Branch> branchPage = branchRepository.findAll(spec, pageable);
-        return branchPage.map(branch -> this.getBranchDao().toBranchDTO(branch));
+        return branchPage.map(branch -> branchMapper.toBranchDTO(branch));
     }
 
 }

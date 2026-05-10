@@ -135,7 +135,7 @@ public class DocumentValidationService {
             this.rabbitTemplate.convertAndSend(
                     rabbitProperties.getOrganisationVerificationQueueExchange(),
                     rabbitProperties.getOrganisationVerificationQueueRoutingKey(),
-                    document);
+                    new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
         }
     }
 
@@ -148,7 +148,7 @@ public class DocumentValidationService {
             this.rabbitTemplate.convertAndSend(
                     rabbitProperties.getIndividualVerificationQueueExchange(),
                     rabbitProperties.getIndividualVerificationQueueRoutingKey(),
-                    document);
+                    new QueueObject(document.getTargetId(), document.getTarget(), document.getTargetId()));
         }
     }
 

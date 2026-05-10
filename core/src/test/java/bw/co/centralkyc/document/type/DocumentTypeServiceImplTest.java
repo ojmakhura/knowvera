@@ -2,9 +2,9 @@ package bw.co.centralkyc.document.type;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,8 +38,6 @@ import bw.co.centralkyc.document.type.verification.VerificationDataConfigReposit
 class DocumentTypeServiceImplTest {
 
     @Mock
-    private DocumentTypeDao documentTypeDao;
-    @Mock
     private DocumentTypeRepository documentTypeRepository;
     @Mock
     private DocumentTypeMapper documentTypeMapper;
@@ -59,7 +57,6 @@ class DocumentTypeServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new DocumentTypeServiceImpl(
-                documentTypeDao,
                 documentTypeRepository,
                 documentTypeMapper,
                 expectedFieldRepository,
@@ -83,7 +80,7 @@ class DocumentTypeServiceImplTest {
         when(verificationDataConfigRepository.findByDocumentTypeId(id)).thenReturn(configs);
         when(verificationDataConfigMapper.toVerificationDataConfigDTOCollection(configs)).thenReturn(configDtos);
 
-        DocumentTypeDTO actual = service.handleFindById(id.toString());
+        DocumentTypeDTO actual = service.findById(id.toString());
 
         assertSame(dto, actual);
         assertSame(configDtos, actual.getVerificationDataConfigs());
@@ -98,7 +95,7 @@ class DocumentTypeServiceImplTest {
         when(documentTypeRepository.findAll(sort)).thenReturn(entities);
         when(documentTypeMapper.toDocumentTypeDTOCollection(entities)).thenReturn(expected);
 
-        List<DocumentTypeDTO> actual = service.handleSearch(" ");
+        List<DocumentTypeDTO> actual = service.search(" ");
 
         assertSame(expected, actual);
     }
@@ -119,7 +116,7 @@ class DocumentTypeServiceImplTest {
         when(documentTypeRepository.save(documentType)).thenReturn(documentType);
         when(documentTypeMapper.toDocumentTypeDTO(documentType)).thenReturn(expected);
 
-        DocumentTypeDTO actual = service.handleAddExpectedField(id.toString(), Set.of(fieldDTO));
+        DocumentTypeDTO actual = service.addExpectedField(id.toString(), Set.of(fieldDTO));
 
         assertSame(expected, actual);
         assertEquals(1, documentType.getExpectedFields().size());
@@ -134,13 +131,15 @@ class DocumentTypeServiceImplTest {
 
         org.junit.jupiter.api.Assertions.assertThrows(
                 Exception.class,
-                () -> service.handleFindById(id.toString()),
+                () -> service.findById(id.toString()),
                 "DocumentType not found for id: " + id);
     }
 
     @Test
     void handleSaveWithVerificationDataConfigs() throws Exception {
         DocumentTypeDTO input = new DocumentTypeDTO();
+        input.setCode("DOC");
+        input.setName("Document");
         DocumentType entity = DocumentType.Factory.newInstance();
         UUID typeId = UUID.randomUUID();
         entity.setId(typeId);
@@ -154,7 +153,7 @@ class DocumentTypeServiceImplTest {
         when(verificationDataConfigRepository.findByDocumentTypeId(typeId)).thenReturn(configs);
         when(verificationDataConfigMapper.toVerificationDataConfigDTOCollection(configs)).thenReturn(configDtos);
 
-        DocumentTypeDTO actual = service.handleSave(input);
+        DocumentTypeDTO actual = service.save(input);
 
         assertSame(expected, actual);
         assertSame(configDtos, actual.getVerificationDataConfigs());
@@ -165,7 +164,7 @@ class DocumentTypeServiceImplTest {
     void handleRemoveConvertsStringToUuidAndReturnsTrue() throws Exception {
         UUID id = UUID.randomUUID();
 
-        boolean removed = service.handleRemove(id.toString());
+        boolean removed = service.remove(id.toString());
 
         assertTrue(removed);
         verify(documentTypeRepository).deleteById(id);
@@ -183,7 +182,7 @@ class DocumentTypeServiceImplTest {
         when(documentTypeRepository.findAll()).thenReturn(entities);
         when(documentTypeMapper.toDocumentTypeDTOCollection(entities)).thenReturn(expected);
 
-        List<DocumentTypeDTO> actual = service.handleGetAll();
+        List<DocumentTypeDTO> actual = service.getAll();
 
         assertSame(expected, actual);
         assertEquals(2, actual.size());
@@ -194,12 +193,11 @@ class DocumentTypeServiceImplTest {
         String criteria = "testCriteria";
         List<DocumentType> entities = List.of(DocumentType.Factory.newInstance());
         List<DocumentTypeDTO> expected = List.of(new DocumentTypeDTO());
-        Sort sort = Sort.by(Sort.Direction.ASC, "name");
-        
-    when(documentTypeRepository.findAll((Specification<DocumentType>) any(), any(Sort.class))).thenReturn(entities);
+
+        when(documentTypeRepository.findAll(org.mockito.ArgumentMatchers.<Specification<DocumentType>>any(), any(Sort.class))).thenReturn(entities);
         when(documentTypeMapper.toDocumentTypeDTOCollection(entities)).thenReturn(expected);
 
-        List<DocumentTypeDTO> actual = service.handleSearch(criteria);
+        List<DocumentTypeDTO> actual = service.search(criteria);
 
         assertSame(expected, actual);
     }
@@ -208,12 +206,10 @@ class DocumentTypeServiceImplTest {
     void handleGetAllWithPaginationReturnsPaginatedResults() throws Exception {
         List<DocumentType> entities = List.of(DocumentType.Factory.newInstance());
         Page<DocumentType> page = new PageImpl<>(entities);
-        List<DocumentTypeDTO> dtos = List.of(new DocumentTypeDTO());
-        Page<DocumentTypeDTO> expectedPage = new PageImpl<>(dtos);
 
         when(documentTypeRepository.findAll(any(PageRequest.class))).thenReturn(page);
 
-        Page<DocumentTypeDTO> actual = service.handleGetAll(0, 10);
+        Page<DocumentTypeDTO> actual = service.getAll(0, 10);
 
         assertEquals(0, actual.getNumber());
         assertEquals(1, actual.getSize());
@@ -227,7 +223,7 @@ class DocumentTypeServiceImplTest {
 
         when(documentTypeRepository.findAll(any(PageRequest.class))).thenReturn(page);
 
-        Page<DocumentTypeDTO> actual = service.handleSearch(criteria, 0, 10);
+        Page<DocumentTypeDTO> actual = service.search(criteria, 0, 10);
 
         verify(documentTypeRepository).findAll(any(PageRequest.class));
         assertEquals(1, actual.getSize());
@@ -238,12 +234,12 @@ class DocumentTypeServiceImplTest {
         String criteria = "documentCriteria";
         List<DocumentType> entities = List.of(DocumentType.Factory.newInstance());
         Page<DocumentType> page = new PageImpl<>(entities);
-        
-        when(documentTypeRepository.findAll((Specification<DocumentType>) any(), any(PageRequest.class))).thenReturn(page);
 
-        Page<DocumentTypeDTO> actual = service.handleSearch(criteria, 0, 10);
+        when(documentTypeRepository.findAll(org.mockito.ArgumentMatchers.<Specification<DocumentType>>any(), any(PageRequest.class))).thenReturn(page);
+
+        Page<DocumentTypeDTO> actual = service.search(criteria, 0, 10);
         
-    verify(documentTypeRepository).findAll((Specification<DocumentType>) any(), any(PageRequest.class));
+        verify(documentTypeRepository).findAll(org.mockito.ArgumentMatchers.<Specification<DocumentType>>any(), any(PageRequest.class));
         assertEquals(1, actual.getSize());
     }
 
@@ -271,7 +267,7 @@ class DocumentTypeServiceImplTest {
         when(documentTypeRepository.save(documentType)).thenReturn(documentType);
         when(documentTypeMapper.toDocumentTypeDTO(documentType)).thenReturn(expected);
 
-        DocumentTypeDTO actual = service.handleAddExpectedField(id.toString(), Set.of(fieldDTO));
+        DocumentTypeDTO actual = service.addExpectedField(id.toString(), Set.of(fieldDTO));
 
         assertSame(expected, actual);
         assertEquals(1, documentType.getExpectedFields().size());
@@ -298,7 +294,7 @@ class DocumentTypeServiceImplTest {
         when(documentTypeRepository.save(documentType)).thenReturn(documentType);
         when(documentTypeMapper.toDocumentTypeDTO(documentType)).thenReturn(expected);
 
-        DocumentTypeDTO actual = service.handleAddExpectedField(id.toString(), Set.of(fieldDTO1, fieldDTO2));
+        DocumentTypeDTO actual = service.addExpectedField(id.toString(), Set.of(fieldDTO1, fieldDTO2));
 
         assertSame(expected, actual);
         assertEquals(2, documentType.getExpectedFields().size());
@@ -313,7 +309,38 @@ class DocumentTypeServiceImplTest {
 
         org.junit.jupiter.api.Assertions.assertThrows(
                 Exception.class,
-                () -> service.handleAddExpectedField(id.toString(), Set.of(fieldDTO)),
+                () -> service.addExpectedField(id.toString(), Set.of(fieldDTO)),
                 "DocumentType not found for id: " + id);
+    }
+
+    @Test
+    void serviceBaseGuardsRejectInvalidArguments() {
+        assertThrows(IllegalArgumentException.class, () -> service.findById(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findById("\t"));
+        assertThrows(IllegalArgumentException.class, () -> service.save(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(" "));
+        assertThrows(IllegalArgumentException.class, () -> service.addExpectedField(null, Set.of()));
+        assertThrows(IllegalArgumentException.class, () -> service.addExpectedField("\n", Set.of()));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.addExpectedField(UUID.randomUUID().toString(), null));
+    }
+
+    @Test
+    void serviceBaseSaveGuardsRejectMissingRequiredFields() {
+        DocumentTypeDTO missingCode = validDocumentType();
+        missingCode.setCode(" ");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingCode));
+
+        DocumentTypeDTO missingName = validDocumentType();
+        missingName.setName(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingName));
+    }
+
+    private static DocumentTypeDTO validDocumentType() {
+        DocumentTypeDTO dto = new DocumentTypeDTO();
+        dto.setCode("DOC");
+        dto.setName("Document");
+        return dto;
     }
 }

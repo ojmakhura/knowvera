@@ -39,7 +39,6 @@ import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.SortOrder;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.TimePeriod;
-import bw.co.centralkyc.kyc.KycRecordServiceException;
 import bw.co.centralkyc.sequence.SequenceGenerator;
 import bw.co.centralkyc.sequence.SequenceGeneratorRepository;
 import bw.co.centralkyc.sequence.SequenceGeneratorService;
@@ -47,7 +46,6 @@ import bw.co.centralkyc.settings.SettingsDTO;
 import bw.co.centralkyc.settings.SettingsService;
 import bw.co.centralkyc.subscription.KycSubsciptionStatus;
 import bw.co.centralkyc.subscription.KycSubscription;
-import bw.co.centralkyc.subscription.KycSubscriptionDao;
 import bw.co.centralkyc.subscription.KycSubscriptionMapper;
 import bw.co.centralkyc.subscription.KycSubscriptionRepository;
 import bw.co.centralkyc.organisation.Organisation;
@@ -56,13 +54,9 @@ import bw.co.centralkyc.organisation.Organisation;
 class KycInvoiceServiceImplTest {
 
     @Mock
-    private KycInvoiceDao kycInvoiceDao;
-    @Mock
     private KycInvoiceRepository kycInvoiceRepository;
     @Mock
     private KycInvoiceMapper kycInvoiceMapper;
-    @Mock
-    private KycSubscriptionDao kycSubscriptionDao;
     @Mock
     private SequenceGeneratorService sequenceGeneratorService;
     @Mock
@@ -81,10 +75,8 @@ class KycInvoiceServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new KycInvoiceServiceImpl(
-                kycInvoiceDao,
                 kycInvoiceRepository,
                 kycInvoiceMapper,
-                kycSubscriptionDao,
                 sequenceGeneratorService,
                 sequenceGeneratorRepository,
                 kycSubscriptionRepository,
@@ -96,17 +88,26 @@ class KycInvoiceServiceImplTest {
     @Test
     void handleSaveCreatesInvoiceSequenceWhenRefIsBlank() throws Exception {
         KycInvoiceDTO input = new KycInvoiceDTO();
+        input.setRef("PLACEHOLDER");
+        input.setIssueDate(new java.util.Date());
+        input.setOrganisationId(UUID.randomUUID().toString());
+        input.setOrganisationCode("ORG");
+        input.setOrganisationName("Organisation");
+        input.setOrganisationRegistrationNo("REG-1");
+        input.setSubscriptionRef("SUB-1");
+        input.setSubscriptionId(UUID.randomUUID().toString());
+        input.setSubscriptionPeriod(TimePeriod.MONTH);
         KycInvoice entity = KycInvoice.Factory.newInstance();
         KycInvoiceDTO expected = new KycInvoiceDTO();
 
-        when(kycInvoiceDao.kycInvoiceDTOToEntity(input)).thenReturn(entity);
+        when(kycInvoiceMapper.kycInvoiceDTOToEntity(input)).thenReturn(entity);
         when(sequenceGeneratorRepository.findByName("KYC_INVOICE_REF")).thenReturn(Optional.empty());
         when(sequenceGeneratorRepository.save(any(SequenceGenerator.class))).thenAnswer(inv -> inv.getArgument(0));
         when(sequenceGeneratorService.generateNextSequenceValue("KYC_INVOICE_REF", true)).thenReturn("INV-000001");
         when(kycInvoiceRepository.save(entity)).thenReturn(entity);
-        when(kycInvoiceDao.toKycInvoiceDTO(entity)).thenReturn(expected);
+        when(kycInvoiceMapper.toKycInvoiceDTO(entity)).thenReturn(expected);
 
-        KycInvoiceDTO actual = service.handleSave(input);
+        KycInvoiceDTO actual = service.save(input);
 
         ArgumentCaptor<SequenceGenerator> captor = ArgumentCaptor.forClass(SequenceGenerator.class);
         verify(sequenceGeneratorRepository).save(captor.capture());
@@ -137,7 +138,7 @@ class KycInvoiceServiceImplTest {
         when(kycInvoiceRepository.save(any(KycInvoice.class))).thenAnswer(inv -> inv.getArgument(0));
         when(kycInvoiceRepository.findInvoicesBySubscriptionId(subscriptionId)).thenReturn(expected);
 
-        List<KycInvoiceDTO> actual = service.handleGenerateInvoice(subscriptionId.toString(), "tester");
+        List<KycInvoiceDTO> actual = service.generateInvoice(subscriptionId.toString(), "tester");
 
         ArgumentCaptor<KycInvoice> captor = ArgumentCaptor.forClass(KycInvoice.class);
         verify(kycInvoiceRepository).save(captor.capture());
@@ -157,9 +158,9 @@ class KycInvoiceServiceImplTest {
         KycInvoiceDTO expected = new KycInvoiceDTO();
 
         when(kycInvoiceRepository.findById(id)).thenReturn(Optional.of(entity));
-        when(kycInvoiceDao.toKycInvoiceDTO(entity)).thenReturn(expected);
+        when(kycInvoiceMapper.toKycInvoiceDTO(entity)).thenReturn(expected);
 
-        KycInvoiceDTO actual = service.handleFindById(id.toString());
+        KycInvoiceDTO actual = service.findById(id.toString());
 
         assertSame(expected, actual);
     }
@@ -168,14 +169,23 @@ class KycInvoiceServiceImplTest {
     void handleSaveSkipsSequenceWhenRefAlreadyPresent() throws Exception {
         KycInvoiceDTO input = new KycInvoiceDTO();
         KycInvoice entity = KycInvoice.Factory.newInstance();
+        input.setRef("INV-CUSTOM");
+        input.setIssueDate(new java.util.Date());
+        input.setOrganisationId(UUID.randomUUID().toString());
+        input.setOrganisationCode("ORG");
+        input.setOrganisationName("Organisation");
+        input.setOrganisationRegistrationNo("REG-1");
+        input.setSubscriptionRef("SUB-1");
+        input.setSubscriptionId(UUID.randomUUID().toString());
+        input.setSubscriptionPeriod(TimePeriod.MONTH);
         entity.setRef("INV-CUSTOM");
         KycInvoiceDTO expected = new KycInvoiceDTO();
 
-        when(kycInvoiceDao.kycInvoiceDTOToEntity(input)).thenReturn(entity);
+        when(kycInvoiceMapper.kycInvoiceDTOToEntity(input)).thenReturn(entity);
         when(kycInvoiceRepository.save(entity)).thenReturn(entity);
-        when(kycInvoiceDao.toKycInvoiceDTO(entity)).thenReturn(expected);
+        when(kycInvoiceMapper.toKycInvoiceDTO(entity)).thenReturn(expected);
 
-        KycInvoiceDTO actual = service.handleSave(input);
+        KycInvoiceDTO actual = service.save(input);
 
         assertSame(expected, actual);
         verify(sequenceGeneratorRepository, never()).findByName("KYC_INVOICE_REF");
@@ -185,7 +195,7 @@ class KycInvoiceServiceImplTest {
     void handleRemoveDeletesById() throws Exception {
         UUID id = UUID.randomUUID();
 
-        boolean removed = service.handleRemove(id.toString());
+        boolean removed = service.remove(id.toString());
 
         assertTrue(removed);
         verify(kycInvoiceRepository).deleteById(id);
@@ -199,7 +209,7 @@ class KycInvoiceServiceImplTest {
         when(kycInvoiceRepository.findAll()).thenReturn(entities);
         when(kycInvoiceMapper.toKycInvoiceDTOCollection(entities)).thenReturn(expected);
 
-        List<KycInvoiceDTO> actual = service.handleGetAll();
+        List<KycInvoiceDTO> actual = service.getAll();
 
         assertSame(expected, actual);
     }
@@ -216,7 +226,7 @@ class KycInvoiceServiceImplTest {
                 .thenReturn(entities);
         when(kycInvoiceMapper.toKycInvoiceDTOCollection(entities)).thenReturn(expected);
 
-        List<KycInvoiceDTO> actual = service.handleSearch(criteria, null);
+        List<KycInvoiceDTO> actual = service.search(criteria, null);
 
         assertSame(expected, actual);
     }
@@ -239,7 +249,7 @@ class KycInvoiceServiceImplTest {
                 });
         when(kycInvoiceMapper.toKycInvoiceDTOCollection(entities)).thenReturn(List.of());
 
-        List<KycInvoiceDTO> actual = service.handleSearch(criteria, Set.of());
+        List<KycInvoiceDTO> actual = service.search(criteria, Set.of());
 
         assertTrue(actual.isEmpty());
     }
@@ -258,9 +268,9 @@ class KycInvoiceServiceImplTest {
 
         when(kycInvoiceRepository.findAll(org.mockito.ArgumentMatchers.<Specification<KycInvoice>>any(), any(PageRequest.class)))
                 .thenReturn(page);
-        when(kycInvoiceDao.toKycInvoiceDTO(entity)).thenReturn(dto);
+        when(kycInvoiceMapper.toKycInvoiceDTO(entity)).thenReturn(dto);
 
-        Page<KycInvoiceDTO> actual = service.handleSearch(criteria);
+        Page<KycInvoiceDTO> actual = service.search(criteria);
 
         assertEquals(1, actual.getContent().size());
         assertSame(dto, actual.getContent().get(0));
@@ -273,9 +283,9 @@ class KycInvoiceServiceImplTest {
         Page<KycInvoice> page = new PageImpl<>(List.of(entity));
 
         when(kycInvoiceRepository.findAll(any(PageRequest.class))).thenReturn(page);
-        when(kycInvoiceDao.toKycInvoiceDTO(entity)).thenReturn(dto);
+        when(kycInvoiceMapper.toKycInvoiceDTO(entity)).thenReturn(dto);
 
-        Page<KycInvoiceDTO> actual = service.handleGetAll(0, 5);
+        Page<KycInvoiceDTO> actual = service.getAll(0, 5);
 
         assertEquals(1, actual.getContent().size());
         assertSame(dto, actual.getContent().get(0));
@@ -283,8 +293,8 @@ class KycInvoiceServiceImplTest {
 
     @Test
     void handleUploadThrowsUnsupportedOperationException() {
-        assertThrows(UnsupportedOperationException.class,
-                () -> service.handleUpload(UUID.randomUUID().toString(), "url", UploadPurpose.INVOICE, "tester"));
+        assertThrows(KycInvoiceServiceException.class,
+                () -> service.upload(UUID.randomUUID().toString(), "url", UploadPurpose.INVOICE, "tester"));
     }
 
     @Test
@@ -292,8 +302,8 @@ class KycInvoiceServiceImplTest {
         UUID id = UUID.randomUUID();
         when(kycSubscriptionRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(KycRecordServiceException.class,
-                () -> service.handleGenerateInvoice(id.toString(), "tester"));
+        assertThrows(KycInvoiceServiceException.class,
+                () -> service.generateInvoice(id.toString(), "tester"));
     }
 
     @Test
@@ -306,8 +316,8 @@ class KycInvoiceServiceImplTest {
 
         when(kycSubscriptionRepository.findById(id)).thenReturn(Optional.of(subscription));
 
-        assertThrows(KycRecordServiceException.class,
-                () -> service.handleGenerateInvoice(id.toString(), "tester"));
+        assertThrows(KycInvoiceServiceException.class,
+                () -> service.generateInvoice(id.toString(), "tester"));
     }
 
     @Test
@@ -325,8 +335,8 @@ class KycInvoiceServiceImplTest {
         when(sequenceGeneratorRepository.findByName("KYC_INVOICE_REF")).thenReturn(Optional.of(SequenceGenerator.Factory.newInstance()));
         when(sequenceGeneratorService.generateNextSequenceValue("KYC_INVOICE_REF", true)).thenReturn("INV-991");
 
-        assertThrows(UnsupportedOperationException.class,
-                () -> service.handleGenerateInvoice(id.toString(), "tester"));
+        assertThrows(KycInvoiceServiceException.class,
+                () -> service.generateInvoice(id.toString(), "tester"));
     }
 
     @Test
@@ -349,7 +359,7 @@ class KycInvoiceServiceImplTest {
         when(kycInvoiceRepository.save(any(KycInvoice.class))).thenAnswer(inv -> inv.getArgument(0));
         when(kycInvoiceRepository.findInvoicesBySubscriptionId(subscriptionId)).thenReturn(expected);
 
-        List<KycInvoiceDTO> actual = service.handleGenerateInvoice(subscriptionId.toString(), "tester");
+        List<KycInvoiceDTO> actual = service.generateInvoice(subscriptionId.toString(), "tester");
 
         ArgumentCaptor<KycInvoice> captor = ArgumentCaptor.forClass(KycInvoice.class);
         verify(kycInvoiceRepository).save(captor.capture());
@@ -371,7 +381,7 @@ class KycInvoiceServiceImplTest {
         });
         when(kycInvoiceMapper.toKycInvoiceDTOCollection(entities)).thenReturn(expected);
 
-        List<KycInvoiceDTO> actual = service.handleFindByOrganisation(orgId.toString());
+        List<KycInvoiceDTO> actual = service.findByOrganisation(orgId.toString());
 
         assertSame(expected, actual);
     }
@@ -388,7 +398,7 @@ class KycInvoiceServiceImplTest {
         });
         when(kycInvoiceMapper.toKycInvoiceDTOCollection(entities)).thenReturn(expected);
 
-        List<KycInvoiceDTO> actual = service.handleFindBySubscription(subscriptionId.toString());
+        List<KycInvoiceDTO> actual = service.findBySubscription(subscriptionId.toString());
 
         assertSame(expected, actual);
     }
@@ -400,7 +410,7 @@ class KycInvoiceServiceImplTest {
 
         when(kycInvoiceRepository.findInvoicesByOrganisationId(orgId, PageRequest.of(0, 5))).thenReturn(expected);
 
-        Page<KycInvoiceDTO> actual = service.handleFindByOrganisation(orgId.toString(), 0, 5);
+        Page<KycInvoiceDTO> actual = service.findByOrganisation(orgId.toString(), 0, 5);
 
         assertSame(expected, actual);
     }
@@ -412,7 +422,7 @@ class KycInvoiceServiceImplTest {
 
         when(kycInvoiceRepository.findInvoicesBySubscriptionId(subscriptionId, PageRequest.of(1, 3))).thenReturn(expected);
 
-        Page<KycInvoiceDTO> actual = service.handleFindBySubscription(subscriptionId.toString(), 1, 3);
+        Page<KycInvoiceDTO> actual = service.findBySubscription(subscriptionId.toString(), 1, 3);
 
         assertSame(expected, actual);
     }
@@ -425,17 +435,102 @@ class KycInvoiceServiceImplTest {
         when(kycInvoiceRepository.countOrganisationInvoices(false, orgId)).thenReturn(Optional.of(5L));
         when(kycInvoiceRepository.count()).thenReturn(12L);
 
-        assertEquals(2L, service.handleCountInvoicesByOrganisationId(orgId.toString()));
-        assertEquals(0L, service.handleCountInvoices(true));
-        assertEquals(5L, service.handleCountOrganisationInvoices(false, orgId.toString()));
-        assertEquals(12L, service.handleCount());
+        assertEquals(2L, service.countInvoicesByOrganisationId(orgId.toString()));
+        assertEquals(0L, service.countInvoices(true));
+        assertEquals(5L, service.countOrganisationInvoices(false, orgId.toString()));
+        assertEquals(12L, service.count());
     }
 
+    @Test
+    void serviceBaseGuardsRejectInvalidArguments() {
+        assertThrows(IllegalArgumentException.class, () -> service.findById(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findById(" "));
+        assertThrows(IllegalArgumentException.class, () -> service.save(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove("\t"));
+        assertThrows(IllegalArgumentException.class, () -> service.upload(null, "url", UploadPurpose.INVOICE, "tester"));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.upload(UUID.randomUUID().toString(), null, UploadPurpose.INVOICE, "tester"));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.upload(UUID.randomUUID().toString(), "url", null, "tester"));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.upload(UUID.randomUUID().toString(), "url", UploadPurpose.INVOICE, " "));
+        assertThrows(IllegalArgumentException.class, () -> service.generateInvoice(null, "tester"));
+        assertThrows(IllegalArgumentException.class, () -> service.generateInvoice(" ", "tester"));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.generateInvoice(UUID.randomUUID().toString(), null));
+        assertThrows(IllegalArgumentException.class,
+                () -> service.generateInvoice(UUID.randomUUID().toString(), "\t"));
+        assertThrows(IllegalArgumentException.class, () -> service.findByOrganisation(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findByOrganisation(" "));
+        assertThrows(IllegalArgumentException.class, () -> service.findBySubscription(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findBySubscription("\n"));
+        assertThrows(IllegalArgumentException.class, () -> service.findByOrganisation(null, 0, 10));
+        assertThrows(IllegalArgumentException.class, () -> service.findBySubscription("", 0, 10));
+        assertThrows(IllegalArgumentException.class, () -> service.countInvoicesByOrganisationId(null));
+        assertThrows(IllegalArgumentException.class, () -> service.countInvoicesByOrganisationId(" "));
+        assertThrows(IllegalArgumentException.class, () -> service.countOrganisationInvoices(Boolean.TRUE, null));
+        assertThrows(IllegalArgumentException.class, () -> service.countOrganisationInvoices(Boolean.FALSE, "\t"));
+    }
+
+    @Test
+    void serviceBaseSaveGuardsRejectMissingRequiredFields() {
+        KycInvoiceDTO missingRef = validInvoice();
+        missingRef.setRef(" ");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingRef));
+
+        KycInvoiceDTO missingIssueDate = validInvoice();
+        missingIssueDate.setIssueDate(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingIssueDate));
+
+        KycInvoiceDTO missingOrganisationId = validInvoice();
+        missingOrganisationId.setOrganisationId(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingOrganisationId));
+
+        KycInvoiceDTO missingOrganisationCode = validInvoice();
+        missingOrganisationCode.setOrganisationCode("\t");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingOrganisationCode));
+
+        KycInvoiceDTO missingOrganisationName = validInvoice();
+        missingOrganisationName.setOrganisationName("");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingOrganisationName));
+
+        KycInvoiceDTO missingRegistrationNo = validInvoice();
+        missingRegistrationNo.setOrganisationRegistrationNo(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingRegistrationNo));
+
+        KycInvoiceDTO missingSubscriptionRef = validInvoice();
+        missingSubscriptionRef.setSubscriptionRef(" ");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingSubscriptionRef));
+
+        KycInvoiceDTO missingSubscriptionId = validInvoice();
+        missingSubscriptionId.setSubscriptionId(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingSubscriptionId));
+
+        KycInvoiceDTO missingSubscriptionPeriod = validInvoice();
+        missingSubscriptionPeriod.setSubscriptionPeriod(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingSubscriptionPeriod));
+    }
+
+    private static KycInvoiceDTO validInvoice() {
+        KycInvoiceDTO dto = new KycInvoiceDTO();
+        dto.setRef("INV-1");
+        dto.setIssueDate(new java.util.Date());
+        dto.setOrganisationId(UUID.randomUUID().toString());
+        dto.setOrganisationCode("ORG");
+        dto.setOrganisationName("Organisation");
+        dto.setOrganisationRegistrationNo("REG-1");
+        dto.setSubscriptionRef("SUB-1");
+        dto.setSubscriptionId(UUID.randomUUID().toString());
+        dto.setSubscriptionPeriod(TimePeriod.MONTH);
+        return dto;
+    }
+
+    @SuppressWarnings("unchecked")
     private void evaluateSpecification(Specification<KycInvoice> specification) {
-        Root<KycInvoice> root = org.mockito.Mockito.mock(Root.class);
-        @SuppressWarnings("unchecked")
+        Root<KycInvoice> root = (Root<KycInvoice>) org.mockito.Mockito.mock(Root.class);
         Path<Object> path = org.mockito.Mockito.mock(Path.class);
-        CriteriaQuery<Object> query = org.mockito.Mockito.mock(CriteriaQuery.class);
+        CriteriaQuery<Object> query = (CriteriaQuery<Object>) org.mockito.Mockito.mock(CriteriaQuery.class);
         CriteriaBuilder builder = org.mockito.Mockito.mock(CriteriaBuilder.class);
         Predicate predicate = org.mockito.Mockito.mock(Predicate.class);
 

@@ -33,14 +33,12 @@ public class ContactServiceImpl
     private static final String SEQUENCE_NAME = "CONTACT_REF";
 
     public ContactServiceImpl(
-            ContactDao contactDao,
             ContactRepository contactRepository,
             ContactMapper contactMapper,
             SequenceGeneratorService sequenceGeneratorService,
             SequenceGeneratorRepository sequenceGeneratorRepository,
             MessageSource messageSource) {
         super(
-                contactDao,
                 contactRepository,
                 contactMapper,
                 messageSource);

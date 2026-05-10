@@ -10,10 +10,8 @@ package bw.co.centralkyc.organisation.document;
 
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
-import bw.co.centralkyc.document.DocumentDao;
 import bw.co.centralkyc.document.DocumentMapper;
 import bw.co.centralkyc.document.DocumentRepository;
-import bw.co.centralkyc.individual.IndividualDao;
 import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.individual.IndividualRepository;
 import java.util.Collection;
@@ -39,13 +37,13 @@ public class OrganisationDocumentServiceImpl
 {
     
 
-    public OrganisationDocumentServiceImpl(OrganisationDocumentDao organisationDocumentDao,
+    public OrganisationDocumentServiceImpl(
             OrganisationDocumentRepository organisationDocumentRepository,
-            OrganisationDocumentMapper organisationDocumentMapper, IndividualDao individualDao,
-            IndividualRepository individualRepository, IndividualMapper individualMapper, DocumentDao documentDao,
+            OrganisationDocumentMapper organisationDocumentMapper,
+            IndividualRepository individualRepository, IndividualMapper individualMapper, 
             DocumentRepository documentRepository, DocumentMapper documentMapper, MessageSource messageSource) {
-        super(organisationDocumentDao, organisationDocumentRepository, organisationDocumentMapper, individualDao,
-                individualRepository, individualMapper, documentDao, documentRepository, documentMapper, messageSource);
+        super(organisationDocumentRepository, organisationDocumentMapper,
+                individualRepository, individualMapper, documentRepository, documentMapper, messageSource);
         //TODO Auto-generated constructor stub
     }
 
@@ -58,7 +56,7 @@ public class OrganisationDocumentServiceImpl
     {
 
         OrganisationDocument entity = organisationDocumentRepository.getReferenceById(UUID.fromString(id));
-        return organisationDocumentDao.toOrganisationDocumentDTO(entity);
+        return organisationDocumentMapper.toOrganisationDocumentDTO(entity);
     }
 
     /**
@@ -69,9 +67,9 @@ public class OrganisationDocumentServiceImpl
         throws Exception
     {
 
-        OrganisationDocument organisationDocument = organisationDocumentDao.organisationDocumentDTOToEntity(clientRequest);
+        OrganisationDocument organisationDocument = organisationDocumentMapper.organisationDocumentDTOToEntity(clientRequest);
         organisationDocument = organisationDocumentRepository.save(organisationDocument);
-        return organisationDocumentDao.toOrganisationDocumentDTO(organisationDocument);
+        return organisationDocumentMapper.toOrganisationDocumentDTO(organisationDocument);
     }
 
     /**
@@ -121,7 +119,7 @@ public class OrganisationDocumentServiceImpl
 
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
         Page<OrganisationDocument> entities = organisationDocumentRepository.findAll(pageRequest);
-        return entities.map(entity -> organisationDocumentDao.toOrganisationDocumentDTO(entity));
+        return entities.map(entity -> organisationDocumentMapper.toOrganisationDocumentDTO(entity));
 
     }
 

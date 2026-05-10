@@ -37,12 +37,11 @@ public class SettingsServiceImpl
     private final DocumentRepository documentRepository;
     private final DocumentTypeRepository documentTypeRepository;
 
-    public SettingsServiceImpl(SettingsDao settingsDao, SettingsRepository settingsRepository,
+    public SettingsServiceImpl(SettingsRepository settingsRepository,
             SettingsMapper settingsMapper,
             DocumentRepository documentRepository, DocumentTypeRepository documentTypeRepository,
-            SalaryRangeMapper salaryRangeMapper,
-            SalaryRangeDao salaryRangeDao, SalaryRangeRepository salaryRangeRepository, MessageSource messageSource) {
-        super(settingsDao, settingsRepository, settingsMapper, salaryRangeDao, salaryRangeRepository, salaryRangeMapper,
+            SalaryRangeMapper salaryRangeMapper, SalaryRangeRepository salaryRangeRepository, MessageSource messageSource) {
+        super(settingsRepository, settingsMapper, salaryRangeRepository, salaryRangeMapper,
                 messageSource);
         // TODO Auto-generated constructor stub
 

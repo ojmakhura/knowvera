@@ -38,9 +38,9 @@ public class IndividualServiceImpl
     private final ClientRequestRepository clientRequestRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public IndividualServiceImpl(IndividualDao individualDao, IndividualRepository individualRepository,
+    public IndividualServiceImpl(IndividualRepository individualRepository,
             IndividualMapper individualMapper, MessageSource messageSource, ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder) {
-        super(individualDao, individualRepository, individualMapper, messageSource);
+        super(individualRepository, individualMapper, messageSource);
         // TODO Auto-generated constructor stub
 
         this.clientRequestRepository = clientRequestRepository;
@@ -103,7 +103,7 @@ public class IndividualServiceImpl
     protected IndividualDTO handleSave(IndividualDTO individual)
             throws Exception {
 
-        Individual entity = individualDao.individualDTOToEntity(individual);
+        Individual entity = individualMapper.individualDTOToEntity(individual);
         entity = individualRepository.save(entity);
 
         return individualMapper.toIndividualDTO(entity);

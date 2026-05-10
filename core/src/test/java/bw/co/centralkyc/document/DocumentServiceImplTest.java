@@ -58,8 +58,6 @@ import bw.co.centralkyc.subscription.KycSubscriptionRepository;
 class DocumentServiceImplTest {
 
     @Mock
-    private DocumentDao documentDao;
-    @Mock
     private DocumentRepository documentRepository;
     @Mock
     private VerificationDataConfigRepository verificationDataConfigRepository;
@@ -93,7 +91,6 @@ class DocumentServiceImplTest {
     @BeforeEach
     void setUp() {
         service = new DocumentServiceImpl(
-                documentDao,
                 documentRepository,
                 verificationDataConfigRepository,
                 organisationRepository,
@@ -123,7 +120,7 @@ class DocumentServiceImplTest {
         when(documentRepository.findById(id)).thenReturn(Optional.of(document));
         when(documentMapper.toDocumentDTO(document)).thenReturn(expected);
 
-        DocumentDTO actual = service.handleFindById(id.toString());
+        DocumentDTO actual = service.findById(id.toString());
 
         assertSame(expected, actual);
         verify(documentRepository, never()).save(document);
@@ -151,7 +148,7 @@ class DocumentServiceImplTest {
         when(documentRepository.save(document)).thenReturn(document);
         when(documentMapper.toDocumentDTO(document)).thenReturn(mapped);
 
-        DocumentDTO actual = service.handleFindById(id.toString());
+        DocumentDTO actual = service.findById(id.toString());
 
         assertSame(mapped, actual);
         assertEquals("ORG-001 Acme Corp", actual.getTargetLabel());
@@ -163,7 +160,7 @@ class DocumentServiceImplTest {
         UUID id = UUID.randomUUID();
         when(documentRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(Exception.class, () -> service.handleFindById(id.toString()));
+        assertThrows(Exception.class, () -> service.findById(id.toString()));
     }
 
     @Test
@@ -174,6 +171,8 @@ class DocumentServiceImplTest {
         entity.setId(null);
 
         DocumentDTO input = new DocumentDTO();
+        input.setTargetId(orgId.toString());
+        input.setFileName("org-doc.pdf");
         DocumentDTO mappedBack = new DocumentDTO();
         mappedBack.setTarget(TargetEntity.ORGANISATION);
         mappedBack.setTargetId(orgId.toString());
@@ -183,12 +182,12 @@ class DocumentServiceImplTest {
         organisation.setName("Org Name");
         organisation.setDocuments(null);
 
-        when(documentDao.documentDTOToEntity(input)).thenReturn(entity);
+        when(documentMapper.documentDTOToEntity(input)).thenReturn(entity);
         when(organisationRepository.findById(orgId)).thenReturn(Optional.of(organisation));
         when(documentRepository.save(entity)).thenReturn(entity);
         when(documentMapper.toDocumentDTO(entity)).thenReturn(mappedBack);
 
-        DocumentDTO actual = service.handleSave(input);
+        DocumentDTO actual = service.save(input);
 
         assertSame(mappedBack, actual);
         assertEquals(1, organisation.getDocuments().size());
@@ -204,6 +203,8 @@ class DocumentServiceImplTest {
         entity.setId(null);
 
         DocumentDTO input = new DocumentDTO();
+        input.setTargetId(individualId.toString());
+        input.setFileName("ind-doc.pdf");
         DocumentDTO mappedBack = new DocumentDTO();
 
         Individual individual = Individual.Factory.newInstance();
@@ -211,12 +212,12 @@ class DocumentServiceImplTest {
         individual.setSurname("Doe");
         individual.setDocuments(null);
 
-        when(documentDao.documentDTOToEntity(input)).thenReturn(entity);
+        when(documentMapper.documentDTOToEntity(input)).thenReturn(entity);
         when(individualRepository.findById(individualId)).thenReturn(Optional.of(individual));
         when(documentRepository.save(entity)).thenReturn(entity);
         when(documentMapper.toDocumentDTO(entity)).thenReturn(mappedBack);
 
-        DocumentDTO actual = service.handleSave(input);
+        DocumentDTO actual = service.save(input);
 
         assertSame(mappedBack, actual);
         assertEquals(1, individual.getDocuments().size());
@@ -231,13 +232,15 @@ class DocumentServiceImplTest {
         entity.setId(existingId);
 
         DocumentDTO input = new DocumentDTO();
+        input.setTargetId(UUID.randomUUID().toString());
+        input.setFileName("existing-doc.pdf");
         DocumentDTO mappedBack = new DocumentDTO();
 
-        when(documentDao.documentDTOToEntity(input)).thenReturn(entity);
+        when(documentMapper.documentDTOToEntity(input)).thenReturn(entity);
         when(documentRepository.save(entity)).thenReturn(entity);
         when(documentMapper.toDocumentDTO(entity)).thenReturn(mappedBack);
 
-        DocumentDTO actual = service.handleSave(input);
+        DocumentDTO actual = service.save(input);
 
         assertSame(mappedBack, actual);
         verify(organisationRepository, never()).save(any());
@@ -260,7 +263,7 @@ class DocumentServiceImplTest {
         when(documentRepository.findById(documentId)).thenReturn(Optional.of(document));
         when(organisationRepository.findById(orgId)).thenReturn(Optional.of(organisation));
 
-        boolean removed = service.handleRemove(documentId.toString());
+        boolean removed = service.remove(documentId.toString());
 
         assertTrue(removed);
         assertTrue(organisation.getDocuments().isEmpty());
@@ -282,7 +285,7 @@ class DocumentServiceImplTest {
         when(documentRepository.findById(documentId)).thenReturn(Optional.of(document));
         when(individualRepository.findById(individualId)).thenReturn(Optional.of(individual));
 
-        boolean removed = service.handleRemove(documentId.toString());
+        boolean removed = service.remove(documentId.toString());
 
         assertTrue(removed);
         assertTrue(individual.getDocuments().isEmpty());
@@ -304,7 +307,7 @@ class DocumentServiceImplTest {
         when(documentRepository.findById(documentId)).thenReturn(Optional.of(document));
         when(kycRecordRepository.findById(recordId)).thenReturn(Optional.of(record));
 
-        boolean removed = service.handleRemove(documentId.toString());
+        boolean removed = service.remove(documentId.toString());
 
         assertTrue(removed);
         assertTrue(record.getDocuments().isEmpty());
@@ -325,7 +328,7 @@ class DocumentServiceImplTest {
         when(documentRepository.findById(documentId)).thenReturn(Optional.of(document));
         when(clientRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
 
-        boolean removed = service.handleRemove(documentId.toString());
+        boolean removed = service.remove(documentId.toString());
 
         assertTrue(removed);
         verify(documentRepository).delete(document);
@@ -340,7 +343,7 @@ class DocumentServiceImplTest {
 
         when(documentRepository.findById(documentId)).thenReturn(Optional.of(document));
 
-        boolean removed = service.handleRemove(documentId.toString());
+        boolean removed = service.remove(documentId.toString());
 
         assertTrue(removed);
         verify(documentRepository).delete(document);
@@ -355,7 +358,7 @@ class DocumentServiceImplTest {
         when(documentRepository.findAll()).thenReturn(docs);
         when(documentMapper.toDocumentListDTOCollection(docs)).thenReturn(expected);
 
-        List<DocumentListDTO> actual = service.handleGetAll();
+        List<DocumentListDTO> actual = service.getAll();
 
         assertEquals(expected, actual);
     }
@@ -369,7 +372,7 @@ class DocumentServiceImplTest {
         when(documentRepository.findAll(PageRequest.of(0, 10))).thenReturn(page);
         when(documentMapper.toDocumentListDTO(doc)).thenReturn(dto);
 
-        Page<DocumentListDTO> result = service.handleGetAll(0, 10);
+        Page<DocumentListDTO> result = service.getAll(0, 10);
 
         assertEquals(1, result.getContent().size());
         assertEquals("f.pdf", result.getContent().get(0).fileName());
@@ -383,15 +386,15 @@ class DocumentServiceImplTest {
         when(documentRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Document>>any(), any(Sort.class))).thenReturn(docs);
         when(documentMapper.toDocumentListDTOCollection(docs)).thenReturn(mapped);
 
-        List<DocumentListDTO> result = service.handleFindByDocumentType(UUID.randomUUID().toString());
+        List<DocumentListDTO> result = service.findByDocumentType(UUID.randomUUID().toString());
 
         assertEquals(mapped, result);
     }
 
     @Test
     void handleUploadThrowsUnsupportedOperationException() {
-        assertThrows(UnsupportedOperationException.class,
-                () -> service.handleUpload(TargetEntity.INDIVIDUAL, UUID.randomUUID().toString(), UUID.randomUUID().toString(), "url"));
+        assertThrows(DocumentServiceException.class,
+                () -> service.upload(TargetEntity.INDIVIDUAL, UUID.randomUUID().toString(), UUID.randomUUID().toString(), "url"));
     }
 
     @Test
@@ -402,7 +405,7 @@ class DocumentServiceImplTest {
         when(documentRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Document>>any(), any(Sort.class))).thenReturn(docs);
         when(documentMapper.toDocumentListDTOCollection(docs)).thenReturn(mapped);
 
-        List<DocumentListDTO> result = service.handleFindByTarget(TargetEntity.INDIVIDUAL, UUID.randomUUID().toString());
+        List<DocumentListDTO> result = service.findByTarget(TargetEntity.INDIVIDUAL, UUID.randomUUID().toString());
 
         assertEquals(mapped, result);
     }
@@ -425,7 +428,7 @@ class DocumentServiceImplTest {
         when(documentRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Document>>any(), any(Sort.class))).thenReturn(docs);
         when(documentMapper.toDocumentListDTOCollection(docs)).thenReturn(mapped);
 
-        List<DocumentListDTO> result = service.handleSearch(criteria, orderings);
+        List<DocumentListDTO> result = service.search(criteria, orderings);
 
         assertEquals(mapped, result);
     }
@@ -441,7 +444,7 @@ class DocumentServiceImplTest {
         when(documentRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Document>>any(), any(Sort.class))).thenReturn(emptyDocs);
         when(documentMapper.toDocumentListDTOCollection(emptyDocs)).thenReturn(List.of());
 
-        List<DocumentListDTO> result = service.handleSearch(criteria, orderings);
+        List<DocumentListDTO> result = service.search(criteria, orderings);
 
         assertTrue(result.isEmpty());
     }
@@ -464,7 +467,7 @@ class DocumentServiceImplTest {
         when(documentRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Document>>any(), any(PageRequest.class))).thenReturn(page);
         when(documentMapper.toDocumentListDTO(doc)).thenReturn(dto);
 
-        Page<DocumentListDTO> result = service.handleSearch(search);
+        Page<DocumentListDTO> result = service.search(search);
 
         assertEquals(1, result.getContent().size());
         assertEquals("file.pdf", result.getContent().get(0).fileName());
@@ -490,7 +493,7 @@ class DocumentServiceImplTest {
         when(documentRepository.save(document)).thenReturn(document);
         when(documentMapper.toDocumentDTO(document)).thenReturn(dto);
 
-        DocumentDTO result = service.handleUpdateFileContent(documentId.toString(), "updated-content");
+        DocumentDTO result = service.updateFileContent(documentId.toString(), "updated-content");
 
         assertSame(dto, result);
         assertEquals("updated-content", document.getFileContent());
@@ -502,7 +505,7 @@ class DocumentServiceImplTest {
         UUID id = UUID.randomUUID();
         when(documentRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(Exception.class, () -> service.handleUpdateFileContent(id.toString(), "data"));
+        assertThrows(Exception.class, () -> service.updateFileContent(id.toString(), "data"));
     }
 
     @Test
@@ -516,7 +519,7 @@ class DocumentServiceImplTest {
         when(documentRepository.findById(id)).thenReturn(Optional.of(document));
         when(documentMapper.toDocumentDTO(document)).thenReturn(dto);
 
-        DocumentDTO result = service.handleVerifyData(id.toString(), "tester");
+        DocumentDTO result = service.verifyData(id.toString(), "tester");
 
         assertSame(dto, result);
         verify(documentRepository, never()).save(any());
@@ -544,7 +547,7 @@ class DocumentServiceImplTest {
         when(documentRepository.save(document)).thenReturn(document);
         when(documentMapper.toDocumentDTO(document)).thenReturn(dto);
 
-        service.handleVerifyData(id.toString(), "tester");
+        service.verifyData(id.toString(), "tester");
 
         assertEquals(DocumentVerificationStatus.MANUAL_REVIEW, document.getVerificationStatus());
     }
@@ -570,7 +573,7 @@ class DocumentServiceImplTest {
         when(documentRepository.save(document)).thenReturn(document);
         when(documentMapper.toDocumentDTO(document)).thenReturn(dto);
 
-        service.handleVerifyData(id.toString(), "tester");
+        service.verifyData(id.toString(), "tester");
 
         assertEquals(DocumentVerificationStatus.REJECTED, document.getVerificationStatus());
     }
@@ -597,7 +600,7 @@ class DocumentServiceImplTest {
         when(documentRepository.save(document)).thenReturn(document);
         when(documentMapper.toDocumentDTO(document)).thenReturn(dto);
 
-        service.handleVerifyData(id.toString(), "tester");
+        service.verifyData(id.toString(), "tester");
 
         assertEquals(DocumentVerificationStatus.VERIFIED, document.getVerificationStatus());
     }
@@ -607,7 +610,7 @@ class DocumentServiceImplTest {
         UUID id = UUID.randomUUID();
         when(documentRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(Exception.class, () -> service.handleVerifyData(id.toString(), "tester"));
+        assertThrows(Exception.class, () -> service.verifyData(id.toString(), "tester"));
     }
 
     @Test
@@ -621,7 +624,7 @@ class DocumentServiceImplTest {
         when(documentRepository.save(document)).thenReturn(document);
         when(documentMapper.toDocumentDTO(document)).thenReturn(dto);
 
-        DocumentDTO result = service.handleUpdateVerificationStatus(id.toString(), DocumentVerificationStatus.REJECTED, "approver");
+        DocumentDTO result = service.updateVerificationStatus(id.toString(), DocumentVerificationStatus.REJECTED, "approver");
 
         assertSame(dto, result);
         assertEquals(DocumentVerificationStatus.REJECTED, document.getVerificationStatus());
@@ -633,8 +636,65 @@ class DocumentServiceImplTest {
         when(documentRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(DocumentServiceException.class,
-                () -> service.handleUpdateVerificationStatus(id.toString(), DocumentVerificationStatus.VERIFIED, "approver"));
+                () -> service.updateVerificationStatus(id.toString(), DocumentVerificationStatus.VERIFIED, "approver"));
     }
+
+        @Test
+        void serviceBaseGuardsRejectInvalidArguments() {
+        assertThrows(IllegalArgumentException.class, () -> service.findById(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findById("\t"));
+        assertThrows(IllegalArgumentException.class, () -> service.save(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(null));
+        assertThrows(IllegalArgumentException.class, () -> service.remove(" "));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.search(new DocumentSearchCriteria(), null));
+        assertThrows(IllegalArgumentException.class, () -> service.findByDocumentType(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findByDocumentType("\n"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.upload(null, UUID.randomUUID().toString(), UUID.randomUUID().toString(), "url"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.upload(TargetEntity.INDIVIDUAL, null, UUID.randomUUID().toString(), "url"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.upload(TargetEntity.INDIVIDUAL, UUID.randomUUID().toString(), null, "url"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.upload(TargetEntity.INDIVIDUAL, UUID.randomUUID().toString(), UUID.randomUUID().toString(), "\t"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.findByTarget(null, UUID.randomUUID().toString()));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.findByTarget(TargetEntity.INDIVIDUAL, null));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.findByTarget(TargetEntity.INDIVIDUAL, " "));
+        assertThrows(IllegalArgumentException.class, () -> service.updateFileContent(null, "content"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.updateFileContent(UUID.randomUUID().toString(), ""));
+        assertThrows(IllegalArgumentException.class, () -> service.verifyData(null, "tester"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.verifyData(UUID.randomUUID().toString(), "\n"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.updateVerificationStatus(null, DocumentVerificationStatus.REJECTED, "approver"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.updateVerificationStatus(UUID.randomUUID().toString(), null, "approver"));
+        assertThrows(IllegalArgumentException.class,
+            () -> service.updateVerificationStatus(UUID.randomUUID().toString(), DocumentVerificationStatus.REJECTED, " "));
+        }
+
+        @Test
+        void serviceBaseSaveGuardsRejectMissingRequiredFields() {
+        DocumentDTO missingTargetId = validDocument();
+        missingTargetId.setTargetId(" ");
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingTargetId));
+
+        DocumentDTO missingFileName = validDocument();
+        missingFileName.setFileName(null);
+        assertThrows(IllegalArgumentException.class, () -> service.save(missingFileName));
+        }
+
+        private static DocumentDTO validDocument() {
+        DocumentDTO dto = new DocumentDTO();
+        dto.setTargetId(UUID.randomUUID().toString());
+        dto.setFileName("doc.pdf");
+        return dto;
+        }
 
     private Document verifyReadyDocument(UUID id) {
         UUID targetId = UUID.randomUUID();
