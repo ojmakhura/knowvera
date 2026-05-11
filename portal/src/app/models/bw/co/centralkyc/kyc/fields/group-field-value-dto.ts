@@ -10,7 +10,8 @@ export class GroupFieldValueDTO {
     data: ValueData | any;
     reportSectionId: string | any;
     fieldLabel: string | any;
-    
+    mandatory: boolean | any = false;
+
     constructor() {
         this.position = null;
         this.fieldGroupId = null;
@@ -20,5 +21,6 @@ export class GroupFieldValueDTO {
         this.data = null;
         this.reportSectionId = null;
         this.fieldLabel = null;
+        this.mandatory = false;
     }
 }

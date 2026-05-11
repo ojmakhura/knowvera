@@ -783,11 +783,16 @@ public class KycRecordServiceImpl
         // report
         if (CollectionUtils.isNotEmpty(kycRecord.getKycReportSections())) {
             kycReportSectionRepository.deleteAll(kycRecord.getKycReportSections());
-            kycRecord.getKycReportSections().clear();
             kycRecord = this.kycRecordRepository.save(kycRecord);
         }
 
         kycRecord.setKycReportSections(new ArrayList<>());
+
+        boolean allDocsVerified = kycRecord.getDocuments() != null && kycRecord.getDocuments().stream()
+                .allMatch(doc -> doc.getVerificationStatus() == DocumentVerificationStatus.VERIFIED);
+
+        boolean hasRejectedDocuments = kycRecord.getDocuments() != null && kycRecord.getDocuments().stream()
+                .anyMatch(doc -> doc.getVerificationStatus() == DocumentVerificationStatus.REJECTED);
 
         List<KycFieldGroup> kycFieldGroups = kycRecord.getTarget() == TargetEntity.INDIVIDUAL
                 ? settings.getIndividualKycFieldGroups()
@@ -802,11 +807,6 @@ public class KycRecordServiceImpl
 
         Map<UUID, Document> documentMap = completedDocuments.stream()
                 .collect(Collectors.toMap(doc -> doc.getDocumentType().getId(), doc -> doc));
-
-        // Map<String, KeyFieldMatchResult> matchResultMap = completedDocuments.stream()
-        //         .flatMap(doc -> doc.getDataVerifications().stream())
-        //         .flatMap(verification -> verification.getKeyFieldMatches().stream())
-        //         .collect(Collectors.toMap(match -> match.getKeyField(), match -> match));
 
         Map<String, KeyFieldMatchResult> matchResultMap = completedDocuments.stream()
                 .flatMap(doc -> doc.getDataVerifications().stream())
@@ -877,6 +877,18 @@ public class KycRecordServiceImpl
 
         kycRecord.setModifiedAt(LocalDateTime.now());
         kycRecord.setModifiedBy(user);
+
+        if(allDocsVerified) {
+            kycRecord.setKycStatus(KycComplianceStatus.CURRENT);
+        } else {
+
+            if(hasRejectedDocuments) {
+                kycRecord.setKycStatus(KycComplianceStatus.DOCUMENT_VERIFICATION_FAILED);
+            } else {
+                kycRecord.setKycStatus(KycComplianceStatus.INCOMPLETE);
+            }
+        }
+
         kycRecord = this.kycRecordRepository.save(kycRecord);
         updateOwnerStatus(kycRecord);
 

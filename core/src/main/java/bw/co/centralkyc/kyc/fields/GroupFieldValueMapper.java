@@ -36,6 +36,7 @@ public abstract class GroupFieldValueMapper {
     @Mapping(source = "expectedField.id", target = "fieldId")
     @Mapping(source = "expectedField.field", target = "field")
     @Mapping(source = "expectedField.fieldLabel", target = "fieldLabel")
+    @Mapping(source = "expectedField.mandatory", target = "mandatory")
     @Mapping(target = "fieldGroupId", ignore = true)
     public abstract GroupFieldValueDTO toGroupFieldValueDTO(GroupFieldValue entity);
 

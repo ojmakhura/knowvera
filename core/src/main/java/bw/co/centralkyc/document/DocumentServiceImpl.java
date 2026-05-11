@@ -171,6 +171,17 @@ public class DocumentServiceImpl
                     individualRepository.save(ind);
                     break;
 
+                case KYC_RECORD:
+                    KycRecord record = kycRecordRepository.findById(UUID.fromString(entity.getTargetId()))
+                            .orElseThrow(() -> new DocumentServiceException("No KYC record found for document target"));
+                    if (record.getDocuments() == null) {
+                        record.setDocuments(new ArrayList<>());
+                    }
+
+                    record.getDocuments().add(entity);
+                    kycRecordRepository.save(record);
+                    break;
+
                 default:
                     break;
             }
@@ -641,10 +652,10 @@ public class DocumentServiceImpl
 
             for (ExpectedField expectedField : config.getExpectedFields()) {
 
-                if (expectedField.getMandatory() == null || !expectedField.getMandatory()) {
-
-                    continue;
-                }
+//                if (expectedField.getMandatory() == null || !expectedField.getMandatory()) {
+//
+//                    continue;
+//                }
 
                 KeyFieldMatchResult match = new KeyFieldMatchResult();
                 match.setKeyField(expectedField.getField());
