@@ -18,6 +18,8 @@ export class ClientRequestDTO extends AuditableDTO {
     
     organisationId: string | any;
     
+    organisationCode: string | any;
+    
     organisation: string | any;
     
     organisationRegistrationNo: string | any;
@@ -48,6 +50,7 @@ export class ClientRequestDTO extends AuditableDTO {
         this.emailAddress = null;
         this.status = ClientRequestStatus.PENDING;
         this.organisationId = null;
+        this.organisationCode = null;
         this.organisation = null;
         this.organisationRegistrationNo = null;
         this.documentId = null;

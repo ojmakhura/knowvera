@@ -143,6 +143,41 @@ public class KeycloakUserService {
         return location == null ? null : location.getPath().substring(location.getPath().lastIndexOf('/') + 1);
     }
 
+    private Map<String, List<String>> createAttributes(UserDTO user) {
+
+        Map<String, List<String>> attributes = new HashMap<>();
+
+        if (StringUtils.isNotBlank(user.getBranchId())) {
+            attributes.put("branchId", Collections.singletonList(user.getBranchId()));
+            if (StringUtils.isBlank(user.getOrganisationId())) {
+                BranchDTO branch = branchService.findById(user.getBranchId());
+                user.setOrganisationId(branch.getOrganisationId());
+            }
+        }
+
+        if (StringUtils.isNotBlank(user.getBranch())) {
+            attributes.put("branch", Collections.singletonList(user.getBranch()));
+        }
+
+        if (StringUtils.isNotBlank(user.getOrganisationId())) {
+            attributes.put("organisationId", Collections.singletonList(user.getOrganisationId()));
+        }
+
+        if (StringUtils.isNotBlank(user.getOrganisation())) {
+            attributes.put("organisation", Collections.singletonList(user.getOrganisation()));
+        }
+
+        if (StringUtils.isNotBlank(user.getIdentityNo())) {
+            attributes.put("identityNo", Collections.singletonList(user.getIdentityNo()));
+        }
+
+        if(StringUtils.isNotBlank(user.getOrganisationRegistrationNo())) {
+            attributes.put("organisationRegistrationNo", Collections.singletonList(user.getOrganisationRegistrationNo()));
+        }
+
+        return attributes;
+    }
+
     private UserRepresentation toUserRepresentation(UserDTO user) {
         UserRepresentation rep = new UserRepresentation();
         rep.setUsername(user.getUsername());
@@ -159,20 +194,11 @@ public class KeycloakUserService {
             rep.setId(user.getUserId());
         }
 
-        Map<String, List<String>> attributes = new HashMap<>();
-        if (StringUtils.isNotBlank(user.getBranchId())) {
-            attributes.put("branchId", Collections.singletonList(user.getBranchId()));
-            if (StringUtils.isBlank(user.getOrganisationId())) {
-                BranchDTO branch = branchService.findById(user.getBranchId());
-                user.setOrganisationId(branch.getOrganisationId());
-            }
-        }
-        if (StringUtils.isNotBlank(user.getBranch()))
-            attributes.put("branch", Collections.singletonList(user.getBranch()));
-        if (StringUtils.isNotBlank(user.getIdentityNo()))
-            attributes.put("identityNo", Collections.singletonList(user.getIdentityNo()));
-        if (!attributes.isEmpty())
+        Map<String, List<String>> attributes = createAttributes(user);
+
+        if (!attributes.isEmpty()) {
             rep.setAttributes(attributes);
+        }
 
         if (CollectionUtils.isNotEmpty(user.getRoles())) {
             rep.setRealmRoles(new ArrayList<>(user.getRoles()));
@@ -346,17 +372,17 @@ public class KeycloakUserService {
             throw new RuntimeException("User ID must be blank when creating a new registration user.");
         }
 
-        if(CollectionUtils.isEmpty(user.getRealmRoles())) {
+        if (CollectionUtils.isEmpty(user.getRealmRoles())) {
 
             user.setRealmRoles(Set.of(realmUserRole));
         }
 
-        if(CollectionUtils.isEmpty(user.getUserPortalRoles())) {
+        if (CollectionUtils.isEmpty(user.getUserPortalRoles())) {
 
             user.setUserPortalRoles(Set.of(userPortalRole));
         }
 
-        if(CollectionUtils.isEmpty(user.getApiRoles())) {
+        if (CollectionUtils.isEmpty(user.getApiRoles())) {
 
             user.setApiRoles(Set.of(apiUserRole));
         }
@@ -404,6 +430,13 @@ public class KeycloakUserService {
             rep.setFirstName(user.getFirstName());
             rep.setLastName(user.getLastName());
             rep.setEnabled(user.getEnabled());
+
+            Map<String, List<String>> attributes = createAttributes(user);
+
+            if (!attributes.isEmpty()) {
+                rep.setAttributes(attributes);
+            }
+
             userResource.update(rep);
         });
     }
@@ -677,6 +710,7 @@ public class KeycloakUserService {
                 && StringUtils.isNotBlank(individual.getOrganisation().id())) {
             user.setOrganisation(individual.getOrganisation().name());
             user.setOrganisationId(individual.getOrganisation().id());
+            user.setOrganisationRegistrationNo(organisation.getRegistrationNo());
             user.setRoles(Set.of(organisationManagerRole));
         }
 

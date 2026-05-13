@@ -170,32 +170,14 @@
 			<div class="status-grid">
 				<div class="status-block">
 					<span class="status-label">Client Request Status</span>
-					<div class="request-status-options">
+					<mat-button-toggle-group [formField]="editClientRequestForm.status" class="request-status-toggle">
 						@for (status of requestStatuses; track status) {
-						<button mat-stroked-button type="button" class="request-status-btn"
-							[class.selected]="isCurrentRequestStatus(status)" [class]="requestToneClass(status)"
-							(click)="setRequestStatus(status)">
+						<mat-button-toggle [value]="status" [ngClass]="requestToneClass(status)" (change)="setRequestStatus(status)">
 							{{ requestStatusLabel(status) }}
-						</button>
+						</mat-button-toggle>
 						}
-					</div>
-				</div>
-
-				<div class="status-block">
-					<span class="status-label">Target KYC Status</span>
-					<div class="kyc-status-grid">
-						@for (status of kycStatuses; track status) {
-						<button mat-button type="button" class="kyc-option"
-							[class.selected]="isCurrentKycStatus(status)" [class]="kycToneClass(status)"
-							(click)="setKycStatus(status)">
-							<span class="status-indicator"></span>
-							<span>{{ kycStatusLabel(status) }}</span>
-						</button>
-						}
-					</div>
+					</mat-button-toggle-group>
 				</div>
 			</div>
 		</mat-card>
 	</section>
-
-</section>

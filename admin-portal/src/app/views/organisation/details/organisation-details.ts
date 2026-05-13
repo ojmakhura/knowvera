@@ -184,7 +184,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       if (branch?.id) {
         this.loadBranches();
       }
-    });  
+    });
   }
 
   ngOnInit(): void {
@@ -309,7 +309,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.isUploadingDocument.set(true);
-    
+
 
     this.documentApi.upload(TargetEntity.ORGANISATION, org.id, documentTypeId, file)
       .pipe(finalize(() => this.isUploadingDocument.set(false)))
@@ -510,31 +510,78 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     });
 
     ref.afterClosed().subscribe((result: any) => {
+      console.log('Dialog result:', result);
       if (!result) {
         return;
       }
 
-      const { target, individual, organisation: selectedOrg } = result;
-      const queryParams: any = {
-        organisationId: this.id,
-        organisationName: organisation?.name || '',
-        organisationRegistrationNo: organisation?.registrationNo || '',
-        target,
-      };
+      const { target, individual, organisation: targetOrg } = result;
+      // const queryParams: any = {
+      //   organisationId: this.id,
+      //   organisationName: organisation?.name || '',
+      //   organisationRegistrationNo: organisation?.registrationNo || '',
+      //   target,
+      // };
 
+      console.log(target, individual, targetOrg);
+
+      let targetId = null;
+      let name = null;
+      let clientRequest = new ClientRequestDTO();
       // Add target entity details based on selection
       if (target === TargetEntity.INDIVIDUAL && individual) {
-        queryParams.targetId = individual.id;
-        queryParams.targetName = individual.name;
-        queryParams.targetIdentityNo = individual.identityNo;
-        queryParams.targetIdentityType = individual.identityType;
-      } else if (target === TargetEntity.ORGANISATION && selectedOrg) {
-        queryParams.targetId = selectedOrg.id;
-        queryParams.targetName = selectedOrg.name;
-        queryParams.targetRegistrationNo = selectedOrg.registrationNo;
+
+        targetId = individual.id;
+        name = individual.firstName + ' ' + individual.lastName;
+        clientRequest.identityType = individual.identityType;
+        clientRequest.emailAddress = individual.emailAddress;
+        clientRequest.registration = individual.identityNo;
+
+      } else if (target === TargetEntity.ORGANISATION && targetOrg) {
+
+        targetId = targetOrg.id;
+        name = targetOrg.name;
+        clientRequest.registration = targetOrg.registrationNo;
+        clientRequest.emailAddress = targetOrg.contactEmailAddress;
       }
 
-      this.router.navigate(['/request/edit'], { queryParams });
+      clientRequest.organisationId = this.id;
+      clientRequest.organisation = organisation?.name;
+      clientRequest.organisationCode = organisation?.code;
+      clientRequest.organisationRegistrationNo = organisation?.registrationNo;
+      clientRequest.target = target;
+      clientRequest.targetId = targetId;
+      clientRequest.targetKycStatus = organisation?.kycStatus;
+      clientRequest.status = ClientRequestStatus.PENDING;
+      clientRequest.name = name;
+
+      this.clientRequestApi.save(clientRequest).subscribe({
+        next: (savedRequest) => {
+          this.toaster.success('Client request created successfully.');
+          this.doSearchRequests(this.clientRequestsCurrentPage(), this.clientRequestsPageSize());
+
+          if (target === TargetEntity.INDIVIDUAL && individual) {
+
+            this.clientRequestApiStore.findIndividualsByOrganisationPaged({
+              organisationId: organisation?.id,
+              pageNumber: this.individualClientRequests().page?.number || 0,
+              pageSize: this.individualClientRequests().page?.size || 10
+            });
+
+          } else if (target === TargetEntity.ORGANISATION && targetOrg) {
+            this.clientRequestApiStore.findOrganisationsByOrganisationPaged({
+              organisationId: organisation?.id,
+              pageNumber: this.organisationClientRequests().page?.number || 0,
+              pageSize: this.organisationClientRequests().page?.size || 10
+            });
+          }
+        },
+        error: (error: any) => {
+          const message = error?.error?.message || 'Failed to create client request.';
+          this.toaster.error(message);
+        }
+      });
+
     });
   }
 }

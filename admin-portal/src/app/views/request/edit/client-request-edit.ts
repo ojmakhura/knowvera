@@ -113,11 +113,6 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
   readonly targetFilter = signal('Alexander');
   readonly organisationFilter = signal('Veritas');
   readonly selectedTargetType = signal<TargetEntity>(TargetEntity.INDIVIDUAL);
-  // readonly selectedTarget = signal<TargetRecord>({
-  //   id: '550e8400-e29b-41d4-a716-446655440000',
-  //   name: 'Alexander Vance Sterling',
-  //   reference: 'UUID: 550e8400-e29b-41d4-a716-446655440000',
-  // });
   
   organisationList = linkedSignal(() => this.organisationApiStore.dataList());
   targetOrganisationList = linkedSignal(() => this.organisationApiStore.dataList());
@@ -141,7 +136,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       let clientRequest = this.clientRequestApiStore.data();
 
-      this.handleClientRequestUpdate(clientRequest!);
+      this.handleClientRequestSignalUpdate(clientRequest!);
     });
 
     effect(() => {
@@ -225,6 +220,11 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     const query = this.route.snapshot.queryParamMap;
     this.prefillFromQuery(query);
+
+    if(this.id) {
+
+      this.clientRequestApiStore.findById({ id: this.id });
+    }
   }
 
   ngAfterViewInit(): void {
@@ -253,6 +253,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
     clientRequest.modifiedBy = formData.modifiedBy;
     clientRequest.status = formData.status;
     clientRequest.organisationId = formData.organisation?.id;
+    clientRequest.organisationCode = formData.organisation?.code;
     clientRequest.organisation = formData.organisation ? formData.organisation.name : '';
     clientRequest.organisationRegistrationNo = formData.organisation ? formData.organisation.registrationNo : '';
     clientRequest.target = formData.target;
@@ -282,7 +283,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
     this.editClientRequestSignal.set(new EditClientRequestForm());
   }
 
-  handleClientRequestUpdate(clientRequest: ClientRequestDTO) {
+  handleClientRequestSignalUpdate(clientRequest: ClientRequestDTO) {
     if (!clientRequest) {
         return;
       }
@@ -301,29 +302,12 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
 
       if(clientRequest.target === TargetEntity.ORGANISATION) {
 
-        target = new OrganisationListDTO();
-        (target as OrganisationListDTO).id = clientRequest.targetId;
-        (target as OrganisationListDTO).name = clientRequest.name;
-        (target as OrganisationListDTO).registrationNo = clientRequest.registration;
-        (target as OrganisationListDTO).contactEmailAddress = '';
-        (target as OrganisationListDTO).status = '';
-
-        this.targetOrganisationList.set([{
-          ...(target as OrganisationListDTO)
-        }]);
+        this.organisationApiStore.findById({ id: clientRequest.targetId });
 
       } else {
 
-        target = new IndividualListDTO();
-        (target as IndividualListDTO).id = clientRequest.targetId;
-        (target as IndividualListDTO).name = clientRequest.name;
-        (target as IndividualListDTO).identityType = clientRequest.identityType || null;
-        (target as IndividualListDTO).identityNo = clientRequest.registration;
-        (target as IndividualListDTO).emailAddress = '';
-
-        this.targetIndividualList.set([{
-          ...(target as IndividualListDTO)
-        }]);
+        this.individualApiStore.findById({ id: clientRequest.targetId });
+        
       }
 
       this.editClientRequestSignal.update((value) => ({
@@ -334,13 +318,12 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
         modifiedAt: clientRequest.modifiedAt,
         modifiedBy: clientRequest.modifiedBy,
         status: clientRequest.status,
-        organisationId: clientRequest.organisationId,
         organisation: clientRequest.organisationId ? org : null,
         documentId: clientRequest.documentId,
         fileName: clientRequest.fileName,
         fileUrl: clientRequest.fileUrl,
         target: clientRequest.target || null,
-        targetObject: target || null,
+        targetObject: null,
         organisationFilter: '',
         targetOrganisationFilter: '',
         targetIndividualFilter: '',
@@ -369,6 +352,11 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
 
   setRequestStatus(value: ClientRequestStatus): void {
     this.editClientRequestSignal.update(v => ({ ...v, status: value }));
+
+    this.clientRequestApiStore.updateStatus({
+      id: this.editClientRequestSignal().id,
+      status: value
+    });
   }
 
   setKycStatus(value: KycComplianceStatus): void {

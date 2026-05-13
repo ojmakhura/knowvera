@@ -36,7 +36,10 @@ public abstract class ClientRequestMapper {
      * @return ClientRequestDTO
      */
     // WARNING! No conversion for target.organisation (can't convert source.getOrganisation():bw.co.centralkyc.organisation.Organisation to java.lang.String)
-    @Mapping(target = "organisation", ignore = true)
+    @Mapping(target = "organisation", source = "organisation.name")
+    @Mapping(target = "organisationId", source = "organisation.id")
+    @Mapping(target = "organisationCode", source = "organisation.code")
+    @Mapping(target = "organisationRegistrationNo", source = "organisation.registrationNo")
     public abstract ClientRequestDTO toClientRequestDTO(ClientRequest entity);
 
      /**
@@ -51,12 +54,10 @@ public abstract class ClientRequestMapper {
      * @return ClientRequest
      */
     @InheritInverseConfiguration
-    @Mapping(target = "organisation", ignore = true)
     public abstract ClientRequest clientRequestDTOToEntity(ClientRequestDTO clientRequestDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
-    @Mapping(target = "organisation", ignore = true)
     public abstract void updateClientRequestFromClientRequestDTO(ClientRequestDTO clientRequestDTO, @MappingTarget ClientRequest entity);
 
 }

@@ -29,6 +29,7 @@ import bw.co.centralkyc.keycloak.KeycloakOrganisationService;
 import bw.co.centralkyc.keycloak.KeycloakUserService;
 import bw.co.centralkyc.organisation.OrganisationDTO;
 import bw.co.centralkyc.organisation.OrganisationListDTO;
+import bw.co.centralkyc.organisation.branch.BranchDTO;
 import bw.co.centralkyc.organisation.branch.BranchService;
 import bw.co.centralkyc.user.UserDTO;
 import bw.co.roguesystems.comm.ContentType;
@@ -204,14 +205,16 @@ public class IndividualApiImpl implements IndividualApi {
         message.setText(messageStr);
         message.setPlatform(MessagingPlatform.EMAIL);
 
-        OrganisationDTO org = keycloakOrgService.findById(individual.getOrganisation().id());
+        if(individual.getOrganisation() != null && StringUtils.isNotBlank(individual.getOrganisation().id())) {
 
-        if (org != null) {
+            OrganisationDTO org = keycloakOrgService.findById(individual.getOrganisation().id());
 
-            if (StringUtils.isNotBlank(org.getContactEmailAddress())) {
-                message.setCcs(List.of(org.getContactEmailAddress()));
+            if (org != null) {
+
+                if (StringUtils.isNotBlank(org.getContactEmailAddress())) {
+                    message.setCcs(List.of(org.getContactEmailAddress()));
+                }
             }
-
         }
 
         return message;
@@ -229,6 +232,24 @@ public class IndividualApiImpl implements IndividualApi {
 
             UserDTO user = keycloakUserService.getUserByIdentityNo(individual.getIdentityNo());
             boolean isNewUser = false;
+
+            if(user == null && StringUtils.isNotBlank(individual.getEmailAddress())) {
+                user = keycloakUserService.getUserByEmail(individual.getEmailAddress());
+            }
+
+            OrganisationDTO org = null;
+            BranchDTO branch = null;
+
+            if(individual.getBranch() != null) {
+
+                branch = branchService.findById(individual.getBranch().getId());
+
+                org = organisationService.findById(branch.getOrganisationId());
+
+            } else if(individual.getOrganisation() != null) {
+                org = organisationService.findById(individual.getOrganisation().id());
+            }
+
 
             if (user == null) {
 
@@ -250,8 +271,6 @@ public class IndividualApiImpl implements IndividualApi {
                         }
                     }
 
-                    OrganisationDTO org = null;
-
                     if (individual.getOrganisation() != null) {
                         org = new OrganisationDTO();
                         org.setId(individual.getOrganisation().id());
@@ -262,9 +281,41 @@ public class IndividualApiImpl implements IndividualApi {
                     }
 
                     user = keycloakUserService.registerUser(individual, org);
+
                 } else if(existing != null) {
                     user = existing;
                 }
+            } else {
+
+                if(org == null) {
+
+                    user.setOrganisation(null);
+                    user.setOrganisationId(null);
+                    user.setOrganisationRegistrationNo(null);
+                } else {
+
+                    user.setOrganisation(org.getName());
+                    user.setOrganisationId(org.getId());
+                    user.setOrganisationRegistrationNo(org.getRegistrationNo());
+                }
+
+                if(branch == null) {
+
+                    user.setBranch(null);
+                    user.setBranchId(null);
+                } else {
+
+                    user.setBranch(branch.getName());
+                    user.setBranchId(branch.getId());
+
+                }
+
+                if(StringUtils.isNotBlank(individual.getIdentityNo())) {
+
+                    user.setIdentityNo(individual.getIdentityNo());
+                }
+
+                keycloakUserService.updateUser(user);
             }
 
             if (user != null && StringUtils.isNotBlank(user.getUserId())) {
