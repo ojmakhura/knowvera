@@ -164,7 +164,10 @@ public class KeycloakService {
 
     // Single organization by ID (void)
     public void runWithOrganization(String orgId, Consumer<OrganizationResource> consumer) {
-        withOrganization(orgId, org -> { consumer.accept(org); return null; });
+        withOrganization(orgId, org -> {
+            consumer.accept(org);
+            return null;
+        });
     }
 
     // All organizations (returns a result)

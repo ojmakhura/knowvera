@@ -437,6 +437,12 @@ public class KeycloakUserService {
                 rep.setAttributes(attributes);
             }
 
+            // Assign organization safely
+            if (StringUtils.isNotBlank(user.getOrganisationId())) {
+                keycloakService.runWithOrganization(user.getOrganisationId(),
+                        org -> org.members().addMember(user.getUserId()));
+            }
+
             userResource.update(rep);
         });
     }
