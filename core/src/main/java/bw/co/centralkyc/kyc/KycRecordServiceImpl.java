@@ -769,6 +769,13 @@ public class KycRecordServiceImpl
         }
     }
 
+    /**
+     * @see bw.co.centralkyc.individual.kyc.KycRecordService#generateKycReport(String)
+     * 
+     * This method generates a KYC report for the given KYC record ID. It retrieves the KYC record,
+     * checks the verification status of the associated documents, and creates report sections
+     * accordingly. The report sections are then saved along with the updated KYC record status.
+     */
     @Override
     @Transactional
     protected KycRecordDTO handleGenerateKycReport(String id, String user) throws Exception {
@@ -782,18 +789,22 @@ public class KycRecordServiceImpl
         // Clean up existing report sections to avoid duplication when regenerating the
         // report
         if (CollectionUtils.isNotEmpty(kycRecord.getKycReportSections())) {
-            kycReportSectionRepository.deleteAll(kycRecord.getKycReportSections());
-            kycRecord = this.kycRecordRepository.save(kycRecord);
+            kycRecord.getKycReportSections().clear();
         }
 
-        kycRecord.setKycReportSections(new ArrayList<>());
-
+        // A record can only be considered current if all documents are verified, if
+        // there are any rejected documents the record should be marked as failed even
+        // if there are some verified documents
         boolean allDocsVerified = kycRecord.getDocuments() != null && kycRecord.getDocuments().stream()
                 .allMatch(doc -> doc.getVerificationStatus() == DocumentVerificationStatus.VERIFIED);
 
+        // A record can only be considered current if all documents are verified, if
+        // there are any rejected documents the record should be marked as failed even
+        // if there are some verified documents
         boolean hasRejectedDocuments = kycRecord.getDocuments() != null && kycRecord.getDocuments().stream()
                 .anyMatch(doc -> doc.getVerificationStatus() == DocumentVerificationStatus.REJECTED);
 
+        // Get the relevant field groups based on the target type of the KYC record
         List<KycFieldGroup> kycFieldGroups = kycRecord.getTarget() == TargetEntity.INDIVIDUAL
                 ? settings.getIndividualKycFieldGroups()
                 : settings.getOrganisationKycFieldGroups();
@@ -801,13 +812,19 @@ public class KycRecordServiceImpl
         List<DocumentVerificationStatus> documentVerificationStatuses = List.of(DocumentVerificationStatus.VERIFIED,
                 DocumentVerificationStatus.REJECTED);
 
+        // Get all documents that have been verified or rejected, as only those should
+        // be
+        // included in the report
         List<Document> completedDocuments = kycRecord.getDocuments().stream()
                 .filter(r -> documentVerificationStatuses.contains(r.getVerificationStatus()))
                 .toList();
 
+        // Create a map of document IDs to documents for easy lookup
         Map<UUID, Document> documentMap = completedDocuments.stream()
                 .collect(Collectors.toMap(doc -> doc.getDocumentType().getId(), doc -> doc));
 
+        // Create a map of key field to match result for all completed documents, this
+        // will allow us to easily populate the report sections with the relevant data
         Map<String, KeyFieldMatchResult> matchResultMap = completedDocuments.stream()
                 .flatMap(doc -> doc.getDataVerifications().stream())
                 .flatMap(verification -> verification.getKeyFieldMatches().stream())
@@ -816,19 +833,28 @@ public class KycRecordServiceImpl
                         match -> match,
                         (existing, replacement) -> {
 
-                            if(StringUtils.isNotBlank(replacement.getExtractedValue())) {
+                            if (StringUtils.isNotBlank(replacement.getExtractedValue())) {
 
-                                existing.setExtractedValue(existing.getExtractedValue() + ", " + replacement.getExtractedValue());
+                                existing.setExtractedValue(
+                                        existing.getExtractedValue() + ", " + replacement.getExtractedValue());
                             }
-                            
-                            if(StringUtils.isNotBlank(replacement.getExpectedValue())) {
 
-                                existing.setExpectedValue(existing.getExpectedValue() + ", " + replacement.getExpectedValue());
+                            if (StringUtils.isNotBlank(replacement.getExpectedValue())) {
+
+                                existing.setExpectedValue(
+                                        existing.getExpectedValue() + ", " + replacement.getExpectedValue());
                             }
 
                             return existing;
                         }));
 
+        /**
+         * Iterate through the field groups and their fields, for each field we check if
+         * there is a corresponding document that has been verified or rejected, if so
+         * we create a GroupFieldValue and populate it with the data from the match result
+         * and associate it with the report section. Finally we update the KYC record's
+         * status based on the verification results and save the record along with the generated report sections
+         */
         for (KycFieldGroup group : kycFieldGroups) {
 
             KycReportSection section = new KycReportSection();
@@ -878,11 +904,11 @@ public class KycRecordServiceImpl
         kycRecord.setModifiedAt(LocalDateTime.now());
         kycRecord.setModifiedBy(user);
 
-        if(allDocsVerified) {
+        if (allDocsVerified) {
             kycRecord.setKycStatus(KycComplianceStatus.CURRENT);
         } else {
 
-            if(hasRejectedDocuments) {
+            if (hasRejectedDocuments) {
                 kycRecord.setKycStatus(KycComplianceStatus.DOCUMENT_VERIFICATION_FAILED);
             } else {
                 kycRecord.setKycStatus(KycComplianceStatus.INCOMPLETE);
@@ -893,5 +919,22 @@ public class KycRecordServiceImpl
         updateOwnerStatus(kycRecord);
 
         return this.kycRecordMapper.toKycRecordDTO(kycRecord);
+    }
+
+    @Override
+    protected KycRecordDTO handleUpdateStatus(String id, KycComplianceStatus kycStatus, String user) throws Exception {
+        
+        KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + id));
+
+        kycRecord.setKycStatus(kycStatus);
+        kycRecord.setModifiedAt(LocalDateTime.now());
+        kycRecord.setModifiedBy(user);
+
+        kycRecord = this.kycRecordRepository.save(kycRecord);
+        updateOwnerStatus(kycRecord);
+
+        return this.kycRecordMapper.toKycRecordDTO(kycRecord);
+
     }
 }

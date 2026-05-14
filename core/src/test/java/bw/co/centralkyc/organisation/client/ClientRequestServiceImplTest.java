@@ -110,6 +110,7 @@ class ClientRequestServiceImplTest {
         input.setStatus(ClientRequestStatus.PENDING);
         input.setOrganisationId(UUID.randomUUID().toString());
         input.setOrganisation("ORG");
+        input.setOrganisationCode("ORG1");
         input.setOrganisationRegistrationNo("ORG-REG-1");
         input.setTarget(TargetEntity.INDIVIDUAL);
         input.setTargetId(UUID.randomUUID().toString());

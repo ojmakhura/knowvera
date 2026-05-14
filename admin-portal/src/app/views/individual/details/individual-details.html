@@ -36,21 +36,26 @@
 						<label>Full Legal Name</label>
 						<div class="value-strong">{{ fullName() }}</div>
 					</div>
-
 					<div class="split-grid">
 						<div>
-							<label>Sex</label>
-							<div class="value-regular">{{ individual().sex || 'Not available' }}</div>
+							<label translate>Date of Birth</label>
+							<div class="value-regular">{{ (individual().dateOfBirth | date: "dd-MM-yyyy") || 'Not available' }}</div>
 						</div>
 						<div>
-							<label>Nationality</label>
-							<div class="value-regular">{{ individual().nationality || 'Not available' }}</div>
+							<label translate>sex</label>
+							<div class="value-regular">{{ individual().sex || 'Not available' }}</div>
 						</div>
 					</div>
 
-					<div>
-						<label>Marital Status</label>
-						<div class="value-regular">{{ individual().maritalStatus || 'Not available' }}</div>
+					<div class="split-grid">
+						<div>
+							<label translate>Marital Status</label>
+							<div class="value-regular">{{ individual().maritalStatus || 'Not available' }}</div>
+						</div>
+						<div>
+							<label translate>nationality</label>
+							<div class="value-regular">{{ individual().nationality || 'Not available' }}</div>
+						</div>
 					</div>
 				</div>
 			</mat-card>

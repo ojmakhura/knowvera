@@ -709,4 +709,27 @@ public class KycRecordApiImpl implements KycRecordApi {
             throw e;
         }
     }
+
+    @Override
+    public ResponseEntity<KycRecordDTO> updateStatus(String id, KycComplianceStatus kycStatus) throws Exception {
+        
+        try {
+
+            String username = "anonymousUser";
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null) {
+
+                username = authentication.getName();
+            }
+
+            KycRecordDTO record = kycRecordService.updateStatus(id, kycStatus, username);
+
+            return ResponseEntity.ok(record);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }

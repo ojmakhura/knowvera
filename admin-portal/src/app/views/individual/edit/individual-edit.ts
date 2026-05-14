@@ -31,6 +31,7 @@ import { SearchObject } from '@app/models/search-object';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { Loader } from '@app/@shared/loader/loader';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { IndividualDTO } from '@app/models/bw/co/centralkyc/individual/individual-dto';
 
 export class EditIndividualVarsForm {
   id: string | any = null;
@@ -308,7 +309,19 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
 
   save(): void {
     this.isSaving.set(true);
-    this.individualApiStore.save({ individual: this.editIndividualSignal() as any });
+
+    let individual = new IndividualDTO();
+    individual = {
+      ...individual,
+      ...this.editIndividualSignal(),
+    };
+
+    if (individual.dateOfBirth instanceof Date) {
+      const d = individual.dateOfBirth as Date;
+      individual.dateOfBirth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    this.individualApiStore.save({ individual: individual });
   }
 
   filterOrganisations() {

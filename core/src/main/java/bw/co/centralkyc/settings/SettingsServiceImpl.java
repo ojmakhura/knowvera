@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.UUID;
 
 import bw.co.centralkyc.document.type.DocumentType;
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.cglib.core.Local;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -57,6 +61,12 @@ public class SettingsServiceImpl
             throws Exception {
         throw new UnsupportedOperationException(
                 "bw.co.centralkyc.settings.SettingsService.handleFindById(String id) Not implemented!");
+    }
+
+    @Override
+    @CacheEvict(key = "'allSettings'")
+    public SettingsDTO save(SettingsDTO settings) {
+        return super.save(settings);
     }
 
     /**

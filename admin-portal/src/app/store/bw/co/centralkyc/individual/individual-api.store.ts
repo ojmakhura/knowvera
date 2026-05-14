@@ -262,12 +262,12 @@ export const IndividualApiStore = signalStore(
           );
         }),
       ),
-      save: rxMethod<{individual: IndividualDTO | any }>(
-        switchMap((data: any) => {
+      save: rxMethod<{individual: IndividualDTO }>(
+        switchMap((data: {individual: IndividualDTO}) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return individualApi.save(data.individual, ).pipe(
             tapResponse({
-              next: (response: IndividualDTO | any) => {
+              next: (response: IndividualDTO) => {
                 patchState(
                   store,
                   {

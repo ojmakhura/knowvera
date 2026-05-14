@@ -15,7 +15,6 @@ import {
   HttpClient,
 } from '@angular/common/http';
 import {
-  MAT_DATE_FORMATS,
   MAT_DATE_LOCALE,
   MatDateFormats,
   provideNativeDateAdapter,

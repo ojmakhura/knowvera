@@ -13,6 +13,7 @@ import { KycRecordApi } from '@app/services/bw/co/centralkyc/kyc/kyc-record-api'
 import { KycRecordSearchCriteria } from '@app/models/bw/co/centralkyc/kyc/kyc-record-search-criteria';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
 import { KycRecordListDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-list-dto';
+import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
 
 export type KycRecordApiState = AppState<KycRecordDTO, KycRecordDTO> & {
   currentIndividualRecord: KycRecordDTO | null;
@@ -717,7 +718,7 @@ export const KycRecordApiStore = signalStore(
         }),
       ),
       generateKycReport: rxMethod<{ id: string }>(
-        switchMap((data: any) => {
+        switchMap((data: { id: string }) => {
           patchState(store, { loading: true, loaderMessage: 'Generating KYC report ...' });
           return kycRecordApi.generateKycReport(data.id).pipe(
             tapResponse({
@@ -727,6 +728,35 @@ export const KycRecordApiStore = signalStore(
                   loading: false,
                   success: true,
                   messages: ['KYC report generated successfully!!'],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [
+                    getErrormessage(error),
+                  ],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      updateStatus: rxMethod<{ id: string; status: KycComplianceStatus }>(
+        switchMap((data: { id: string; status: KycComplianceStatus }) => {
+          patchState(store, { loading: true, loaderMessage: 'Updating KYC record status ...' });
+          return kycRecordApi.updateStatus(data.id, data.status).pipe(
+            tapResponse({
+              next: (response: KycRecordDTO) => {
+                patchState(store, {
+                  data: response,
+                  loading: false,
+                  success: true,
+                  messages: ['KYC record status updated successfully!!'],
                   error: false,
                 });
               },

@@ -115,7 +115,7 @@
             <div class="field-group">
               <label class="field-label" translate>date.of.birth</label>
               <mat-form-field class="vault-field">
-                <input matInput [matDatepicker]="dobPicker" [formField]="editIndividualSignalForm.dateOfBirth" type="date" />
+                <input matInput [matDatepicker]="dobPicker" [formField]="editIndividualSignalForm.dateOfBirth"/>
                 <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
                 <mat-datepicker #dobPicker></mat-datepicker>
                 @if (editIndividualSignalForm.dateOfBirth().touched()) {
