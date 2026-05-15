@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
     componentModel = "spring",
     uses = {
         DocumentMapper.class,
+        OrganisationMapper.class,
         KycSubscriptionMapper.class,
         MappingUtils.class
     }
@@ -39,6 +40,13 @@ public abstract class KycInvoiceMapper {
     // WARNING! No conversion for target.issueDate (can't convert source.getIssueDate():java.util.Date to java.util.Date)
     @Mapping(source = "invoiceDocument", target = "invoiceDocument")
     @Mapping(source = "proofOfPayment", target = "proofOfPayment")
+    @Mapping(source = "organisation.id", target = "organisationId")
+    @Mapping(source = "organisation.name", target = "organisationName")
+    @Mapping(source = "organisation.code", target = "organisationCode")
+    @Mapping(source = "organisation.registrationNo", target = "organisationRegistrationNo")
+    @Mapping(source = "kycSubscription.id", target = "subscriptionId")
+    @Mapping(source = "kycSubscription.ref", target = "subscriptionRef")
+    @Mapping(source = "kycSubscription.period", target = "subscriptionPeriod")
     public abstract KycInvoiceDTO toKycInvoiceDTO(KycInvoice entity);
 
      /**

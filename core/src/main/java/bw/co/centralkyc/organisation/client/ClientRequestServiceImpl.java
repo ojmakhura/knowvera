@@ -124,7 +124,9 @@ public class ClientRequestServiceImpl
         ClientRequest clientRequest = clientRequestRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new ClientRequestServiceException("ClientRequest not found"));
 
-        return clientRequestMapper.toClientRequestDTO(clientRequest);
+        ClientRequestDTO clientRequestDTO = clientRequestMapper.toClientRequestDTO(clientRequest);
+        this.updateClientName(Arrays.asList(clientRequestDTO));
+        return clientRequestDTO;
     }
 
     /**
@@ -204,7 +206,9 @@ public class ClientRequestServiceImpl
 
         }
 
-        return clientRequestMapper.toClientRequestDTO(clientRequestEntity);
+        ClientRequestDTO clientRequestDTO = clientRequestMapper.toClientRequestDTO(clientRequestEntity);
+        this.updateClientName(Arrays.asList(clientRequestDTO));
+        return clientRequestDTO;
     }
 
     /**
@@ -835,14 +839,20 @@ public class ClientRequestServiceImpl
 
         Map<String, String> individualNameMap = new HashMap<>();
         Map<String, String> individualIdentityNo = new HashMap<>();
+        Map<String, IndividualIdentityType> individualIdentityType = new HashMap<>();
+        Map<String, String> individualEmailAddress = new HashMap<>();
+
         Map<String, String> organisationNameMap = new HashMap<>();
         Map<String, String> organisationRegistration = new HashMap<>();
+        Map<String, String> organisationEmailAddress = new HashMap<>();
 
         reuests.forEach(r -> {
             if (r.getTarget() == TargetEntity.INDIVIDUAL) {
 
                 String name = individualNameMap.get(r.getTargetId());
                 String identityNo = individualIdentityNo.get(r.getTargetId());
+                IndividualIdentityType identityType = individualIdentityType.get(r.getTargetId());
+                String emailAddress = individualEmailAddress.get(r.getTargetId());
 
                 if(!individualNameMap.containsKey(r.getTargetId())) {
 
@@ -852,22 +862,31 @@ public class ClientRequestServiceImpl
                     if (individual != null) {
                         name = individual.getFirstName() + " " + individual.getSurname();
                         identityNo = individual.getIdentityNo();
+                        identityType = individual.getIdentityType();
+                        emailAddress = individual.getEmailAddress();
                     } else {
                         name = "Unknown Individual";
                         identityNo = "Unknown Identity No";
+                        identityType = null; // Default fallback
+                        emailAddress = "Unknown Email";
                     }
 
                     individualNameMap.put(r.getTargetId(), name);
                     individualIdentityNo.put(r.getTargetId(), identityNo);
+                    individualIdentityType.put(r.getTargetId(), identityType);
+                    individualEmailAddress.put(r.getTargetId(), emailAddress);
                 }
 
                 r.setName(name);
                 r.setRegistration(identityNo);
+                r.setIdentityType(identityType);
+                r.setEmailAddress(emailAddress);
 
             } else if (r.getTarget() == TargetEntity.ORGANISATION) {
                 
                 String name = organisationNameMap.get(r.getTargetId());
                 String registrationNo = organisationRegistration.get(r.getTargetId());
+                String emailAddress = organisationEmailAddress.get(r.getTargetId());
 
                 if(!organisationNameMap.containsKey(r.getTargetId())) {
 
@@ -877,17 +896,21 @@ public class ClientRequestServiceImpl
                     if (organisation != null) {
                         name = organisation.getName();
                         registrationNo = organisation.getRegistrationNo();
+                        emailAddress = organisation.getContactEmailAddress();
                     } else {
                         name = "Unknown Organisation";
                         registrationNo = "Unknown Registration No";
+                        emailAddress = "Unknown Email";
                     }
 
                     organisationNameMap.put(r.getTargetId(), name);
                     organisationRegistration.put(r.getTargetId(), registrationNo);
+                    organisationEmailAddress.put(r.getTargetId(), emailAddress);
                 }
 
                 r.setName(name);
                 r.setRegistration(registrationNo);
+                r.setEmailAddress(emailAddress);
             }
         });
 

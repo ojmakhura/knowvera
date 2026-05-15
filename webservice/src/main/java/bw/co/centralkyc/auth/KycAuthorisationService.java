@@ -230,6 +230,11 @@ public class KycAuthorisationService {
             return isOrganisationUserMatch(targetDoc.getTargetId());
         }
 
+        if(targetDoc.getTarget() == TargetEntity.KYC_RECORD) {
+
+            return isKycRecordOwnershipMatch(targetDoc.getTargetId());
+        }
+
         IndividualDTO individual = individualService.findByUserId(user.getUserId());
 
         if (individual == null || StringUtils.isBlank(individual.getId())) {
