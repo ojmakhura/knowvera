@@ -892,7 +892,9 @@ public class KycRecordServiceImpl
 
                         fieldValue.setData(data);
 
-                        section.getGroupFieldValues().add(fieldValue);
+                        if(StringUtils.isNotBlank(data.getExpectedValue()) || StringUtils.isNotBlank(data.getExtractedValue())) {
+                            section.getGroupFieldValues().add(fieldValue);
+                        }
                     }
                 }
             }

@@ -169,8 +169,8 @@
                       @for (row of document().dataComparisons; track row.field) {
                       <tr>
                         <td class="label-col">{{ row.field }}</td>
-                        <td [class.text-error]="!row.matches">{{ row.expected ? row.expected : '—' }}</td>
-                        <td [class.text-error]="!row.matches">{{ row.extracted ? row.extracted : '—' }}</td>
+                        <td [class.text-error]="!row.matches">{{ row.expected ? (row.fieldType === ExpectedFieldType.DATE ? (row.expected | date: 'dd-MM-yyyy') : row.expected) : '—' }}</td>
+                        <td [class.text-error]="!row.matches">{{ row.extracted ? (row.fieldType === ExpectedFieldType.DATE ? (row.extracted | date: 'dd-MM-yyyy') : row.extracted) : '—' }}</td>
                         <td>
                           @if (row.matches) {
                           <span class="badge-valid">Valid</span>

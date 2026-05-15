@@ -98,9 +98,7 @@ export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
   constructor() {
 
     this.kycSubscriptionApiStore.reset();
-    if (this.id) {
-      this.kycSubscriptionApiStore.findById({ id: this.id });
-    }
+    
 
     effect(() => {
       const organisations = this.organisationApiStore.dataList();
@@ -140,6 +138,9 @@ export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
 
     this.organisationApiStore.getAll();
+    if (this.id) {
+      this.kycSubscriptionApiStore.findById({ id: this.id });
+    }
   }
 
   ngAfterViewInit(): void {

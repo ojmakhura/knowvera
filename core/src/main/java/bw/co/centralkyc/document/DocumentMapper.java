@@ -154,7 +154,9 @@ public abstract class DocumentMapper {
                             field.getField(),
                             expected,
                             exp != null ? exp.toString() : null,
-                            similarity >= 0.8));
+                            similarity >= 0.8,
+                            field.getFieldType()
+                        ));
                 }
 
             }

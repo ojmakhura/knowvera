@@ -205,6 +205,7 @@
 					</mat-card>
 				</div>
 			</mat-tab>
+			@if(organisation().isClient) {
 			<mat-tab label="Subscriptions">
 				<div class="tab-content tab-subscriptions">
 					<mat-card class="ops-card table-card">
@@ -285,6 +286,7 @@
 					</mat-card>
 				</div>
 			</mat-tab>
+			}
 			<mat-tab label="Branches">
 				<div class="tab-content tab-branches">
 					<section class="branches-section">

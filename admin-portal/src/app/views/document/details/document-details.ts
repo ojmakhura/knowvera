@@ -35,6 +35,7 @@ import { MatSelectModule } from '@angular/material/select';
 import Swal from 'sweetalert2';
 import Keycloak from 'keycloak-js';
 import { HasRolesDirective } from 'keycloak-angular';
+import { ExpectedFieldType } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-type';
 
 @Component({
   selector: 'app-document-details',
@@ -82,6 +83,8 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   success = linkedSignal(() => this.documentApiStore.success());
   loading = linkedSignal(() => this.documentApiStore.loading());
   error = linkedSignal(() => this.documentApiStore.error());
+
+  readonly ExpectedFieldType = ExpectedFieldType;
 
   @Input() id!: string;
 

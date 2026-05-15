@@ -164,6 +164,7 @@ export class RecordDetails implements OnInit {
     }
 
     const settings = this.settingsApiStore.data();
+    console.log(settings)
     const target = record?.target;
     const documentTypes =
       target === TargetEntity.ORGANISATION

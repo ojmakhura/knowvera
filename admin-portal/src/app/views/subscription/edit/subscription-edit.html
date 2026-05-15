@@ -189,8 +189,7 @@
 
         <div class="financial-highlight">
           <p class="financial-label">Current Total</p>
-          <h3>P {{ editSubscriptionSignal().amount || 0 }}</h3>
-          <p class="financial-caption">Stored billing amount for the active compliance term.</p>
+          <h3>{{ (editSubscriptionSignal().amount || 0) | currency:'BWP':'symbol':'1.2-2' }}</h3>
         </div>
 
         <div class="fee-breakdown">
@@ -205,7 +204,7 @@
           <mat-divider></mat-divider>
           <div class="value-row value-row-strong">
             <span>Total Due</span>
-            <span>P {{ editSubscriptionSignal().amount || 0 }}</span>
+            <span>{{ (editSubscriptionSignal().amount || 0) | currency:'BWP':'symbol':'1.2-2' }}</span>
           </div>
         </div>
       </mat-card>
