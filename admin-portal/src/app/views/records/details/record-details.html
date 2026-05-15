@@ -266,7 +266,7 @@
 							<mat-card class="panel comparison-panel">
 								<div class="comparison-head">
 									<h3 class="section-label">Data Comparisons</h3>
-									<span class="document-count">{{ dataComparisons(currentDoc).length }}</span>
+									<span class="document-count">{{ (currentDoc.dataComparisons || []).length }}</span>
 								</div>
 								<div class="comparison-table-wrap">
 									<table class="comparison-table">
@@ -279,12 +279,12 @@
 											</tr>
 										</thead>
 										<tbody>
-											@if (dataComparisons(currentDoc).length > 0) {
-											@for (row of dataComparisons(currentDoc); track row.field + '-' + $index) {
+											@if ((currentDoc.dataComparisons || []).length > 0) {
+											@for (row of (currentDoc.dataComparisons || []); track row.field + '-' + $index) {
 											<tr>
 												<td>{{ row.field }}</td>
-												<td [class.text-error]="!row.matches">{{ row.expected }}</td>
-												<td [class.text-error]="!row.matches">{{ row.extracted }}</td>
+												<td [class.text-error]="!row.matches">{{ row.fieldType === ExpectedFieldType.DATE ? (row.expected | date: 'dd-MM-yyyy') : row.expected }}</td>
+												<td [class.text-error]="!row.matches">{{ row.fieldType === ExpectedFieldType.DATE ? (row.extracted | date: 'dd-MM-yyyy') : row.extracted }}</td>
 												<td>
 													<span [class]="row.matches ? 'badge-valid' : 'badge-expired'">
 														{{ row.matches ? 'Match' : 'Mismatch' }}

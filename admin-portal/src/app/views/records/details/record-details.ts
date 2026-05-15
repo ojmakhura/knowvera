@@ -26,6 +26,7 @@ import {
   UploadDocumentDialogResult,
 } from '@app/views/individual/details/upload-document-dialog';
 import { Loader } from '@app/@shared/loader/loader';
+import { ExpectedFieldType } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-type';
 
 @Component({
   selector: 'app-record-details',
@@ -64,6 +65,7 @@ export class RecordDetails implements OnInit {
 
   @Input() id: string | null = null;
 
+  readonly ExpectedFieldType = ExpectedFieldType;
   readonly TargetEntity = TargetEntity;
   readonly KycComplianceStatus = KycComplianceStatus;
   readonly IndividualIdentityType = IndividualIdentityType;
@@ -93,11 +95,6 @@ export class RecordDetails implements OnInit {
         this.lastErrorMessage = message;
         this.toaster.error(message);
       }
-    });
-
-    effect(() => {
-      const record = this.kycRecordApiStore.data();
-      console.log('Record data updated:', record);
     });
 
     effect(() => {
@@ -164,7 +161,7 @@ export class RecordDetails implements OnInit {
     }
 
     const settings = this.settingsApiStore.data();
-    console.log(settings)
+    
     const target = record?.target;
     const documentTypes =
       target === TargetEntity.ORGANISATION
@@ -549,18 +546,18 @@ export class RecordDetails implements OnInit {
     return document?.verificationStatus || 'Unverified';
   }
 
-  dataComparisons(document: DocumentDTO | null): Array<{ field: string; expected: string; extracted: string; matches: boolean }> {
-    if (!document?.dataComparisons || !Array.isArray(document.dataComparisons)) {
-      return [];
-    }
+  // dataComparisons(document: DocumentDTO | null): Array<{ field: string; expected: string; extracted: string; matches: boolean }> {
+  //   if (!document?.dataComparisons || !Array.isArray(document.dataComparisons)) {
+  //     return [];
+  //   }
 
-    return document.dataComparisons.map((row: any) => ({
-      field: row?.field || 'Unknown Field',
-      expected: row?.expected || '—',
-      extracted: row?.extracted || '—',
-      matches: !!row?.matches,
-    }));
-  }
+  //   return document.dataComparisons.map((row: any) => ({
+  //     field: row?.field || 'Unknown Field',
+  //     expected: row.expectedField == ExpectedFieldType.DATE ? (this.datePipe.transform(row?.expected, 'dd-MM-yyyy') || '—') : (row?.expected || '—'),
+  //     extracted: row.expectedField == ExpectedFieldType.DATE ? (this.datePipe.transform(row?.extracted, 'dd-MM-yyyy') || '—') : (row?.extracted || '—'),
+  //     matches: !!row?.matches,
+  //   }));
+  // }
 
   openDocumentView(document: DocumentDTO | null): void {
     if (!document) {
