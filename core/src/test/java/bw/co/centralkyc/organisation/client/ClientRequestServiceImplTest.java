@@ -30,6 +30,7 @@ import bw.co.centralkyc.individual.IndividualMapper;
 import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.messaging.ClientRequestNotification;
 import bw.co.centralkyc.organisation.Organisation;
+import bw.co.centralkyc.organisation.OrganisationRepository;
 import bw.co.centralkyc.sequence.SequenceGenerator;
 import bw.co.centralkyc.sequence.SequenceGeneratorRepository;
 import bw.co.centralkyc.sequence.SequenceGeneratorService;
@@ -51,6 +52,8 @@ class ClientRequestServiceImplTest {
     private IndividualRepository individualRepository;
     @Mock
     private IndividualMapper individualMapper;
+    @Mock
+    private OrganisationRepository organisationRepository;
     @Mock
     private SequenceGeneratorRepository sequenceGeneratorRepository;
     @Mock
@@ -77,6 +80,7 @@ class ClientRequestServiceImplTest {
                 clientRequestNotification,
                 individualRepository,
                 individualMapper,
+                organisationRepository,
                 sequenceGeneratorRepository,
                 sequenceGeneratorService,
                 documentRepository,
@@ -87,7 +91,7 @@ class ClientRequestServiceImplTest {
     }
 
     @Test
-    void handleFindByIdReturnsMappedRequest() throws Exception {
+    void findByIdReturnsMappedRequest() throws Exception {
         UUID id = UUID.randomUUID();
         ClientRequest request = ClientRequest.Factory.newInstance();
         ClientRequestDTO expected = new ClientRequestDTO();
@@ -101,7 +105,7 @@ class ClientRequestServiceImplTest {
     }
 
     @Test
-    void handleSaveGeneratesRefWithoutQueuingNotificationForExistingRequest() throws Exception {
+    void saveGeneratesRefWithoutQueuingNotificationForExistingRequest() throws Exception {
         ClientRequestDTO input = new ClientRequestDTO();
         input.setId(UUID.randomUUID().toString());
         input.setRef(null);
@@ -137,7 +141,7 @@ class ClientRequestServiceImplTest {
     }
 
     @Test
-    void handleRemoveThrowsWhenRequestDoesNotExist() {
+    void removeThrowsWhenRequestDoesNotExist() {
         UUID id = UUID.randomUUID();
         when(clientRequestRepository.existsById(id)).thenReturn(false);
 

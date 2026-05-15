@@ -64,7 +64,7 @@ export class ClientRequests implements OnInit {
   private readonly organisationApiStore = inject(OrganisationApiStore);
   private readonly clientRequestApiStore = inject(ClientRequestApiStore);
 
-  readonly displayedColumns = ['client', 'email', 'status', 'organisation', 'actions'];
+  readonly displayedColumns = ['client', 'ref', 'status', 'organisation', 'actions'];
   readonly filters = signal<ClientRequestSearchForm>({ ...INITIAL_FILTERS });
   readonly organisations = signal<OrganisationListDTO[]>([]);
   readonly rows = signal<ClientRequestDTO[]>([]);
@@ -73,7 +73,7 @@ export class ClientRequests implements OnInit {
   readonly pageSize = signal(10);
   readonly totalElements = signal(0);
   readonly statusOptions = Object.values(ClientRequestStatus);
-  readonly targetOptions = [TargetEntity.INDIVIDUAL, TargetEntity.ORGANISATION, TargetEntity.BRANCH];
+  readonly targetOptions = [TargetEntity.INDIVIDUAL, TargetEntity.ORGANISATION];
   readonly loading = computed(() => this.clientRequestApiStore.loading());
   readonly totalPages = signal(0);
   readonly showingStart = computed(() => {
@@ -204,12 +204,6 @@ export class ClientRequests implements OnInit {
         return 'Natural Person';
       case TargetEntity.ORGANISATION:
         return 'Organisation';
-      case TargetEntity.BRANCH:
-        return 'Branch';
-      case TargetEntity.SUBSCRIPTION:
-        return 'Subscription';
-      case TargetEntity.INVOICE:
-        return 'Invoice';
       default:
         return target ? target.replace(/_/g, ' ') : 'Unassigned';
     }
@@ -253,10 +247,6 @@ export class ClientRequests implements OnInit {
 
   organisationSubtitle(row: ClientRequestDTO): string {
     return row.organisationRegistrationNo || row.organisationId || 'Organisation context unavailable';
-  }
-
-  requestReference(row: ClientRequestDTO): string {
-    return row.registration || row.id || 'Reference pending';
   }
 
   trackByRequest(index: number, row: ClientRequestDTO): string | number {

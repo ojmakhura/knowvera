@@ -49,7 +49,7 @@ class KycFieldGroupServiceImplTest {
     }
 
     @Test
-    void handleSaveNewIndividualGroupAttachesSettingsAndSetsFieldBackRef() throws Exception {
+    void saveNewIndividualGroupAttachesSettingsAndSetsFieldBackRef() throws Exception {
         KycFieldGroupDTO input = new KycFieldGroupDTO();
         input.setLabel("Identity");
         input.setDescription("Identity fields");
@@ -76,7 +76,7 @@ class KycFieldGroupServiceImplTest {
     }
 
     @Test
-    void handleRemoveThrowsWhenGroupDoesNotExist() {
+    void removeThrowsWhenGroupDoesNotExist() {
         UUID id = UUID.randomUUID();
         when(messageSource.getMessage("kycFieldGroup.notFound", new Object[] { id.toString() }, null))
                 .thenReturn("not found");
@@ -86,7 +86,7 @@ class KycFieldGroupServiceImplTest {
     }
 
     @Test
-    void handleRemoveFieldDeletesFieldAndReturnsMappedGroup() throws Exception {
+    void removeFieldDeletesFieldAndReturnsMappedGroup() throws Exception {
         UUID groupId = UUID.randomUUID();
         UUID fieldId = UUID.randomUUID();
         KycFieldGroup entity = KycFieldGroup.Factory.newInstance();
@@ -102,7 +102,7 @@ class KycFieldGroupServiceImplTest {
     }
 
     @Test
-    void handleFindByIdReturnsMappedGroup() throws Exception {
+    void findByIdReturnsMappedGroup() throws Exception {
         UUID id = UUID.randomUUID();
         KycFieldGroup entity = KycFieldGroup.Factory.newInstance();
         KycFieldGroupDTO expected = new KycFieldGroupDTO();
@@ -116,7 +116,7 @@ class KycFieldGroupServiceImplTest {
     }
 
     @Test
-    void handleFindByTargetReturnsMappedCollection() throws Exception {
+    void findByTargetReturnsMappedCollection() throws Exception {
         List<KycFieldGroup> entities = List.of(KycFieldGroup.Factory.newInstance());
         List<KycFieldGroupDTO> expected = List.of(new KycFieldGroupDTO());
 
@@ -131,7 +131,7 @@ class KycFieldGroupServiceImplTest {
     }
 
     @Test
-    void handleRemoveDeletesWhenGroupExists() throws Exception {
+    void removeDeletesWhenGroupExists() throws Exception {
         UUID id = UUID.randomUUID();
         when(kycFieldGroupRepository.existsById(id)).thenReturn(true);
 

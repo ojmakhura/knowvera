@@ -41,7 +41,7 @@ class ExpectedFieldServiceImplTest {
     }
 
     @Test
-    void handleFindByIdReturnsMappedExpectedField() throws Exception {
+    void findByIdReturnsMappedExpectedField() throws Exception {
         UUID id = UUID.randomUUID();
         ExpectedField entity = ExpectedField.Factory.newInstance();
         ExpectedFieldDTO expected = new ExpectedFieldDTO();
@@ -55,7 +55,7 @@ class ExpectedFieldServiceImplTest {
     }
 
     @Test
-    void handleFindByDocumentTypeWithPagingConvertsIdsAndDelegates() throws Exception {
+    void findByDocumentTypeWithPagingConvertsIdsAndDelegates() throws Exception {
         UUID typeId = UUID.randomUUID();
         Page<ExpectedFieldDTO> expected = new PageImpl<>(List.of(new ExpectedFieldDTO()));
 
@@ -68,7 +68,7 @@ class ExpectedFieldServiceImplTest {
     }
 
     @Test
-    void handleRemoveDeletesById() throws Exception {
+    void removeDeletesById() throws Exception {
         UUID id = UUID.randomUUID();
 
         boolean removed = service.remove(id.toString());
@@ -78,7 +78,7 @@ class ExpectedFieldServiceImplTest {
     }
 
     @Test
-    void handleFindByIdThrowsExceptionWhenNotFound() throws Exception {
+    void findByIdThrowsExceptionWhenNotFound() throws Exception {
         UUID id = UUID.randomUUID();
 
         when(expectedFieldRepository.findById(id)).thenReturn(Optional.empty());
@@ -90,7 +90,7 @@ class ExpectedFieldServiceImplTest {
     }
 
     @Test
-    void handleSaveConvertsAndSavesExpectedField() throws Exception {
+    void saveConvertsAndSavesExpectedField() throws Exception {
         ExpectedFieldDTO input = new ExpectedFieldDTO();
         input.setField("firstName");
         input.setTargetType(bw.co.centralkyc.TargetEntity.INDIVIDUAL);
@@ -112,7 +112,7 @@ class ExpectedFieldServiceImplTest {
     }
 
     @Test
-    void handleFindByDocumentTypeWithoutPagingConvertsIdsAndDelegates() throws Exception {
+    void findByDocumentTypeWithoutPagingConvertsIdsAndDelegates() throws Exception {
         UUID typeId1 = UUID.randomUUID();
         UUID typeId2 = UUID.randomUUID();
         List<ExpectedFieldDTO> expected = List.of(new ExpectedFieldDTO(), new ExpectedFieldDTO());
@@ -127,7 +127,7 @@ class ExpectedFieldServiceImplTest {
     }
 
     @Test
-    void handleFindByDocumentTypeWithoutPagingReturnsEmptyListWhenNoResults() throws Exception {
+    void findByDocumentTypeWithoutPagingReturnsEmptyListWhenNoResults() throws Exception {
         UUID typeId = UUID.randomUUID();
         List<ExpectedFieldDTO> expected = new ArrayList<>();
 

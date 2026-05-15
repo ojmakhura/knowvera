@@ -45,6 +45,7 @@ public abstract class OrganisationMapper {
     @Mapping(source = "clientKycDocuments", target = "clientKycDocuments")
     @Mapping(source = "clientRequestsFiles", target = "clientRequestsFiles")
     @Mapping(source = "phoneNumbers", target = "phoneNumbers")
+    @Mapping(source = "branches", target = "branches")
     public abstract OrganisationDTO toOrganisationDTO(Organisation entity);
 
      /**
@@ -59,10 +60,20 @@ public abstract class OrganisationMapper {
      * @return Organisation
      */
     @InheritInverseConfiguration
+    @Mapping(target = "branches", ignore = true)
+    @Mapping(target = "individuals", ignore = true)
+    @Mapping(target = "clientRequests", ignore = true)
+    @Mapping(target = "kycInvoices", ignore = true)
+    @Mapping(target = "kycSubscriptions", ignore = true)
     public abstract Organisation organisationDTOToEntity(OrganisationDTO organisationDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
+    @Mapping(target = "branches", ignore = true)
+    @Mapping(target = "individuals", ignore = true)
+    @Mapping(target = "clientRequests", ignore = true)
+    @Mapping(target = "kycInvoices", ignore = true)
+    @Mapping(target = "kycSubscriptions", ignore = true)
     public abstract void updateOrganisationFromOrganisationDTO(OrganisationDTO organisationDTO, @MappingTarget Organisation entity);
 
     /**
@@ -88,6 +99,10 @@ public abstract class OrganisationMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
+    @Mapping(target = "individuals", ignore = true)
+    @Mapping(target = "clientRequests", ignore = true)
+    @Mapping(target = "kycInvoices", ignore = true)
+    @Mapping(target = "kycSubscriptions", ignore = true)
     public abstract void updateOrganisationFromOrganisationListDTO(OrganisationListDTO organisationListDTO, @MappingTarget Organisation entity);
 
 }

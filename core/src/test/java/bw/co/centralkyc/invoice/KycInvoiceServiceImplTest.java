@@ -86,7 +86,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleSaveCreatesInvoiceSequenceWhenRefIsBlank() throws Exception {
+    void saveCreatesInvoiceSequenceWhenRefIsBlank() throws Exception {
         KycInvoiceDTO input = new KycInvoiceDTO();
         input.setRef("PLACEHOLDER");
         input.setIssueDate(new java.util.Date());
@@ -117,7 +117,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleGenerateInvoiceSetsVatAndReturnsRepositoryResult() throws Exception {
+    void generateInvoiceSetsVatAndReturnsRepositoryResult() throws Exception {
         UUID subscriptionId = UUID.randomUUID();
         KycSubscription subscription = KycSubscription.Factory.newInstance();
         subscription.setId(subscriptionId);
@@ -152,7 +152,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleFindByIdReturnsMappedInvoice() throws Exception {
+    void findByIdReturnsMappedInvoice() throws Exception {
         UUID id = UUID.randomUUID();
         KycInvoice entity = KycInvoice.Factory.newInstance();
         KycInvoiceDTO expected = new KycInvoiceDTO();
@@ -166,7 +166,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleSaveSkipsSequenceWhenRefAlreadyPresent() throws Exception {
+    void saveSkipsSequenceWhenRefAlreadyPresent() throws Exception {
         KycInvoiceDTO input = new KycInvoiceDTO();
         KycInvoice entity = KycInvoice.Factory.newInstance();
         input.setRef("INV-CUSTOM");
@@ -192,7 +192,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleRemoveDeletesById() throws Exception {
+    void removeDeletesById() throws Exception {
         UUID id = UUID.randomUUID();
 
         boolean removed = service.remove(id.toString());
@@ -202,7 +202,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleGetAllMapsRepositoryResults() throws Exception {
+    void getAllMapsRepositoryResults() throws Exception {
         List<KycInvoice> entities = List.of(KycInvoice.Factory.newInstance());
         List<KycInvoiceDTO> expected = List.of(new KycInvoiceDTO());
 
@@ -215,7 +215,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleSearchUsesDefaultSortWhenMissingSortOrders() throws Exception {
+    void searchUsesDefaultSortWhenMissingSortOrders() throws Exception {
         InvoiceSearchCriteria criteria = new InvoiceSearchCriteria();
         criteria.setPaid(Boolean.TRUE);
 
@@ -232,7 +232,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleSearchEvaluatesAllSpecificationPredicates() throws Exception {
+    void searchEvaluatesAllSpecificationPredicates() throws Exception {
         InvoiceSearchCriteria criteria = new InvoiceSearchCriteria();
         criteria.setPaid(Boolean.TRUE);
         criteria.setRef("INV");
@@ -255,7 +255,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleSearchWithPagingMapsResults() throws Exception {
+    void searchWithPagingMapsResults() throws Exception {
         SearchObject<InvoiceSearchCriteria> criteria = new SearchObject<>();
         criteria.setCriteria(new InvoiceSearchCriteria());
         criteria.setPageNumber(0);
@@ -277,7 +277,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleGetAllWithPagingMapsResults() throws Exception {
+    void getAllWithPagingMapsResults() throws Exception {
         KycInvoice entity = KycInvoice.Factory.newInstance();
         KycInvoiceDTO dto = new KycInvoiceDTO();
         Page<KycInvoice> page = new PageImpl<>(List.of(entity));
@@ -292,13 +292,13 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleUploadThrowsUnsupportedOperationException() {
+    void uploadThrowsUnsupportedOperationException() {
         assertThrows(KycInvoiceServiceException.class,
                 () -> service.upload(UUID.randomUUID().toString(), "url", UploadPurpose.INVOICE, "tester"));
     }
 
     @Test
-    void handleGenerateInvoiceThrowsWhenSubscriptionNotFound() {
+    void generateInvoiceThrowsWhenSubscriptionNotFound() {
         UUID id = UUID.randomUUID();
         when(kycSubscriptionRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -307,7 +307,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleGenerateInvoiceThrowsWhenSubscriptionInactive() {
+    void generateInvoiceThrowsWhenSubscriptionInactive() {
         UUID id = UUID.randomUUID();
         KycSubscription subscription = KycSubscription.Factory.newInstance();
         subscription.setId(id);
@@ -321,7 +321,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleGenerateInvoiceThrowsForWeeklyPeriod() {
+    void generateInvoiceThrowsForWeeklyPeriod() {
         UUID id = UUID.randomUUID();
         KycSubscription subscription = KycSubscription.Factory.newInstance();
         subscription.setId(id);
@@ -340,7 +340,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleGenerateInvoiceSetsYearRangeAndNoVatWhenSettingsMissing() throws Exception {
+    void generateInvoiceSetsYearRangeAndNoVatWhenSettingsMissing() throws Exception {
         UUID subscriptionId = UUID.randomUUID();
         KycSubscription subscription = KycSubscription.Factory.newInstance();
         subscription.setId(subscriptionId);
@@ -370,7 +370,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleFindByOrganisationReturnsMappedCollection() throws Exception {
+    void findByOrganisationReturnsMappedCollection() throws Exception {
         UUID orgId = UUID.randomUUID();
         List<KycInvoice> entities = List.of(KycInvoice.Factory.newInstance());
         List<KycInvoiceDTO> expected = List.of(new KycInvoiceDTO());
@@ -387,7 +387,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleFindBySubscriptionReturnsMappedCollection() throws Exception {
+    void findBySubscriptionReturnsMappedCollection() throws Exception {
         UUID subscriptionId = UUID.randomUUID();
         List<KycInvoice> entities = List.of(KycInvoice.Factory.newInstance());
         List<KycInvoiceDTO> expected = List.of(new KycInvoiceDTO());
@@ -404,7 +404,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleFindByOrganisationPagedDelegatesToRepository() throws Exception {
+    void findByOrganisationPagedDelegatesToRepository() throws Exception {
         UUID orgId = UUID.randomUUID();
         Page<KycInvoiceDTO> expected = Page.empty();
 
@@ -416,7 +416,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleFindBySubscriptionPagedDelegatesToRepository() throws Exception {
+    void findBySubscriptionPagedDelegatesToRepository() throws Exception {
         UUID subscriptionId = UUID.randomUUID();
         Page<KycInvoiceDTO> expected = Page.empty();
 
@@ -428,7 +428,7 @@ class KycInvoiceServiceImplTest {
     }
 
     @Test
-    void handleCountMethodsReturnRepositoryValuesOrZero() throws Exception {
+    void countMethodsReturnRepositoryValuesOrZero() throws Exception {
         UUID orgId = UUID.randomUUID();
         when(kycInvoiceRepository.countInvoicesByOrganisationId(orgId)).thenReturn(Optional.of(2L));
         when(kycInvoiceRepository.countInvoices(true)).thenReturn(Optional.empty());

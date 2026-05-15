@@ -16,6 +16,8 @@ import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -186,7 +188,9 @@ public class IndividualApiImpl implements IndividualApi {
         CommMessageDTO message = new CommMessageDTO();
 
         message.setContentType(ContentType.PLAIN_TEXT);
-        message.setDestinations(List.of(individual.getEmailAddress()));
+        SortedSet<String> destinations = new TreeSet<>();
+        destinations.add(individual.getEmailAddress());
+        message.setDestinations(destinations);
         message.setSource(sourceEmail);
 
         StringBuilder nameBuilder = new StringBuilder();
@@ -212,7 +216,7 @@ public class IndividualApiImpl implements IndividualApi {
             if (org != null) {
 
                 if (StringUtils.isNotBlank(org.getContactEmailAddress())) {
-                    message.setCcs(List.of(org.getContactEmailAddress()));
+                    message.setCcs(new TreeSet<>(List.of(org.getContactEmailAddress())));
                 }
             }
         }
@@ -431,5 +435,28 @@ public class IndividualApiImpl implements IndividualApi {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    @Override
+    public ResponseEntity<IndividualDTO> verifyIndividual(String id) throws Exception {
+        
+        try {
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (!authentication.isAuthenticated()) {
+                throw new IndividualServiceException("Unauthenticated");
+            }
+
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            String userId = jwt.getSubject();
+
+            IndividualDTO individual = individualService.verifyIndividual(id, userId);
+
+            return ResponseEntity.ok(individual);
+
+        } catch (Exception e) {
+            throw e;
+        }
+
     }
 }

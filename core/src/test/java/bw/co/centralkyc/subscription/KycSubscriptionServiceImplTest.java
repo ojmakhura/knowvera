@@ -76,7 +76,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleSaveCreatesSequenceDefinitionWhenRefIsBlank() throws Exception {
+    void saveCreatesSequenceDefinitionWhenRefIsBlank() throws Exception {
         KycSubscriptionDTO input = new KycSubscriptionDTO();
         input.setStartDate(new java.util.Date());
         input.setPeriod(bw.co.centralkyc.TimePeriod.MONTH);
@@ -103,7 +103,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleFindByIdMapsLoadedSubscription() throws Exception {
+    void findByIdMapsLoadedSubscription() throws Exception {
         UUID id = UUID.randomUUID();
         KycSubscription entity = KycSubscription.Factory.newInstance();
         KycSubscriptionDTO expected = new KycSubscriptionDTO();
@@ -117,7 +117,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleCountByStatusReturnsZeroWhenRepositoryHasNoValue() throws Exception {
+    void countByStatusReturnsZeroWhenRepositoryHasNoValue() throws Exception {
         when(kycSubscriptionRepository.countByStatus(KycSubsciptionStatus.ACTIVE)).thenReturn(Optional.empty());
 
         long actual = service.countByStatus(KycSubsciptionStatus.ACTIVE);
@@ -126,7 +126,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleRemoveDeletesById() throws Exception {
+    void removeDeletesById() throws Exception {
         UUID id = UUID.randomUUID();
 
         boolean removed = service.remove(id.toString());
@@ -136,7 +136,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleSaveUsesExistingSequenceGeneratorWhenAlreadyConfigured() throws Exception {
+    void saveUsesExistingSequenceGeneratorWhenAlreadyConfigured() throws Exception {
         KycSubscriptionDTO input = new KycSubscriptionDTO();
         input.setStartDate(new java.util.Date());
         input.setPeriod(bw.co.centralkyc.TimePeriod.MONTH);
@@ -161,7 +161,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleSaveSkipsSequenceGenerationWhenRefAlreadyProvided() throws Exception {
+    void saveSkipsSequenceGenerationWhenRefAlreadyProvided() throws Exception {
         KycSubscriptionDTO input = new KycSubscriptionDTO();
         input.setStartDate(new java.util.Date());
         input.setPeriod(bw.co.centralkyc.TimePeriod.MONTH);
@@ -185,7 +185,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleGetAllMapsRepositoryResults() throws Exception {
+    void getAllMapsRepositoryResults() throws Exception {
         List<KycSubscription> entities = List.of(KycSubscription.Factory.newInstance());
         List<KycSubscriptionDTO> expected = List.of(new KycSubscriptionDTO());
 
@@ -198,7 +198,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleSearchWithDefaultSortReturnsMappedCollection() throws Exception {
+    void searchWithDefaultSortReturnsMappedCollection() throws Exception {
         SubscriptionSearchCriteria criteria = new SubscriptionSearchCriteria();
         criteria.setRef("SUB");
 
@@ -215,7 +215,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleSearchWithProvidedSortReturnsMappedCollection() throws Exception {
+    void searchWithProvidedSortReturnsMappedCollection() throws Exception {
         SubscriptionSearchCriteria criteria = new SubscriptionSearchCriteria();
         Set<PropertySearchOrder> sort = Set.of(new PropertySearchOrder("createdAt", SortOrder.DESC));
         List<KycSubscription> entities = List.of(KycSubscription.Factory.newInstance());
@@ -231,7 +231,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleSearchEvaluatesAllSpecificationPredicates() throws Exception {
+    void searchEvaluatesAllSpecificationPredicates() throws Exception {
         SubscriptionSearchCriteria criteria = new SubscriptionSearchCriteria();
         criteria.setRef("SUB");
         criteria.setOrganisationName("Acme");
@@ -255,7 +255,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleGetAllWithPagingMapsEachEntity() throws Exception {
+    void getAllWithPagingMapsEachEntity() throws Exception {
         KycSubscription entity = KycSubscription.Factory.newInstance();
         KycSubscriptionDTO dto = new KycSubscriptionDTO();
         Page<KycSubscription> page = new PageImpl<>(List.of(entity));
@@ -270,7 +270,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleSearchWithPagingUsesProvidedSortings() throws Exception {
+    void searchWithPagingUsesProvidedSortings() throws Exception {
         SearchObject<SubscriptionSearchCriteria> criteria = new SearchObject<>();
         criteria.setCriteria(new SubscriptionSearchCriteria());
         criteria.setPageNumber(0);
@@ -292,7 +292,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleSearchWithPagingUsesDefaultSortWhenSortingsMissing() throws Exception {
+    void searchWithPagingUsesDefaultSortWhenSortingsMissing() throws Exception {
         SearchObject<SubscriptionSearchCriteria> criteria = new SearchObject<>();
         criteria.setCriteria(new SubscriptionSearchCriteria());
         criteria.setPageNumber(0);
@@ -308,7 +308,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleFindByOrganisationReturnsMappedCollection() throws Exception {
+    void findByOrganisationReturnsMappedCollection() throws Exception {
         UUID orgId = UUID.randomUUID();
         List<KycSubscription> entities = List.of(KycSubscription.Factory.newInstance());
         List<KycSubscriptionDTO> expected = List.of(new KycSubscriptionDTO());
@@ -326,7 +326,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleCountByStatusReturnsRepositoryValue() throws Exception {
+    void countByStatusReturnsRepositoryValue() throws Exception {
         when(kycSubscriptionRepository.countByStatus(KycSubsciptionStatus.ACTIVE)).thenReturn(Optional.of(12L));
 
         long actual = service.countByStatus(KycSubsciptionStatus.ACTIVE);
@@ -335,7 +335,7 @@ class KycSubscriptionServiceImplTest {
     }
 
     @Test
-    void handleCountReturnsRepositoryCount() throws Exception {
+    void countReturnsRepositoryCount() throws Exception {
         when(kycSubscriptionRepository.count()).thenReturn(20L);
 
         long actual = service.count();

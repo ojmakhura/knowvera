@@ -3,12 +3,16 @@ package bw.co.centralkyc.document.processor;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
 import bw.co.centralkyc.QueueObject;
 import bw.co.centralkyc.TargetEntity;
+import bw.co.centralkyc.individual.Individual;
+import bw.co.centralkyc.individual.IndividualRepository;
+import bw.co.centralkyc.individual.IndividualServiceException;
 import bw.co.centralkyc.kyc.KycRecord;
 import bw.co.centralkyc.kyc.KycRecordDTO;
 import bw.co.centralkyc.kyc.KycRecordRepository;
@@ -21,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class IndividualVerificationService {
 
+    private final IndividualRepository individualRepository;
     private final KycRecordRepository kycRecordRepository;
     private final KycRecordService kycRecordService;
 
@@ -29,6 +34,11 @@ public class IndividualVerificationService {
         log.info("Processing individual verification for individual ID: {}", queueObject.objectId());
 
         try {
+
+            Individual individual = individualRepository.findById(UUID.fromString(queueObject.objectId())).orElseThrow(
+                () -> new IndividualServiceException("Individual not found for ID: " + queueObject.objectId())
+            );
+
             KycRecord record = kycRecordRepository.findAll().stream()
                     .filter(item -> item.getTarget() == TargetEntity.INDIVIDUAL)
                     .filter(item -> Objects.equals(item.getTargetId(), queueObject.objectId()))

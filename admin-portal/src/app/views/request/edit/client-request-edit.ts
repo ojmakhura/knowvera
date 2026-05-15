@@ -46,6 +46,7 @@ export class EditClientRequestForm {
   target: TargetEntity | null = null;
   targetObject: OrganisationListDTO | IndividualListDTO | null = null;
   targetObjectFilter: string = '';
+  ref: string | any;
 }
 
 @Component({
@@ -261,6 +262,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
     clientRequest.documentId = formData.documentId;
     clientRequest.fileName = formData.fileName;
     clientRequest.fileUrl = formData.fileUrl;
+    clientRequest.ref = formData.ref;
 
     if (formData.target === TargetEntity.ORGANISATION) {
 
@@ -297,9 +299,6 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
       org.postalAddress = '';
       org.physicalAddress = '';
 
-
-      let target: OrganisationListDTO | IndividualListDTO;
-
       if(clientRequest.target === TargetEntity.ORGANISATION) {
 
         this.organisationApiStore.findById({ id: clientRequest.targetId });
@@ -328,6 +327,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
         targetOrganisationFilter: '',
         targetIndividualFilter: '',
         targetKycStatus: clientRequest.targetKycStatus || null,
+        ref: clientRequest.ref
       }));
 
       if (clientRequest.organisationId) {
@@ -336,14 +336,6 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
         }]);
       }
   }
-
-  // selectTarget(record: TargetRecord): void {
-  //   this.selectedTarget.set(record);
-  // }
-
-  // selectOrganisation(record: OrganisationRecord): void {
-  //   this.selectedOrganisationId.set(record.id);
-  // }
 
   setTargetType(value: TargetEntity): void {
     this.selectedTargetType.set(value);

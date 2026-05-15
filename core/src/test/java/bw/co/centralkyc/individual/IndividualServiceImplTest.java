@@ -38,6 +38,7 @@ import bw.co.centralkyc.SortOrder;
 import bw.co.centralkyc.kyc.KycComplianceStatus;
 import bw.co.centralkyc.organisation.client.ClientRequest;
 import bw.co.centralkyc.organisation.client.ClientRequestRepository;
+import bw.co.centralkyc.settings.SettingsService;
 
 @ExtendWith(MockitoExtension.class)
 class IndividualServiceImplTest {
@@ -52,13 +53,16 @@ class IndividualServiceImplTest {
     private ClientRequestRepository clientRequestRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private SettingsService settingsService;
 
-    private IndividualServiceImpl service;
+    private IndividualService service;
 
     @BeforeEach
     void setUp() {
         service = new IndividualServiceImpl(
                 individualRepository,
+            settingsService,
                 individualMapper,
                 messageSource,
                 clientRequestRepository,
@@ -66,7 +70,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleLoadRequestIndividualReturnsMappedIndividualWhenTokenMatches() throws Exception {
+    void loadRequestIndividualReturnsMappedIndividualWhenTokenMatches() throws Exception {
         UUID requestId = UUID.randomUUID();
         UUID individualId = UUID.randomUUID();
         ClientRequest clientRequest = ClientRequest.Factory.newInstance();
@@ -88,7 +92,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleLoadRequestIndividualThrowsWhenTokenDoesNotMatch() {
+    void loadRequestIndividualThrowsWhenTokenDoesNotMatch() {
         UUID requestId = UUID.randomUUID();
         ClientRequest clientRequest = ClientRequest.Factory.newInstance();
         clientRequest.setIdentityConfirmationToken("encoded-token");
@@ -102,7 +106,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleRemoveDeletesFoundIndividual() throws Exception {
+    void removeDeletesFoundIndividual() throws Exception {
         UUID id = UUID.randomUUID();
         Individual individual = Individual.Factory.newInstance();
 
@@ -114,7 +118,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleFindByIdLoadsAndMapsIndividual() throws Exception {
+    void findByIdLoadsAndMapsIndividual() throws Exception {
         UUID id = UUID.randomUUID();
         Individual individual = Individual.Factory.newInstance();
         IndividualDTO expected = new IndividualDTO();
@@ -128,7 +132,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleGetAllMapsRepositoryResults() throws Exception {
+    void getAllMapsRepositoryResults() throws Exception {
         List<Individual> entities = List.of(Individual.Factory.newInstance());
         List<IndividualListDTO> expected = List.of(new IndividualListDTO("Full Name", "OMANG-1", IndividualIdentityType.OMANG,
             bw.co.centralkyc.kyc.KycComplianceStatus.CURRENT, Sex.MALE));
@@ -142,7 +146,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleGetAllWithPagingMapsPageItems() throws Exception {
+    void getAllWithPagingMapsPageItems() throws Exception {
         Individual entity = Individual.Factory.newInstance();
         Page<Individual> page = new PageImpl<>(List.of(entity));
         IndividualListDTO mapped = new IndividualListDTO("Full Name", "OMANG-1", IndividualIdentityType.OMANG,
@@ -158,7 +162,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleSaveMapsPersistsAndMapsBack() throws Exception {
+    void saveMapsPersistsAndMapsBack() throws Exception {
         IndividualDTO input = new IndividualDTO();
         input.setFirstName("John");
         input.setSurname("Doe");
@@ -182,7 +186,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleRemoveThrowsWhenIndividualNotFound() {
+    void removeThrowsWhenIndividualNotFound() {
         UUID id = UUID.randomUUID();
         when(individualRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -190,7 +194,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleSearchReturnsMappedCollection() throws Exception {
+    void searchReturnsMappedCollection() throws Exception {
         IndividualSearchCriteria criteria = new IndividualSearchCriteria();
         criteria.setFirstName("Jo");
 
@@ -208,7 +212,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleSearchWithPagingReturnsMappedPage() throws Exception {
+    void searchWithPagingReturnsMappedPage() throws Exception {
         IndividualSearchCriteria searchCriteria = new IndividualSearchCriteria();
         searchCriteria.setSurname("Do");
 
@@ -233,7 +237,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleSearchEvaluatesAllSpecificationPredicates() throws Exception {
+    void searchEvaluatesAllSpecificationPredicates() throws Exception {
         IndividualSearchCriteria criteria = new IndividualSearchCriteria();
         criteria.setEmailAddress("john@example.com");
         criteria.setFirstName("John");
@@ -255,25 +259,25 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleGetOrganisationClientsThrowsUnsupportedOperationException() {
+    void getOrganisationClientsThrowsUnsupportedOperationException() {
         assertThrows(IndividualServiceException.class,
                 () -> service.getOrganisationClients(UUID.randomUUID().toString()));
     }
 
     @Test
-    void handleGetOrganisationClientsPagedThrowsUnsupportedOperationException() {
+    void getOrganisationClientsWithPagingThrowsUnsupportedOperationException() {
         assertThrows(IndividualServiceException.class,
                 () -> service.getOrganisationClients(UUID.randomUUID().toString(), 0, 10));
     }
 
     @Test
-    void handleFindByIdentityNoAndIdentityTypeThrowsUnsupportedOperationException() {
+    void findByIdentityNoAndIdentityTypeThrowsUnsupportedOperationException() {
         assertThrows(IndividualServiceException.class,
                 () -> service.findByIdentityNoAndIdentityType("123", IndividualIdentityType.OMANG));
     }
 
     @Test
-    void handleCountByPepStatusReturnsRepositoryValueOrZero() throws Exception {
+    void countByPepStatusReturnsRepositoryValueOrZero() throws Exception {
         when(individualRepository.countByPepStatus(PepStatus.PEP_SELF)).thenReturn(Optional.of(3L));
         when(individualRepository.countByPepStatus(PepStatus.NOT_PEP)).thenReturn(Optional.empty());
 
@@ -282,14 +286,14 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleCountReturnsRepositoryCount() throws Exception {
+    void countReturnsRepositoryCount() throws Exception {
         when(individualRepository.count()).thenReturn(9L);
 
         assertEquals(9L, service.count());
     }
 
     @Test
-    void handleCountByKycStatusReturnsRepositoryValueOrZero() throws Exception {
+    void countByKycStatusReturnsRepositoryValueOrZero() throws Exception {
         when(individualRepository.countByKycStatus(KycComplianceStatus.CURRENT)).thenReturn(Optional.of(2L));
         when(individualRepository.countByKycStatus(KycComplianceStatus.EXPIRED)).thenReturn(Optional.empty());
 
@@ -298,7 +302,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleCountByEmploymentStatusReturnsRepositoryValueOrZero() throws Exception {
+    void countByEmploymentStatusReturnsRepositoryValueOrZero() throws Exception {
         when(individualRepository.countByEmploymentStatus(EmploymentStatus.EMPLOYED)).thenReturn(Optional.of(4L));
         when(individualRepository.countByEmploymentStatus(EmploymentStatus.UNEMPLOYED)).thenReturn(Optional.empty());
 
@@ -307,7 +311,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleCountBySexReturnsRepositoryValueOrZero() throws Exception {
+    void countBySexReturnsRepositoryValueOrZero() throws Exception {
         when(individualRepository.countBySex(Sex.MALE)).thenReturn(Optional.of(7L));
         when(individualRepository.countBySex(Sex.FEMALE)).thenReturn(Optional.empty());
 
@@ -316,7 +320,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleLoadRequestIndividualThrowsWhenRequestNotFound() {
+    void loadRequestIndividualThrowsWhenRequestNotFound() {
         UUID requestId = UUID.randomUUID();
         when(clientRequestRepository.findById(requestId)).thenReturn(Optional.empty());
 
@@ -325,7 +329,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleLoadRequestIndividualThrowsWhenIdentityNotFound() {
+    void loadRequestIndividualThrowsWhenIdentityNotFound() {
         UUID requestId = UUID.randomUUID();
         UUID individualId = UUID.randomUUID();
         ClientRequest clientRequest = ClientRequest.Factory.newInstance();
@@ -341,7 +345,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleLoadRequestIndividualThrowsWhenTargetMismatch() {
+    void loadRequestIndividualThrowsWhenTargetMismatch() {
         UUID requestId = UUID.randomUUID();
         UUID requestTargetId = UUID.randomUUID();
         UUID otherIndividualId = UUID.randomUUID();
@@ -362,7 +366,7 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleFindByUserIdReturnsMappedEntity() throws Exception {
+    void findByUserIdReturnsMappedEntity() throws Exception {
         Individual individual = Individual.Factory.newInstance();
         IndividualDTO expected = new IndividualDTO();
 
@@ -375,14 +379,14 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void handleFindByUserIdThrowsWhenNotFound() {
+    void findByUserIdThrowsWhenNotFound() {
         when(individualRepository.findByUserId("user-1")).thenReturn(Optional.empty());
 
         assertThrows(IndividualServiceException.class, () -> service.findByUserId("user-1"));
     }
 
         @Test
-        void serviceBaseGuardsRejectInvalidArguments() {
+        void serviceMethodsRejectInvalidArguments() {
         assertThrows(IllegalArgumentException.class, () -> service.findById(null));
         assertThrows(IllegalArgumentException.class, () -> service.findById(" "));
         assertThrows(IllegalArgumentException.class, () -> service.remove(null));
@@ -416,7 +420,7 @@ class IndividualServiceImplTest {
         }
 
         @Test
-        void serviceBaseSaveGuardsRejectMissingRequiredFields() {
+        void saveRejectsMissingRequiredFields() {
         IndividualDTO missingFirstName = validIndividual();
         missingFirstName.setFirstName(" ");
         assertThrows(IllegalArgumentException.class, () -> service.save(missingFirstName));

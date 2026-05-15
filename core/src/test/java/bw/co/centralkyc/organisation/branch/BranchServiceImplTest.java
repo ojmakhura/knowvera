@@ -41,7 +41,7 @@ class BranchServiceImplTest {
     }
 
     @Test
-    void handleSaveMapsPersistsAndReturnsDto() throws Exception {
+    void saveMapsPersistsAndReturnsDto() throws Exception {
         BranchDTO input = new BranchDTO();
         input.setCode("BR-1");
         input.setName("Main Branch");
@@ -62,7 +62,7 @@ class BranchServiceImplTest {
     }
 
     @Test
-    void handleRemoveDeletesById() throws Exception {
+    void removeDeletesById() throws Exception {
         UUID id = UUID.randomUUID();
 
         boolean removed = service.remove(id.toString());
@@ -72,7 +72,7 @@ class BranchServiceImplTest {
     }
 
     @Test
-    void handleGetAllDelegatesToMapper() throws Exception {
+    void getAllDelegatesToMapper() throws Exception {
         List<Branch> branches = List.of(Branch.Factory.newInstance());
         List<BranchDTO> expected = List.of(new BranchDTO());
 
@@ -85,7 +85,7 @@ class BranchServiceImplTest {
     }
 
     @Test
-    void handleFindByIdMapsEntity() throws Exception {
+    void findByIdMapsEntity() throws Exception {
         UUID id = UUID.randomUUID();
         Branch entity = Branch.Factory.newInstance();
         BranchDTO expected = new BranchDTO();
@@ -99,7 +99,7 @@ class BranchServiceImplTest {
     }
 
     @Test
-    void handleSearchAndFindByOrganisationPathsMapResults() throws Exception {
+    void searchAndFindByOrganisationPathsMapResults() throws Exception {
         List<Branch> entities = List.of(Branch.Factory.newInstance());
         List<BranchDTO> expected = List.of(new BranchDTO());
 
@@ -115,7 +115,7 @@ class BranchServiceImplTest {
     }
 
     @Test
-    void handlePagedSearchPathsMapResults() throws Exception {
+    void pagedSearchPathsMapResults() throws Exception {
         Branch entity = Branch.Factory.newInstance();
         BranchDTO dto = new BranchDTO();
         Page<Branch> page = new PageImpl<>(List.of(entity));

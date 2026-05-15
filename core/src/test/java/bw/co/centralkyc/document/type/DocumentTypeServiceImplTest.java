@@ -67,7 +67,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleFindByIdAddsVerificationDataConfigsToDto() throws Exception {
+    void findByIdAddsVerificationDataConfigsToDto() throws Exception {
         UUID id = UUID.randomUUID();
         DocumentType entity = DocumentType.Factory.newInstance();
         entity.setId(id);
@@ -87,7 +87,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleSearchWithBlankCriteriaUsesSortedFindAll() throws Exception {
+    void searchWithBlankCriteriaUsesSortedFindAll() throws Exception {
         List<DocumentType> entities = List.of(DocumentType.Factory.newInstance());
         List<DocumentTypeDTO> expected = List.of(new DocumentTypeDTO());
         Sort sort = Sort.by(Sort.Direction.ASC, "name");
@@ -101,7 +101,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleAddExpectedFieldAddsNewFieldAndBindsDocumentType() throws Exception {
+    void addExpectedFieldAddsNewFieldAndBindsDocumentType() throws Exception {
         UUID id = UUID.randomUUID();
         DocumentType documentType = DocumentType.Factory.newInstance();
         documentType.setId(id);
@@ -124,7 +124,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleFindByIdThrowsExceptionWhenNotFound() throws Exception {
+    void findByIdThrowsExceptionWhenNotFound() throws Exception {
         UUID id = UUID.randomUUID();
 
         when(documentTypeRepository.findById(id)).thenReturn(Optional.empty());
@@ -136,7 +136,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleSaveWithVerificationDataConfigs() throws Exception {
+    void saveWithVerificationDataConfigs() throws Exception {
         DocumentTypeDTO input = new DocumentTypeDTO();
         input.setCode("DOC");
         input.setName("Document");
@@ -161,7 +161,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleRemoveConvertsStringToUuidAndReturnsTrue() throws Exception {
+    void removeConvertsStringToUuidAndReturnsTrue() throws Exception {
         UUID id = UUID.randomUUID();
 
         boolean removed = service.remove(id.toString());
@@ -171,7 +171,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleGetAllReturnsAllDocumentTypes() throws Exception {
+    void getAllReturnsAllDocumentTypes() throws Exception {
         List<DocumentType> entities = List.of(
                 DocumentType.Factory.newInstance(),
                 DocumentType.Factory.newInstance());
@@ -189,7 +189,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleSearchWithCriteriaBuildSpecificationAndSearches() throws Exception {
+    void searchWithCriteriaBuildSpecificationAndSearches() throws Exception {
         String criteria = "testCriteria";
         List<DocumentType> entities = List.of(DocumentType.Factory.newInstance());
         List<DocumentTypeDTO> expected = List.of(new DocumentTypeDTO());
@@ -203,7 +203,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleGetAllWithPaginationReturnsPaginatedResults() throws Exception {
+    void getAllWithPaginationReturnsPaginatedResults() throws Exception {
         List<DocumentType> entities = List.of(DocumentType.Factory.newInstance());
         Page<DocumentType> page = new PageImpl<>(entities);
 
@@ -216,7 +216,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleSearchWithPaginationAndBlankCriteriaUsesFindAll() throws Exception {
+    void searchWithPaginationAndBlankCriteriaUsesFindAll() throws Exception {
         String criteria = "   ";
         List<DocumentType> entities = List.of(DocumentType.Factory.newInstance());
         Page<DocumentType> page = new PageImpl<>(entities);
@@ -230,7 +230,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleSearchWithPaginationAndCriteriaUsesSpecification() throws Exception {
+    void searchWithPaginationAndCriteriaUsesSpecification() throws Exception {
         String criteria = "documentCriteria";
         List<DocumentType> entities = List.of(DocumentType.Factory.newInstance());
         Page<DocumentType> page = new PageImpl<>(entities);
@@ -244,7 +244,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleAddExpectedFieldUpdatesExistingField() throws Exception {
+    void addExpectedFieldUpdatesExistingField() throws Exception {
         UUID id = UUID.randomUUID();
         UUID fieldId = UUID.randomUUID();
         DocumentType documentType = DocumentType.Factory.newInstance();
@@ -274,7 +274,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleAddExpectedFieldAddsMultipleNewFields() throws Exception {
+    void addExpectedFieldAddsMultipleNewFields() throws Exception {
         UUID id = UUID.randomUUID();
         DocumentType documentType = DocumentType.Factory.newInstance();
         documentType.setId(id);
@@ -301,7 +301,7 @@ class DocumentTypeServiceImplTest {
     }
 
     @Test
-    void handleAddExpectedFieldThrowsExceptionWhenDocumentTypeNotFound() throws Exception {
+    void addExpectedFieldThrowsExceptionWhenDocumentTypeNotFound() throws Exception {
         UUID id = UUID.randomUUID();
         ExpectedFieldDTO fieldDTO = new ExpectedFieldDTO();
         

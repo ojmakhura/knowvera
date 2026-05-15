@@ -205,6 +205,86 @@
 					</mat-card>
 				</div>
 			</mat-tab>
+			<mat-tab label="Subscriptions">
+				<div class="tab-content tab-subscriptions">
+					<mat-card class="ops-card table-card">
+						<div class="table-head">
+							<h3>Subscriptions</h3>
+							<div class="table-head-actions">
+								<span class="live-chip">{{ subscriptionsDataSource.data.length }} linked</span>
+							</div>
+						</div>
+
+						<table mat-table [dataSource]="subscriptionsDataSource" class="vault-table subscriptions-table">
+							<ng-container matColumnDef="ref">
+								<th mat-header-cell *matHeaderCellDef>Ref ID</th>
+								<td mat-cell *matCellDef="let subscription" class="mono-cell">{{ subscription.ref || '-' }}</td>
+							</ng-container>
+
+							<ng-container matColumnDef="period">
+								<th mat-header-cell *matHeaderCellDef>Period</th>
+								<td mat-cell *matCellDef="let subscription">{{ subscription.period || '-' }}</td>
+							</ng-container>
+
+							<ng-container matColumnDef="startDate">
+								<th mat-header-cell *matHeaderCellDef>Start Date</th>
+								<td mat-cell *matCellDef="let subscription">{{ formatSubscriptionDate(subscription.startDate) }}</td>
+							</ng-container>
+
+							<ng-container matColumnDef="endDate">
+								<th mat-header-cell *matHeaderCellDef>End Date</th>
+								<td mat-cell *matCellDef="let subscription">{{ formatSubscriptionDate(subscription.endDate) }}</td>
+							</ng-container>
+
+							<ng-container matColumnDef="amount">
+								<th mat-header-cell *matHeaderCellDef class="align-end">Amount</th>
+								<td mat-cell *matCellDef="let subscription" class="align-end mono-cell">
+									{{ formatSubscriptionAmount(subscription.amount) }}
+								</td>
+							</ng-container>
+
+							<ng-container matColumnDef="status">
+								<th mat-header-cell *matHeaderCellDef>Status</th>
+								<td mat-cell *matCellDef="let subscription">
+									<span class="subscription-status-pill" [ngClass]="subscriptionStatusClass(subscription.status)">
+										{{ subscription.status || 'UNKNOWN' }}
+									</span>
+								</td>
+							</ng-container>
+
+							<ng-container matColumnDef="actions">
+								<th mat-header-cell *matHeaderCellDef class="align-end">Actions</th>
+								<td mat-cell *matCellDef="let subscription" class="align-end">
+									<button mat-icon-button type="button" title="Subscription details"
+										(click)="openSubscriptionDetails(subscription)">
+										<mat-icon>visibility</mat-icon>
+									</button>
+								</td>
+							</ng-container>
+
+							<tr mat-header-row *matHeaderRowDef="['ref', 'period', 'startDate', 'endDate', 'amount', 'status', 'actions']"></tr>
+							<tr mat-row *matRowDef="let row; columns: ['ref', 'period', 'startDate', 'endDate', 'amount', 'status', 'actions']"></tr>
+							<tr class="mat-row empty-row" *matNoDataRow>
+								<td class="mat-cell" colspan="7">
+									<div class="empty-state">
+										<mat-icon>subscriptions</mat-icon>
+										<p>No subscriptions are linked to this organisation yet.</p>
+									</div>
+								</td>
+							</tr>
+						</table>
+
+						<mat-paginator
+							#subscriptionsPaginator
+							[length]="subscriptionsDataSource.data.length"
+							[pageIndex]="0"
+							[pageSize]="5"
+							[pageSizeOptions]="[5, 10, 25]"
+							showFirstLastButtons
+						></mat-paginator>
+					</mat-card>
+				</div>
+			</mat-tab>
 			<mat-tab label="Branches">
 				<div class="tab-content tab-branches">
 					<section class="branches-section">

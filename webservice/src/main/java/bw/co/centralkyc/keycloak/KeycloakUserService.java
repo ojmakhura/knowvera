@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import jakarta.ws.rs.WebApplicationException;
@@ -256,7 +258,10 @@ public class KeycloakUserService {
         CommMessageDTO message = new CommMessageDTO();
 
         message.setContentType(ContentType.PLAIN_TEXT);
-        message.setDestinations(List.of(individual.getEmailAddress()));
+        SortedSet<String> destinations = new TreeSet<>();
+        destinations.add(individual.getEmailAddress());
+        
+        message.setDestinations(destinations);
         message.setSource(sourceEmail);
 
         StringBuilder nameBuilder = new StringBuilder();
@@ -277,7 +282,7 @@ public class KeycloakUserService {
             if (org != null) {
 
                 if (StringUtils.isNotBlank(org.getContactEmailAddress())) {
-                    message.setCcs(List.of(org.getContactEmailAddress()));
+                    message.setCcs(new TreeSet<>(List.of(org.getContactEmailAddress())));
                 }
 
                 String messageStr = String.format(newOrgUserTemplate, nameBuilder.toString(),

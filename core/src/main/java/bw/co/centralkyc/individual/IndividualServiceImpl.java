@@ -9,7 +9,9 @@
 package bw.co.centralkyc.individual;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,9 +26,15 @@ import org.springframework.stereotype.Service;
 
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
+import bw.co.centralkyc.document.Document;
+import bw.co.centralkyc.document.DocumentVerificationStatus;
+import bw.co.centralkyc.document.type.DocumentTypeDTO;
 import bw.co.centralkyc.kyc.KycComplianceStatus;
 import bw.co.centralkyc.organisation.client.ClientRequest;
 import bw.co.centralkyc.organisation.client.ClientRequestRepository;
+import bw.co.centralkyc.settings.Settings;
+import bw.co.centralkyc.settings.SettingsDTO;
+import bw.co.centralkyc.settings.SettingsService;
 
 /**
  * @see bw.co.centralkyc.individual.IndividualService
@@ -37,14 +45,16 @@ public class IndividualServiceImpl
 
     private final ClientRequestRepository clientRequestRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SettingsService settingsService;
 
-    public IndividualServiceImpl(IndividualRepository individualRepository,
+    public IndividualServiceImpl(IndividualRepository individualRepository, SettingsService settingsService,
             IndividualMapper individualMapper, MessageSource messageSource, ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder) {
         super(individualRepository, individualMapper, messageSource);
         // TODO Auto-generated constructor stub
 
         this.clientRequestRepository = clientRequestRepository;
         this.passwordEncoder = passwordEncoder;
+        this.settingsService = settingsService;
     }
 
     /**
@@ -274,6 +284,46 @@ public class IndividualServiceImpl
 
         Individual individual = individualRepository.findByUserId(userId)
                 .orElseThrow(() -> new IndividualServiceException("Individual not found for userId: " + userId));
+        return individualMapper.toIndividualDTO(individual);
+    }
+
+    @Override
+    protected IndividualDTO handleVerifyIndividual(String id, String user) throws Exception {
+
+        Individual individual = individualRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new IndividualServiceException("Individual not found with id: " + id));
+
+        List<SettingsDTO> allSettings = settingsService.getAll();
+
+        SettingsDTO settings = allSettings.stream().findFirst().get();
+        List<DocumentTypeDTO> types = settings.getIndividualDocuments();
+
+        // Find latest document of each type and check if they are all verified
+        boolean allVerified = true;
+
+        // Create a map of document type to latest document of that type from the individual's documents
+        Map<String, Document> latestDocuments = new HashMap<>();
+        for (DocumentTypeDTO type : types) {
+            Document doc = individual.getDocuments().stream()
+                    .filter(d -> d.getDocumentType().equals(type.getName()))
+                    .max((d1, d2) -> d1.getCreatedAt().compareTo(d2.getCreatedAt()))
+                    .orElse(null);
+
+            
+            if(doc != null) {
+                latestDocuments.put(type.getId(), doc);
+            }
+        }
+
+        allVerified = latestDocuments.values().stream()
+                .allMatch(d -> d.getVerificationStatus() == DocumentVerificationStatus.VERIFIED);
+
+        // if(allVerified) {
+        //     individual.setKycStatus(KycComplianceStatus.COMPLIANT);
+        // } else {
+        //     individual.setKycStatus(KycComplianceStatus.NON_COMPLIANT);
+        // }
+
         return individualMapper.toIndividualDTO(individual);
     }
 

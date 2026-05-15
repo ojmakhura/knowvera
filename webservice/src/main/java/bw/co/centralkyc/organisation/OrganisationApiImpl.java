@@ -264,4 +264,23 @@ public class OrganisationApiImpl implements OrganisationApi {
         }
 
     }
+
+    @Override
+    public ResponseEntity<OrganisationDTO> verifyOrganisation(String id) throws Exception {
+        
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (!authentication.isAuthenticated()) {
+                throw new IndividualServiceException("Unauthenticated");
+            }
+
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            String userId = jwt.getSubject();
+
+            return ResponseEntity.ok(organisationService.verifyOrganisation(id, userId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }

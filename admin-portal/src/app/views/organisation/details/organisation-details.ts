@@ -1,7 +1,7 @@
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatListModule } from '@angular/material/list';
-import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
+import { PageEvent, MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,9 +18,11 @@ import { BranchDTO } from '@app/models/bw/co/centralkyc/organisation/branch/bran
 import { ClientRequestDTO } from '@app/models/bw/co/centralkyc/organisation/client/client-request-dto';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
 import { ClientRequestStatus } from '@app/models/bw/co/centralkyc/organisation/client/client-request-status';
+import { KycSubsciptionStatus } from '@app/models/bw/co/centralkyc/subscription/kyc-subsciption-status';
 import { KycSubscriptionDTO } from '@app/models/bw/co/centralkyc/subscription/kyc-subscription-dto';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { Page } from '@app/models/page.model';
+import { AppEnvStore } from '@app/store/app-env.state';
 import { BranchApi } from '@app/services/bw/co/centralkyc/organisation/branch/branch-api';
 import { ClientRequestApi } from '@app/services/bw/co/centralkyc/organisation/client/client-request-api';
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
@@ -84,6 +86,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   router = inject(Router);
   datePipe = inject(DatePipe);
   currencyPipe = inject(CurrencyPipe);
+  appEnvState = inject(AppEnvStore);
 
   error = linkedSignal(() => this.organisationApiStore.error());
   loaderMessage = linkedSignal(() => 'Loading...');
@@ -110,7 +113,9 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   // Subscriptions related properties
   subscriptions = linkedSignal<KycSubscriptionDTO[]>(() => this.kycSubscriptionApiStore.dataList());
+  subscriptionsDataSource = new MatTableDataSource<KycSubscriptionDTO>([]);
   subscriptionsLoading = linkedSignal(() => false);
+  @ViewChild('subscriptionsPaginator') subscriptionsPaginator?: MatPaginator;
 
   clientRequestsTableSignal = linkedSignal<Page<ClientRequestDTO>>(() => this.clientRequestApiStore.dataPage());
   clientRequests = linkedSignal<ClientRequestDTO[]>(() => this.clientRequestsTableSignal().content || []);
@@ -146,8 +151,6 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   toaster: ToastrService = inject(ToastrService);
 
-  // requestsColumns = [...this.clientRequestsTableColumns.map(column => column.id), 'actions'];
-
   constructor() {
     effect(() => {
       const page = this.clientRequestsTableSignal();
@@ -179,11 +182,20 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     });
 
     effect(() => {
+      this.subscriptionsDataSource.data = this.subscriptions();
+    });
+
+    effect(() => {
       let branch = this.branchApiStore.data();
 
       if (branch?.id) {
         this.loadBranches();
       }
+    });
+
+    effect(() => {
+
+      this.branches.set(this.organisationApiStore.data()?.branches || []);
     });
   }
 
@@ -195,11 +207,11 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
         id: this.id
       })
 
-      this.branchApiStore.findByOrganisation({
-        organisationId: this.id
-      });
+      // this.branchApiStore.findByOrganisation({
+      //   organisationId: this.id
+      // });
 
-      this.loadBranches();
+      // this.loadBranches();
       this.loadInvoices();
       this.loadSubscriptions();
       this.loadIndividualClientRequests();
@@ -215,6 +227,10 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     this.kycSubscriptionApiStore.reset();
     this.clientRequestApiStore.reset();
     this.documentApiStore.reset();
+
+    if (this.subscriptionsPaginator) {
+      this.subscriptionsDataSource.paginator = this.subscriptionsPaginator;
+    }
 
   }
 
@@ -402,6 +418,46 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   refreshSubscriptions(): void {
     this.loadSubscriptions();
+  }
+
+  openSubscriptionDetails(subscription: KycSubscriptionDTO): void {
+    if (!subscription?.id) {
+      this.toaster.warning('Subscription details are unavailable for unsaved records.');
+      return;
+    }
+
+    this.router.navigate(['/subscription/details', subscription.id]);
+  }
+
+  subscriptionStatusClass(status: KycSubsciptionStatus | string | null | undefined): string {
+    switch (status) {
+      case KycSubsciptionStatus.ACTIVE:
+        return 'status-active';
+      case KycSubsciptionStatus.INACTIVE:
+        return 'status-inactive';
+      case KycSubsciptionStatus.CANCELLED:
+        return 'status-cancelled';
+      default:
+        return 'status-inactive';
+    }
+  }
+
+  formatSubscriptionAmount(amount: number | string | null | undefined): string {
+    const value = typeof amount === 'string' ? Number(amount) : amount;
+
+    if (value === null || value === undefined || Number.isNaN(value)) {
+      return '-';
+    }
+
+    return this.currencyPipe.transform(value, this.appEnvState.currency() || 'BWP') || '-';
+  }
+
+  formatSubscriptionDate(value: Date | string | null | undefined): string {
+    if (!value) {
+      return '-';
+    }
+
+    return this.datePipe.transform(value, 'dd MMM yyyy') || '-';
   }
 
   // Client Requests Management Methods

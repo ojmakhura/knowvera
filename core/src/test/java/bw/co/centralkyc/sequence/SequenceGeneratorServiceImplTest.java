@@ -39,7 +39,7 @@ class SequenceGeneratorServiceImplTest {
     }
 
     @Test
-    void handleGenerateNextSequenceValueBuildsAndPersistsNextValue() throws Exception {
+    void generateNextSequenceValueBuildsAndPersistsNextValue() throws Exception {
         SequenceGenerator generator = SequenceGenerator.Factory.newInstance();
         SequencePart prefix = sequencePart(0, SequencePartType.STATIC, "SG-");
         SequencePart year = sequencePart(1, SequencePartType.YEAR, "");
@@ -58,7 +58,7 @@ class SequenceGeneratorServiceImplTest {
     }
 
     @Test
-    void handleGenerateNextSequenceValueThrowsWhenGeneratorDoesNotExist() {
+    void generateNextSequenceValueThrowsWhenGeneratorDoesNotExist() {
         when(sequenceGeneratorRepository.findAll(org.mockito.ArgumentMatchers.<Specification<SequenceGenerator>>any()))
             .thenReturn(List.of());
 
@@ -66,7 +66,7 @@ class SequenceGeneratorServiceImplTest {
     }
 
     @Test
-    void handleFindByNameReturnsMappedDto() throws Exception {
+    void findByNameReturnsMappedDto() throws Exception {
         SequenceGenerator generator = SequenceGenerator.Factory.newInstance();
         SequenceGeneratorDTO expected = new SequenceGeneratorDTO();
 
@@ -79,7 +79,7 @@ class SequenceGeneratorServiceImplTest {
     }
 
     @Test
-    void handleFindByIdReturnsMappedDto() throws Exception {
+    void findByIdReturnsMappedDto() throws Exception {
         UUID id = UUID.randomUUID();
         SequenceGenerator generator = SequenceGenerator.Factory.newInstance();
         SequenceGeneratorDTO expected = new SequenceGeneratorDTO();
@@ -93,7 +93,7 @@ class SequenceGeneratorServiceImplTest {
     }
 
     @Test
-    void handleSaveMapsPersistsAndReturnsDto() throws Exception {
+    void saveMapsPersistsAndReturnsDto() throws Exception {
         SequenceGeneratorDTO input = validGeneratorDto();
         SequenceGenerator mapped = SequenceGenerator.Factory.newInstance();
         SequenceGenerator saved = SequenceGenerator.Factory.newInstance();
@@ -109,7 +109,7 @@ class SequenceGeneratorServiceImplTest {
     }
 
     @Test
-    void handleRemoveDeletesByIdAndReturnsTrue() throws Exception {
+    void removeDeletesByIdAndReturnsTrue() throws Exception {
         String id = UUID.randomUUID().toString();
 
         boolean removed = service.remove(id);
@@ -119,7 +119,7 @@ class SequenceGeneratorServiceImplTest {
     }
 
     @Test
-    void handleGetAllMapsRepositoryResults() {
+    void getAllMapsRepositoryResults() {
         SequenceGenerator first = SequenceGenerator.Factory.newInstance();
         SequenceGenerator second = SequenceGenerator.Factory.newInstance();
         SequenceGeneratorDTO firstDto = new SequenceGeneratorDTO();
@@ -137,7 +137,7 @@ class SequenceGeneratorServiceImplTest {
     }
 
     @Test
-    void handleSearchMapsRepositoryResults() {
+    void searchMapsRepositoryResults() {
         SequenceGenerator match = SequenceGenerator.Factory.newInstance();
         SequenceGeneratorDTO expected = new SequenceGeneratorDTO();
 

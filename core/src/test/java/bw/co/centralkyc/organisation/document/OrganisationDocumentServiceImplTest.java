@@ -60,7 +60,7 @@ class OrganisationDocumentServiceImplTest {
     }
 
     @Test
-    void handleFindByIdLoadsAndMapsOrganisationDocument() throws Exception {
+    void findByIdLoadsAndMapsOrganisationDocument() throws Exception {
         UUID id = UUID.randomUUID();
         OrganisationDocument entity = OrganisationDocument.Factory.newInstance();
         OrganisationDocumentDTO expected = new OrganisationDocumentDTO();
@@ -74,7 +74,7 @@ class OrganisationDocumentServiceImplTest {
     }
 
     @Test
-    void handleSaveMapsPersistsAndMapsBack() throws Exception {
+    void saveMapsPersistsAndMapsBack() throws Exception {
         OrganisationDocumentDTO input = new OrganisationDocumentDTO();
         input.setStatus(OrganisationDocumentStatus.ACTIVE);
         input.setOrganisationId(UUID.randomUUID().toString());
@@ -96,7 +96,7 @@ class OrganisationDocumentServiceImplTest {
     }
 
     @Test
-    void handleGetAllDelegatesToMapper() throws Exception {
+    void getAllDelegatesToMapper() throws Exception {
         List<OrganisationDocument> entities = List.of(OrganisationDocument.Factory.newInstance());
         List<OrganisationDocumentDTO> expected = List.of(new OrganisationDocumentDTO());
 
@@ -109,7 +109,7 @@ class OrganisationDocumentServiceImplTest {
     }
 
     @Test
-    void handleRemoveDeletesById() throws Exception {
+    void removeDeletesById() throws Exception {
         UUID id = UUID.randomUUID();
 
         boolean removed = service.remove(id.toString());
@@ -119,7 +119,7 @@ class OrganisationDocumentServiceImplTest {
     }
 
     @Test
-    void handleGetAllWithPagingMapsPageContent() throws Exception {
+    void getAllWithPagingMapsPageContent() throws Exception {
         OrganisationDocument entity = OrganisationDocument.Factory.newInstance();
         OrganisationDocumentDTO dto = new OrganisationDocumentDTO();
         Page<OrganisationDocument> page = new PageImpl<>(List.of(entity));

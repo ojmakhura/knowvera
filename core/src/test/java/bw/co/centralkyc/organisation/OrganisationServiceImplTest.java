@@ -66,7 +66,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleFindByIdReloadsAndMapsOrganisation() throws Exception {
+    void findByIdReloadsAndMapsOrganisation() throws Exception {
         UUID id = UUID.randomUUID();
         Organisation organisation = Organisation.Factory.newInstance();
         OrganisationDTO expected = new OrganisationDTO();
@@ -82,7 +82,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleRemoveReturnsFalseWhenOrganisationDoesNotExist() throws Exception {
+    void removeReturnsFalseWhenOrganisationDoesNotExist() throws Exception {
         UUID id = UUID.randomUUID();
         when(organisationRepository.existsById(id)).thenReturn(false);
 
@@ -92,7 +92,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleRemoveDeletesWhenOrganisationExists() throws Exception {
+    void removeDeletesWhenOrganisationExists() throws Exception {
         UUID id = UUID.randomUUID();
         when(organisationRepository.existsById(id)).thenReturn(true);
 
@@ -103,7 +103,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleFindByCodeReturnsNullWhenCodeIsMissing() throws Exception {
+    void findByCodeReturnsNullWhenCodeIsMissing() throws Exception {
         when(organisationRepository.findByCode("ORG-1")).thenReturn(Optional.empty());
 
         OrganisationDTO actual = service.findByCode("ORG-1");
@@ -112,7 +112,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleCountByStatusReturnsZeroWhenRepositoryHasNoValue() throws Exception {
+    void countByStatusReturnsZeroWhenRepositoryHasNoValue() throws Exception {
         when(organisationRepository.countByStatus(GeneralStatus.ACTIVE)).thenReturn(Optional.empty());
 
         long actual = service.countByStatus(GeneralStatus.ACTIVE);
@@ -121,7 +121,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleGetAllMapsAllEntities() throws Exception {
+    void getAllMapsAllEntities() throws Exception {
         List<Organisation> entities = List.of(Organisation.Factory.newInstance());
         List<OrganisationListDTO> expected = List.of(new OrganisationListDTO("ORG", "Acme", "REG-1", GeneralStatus.ACTIVE,
             bw.co.centralkyc.kyc.KycComplianceStatus.CURRENT));
@@ -135,12 +135,12 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleGetAllWithPagingCurrentlyReturnsNull() throws Exception {
+    void getAllWithPagingCurrentlyReturnsNull() throws Exception {
         assertNull(service.getAll(0, 10));
     }
 
     @Test
-    void handleSaveMapsPersistsAndMapsBack() throws Exception {
+    void saveMapsPersistsAndMapsBack() throws Exception {
         OrganisationDTO input = new OrganisationDTO();
         input.setCode("ORG-1");
         input.setName("Organisation");
@@ -162,7 +162,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleSearchDelegatesToRepositoryAndMapper() throws Exception {
+    void searchDelegatesToRepositoryAndMapper() throws Exception {
         OrganisationSearchCriteria criteria = new OrganisationSearchCriteria();
         criteria.setName("Acme");
 
@@ -179,7 +179,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleSearchWithPagingMapsResults() throws Exception {
+    void searchWithPagingMapsResults() throws Exception {
         OrganisationSearchCriteria orgCriteria = new OrganisationSearchCriteria();
         orgCriteria.setRegistrationNo("BW-1");
         SearchObject<OrganisationSearchCriteria> criteria = new SearchObject<>();
@@ -202,7 +202,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleSearchWithPagingUsesDefaultPagingWhenInvalidInput() throws Exception {
+    void searchWithPagingUsesDefaultPagingWhenInvalidInput() throws Exception {
         SearchObject<OrganisationSearchCriteria> criteria = new SearchObject<>();
         criteria.setCriteria(new OrganisationSearchCriteria());
         criteria.setPageNumber(-1);
@@ -217,7 +217,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleSearchEvaluatesAllSpecificationPredicates() throws Exception {
+    void searchEvaluatesAllSpecificationPredicates() throws Exception {
         OrganisationSearchCriteria criteria = new OrganisationSearchCriteria();
         criteria.setId(UUID.randomUUID().toString());
         criteria.setName("Acme");
@@ -240,7 +240,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleCountByKycStatusReturnsRepositoryValueOrZero() throws Exception {
+    void countByKycStatusReturnsRepositoryValueOrZero() throws Exception {
         when(organisationRepository.countByKycStatus(KycComplianceStatus.CURRENT)).thenReturn(Optional.of(6L));
         when(organisationRepository.countByKycStatus(KycComplianceStatus.EXPIRED)).thenReturn(Optional.empty());
 
@@ -249,14 +249,14 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleCountByStatusReturnsRepositoryValue() throws Exception {
+    void countByStatusReturnsRepositoryValue() throws Exception {
         when(organisationRepository.countByStatus(GeneralStatus.ACTIVE)).thenReturn(Optional.of(8L));
 
         assertEquals(8L, service.countByStatus(GeneralStatus.ACTIVE));
     }
 
     @Test
-    void handleCountByIsClientFalseReturnsRepositoryValueOrZero() throws Exception {
+    void countByIsClientFalseReturnsRepositoryValueOrZero() throws Exception {
         when(organisationRepository.countByIsClientFalse()).thenReturn(Optional.of(5L));
         assertEquals(5L, service.countByIsClientFalse());
 
@@ -265,7 +265,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleCountByIsClientTrueReturnsRepositoryValueOrZero() throws Exception {
+    void countByIsClientTrueReturnsRepositoryValueOrZero() throws Exception {
         when(organisationRepository.countByIsClientTrue()).thenReturn(Optional.of(4L));
         assertEquals(4L, service.countByIsClientTrue());
 
@@ -274,20 +274,20 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleCountReturnsRepositoryCount() throws Exception {
+    void countReturnsRepositoryCount() throws Exception {
         when(organisationRepository.count()).thenReturn(11L);
 
         assertEquals(11L, service.count());
     }
 
     @Test
-    void handleLoadRequestOrganisationThrowsUnsupportedOperationException() {
+    void loadRequestOrganisationThrowsUnsupportedOperationException() {
         assertThrows(OrganisationServiceException.class,
                 () -> service.loadRequestOrganisation(UUID.randomUUID().toString(), "token", "reg"));
     }
 
     @Test
-    void handleFindByCodeReturnsMappedWhenFound() throws Exception {
+    void findByCodeReturnsMappedWhenFound() throws Exception {
         Organisation entity = Organisation.Factory.newInstance();
         OrganisationDTO expected = new OrganisationDTO();
 
@@ -300,7 +300,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleFindByNameReturnsMappedOrNull() throws Exception {
+    void findByNameReturnsMappedOrNull() throws Exception {
         Organisation entity = Organisation.Factory.newInstance();
         OrganisationDTO expected = new OrganisationDTO();
 
@@ -313,7 +313,7 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void handleFindByRegistrationNoReturnsMappedOrNull() throws Exception {
+    void findByRegistrationNoReturnsMappedOrNull() throws Exception {
         Organisation entity = Organisation.Factory.newInstance();
         OrganisationDTO expected = new OrganisationDTO();
 

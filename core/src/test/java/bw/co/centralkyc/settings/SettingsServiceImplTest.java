@@ -59,14 +59,14 @@ class SettingsServiceImplTest {
     }
 
     @Test
-    void handleUploadTemplateRejectsUnsupportedTargets() {
+    void uploadTemplateRejectsUnsupportedTargets() {
         assertThrows(
                 SettingsServiceException.class,
                 () -> service.uploadTemplate("template-url", TargetEntity.INDIVIDUAL, "tester"));
     }
 
     @Test
-    void handleUploadTemplatePersistsInvoiceTemplateAndUpdatesSettings() throws Exception {
+    void uploadTemplatePersistsInvoiceTemplateAndUpdatesSettings() throws Exception {
         Settings settings = Settings.Factory.newInstance();
         settings.setId(UUID.randomUUID());
         Document savedDocument = Document.Factory.newInstance();
@@ -87,7 +87,7 @@ class SettingsServiceImplTest {
     }
 
     @Test
-    void handleGetAllDelegatesToMapper() throws Exception {
+    void getAllDelegatesToMapper() throws Exception {
         List<Settings> settings = List.of(Settings.Factory.newInstance());
         List<SettingsDTO> expected = List.of(new SettingsDTO());
 
@@ -100,12 +100,12 @@ class SettingsServiceImplTest {
     }
 
     @Test
-    void handleFindByIdThrowsUnsupportedOperationException() {
+    void findByIdThrowsUnsupportedOperationException() {
         assertThrows(SettingsServiceException.class, () -> service.findById(UUID.randomUUID().toString()));
     }
 
     @Test
-    void handleSaveMapsPersistsAndMapsBack() throws Exception {
+    void saveMapsPersistsAndMapsBack() throws Exception {
         SettingsDTO input = new SettingsDTO();
         Settings entity = Settings.Factory.newInstance();
         SettingsDTO expected = new SettingsDTO();
@@ -120,27 +120,27 @@ class SettingsServiceImplTest {
     }
 
     @Test
-    void handleRemoveThrowsUnsupportedOperationException() {
+    void removeThrowsUnsupportedOperationException() {
         assertThrows(SettingsServiceException.class, () -> service.remove(UUID.randomUUID().toString()));
     }
 
     @Test
-    void handleSearchThrowsUnsupportedOperationException() {
+    void searchThrowsUnsupportedOperationException() {
         assertThrows(SettingsServiceException.class, () -> service.search("q"));
     }
 
     @Test
-    void handleGetAllPagedThrowsUnsupportedOperationException() {
+    void getAllPagedThrowsUnsupportedOperationException() {
         assertThrows(SettingsServiceException.class, () -> service.getAll(0, 10));
     }
 
     @Test
-    void handleSearchPagedThrowsUnsupportedOperationException() {
+    void searchPagedThrowsUnsupportedOperationException() {
         assertThrows(SettingsServiceException.class, () -> service.search("q", 0, 10));
     }
 
     @Test
-    void handleUploadTemplatePersistsQuotationTemplate() throws Exception {
+    void uploadTemplatePersistsQuotationTemplate() throws Exception {
         Settings settings = Settings.Factory.newInstance();
         settings.setId(UUID.randomUUID());
         Document savedDocument = Document.Factory.newInstance();
@@ -158,7 +158,7 @@ class SettingsServiceImplTest {
     }
 
     @Test
-    void handleUploadTemplateThrowsWhenSettingsMissing() {
+    void uploadTemplateThrowsWhenSettingsMissing() {
         when(settingsRepository.findAll()).thenReturn(List.of());
 
         assertThrows(Exception.class,
@@ -166,7 +166,7 @@ class SettingsServiceImplTest {
     }
 
     @Test
-    void handleAttachDocumentTypeSupportsAllPurposes() throws Exception {
+    void attachDocumentTypeSupportsAllPurposes() throws Exception {
         Settings settings = Settings.Factory.newInstance();
         UUID docTypeId = UUID.randomUUID();
         DocumentType documentType = DocumentType.Factory.newInstance();
@@ -189,7 +189,7 @@ class SettingsServiceImplTest {
     }
 
     @Test
-    void handleAttachDocumentTypeThrowsWhenDocumentTypeMissing() {
+    void attachDocumentTypeThrowsWhenDocumentTypeMissing() {
         Settings settings = Settings.Factory.newInstance();
         UUID docTypeId = UUID.randomUUID();
 
@@ -201,7 +201,7 @@ class SettingsServiceImplTest {
     }
 
         @Test
-        void handleAttachDocumentTypeThrowsWhenDocumentTypeMissingForAllPurposes() {
+        void attachDocumentTypeThrowsWhenDocumentTypeMissingForAllPurposes() {
         Settings settings = Settings.Factory.newInstance();
         UUID docTypeId = UUID.randomUUID();
 
@@ -219,7 +219,7 @@ class SettingsServiceImplTest {
         }
 
     @Test
-    void handleDetachDocumentTypeSupportsAllPurposes() throws Exception {
+    void detachDocumentTypeSupportsAllPurposes() throws Exception {
         Settings settings = Settings.Factory.newInstance();
         UUID docTypeId = UUID.randomUUID();
         DocumentType documentType = DocumentType.Factory.newInstance();
@@ -246,7 +246,7 @@ class SettingsServiceImplTest {
     }
 
     @Test
-    void handleDetachDocumentTypeThrowsWhenSettingsMissing() {
+    void detachDocumentTypeThrowsWhenSettingsMissing() {
         UUID id = UUID.randomUUID();
         when(settingsRepository.findAll()).thenReturn(List.of());
 

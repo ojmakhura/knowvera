@@ -50,7 +50,7 @@ class VerificationDataConfigServiceImplTest {
     }
 
     @Test
-    void handleFindByIdReturnsMappedDto() throws Exception {
+    void findByIdReturnsMappedDto() throws Exception {
         UUID id = UUID.randomUUID();
         VerificationDataConfig entity = VerificationDataConfig.Factory.newInstance();
         VerificationDataConfigDTO expected = new VerificationDataConfigDTO();
@@ -64,7 +64,7 @@ class VerificationDataConfigServiceImplTest {
     }
 
     @Test
-    void handleSaveMapsPersistsAndMapsBack() throws Exception {
+    void saveMapsPersistsAndMapsBack() throws Exception {
         VerificationDataConfigDTO input = new VerificationDataConfigDTO();
         input.setName("primary");
         VerificationDataConfig entity = VerificationDataConfig.Factory.newInstance();
@@ -80,7 +80,7 @@ class VerificationDataConfigServiceImplTest {
     }
 
     @Test
-    void handleRemoveDeletesLoadedEntity() throws Exception {
+    void removeDeletesLoadedEntity() throws Exception {
         UUID id = UUID.randomUUID();
         VerificationDataConfig entity = VerificationDataConfig.Factory.newInstance();
 
@@ -93,7 +93,7 @@ class VerificationDataConfigServiceImplTest {
     }
 
     @Test
-    void handleFindByIdThrowsExceptionWhenNotFound() throws Exception {
+    void findByIdThrowsExceptionWhenNotFound() throws Exception {
         UUID id = UUID.randomUUID();
 
         when(verificationDataConfigRepository.findById(id)).thenReturn(Optional.empty());
@@ -105,7 +105,7 @@ class VerificationDataConfigServiceImplTest {
     }
 
     @Test
-    void handleSaveVerifiesAllMappingSteps() throws Exception {
+    void saveVerifiesAllMappingSteps() throws Exception {
         VerificationDataConfigDTO input = new VerificationDataConfigDTO();
         input.setName("primary");
         VerificationDataConfig entity = VerificationDataConfig.Factory.newInstance();
@@ -125,7 +125,7 @@ class VerificationDataConfigServiceImplTest {
     }
 
     @Test
-    void handleRemoveConvertsStringToUuidAndReturnsTrue() throws Exception {
+    void removeConvertsStringToUuidAndReturnsTrue() throws Exception {
         UUID id = UUID.randomUUID();
         String idString = id.toString();
         VerificationDataConfig entity = VerificationDataConfig.Factory.newInstance();

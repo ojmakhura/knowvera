@@ -44,7 +44,7 @@ class EmploymentRecordServiceImplTest {
     }
 
     @Test
-    void handleFindByIdReturnsMappedEmploymentRecord() throws Exception {
+    void findByIdReturnsMappedEmploymentRecord() throws Exception {
         UUID id = UUID.randomUUID();
         EmploymentRecord entity = EmploymentRecord.Factory.newInstance();
         EmploymentRecordDTO expected = new EmploymentRecordDTO();
@@ -58,7 +58,7 @@ class EmploymentRecordServiceImplTest {
     }
 
     @Test
-    void handleRemoveThrowsWhenEmploymentRecordDoesNotExist() {
+    void removeThrowsWhenEmploymentRecordDoesNotExist() {
         UUID id = UUID.randomUUID();
         when(employmentRecordRepository.existsById(id)).thenReturn(false);
 
@@ -66,7 +66,7 @@ class EmploymentRecordServiceImplTest {
     }
 
     @Test
-    void handleGetAllDelegatesToMapper() throws Exception {
+    void getAllDelegatesToMapper() throws Exception {
         List<EmploymentRecord> entities = List.of(EmploymentRecord.Factory.newInstance());
         List<EmploymentRecordDTO> expected = List.of(new EmploymentRecordDTO());
 
@@ -79,7 +79,7 @@ class EmploymentRecordServiceImplTest {
     }
 
     @Test
-    void handleRemoveDeletesWhenEmploymentRecordExists() throws Exception {
+    void removeDeletesWhenEmploymentRecordExists() throws Exception {
         UUID id = UUID.randomUUID();
         when(employmentRecordRepository.existsById(id)).thenReturn(true);
 
@@ -90,7 +90,7 @@ class EmploymentRecordServiceImplTest {
     }
 
     @Test
-    void handleSaveMapsPersistsAndReturnsDto() throws Exception {
+    void saveMapsPersistsAndReturnsDto() throws Exception {
         EmploymentRecordDTO input = validEmploymentRecord();
         EmploymentRecord entity = EmploymentRecord.Factory.newInstance();
         EmploymentRecordDTO expected = new EmploymentRecordDTO();
@@ -105,7 +105,7 @@ class EmploymentRecordServiceImplTest {
     }
 
     @Test
-    void handleGetAllWithPagingMapsPageContent() throws Exception {
+    void getAllWithPagingMapsPageContent() throws Exception {
         EmploymentRecord entity = EmploymentRecord.Factory.newInstance();
         EmploymentRecordDTO dto = new EmploymentRecordDTO();
         Page<EmploymentRecord> page = new PageImpl<>(List.of(entity));
@@ -120,7 +120,7 @@ class EmploymentRecordServiceImplTest {
     }
 
     @Test
-    void handleFindByIndividualMapsRepositoryResults() throws Exception {
+    void findByIndividualMapsRepositoryResults() throws Exception {
         List<EmploymentRecord> entities = List.of(EmploymentRecord.Factory.newInstance());
         List<EmploymentRecordDTO> expected = List.of(new EmploymentRecordDTO());
 

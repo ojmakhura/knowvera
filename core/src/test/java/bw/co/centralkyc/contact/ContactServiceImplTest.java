@@ -52,7 +52,7 @@ class ContactServiceImplTest {
     }
 
     @Test
-    void handleSaveCreatesSequenceDefinitionForNewContacts() throws Exception {
+    void saveCreatesSequenceDefinitionForNewContacts() throws Exception {
         ContactDTO input = new ContactDTO();
         input.setMessage("Need help");
         input.setEmail("user@example.com");
@@ -78,7 +78,7 @@ class ContactServiceImplTest {
     }
 
     @Test
-    void handleSaveSkipsSequenceGenerationForExistingContacts() throws Exception {
+    void saveSkipsSequenceGenerationForExistingContacts() throws Exception {
         ContactDTO input = new ContactDTO();
         input.setMessage("Need help");
         input.setEmail("user@example.com");
@@ -98,7 +98,7 @@ class ContactServiceImplTest {
     }
 
     @Test
-    void handleFindByIdThrowsUnsupportedOperationException() {
+    void findByIdThrowsUnsupportedOperationException() {
         String id = UUID.randomUUID().toString();
 
         org.junit.jupiter.api.Assertions.assertThrows(
@@ -108,7 +108,7 @@ class ContactServiceImplTest {
     }
 
     @Test
-    void handleRemoveThrowsUnsupportedOperationException() {
+    void removeThrowsUnsupportedOperationException() {
         String id = UUID.randomUUID().toString();
 
         org.junit.jupiter.api.Assertions.assertThrows(
@@ -118,7 +118,7 @@ class ContactServiceImplTest {
     }
 
     @Test
-    void handleGetAllNoArgsThrowsUnsupportedOperationException() {
+    void getAllNoArgsThrowsUnsupportedOperationException() {
         org.junit.jupiter.api.Assertions.assertThrows(
             ContactServiceException.class,
                 () -> service.getAll(),
@@ -126,7 +126,7 @@ class ContactServiceImplTest {
     }
 
     @Test
-    void handleSearchThrowsUnsupportedOperationException() {
+    void searchThrowsUnsupportedOperationException() {
         String criteria = "test criteria";
 
         org.junit.jupiter.api.Assertions.assertThrows(
@@ -136,7 +136,7 @@ class ContactServiceImplTest {
     }
 
     @Test
-    void handleGetAllWithPaginationThrowsUnsupportedOperationException() {
+    void getAllWithPaginationThrowsUnsupportedOperationException() {
         Integer pageNumber = 1;
         Integer pageSize = 10;
 
@@ -147,7 +147,7 @@ class ContactServiceImplTest {
     }
 
     @Test
-    void handleFindByTypeNoArgsThrowsUnsupportedOperationException() {
+    void findByTypeNoArgsThrowsUnsupportedOperationException() {
         ContactType type = ContactType.ENQUIRY;
 
         org.junit.jupiter.api.Assertions.assertThrows(
@@ -157,7 +157,7 @@ class ContactServiceImplTest {
     }
 
     @Test
-    void handleFindByTypeWithPaginationThrowsUnsupportedOperationException() {
+    void findByTypeWithPaginationThrowsUnsupportedOperationException() {
         ContactType type = ContactType.ENQUIRY;
         Integer pageNumber = 1;
         Integer pageSize = 10;

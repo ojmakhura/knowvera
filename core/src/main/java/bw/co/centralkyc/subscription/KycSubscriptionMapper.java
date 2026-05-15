@@ -22,7 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Mapper(
     componentModel = "spring",
     uses = {
-        MappingUtils.class
+        MappingUtils.class,
+        KycInvoiceMapper.class,
+        OrganisationMapper.class
     }
 )
 public abstract class KycSubscriptionMapper {
@@ -41,6 +43,11 @@ public abstract class KycSubscriptionMapper {
      */
     // WARNING! No conversion for target.startDate (can't convert source.getStartDate():java.util.Date to java.util.Date)
     // WARNING! No conversion for target.endDate (can't convert source.getEndDate():java.util.Date to java.util.Date)
+    @Mapping(target = "organisationId", source = "organisation.id")
+    @Mapping(target = "organisationName", source = "organisation.name")
+    @Mapping(target = "organisationCode", source = "organisation.code")
+    @Mapping(target = "organisationRegistrationNo", source = "organisation.registrationNo")
+    @Mapping(target = "invoices", source = "kycInvoices")
     public abstract KycSubscriptionDTO toKycSubscriptionDTO(KycSubscription entity);
 
      /**
@@ -57,6 +64,7 @@ public abstract class KycSubscriptionMapper {
     // No conversion for target.startDate (can't convert source.getStartDate():java.util.Date to java.util.Date)
     // No conversion for target.endDate (can't convert source.getEndDate():java.util.Date to java.util.Date)
     @InheritInverseConfiguration
+    @Mapping(target = "kycInvoices", ignore = true)
     public abstract KycSubscription kycSubscriptionDTOToEntity(KycSubscriptionDTO kycSubscriptionDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

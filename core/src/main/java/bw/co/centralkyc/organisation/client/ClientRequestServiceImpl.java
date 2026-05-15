@@ -25,6 +25,8 @@ import bw.co.centralkyc.individual.IndividualRepository;
 import bw.co.centralkyc.individual.Sex;
 import bw.co.centralkyc.kyc.KycComplianceStatus;
 import bw.co.centralkyc.messaging.ClientRequestNotification;
+import bw.co.centralkyc.organisation.Organisation;
+import bw.co.centralkyc.organisation.OrganisationRepository;
 import bw.co.centralkyc.sequence.SequenceGenerator;
 import bw.co.centralkyc.sequence.SequenceGeneratorRepository;
 import bw.co.centralkyc.sequence.SequenceGeneratorService;
@@ -92,11 +94,12 @@ public class ClientRequestServiceImpl
     private final ClientRequestNotification clientRequestNotification;
     private final SequenceGeneratorRepository sequenceGeneratorRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
+    private final OrganisationRepository organisationRepository;
 
     public ClientRequestServiceImpl(ClientRequestRepository clientRequestRepository,
             ClientRequestMapper clientRequestMapper,PasswordEncoder passwordEncoder,
             ClientRequestNotification clientRequestNotification, IndividualRepository individualRepository,
-            IndividualMapper individualMapper,
+            IndividualMapper individualMapper, OrganisationRepository organisationRepository,
             SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorService sequenceGeneratorService,
             DocumentRepository documentRepository, DocumentMapper documentMapper,
             SettingsRepository settingsRepository, SettingsMapper settingsMapper, MessageSource messageSource) {
@@ -108,6 +111,7 @@ public class ClientRequestServiceImpl
         this.clientRequestNotification = clientRequestNotification;
         this.sequenceGeneratorRepository = sequenceGeneratorRepository;
         this.sequenceGeneratorService = sequenceGeneratorService;
+        this.organisationRepository = organisationRepository;
     }
 
     /**
@@ -225,7 +229,10 @@ public class ClientRequestServiceImpl
     protected List<ClientRequestDTO> handleGetAll()
             throws Exception {
 
-        return clientRequestMapper.toClientRequestDTOCollection(clientRequestRepository.findAll());
+        List<ClientRequestDTO> dtos = clientRequestMapper.toClientRequestDTOCollection(clientRequestRepository.findAll());
+        this.updateClientName(dtos);
+
+        return dtos;
     }
 
     /**
@@ -245,7 +252,10 @@ public class ClientRequestServiceImpl
                 ? clientRequestRepository.findAll(spec, sort)
                 : clientRequestRepository.findAll(spec);
 
-        return clientRequestMapper.toClientRequestDTOCollection(requests);
+        List<ClientRequestDTO> dtos = clientRequestMapper.toClientRequestDTOCollection(requests);
+        this.updateClientName(dtos);
+
+        return dtos;
 
     }
 
@@ -260,7 +270,10 @@ public class ClientRequestServiceImpl
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
         Page<ClientRequest> requests = clientRequestRepository.findAll(pageRequest);
 
-        return requests.map(clientRequestMapper::toClientRequestDTO);
+        Page<ClientRequestDTO> dtoPage = requests.map(clientRequestMapper::toClientRequestDTO);
+        this.updateClientName(dtoPage.getContent());
+
+        return dtoPage;
     }
 
     /**
@@ -281,7 +294,10 @@ public class ClientRequestServiceImpl
                 : PageRequest.of(pageNumber, pageSize);
         Page<ClientRequest> requests = clientRequestRepository.findAll(spec, pageRequest);
 
-        return requests.map(clientRequestMapper::toClientRequestDTO);
+        Page<ClientRequestDTO> dtoPage = requests.map(clientRequestMapper::toClientRequestDTO);
+        this.updateClientName(dtoPage.getContent());
+
+        return dtoPage;
     }
 
     private Specification<ClientRequest> buildSpecificationFromCriteria(ClientRequestSearchCriteria criteria) {
@@ -332,7 +348,10 @@ public class ClientRequestServiceImpl
         Specification<ClientRequest> spec = this.buildSpecificationFromCriteria(criteria);
         List<ClientRequest> requests = clientRequestRepository.findAll(spec);
 
-        return clientRequestMapper.toClientRequestDTOCollection(requests);
+        List<ClientRequestDTO> dtos = clientRequestMapper.toClientRequestDTOCollection(requests);
+        this.updateClientName(dtos);
+
+        return dtos;
     }
 
     /**
@@ -350,7 +369,10 @@ public class ClientRequestServiceImpl
         Specification<ClientRequest> spec = this.buildSpecificationFromCriteria(criteria);
         Page<ClientRequest> requests = clientRequestRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
 
-        return requests.map(clientRequestMapper::toClientRequestDTO);
+        Page<ClientRequestDTO> dtoPage = requests.map(clientRequestMapper::toClientRequestDTO);
+        this.updateClientName(dtoPage.getContent());
+
+        return dtoPage;
     }
 
     /**
@@ -364,7 +386,10 @@ public class ClientRequestServiceImpl
 
         List<ClientRequest> requests = clientRequestRepository.findAll(spec);
 
-        return clientRequestMapper.toClientRequestDTOCollection(requests);
+        List<ClientRequestDTO> dtos = clientRequestMapper.toClientRequestDTOCollection(requests);
+        this.updateClientName(dtos);
+
+        return dtos;
     }
 
     /**
@@ -800,7 +825,72 @@ public class ClientRequestServiceImpl
         Specification<ClientRequest> spec = this.buildSpecificationFromCriteria(criteria);
         List<ClientRequest> requests = clientRequestRepository.findAll(spec);
 
-        return clientRequestMapper.toClientRequestDTOCollection(requests);
+        List<ClientRequestDTO> dtos = clientRequestMapper.toClientRequestDTOCollection(requests);
+        this.updateClientName(dtos);
+
+        return dtos;
+    }
+
+    private void updateClientName(List<ClientRequestDTO> reuests) {
+
+        Map<String, String> individualNameMap = new HashMap<>();
+        Map<String, String> individualIdentityNo = new HashMap<>();
+        Map<String, String> organisationNameMap = new HashMap<>();
+        Map<String, String> organisationRegistration = new HashMap<>();
+
+        reuests.forEach(r -> {
+            if (r.getTarget() == TargetEntity.INDIVIDUAL) {
+
+                String name = individualNameMap.get(r.getTargetId());
+                String identityNo = individualIdentityNo.get(r.getTargetId());
+
+                if(!individualNameMap.containsKey(r.getTargetId())) {
+
+                    Individual individual = individualRepository.findById(UUID.fromString(r.getTargetId()))
+                            .orElse(null);
+
+                    if (individual != null) {
+                        name = individual.getFirstName() + " " + individual.getSurname();
+                        identityNo = individual.getIdentityNo();
+                    } else {
+                        name = "Unknown Individual";
+                        identityNo = "Unknown Identity No";
+                    }
+
+                    individualNameMap.put(r.getTargetId(), name);
+                    individualIdentityNo.put(r.getTargetId(), identityNo);
+                }
+
+                r.setName(name);
+                r.setRegistration(identityNo);
+
+            } else if (r.getTarget() == TargetEntity.ORGANISATION) {
+                
+                String name = organisationNameMap.get(r.getTargetId());
+                String registrationNo = organisationRegistration.get(r.getTargetId());
+
+                if(!organisationNameMap.containsKey(r.getTargetId())) {
+
+                    Organisation organisation = organisationRepository.findById(UUID.fromString(r.getTargetId()))
+                            .orElse(null);
+
+                    if (organisation != null) {
+                        name = organisation.getName();
+                        registrationNo = organisation.getRegistrationNo();
+                    } else {
+                        name = "Unknown Organisation";
+                        registrationNo = "Unknown Registration No";
+                    }
+
+                    organisationNameMap.put(r.getTargetId(), name);
+                    organisationRegistration.put(r.getTargetId(), registrationNo);
+                }
+
+                r.setName(name);
+                r.setRegistration(registrationNo);
+            }
+        });
+
     }
 
     /**
@@ -818,7 +908,11 @@ public class ClientRequestServiceImpl
         Specification<ClientRequest> spec = this.buildSpecificationFromCriteria(criteria);
         Page<ClientRequest> requests = clientRequestRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
 
-        return requests.map(clientRequestMapper::toClientRequestDTO);
+        Page<ClientRequestDTO> dtoPage = requests.map(clientRequestMapper::toClientRequestDTO);
+
+        this.updateClientName(dtoPage.getContent());
+
+        return dtoPage;
     }
 
     @Override
@@ -841,7 +935,10 @@ public class ClientRequestServiceImpl
         Specification<ClientRequest> spec = (root, query, cb) -> cb.equal(root.get("status"), status);
 
         Page<ClientRequest> requests = clientRequestRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
-        return requests.map(clientRequestMapper::toClientRequestDTO);
+        Page<ClientRequestDTO> dtoPage = requests.map(clientRequestMapper::toClientRequestDTO);
+        this.updateClientName(dtoPage.getContent());
+
+        return dtoPage;
     }
 
     @Override
@@ -852,8 +949,10 @@ public class ClientRequestServiceImpl
                 cb.equal(root.get("targetId"), targetId));
 
         List<ClientRequest> requests = clientRequestRepository.findAll(spec);
+        List<ClientRequestDTO> dtos = clientRequestMapper.toClientRequestDTOCollection(requests);
+        this.updateClientName(dtos);
 
-        return clientRequestMapper.toClientRequestDTOCollection(requests);
+        return dtos;
     }
 
     @Override
@@ -865,8 +964,10 @@ public class ClientRequestServiceImpl
                 cb.equal(root.get("targetId"), targetId));
 
         Page<ClientRequest> requests = clientRequestRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
+        Page<ClientRequestDTO> dtoPage = requests.map(clientRequestMapper::toClientRequestDTO);
+        this.updateClientName(dtoPage.getContent());
 
-        return requests.map(clientRequestMapper::toClientRequestDTO);
+        return dtoPage;
     }
 
     @Override
@@ -880,8 +981,10 @@ public class ClientRequestServiceImpl
 
         Specification<ClientRequest> spec = this.buildSpecificationFromCriteria(criteria);
         List<ClientRequest> requests = clientRequestRepository.findAll(spec);
+        List<ClientRequestDTO> dtos = clientRequestMapper.toClientRequestDTOCollection(requests);
+        this.updateClientName(dtos);
 
-        return clientRequestMapper.toClientRequestDTOCollection(requests);
+        return dtos;
     }
 
     @Override
@@ -895,8 +998,10 @@ public class ClientRequestServiceImpl
 
         Specification<ClientRequest> spec = this.buildSpecificationFromCriteria(criteria);
         Page<ClientRequest> requests = clientRequestRepository.findAll(spec, PageRequest.of(pageNumber, pageSize));
+        Page<ClientRequestDTO> dtoPage = requests.map(clientRequestMapper::toClientRequestDTO);
+        this.updateClientName(dtoPage.getContent());
 
-        return requests.map(clientRequestMapper::toClientRequestDTO);
+        return dtoPage;
     }
 
     @Override

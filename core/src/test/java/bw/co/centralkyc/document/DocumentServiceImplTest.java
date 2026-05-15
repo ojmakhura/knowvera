@@ -108,7 +108,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleFindByIdReturnsMappedDtoWhenExpectedInfoAlreadyPresent() throws Exception {
+    void findByIdReturnsMappedDtoWhenExpectedInfoAlreadyPresent() throws Exception {
         UUID id = UUID.randomUUID();
         Document document = Document.Factory.newInstance();
         document.setTarget(TargetEntity.SUBSCRIPTION);
@@ -127,7 +127,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleFindByIdExtractsExpectedInformationWhenMissing() throws Exception {
+    void findByIdExtractsExpectedInformationWhenMissing() throws Exception {
         UUID id = UUID.randomUUID();
         UUID orgId = UUID.randomUUID();
 
@@ -156,7 +156,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleFindByIdThrowsWhenDocumentNotFound() {
+    void findByIdThrowsWhenDocumentNotFound() {
         UUID id = UUID.randomUUID();
         when(documentRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -164,7 +164,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleSaveForNewOrganisationDocumentAttachesToOrganisation() throws Exception {
+    void saveForNewOrganisationDocumentAttachesToOrganisation() throws Exception {
         UUID orgId = UUID.randomUUID();
         DocumentType type = newDocumentTypeWithExpectedFields(newExpectedField("orgCode", "code", TargetEntity.ORGANISATION, true, true));
         Document entity = newDocument(TargetEntity.ORGANISATION, orgId, type);
@@ -196,7 +196,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleSaveForNewIndividualDocumentAttachesToIndividual() throws Exception {
+    void saveForNewIndividualDocumentAttachesToIndividual() throws Exception {
         UUID individualId = UUID.randomUUID();
         DocumentType type = newDocumentTypeWithExpectedFields(newExpectedField("firstName", "firstName", TargetEntity.INDIVIDUAL, true, true));
         Document entity = newDocument(TargetEntity.INDIVIDUAL, individualId, type);
@@ -225,7 +225,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleSaveForExistingDocumentSkipsTargetAttachment() throws Exception {
+    void saveForExistingDocumentSkipsTargetAttachment() throws Exception {
         UUID existingId = UUID.randomUUID();
         DocumentType type = newDocumentTypeWithExpectedFields();
         Document entity = newDocument(TargetEntity.SUBSCRIPTION, UUID.randomUUID(), type);
@@ -248,7 +248,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleRemoveForOrganisationDetachesDocumentThenDeletes() throws Exception {
+    void removeForOrganisationDetachesDocumentThenDeletes() throws Exception {
         UUID documentId = UUID.randomUUID();
         UUID orgId = UUID.randomUUID();
 
@@ -272,7 +272,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleRemoveForIndividualDetachesDocumentThenDeletes() throws Exception {
+    void removeForIndividualDetachesDocumentThenDeletes() throws Exception {
         UUID documentId = UUID.randomUUID();
         UUID individualId = UUID.randomUUID();
 
@@ -294,7 +294,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleRemoveForKycRecordDetachesDocumentThenDeletes() throws Exception {
+    void removeForKycRecordDetachesDocumentThenDeletes() throws Exception {
         UUID documentId = UUID.randomUUID();
         UUID recordId = UUID.randomUUID();
 
@@ -316,7 +316,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleRemoveForClientRequestDeletesDocumentWithoutParentSave() throws Exception {
+    void removeForClientRequestDeletesDocumentWithoutParentSave() throws Exception {
         UUID documentId = UUID.randomUUID();
         UUID requestId = UUID.randomUUID();
 
@@ -336,7 +336,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleRemoveForSubscriptionDeletesDocument() throws Exception {
+    void removeForSubscriptionDeletesDocument() throws Exception {
         UUID documentId = UUID.randomUUID();
         Document document = newDocument(TargetEntity.SUBSCRIPTION, UUID.randomUUID(), newDocumentTypeWithExpectedFields());
         document.setId(documentId);
@@ -350,7 +350,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleGetAllReturnsMappedListWithNoTargetLookupWhenTargetIsNull() throws Exception {
+    void getAllReturnsMappedListWithNoTargetLookupWhenTargetIsNull() throws Exception {
         List<Document> docs = List.of(Document.Factory.newInstance());
         DocumentListDTO dto = new DocumentListDTO("id", null, null, null, "file", "typeId", "type", null, null);
         List<DocumentListDTO> expected = List.of(dto);
@@ -364,7 +364,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleGetAllWithPagingMapsEachDocument() throws Exception {
+    void getAllWithPagingMapsEachDocument() throws Exception {
         Document doc = Document.Factory.newInstance();
         Page<Document> page = new PageImpl<>(List.of(doc));
         DocumentListDTO dto = new DocumentListDTO("id", null, null, null, "f.pdf", "t1", "Passport", null, null);
@@ -379,7 +379,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleFindByDocumentTypeReturnsMappedResults() throws Exception {
+    void findByDocumentTypeReturnsMappedResults() throws Exception {
         List<Document> docs = List.of(Document.Factory.newInstance());
         List<DocumentListDTO> mapped = List.of(new DocumentListDTO("id", null, null, null, "a.pdf", "dt", "Doc", null, null));
 
@@ -392,13 +392,13 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleUploadThrowsUnsupportedOperationException() {
+    void uploadThrowsUnsupportedOperationException() {
         assertThrows(DocumentServiceException.class,
                 () -> service.upload(TargetEntity.INDIVIDUAL, UUID.randomUUID().toString(), UUID.randomUUID().toString(), "url"));
     }
 
     @Test
-    void handleFindByTargetReturnsMappedResults() throws Exception {
+    void findByTargetReturnsMappedResults() throws Exception {
         List<Document> docs = List.of(Document.Factory.newInstance());
         List<DocumentListDTO> mapped = List.of(new DocumentListDTO("id", null, null, null, "doc.pdf", "dt", "Doc", null, null));
 
@@ -411,7 +411,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleSearchWithoutPagingUsesSpecificationAndSort() throws Exception {
+    void searchWithoutPagingUsesSpecificationAndSort() throws Exception {
         DocumentSearchCriteria criteria = new DocumentSearchCriteria();
         criteria.setDocumentTypeId(UUID.randomUUID().toString());
         criteria.setFileName("passport");
@@ -434,7 +434,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleSearchWithoutPagingUsesDocumentTypeNameBranchWhenIdMissing() throws Exception {
+    void searchWithoutPagingUsesDocumentTypeNameBranchWhenIdMissing() throws Exception {
         DocumentSearchCriteria criteria = new DocumentSearchCriteria();
         criteria.setDocumentType("Passport");
 
@@ -450,7 +450,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleSearchWithPagingReturnsMappedPage() throws Exception {
+    void searchWithPagingReturnsMappedPage() throws Exception {
         DocumentSearchCriteria criteria = new DocumentSearchCriteria();
         criteria.setDocumentType("Passport");
 
@@ -474,7 +474,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleUpdateFileContentUpdatesAndReturnsDto() throws Exception {
+    void updateFileContentUpdatesAndReturnsDto() throws Exception {
         UUID documentId = UUID.randomUUID();
         UUID individualId = UUID.randomUUID();
 
@@ -501,7 +501,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleUpdateFileContentThrowsWhenMissingDocument() {
+    void updateFileContentThrowsWhenMissingDocument() {
         UUID id = UUID.randomUUID();
         when(documentRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -509,7 +509,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleVerifyDataReturnsImmediatelyWhenNoExtractedInformation() throws Exception {
+    void verifyDataReturnsImmediatelyWhenNoExtractedInformation() throws Exception {
         UUID id = UUID.randomUUID();
         Document document = newDocument(TargetEntity.SUBSCRIPTION, UUID.randomUUID(), newDocumentTypeWithExpectedFields());
         document.setId(id);
@@ -526,7 +526,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleVerifyDataSetsManualReviewWhenVerificationContainsUnverified() throws Exception {
+    void verifyDataSetsManualReviewWhenVerificationContainsUnverified() throws Exception {
         UUID id = UUID.randomUUID();
         Document document = verifyReadyDocument(id);
 
@@ -553,7 +553,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleVerifyDataSetsRejectedWhenMandatoryFieldFails() throws Exception {
+    void verifyDataSetsRejectedWhenMandatoryFieldFails() throws Exception {
         UUID id = UUID.randomUUID();
         Document document = verifyReadyDocument(id);
 
@@ -579,7 +579,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleVerifyDataSetsVerifiedWhenHighScoreAndNoFailures() throws Exception {
+    void verifyDataSetsVerifiedWhenHighScoreAndNoFailures() throws Exception {
         UUID id = UUID.randomUUID();
         Document document = verifyReadyDocument(id);
 
@@ -606,7 +606,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleVerifyDataThrowsWhenDocumentMissing() {
+    void verifyDataThrowsWhenDocumentMissing() {
         UUID id = UUID.randomUUID();
         when(documentRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -614,7 +614,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleUpdateVerificationStatusUpdatesAndPersistsDocument() throws Exception {
+    void updateVerificationStatusUpdatesAndPersistsDocument() throws Exception {
         UUID id = UUID.randomUUID();
         Document document = newDocument(TargetEntity.SUBSCRIPTION, UUID.randomUUID(), newDocumentTypeWithExpectedFields());
         document.setId(id);
@@ -631,7 +631,7 @@ class DocumentServiceImplTest {
     }
 
     @Test
-    void handleUpdateVerificationStatusThrowsWhenDocumentMissing() {
+    void updateVerificationStatusThrowsWhenDocumentMissing() {
         UUID id = UUID.randomUUID();
         when(documentRepository.findById(id)).thenReturn(Optional.empty());
 

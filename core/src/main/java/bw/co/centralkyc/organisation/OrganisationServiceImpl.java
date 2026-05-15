@@ -60,8 +60,9 @@ public class OrganisationServiceImpl
     protected OrganisationDTO handleFindById(String id)
             throws Exception {
 
-        Organisation org = organisationRepository.getReferenceById(UUID.fromString(id));
-        org = organisationRepository.save(org);
+        Organisation org = organisationRepository.findById(UUID.fromString(id)).orElseThrow(
+                () -> new OrganisationServiceException("Could not find organisation: " + id)
+        );
 
         return organisationMapper.toOrganisationDTO(org);
     }
@@ -274,6 +275,21 @@ public class OrganisationServiceImpl
         if(org == null) {
             return null;
         }
+
+        return organisationMapper.toOrganisationDTO(org);
+
+    }
+
+    @Override
+    protected OrganisationDTO handleVerifyOrganisation(String id, String user) throws Exception {
+        
+        Organisation org = organisationRepository.findById(UUID.fromString(id)).orElse(null);
+
+        if(org == null) {
+            return null;
+        }
+
+        org = organisationRepository.save(org);
 
         return organisationMapper.toOrganisationDTO(org);
 
