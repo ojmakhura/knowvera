@@ -31,7 +31,7 @@ export class App {
     effect(() => {
       const keycloakEvent = this.keycloakSignal();
 
-      console.log(this.keycloak.authenticated);
+      console.log(this.keycloak.authenticated, keycloakEvent);
 
       if (keycloakEvent.type === KeycloakEventType.Ready) {
         if (this.keycloak.authenticated) {
