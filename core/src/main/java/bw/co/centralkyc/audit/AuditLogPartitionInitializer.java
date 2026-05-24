@@ -11,6 +11,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,30 +19,58 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuditLogPartitionInitializer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuditLogPartitionInitializer.class);
+    private static final long PARTITION_LOCK_KEY = 55123487091234567L;
 
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${app.audit.partition.months-history:12}")
     private int monthsHistory;
 
-    @Value("${app.audit.partition.months-future:3}")
+    @Value("${app.audit.partition.months-future:12}")
     private int monthsFuture;
+
+    @Value("${app.audit.partition.maintenance.fixed-delay-ms:300000}")
+    private long maintenanceDelayMs;
 
     public AuditLogPartitionInitializer(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Scheduled(cron = "0 0 0 1 * *")
-    public void createNextMonth() {
-        createMonthPartitions(LocalDate.now().plusMonths(1), LocalDate.now().plusMonths(2));
+    @EventListener(ApplicationReadyEvent.class)
+    @Async
+    public void ensureMonthlyPartitions() {
+        runMaintenanceSafely("startup");
     }
 
-    @EventListener(ApplicationReadyEvent.class)
+    @Scheduled(initialDelayString = "${app.audit.partition.maintenance.initial-delay-ms:30000}", fixedDelayString = "${app.audit.partition.maintenance.fixed-delay-ms:300000}")
+    public void maintainMonthlyPartitions() {
+        runMaintenanceSafely("scheduler");
+    }
+
     @Transactional
-    public void ensureMonthlyPartitions() {
+    protected void runMaintenanceSafely(String trigger) {
         if (!isPostgres()) {
             return;
         }
+
+        Boolean locked = jdbcTemplate.queryForObject("SELECT pg_try_advisory_lock(?)", Boolean.class, PARTITION_LOCK_KEY);
+        if (!Boolean.TRUE.equals(locked)) {
+            LOGGER.debug("Audit partition maintenance skipped ({}): advisory lock is held by another node.", trigger);
+            return;
+        }
+
+        try {
+            runMaintenance(trigger);
+        } finally {
+            try {
+                jdbcTemplate.queryForObject("SELECT pg_advisory_unlock(?)", Boolean.class, PARTITION_LOCK_KEY);
+            } catch (Exception ex) {
+                LOGGER.warn("Failed to release advisory lock for audit partition maintenance: {}", ex.getMessage());
+            }
+        }
+    }
+
+    private void runMaintenance(String trigger) {
 
         if (!tableExists("audit_log")) {
             LOGGER.debug("Skipping audit partition setup because audit_log does not exist yet.");
@@ -49,11 +78,14 @@ public class AuditLogPartitionInitializer {
         }
 
         if (!isPartitioned()) {
+            LOGGER.info("Converting audit_log to monthly partitions (trigger={}).", trigger);
             repartitionExistingTable();
         }
 
         createMonthPartitions(resolveStartMonth(null), resolveEndMonthExclusive(null));
+        createDefaultPartition();
         createMaintenanceIndexes();
+        LOGGER.debug("Audit partition maintenance complete (trigger={}, fixedDelayMs={}).", trigger, maintenanceDelayMs);
     }
 
     private boolean isPostgres() {
@@ -156,6 +188,10 @@ public class AuditLogPartitionInitializer {
 
             cursor = next;
         }
+    }
+
+    private void createDefaultPartition() {
+        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS audit_log_default PARTITION OF audit_log DEFAULT");
     }
 
     private String partitionName(LocalDate monthStart) {

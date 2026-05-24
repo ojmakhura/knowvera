@@ -170,6 +170,17 @@ app:
   adminPortalRole: ${ADMIN_PORTAL_ROLE:ADMIN_PORTAL_USER}
   userPortalRole: ${USER_PORTAL_ROLE:PORTAL_USER}
   apiUserRole: ${API_USER_ROLE:KYC_USER}
+  audit:
+    partition:
+      # Keep historical partitions available for this many past months.
+      months-history: ${AUDIT_PARTITION_MONTHS_HISTORY:12}
+      # Always ensure this many future months exist.
+      months-future: ${AUDIT_PARTITION_MONTHS_FUTURE:12}
+      maintenance:
+        # Delay first maintenance run after startup (milliseconds).
+        initial-delay-ms: ${AUDIT_PARTITION_MAINTENANCE_INITIAL_DELAY_MS:30000}
+        # Background maintenance interval (milliseconds).
+        fixed-delay-ms: ${AUDIT_PARTITION_MAINTENANCE_FIXED_DELAY_MS:300000}
   request-token-length: ${REQUEST_TOKEN_LENGTH:32}
   registration-url: ${REGISTRATION_URL:http://localhost:4300/register}
   admin-web: ${ADMIN_WEB_URL:http://localhost:4200}
