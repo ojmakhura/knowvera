@@ -29,6 +29,7 @@ import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.email.EmailService;
 import bw.co.centralkyc.keycloak.KeycloakOrganisationService;
 import bw.co.centralkyc.keycloak.KeycloakUserService;
+import bw.co.centralkyc.logging.Audit;
 import bw.co.centralkyc.organisation.OrganisationDTO;
 import bw.co.centralkyc.organisation.OrganisationListDTO;
 import bw.co.centralkyc.organisation.branch.BranchDTO;
@@ -94,6 +95,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Find Individual by ID", description = "Get the individual with the given id")
+    @Audit(entity = "INDIVIDUAL", eventLabel="#id", logData = false)
     public ResponseEntity<IndividualDTO> findById(String id) {
 
         try {
@@ -130,6 +132,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Get All Individuals", description = "Get all individuals")
+    @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<List<IndividualListDTO>> getAll() {
 
         try {
@@ -142,6 +145,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Get All Individuals Paged", description = "Get all individuals with pagination")
+    @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<Page<IndividualListDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) {
 
@@ -155,6 +159,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Search Individuals Paged", description = "Search individuals with pagination")
+    @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<Page<IndividualListDTO>> pagedSearch(
             SearchObject<IndividualSearchCriteria> criteria) {
 
@@ -169,6 +174,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Remove Individual", description = "Remove the individual with the given id")
+    @Audit(entity = "INDIVIDUAL", eventLabel="#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) {
 
         try {
@@ -227,6 +233,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Save Individual", description = "Save the individual. If the id is not provided, a new individual will be created.")
+    @Audit(entity = "INDIVIDUAL", eventLabel="#individual.id", logData = true)
     public ResponseEntity<IndividualDTO> save(IndividualDTO individual) {
 
         try {
@@ -349,6 +356,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Search Individuals", description = "Search individuals by criteria")
+    @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<List<IndividualListDTO>> search(
             SearchObject<IndividualSearchCriteria> criteria) {
 
@@ -372,6 +380,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Get Organisation Clients", description = "Get all clients for a given organisation")
+    @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<List<IndividualListDTO>> getOrganisationClients(
             String organisationId) throws Exception {
 
@@ -387,6 +396,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Get Organisation Clients Paged", description = "Get all clients for a given organisation with pagination")
+    @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<Page<IndividualListDTO>> getOrganisationClientsPaged(
             String criteria, Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -402,6 +412,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Load Request Individual", description = "Load an individual based on request ID, identity confirmation token, and identity number")
+    @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<IndividualDTO> loadRequestIndividual(String requestId, String identityConfirmationToken,
             String identityNo) throws Exception {
 
@@ -418,6 +429,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Load Me", description = "Load the currently authenticated individual")
+    @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<IndividualDTO> loadMe() throws Exception {
 
         try {
@@ -438,6 +450,8 @@ public class IndividualApiImpl implements IndividualApi {
     }
 
     @Override
+    @Operation(summary = "Verify Individual", description = "Verify the individual with the given id")
+    @Audit(entity = "INDIVIDUAL", eventLabel="#id", logData = false)
     public ResponseEntity<IndividualDTO> verifyIndividual(String id) throws Exception {
         
         try {

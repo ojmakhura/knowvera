@@ -24,6 +24,7 @@ import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.individual.IndividualDTO;
 import bw.co.centralkyc.keycloak.KeycloakOrganisationService;
+import bw.co.centralkyc.logging.Audit;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -42,6 +43,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Find Organisation by ID", description = "Find an organisation by its ID")
+    @Audit(entity = "ORGANISATION", eventLabel="#id", logData = false)
     public ResponseEntity<OrganisationDTO> findById(String id) {
         try {
 
@@ -64,6 +66,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Get All Organisations", description = "Retrieve all organisations")
+    @Audit(entity = "ORGANISATION", logData = false)
     public ResponseEntity<List<OrganisationListDTO>> getAll() {
         try {
             return ResponseEntity.ok(organisationService.getAll());
@@ -76,6 +79,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Get All Organisations Paged", description = "Retrieve all organisations with pagination")
+    @Audit(entity = "ORGANISATION", eventLabel="#pageNumber + ' ' + #pageSize", logData = false)
     public ResponseEntity<Page<OrganisationListDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) {
         try {
@@ -90,6 +94,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Paged Search Organisations", description = "Search organisations with pagination")
+    @Audit(entity = "ORGANISATION", logData = false)
     public ResponseEntity<Page<OrganisationListDTO>> pagedSearch(
             SearchObject<OrganisationSearchCriteria> criteria) {
         try {
@@ -109,6 +114,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Remove Organisation", description = "Remove an organisation by its ID")
+    @Audit(entity = "ORGANISATION", eventLabel="#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) {
         try {
             return ResponseEntity.ok(organisationService.remove(id));
@@ -151,6 +157,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Save Organisation", description = "Save an organisation")
+    @Audit(entity = "ORGANISATION", eventLabel="#organisation.id", logData = true)
     public ResponseEntity<OrganisationDTO> save(OrganisationDTO organisation) {
         try {
 
@@ -191,6 +198,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Search Organisations", description = "Search organisations based on criteria")
+    @Audit(entity = "ORGANISATION", logData = false)
     public ResponseEntity<List<OrganisationListDTO>> search(
             SearchObject<OrganisationSearchCriteria> criteria) {
         try {
@@ -214,6 +222,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Load Request Organisation", description = "Load an organisation based on request ID, identity confirmation token, and registration number")
+    @Audit(entity = "ORGANISATION", eventLabel="#requestId + ' ' + #identityConfirmationToken + ' ' + #registrationNo", logData = false)
     public ResponseEntity<OrganisationDTO> loadRequestOrganisation(String requestId, String identityConfirmationToken,
             String registrationNo) throws Exception {
         
@@ -229,6 +238,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Load My Organisation", description = "Load the organisation associated with the authenticated user")
+    @Audit(entity = "ORGANISATION", logData = false)
     public ResponseEntity<OrganisationDTO> loadMyOrganisation() throws Exception {
         
         try {
@@ -254,6 +264,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Find Organisation by Registration No", description = "Find an organisation by its registration number")
+    @Audit(entity = "ORGANISATION", eventLabel="#registrationNo", logData = false)
     public ResponseEntity<OrganisationDTO> findByRegistrationNo(String registrationNo) throws Exception {
         
         try {
@@ -266,6 +277,8 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
+    @Operation(summary = "Verify Organisation", description = "Verify an organisation by its ID")
+    @Audit(entity = "ORGANISATION", eventLabel="#id", logData = false)
     public ResponseEntity<OrganisationDTO> verifyOrganisation(String id) throws Exception {
         
         try {

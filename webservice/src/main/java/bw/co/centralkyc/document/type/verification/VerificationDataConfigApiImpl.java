@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 import bw.co.centralkyc.AuditTracker;
+import bw.co.centralkyc.logging.Audit;
 
 @RestController
 @Tag(name = "Verification Data Config", description = "Managing verification data configurations in the Central KYC system")
@@ -32,6 +33,7 @@ public class VerificationDataConfigApiImpl implements VerificationDataConfigApi 
 
     @Override
     @Operation(summary = "Find Verification Data Config", description = "Get the verification data config with the given id")
+    @Audit(entity = "VERIFICATION_DATA_CONFIG", eventLabel="#id", logData = false)
     public ResponseEntity<VerificationDataConfigDTO> findById(String id) throws Exception {
         try {
             return ResponseEntity.ok(verificationDataConfigService.findById(id));
@@ -45,6 +47,7 @@ public class VerificationDataConfigApiImpl implements VerificationDataConfigApi 
 
     @Override
     @Operation(summary = "Remove Verification Data Config", description = "Remove the verification data config with the given id")
+    @Audit(entity = "VERIFICATION_DATA_CONFIG", eventLabel="#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
             return ResponseEntity.ok(verificationDataConfigService.remove(id));
@@ -58,6 +61,7 @@ public class VerificationDataConfigApiImpl implements VerificationDataConfigApi 
 
     @Override
     @Operation(summary = "Save Verification Data Config", description = "Save the verification data config")
+    @Audit(entity = "VERIFICATION_DATA_CONFIG", eventLabel="#verificationDataConfig.id", logData = true)
     public ResponseEntity<VerificationDataConfigDTO> save(@Valid VerificationDataConfigDTO verificationDataConfig) throws Exception {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

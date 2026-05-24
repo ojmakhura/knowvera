@@ -30,8 +30,6 @@ public class SequenceGeneratorApiImpl implements SequenceGeneratorApi {
         this.sequenceGeneratorService = sequenceGeneratorService;
     }
 
-
-
     @Override
     @Operation(summary = "Find Sequence Generator by ID", description = "Find a sequence generator by its ID")
     public ResponseEntity<SequenceGeneratorDTO> findById(String id) throws Exception {

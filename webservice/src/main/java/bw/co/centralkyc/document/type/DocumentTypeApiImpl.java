@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import bw.co.centralkyc.AuditTracker;
 import bw.co.centralkyc.document.type.field.ExpectedFieldDTO;
+import bw.co.centralkyc.logging.Audit;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -117,6 +118,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
     @Override
     @Operation(summary = "Remove Document Type", description = "Remove the document type with the given id")
+    @Audit(entity = "DOCUMENT_TYPE", eventLabel="#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) {
 
         try {
@@ -132,6 +134,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
     @Override
     @Operation(summary = "Save Document Type", description = "Save the document type. If the id is not provided, a new document type will be created.")
+    @Audit(entity = "DOCUMENT_TYPE", eventLabel="#documentType.name", logData = false)
     public ResponseEntity<DocumentTypeDTO> save(DocumentTypeDTO documentType) {
 
         try {
@@ -184,6 +187,8 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     }
 
     @Override
+    @Operation(summary = "Add Expected Fields to Document Type", description = "Add expected fields to the document type with the given id")
+    @Audit(entity = "DOCUMENT_TYPE", eventLabel="#id", logData = true)
     public ResponseEntity<DocumentTypeDTO> addExpectedField(String id, @Valid Set<ExpectedFieldDTO> expectedFields)
             throws Exception {
         

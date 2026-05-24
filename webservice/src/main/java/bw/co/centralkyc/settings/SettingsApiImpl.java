@@ -9,6 +9,7 @@ import bw.co.centralkyc.AuditTracker;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.DocumentApi;
 import bw.co.centralkyc.document.DocumentDTO;
+import bw.co.centralkyc.logging.Audit;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -37,6 +38,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Find Settings by ID", description = "Find settings by their ID")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<SettingsDTO> findById(String id) {
         try {
 
@@ -51,6 +53,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Get All Settings", description = "Retrieve all settings")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<List<SettingsDTO>> getAll() {
         try {
             return ResponseEntity.ok(settingsService.getAll());
@@ -64,6 +67,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Get All Settings Paged", description = "Retrieve all settings with pagination")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<Page<SettingsDTO>> getAllPaged(Integer pageNumber, Integer pageSize) {
         try {
             return ResponseEntity.ok(settingsService.getAll(pageNumber, pageSize));
@@ -77,6 +81,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Paged Search Settings", description = "Search settings with pagination")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<Page<SettingsDTO>> pagedSearch(String criteria, Integer pageNumber,
             Integer pageSize) {
         try {
@@ -91,6 +96,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Remove Settings", description = "Remove settings by their ID")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<Boolean> remove(String id) {
         try {
             return ResponseEntity.ok(false);
@@ -104,6 +110,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Save Settings", description = "Save settings")
+    @Audit(entity = "SETTINGS", logData = true)
     public ResponseEntity<SettingsDTO> save(SettingsDTO setttings) {
         try {
 
@@ -122,6 +129,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Search Settings", description = "Search settings based on criteria")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<List<SettingsDTO>> search(String criteria) {
         try {
             return ResponseEntity.ok(null);
@@ -135,6 +143,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Upload Template", description = "Upload a template for a specific target entity")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<SettingsDTO> uploadTemplate(MultipartFile template, TargetEntity target)
             throws Exception {
 
@@ -175,6 +184,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Attach Document Type", description = "Attach a document type to settings")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<SettingsDTO> attachDocumentType(String documentTypeId, DocumentTypePurpose purpose)
             throws Exception {
         
@@ -189,6 +199,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Detach Document Type", description = "Detach a document type from settings")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<SettingsDTO> detachDocumentType(String documentTypeId, DocumentTypePurpose purpose)
             throws Exception {
         

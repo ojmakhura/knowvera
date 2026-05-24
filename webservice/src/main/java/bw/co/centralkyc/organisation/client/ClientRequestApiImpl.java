@@ -15,6 +15,7 @@ import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.individual.IndividualDTO;
 import bw.co.centralkyc.individual.IndividualService;
 import bw.co.centralkyc.keycloak.KeycloakUserService;
+import bw.co.centralkyc.logging.Audit;
 import bw.co.centralkyc.messaging.ClientRequestNotification;
 import bw.co.centralkyc.organisation.OrganisationDTO;
 import bw.co.centralkyc.organisation.OrganisationService;
@@ -75,6 +76,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Request by ID", description = "Find a client request by its ID")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#id", logData = false)
     public ResponseEntity<ClientRequestDTO> findById(String id) throws Exception {
         try {
 
@@ -90,6 +92,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Individual", description = "Find client requests by individual ID")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#individualId", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findByIndividual(String individualId) throws Exception {
         try {
             List<ClientRequestDTO> requests = clientRequestService.findByIndividual(individualId);
@@ -103,6 +106,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Individual (Paged)", description = "Find client requests by individual ID with pagination")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#individualId", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> findByIndividualPaged(String individualId, Integer pageNumber,
             Integer pageSize) throws Exception {
         try {
@@ -117,6 +121,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Organisation", description = "Find client requests by organisation ID")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#organisationId", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findByOrganisation(String organisationId, TargetEntity target)
             throws Exception {
         try {
@@ -131,6 +136,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Organisation (Paged)", description = "Find client requests by organisation ID with pagination")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#organisationId", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber,
             Integer pageSize, TargetEntity target) throws Exception {
         try {
@@ -147,6 +153,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Status", description = "Find client requests by their status")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#status", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findByStatus(ClientRequestStatus status) throws Exception {
         try {
             List<ClientRequestDTO> requests = clientRequestService.findByStatus(status);
@@ -161,6 +168,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Get All Client Requests", description = "Retrieve all client requests")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> getAll() throws Exception {
         try {
             List<ClientRequestDTO> requests = clientRequestService.getAll();
@@ -174,6 +182,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Get All Client Requests (Paged)", description = "Retrieve all client requests with pagination")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> getAllPaged(Integer pageNumber, Integer pageSize) throws Exception {
         try {
             Page<ClientRequestDTO> requests = clientRequestService.getAll(pageNumber, pageSize);
@@ -187,6 +196,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Paged Search Client Requests", description = "Search client requests with pagination")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> pagedSearch(SearchObject<ClientRequestSearchCriteria> criteria)
             throws Exception {
         try {
@@ -201,6 +211,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Remove Client Request", description = "Remove a client request by its ID")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
 
@@ -214,6 +225,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Save Client Request", description = "Save a client request")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#clientRequest.id", logData = true)
     public ResponseEntity<ClientRequestDTO> save(ClientRequestDTO clientRequest) throws Exception {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -230,6 +242,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Search Client Requests", description = "Search client requests based on criteria")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> search(SearchObject<ClientRequestSearchCriteria> criteria)
             throws Exception {
         try {
@@ -250,6 +263,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Document", description = "Find client requests by document ID")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#documentId", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findByDocument(String documentId) throws Exception {
 
         try {
@@ -264,6 +278,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Document (Paged)", description = "Find client requests by document ID with pagination")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#documentId", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> findByDocumentPaged(String documentId, Integer pageNumber,
             Integer pageSize) throws Exception {
 
@@ -278,6 +293,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Status", description = "Find client requests by their status with pagination")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#status", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> findByStatusPaged(ClientRequestStatus status,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -292,6 +308,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Upload Client Requests", description = "Upload client requests from a file")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#file.getOriginalFilename()", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> uploadRequests(MultipartFile file, String organisationId,
             TargetEntity target) throws Exception {
 
@@ -324,6 +341,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Download Client Request Template", description = "Download the template file for client requests")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<InputStreamResource> downloadRequestTemplate() throws Exception {
 
         try {
@@ -375,6 +393,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Target", description = "Find client requests by their target entity and target ID")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findByTarget(TargetEntity target, String targetId)
             throws Exception {
 
@@ -390,6 +409,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Target (Paged)", description = "Find client requests by their target entity and target ID with pagination")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> findByTargetPaged(TargetEntity target,
             String targetId, Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -406,6 +426,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Individuals by Organisation", description = "Find individual client requests by organisation ID")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findIndividualsByOrganisation(String organisationId)
             throws Exception {
 
@@ -422,6 +443,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Individuals by Organisation (Paged)", description = "Find individual client requests by organisation ID with pagination")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> findIndividualsByOrganisationPaged(String organisationId,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -438,6 +460,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Organisations by Organisation", description = "Find organisation client requests by organisation ID")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findOrganisationsByOrganisation(String organisationId)
             throws Exception {
         try {
@@ -453,6 +476,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Organisations by Organisation (Paged)", description = "Find organisation client requests by organisation ID with pagination")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> findOrganisationsByOrganisationPaged(String organisationId,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -469,6 +493,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Update Client Request Status", description = "Update the status of a client request")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#status", logData = false)
     public ResponseEntity<ClientRequestDTO> updateStatus(String id, ClientRequestStatus status) throws Exception {
 
         try {
@@ -507,6 +532,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Confirm Client Request Token", description = "Confirm the token for a client request")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#token", logData = false)
     public ResponseEntity<String> confirmToken(String requestId, String token) throws Exception {
 
         try {
@@ -549,6 +575,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Confirm Client Registration", description = "Confirm the registration for a client request")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel="#registrationToken", logData = false)
     public ResponseEntity<Boolean> confirmRegistration(String id, Boolean confirm, String registrationToken)
             throws Exception {
 
@@ -620,6 +647,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find User Ready Requests", description = "Find client requests that are ready for the user")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<ClientRequestDTO> findUserReadyRequests() throws Exception {
 
         try {
@@ -635,6 +663,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find User Ready Requests (Paged)", description = "Find client requests that are ready for the user with pagination")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<ClientRequestDTO> findUserReadyRequestsPaged(Integer pageNumber, Integer pageSize)
             throws Exception {
 
@@ -648,6 +677,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find My Organisation Requests", description = "Find client requests for the organisation associated with the current user")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findMyOrganisationRequests() throws Exception {
 
         String username = "anonymousUser";
@@ -677,6 +707,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find My Requests", description = "Find client requests for the current user")
+    @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findMyRequests() throws Exception {
 
         String username = "anonymousUser";

@@ -7,7 +7,6 @@ package bw.co.centralkyc.contact;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -15,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+
+import bw.co.centralkyc.logging.Audit;
 
 @RestController
 @Tag(name = "Client Contact Management", description = "Clients may contact us.")
@@ -33,6 +34,7 @@ public class ContactApiImpl implements ContactApi {
 
     @Override
     @Operation(summary = "Find Document Type", description = "Get the document type with the given id")
+    @Audit(entity = "CONTACT", eventLabel="#id", logData = false)
     public ResponseEntity<ContactDTO> findById(String id) throws Exception {
         try {
             return ResponseEntity.ok(null);
@@ -45,6 +47,8 @@ public class ContactApiImpl implements ContactApi {
 
 
     @Override
+    @Operation(summary = "Find Contacts by Type", description = "Get the contacts of the given type")
+    @Audit(entity = "CONTACT", logData = false)
     public ResponseEntity<List<ContactDTO>> findByType(ContactType type) throws Exception {
         try {
             return ResponseEntity.ok(null);
@@ -57,6 +61,8 @@ public class ContactApiImpl implements ContactApi {
 
 
     @Override
+    @Operation(summary = "Find Contacts by Type with Pagination", description = "Get the contacts of the given type with pagination")
+    @Audit(entity = "CONTACT", logData = false)
     public ResponseEntity<Page<ContactDTO>> findByTypePaged(ContactType type, Integer pageNumber, Integer pageSize) throws Exception {
         try {
             return ResponseEntity.ok(null);
@@ -69,6 +75,8 @@ public class ContactApiImpl implements ContactApi {
 
 
     @Override
+    @Operation(summary = "Get All Contacts", description = "Get all contacts")
+    @Audit(entity = "CONTACT", logData = false)
     public ResponseEntity<List<ContactDTO>> getAll() throws Exception {
         try {
             return ResponseEntity.ok(null);
@@ -81,6 +89,8 @@ public class ContactApiImpl implements ContactApi {
 
 
     @Override
+    @Operation(summary = "Get All Contacts Paged", description = "Get all contacts with pagination")
+    @Audit(entity = "CONTACT", logData = false)
     public ResponseEntity<Page<ContactDTO>> getAllPaged(Integer pageNumber, Integer pageSize) throws Exception {
         try {
             return ResponseEntity.ok(null);
@@ -93,6 +103,8 @@ public class ContactApiImpl implements ContactApi {
 
 
     @Override
+    @Operation(summary = "Remove Contact", description = "Remove the contact with the given id")
+    @Audit(entity = "CONTACT", eventLabel="#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
             return ResponseEntity.ok(null);
@@ -105,6 +117,8 @@ public class ContactApiImpl implements ContactApi {
 
 
     @Override
+    @Operation(summary = "Save Contact", description = "Save the contact. If the id is not provided, a new contact will be created.")
+    @Audit(entity = "CONTACT", eventLabel="#document.id", logData = true)
     public ResponseEntity<ContactDTO> save(ContactDTO document) throws Exception {
         try {
             return ResponseEntity.ok(null);
@@ -117,6 +131,8 @@ public class ContactApiImpl implements ContactApi {
 
 
     @Override
+    @Operation(summary = "Search Contacts", description = "Search contacts by criteria")
+    @Audit(entity = "CONTACT", logData = false)
     public ResponseEntity<List<ContactDTO>> search(String criteria) throws Exception {
         try {
             return ResponseEntity.ok(null);
