@@ -439,8 +439,20 @@ public class KycRecordServiceImpl
     }
 
     @Override
-    protected KycRecordDTO handleFindLatestValidForOwner(String ownerId, TargetEntity ownerType, LocalDate today)
+    protected KycRecordDTO handleFindLatestValidForOwner(String individualId, TargetEntity ownerType, LocalDate today)
             throws Exception {
+
+        String ownerId = individualId;
+
+        if(ownerType == TargetEntity.ORGANISATION) {
+
+            Individual individual = individualRepository.getReferenceById(UUID.fromString(individualId));
+
+            if(individual.getOrganisation() != null && individual.getOrganisation().getId() != null) {
+
+                ownerId = individual.getOrganisation().getId().toString();
+            }
+        }
 
         KycRecord record = kycRecordRepository.findLatestValidForOwner(ownerId, ownerType, today)
                 .orElse(null);

@@ -212,8 +212,6 @@ public class AuditAspect {
 
                 Object first = page.getContent().get(0);
 
-                
-
                 if(first instanceof IndividualDTO) {
                     builder.append("IndividualPage: ");
                 } else if(first instanceof KycRecordDTO) {

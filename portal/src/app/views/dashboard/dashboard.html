@@ -22,16 +22,16 @@
 
   <section class="metric-grid" aria-label="Verification metrics">
     @for (metric of metrics(); track metric.label) {
-      <article class="metric-card">
-        <div class="metric-card__header">
-          <span>{{ metric.label }}</span>
-          <span class="metric-card__icon" [class]="'metric-card__icon metric-card__icon--' + metric.tone">
-            <span class="material-symbols-outlined" aria-hidden="true">{{ metric.icon }}</span>
-          </span>
-        </div>
-        <p class="metric-card__value">{{ metric.value }}</p>
-        <p class="metric-card__detail">{{ metric.detail }}</p>
-      </article>
+    <article class="metric-card">
+      <div class="metric-card__header">
+        <span>{{ metric.label }}</span>
+        <span class="metric-card__icon" [class]="'metric-card__icon metric-card__icon--' + metric.tone">
+          <span class="material-symbols-outlined" aria-hidden="true">{{ metric.icon }}</span>
+        </span>
+      </div>
+      <p class="metric-card__value">{{ metric.value }}</p>
+      <p class="metric-card__detail">{{ metric.detail }}</p>
+    </article>
     }
   </section>
 
@@ -41,42 +41,46 @@
         <h2 id="current-records-title">Current Records</h2>
         <p>Priority profiles surfaced from the latest active verification records.</p>
       </div>
-      <a class="section-link" href="#registry">View All <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></a>
+      <a class="section-link" href="#registry">View All <span class="material-symbols-outlined"
+          aria-hidden="true">arrow_forward</span></a>
     </div>
 
     <div class="record-grid">
       @for (card of featuredCards(); track card.kind) {
-        <article class="record-card">
-          <div class="record-card__halo"></div>
-          <div class="record-card__content">
-            <div class="record-card__header">
-              <div class="record-card__identity">
-                <div class="record-card__avatar">
-                  <span class="material-symbols-outlined" aria-hidden="true">{{ card.icon }}</span>
-                </div>
-                <div>
-                  <p class="record-card__eyebrow">{{ card.eyebrow }}</p>
-                  <h3>{{ card.title }}</h3>
-                  <p class="record-card__subtitle">{{ card.subtitle }}</p>
-                </div>
+      @if((hasOrg() && card.kind === targetEntityEnum.ORGANISATION) || card.kind === targetEntityEnum.INDIVIDUAL) {
+      <article class="record-card">
+        <div class="record-card__halo"></div>
+        <div class="record-card__content">
+          <div class="record-card__header">
+            <div class="record-card__identity">
+              <div class="record-card__avatar">
+                <span class="material-symbols-outlined" aria-hidden="true">{{ card.icon }}</span>
               </div>
-              <span [class]="'status-chip status-chip--' + card.badgeTone">{{ card.badgeLabel }}</span>
+              <div>
+                <p class="record-card__eyebrow">{{ card.eyebrow }}</p>
+                <h3>{{ card.title }}</h3>
+                <p class="record-card__subtitle">{{ card.subtitle }}</p>
+              </div>
             </div>
-
-            <dl class="record-card__details">
-              @for (detail of card.details; track detail.label) {
-                <div class="record-detail">
-                  <dt>{{ detail.label }}</dt>
-                  <dd [class]="detail.tone === 'alert' ? 'is-alert' : detail.tone === 'accent' ? 'is-accent' : ''">{{ detail.value }}</dd>
-                </div>
-              }
-            </dl>
-
-            <button type="button" class="record-card__action" (click)="handleFeaturedAction(card)">
-              {{ card.actionLabel }}
-            </button>
+            <span [class]="'status-chip status-chip--' + card.badgeTone">{{ card.badgeLabel }}</span>
           </div>
-        </article>
+
+          <dl class="record-card__details">
+            @for (detail of card.details; track detail.label) {
+            <div class="record-detail">
+              <dt>{{ detail.label }}</dt>
+              <dd [class]="detail.tone === 'alert' ? 'is-alert' : detail.tone === 'accent' ? 'is-accent' : ''">{{
+                detail.value }}</dd>
+            </div>
+            }
+          </dl>
+
+          <button type="button" class="record-card__action" (click)="handleFeaturedAction(card)">
+            {{ card.actionLabel }}
+          </button>
+        </div>
+      </article>
+      }
       }
     </div>
   </section>
@@ -93,12 +97,8 @@
           <span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
           {{ filterButtonLabel() }}
         </button>
-        <button
-          type="button"
-          class="secondary-button secondary-button--compact"
-          (click)="exportRegistry()"
-          [disabled]="!filteredRecords().length"
-        >
+        <button type="button" class="secondary-button secondary-button--compact" (click)="exportRegistry()"
+          [disabled]="!filteredRecords().length">
           <span class="material-symbols-outlined" aria-hidden="true">download</span>
           Export CSV
         </button>
@@ -120,41 +120,45 @@
         </thead>
         <tbody>
           @for (record of visibleRecords(); track record.id || $index) {
-            <tr>
-              <td>
-                <div class="registry-name">
-                  <div class="registry-name__icon">
-                    <span class="material-symbols-outlined" aria-hidden="true">{{ rowIcon(record) }}</span>
-                  </div>
-                  <div>
-                    <p>{{ recordTitle(record) }}</p>
-                    <span>{{ rowTypeLabel(record) }}</span>
-                  </div>
+          <tr>
+            <td>
+              <div class="registry-name">
+                <div class="registry-name__icon">
+                  <span class="material-symbols-outlined" aria-hidden="true">{{ rowIcon(record) }}</span>
                 </div>
-              </td>
-              <td class="mono">{{ recordReference(record) }}</td>
-              <td>
-                <span [class]="'status-chip status-chip--' + statusTone(record.kycStatus)">{{ statusLabel(record.kycStatus) }}</span>
-              </td>
-              <td>{{ rowUploadDate(record) }}</td>
-              <td [class]="statusTone(record.kycStatus) === 'expired' ? 'text-alert' : ''">{{ formatDate(record.expiryDate) }}</td>
-              <td>
-                <div class="registry-actions">
-                  <button type="button" class="icon-button" (click)="viewRecord(record)" [attr.aria-label]="'View ' + recordTitle(record)">
-                    <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
-                  </button>
-                  <button type="button" class="icon-button" (click)="editRecord(record)" [attr.aria-label]="'Edit ' + recordTitle(record)">
-                    <span class="material-symbols-outlined" aria-hidden="true">edit_square</span>
-                  </button>
+                <div>
+                  <p>{{ recordTitle(record) }}</p>
+                  <span>{{ rowTypeLabel(record) }}</span>
                 </div>
-              </td>
-            </tr>
+              </div>
+            </td>
+            <td class="mono">{{ recordReference(record) }}</td>
+            <td>
+              <span [class]="'status-chip status-chip--' + statusTone(record.kycStatus)">{{
+                statusLabel(record.kycStatus) }}</span>
+            </td>
+            <td>{{ rowUploadDate(record) }}</td>
+            <td [class]="statusTone(record.kycStatus) === 'expired' ? 'text-alert' : ''">{{
+              formatDate(record.expiryDate) }}</td>
+            <td>
+              <div class="registry-actions">
+                <button type="button" class="icon-button" (click)="viewRecord(record)"
+                  [attr.aria-label]="'View ' + recordTitle(record)">
+                  <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                </button>
+                <button type="button" class="icon-button" (click)="editRecord(record)"
+                  [attr.aria-label]="'Edit ' + recordTitle(record)">
+                  <span class="material-symbols-outlined" aria-hidden="true">edit_square</span>
+                </button>
+              </div>
+            </td>
+          </tr>
           } @empty {
-            <tr>
-              <td colspan="6" class="registry-table__empty">
-                No records match the current registry filter.
-              </td>
-            </tr>
+          <tr>
+            <td colspan="6" class="registry-table__empty">
+              No records match the current registry filter.
+            </td>
+          </tr>
           }
         </tbody>
       </table>

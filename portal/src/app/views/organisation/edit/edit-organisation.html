@@ -1,0 +1,265 @@
+<div class="edit-organisation-page">
+	<div class="ambient-orb ambient-orb--top" aria-hidden="true"></div>
+	<div class="ambient-orb ambient-orb--bottom" aria-hidden="true"></div>
+
+	<main class="page-shell">
+		<header class="page-header">
+			<nav class="breadcrumb" aria-label="Breadcrumb">
+				<span>Organisation</span>
+				<mat-icon>chevron_right</mat-icon>
+				<span>{{ editOrganisationFormSignal().name || 'Organisation' }}</span>
+				<mat-icon>chevron_right</mat-icon>
+				<span class="is-active">Edit</span>
+			</nav>
+
+			<h1>Edit Organisation</h1>
+		</header>
+
+		@let editForm = editOrganisationFormSignalForm;
+
+		<div class="layout-grid">
+			<section class="main-column">
+				<mat-card class="vault-card">
+					<div class="section-heading">
+						<mat-icon>corporate_fare</mat-icon>
+						<h2>Core Identity</h2>
+					</div>
+
+					<div class="form-grid">
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Organisation Name</mat-label>
+							<input matInput [formField]="editForm.name" />
+						</mat-form-field>
+
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Abbreviation / Code</mat-label>
+							<input matInput [formField]="editForm.code" />
+						</mat-form-field>
+
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Registration No.</mat-label>
+							<input matInput [formField]="editForm.registrationNo" />
+						</mat-form-field>
+
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Country of Registration</mat-label>
+							<mat-select [formField]="editForm.countryOfRegistration">
+								@for (country of countries; track country) {
+									<mat-option [value]="country">{{ country }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+
+						<section class="status-toggle" aria-label="Client status">
+							<div>
+								<p class="status-toggle__title">Client Status</p>
+								<p class="status-toggle__subtitle">Mark this entity as an active client of the firm</p>
+							</div>
+							<mat-slide-toggle
+								[checked]="!!editOrganisationFormSignal().isClient"
+								(change)="toggleIsClient($event)"
+								aria-label="Client status toggle">
+							</mat-slide-toggle>
+						</section>
+					</div>
+				</mat-card>
+
+				<mat-card class="vault-card">
+					<div class="section-heading">
+						<mat-icon>verified</mat-icon>
+						<h2>Operational Status</h2>
+					</div>
+
+					<div class="form-grid">
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>General Status</mat-label>
+							<mat-select [formField]="editForm.status">
+								@for (status of generalStatuses; track status) {
+									<mat-option [value]="status">{{ status }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>KYC Compliance Status</mat-label>
+							<mat-select [formField]="editForm.kycStatus">
+								@for (status of kycComplianceStatuses; track status) {
+									<mat-option [value]="status">{{ status }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+
+						<mat-form-field class="vault-field vault-field--full" subscriptSizing="dynamic">
+							<mat-label>Description</mat-label>
+							<textarea matInput rows="4" [formField]="editForm.description"></textarea>
+						</mat-form-field>
+					</div>
+				</mat-card>
+
+				<mat-card class="vault-card">
+					<div class="section-heading section-heading--row">
+						<div class="section-heading__title">
+							<mat-icon>language</mat-icon>
+							<h2>Managed Domains</h2>
+						</div>
+
+						<button type="button" mat-button (click)="addDomain()">
+							<mat-icon>add</mat-icon>
+							<span>Add Domain</span>
+						</button>
+					</div>
+
+					<div class="domain-list">
+						@if (!editOrganisationFormSignal().domains.length) {
+							<p class="list-empty">No domains added yet.</p>
+						}
+
+						@for (domainForm of editForm.domains; track $index) {
+							@let domain = domainForm().value();
+							<div class="domain-item">
+								<mat-icon>link</mat-icon>
+
+								<mat-form-field class="vault-field vault-field--ghost" subscriptSizing="dynamic">
+									<mat-label>Domain</mat-label>
+									<input matInput [formField]="domainForm.name" />
+								</mat-form-field>
+
+								<span class="status-pill" [class.status-pill--pending]="!domainVerified(domain)">
+									<mat-icon>{{ domainVerified(domain) ? 'check_circle' : 'pending' }}</mat-icon>
+									<span>{{ domainVerified(domain) ? 'Verified' : 'Pending' }}</span>
+								</span>
+
+								<button type="button" mat-icon-button (click)="removeDomain($index)" aria-label="Remove domain">
+									<mat-icon>delete</mat-icon>
+								</button>
+							</div>
+						}
+					</div>
+				</mat-card>
+			</section>
+
+			<aside class="side-column">
+				<mat-card class="vault-card">
+					<div class="section-heading">
+						<mat-icon>contact_mail</mat-icon>
+						<h2>Contact</h2>
+					</div>
+
+					<div class="side-stack">
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Contact Email Address</mat-label>
+							<input matInput type="email" [formField]="editForm.contactEmailAddress" />
+						</mat-form-field>
+
+						<div class="phone-block">
+							<div class="phone-block__header">
+								<h3>Phone Numbers</h3>
+								<button type="button" mat-button (click)="addPhoneNumber()">
+									<mat-icon>add</mat-icon>
+									<span>Add</span>
+								</button>
+							</div>
+
+							  @if (!editOrganisationFormSignal().phoneNumbers.length) {
+								<p class="list-empty">No phone numbers added yet.</p>
+							}
+
+							@for (phoneForm of editForm.phoneNumbers; track $index) {
+								@let phone = phoneForm().value();
+								<div class="phone-row">
+									<mat-form-field class="vault-field vault-field--compact" subscriptSizing="dynamic">
+										<mat-label>Type</mat-label>
+										<mat-select
+											[value]="phone?.type"
+											(selectionChange)="updatePhoneType($index, $event.value)">
+											@for (type of phoneTypes; track type) {
+												<mat-option [value]="type">{{ type }}</mat-option>
+											}
+										</mat-select>
+									</mat-form-field>
+
+									<mat-form-field class="vault-field vault-field--grow" subscriptSizing="dynamic">
+										<mat-label>Phone Number</mat-label>
+										<input
+											matInput
+											[value]="phone?.phoneNumber || ''"
+											(input)="updatePhoneNumber($index, $any($event.target).value)" />
+									</mat-form-field>
+
+									<button
+										type="button"
+										mat-icon-button
+										(click)="removePhoneNumber($index)"
+										aria-label="Remove phone number">
+										<mat-icon>delete</mat-icon>
+									</button>
+								</div>
+							}
+						</div>
+					</div>
+				</mat-card>
+
+				<mat-card class="vault-card">
+					<div class="section-heading">
+						<mat-icon>location_on</mat-icon>
+						<h2>Addresses</h2>
+					</div>
+
+					<div class="side-stack">
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Physical Address</mat-label>
+							<textarea matInput rows="3" [formField]="editForm.physicalAddress"></textarea>
+						</mat-form-field>
+
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Postal Address</mat-label>
+							<textarea matInput rows="3" [formField]="editForm.postalAddress"></textarea>
+						</mat-form-field>
+					</div>
+				</mat-card>
+
+				<section class="audit-card" aria-label="Managed entity audit trail">
+					<div class="audit-card__heading">
+						<mat-icon>security</mat-icon>
+						<p>Managed Entity Audit Trail</p>
+					</div>
+
+					<p>
+						All changes to this organisation record are cryptographically signed and logged for compliance auditing.
+					</p>
+
+					<dl>
+						<div>
+							<dt>Created</dt>
+							<dd>{{ formatAuditDate(editOrganisationFormSignal().createdAt) }}</dd>
+						</div>
+						<div>
+							<dt>Last Modified</dt>
+							<dd>{{ formatAuditDate(editOrganisationFormSignal().modifiedAt) }}</dd>
+						</div>
+					</dl>
+
+					<button type="button" mat-button class="audit-card__cta" aria-label="View organisation version history">
+						View Version History
+					</button>
+				</section>
+			</aside>
+		</div>
+
+		<footer class="page-actions">
+			<button type="button" mat-button (click)="cancel()">Cancel</button>
+			<button
+				type="button"
+				mat-flat-button
+				class="save-button"
+				[disabled]="loading()"
+				(click)="saveOrganisation()">
+				Save Organisation
+			</button>
+		</footer>
+	</main>
+
+	<div class="loader-overlay">
+		<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+	</div>
+</div>

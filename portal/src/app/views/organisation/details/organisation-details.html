@@ -1,0 +1,352 @@
+<app-loader [isLoading]="loading()" [message]="loaderMessage()"></app-loader>
+
+<main class="vault-page">
+	<header class="vault-header">
+		<section class="title-block">
+			<div class="brand-icon" aria-hidden="true">{{ organisationInitials() }}</div>
+			<div>
+				<h1>{{ organisation().name || 'Organisation Profile' }}</h1>
+				<div class="tag-row">
+					  <span class="tag-code">{{ organisation().code || 'ORG' }}</span>
+					<mat-chip class="chip verified" highlighted>
+						<mat-icon>verified</mat-icon>
+						Verified Enterprise
+					</mat-chip>
+					<mat-chip class="chip compliant" highlighted>
+						<mat-icon>shield</mat-icon>
+						{{ formatStatus(organisation().kycStatus) }}
+					</mat-chip>
+				</div>
+			</div>
+		</section>
+
+		<section class="header-actions">
+			<button mat-stroked-button type="button" (click)="openEditOrganisation()">
+				<mat-icon>edit</mat-icon>
+				Edit Organisation
+			</button>
+			<!-- <button mat-flat-button type="button" class="primary-action" (click)="openNewAudit()">
+				<mat-icon>fact_check</mat-icon>
+				New Audit
+			</button> -->
+		</section>
+	</header>
+
+	<section class="overview-grid">
+		<mat-card class="vault-card core-identity">
+			<mat-card-header>
+				<mat-icon mat-card-avatar>fingerprint</mat-icon>
+				<mat-card-title>Core Identity</mat-card-title>
+			</mat-card-header>
+			<mat-card-content>
+				<div class="detail-grid">
+					<div>
+						<p class="field-label">Registration Number</p>
+						<p class="field-value">{{ organisation().registrationNo || '-' }}</p>
+					</div>
+					<div>
+						<p class="field-label">Jurisdiction</p>
+						<p class="field-value">{{ organisation().countryOfRegistration || '-' }}</p>
+					</div>
+					<div class="span-2">
+						<p class="field-label">Description</p>
+						<p class="field-body">{{ organisation().description || 'No description available.' }}</p>
+					</div>
+				</div>
+			</mat-card-content>
+		</mat-card>
+
+		<mat-card class="vault-card infrastructure">
+			<mat-card-header>
+				<mat-icon mat-card-avatar>lan</mat-icon>
+				<mat-card-title>Infrastructure</mat-card-title>
+			</mat-card-header>
+			<mat-card-content>
+				<p class="field-label">Verified Domains</p>
+				<div class="domain-list">
+					@for (domain of organisationDomains(); track domain.name) {
+						<div class="domain-item">
+							<span>{{ domain.name || '-' }}</span>
+							<mat-chip class="chip" [class]="domainVerificationClass(domain.verified)">
+								<mat-icon>{{ domain.verified ? 'check_circle' : 'pending' }}</mat-icon>
+								{{ domain.verified ? 'Verified' : 'Pending' }}
+							</mat-chip>
+						</div>
+					}
+					@if (!organisationDomains().length) {
+						<p class="empty-state">No domains registered.</p>
+					}
+				</div>
+			</mat-card-content>
+		</mat-card>
+
+		<mat-card class="vault-card contact-card">
+			<mat-card-header>
+				<mat-icon mat-card-avatar>contact_support</mat-icon>
+				<mat-card-title>Contact Information</mat-card-title>
+			</mat-card-header>
+			<mat-card-content>
+				<div class="contact-grid">
+					<div>
+						<p class="field-label">Primary Email</p>
+						<a class="email-link" [href]="'mailto:' + organisation().contactEmailAddress">{{ organisation().contactEmailAddress || '-' }}</a>
+					</div>
+					<div>
+						<p class="field-label">Physical Address</p>
+						<p class="field-body">{{ organisation().physicalAddress || '-' }}</p>
+					</div>
+					<div>
+						<p class="field-label">Postal Address</p>
+						<p class="field-body">{{ organisation().postalAddress || '-' }}</p>
+					</div>
+					<div>
+						<p class="field-label">Phone Numbers</p>
+						<div class="phone-list">
+							@for (phone of organisationPhoneNumbers(); track phone.phoneNumber) {
+								<div class="phone-row">
+									<span>{{ phone.phoneNumber || '-' }}</span>
+									<span class="phone-type">{{ formatPhoneType(phone.type) }}</span>
+								</div>
+							}
+							@if (!organisationPhoneNumbers().length) {
+								<p class="empty-state">No phone numbers available.</p>
+							}
+						</div>
+					</div>
+				</div>
+			</mat-card-content>
+		</mat-card>
+	</section>
+
+	<mat-card class="vault-card operations-card">
+		<mat-tab-group class="ops-tabs" dynamicHeight>
+			<mat-tab label="Uploaded Documents">
+				<section class="tab-pane">
+					<div class="tab-header">
+						<h2>Compliance Archive</h2>
+						<div class="upload-controls">
+							<mat-form-field subscriptSizing="dynamic" appearance="outline">
+								<mat-label>Document Type ID</mat-label>
+								<input matInput #docTypeInput [value]="documentTypeIdForUpload()" (input)="selectUploadDocumentType(docTypeInput.value)" placeholder="KYC_UTILITY_BILL" />
+							</mat-form-field>
+
+							<input #documentFileInput type="file" (change)="onDocumentFileSelected($event)" hidden />
+
+							<button mat-stroked-button type="button" (click)="documentFileInput.click()">
+								<mat-icon>attach_file</mat-icon>
+								Choose File
+							</button>
+							<button mat-flat-button type="button" class="primary-action" [disabled]="!canUploadDocument()" (click)="uploadOrganisationDocument(documentFileInput)">
+								<mat-icon>upload</mat-icon>
+								Upload Archive
+							</button>
+						</div>
+					</div>
+
+					<p class="selected-file">{{ selectedDocumentFileName() }}</p>
+
+					<div class="table-wrap">
+						<table class="vault-table" aria-label="Uploaded documents table">
+							<thead>
+								<tr>
+									<th>File Name</th>
+									<th>Type</th>
+									<th>Status</th>
+									<th class="align-right">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (document of organisationDocuments(); track document.id || document.fileName) {
+									<tr>
+										<td class="weight-600">{{ document.fileName || '-' }}</td>
+										<td>{{ document.documentType || '-' }}</td>
+										<td>
+											<mat-chip class="chip" [class]="documentStatusClass(document.verificationStatus)">
+												{{ formatStatus(document.verificationStatus) }}
+											</mat-chip>
+										</td>
+										<td class="align-right">
+											<button mat-icon-button type="button" (click)="openDocumentDetails(document)" aria-label="View document details">
+												<mat-icon>visibility</mat-icon>
+											</button>
+											<button mat-icon-button type="button" (click)="openDocumentEdit(document)" aria-label="Edit document">
+												<mat-icon>edit</mat-icon>
+											</button>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+						@if (!organisationDocuments().length) {
+							<p class="empty-state table-empty">No uploaded documents found.</p>
+						}
+					</div>
+				</section>
+			</mat-tab>
+
+			<mat-tab label="Subscriptions">
+				<section class="tab-pane">
+					<div class="tab-header slim">
+						<h2>Service Subscriptions</h2>
+					</div>
+					<div class="table-wrap">
+						<table class="vault-table" aria-label="Subscriptions table">
+							<thead>
+								<tr>
+									<th>Ref ID</th>
+									<th>Period</th>
+									<th>Dates</th>
+									<th>Amount</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (subscription of subscriptions(); track subscription.id || subscription.ref) {
+									<tr>
+										<td class="mono">{{ subscription.ref || '-' }}</td>
+										<td>{{ subscription.period || '-' }}</td>
+										<td>{{ formatSubscriptionDate(subscription.startDate) }} - {{ formatSubscriptionDate(subscription.endDate) }}</td>
+										<td class="weight-600">{{ formatSubscriptionAmount(subscription.amount) }}</td>
+										<td>
+											<mat-chip class="chip" [class]="subscriptionStatusClass(subscription.status)">
+												{{ formatStatus(subscription.status) }}
+											</mat-chip>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+						@if (!subscriptions().length) {
+							<p class="empty-state table-empty">No subscriptions found.</p>
+						}
+					</div>
+				</section>
+			</mat-tab>
+
+			<mat-tab label="Branches">
+				<section class="tab-pane">
+					<div class="tab-header slim">
+						<h2>Global Branches</h2>
+						<button mat-stroked-button type="button" (click)="openAddBranchDialog()">
+							<mat-icon>add_business</mat-icon>
+							Add Branch
+						</button>
+					</div>
+
+					<div class="branch-grid">
+						@for (branch of branches(); track branch.id || branch.code) {
+							<article class="branch-card">
+								<div class="branch-head">
+									<span class="branch-code">{{ branch.code || '-' }}</span>
+									<mat-chip class="chip status-active">Active</mat-chip>
+								</div>
+								<h3>{{ branch.name || 'Unnamed branch' }}</h3>
+								<p class="field-body">{{ branch.physicalAddress || '-' }}</p>
+								@if (branch.description) {
+									<p class="description">{{ branch.description }}</p>
+								}
+								<div class="branch-actions">
+									<button mat-icon-button type="button" (click)="openEditBranchDialog(branch)" aria-label="Edit branch">
+										<mat-icon>edit</mat-icon>
+									</button>
+									<button mat-icon-button type="button" (click)="deleteBranch(branch)" aria-label="Delete branch">
+										<mat-icon>delete</mat-icon>
+									</button>
+								</div>
+							</article>
+						}
+					</div>
+
+					@if (!branches().length) {
+						<p class="empty-state">No branches have been registered.</p>
+					}
+				</section>
+			</mat-tab>
+
+			<mat-tab label="Client Requests">
+				<section class="tab-pane request-pane">
+					<article>
+						<h3>Individual Client KYC</h3>
+						<div class="table-wrap">
+							<table class="vault-table" aria-label="Individual client requests">
+								<thead>
+									<tr>
+										<th>Client Name</th>
+										<th>Registration</th>
+										<th>Status</th>
+										<th class="align-right">Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									@for (request of individualRequestsList(); track request.id || request.ref) {
+										<tr>
+											<td class="weight-600">{{ request.name || '-' }}</td>
+											<td>{{ request.registration || '-' }}</td>
+											<td>
+												<mat-chip class="chip" [class]="clientRequestStatusClass(request.status)">
+													{{ formatStatus(request.status) }}
+												</mat-chip>
+											</td>
+											<td class="align-right">
+												<button mat-button type="button" (click)="openCreateClientRequestDialog(targetEntity.INDIVIDUAL)">Review</button>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+							@if (!individualRequestsList().length) {
+								<p class="empty-state table-empty">No individual client requests found.</p>
+							}
+						</div>
+					</article>
+
+					<article>
+						<h3>Corporate Client KYC</h3>
+						<div class="table-wrap">
+							<table class="vault-table" aria-label="Corporate client requests">
+								<thead>
+									<tr>
+										<th>Entity Name</th>
+										<th>Registry</th>
+										<th>Status</th>
+										<th class="align-right">Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									@for (request of organisationRequestsList(); track request.id || request.ref) {
+										<tr>
+											<td class="weight-600">{{ request.name || '-' }}</td>
+											<td>{{ request.registration || '-' }}</td>
+											<td>
+												<mat-chip class="chip" [class]="clientRequestStatusClass(request.status)">
+													{{ formatStatus(request.status) }}
+												</mat-chip>
+											</td>
+											<td class="align-right">
+												<button mat-button type="button" (click)="openCreateClientRequestDialog(targetEntity.ORGANISATION)">Review</button>
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+							@if (!organisationRequestsList().length) {
+								<p class="empty-state table-empty">No corporate client requests found.</p>
+							}
+						</div>
+					</article>
+				</section>
+			</mat-tab>
+		</mat-tab-group>
+	</mat-card>
+
+	<footer class="vault-footer">
+		<div class="footer-brand">
+			<span class="logo-square">V</span>
+			<span>VaultOS | Central KYC Engine</span>
+		</div>
+		<div class="footer-meta">
+			<p>&copy; 2026 VaultOS Security. All rights reserved.</p>
+			<p class="live-state"><span class="pulse"></span>System Operational</p>
+		</div>
+	</footer>
+</main>

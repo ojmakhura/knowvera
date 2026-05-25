@@ -34,6 +34,7 @@ import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
 import { KycRecordApi } from '@app/services/bw/co/centralkyc/kyc/kyc-record-api';
 import { Loader } from '@app/@shared/loader/loader';
 import { KycReportSectionDTO } from '@app/models/bw/co/centralkyc/kyc/fields/kyc-report-section-dto';
+import { AppEnvStore } from '@app/store/app-env.state';
 
 type QueuedDocumentUpload = {
   file: File;
@@ -103,6 +104,7 @@ const SOURCE_OPTIONS = [
 })
 export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
 
+  appEnvStore = inject(AppEnvStore);
   settingsApiStore = inject(SettingsApiStore);
   kycRecordApi = inject(KycRecordApi);
   kycRecordApiStore = inject(KycRecordApiStore);
@@ -182,7 +184,16 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       ref: record.ref,
       target: record.target || TargetEntity.INDIVIDUAL,
       targetId: record.targetId,
-      ownerDetails: record.ownerDetails,
+      ownerDetails: record.ownerDetails || {
+        emailAddress: null,
+        identityNo: null,
+        identityType: null,
+        name: null,
+        phoneNumbers: [],
+        physicalAddress: null,
+        postalAddress: null,
+        id: null,
+      },
       expiryDate: record.expiryDate,
       uploadDate: record.uploadDate,
       kycStatus: record.kycStatus ? record.kycStatus : KycComplianceStatus.INCOMPLETE,
@@ -204,8 +215,6 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       kycReportSections: record.kycReportSections || [],
     } : new EditKycRecordValue();
   });
-
-
 
   availableDocumentTypes = computed(() => {
     const record = this.formModel();
@@ -290,9 +299,20 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       if (org && this.selectedTarget === TargetEntity.ORGANISATION) {
         this.formModel.update((record) => ({
           ...record,
-          name: org.name,
-          emailAddress: org.contactEmailAddress,
-          identityNo: org.registrationNo,
+          ownerDetails: {
+            name: org.name,
+            emailAddress: org.contactEmailAddress,
+            identityNo: org.registrationNo,
+            physicalAddress: org.physicalAddress,
+            postalAddress: org.postalAddress,
+            id: org.id,
+            identityType: null,
+            phoneNumbers: org.phoneNumbers,
+          },
+          declaration: {
+            ...record.declaration,
+            pepStatus: PepStatus.NOT_PEP,
+          },
           targetId: org.id,
           target: TargetEntity.ORGANISATION,
         }));

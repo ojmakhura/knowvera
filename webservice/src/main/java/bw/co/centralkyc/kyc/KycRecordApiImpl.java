@@ -401,7 +401,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     @Operation(summary = "Find My Current KYC Record", description = "Find the current KYC record for the authenticated user")
-    @Audit(entity = "KYC_RECORD", logData = false)
+//    @Audit(entity = "KYC_RECORD", logData = false)
     public ResponseEntity<KycRecordDTO> findMyCurrentRecord(TargetEntity ownerType) throws Exception {
 
         try {
