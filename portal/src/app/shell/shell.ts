@@ -46,10 +46,10 @@ export class Shell  implements OnInit {
 
   protected readonly navigationItems = signal<NavigationItem[]>([
     { label: 'Dashboard', route: '/dashboard', icon: 'dashboard', display: true },
-    { label: 'Identity Documents', route: '/kyc-record', icon: 'badge', display: true },
-    { label: 'Personal Info', route: '/register', icon: 'person', display: true },
+    // { label: 'Identity Documents', route: '/kyc-record', icon: 'badge', display: true },
+    { label: 'Personal Info', route: '/individual', icon: 'person', display: true },
     { label: 'My Organisation', route: '/organisation', icon: 'business', display: true },
-    { label: 'Verification Status', route: '/dashboard', icon: 'fact_check', display: true },
+    // { label: 'Verification Status', route: '/dashboard', icon: 'fact_check', display: true },
   ]);
 
   constructor() {

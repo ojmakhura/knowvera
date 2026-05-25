@@ -1,0 +1,344 @@
+<div class="edit-individual-page">
+	<div class="ambient-orb ambient-orb--top" aria-hidden="true"></div>
+	<div class="ambient-orb ambient-orb--bottom" aria-hidden="true"></div>
+
+	<main class="page-shell">
+		<header class="page-header">
+			<div>
+				<p class="page-kicker">Individual Registry</p>
+				<h1>Edit Individual</h1>
+				<p class="page-meta">
+					<span>ID {{ auditIdentifier() }}</span>
+					<span class="page-meta__dot"></span>
+					<span>Primary Registry</span>
+				</p>
+			</div>
+
+			<div class="page-actions-inline">
+				<button type="button" mat-button (click)="cancel()">Cancel</button>
+				<button
+					type="button"
+					mat-flat-button
+					class="save-button"
+					[disabled]="loading()"
+					(click)="saveIndividual()">
+					Save Changes
+				</button>
+			</div>
+		</header>
+
+		@let editForm = editIndividualSignalForm;
+		@let formValue = editIndividualSignal();
+
+		<section class="page-grid">
+			<div class="main-column">
+				<mat-card class="vault-card vault-card--hero">
+					<div class="section-heading section-heading--split">
+						<div class="section-heading__title">
+							<div class="section-icon">
+								<mat-icon>person</mat-icon>
+							</div>
+							<div>
+								<h2>Core Identity</h2>
+								<p>Maintain the verified identity fields exactly as they appear on record.</p>
+							</div>
+						</div>
+
+						<section class="status-toggle" aria-label="System access toggle">
+							<div>
+								<p class="status-toggle__title">System User</p>
+								<p class="status-toggle__subtitle">Provision access to the client portal</p>
+							</div>
+							<mat-slide-toggle
+								[checked]="!!formValue.hasUser"
+								(change)="toggleHasUser($event.checked)"
+								aria-label="System user toggle">
+							</mat-slide-toggle>
+						</section>
+					</div>
+
+					<div class="form-grid form-grid--three">
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>First Name</mat-label>
+							<input matInput [formField]="editForm.firstName" />
+						</mat-form-field>
+
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Middle Name</mat-label>
+							<input matInput [formField]="editForm.middleName" />
+						</mat-form-field>
+
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Surname</mat-label>
+							<input matInput [formField]="editForm.surname" />
+						</mat-form-field>
+
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Sex</mat-label>
+							<mat-select [formField]="editForm.sex">
+								@for (sex of SexOptions; track sex) {
+									<mat-option [value]="sex">{{ sex }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Nationality</mat-label>
+							<mat-select [formField]="editForm.nationality">
+								@for (country of countries; track country) {
+									<mat-option [value]="country">{{ country }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Marital Status</mat-label>
+							<mat-select [formField]="editForm.maritalStatus">
+								@for (status of MaritalStatusOptions; track status) {
+									<mat-option [value]="status">{{ status }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+
+						<mat-form-field class="vault-field vault-field--date" subscriptSizing="dynamic">
+							<mat-label>Date of Birth</mat-label>
+							<input matInput type="date" [formField]="editForm.dateOfBirth" />
+						</mat-form-field>
+					</div>
+				</mat-card>
+
+				<div class="split-grid">
+					<mat-card class="vault-card vault-card--soft">
+						<div class="section-heading">
+							<div class="section-heading__title">
+								<mat-icon>badge</mat-icon>
+								<div>
+									<h2>Identification</h2>
+									<p>Primary government-issued identity on file.</p>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-grid">
+							<mat-form-field class="vault-field" subscriptSizing="dynamic">
+								<mat-label>Identity Type</mat-label>
+								<mat-select [formField]="editForm.identityType">
+									@for (identityType of IndividualIdentityTypeOptions; track identityType) {
+										<mat-option [value]="identityType">{{ identityType }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+
+							<mat-form-field class="vault-field" subscriptSizing="dynamic">
+								<mat-label>Identity Number</mat-label>
+								<input matInput [formField]="editForm.identityNo" />
+							</mat-form-field>
+						</div>
+					</mat-card>
+
+					<mat-card class="vault-card vault-card--soft">
+						<div class="section-heading">
+							<div class="section-heading__title">
+								<mat-icon>shield</mat-icon>
+								<div>
+									<h2>Compliance & Employment</h2>
+									<p>Current standing for onboarding and monitoring.</p>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-grid">
+							<mat-form-field class="vault-field" subscriptSizing="dynamic">
+								<mat-label>KYC Status</mat-label>
+								<mat-select [formField]="editForm.kycStatus">
+									@for (status of KycComplianceStatusOptions; track status) {
+										<mat-option [value]="status">{{ status }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+
+							<mat-form-field class="vault-field" subscriptSizing="dynamic">
+								<mat-label>Employment Status</mat-label>
+								<mat-select [formField]="editForm.employmentStatus">
+									@for (status of EmploymentStatusOptions; track status) {
+										<mat-option [value]="status">{{ status }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+					</mat-card>
+				</div>
+
+				<mat-card class="vault-card">
+					<div class="section-heading section-heading--split">
+						<div class="section-heading__title">
+							<mat-icon>contact_mail</mat-icon>
+							<div>
+								<h2>Contact Information</h2>
+								<p>Addresses and communication details used for operational notices.</p>
+							</div>
+						</div>
+						<button type="button" mat-button (click)="addPhoneNumber()">
+							<mat-icon>add</mat-icon>
+							Add Number
+						</button>
+					</div>
+
+					<div class="form-grid form-grid--two">
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Physical Address</mat-label>
+							<textarea matInput rows="4" [formField]="editForm.physicalAddress"></textarea>
+						</mat-form-field>
+
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Postal Address</mat-label>
+							<textarea matInput rows="4" [formField]="editForm.postalAddress"></textarea>
+						</mat-form-field>
+
+						<mat-form-field class="vault-field vault-field--full" subscriptSizing="dynamic">
+							<mat-label>Email Address</mat-label>
+							<input matInput type="email" [formField]="editForm.emailAddress" />
+						</mat-form-field>
+					</div>
+
+					<div class="phone-block">
+						<div class="phone-block__header">
+							<h3>Phone Numbers</h3>
+							<p>Capture all active contact channels for this record.</p>
+						</div>
+
+						@if (!formValue.phoneNumbers.length) {
+							<p class="list-empty">No phone numbers added yet.</p>
+						}
+
+						@for (phoneForm of editForm.phoneNumbers; track $index) {
+							@let phone = phoneForm().value();
+							<div class="phone-row">
+								<mat-form-field class="vault-field vault-field--compact" subscriptSizing="dynamic">
+									<mat-label>Type</mat-label>
+									<mat-select
+										[value]="phone.type"
+										(selectionChange)="updatePhoneType($index, $event.value)">
+										@for (type of PhoneTypeOptions; track type) {
+											<mat-option [value]="type">{{ type }}</mat-option>
+										}
+									</mat-select>
+								</mat-form-field>
+
+								<mat-form-field class="vault-field vault-field--grow" subscriptSizing="dynamic">
+									<mat-label>Number</mat-label>
+									<input
+										matInput
+										[value]="phone.phoneNumber || ''"
+										(input)="updatePhoneNumber($index, $any($event.target).value)" />
+								</mat-form-field>
+
+								<button
+									type="button"
+									mat-icon-button
+									(click)="removePhoneNumber($index)"
+									aria-label="Remove phone number">
+									<mat-icon>delete</mat-icon>
+								</button>
+							</div>
+						}
+					</div>
+				</mat-card>
+			</div>
+
+			<aside class="side-column">
+				<mat-card class="vault-card">
+					<div class="section-heading">
+						<div class="section-heading__title">
+							<mat-icon>apartment</mat-icon>
+							<div>
+								<h2>Organizational Context</h2>
+								<p>Link this person to the correct organisation and operating branch.</p>
+							</div>
+						</div>
+					</div>
+
+					<div class="side-stack">
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Organisation</mat-label>
+							<mat-select
+								[value]="formValue.organisation"
+								(selectionChange)="selectOrganisation($event.value)">
+								<mat-option>
+									<ngx-mat-select-search
+										placeholderLabel="Search organisations"
+										noEntriesFoundLabel="No organisations found"
+										ngModel
+										(ngModelChange)="filterOrganisations($event)">
+									</ngx-mat-select-search>
+								</mat-option>
+								@for (organisation of filteredOrganisationList(); track organisation.id) {
+									<mat-option [value]="organisation">{{ organisation.name }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+
+						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+							<mat-label>Branch</mat-label>
+							<mat-select
+								[value]="formValue.branch"
+								(selectionChange)="selectBranch($event.value)">
+								<mat-option>
+									<ngx-mat-select-search
+										placeholderLabel="Search branches"
+										noEntriesFoundLabel="No branches found"
+										ngModel
+										(ngModelChange)="filterBranches($event)">
+									</ngx-mat-select-search>
+								</mat-option>
+								@for (branch of filteredBranchList(); track branch.id) {
+									<mat-option [value]="branch">{{ branch.name }}</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
+					</div>
+				</mat-card>
+
+				<section class="audit-card" aria-label="Compliance protocol active">
+					<div class="audit-card__heading">
+						<mat-icon>security</mat-icon>
+						<p>Compliance Protocol Active</p>
+					</div>
+
+					<p>
+						Every modification to this record is subject to a mandatory audit trail and monitored against registry policy.
+					</p>
+
+					<dl>
+						<div>
+							<dt>Created</dt>
+							<dd>{{ formatAuditDate(formValue.createdAt) }}</dd>
+						</div>
+						<div>
+							<dt>Last Modified</dt>
+							<dd>{{ formatAuditDate(formValue.modifiedAt) }}</dd>
+						</div>
+						<div>
+							<dt>Status</dt>
+							<dd>{{ formValue.kycStatus || 'Pending review' }}</dd>
+						</div>
+					</dl>
+				</section>
+			</aside>
+		</section>
+
+		<footer class="page-footer">
+			<div class="page-footer__brand">
+				<span class="brand-tag">KYC</span>
+				<div>
+					<p>Central KYC Registry</p>
+					<span>Individual compliance record</span>
+				</div>
+			</div>
+
+			<p class="page-footer__sync">Synced {{ formatAuditDate(formValue.modifiedAt || formValue.createdAt) }}</p>
+		</footer>
+	</main>
+
+	<app-loader [isLoading]="loading()" [message]="loaderMessage()"></app-loader>
+</div>

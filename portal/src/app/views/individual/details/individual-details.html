@@ -1,0 +1,284 @@
+<main class="individual-details-page">
+	<div class="page-shell">
+		@if (loading()) {
+			<mat-card class="vault-card loading-card">
+				<mat-card-content>
+					<div class="loading-row">
+						<mat-icon>hourglass_top</mat-icon>
+						<div>
+							<p class="alert-title">{{ loaderMessage() || 'Loading profile' }}</p>
+							<p class="alert-message">Fetching the latest identity, contact, and compliance records.</p>
+						</div>
+					</div>
+				</mat-card-content>
+			</mat-card>
+		}
+		<header class="hero" aria-labelledby="individual-title">
+			<section class="hero__identity">
+				<div class="hero__avatar" aria-hidden="true">{{ initials() }}</div>
+				<div>
+					<p class="hero__eyebrow">Vault Individual Profile</p>
+					<h1 id="individual-title" class="hero__title">{{ fullName() }}</h1>
+					<div class="hero__meta">
+						<span class="hero__meta-id">ID: {{ individual().id || 'Pending' }}</span>
+						<mat-chip class="status-chip status-chip--primary" highlighted>
+							<mat-icon>verified_user</mat-icon>
+							{{ kycStatusLabel() }}
+						</mat-chip>
+						<mat-chip class="status-chip status-chip--soft" highlighted>
+							<mat-icon>badge</mat-icon>
+							{{ accountStatusLabel() }}
+						</mat-chip>
+					</div>
+					<p class="hero__subline">
+						{{ organizationLabel() || 'Independent profile' }}
+					</p>
+				</div>
+			</section>
+
+			<section class="hero__actions">
+				<button mat-stroked-button type="button" class="secondary-action" (click)="openEditProfile()">
+					<mat-icon>edit</mat-icon>
+					Edit Profile
+				</button>
+			</section>
+		</header>
+
+		@if (error() && messages().length) {
+			<mat-card class="vault-card alert-card">
+				<mat-card-content>
+					<div class="alert-row">
+						<mat-icon>error_outline</mat-icon>
+						<div>
+							<p class="alert-title">Profile data could not be refreshed</p>
+							<p class="alert-message">{{ messages()[0] }}</p>
+						</div>
+					</div>
+				</mat-card-content>
+			</mat-card>
+		}
+
+		<section class="content-grid" aria-label="Individual profile details">
+			<div class="content-main">
+				<mat-card class="vault-card identity-card">
+					<mat-card-header>
+						<mat-icon mat-card-avatar>account_circle</mat-icon>
+						<mat-card-title>Core Identity</mat-card-title>
+						<mat-card-subtitle>Legal and demographic profile</mat-card-subtitle>
+					</mat-card-header>
+					<mat-card-content>
+						<div class="definition-grid">
+							<div class="definition-item">
+								<p class="field-label">Full Legal Name</p>
+								<p class="field-value">{{ fullName() }}</p>
+							</div>
+							<div class="definition-item">
+								<p class="field-label">Date of Birth</p>
+								<p class="field-value">{{ individual().dateOfBirth ? (individual().dateOfBirth | date:'d MMM y') : 'Not provided' }}</p>
+							</div>
+							<div class="definition-item">
+								<p class="field-label">Sex</p>
+								<p class="field-value">{{ sexLabel() }}</p>
+							</div>
+							<div class="definition-item">
+								<p class="field-label">Marital Status</p>
+								<p class="field-value">{{ maritalStatusLabel() }}</p>
+							</div>
+							<div class="definition-item definition-item--span-2">
+								<p class="field-label">Nationality</p>
+								<p class="field-value">{{ nationalityLabel() }}</p>
+							</div>
+						</div>
+					</mat-card-content>
+				</mat-card>
+
+				<mat-card class="vault-card gradient-card">
+					<div class="gradient-card__pattern" aria-hidden="true"></div>
+					<mat-card-header>
+						<mat-icon mat-card-avatar>fingerprint</mat-icon>
+						<mat-card-title>Identification Document</mat-card-title>
+						<mat-card-subtitle>Identity and compliance markers</mat-card-subtitle>
+					</mat-card-header>
+					<mat-card-content>
+						<div class="definition-grid definition-grid--light">
+							<div class="definition-item">
+								<p class="field-label">Document Type</p>
+								<p class="field-value">{{ identityTypeLabel() }}</p>
+							</div>
+							<div class="definition-item">
+								<p class="field-label">Identity Number</p>
+								<p class="field-value field-value--mono">{{ individual().identityNo || 'Not provided' }}</p>
+							</div>
+							<div class="definition-item">
+								<p class="field-label">KYC Status</p>
+								<mat-chip class="status-chip status-chip--soft status-chip--inverted" highlighted>
+									{{ kycStatusLabel() }}
+								</mat-chip>
+							</div>
+							<div class="definition-item">
+								<p class="field-label">Latest KYC Record</p>
+								<p class="field-value">{{ latestKycLabel() }}</p>
+							</div>
+						</div>
+					</mat-card-content>
+				</mat-card>
+
+				<mat-card class="vault-card employment-card">
+					<mat-card-header>
+						<mat-icon mat-card-avatar>work_history</mat-icon>
+						<mat-card-title>Employment History</mat-card-title>
+						<mat-card-subtitle>Current role and previous records</mat-card-subtitle>
+					</mat-card-header>
+					<mat-card-content>
+						<div class="employment-summary">
+							<div class="definition-item">
+								<p class="field-label">Employment Status</p>
+								<p class="field-value">{{ employmentStatusLabel() }}</p>
+							</div>
+							<div class="definition-item">
+								<p class="field-label">Current Employer</p>
+								<p class="field-value">{{ currentEmployerName() }}</p>
+							</div>
+							<div class="definition-item">
+								<p class="field-label">Primary Position</p>
+								<p class="field-value">{{ currentPositionLabel() }}</p>
+							</div>
+							<div class="definition-item">
+								<p class="field-label">Employment Records</p>
+								<p class="field-value">{{ employmentCount() }}</p>
+							</div>
+						</div>
+
+						<mat-list class="employment-list" role="list" aria-label="Employment records">
+							@for (record of employmentRecords(); track record.identityNo || record.name || $index) {
+								<mat-list-item class="employment-list__item">
+									<mat-icon matListItemIcon>business_center</mat-icon>
+									<div matListItemTitle>{{ record.employer?.name || record.name || 'Employment record' }}</div>
+									<div matListItemLine>{{ record.positions?.[0] || 'Position not recorded' }}</div>
+									<div matListItemLine>
+										{{ record.employmentStart ? (record.employmentStart | date:'d MMM y') : 'Unknown start' }}
+										-
+										{{ record.employmentEnd ? (record.employmentEnd | date:'d MMM y') : 'Present' }}
+									</div>
+								</mat-list-item>
+							}
+							@if (!employmentRecords().length) {
+								<p class="empty-state">No employment records available.</p>
+							}
+						</mat-list>
+					</mat-card-content>
+				</mat-card>
+			</div>
+
+			<aside class="content-side" aria-label="Support details">
+				<mat-card class="vault-card contact-card">
+					<mat-card-header>
+						<mat-icon mat-card-avatar>contact_mail</mat-icon>
+						<mat-card-title>Contact Details</mat-card-title>
+						<mat-card-subtitle>Primary contact and address information</mat-card-subtitle>
+					</mat-card-header>
+					<mat-card-content>
+						<mat-list class="support-list">
+							<mat-list-item>
+								<mat-icon matListItemIcon>mail</mat-icon>
+								<div matListItemTitle>Email Address</div>
+								<div matListItemLine>{{ individual().emailAddress || 'Not provided' }}</div>
+							</mat-list-item>
+							<mat-list-item>
+								<mat-icon matListItemIcon>smartphone</mat-icon>
+								<div matListItemTitle>Phone Numbers</div>
+								<div matListItemLine>{{ phoneCount() }} contact{{ phoneCount() === 1 ? '' : 's' }}</div>
+							</mat-list-item>
+							<mat-list-item>
+								<mat-icon matListItemIcon>home</mat-icon>
+								<div matListItemTitle>Residential Address</div>
+								<div matListItemLine>{{ individual().physicalAddress || 'Not provided' }}</div>
+							</mat-list-item>
+						</mat-list>
+
+						@if (phoneNumbers().length) {
+							<div class="phone-stack">
+								@for (phone of phoneNumbers(); track phone.phoneNumber || $index) {
+									<div class="phone-row">
+										<span class="phone-row__icon"><mat-icon>call</mat-icon></span>
+										<div>
+											<p class="phone-row__label">{{ phone.type ? humanize(phone.type) : 'Phone' }}</p>
+											<p class="phone-row__value">{{ phone.phoneNumber || 'Not provided' }}</p>
+										</div>
+									</div>
+								}
+							</div>
+						}
+					</mat-card-content>
+				</mat-card>
+
+				<mat-card class="vault-card documents-card">
+					<mat-card-header>
+						<mat-icon mat-card-avatar>description</mat-icon>
+						<mat-card-title>Document Vault</mat-card-title>
+						<mat-card-subtitle>{{ documentCount() }} uploaded file{{ documentCount() === 1 ? '' : 's' }}</mat-card-subtitle>
+					</mat-card-header>
+					<mat-card-content>
+						<div class="document-list">
+							@for (document of documents(); track document.id || document.fileName || $index) {
+								<article class="document-item">
+									<div class="document-item__icon" aria-hidden="true">
+										<mat-icon>picture_as_pdf</mat-icon>
+									</div>
+									<div class="document-item__body">
+										<p class="document-item__title">{{ document.fileName || 'Untitled document' }}</p>
+										<p class="document-item__meta">{{ document.documentType || 'Unclassified document' }}</p>
+										<p class="document-item__meta document-item__meta--muted">{{ humanize(document.verificationStatus) }}</p>
+									</div>
+								</article>
+							}
+							@if (!documents().length) {
+								<p class="empty-state">No supporting documents have been uploaded.</p>
+							}
+						</div>
+					</mat-card-content>
+				</mat-card>
+
+				<mat-card class="vault-card status-card">
+					<mat-card-header>
+						<mat-icon mat-card-avatar>fact_check</mat-icon>
+						<mat-card-title>Snapshot</mat-card-title>
+						<mat-card-subtitle>Quick account and audit summary</mat-card-subtitle>
+					</mat-card-header>
+					<mat-card-content>
+						<div class="snapshot-grid">
+							<div class="snapshot-item">
+								<p class="field-label">Portal Access</p>
+								<p class="field-value">{{ accountStatusLabel() }}</p>
+							</div>
+							<div class="snapshot-item">
+								<p class="field-label">Organisation</p>
+								<p class="field-value">{{ individual().organisation?.name || 'Not linked' }}</p>
+							</div>
+							<div class="snapshot-item">
+								<p class="field-label">Branch</p>
+								<p class="field-value">{{ individual().branch?.name || 'Not linked' }}</p>
+							</div>
+							<div class="snapshot-item">
+								<p class="field-label">Profile Created</p>
+								<p class="field-value">{{ individual().createdAt ? (individual().createdAt | date:'d MMM y') : 'Not provided' }}</p>
+							</div>
+							<div class="snapshot-item">
+								<p class="field-label">Last Updated</p>
+								<p class="field-value">{{ individual().modifiedAt ? (individual().modifiedAt | date:'d MMM y') : 'Not provided' }}</p>
+							</div>
+						</div>
+					</mat-card-content>
+				</mat-card>
+			</aside>
+		</section>
+
+		<footer class="page-footer">
+			<p>Ironclad Financial Security • Vault Individual Portal</p>
+			<div>
+				<span>{{ documentCount() }} documents</span>
+				<span>{{ employmentCount() }} employment records</span>
+			</div>
+		</footer>
+	</div>
+</main>
