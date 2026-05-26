@@ -169,9 +169,9 @@
 											<button mat-icon-button type="button" (click)="openDocumentDetails(document)" aria-label="View document details">
 												<mat-icon>visibility</mat-icon>
 											</button>
-											<button mat-icon-button type="button" (click)="openDocumentEdit(document)" aria-label="Edit document">
+											<!-- <button mat-icon-button type="button" (click)="openDocumentEdit(document)" aria-label="Edit document">
 												<mat-icon>edit</mat-icon>
-											</button>
+											</button> -->
 										</td>
 									</tr>
 								}
@@ -263,77 +263,89 @@
 				</section>
 			</mat-tab>
 
-			<mat-tab label="Client Requests">
+			<mat-tab label="Individual Client Requests">
 				<section class="tab-pane request-pane">
-					<article>
-						<h3>Individual Client KYC</h3>
-						<div class="table-wrap">
-							<table class="vault-table" aria-label="Individual client requests">
-								<thead>
+					<div class="tab-header slim">
+						<h2>Individual Client KYC</h2>
+						<button mat-stroked-button type="button" (click)="openCreateClientRequestDialog(targetEntity.INDIVIDUAL)">
+							<mat-icon>add</mat-icon>
+							Add Individual Request
+						</button>
+					</div>
+					<div class="table-wrap">
+						<table class="vault-table" aria-label="Individual client requests">
+							<thead>
+								<tr>
+									<th>Client Name</th>
+									<th>Registration</th>
+									<th>Status</th>
+									<th class="align-right">Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (request of individualRequestsList(); track request.id || request.ref) {
 									<tr>
-										<th>Client Name</th>
-										<th>Registration</th>
-										<th>Status</th>
-										<th class="align-right">Action</th>
+										<td class="weight-600">{{ request.name || '-' }}</td>
+										<td>{{ request.registration || '-' }}</td>
+										<td>
+											<mat-chip class="chip" [class]="clientRequestStatusClass(request.status)">
+												{{ formatStatus(request.status) }}
+											</mat-chip>
+										</td>
+										<td class="align-right">
+											<button mat-button type="button" (click)="openCreateClientRequestDialog(targetEntity.INDIVIDUAL)">Review</button>
+										</td>
 									</tr>
-								</thead>
-								<tbody>
-									@for (request of individualRequestsList(); track request.id || request.ref) {
-										<tr>
-											<td class="weight-600">{{ request.name || '-' }}</td>
-											<td>{{ request.registration || '-' }}</td>
-											<td>
-												<mat-chip class="chip" [class]="clientRequestStatusClass(request.status)">
-													{{ formatStatus(request.status) }}
-												</mat-chip>
-											</td>
-											<td class="align-right">
-												<button mat-button type="button" (click)="openCreateClientRequestDialog(targetEntity.INDIVIDUAL)">Review</button>
-											</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-							@if (!individualRequestsList().length) {
-								<p class="empty-state table-empty">No individual client requests found.</p>
-							}
-						</div>
-					</article>
+								}
+							</tbody>
+						</table>
+						@if (!individualRequestsList().length) {
+							<p class="empty-state table-empty">No individual client requests found.</p>
+						}
+					</div>
+				</section>
+			</mat-tab>
 
-					<article>
-						<h3>Corporate Client KYC</h3>
-						<div class="table-wrap">
-							<table class="vault-table" aria-label="Corporate client requests">
-								<thead>
+			<mat-tab label="Organisation Client Requests">
+				<section class="tab-pane request-pane">
+					<div class="tab-header slim">
+						<h2>Corporate Client KYC</h2>
+						<button mat-stroked-button type="button" (click)="openCreateClientRequestDialog(targetEntity.ORGANISATION)">
+							<mat-icon>add</mat-icon>
+							Add Organisation Request
+						</button>
+					</div>
+					<div class="table-wrap">
+						<table class="vault-table" aria-label="Corporate client requests">
+							<thead>
+								<tr>
+									<th>Entity Name</th>
+									<th>Registry</th>
+									<th>Status</th>
+									<th class="align-right">Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (request of organisationRequestsList(); track request.id || request.ref) {
 									<tr>
-										<th>Entity Name</th>
-										<th>Registry</th>
-										<th>Status</th>
-										<th class="align-right">Action</th>
+										<td class="weight-600">{{ request.name || '-' }}</td>
+										<td>{{ request.registration || '-' }}</td>
+										<td>
+											<mat-chip class="chip" [class]="clientRequestStatusClass(request.status)">
+												{{ formatStatus(request.status) }}
+											</mat-chip>
+										</td>
+										<td class="align-right">
+											<button mat-button type="button" (click)="openCreateClientRequestDialog(targetEntity.ORGANISATION)">Review</button>
+										</td>
 									</tr>
-								</thead>
-								<tbody>
-									@for (request of organisationRequestsList(); track request.id || request.ref) {
-										<tr>
-											<td class="weight-600">{{ request.name || '-' }}</td>
-											<td>{{ request.registration || '-' }}</td>
-											<td>
-												<mat-chip class="chip" [class]="clientRequestStatusClass(request.status)">
-													{{ formatStatus(request.status) }}
-												</mat-chip>
-											</td>
-											<td class="align-right">
-												<button mat-button type="button" (click)="openCreateClientRequestDialog(targetEntity.ORGANISATION)">Review</button>
-											</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-							@if (!organisationRequestsList().length) {
-								<p class="empty-state table-empty">No corporate client requests found.</p>
-							}
-						</div>
-					</article>
+								}
+							</tbody>
+						</table>
+						@if (!organisationRequestsList().length) {
+							<p class="empty-state table-empty">No corporate client requests found.</p>
+						}
+					</div>
 				</section>
 			</mat-tab>
 		</mat-tab-group>

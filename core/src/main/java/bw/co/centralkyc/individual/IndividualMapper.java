@@ -38,7 +38,7 @@ public abstract class IndividualMapper {
      * @param entity
      * @return IndividualDTO
      */
-    @Mapping(target = "organisation", ignore = true)
+    @Mapping(target = "organisation", source = "organisation")
     @Mapping(source = "branch", target = "branch")
     @Mapping(source = "branch.organisation.name", target = "branch.organisation")
     @Mapping(source = "branch.organisation.id", target = "branch.organisationId")

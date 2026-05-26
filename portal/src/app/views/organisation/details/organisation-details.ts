@@ -283,17 +283,17 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.router.navigate(['/document/details', document.id]);
+    this.router.navigate(['/document', document.id]);
   }
 
-  openDocumentEdit(document: DocumentDTO): void {
-    if (!document?.id) {
-      this.toaster.warning('Cannot edit a document without an id.');
-      return;
-    }
+  // openDocumentEdit(document: DocumentDTO): void {
+  //   if (!document?.id) {
+  //     this.toaster.warning('Cannot edit a document without an id.');
+  //     return;
+  //   }
 
-    this.router.navigate(['/document/edit', document.id]);
-  }
+  //   this.router.navigate(['/document/edit', document.id]);
+  // }
 
   selectUploadDocumentType(documentTypeId: string): void {
     this.documentTypeIdForUpload.set(documentTypeId || '');

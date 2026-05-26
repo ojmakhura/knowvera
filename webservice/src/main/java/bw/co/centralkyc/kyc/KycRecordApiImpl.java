@@ -456,6 +456,11 @@ public class KycRecordApiImpl implements KycRecordApi {
         if (individual != null && StringUtils.isNotBlank(individual.getId())) {
 
             targetIds.add(individual.getId());
+
+            if(individual.getOrganisation() != null && StringUtils.isNotBlank(individual.getOrganisation().id())) {
+                targetIds.add(individual.getOrganisation().id());
+
+            }
         }
 
         KycRecordSearchCriteria criteria = new KycRecordSearchCriteria();

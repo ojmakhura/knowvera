@@ -128,7 +128,7 @@
                 mat-flat-button
                 class="source-chip"
                 (click)="removeSource(source)">
-                <span translate>source.of.funds.{{ source }}</span>
+                <span>{{ source }}</span>
                 <mat-icon>close</mat-icon>
               </button>
             }
@@ -137,17 +137,17 @@
               <p class="source-empty">No source selected yet.</p>
             }
 
-            <!-- <button type="button" mat-stroked-button class="source-add" (click)="toggleSourcePicker()">
+            <button type="button" mat-stroked-button class="source-add" (click)="toggleSourcePicker()">
               <mat-icon>add</mat-icon>
               <span>Add Source</span>
-            </button> -->
+            </button>
           </div>
 
           @if ( availableSources().length) {
             <div class="source-picker" aria-label="Available source of funds options">
               @for (source of availableSources(); track source) {
                 <button type="button" mat-stroked-button class="source-picker__option" (click)="addSource(source)">
-                  <span translate>source.of.funds.{{ source }}</span>
+                  {{ source }}
                 </button>
               }
             </div>
@@ -340,4 +340,3 @@
     </form>
   </main>
 </div>
-<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
