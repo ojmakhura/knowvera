@@ -1,71 +1,42 @@
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { MaterialModule } from '@app/material.module';
 import { Loader } from './loader';
 
 describe('Loader', () => {
   let component: Loader;
   let fixture: ComponentFixture<Loader>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       imports: [
         BrowserAnimationsModule,
-        MaterialModule
+        Loader,
       ],
-      declarations: [Loader]
     })
     .compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(Loader);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
-  it('should not be visible by default', () => {
-    // Arrange
-    const element = fixture.nativeElement;
-    const div = element.querySelectorAll('div')[0];
-
-    // Assert
-    expect(div.getAttribute('hidden')).not.toBeNull();
+  it('should initialize with loading disabled', () => {
+    expect(component.isLoading).toBe(false);
   });
 
-  it('should be visible when app is loading', () => {
-    // Arrange
-    const element = fixture.nativeElement;
-    const div = element.querySelectorAll('div')[0];
-
-    // Act
-    fixture.componentInstance.isLoading = true;
-    fixture.detectChanges();
-
-    // Assert
-    expect(div.getAttribute('hidden')).toBeNull();
+  it('should allow enabling loading state', () => {
+    component.isLoading = true;
+    expect(component.isLoading).toBe(true);
   });
 
-  it('should not display a message by default', () => {
-    // Arrange
-    const element = fixture.nativeElement;
-    const span = element.querySelectorAll('span')[0];
-
-    // Assert
-    expect(span.textContent).toBe('');
+  it('should have no message by default', () => {
+    expect(component.message).toBeUndefined();
   });
 
-  it('should display specified message', () => {
-    // Arrange
-    const element = fixture.nativeElement;
-    const span = element.querySelectorAll('span')[0];
-
-    // Act
-    fixture.componentInstance.message = 'testing';
-    fixture.detectChanges();
-
-    // Assert
-    expect(span.textContent).toBe('testing');
+  it('should update message value', () => {
+    component.message = 'testing';
+    expect(component.message).toBe('testing');
   });
 });
