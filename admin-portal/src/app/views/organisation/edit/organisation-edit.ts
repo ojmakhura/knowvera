@@ -34,8 +34,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { swalFire } from '@app/@shared/swal';
 import { ToastrService } from 'ngx-toastr';
-import Swal from 'sweetalert2';
 
 export class EditOrganisationVarsForm {
   id: string | any = null;
@@ -226,7 +226,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
 
   removePhoneNumber(index: number): void {
 
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: 'This action cannot be undone.',
       icon: 'warning',
@@ -244,7 +244,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
             phoneNumbers: clone,
           };
         });
-        Swal.fire('Deleted!', 'The phone number has been deleted.', 'success');
+        swalFire('Deleted!', 'The phone number has been deleted.', 'success');
       }
     });
   }

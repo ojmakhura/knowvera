@@ -20,7 +20,6 @@ import {
   provideNativeDateAdapter,
 } from '@angular/material/core';
 import { RouteReusableStrategy } from './@core/route-reusable-strategy';
-import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { apiPrefixInterceptor } from './@core/http/api-prefix.interceptor';
 import { errorHandlerInterceptor } from './@core/http/error-handler.interceptor';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
@@ -185,7 +184,6 @@ export const initialiseApp = async () => {
           toolbar: modules.toolbar,
         },
       }),
-      { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { appearance: 'outline' } },
       provideNativeDateAdapter(MY_DATE_FORMATS),
       { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
     ],

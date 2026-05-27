@@ -1,17 +1,13 @@
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatListModule } from '@angular/material/list';
-import { PageEvent, MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatSelectModule } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BranchDTO } from '@app/models/bw/co/centralkyc/organisation/branch/branch-dto';
 import { ClientRequestDTO } from '@app/models/bw/co/centralkyc/organisation/client/client-request-dto';
@@ -35,7 +31,7 @@ import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/o
 import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscription/kyc-subscription-api.store';
 import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
 // import { BranchFormDialogComponent } from './add-branch-dialog';
-import Swal from 'sweetalert2';
+import { swalFire } from '@app/@shared/swal-loader';
 import { Loader } from '@app/@shared/loader/loader';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
@@ -52,14 +48,10 @@ import { CreateClientRequestDialogComponent } from './create-client-request-dial
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatListModule,
-    MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
-    MatTableModule,
     MatChipsModule,
     MatTabsModule,
-    MatSelectModule,
     Loader
   ],
   templateUrl: './organisation-details.html',
@@ -116,13 +108,10 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   // Subscriptions related properties
   subscriptions = linkedSignal<KycSubscriptionDTO[]>(() => this.kycSubscriptionApiStore.dataList());
-  subscriptionsDataSource = new MatTableDataSource<KycSubscriptionDTO>([]);
   subscriptionsLoading = linkedSignal(() => false);
-  @ViewChild('subscriptionsPaginator') subscriptionsPaginator?: MatPaginator;
 
   clientRequestsTableSignal = linkedSignal<Page<ClientRequestDTO>>(() => this.clientRequestApiStore.dataPage());
   clientRequests = linkedSignal<ClientRequestDTO[]>(() => this.clientRequestsTableSignal().content || []);
-  clientRequestsDataSource = new MatTableDataSource<ClientRequestDTO>([]);
   clientRequestsCurrentPage = signal(0);
   clientRequestsPageSize = signal(10);
   clientRequestsTotalElements = signal(0);
@@ -159,14 +148,12 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       const page = this.clientRequestsTableSignal();
 
       if (!page) {
-        this.clientRequestsDataSource.data = [];
         this.clientRequestsCurrentPage.set(0);
         this.clientRequestsPageSize.set(10);
         this.clientRequestsTotalElements.set(0);
         return;
       }
 
-      this.clientRequestsDataSource.data = page.content || [];
       this.clientRequestsCurrentPage.set(page.page?.number || 0);
       this.clientRequestsPageSize.set(page.page?.size || 10);
       this.clientRequestsTotalElements.set(page.page?.totalElements || page.totalElements || 0);
@@ -182,10 +169,6 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       if (this.error() && !this.loading()) {
         this.toaster.error(messages[0]);
       }
-    });
-
-    effect(() => {
-      this.subscriptionsDataSource.data = this.subscriptions();
     });
 
     effect(() => {
@@ -229,10 +212,6 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     this.clientRequestApiStore.reset();
     this.documentApiStore.reset();
 
-    if (this.subscriptionsPaginator) {
-      this.subscriptionsDataSource.paginator = this.subscriptionsPaginator;
-    }
-
   }
 
   ngOnDestroy(): void { }
@@ -260,7 +239,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   deleteBranch(branch: BranchDTO): void {
 
-    Swal.fire({
+    swalFire({
       title: 'Delete Branch',
       text: `Are you sure you want to delete "${branch.name || branch.code}"? This cannot be undone.`,
       icon: 'warning',
@@ -371,7 +350,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private doSearchRequests(pageNumber: number = 0, pageSize: number = 10, target?: TargetEntity): void {
+  private doSearchRequests(pageNumber: number = 0, pageSize: number = 10): void {
     const userOrg = this.appEnvState.userOrganisation();
     if (userOrg && userOrg.id) {
       this.clientRequestApiStore.findByTargetPaged({
@@ -381,10 +360,6 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
         pageSize,
       });
     }
-  }
-
-  onClientRequestsPageChange(event: PageEvent): void {
-    this.doSearchRequests(event.pageIndex, event.pageSize);
   }
 
   // Branches Management Methods
@@ -607,7 +582,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       clientRequest.name = name;
 
       this.clientRequestApi.save(clientRequest).subscribe({
-        next: (savedRequest) => {
+        next: () => {
           this.toaster.success('Client request created successfully.');
           this.doSearchRequests(this.clientRequestsCurrentPage(), this.clientRequestsPageSize());
 

@@ -9,7 +9,6 @@ import { MatListModule } from "@angular/material/list";
 import { Router } from "@angular/router";
 import { DocumentListDTO } from "@app/models/bw/co/centralkyc/document/document-list-dto";
 import { EmploymentRecordDTO } from "@app/models/bw/co/centralkyc/individual/employment/employment-record-dto";
-import { KycComplianceStatus } from "@app/models/bw/co/centralkyc/kyc/kyc-compliance-status";
 import { PhoneNumber } from "@app/models/bw/co/centralkyc/phone-number";
 import { AppEnvStore } from "@app/store/app-env.state";
 import { IndividualApiStore } from "@app/store/bw/co/centralkyc/individual/individual-api.store";

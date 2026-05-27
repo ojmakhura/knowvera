@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { AuthenticationGuard } from './auth/authentication.guard';
-import { SystemSettings } from './views/settings/system-settings';
 
 export const routes: Routes = [
   {
@@ -70,6 +69,7 @@ export const routes: Routes = [
   {
     path: 'settings',
     canActivate: [AuthenticationGuard],
-    component: SystemSettings,
+    loadComponent: () =>
+      import('./views/settings/system-settings').then((module) => module.SystemSettings),
   },
 ];

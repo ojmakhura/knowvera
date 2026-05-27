@@ -33,7 +33,7 @@ import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/o
 import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscription/kyc-subscription-api.store';
 import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
 import { BranchFormDialogComponent } from './add-branch-dialog';
-import Swal from 'sweetalert2';
+import { swalFire } from '@app/@shared/swal';
 import { Loader } from '@app/@shared/loader/loader';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
@@ -259,7 +259,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   deleteBranch(branch: BranchDTO): void {
 
-    Swal.fire({
+    swalFire({
       title: 'Delete Branch',
       text: `Are you sure you want to delete "${branch.name || branch.code}"? This cannot be undone.`,
       icon: 'warning',

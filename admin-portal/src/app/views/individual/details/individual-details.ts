@@ -21,9 +21,9 @@ import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
 import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
+import { swalFire } from '@app/@shared/swal';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
-import Swal from 'sweetalert2';
 import {
   IndividualUploadDocumentDialogComponent,
   UploadDocumentDialogResult,
@@ -191,7 +191,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    Swal.fire({
+    swalFire({
       title: 'Delete Document',
       text: `Are you sure you want to delete "${document.fileName || document.documentType || 'this document'}"? This cannot be undone.`,
       icon: 'warning',

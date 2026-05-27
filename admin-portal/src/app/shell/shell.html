@@ -7,55 +7,51 @@
         <p class="brand-title">Central KYC</p>
       </div>
     </div>
-    <button mat-flat-button color="primary" class="new-btn" type="button">
-      <mat-icon>add</mat-icon> New Verification {{keycloak.authenticated}}
-    </button>
 
-    <mat-nav-list class="sidebar-nav">
+    <nav class="sidebar-nav" aria-label="Primary navigation">
       @for (item of menus; track item.titleKey) {
-      <a mat-list-item class="nav-item" [routerLink]="item.routerLink" routerLinkActive="nav-item-active"
+      <a class="nav-item" [routerLink]="item.routerLink" routerLinkActive="nav-item-active"
         [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }">
-        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-        <span matListItemTitle translate>{{ item.titleKey }}</span>
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span translate>{{ item.titleKey }}</span>
       </a>
       }
-    </mat-nav-list>
-
-    <!-- <div class="sidebar-footer">
-      <div class="avatar">🧑</div>
-      <div>
-        <p class="officer-name">Compliance Officer</p>
-        <p class="officer-mail">admin@vault-tech.io</p>
-      </div>
-    </div> -->
+    </nav>
   </mat-sidenav>
   }
 
   <mat-sidenav-content class="shell-main" aria-label="Application shell">
-    <mat-toolbar class="topbar">
+    <header class="topbar">
       <p class="topbar-title">Central KYC Admin Portal</p>
       <span class="spacer"></span>
-      <mat-form-field appearance="outline" class="topbar-search-field vault-field" subscriptSizing="dynamic">
-        <mat-icon matPrefix>search</mat-icon>
-        <input matInput placeholder="Search verifications or entities..." />
-      </mat-form-field>
+      <div class="topbar-search-field" role="search">
+        <mat-icon aria-hidden="true">search</mat-icon>
+        <input type="search" placeholder="Search verifications or entities..." aria-label="Search" />
+      </div>
 
       <div class="topbar-actions">
-        <button mat-icon-button type="button" aria-label="Notifications">
+        <button class="icon-btn" type="button" aria-label="Notifications">
           <mat-icon>notifications</mat-icon>
         </button>
-        <button mat-icon-button type="button" aria-label="Help">
+        <button class="icon-btn" type="button" aria-label="Help">
           <mat-icon>help_outline</mat-icon>
         </button>
 
         @if (keycloak.authenticated) {
-        <button mat-button class="account-btn" [matMenuTriggerFor]="accountMenu">
+        <button
+          class="account-btn"
+          type="button"
+          (click)="toggleAccountMenu($event)"
+          [attr.aria-expanded]="accountMenuOpen()"
+          aria-haspopup="menu"
+        >
           <span class="account-avatar">{{ userInitials }}</span>
           <span class="account-label">{{ userDisplayName }}</span>
           <mat-icon>expand_more</mat-icon>
         </button>
 
-        <mat-menu #accountMenu="matMenu" class="account-menu">
+        @if (accountMenuOpen()) {
+        <div class="account-menu" role="menu" (click)="$event.stopPropagation()">
           <div class="account-menu-head">
             <span class="menu-avatar">{{ userInitials }}</span>
             <div>
@@ -63,19 +59,20 @@
               <p class="menu-email">{{ userEmail }}</p>
             </div>
           </div>
-          <mat-divider></mat-divider>
-          <a mat-menu-item [href]="profileUrl">
+          <hr class="menu-divider" />
+          <a class="menu-item" [href]="profileUrl" (click)="closeAccountMenu()">
             <mat-icon>account_circle</mat-icon>
             <span>Profile</span>
           </a>
-          <button mat-menu-item class="menu-link-danger" (click)="logout()">
+          <button class="menu-item menu-link-danger" (click)="logout()">
             <mat-icon color="warn">logout</mat-icon>
             <span class="warn-text">Logout</span>
           </button>
-        </mat-menu>
+        </div>
+        }
         }
       </div>
-    </mat-toolbar>
+    </header>
 
     <main class="content">
       @if (keycloak.authenticated) {
@@ -89,7 +86,7 @@
             </div>
             <h1 class="login-heading">Admin Portal</h1>
             <p class="login-sub">Sign in with your organisational account to access the compliance dashboard.</p>
-            <button mat-flat-button color="primary" class="login-btn" type="button" (click)="login()">
+            <button class="login-btn" type="button" (click)="login()">
               <mat-icon>lock_open</mat-icon>
               Sign in
             </button>

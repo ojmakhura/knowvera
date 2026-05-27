@@ -22,7 +22,7 @@ import { OrganisationApiStore } from "@app/store/bw/co/centralkyc/organisation/o
 import { Router } from "@angular/router";
 import { ToastrService } from "ngx-toastr";
 import { PhoneType } from "@app/models/bw/co/centralkyc/phone-type";
-import Swal from "sweetalert2";
+import { swalFire } from "@app/@shared/swal-loader";
 import { AppEnvStore } from "@app/store/app-env.state";
 
 export class EditOrganisationVarsForm {
@@ -219,7 +219,7 @@ export class EditOrganisation implements OnInit, AfterViewInit, OnDestroy {
 
   removePhoneNumber(index: number): void {
 
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: 'This action cannot be undone.',
       icon: 'warning',
@@ -237,7 +237,7 @@ export class EditOrganisation implements OnInit, AfterViewInit, OnDestroy {
             phoneNumbers: clone,
           };
         });
-        Swal.fire('Deleted!', 'The phone number has been deleted.', 'success');
+        void swalFire('Deleted!', 'The phone number has been deleted.', 'success');
       }
     });
   }

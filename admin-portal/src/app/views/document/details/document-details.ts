@@ -32,7 +32,7 @@ import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
 import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
 import { form, FormField, readonly } from '@angular/forms/signals';
 import { MatSelectModule } from '@angular/material/select';
-import Swal from 'sweetalert2';
+import { swalFire } from '@app/@shared/swal';
 import Keycloak from 'keycloak-js';
 import { HasRolesDirective } from 'keycloak-angular';
 import { ExpectedFieldType } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-type';
@@ -137,7 +137,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   removeVerificationTagResult(index: number): void {
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: 'This action cannot be undone.',
       icon: 'warning',

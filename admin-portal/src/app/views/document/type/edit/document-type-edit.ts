@@ -31,7 +31,7 @@ import { form, required, applyEach, FormField, min, minLength } from '@angular/f
 import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
 import { KeyField } from '@app/models/bw/co/centralkyc/key-field';
 import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
-import Swal from 'sweetalert2';
+import { swalFire } from '@app/@shared/swal';
 import { Loader } from '@app/@shared/loader/loader';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExpectedFieldDTO } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-dto';
@@ -266,7 +266,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   expectedFieldsRemove(i: number, selected: ExpectedFieldDTO) {
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: `This will remove the field "${selected.field}" from the expected fields list.`,
       icon: 'warning',
@@ -343,7 +343,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   validationPromptsRemove(i: number, selected: PromptMessage) {
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: `This will remove the prompt with role "${selected.role}" from the validation prompts list.`,
       icon: 'warning',
@@ -399,7 +399,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   verificationDataConfigsRemove(i: number, selected: VerificationDataConfigDTO): void {
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: `This will remove the verification data config "${selected.name || 'Untitled'}".`,
       icon: 'warning',
@@ -557,7 +557,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   // }
 
   textExtractionPromptsRemove(i: number, selected: PromptMessage) {
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: `This will remove the prompt with role "${selected.role}" from the text extraction prompts list.`,
       icon: 'warning',

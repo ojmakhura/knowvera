@@ -11,19 +11,6 @@
 // regular style toast
 @import 'ngx-toastr/toastr';
 
-// bootstrap style toast
-// or import a bootstrap 4 alert styled design (SASS ONLY)
-// should be after your bootstrap imports, it uses bs4 variables, mixins, functions
-// @import 'ngx-toastr/toastr-bs4-alert';
-
-// if you'd like to use it without importing all of bootstrap it requires
-@import 'bootstrap/scss/functions';
-@import 'bootstrap/scss/variables';
-@import 'bootstrap/scss/mixins';
-// bootstrap 4
-// @import 'ngx-toastr/toastr-bs4-alert';
-// boostrap 5
-@import 'ngx-toastr/toastr-bs5-alert';
 @import 'quill/dist/quill.snow.css';
 
 html {
@@ -189,9 +176,6 @@ body {
 .text-primary {
   color: var(--primary) !important;
 }
-.bg-primary-container {
-  background-color: var(--primary-container);
-}
 .text-on-surface-variant {
   color: var(--on-surface-variant);
 }
@@ -206,18 +190,6 @@ body {
 .bg-surface-container {
   background-color: var(--surface-container);
 }
-.bg-surface-container-high {
-  background-color: var(--surface-container-high);
-}
-.bg-error-container {
-  background-color: var(--error-container);
-}
-.text-error {
-  color: var(--error);
-}
-.text-on-error-container {
-  color: var(--on-error-container);
-}
 
 .rounded-xl {
   border-radius: 0.75rem;
@@ -231,11 +203,4 @@ body {
 
 .tracking-tight {
   letter-spacing: -0.025em;
-}
-.tracking-widest {
-  letter-spacing: 0.1em;
-}
-
-.text-10px {
-  font-size: 10px;
 }

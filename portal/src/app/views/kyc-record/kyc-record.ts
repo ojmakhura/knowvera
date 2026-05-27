@@ -1,8 +1,8 @@
-import { CommonModule, JsonPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
-import Swal from 'sweetalert2';
+import { swalFire } from '@app/@shared/swal-loader';
 import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
 import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
@@ -12,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
 import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-kyc-record',
@@ -54,7 +54,6 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
   updatingDocument: DocumentDTO | null = null;
 
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   toaster: ToastrService = inject(ToastrService);
 
   loading = linkedSignal(() => this.kycRecordApiStore.loading());
@@ -182,7 +181,7 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
   removeDocument(doc: DocumentDTO): void {
     if (!doc.id) {
 
-      Swal.fire({
+      swalFire({
         title: 'Cannot remove document',
         text: 'This document does not have an ID and cannot be removed.',
         icon: 'error',
@@ -193,7 +192,7 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    Swal.fire({
+    swalFire({
       title: 'Confirm Removal',
       text: `Are you sure you want to remove the document "${doc.fileName}"?`,
       icon: 'warning',

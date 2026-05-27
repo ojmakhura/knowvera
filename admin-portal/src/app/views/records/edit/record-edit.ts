@@ -45,10 +45,11 @@ import { IndividualSearchCriteria } from '@app/models/bw/co/centralkyc/individua
 import { QuillEditorComponent, QuillModule } from 'ngx-quill';
 import { OwnerDetails } from '@app/models/bw/co/centralkyc/kyc/owner-details';
 import { EmploymentRecordDTO } from '@app/models/bw/co/centralkyc/individual/employment/employment-record-dto';
-import Swal from 'sweetalert2';
+import { swalFire } from '@app/@shared/swal';
 import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
 import { VerificationSummaryEntry } from '@app/models/bw/co/centralkyc/kyc/verification-summary-entry';
 import { KycReportSectionDTO } from '@app/models/bw/co/centralkyc/kyc/fields/kyc-report-section-dto';
+import 'quill/dist/quill.snow.css';
 
 type QueuedDocumentUpload = {
   file: File;
@@ -519,7 +520,7 @@ export class RecordEdit implements OnInit {
 
   deleteDocument(documentId: string): void {
 
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: 'This will permanently delete the document.',
       icon: 'warning',

@@ -5,38 +5,7 @@ import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-
 import { ToastrService } from 'ngx-toastr';
 import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
 import { ExpectedFieldType } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-type';
-import Swal from 'sweetalert2';
-
-type VerificationStatus = 'PENDING' | 'VERIFIED' | 'REJECTED';
-type DetailsTab = 'signals' | 'extracted' | 'content' | 'table';
-
-interface StatusOption {
-  label: VerificationStatus;
-}
-
-interface TabOption {
-  id: DetailsTab;
-  label: string;
-}
-
-interface IntegritySignal {
-  icon: string;
-  title: string;
-  description: string;
-  status: 'CLEAN' | 'PASSED' | 'VERIFIED';
-}
-
-interface FieldEntry {
-  label: string;
-  value: string;
-}
-
-interface VerificationRow {
-  field: string;
-  expected: string;
-  detected: string;
-  result: string;
-}
+import { swalFire } from '@app/@shared/swal-loader';
 
 @Component({
   selector: 'app-document-details',
@@ -111,7 +80,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   removeVerificationTagResult(index: number): void {
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: 'This action cannot be undone.',
       icon: 'warning',

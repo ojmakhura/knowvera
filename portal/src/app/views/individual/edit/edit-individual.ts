@@ -4,7 +4,6 @@ import { applyEach, email, form, FormField, required } from "@angular/forms/sign
 import { FormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
-import { MatDividerModule } from "@angular/material/divider";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
@@ -21,8 +20,7 @@ import { OrganisationListDTO } from "@app/models/bw/co/centralkyc/organisation/o
 import { PhoneNumber } from "@app/models/bw/co/centralkyc/phone-number";
 import { TranslateModule } from "@ngx-translate/core";
 import { NgxMatSelectSearchModule } from "ngx-mat-select-search";
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import { swalFire } from '@app/@shared/swal-loader';
 import { AppEnvStore } from "@app/store/app-env.state";
 import { OrganisationApiStore } from "@app/store/bw/co/centralkyc/organisation/organisation-api.store";
 import { BranchApiStore } from "@app/store/bw/co/centralkyc/organisation/branch/branch-api.store";
@@ -32,7 +30,6 @@ import { PhoneType } from "@app/models/bw/co/centralkyc/phone-type";
 import { GeneralStatus } from "@app/models/bw/co/centralkyc/general-status";
 import { IndividualDTO } from "@app/models/bw/co/centralkyc/individual/individual-dto";
 import { ToastrService } from "ngx-toastr";
-import Swal from "sweetalert2";
 
 export class EditIndividualVarsForm {
     id: string | any = null;
@@ -78,10 +75,7 @@ export class EditIndividualVarsForm {
         MatInputModule,
         MatSelectModule,
         MatSlideToggleModule,
-        MatDividerModule,
-        MatAutocompleteModule,
         MatFormFieldModule,
-        MatDatepickerModule,
         FormField,
         NgxMatSelectSearchModule,
         TranslateModule,
@@ -338,7 +332,7 @@ export class EditIndividual implements OnInit, AfterViewInit, OnDestroy {
     }
 
     removePhoneNumber(index: number): void {
-        Swal.fire({
+        swalFire({
             title: 'Remove phone number?',
             text: 'This number will be removed from the record.',
             icon: 'warning',

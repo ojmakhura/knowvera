@@ -17,7 +17,7 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { forkJoin } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import Swal from 'sweetalert2';
+import { swalFire } from '@app/@shared/swal';
 
 import { Loader } from '@app/@shared/loader/loader';
 import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
@@ -264,7 +264,7 @@ export class SystemSettings {
 
   salaryRangesRemove(i: number, selected: SalaryRangeDTO) {
 
-    Swal.fire({
+    swalFire({
       title: 'Remove salary range?',
       text: `This will remove the salary range with min ${selected.min} and max ${selected.max}.`,
       icon: 'warning',
@@ -303,7 +303,7 @@ export class SystemSettings {
     purpose: DocumentTypePurpose,
     documentType: DocumentTypeDTO,
   ): Promise<void> {
-    const result = await Swal.fire({
+    const result = await swalFire({
       title: 'Remove document requirement?',
       text: `This will detach ${documentType.name} from the selected settings group.`,
       icon: 'warning',
@@ -498,7 +498,7 @@ export class SystemSettings {
 
     let groups = isOrganisation ? this.editSettingsSignal().organisationKycFieldGroups : this.editSettingsSignal().individualKycFieldGroups;
 
-    Swal.fire({
+    swalFire({
       title: 'Remove field group?',
       text: `This will remove the field group ${groupField.field} from ${isOrganisation ? 'organisation' : 'individual'} KYC settings.`,
       icon: 'warning',
@@ -1049,7 +1049,7 @@ export class SystemSettings {
 
     let isOrg = group.targetType === TargetEntity.ORGANISATION;
 
-    Swal.fire({
+    swalFire({
       title: 'Delete field group?',
       text: `This will remove the field group "${group.label || 'Individual KYC Group'}" and all its fields.`,
       icon: 'warning',

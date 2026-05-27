@@ -29,7 +29,7 @@ import { KycInvoiceApiStore } from '@app/store/bw/co/centralkyc/invoice/kyc-invo
 import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
 import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscription/kyc-subscription-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import Swal from 'sweetalert2';
+import { swalFire } from '@app/@shared/swal';
 
 type TimelineItem = {
   icon: string;
@@ -349,7 +349,7 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   addInvoice(): void {
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: 'Do you want to generate a new invoice for this subscription?',
       icon: 'warning',
@@ -361,7 +361,6 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
         this.kycInvoiceApiStore.generateInvoice({
           subscriptionId: this.subscription()?.id,
         });
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
       }
     });
   }

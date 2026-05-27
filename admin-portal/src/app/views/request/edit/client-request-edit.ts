@@ -28,7 +28,7 @@ import { IndividualSearchCriteria } from '@app/models/bw/co/centralkyc/individua
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterLink } from '@angular/router';
-import Swal from 'sweetalert2';
+import { swalFire } from '@app/@shared/swal';
 
 export class EditClientRequestForm {
   id: string = '';
@@ -236,7 +236,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
 
   saveChanges(): void {
     if (this.editClientRequestForm().invalid()) {
-      Swal.fire({
+      swalFire({
         icon: 'error',
         title: 'Form Invalid',
         text: 'Please fill in all required fields before saving.',

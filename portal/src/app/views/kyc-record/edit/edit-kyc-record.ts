@@ -27,12 +27,10 @@ import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-ap
 import { ToastrService } from 'ngx-toastr';
 import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
-import Keycloak from 'keycloak-js';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
 import { KycRecordApi } from '@app/services/bw/co/centralkyc/kyc/kyc-record-api';
-import { Loader } from '@app/@shared/loader/loader';
 import { KycReportSectionDTO } from '@app/models/bw/co/centralkyc/kyc/fields/kyc-report-section-dto';
 import { AppEnvStore } from '@app/store/app-env.state';
 
@@ -95,8 +93,7 @@ const SOURCE_OPTIONS = [
     MatSelectModule,
     FormsModule,
     QuillModule,
-    TranslateModule,
-    Loader
+    TranslateModule
   ],
   templateUrl: './edit-kyc-record.html',
   styleUrls: ['./edit-kyc-record.scss'],
@@ -111,7 +108,6 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
   documentApi = inject(DocumentApi);
   individualApiStore = inject(IndividualApiStore);
   organisationApiStore = inject(OrganisationApiStore);
-  private keycloak = inject(Keycloak);
 
   indKycDocuments = linkedSignal(() => this.settingsApiStore.data().indKycDocuments);
   orgKycDocuments = linkedSignal(() => this.settingsApiStore.data().orgKycDocuments);
@@ -553,19 +549,6 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
 
   protected navigateBack(): void {
     this.router.navigate(['/dashboard']);
-  }
-
-  private hasRequiredValues(): boolean {
-    const value = this.formModel();
-
-    return [
-      value.ownerDetails.name,
-      value.ownerDetails.identityNo,
-      value.ownerDetails.identityType,
-      value.ownerDetails.emailAddress,
-      value.ownerDetails.physicalAddress,
-      value.ownerDetails.postalAddress,
-    ].every((entry) => String(entry ?? '').trim().length > 0);
   }
 
   documentTypeCompare(type1: DocumentTypeDTO, type2: DocumentTypeDTO): boolean {
