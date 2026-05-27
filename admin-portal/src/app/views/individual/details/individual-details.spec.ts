@@ -117,7 +117,7 @@ describe('IndividualDetails', () => {
   });
 
   it('should warn when adding document before target id exists', () => {
-    individualSignal.set({ id: null, latestKyc: { documents: [] } });
+    individualSignal.set({ id: null, documents: [], latestKyc: { documents: [] } });
     fixture.detectChanges();
 
     component.id = null;
