@@ -8,7 +8,7 @@
   padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
-  background: #f5f7fa;
+  background: var(--vault-surface);
   min-height: 100%;
 
   @media (max-width: 599px) {
@@ -29,7 +29,7 @@
 .section-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #263238;
+  color: var(--vault-primary);
   margin-bottom: 16px;
   text-align: center;
 
@@ -40,7 +40,7 @@
 
 .section-description {
   font-size: 1rem;
-  color: #546e7a;
+  color: var(--vault-on-surface-variant);
   text-align: center;
   margin-bottom: 32px;
   max-width: 800px;
@@ -58,25 +58,25 @@
 // HERO CARDS
 // ==========================================
 .hero-card {
-  color: white;
+  color: var(--vault-on-primary);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 
   &.hero-primary {
-    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    background: var(--vault-primary-gradient);
   }
 
   &.hero-accent {
-    background: linear-gradient(135deg, #f50057 0%, #c51162 100%);
+    background: linear-gradient(135deg, var(--vault-tertiary) 0%, var(--vault-tertiary-container) 100%);
   }
 
   &.hero-purple {
-    background: linear-gradient(135deg, #673ab7 0%, #512da8 100%);
+    background: linear-gradient(135deg, var(--vault-secondary) 0%, var(--vault-primary-container) 100%);
   }
 
   mat-card-header {
     .hero-icon {
       background: rgba(255, 255, 255, 0.2);
-      color: white;
+      color: var(--vault-on-primary);
       font-size: 40px;
       width: 56px;
       height: 56px;
@@ -87,7 +87,7 @@
     }
 
     mat-card-title {
-      color: white;
+      color: var(--vault-on-primary);
       font-size: 2rem;
       font-weight: 700;
 
@@ -187,16 +187,16 @@
     mat-card-title {
       font-size: 1.25rem;
       font-weight: 600;
-      color: #37474f;
+      color: var(--vault-on-surface);
     }
 
     mat-card-subtitle {
-      color: #546e7a;
+      color: var(--vault-on-surface-variant);
     }
   }
 
   mat-card-content {
-    color: #546e7a;
+    color: var(--vault-on-surface-variant);
     line-height: 1.6;
 
     p {
@@ -237,7 +237,7 @@
       margin: 0;
       font-size: 1rem;
       font-weight: 600;
-      color: #37474f;
+      color: var(--vault-on-surface);
     }
   }
 }
@@ -263,25 +263,25 @@
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
-      color: white;
+      background: var(--vault-primary-gradient);
+      color: var(--vault-on-primary);
     }
 
     mat-card-title {
       font-size: 1.25rem;
       font-weight: 600;
-      color: #37474f;
+      color: var(--vault-on-surface);
     }
 
     mat-card-subtitle {
       font-size: 0.938rem;
-      color: #1976d2;
+      color: var(--vault-primary);
       font-weight: 500;
     }
   }
 
   mat-card-content {
-    color: #546e7a;
+    color: var(--vault-on-surface-variant);
     line-height: 1.6;
     font-size: 0.938rem;
   }
@@ -291,25 +291,25 @@
 // CTA/ACTION CARDS
 // ==========================================
 .action-card {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-  border: 2px solid #1976d2;
-  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.15);
+  background: linear-gradient(135deg, var(--vault-surface-container-low) 0%, var(--vault-surface-container-lowest) 100%);
+  border: 2px solid var(--vault-primary);
+  box-shadow: 0 4px 16px rgba(0, 27, 68, 0.15);
 
   &.action-accent {
-    border-color: #f50057;
-    box-shadow: 0 4px 16px rgba(245, 0, 87, 0.15);
+    border-color: var(--vault-tertiary);
+    box-shadow: 0 4px 16px rgba(55, 16, 0, 0.16);
   }
 
   &.action-purple {
-    border-color: #673ab7;
-    box-shadow: 0 4px 16px rgba(103, 58, 183, 0.15);
+    border-color: var(--vault-secondary);
+    box-shadow: 0 4px 16px rgba(81, 95, 116, 0.16);
   }
 
   mat-card-header {
     mat-card-title {
       font-size: 1.5rem;
       font-weight: 700;
-      color: #1976d2;
+      color: var(--vault-primary);
 
       @media (max-width: 599px) {
         font-size: 1.25rem;
@@ -318,15 +318,15 @@
   }
 
   &.action-accent mat-card-header mat-card-title {
-    color: #f50057;
+    color: var(--vault-tertiary);
   }
 
   &.action-purple mat-card-header mat-card-title {
-    color: #673ab7;
+    color: var(--vault-secondary);
   }
 
   mat-card-content {
-    color: #546e7a;
+    color: var(--vault-on-surface-variant);
     font-size: 1rem;
     line-height: 1.6;
     margin-bottom: 16px;
@@ -438,12 +438,12 @@ mat-card-actions {
   }
 
   .mat-mdc-outlined-button {
-    color: white;
+    color: var(--vault-on-primary);
     border-color: rgba(255, 255, 255, 0.5);
 
     &:hover {
       background: rgba(255, 255, 255, 0.1);
-      border-color: white;
+      border-color: var(--vault-on-primary);
     }
   }
 }
@@ -460,14 +460,14 @@ mat-card-actions {
     margin: 12px 0 4px;
     font-size: 2rem;
     font-weight: 700;
-    color: #1976d2;
+    color: var(--primary);
     line-height: 1;
   }
 
   .stat-label {
     margin: 0;
     font-size: 0.875rem;
-    color: #546e7a;
+    color: var(--on-surface-variant);
     font-weight: 500;
   }
 }
@@ -499,7 +499,7 @@ mat-card-actions {
     }
 
     span {
-      color: #37474f;
+      color: var(--on-surface);
       font-size: 0.938rem;
       line-height: 1.5;
     }
@@ -567,10 +567,10 @@ mat-card-actions {
   align-items: flex-start;
   margin-bottom: 2rem;
   padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--vault-primary-gradient);
   border-radius: 12px;
-  color: white;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  color: var(--vault-on-primary);
+  box-shadow: 0 4px 20px rgba(0, 27, 68, 0.28);
 
   .hero-content {
     display: flex;
@@ -647,11 +647,11 @@ mat-card-actions {
     mat-card-title {
       font-size: 1.125rem;
       font-weight: 700;
-      color: #263238;
+      color: var(--vault-primary);
     }
 
     mat-card-subtitle {
-      color: #546e7a;
+      color: var(--vault-on-surface-variant);
       font-size: 0.95rem;
       margin-top: 4px;
     }

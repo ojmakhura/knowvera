@@ -5,8 +5,8 @@
 	background:
 		radial-gradient(circle at top left, rgba(206, 219, 255, 0.72), transparent 34%),
 		radial-gradient(circle at bottom right, rgba(226, 231, 255, 0.78), transparent 28%),
-		linear-gradient(180deg, #faf8ff 0%, #f5f6ff 100%);
-	color: #131b2e;
+		linear-gradient(180deg, var(--vault-surface) 0%, var(--vault-surface-container-low) 100%);
+	color: var(--vault-on-surface);
 	padding: clamp(1.5rem, 2vw, 2rem);
 }
 
@@ -57,7 +57,7 @@
 	font-weight: 700;
 	letter-spacing: 0.18em;
 	text-transform: uppercase;
-	color: #57657a;
+	color: var(--vault-on-surface-variant);
 }
 
 .page-header h1 {
@@ -66,7 +66,7 @@
 	line-height: 1;
 	font-weight: 800;
 	letter-spacing: -0.04em;
-	color: #001b44;
+	color: var(--vault-primary);
 }
 
 .page-meta {
@@ -74,7 +74,7 @@
 	align-items: center;
 	gap: 0.65rem;
 	margin: 0.65rem 0 0;
-	color: #57657a;
+	color: var(--vault-on-surface-variant);
 	font-size: 0.95rem;
 }
 
@@ -93,10 +93,10 @@
 }
 
 .save-button {
-	--mdc-filled-button-container-color: #001b44;
-	--mdc-filled-button-label-text-color: #ffffff;
+	--mdc-filled-button-container-color: var(--vault-primary);
+	--mdc-filled-button-label-text-color: var(--vault-on-primary);
 	box-shadow: 0 12px 32px rgba(19, 27, 46, 0.1);
-	background: linear-gradient(135deg, #001b44 0%, #002f6c 100%);
+	background: var(--vault-primary-gradient);
 }
 
 .page-grid {
@@ -159,7 +159,7 @@
 	margin: 0;
 	font-size: 1.1rem;
 	font-weight: 700;
-	color: #001b44;
+	color: var(--vault-primary);
 }
 
 .section-heading p,
@@ -168,7 +168,7 @@
 .status-toggle__subtitle,
 .page-footer__brand span {
 	margin: 0.35rem 0 0;
-	color: #57657a;
+	color: var(--vault-on-surface-variant);
 	font-size: 0.92rem;
 	line-height: 1.5;
 }
@@ -183,8 +183,8 @@
 	width: 3rem;
 	height: 3rem;
 	border-radius: 1rem;
-	background: linear-gradient(135deg, #002f6c 0%, #001b44 100%);
-	color: #ffffff;
+	background: var(--vault-primary-gradient);
+	color: var(--vault-on-primary);
 	box-shadow: 0 12px 24px rgba(0, 27, 68, 0.18);
 }
 
@@ -204,7 +204,7 @@
 .status-toggle__title {
 	margin: 0;
 	font-weight: 700;
-	color: #131b2e;
+	color: var(--vault-on-surface);
 }
 
 .split-grid {
@@ -276,7 +276,7 @@
 	padding: 1rem;
 	border-radius: 1rem;
 	background: rgba(242, 243, 255, 0.55);
-	color: #57657a;
+	color: var(--vault-on-surface-variant);
 	text-align: center;
 }
 
@@ -290,7 +290,7 @@
 	align-items: center;
 	gap: 0.75rem;
 	margin-bottom: 1rem;
-	color: #001b44;
+	color: var(--vault-primary);
 }
 
 .audit-card dl {
@@ -309,7 +309,7 @@
 
 .audit-card dt {
 	font-weight: 600;
-	color: #434750;
+	color: var(--vault-on-surface-variant);
 }
 
 .audit-card dd,
@@ -317,13 +317,13 @@
 .page-footer__sync {
 	margin: 0;
 	font-weight: 600;
-	color: #131b2e;
+	color: var(--vault-on-surface);
 }
 
 .page-footer {
 	align-items: center;
 	padding-top: 0.85rem;
-	color: #57657a;
+	color: var(--vault-on-surface-variant);
 	border-top: 1px solid rgba(196, 198, 210, 0.2);
 }
 
@@ -338,9 +338,9 @@
 	align-items: center;
 	justify-content: center;
 	padding: 0.35rem 0.55rem;
-	border-radius: 0.5rem;
-	background: #001b44;
-	color: #ffffff;
+	border-radius: var(--vault-radius-lg);
+	background: var(--vault-primary);
+	color: var(--vault-on-primary);
 	font-size: 0.7rem;
 	font-weight: 800;
 	letter-spacing: 0.16em;
@@ -360,7 +360,7 @@
 }
 
 :host ::ng-deep .vault-field.mat-focused .mat-mdc-text-field-wrapper {
-	background: #ffffff;
+	background: var(--vault-surface-container-lowest);
 	box-shadow: inset 0 0 0 2px rgba(60, 93, 156, 0.18);
 }
 
@@ -370,7 +370,7 @@
 }
 
 :host ::ng-deep .status-toggle .mdc-switch--selected .mdc-switch__track {
-	background: #001b44;
+	background: var(--vault-primary);
 }
 
 @media (max-width: 1100px) {

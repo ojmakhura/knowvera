@@ -19,18 +19,18 @@
   white-space: nowrap;
 
   &--verified {
-    background-color: #dcfce7;
-    color: #166534;
+    background-color: var(--vault-success-container);
+    color: var(--vault-on-success);
   }
 
   &--review {
-    background-color: #fef9c3;
-    color: #854d0e;
+    background-color: var(--vault-warning-container);
+    color: var(--vault-on-warning);
   }
 
   &--failed {
-    background-color: #fee2e2;
-    color: #991b1b;
+    background-color: var(--vault-critical-container);
+    color: var(--vault-on-critical);
   }
 
   &--neutral {
@@ -39,13 +39,13 @@
   }
 
   &--clear {
-    background-color: #dcfce7;
-    color: #166534;
+    background-color: var(--vault-success-container);
+    color: var(--vault-on-success);
   }
 
   &--match {
-    background-color: #fee2e2;
-    color: #991b1b;
+    background-color: var(--vault-critical-container);
+    color: var(--vault-on-critical);
   }
 }
 
@@ -77,8 +77,8 @@
 }
 
 .kyc-cta-banner {
-  background: linear-gradient(132deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 70%, #000) 100%);
-  color: #fff;
+  background: linear-gradient(132deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 70%, rgb(0 0 0)) 100%);
+  color: var(--vault-on-primary);
 }
 
 .kyc-tab {

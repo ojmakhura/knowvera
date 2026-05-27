@@ -7,6 +7,9 @@ import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/documen
 import { ExpectedFieldType } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-type';
 import { swalFire } from '@app/@shared/swal-loader';
 
+type InsightTab = 'signals' | 'extracted' | 'content' | 'verification';
+type HeroStatus = 'PENDING' | 'VERIFIED' | 'REJECTED';
+
 @Component({
   selector: 'app-document-details',
   imports: [JsonPipe, KeyValuePipe],
@@ -30,6 +33,17 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     DocumentVerificationStatus.MANUAL_REVIEW,
     DocumentVerificationStatus.IN_PROGRESS,
   ];
+
+  readonly heroStatusOptions: ReadonlyArray<HeroStatus> = ['PENDING', 'VERIFIED', 'REJECTED'];
+
+  readonly insightTabs: ReadonlyArray<{ id: InsightTab; label: string }> = [
+    { id: 'signals', label: 'Integrity Signals' },
+    { id: 'extracted', label: 'Extracted Data' },
+    { id: 'content', label: 'File Content' },
+    { id: 'verification', label: 'Verification Table' },
+  ];
+
+  readonly activeInsightTab = signal<InsightTab>('signals');
 
   loaderMessage = linkedSignal(() => this.documentApiStore.loaderMessage());
   messages = linkedSignal(() => this.documentApiStore.messages());
@@ -102,9 +116,29 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  setActiveInsightTab(tab: InsightTab): void {
+    this.activeInsightTab.set(tab);
+  }
+
+  isHeroStatusActive(status: HeroStatus): boolean {
+    const verificationStatus = this.document()?.verificationStatus;
+
+    if (status === 'PENDING') {
+      return verificationStatus === DocumentVerificationStatus.UNVERIFIED
+        || verificationStatus === DocumentVerificationStatus.MANUAL_REVIEW
+        || verificationStatus === DocumentVerificationStatus.IN_PROGRESS;
+    }
+
+    if (status === 'VERIFIED') {
+      return verificationStatus === DocumentVerificationStatus.VERIFIED;
+    }
+
+    return verificationStatus === DocumentVerificationStatus.REJECTED;
+  }
+
   ngOnInit(): void {
     if (this.id) {
-      this.documentApiStore.findById({ id: this.id });
+      this.documentApiStore.findById({ id: this.id() });
     }
   }
 

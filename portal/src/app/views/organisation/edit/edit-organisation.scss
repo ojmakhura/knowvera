@@ -3,23 +3,23 @@
 }
 
 .edit-organisation-page {
-	--surface: #faf8ff;
-	--surface-low: #f2f3ff;
-	--surface-lowest: #ffffff;
-	--surface-high: #e2e7ff;
-	--card: #f6f7fc;
-	--text: #131b2e;
-	--muted: #434750;
-	--primary: #001b44;
-	--primary-container: #002f6c;
+	--surface: var(--vault-surface);
+	--surface-low: var(--vault-surface-container-low);
+	--surface-lowest: var(--vault-surface-container-lowest);
+	--surface-high: var(--vault-surface-container-high);
+	--card: var(--vault-surface-container-low);
+	--text: var(--vault-on-surface);
+	--muted: var(--vault-on-surface-variant);
+	--primary: var(--vault-primary);
+	--primary-container: var(--vault-primary-container);
 	--outline: rgb(116 119 129 / 24%);
-	--shadow: 0 10px 24px rgb(19 27 46 / 4%);
+	--shadow: var(--vault-ambient-shadow);
 	position: relative;
 	min-height: 100%;
 	background:
 		radial-gradient(circle at 88% -8%, rgb(174 198 255 / 22%) 0%, rgb(250 248 255 / 0%) 30%),
 		radial-gradient(circle at -12% 110%, rgb(0 47 108 / 7%) 0%, rgb(250 248 255 / 0%) 32%),
-		linear-gradient(180deg, #faf8ff 0%, #f3f5ff 100%);
+		linear-gradient(180deg, var(--vault-surface) 0%, var(--vault-surface-container-low) 100%);
 	color: var(--text);
 	padding: clamp(1.15rem, 2.5vw, 2.2rem);
 	overflow: hidden;
@@ -104,7 +104,7 @@
 }
 
 .vault-card {
-	border-radius: 0.5rem;
+	border-radius: var(--vault-radius-lg);
 	background: var(--card);
 	box-shadow: var(--shadow);
 	border: 1px solid rgb(196 198 210 / 18%);
@@ -162,8 +162,8 @@
 }
 
 .vault-card :is(.mat-mdc-text-field-wrapper, .mdc-text-field) {
-	background-color: #eceef9;
-	border-radius: 0.18rem;
+	background-color: var(--vault-surface-container);
+	border-radius: var(--vault-radius-sm);
 }
 
 .vault-card .mdc-notched-outline__leading,
@@ -191,8 +191,8 @@
 
 .status-toggle {
 	grid-column: 1 / -1;
-	border-radius: 0.5rem;
-	background: #eaedf9;
+	border-radius: var(--vault-radius-lg);
+	background: var(--vault-surface-container);
 	padding: 0.72rem 0.92rem;
 	display: flex;
 	justify-content: space-between;
@@ -214,7 +214,7 @@
 
 .status-toggle .mat-mdc-slide-toggle {
 	--mdc-switch-selected-track-color: var(--primary);
-	--mdc-switch-selected-handle-color: #fff;
+	--mdc-switch-selected-handle-color: var(--vault-on-primary);
 	--mdc-switch-selected-focus-track-color: var(--primary);
 	--mdc-switch-selected-hover-track-color: var(--primary);
 }
@@ -230,9 +230,9 @@
 	grid-template-columns: auto 1fr auto auto;
 	gap: 0.52rem;
 	align-items: center;
-	border-radius: 0.5rem;
+	border-radius: var(--vault-radius-lg);
 	padding: 0.32rem 0.46rem;
-	background: #eaedf9;
+	background: var(--vault-surface-container);
 
 	> mat-icon {
 		color: var(--muted);
@@ -249,7 +249,7 @@
 	gap: 0.3rem;
 	border-radius: 999px;
 	padding: 0.15rem 0.5rem;
-	background: #eef4ff;
+	background: var(--vault-surface-container-high);
 	color: var(--primary);
 	font-size: 0.62rem;
 	font-weight: 700;
@@ -264,7 +264,7 @@
 }
 
 .status-pill--pending {
-	background: #eef0f8;
+	background: var(--vault-surface-container);
 	color: var(--muted);
 }
 
@@ -298,8 +298,8 @@
 }
 
 .audit-card {
-	border-radius: 0.5rem;
-	color: #fff;
+	border-radius: var(--vault-radius-lg);
+	color: var(--vault-on-primary);
 	background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
 	box-shadow: 0 16px 36px rgb(0 27 68 / 28%);
 	padding: 1.1rem 1.05rem 0.95rem;
@@ -338,9 +338,9 @@
 .audit-card__cta {
 	margin-top: 0.9rem;
 	width: 100%;
-	border-radius: 0.25rem;
+	border-radius: var(--vault-radius-sm);
 	background: rgb(255 255 255 / 10%);
-	color: #f1f5ff;
+	color: var(--vault-on-primary);
 	font-size: 0.66rem;
 	font-weight: 700;
 	letter-spacing: 0.12em;
@@ -372,9 +372,9 @@
 }
 
 .save-button {
-	border-radius: 0.35rem;
+	border-radius: var(--vault-radius-md);
 	background: linear-gradient(120deg, var(--primary) 0%, var(--primary-container) 100%);
-	color: #fff;
+	color: var(--vault-on-primary);
 }
 
 .list-empty {

@@ -5,7 +5,7 @@
 .vault-page {
 	background:
 		radial-gradient(circle at top right, rgba(174, 198, 255, 0.24), transparent 48%),
-		linear-gradient(180deg, var(--vault-surface) 0%, #f2f3ff 100%);
+		linear-gradient(180deg, var(--vault-surface) 0%, var(--vault-surface-container-low) 100%);
 	color: var(--vault-on-surface);
 	font-family: var(--vault-font-body);
 	min-height: 100%;
@@ -291,18 +291,18 @@ h3 {
 .status-active,
 .verified,
 .compliant {
-	--mdc-chip-elevated-container-color: #e9f8ee;
-	--mdc-chip-label-text-color: #0c6e2e;
+	--mdc-chip-elevated-container-color: var(--vault-success-container);
+	--mdc-chip-label-text-color: var(--vault-success);
 }
 
 .status-review {
-	--mdc-chip-elevated-container-color: #ebedf8;
-	--mdc-chip-label-text-color: #414f70;
+	--mdc-chip-elevated-container-color: var(--vault-surface-container);
+	--mdc-chip-label-text-color: var(--vault-on-info);
 }
 
 .status-processing {
-	--mdc-chip-elevated-container-color: #e7efff;
-	--mdc-chip-label-text-color: #1b4f92;
+	--mdc-chip-elevated-container-color: var(--vault-info-container);
+	--mdc-chip-label-text-color: var(--vault-info);
 }
 
 .status-rejected {
@@ -413,7 +413,7 @@ h3 {
 
 .pulse {
 	animation: pulse 1.6s infinite;
-	background: #2da44e;
+	background: var(--vault-success);
 	border-radius: 50%;
 	height: 0.4rem;
 	width: 0.4rem;

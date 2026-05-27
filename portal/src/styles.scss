@@ -68,6 +68,7 @@ body {
 
   --vault-outline: #747781;
   --vault-outline-variant: #c4c6d2;
+  --vault-outline-ghost: rgba(116, 119, 129, 0.2);
 
   --vault-secondary: #515f74;
   --vault-secondary-container: #d5e3fc;
@@ -84,13 +85,30 @@ body {
   --vault-on-error: #ffffff;
   --vault-on-error-container: #93000a;
 
+  /* Semantic status colors */
+  --vault-success: #106b34;
+  --vault-success-container: #dcfce7;
+  --vault-on-success: #166534;
+  --vault-warning: #8f6000;
+  --vault-warning-container: #fef9c3;
+  --vault-on-warning: #854d0e;
+  --vault-critical: #8d1616;
+  --vault-critical-container: #fee2e2;
+  --vault-on-critical: #991b1b;
+  --vault-info: #1b4f92;
+  --vault-info-container: #e7efff;
+  --vault-on-info: #414f70;
+  --vault-accent-success: #34f3a8;
+
   --vault-surface-tint: #3c5d9c;
 
   /* Spacing */
   --vault-spacing-2: 0.4rem;
   --vault-spacing-3: 0.6rem;
   --vault-spacing-4: 0.8rem;
+  --vault-spacing-5: 1rem;
   --vault-spacing-6: 1.2rem;
+  --vault-spacing-7: 1.4rem;
   --vault-spacing-8: 1.6rem;
   --vault-spacing-10: 2rem;
   --vault-spacing-12: 2.4rem;
@@ -101,6 +119,7 @@ body {
 
   /* Typography */
   --vault-font-headline: 'Manrope', sans-serif;
+  --vault-font-display: 'Manrope', sans-serif;
   --vault-font-body: 'Inter', sans-serif;
 
   --vault-headline-lg: 2.25rem;
@@ -123,6 +142,34 @@ body {
 
   /* Gradients */
   --vault-primary-gradient: linear-gradient(132deg, #001b44 0%, #002f6c 100%);
+
+  /* Compatibility aliases for legacy styles */
+  --primary: var(--vault-primary);
+  --primary-container: var(--vault-primary-container);
+  --on-primary-container: var(--vault-on-primary-container);
+  --surface: var(--vault-surface);
+  --surface-container-lowest: var(--vault-surface-container-lowest);
+  --surface-container-low: var(--vault-surface-container-low);
+  --surface-container: var(--vault-surface-container);
+  --surface-container-high: var(--vault-surface-container-high);
+  --on-surface: var(--vault-on-surface);
+  --on-surface-variant: var(--vault-on-surface-variant);
+  --outline-variant: var(--vault-outline-variant);
+  --error: var(--vault-error);
+  --error-container: var(--vault-error-container);
+  --on-error-container: var(--vault-on-error-container);
+  --success: var(--vault-success);
+  --success-container: var(--vault-success-container);
+  --on-success: var(--vault-on-success);
+  --warning: var(--vault-warning);
+  --warning-container: var(--vault-warning-container);
+  --on-warning: var(--vault-on-warning);
+  --critical: var(--vault-critical);
+  --critical-container: var(--vault-critical-container);
+  --on-critical: var(--vault-on-critical);
+  --info: var(--vault-info);
+  --info-container: var(--vault-info-container);
+  --on-info: var(--vault-on-info);
 }
 
 /* Material Symbols Outlined */
@@ -147,27 +194,10 @@ body {
 /* You can add global styles to this file, and also import other style files */
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
-:root {
-  --primary: #0f172a;
-  --primary-container: #1e293b;
-  --on-primary-container: #f8fafc;
-  --surface: #f8fafc;
-  --surface-container-lowest: #ffffff;
-  --surface-container-low: #f1f5f9;
-  --surface-container: #e2e8f0;
-  --surface-container-high: #cbd5e1;
-  --on-surface: #0f172a;
-  --on-surface-variant: #64748b;
-  --outline-variant: #e2e8f0;
-  --error: #ef4444;
-  --error-container: #fee2e2;
-  --on-error-container: #991b1b;
-}
-
 body {
   background-color: var(--surface);
   color: var(--on-surface);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--vault-font-body);
 }
 
 .bg-surface {

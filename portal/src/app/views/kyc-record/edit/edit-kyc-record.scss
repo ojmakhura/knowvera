@@ -7,7 +7,7 @@
   color: var(--vault-on-surface);
   background:
     radial-gradient(circle at 0 0, rgba(216, 226, 255, 0.72), transparent 32%),
-    linear-gradient(180deg, var(--vault-surface) 0%, #f6f4ff 100%);
+    linear-gradient(180deg, var(--vault-surface) 0%, var(--vault-surface-container-low) 100%);
 }
 
 .edit-kyc__canvas {
@@ -226,7 +226,7 @@
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 999px;
-  background: #e6a500;
+  background: var(--vault-warning);
 }
 
 .content-grid {
@@ -292,7 +292,7 @@
   min-height: 8rem;
   border-radius: 0.75rem;
   overflow: hidden;
-  background: #fff;
+  background: var(--vault-surface-container-lowest);
 }
 
 .upload-dropzone {
@@ -374,7 +374,7 @@
   color: var(--vault-on-primary);
   background: var(--vault-primary);
   margin-right: -0.45rem;
-  border: 2px solid #fff;
+  border: 2px solid var(--vault-surface-container-lowest);
 }
 
 @media (max-width: 1040px) {
