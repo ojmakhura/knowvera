@@ -203,6 +203,10 @@ app:
   ollama:
     base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
     model: ${OLLAMA_MODEL:gemma4}
+  gemini:
+    base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
+    api-key: ${GEMINI_API_KEY:}
+    model: ${GEMINI_MODEL:gemini-2.0-flash}
   registration:
     client: ${REGISTRATION_CLIENT:centralkyc-registration}
     client-secret: ${REGISTRATION_CLIENT_SECRET:secret}
@@ -215,6 +219,10 @@ app:
     textExtractionQueueExchange: ${TEXT_EXTRACTION_QUEUE_EXCHANGE:x.text-extraction-queue}
     textExtractionQueue: ${TEXT_EXTRACTION_QUEUE:q.text-extraction}
     textExtractionQueueRoutingKey: ${TEXT_EXTRACTION_QUEUE_ROUTING_KEY:text-extraction}
+
+    geminiTextExtractionQueueExchange: ${GEMINI_TEXT_EXTRACTION_QUEUE_EXCHANGE:x.gemini-text-extraction-queue}
+    geminiTextExtractionQueue: ${GEMINI_TEXT_EXTRACTION_QUEUE:q.gemini-text-extraction}
+    geminiTextExtractionQueueRoutingKey: ${GEMINI_TEXT_EXTRACTION_QUEUE_ROUTING_KEY:gemini-text-extraction}
 
     documentConfirmationQueueExchange: ${DOCUMENT_CONFIRMATION_QUEUE_EXCHANGE:x.document-confirmation-queue}
     documentConfirmationQueue: ${DOCUMENT_CONFIRMATION_QUEUE:q.document-confirmation}

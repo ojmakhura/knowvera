@@ -1,50 +1,11 @@
 
 @use 'ngx-toastr/toastr';
-@use '@angular/material' as mat;
-
-$vault-theme: mat.define-theme((
-    color: (
-        theme-type: light,
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
-    ),
-    typography: (
-        plain-family: 'Inter, Roboto, "Helvetica Neue", Arial, sans-serif',
-    ),
-    density: (
-        scale: 0,
-    ),
-));
-
-@include mat.core();
-@include mat.core-theme($vault-theme);
-@include mat.button-theme($vault-theme);
-@include mat.icon-theme($vault-theme);
-@include mat.menu-theme($vault-theme);
-@include mat.sidenav-theme($vault-theme);
-@include mat.toolbar-theme($vault-theme);
-@include mat.list-theme($vault-theme);
-@include mat.form-field-theme($vault-theme);
-@include mat.input-theme($vault-theme);
-@include mat.select-theme($vault-theme);
-@include mat.table-theme($vault-theme);
-@include mat.paginator-theme($vault-theme);
-@include mat.tabs-theme($vault-theme);
-@include mat.tooltip-theme($vault-theme);
-@include mat.card-theme($vault-theme);
-@include mat.dialog-theme($vault-theme);
-@include mat.checkbox-theme($vault-theme);
-@include mat.chips-theme($vault-theme);
-@include mat.slide-toggle-theme($vault-theme);
-@include mat.datepicker-theme($vault-theme);
-@include mat.button-toggle-theme($vault-theme);
-@include mat.progress-bar-theme($vault-theme);
-@include mat.divider-theme($vault-theme);
-@include mat.autocomplete-theme($vault-theme);
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import "quill/dist/quill.snow.css";
 
 @font-face {
     font-family: 'Inter';
@@ -1462,6 +1423,9 @@ body {
         justify-content: start
     }
 }
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+
 .header-btns {
 	display: flex;
 	gap: 0.75rem;

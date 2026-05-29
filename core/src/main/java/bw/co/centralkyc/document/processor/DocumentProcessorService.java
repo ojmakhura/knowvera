@@ -371,7 +371,12 @@ public class DocumentProcessorService {
 
         switch (document.getTarget()) {
             case KYC_RECORD:
-                KycRecord record = kycRecordRepository.getReferenceById(UUID.fromString(document.getTargetId()));
+                KycRecord record = kycRecordRepository.findById(UUID.fromString(document.getTargetId())).orElse(null);
+                if (record == null) {
+                    log.warn("KYC Record with ID {} not found for document {}. Skipping verification queue dispatch.",
+                            document.getTargetId(), document.getId());
+                    return;
+                }
                 rabbitTemplate.convertAndSend(
                         rabbitProperties.getKycVerificationQueueExchange(),
                         rabbitProperties.getKycVerificationQueueRoutingKey(),

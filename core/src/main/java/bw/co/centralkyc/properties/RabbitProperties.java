@@ -20,6 +20,10 @@ public class RabbitProperties {
     private final String textExtractionQueue;
     private final String textExtractionQueueRoutingKey;
 
+    private final String geminiTextExtractionQueueExchange;
+    private final String geminiTextExtractionQueue;
+    private final String geminiTextExtractionQueueRoutingKey;
+
     private final String documentConfirmationQueueExchange;
     private final String documentConfirmationQueue;
     private final String documentConfirmationQueueRoutingKey;
@@ -86,6 +90,18 @@ public class RabbitProperties {
 
     public String getTextExtractionQueueRoutingKey() {
         return textExtractionQueueRoutingKey;
+    }
+
+    public String getGeminiTextExtractionQueueExchange() {
+        return geminiTextExtractionQueueExchange;
+    }
+
+    public String getGeminiTextExtractionQueue() {
+        return geminiTextExtractionQueue;
+    }
+
+    public String getGeminiTextExtractionQueueRoutingKey() {
+        return geminiTextExtractionQueueRoutingKey;
     }
 
     public String getDocumentConfirmationQueueExchange() {

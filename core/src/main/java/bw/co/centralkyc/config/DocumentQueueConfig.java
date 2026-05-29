@@ -39,4 +39,17 @@ public class DocumentQueueConfig {
                 BindingBuilder.bind(textExtractionQueue).to(textExtractionQueueExchange)
                         .with(rabbitProperties.getTextExtractionQueueRoutingKey()));
     }
+
+            @Bean
+            public Declarables geminiTextExtractionQueueSchema() {
+            DirectExchange geminiTextExtractionQueueExchange = new DirectExchange(
+                rabbitProperties.getGeminiTextExtractionQueueExchange());
+            Queue geminiTextExtractionQueue = QueueBuilder.durable(rabbitProperties.getGeminiTextExtractionQueue()).build();
+
+            return new Declarables(
+                geminiTextExtractionQueueExchange,
+                geminiTextExtractionQueue,
+                BindingBuilder.bind(geminiTextExtractionQueue).to(geminiTextExtractionQueueExchange)
+                    .with(rabbitProperties.getGeminiTextExtractionQueueRoutingKey()));
+            }
 }
