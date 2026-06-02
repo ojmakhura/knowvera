@@ -50,7 +50,7 @@
         </developer>
     </developers>
     <dependencyManagement>
-        <dependencies> 
+        <dependencies>
             <dependency>
                 <groupId>org.andromda</groupId>
                 <artifactId>andromda-core</artifactId>
@@ -196,16 +196,16 @@
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
                 <version>1.6.3</version>
-            </dependency> 
-            <dependency> 
+            </dependency>
+            <dependency>
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct-processor</artifactId>
                 <version>1.6.3</version>
-                <scope>provided</scope> 
-            </dependency> 
-            <dependency> 
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.keycloak</groupId>
-                <artifactId>keycloak-spring-boot-starter</artifactId> 
+                <artifactId>keycloak-spring-boot-starter</artifactId>
                 <version>${keycloak.version}</version>
             </dependency>
             <dependency>
@@ -229,14 +229,14 @@
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>pdfbox</artifactId>
                 <version>3.0.6</version>
-            </dependency> 
+            </dependency>
             <dependency>
                 <groupId>com.google.zxing</groupId>
                 <artifactId>javase</artifactId>
-                <version>3.5.4</version> 
+                <version>3.5.4</version>
             </dependency>
             <dependency>
-                <groupId>com.bucket4j</groupId> 
+                <groupId>com.bucket4j</groupId>
                 <artifactId>bucket4j_jdk17-core</artifactId>
                 <version>8.16.0</version>
             </dependency>
@@ -246,7 +246,7 @@
                 <version>1.60.0</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency> 
+            </dependency>
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
                 <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
@@ -260,10 +260,17 @@
                 <version>5.3.2</version>
                 <!-- <scope>compile</scope> -->
             </dependency>
-            <dependency>
+            <dependency> 
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp-jvm</artifactId>
                 <version>5.3.2</version>
+            </dependency> 
+            <!-- Source: https://mvnrepository.com/artifact/com.google.genai/google-genai -->
+            <dependency>
+                <groupId>com.google.genai</groupId>
+                <artifactId>google-genai</artifactId>
+                <version>1.56.0</version>
+                <scope>compile</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -533,7 +540,7 @@
                 -->
                 <jdbc.url>
                     ${DATABASE_URL:jdbc:postgresql://localhost/centralkyc}
-                </jdbc.url>  
+                </jdbc.url>
                 <!-- Enter id/password for the database connection -->
                 <jdbc.username>
                     ${DB_USERNAME:centralkyc}
@@ -763,19 +770,19 @@
                     </rulesets>
                 </configuration>
             </plugin>
-            <plugin> 
+            <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
                     <configLocation>${checkstyle.configLocation}</configLocation>
                 </configuration>
             </plugin>
-            <plugin> 
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jdepend-maven-plugin</artifactId> 
+                <artifactId>jdepend-maven-plugin</artifactId>
                 <version>${jdepend-maven-plugin.version}</version>
             </plugin>
-            <plugin> 
+            <plugin>
                 <artifactId>maven-changes-plugin</artifactId>
                 <version>${maven-changes-plugin.version}</version>
                 <reportSets>
@@ -853,7 +860,7 @@
                         <format>html</format>
                         <format>xml</format>
                     </formats>
-                </configuration> 
+                </configuration>
             </plugin>
             <!-- Compare APIs to a previous version, uncomment when a release version exists -->
             <!--plugin>
@@ -866,7 +873,7 @@
                 </configuration>
             </plugin-->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>  
+                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>javancss-maven-plugin</artifactId>
                 <version>${javancss-maven-plugin.version}</version>
                 <inherited>true</inherited>
@@ -906,9 +913,9 @@
                             <report>dependency-updates-report</report>
                             <report>plugin-updates-report</report>
                             <report>property-updates-report</report>
-                        </reports> 
-                    </reportSet> 
-                </reportSets> 
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
             <!--plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -929,5 +936,5 @@
                 </configuration>
             </plugin-->
         </plugins>
-    </reporting> 
+    </reporting>
 </project>

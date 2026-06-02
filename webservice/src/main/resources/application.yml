@@ -70,6 +70,7 @@ spring:
       timeout: 100
   ai:
     chat:
+    
       client:
         enabled: false
     openai:
@@ -94,12 +95,13 @@ spring:
     vertex:
       ai:
         gemini:
-          enabled: false
+          enabled: true
           # --- Core Connection Settings ---
-          project-id: ${GEMINI_PROJECT_ID:central-kyc}
-          location: ${GEMINI_LOCATION:us-central1}
+          # project-id: ${GEMINI_PROJECT_ID:central-kyc}
+          # location: ${GEMINI_LOCATION:us-central1}
+          api-key: ${GEMINI_API_KEY}
           # If using a physical file (not recommended for production)
-          credentials-uri: file://${GCP_CREDENTIALS_FILE:/path/to/credentials.json}
+          # credentials-uri: file://${GCP_CREDENTIALS_FILE:/path/to/credentials.json}
           
           # --- Default Model Behavior ---
           chat:
@@ -207,6 +209,9 @@ app:
     base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
     api-key: ${GEMINI_API_KEY:}
     model: ${GEMINI_MODEL:gemini-2.0-flash}
+    project-id: ${GEMINI_PROJECT_ID:central-kyc}
+    location: ${GEMINI_LOCATION:us-central1}
+    credentials-path: ${GCP_CREDENTIALS_FILE:/path/to/credentials.json}
   registration:
     client: ${REGISTRATION_CLIENT:centralkyc-registration}
     client-secret: ${REGISTRATION_CLIENT_SECRET:secret}

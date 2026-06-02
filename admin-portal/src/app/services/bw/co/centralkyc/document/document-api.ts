@@ -114,4 +114,8 @@ export class DocumentApi {
   public updateVerificationStatus(id: string, status: DocumentVerificationStatus): Observable<DocumentDTO> {
     return this.http.get<DocumentDTO>(`${this.path}/${id}/verification-status?verificationStatus=${status}`);
   }
+
+  public geminiTextExtration(id: string): Observable<DocumentDTO> {
+    return this.http.get<DocumentDTO>(`${this.path}/${id}/gemini-text-extraction`);
+  }
 }

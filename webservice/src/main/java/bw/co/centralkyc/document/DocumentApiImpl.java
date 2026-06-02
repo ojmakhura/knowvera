@@ -35,6 +35,7 @@ import bw.co.centralkyc.QueueObject;
 import bw.co.centralkyc.SearchObject;
 import bw.co.centralkyc.TargetEntity;
 import bw.co.centralkyc.document.processor.DocumentProcessorService;
+import bw.co.centralkyc.document.processor.GeminiTextExtractionProcessor;
 import bw.co.centralkyc.logging.Audit;
 import bw.co.centralkyc.minio.MinioService;
 import bw.co.centralkyc.properties.RabbitProperties;
@@ -49,22 +50,26 @@ public class DocumentApiImpl implements DocumentApi {
     private final MinioService minioService;
     private final DocumentService documentService;
     private final DocumentProcessorService documentProcessor;
+    
+    private final GeminiTextExtractionProcessor geminiTextExtractionProcessor;
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
 
     public DocumentApiImpl(DocumentService documentService, RabbitTemplate rabbitTemplate, MinioService minioService,
-            DocumentProcessorService documentProcessor, RabbitProperties rabbitProperties) {
+            DocumentProcessorService documentProcessor, GeminiTextExtractionProcessor geminiTextExtractionProcessor,
+            RabbitProperties rabbitProperties) {
 
         this.documentService = documentService;
         this.minioService = minioService;
         this.documentProcessor = documentProcessor;
+        this.geminiTextExtractionProcessor = geminiTextExtractionProcessor;
         this.rabbitTemplate = rabbitTemplate;
         this.rabbitProperties = rabbitProperties;
     }
 
     @Override
     @Operation(summary = "Find Documents by Type", description = "Get the documents with the given document type id")
-    @Audit(entity = "DOCUMENT", eventLabel="#documentTypeId", logData = false)
+    @Audit(entity = "DOCUMENT", eventLabel = "#documentTypeId", logData = false)
     public ResponseEntity<List<DocumentListDTO>> findByDocumentType(String documentTypeId) {
 
         try {
@@ -80,7 +85,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Find Document by ID", description = "Get the document with the given id")
-    @Audit(entity = "DOCUMENT", eventLabel="#id", logData = false)
+    @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
     public ResponseEntity<DocumentDTO> findById(String id) {
 
         try {
@@ -95,7 +100,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Find Documents by Target", description = "Get the documents with the given target entity and target id")
-    @Audit(entity = "DOCUMENT", eventLabel="#target + ' ' + #targetId", logData = false)
+    @Audit(entity = "DOCUMENT", eventLabel = "#target + ' ' + #targetId", logData = false)
     public ResponseEntity<List<DocumentListDTO>> findByTarget(
             bw.co.centralkyc.TargetEntity target, String targetId) {
 
@@ -134,7 +139,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Remove Document", description = "Remove the document with the given id")
-    @Audit(entity = "DOCUMENT", eventLabel="#id", logData = false)
+    @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) {
 
         try {
@@ -156,7 +161,6 @@ public class DocumentApiImpl implements DocumentApi {
             }
             return ResponseEntity.ok(removed);
 
-
         } catch (Exception e) {
 
             throw e;
@@ -166,7 +170,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Save Document", description = "Save the document")
-    @Audit(entity = "DOCUMENT", eventLabel="#document.fileName", logData = true)
+    @Audit(entity = "DOCUMENT", eventLabel = "#document.fileName", logData = true)
     public ResponseEntity<DocumentDTO> save(DocumentDTO document) {
 
         try {
@@ -189,7 +193,8 @@ public class DocumentApiImpl implements DocumentApi {
 
         try {
 
-            return ResponseEntity.ok(documentService.search(criteria.getCriteria(), Set.copyOf(criteria.getSortings())));
+            return ResponseEntity
+                    .ok(documentService.search(criteria.getCriteria(), Set.copyOf(criteria.getSortings())));
         } catch (Exception e) {
 
             throw e;
@@ -225,7 +230,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Upload Document", description = "Upload a document for the given target entity and target id")
-    @Audit(entity = "DOCUMENT", eventLabel="#target + ' ' + #targetId", logData = false)
+    @Audit(entity = "DOCUMENT", eventLabel = "#target + ' ' + #targetId", logData = false)
     public ResponseEntity<DocumentDTO> upload(TargetEntity target, String targetId,
             String documentTypeId, String purpose, MultipartFile file) {
 
@@ -292,7 +297,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Download Document", description = "Download the document with the given id")
-    @Audit(entity = "DOCUMENT", eventLabel="#id", logData = false)
+    @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
     public ResponseEntity<InputStreamResource> downloadFile(String id) {
         try {
 
@@ -313,7 +318,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Download Document by URL", description = "Download the document with the given URL")
-    @Audit(entity = "DOCUMENT", eventLabel="#objectName", logData = false)
+    @Audit(entity = "DOCUMENT", eventLabel = "#objectName", logData = false)
     public ResponseEntity<InputStreamResource> downloadFileByUrl(@RequestParam String objectName) throws Exception {
 
         InputStreamResource data = downloadFromMinio(objectName);
@@ -328,7 +333,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Update Document", description = "Update the document with the given id")
-    @Audit(entity = "DOCUMENT", eventLabel="#id", logData = true)
+    @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = true)
     public ResponseEntity<DocumentDTO> updateDocument(String id, MultipartFile file) throws Exception {
 
         DocumentDTO document = documentService.findById(id);
@@ -382,7 +387,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", logData = false)
     public @Nullable ResponseEntity<Page<DocumentListDTO>> searchPaged(
             @Valid SearchObject<DocumentSearchCriteria> criteria) throws Exception {
-        
+
         try {
 
             Page<DocumentListDTO> results = documentService.search(criteria);
@@ -390,7 +395,7 @@ public class DocumentApiImpl implements DocumentApi {
         } catch (Exception e) {
             throw e;
         }
-        
+
     }
 
     @Override
@@ -412,7 +417,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Analyse Document", description = "Analyse the document with the given id")
-    @Audit(entity = "DOCUMENT", eventLabel="#id", logData = false)
+    @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
     public ResponseEntity<DocumentDTO> analyseDocument(String id) throws Exception {
 
         try {
@@ -437,9 +442,9 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Update File Content", description = "Update the content of the document with the given id")
-    @Audit(entity = "DOCUMENT", eventLabel="#id", logData = true)
+    @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = true)
     public ResponseEntity<DocumentDTO> updateFileContent(String id, String content) throws Exception {
-        
+
         try {
 
             return ResponseEntity.ok(documentService.updateFileContent(id, content));
@@ -451,16 +456,16 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Verify Document Data", description = "Verify the data of the document with the given id")
-    @Audit(entity = "DOCUMENT", eventLabel="#id", logData = true)
+    @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = true)
     public ResponseEntity<DocumentDTO> verifyData(String id) throws Exception {
-       
+
         try {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Jwt jwt = (Jwt) authentication.getPrincipal();
 
             String username = jwt.getClaimAsString("preferred_username");
-            
+
             return ResponseEntity.ok(documentService.verifyData(id, username));
         } catch (Exception e) {
             throw e;
@@ -470,16 +475,50 @@ public class DocumentApiImpl implements DocumentApi {
 
     @Override
     @Operation(summary = "Update Document Verification Status", description = "Update the verification status of the document with the given id")
-    @Audit(entity = "DOCUMENT", eventLabel="#id", logData = true)
+    @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = true)
     public ResponseEntity<DocumentDTO> updateVerificationStatus(String id,
             DocumentVerificationStatus verificationStatus) throws Exception {
-        
+
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Jwt jwt = (Jwt) authentication.getPrincipal();
 
             String username = jwt.getClaimAsString("preferred_username");
             return ResponseEntity.ok(documentService.updateVerificationStatus(id, verificationStatus, username));
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    @Operation(summary = "Gemini Text Extraction", description = "Extract text using google gemini. Be careful since this requires an account that has charges on it.")
+    @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
+    public ResponseEntity<DocumentDTO> geminiTextExtration(String id, Boolean block) throws Exception {
+
+        try {
+
+            DocumentDTO document = documentService.findById(id);
+
+            if (document == null) {
+                throw new IllegalArgumentException("Document not found for id: " + id);
+            }
+
+            QueueObject queueObject = new QueueObject(
+                    id,
+                    document.getTarget(),
+                    document.getTargetId());
+
+            if (block != null && block) {
+                geminiTextExtractionProcessor.handleDocumentProcessing(queueObject);
+                return ResponseEntity.ok(documentService.findById(id));
+            }
+
+            rabbitTemplate.convertAndSend(
+                    rabbitProperties.getGeminiTextExtractionQueueExchange(),
+                    rabbitProperties.getGeminiTextExtractionQueueRoutingKey(),
+                    queueObject);
+
+            return ResponseEntity.ok(document);
         } catch (Exception e) {
             throw e;
         }
