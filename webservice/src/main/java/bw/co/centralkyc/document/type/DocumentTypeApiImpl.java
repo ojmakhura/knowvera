@@ -37,7 +37,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
     @Override
     @Operation(summary = "Find Document Type", description = "Get the document type with the given id")
-    public ResponseEntity<DocumentTypeDTO> findById(String id) {
+    public ResponseEntity<DocumentTypeDTO> findById(String id) throws Exception {
 
         try {
 
@@ -45,14 +45,14 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
         }
 
     }
 
     @Override
     @Operation(summary = "Get All Document Types", description = "Get all document types")
-    public ResponseEntity<List<DocumentTypeDTO>> getAll() {
+    public ResponseEntity<List<DocumentTypeDTO>> getAll() throws Exception {
 
         try {
 
@@ -67,7 +67,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
         }
 
     }
@@ -75,7 +75,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     @Override
     @Operation(summary = "Get All Document Types Paged", description = "Get all document types with pagination")
     public ResponseEntity<Page<DocumentTypeDTO>> getAllPaged(Integer pageNumber,
-            Integer pageSize) {
+            Integer pageSize) throws Exception {
 
         try {
             Page<DocumentTypeDTO> results = documentTypeService.getAll(pageNumber, pageSize);
@@ -88,7 +88,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
             return ResponseEntity.ok(results);
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -96,7 +96,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     @Operation(summary = "Search Document Types Paged", description = "Search document types with pagination")
     public ResponseEntity<Page<DocumentTypeDTO>> pagedSearch(String criteria,
             Integer pageNumber,
-            Integer pageSize) {
+            Integer pageSize) throws Exception {
 
         try {
 
@@ -111,7 +111,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
         }
 
     }
@@ -119,7 +119,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     @Override
     @Operation(summary = "Remove Document Type", description = "Remove the document type with the given id")
     @Audit(entity = "DOCUMENT_TYPE", eventLabel="#id", logData = false)
-    public ResponseEntity<Boolean> remove(String id) {
+    public ResponseEntity<Boolean> remove(String id) throws Exception {
 
         try {
 
@@ -127,7 +127,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
         }
 
     }
@@ -135,7 +135,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     @Override
     @Operation(summary = "Save Document Type", description = "Save the document type. If the id is not provided, a new document type will be created.")
     @Audit(entity = "DOCUMENT_TYPE", eventLabel="#documentType.name", logData = false)
-    public ResponseEntity<DocumentTypeDTO> save(DocumentTypeDTO documentType) {
+    public ResponseEntity<DocumentTypeDTO> save(DocumentTypeDTO documentType) throws Exception {
 
         try {
 
@@ -160,14 +160,14 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
         }
 
     }
 
     @Override
     @Operation(summary = "Search Document Types", description = "Search document types by criteria")
-    public ResponseEntity<List<DocumentTypeDTO>> search(String criteria) {
+    public ResponseEntity<List<DocumentTypeDTO>> search(String criteria) throws Exception {
 
         try {
             List<DocumentTypeDTO> results = documentTypeService.search(criteria);
@@ -181,7 +181,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
         }
 
     }
@@ -200,7 +200,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
         }
     }
 }

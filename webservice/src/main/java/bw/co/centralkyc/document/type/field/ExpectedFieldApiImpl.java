@@ -45,7 +45,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new ExpectedFieldServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -58,7 +58,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new ExpectedFieldServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -75,7 +75,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new ExpectedFieldServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -98,7 +98,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new ExpectedFieldServiceException(e.getCause().getMessage()) : e;
         }
 
     }
@@ -113,7 +113,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new ExpectedFieldServiceException(e.getCause().getMessage()) : e;
         }
     }
 }

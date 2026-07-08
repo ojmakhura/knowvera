@@ -96,7 +96,7 @@ public class IndividualApiImpl implements IndividualApi {
     @Override
     @Operation(summary = "Find Individual by ID", description = "Get the individual with the given id")
     @Audit(entity = "INDIVIDUAL", eventLabel="#id", logData = false)
-    public ResponseEntity<IndividualDTO> findById(String id) {
+    public ResponseEntity<IndividualDTO> findById(String id) throws Exception {
 
         try {
 
@@ -126,20 +126,20 @@ public class IndividualApiImpl implements IndividualApi {
 
             return ResponseEntity.ok(data);
         } catch (Exception e) {
-            throw e;
+            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
         }
     }
 
     @Override
     @Operation(summary = "Get All Individuals", description = "Get all individuals")
     @Audit(entity = "INDIVIDUAL", logData = false)
-    public ResponseEntity<List<IndividualListDTO>> getAll() {
+    public ResponseEntity<List<IndividualListDTO>> getAll() throws Exception {
 
         try {
 
             return ResponseEntity.ok(individualService.getAll());
         } catch (Exception e) {
-            throw e;
+            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -147,13 +147,13 @@ public class IndividualApiImpl implements IndividualApi {
     @Operation(summary = "Get All Individuals Paged", description = "Get all individuals with pagination")
     @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<Page<IndividualListDTO>> getAllPaged(Integer pageNumber,
-            Integer pageSize) {
+            Integer pageSize) throws Exception {
 
         try {
             return ResponseEntity.ok(individualService.getAll(pageNumber, pageSize));
 
         } catch (Exception e) {
-            throw e;
+            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -161,28 +161,28 @@ public class IndividualApiImpl implements IndividualApi {
     @Operation(summary = "Search Individuals Paged", description = "Search individuals with pagination")
     @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<Page<IndividualListDTO>> pagedSearch(
-            SearchObject<IndividualSearchCriteria> criteria) {
+            SearchObject<IndividualSearchCriteria> criteria) throws Exception {
 
         try {
 
             return ResponseEntity.ok(individualService.search(criteria));
 
         } catch (Exception e) {
-            throw e;
+            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
         }
     }
 
     @Override
     @Operation(summary = "Remove Individual", description = "Remove the individual with the given id")
     @Audit(entity = "INDIVIDUAL", eventLabel="#id", logData = false)
-    public ResponseEntity<Boolean> remove(String id) {
+    public ResponseEntity<Boolean> remove(String id) throws Exception {
 
         try {
 
             return ResponseEntity.ok(individualService.remove(id));
 
         } catch (Exception e) {
-            throw e;
+            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
         }
 
     }
@@ -234,7 +234,7 @@ public class IndividualApiImpl implements IndividualApi {
     @Override
     @Operation(summary = "Save Individual", description = "Save the individual. If the id is not provided, a new individual will be created.")
     @Audit(entity = "INDIVIDUAL", eventLabel="#individual.id", logData = true)
-    public ResponseEntity<IndividualDTO> save(IndividualDTO individual) {
+    public ResponseEntity<IndividualDTO> save(IndividualDTO individual) throws Exception {
 
         try {
 
@@ -350,7 +350,7 @@ public class IndividualApiImpl implements IndividualApi {
             return ResponseEntity.ok(individual);
 
         } catch (Exception e) {
-            throw e;
+            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -358,7 +358,7 @@ public class IndividualApiImpl implements IndividualApi {
     @Operation(summary = "Search Individuals", description = "Search individuals by criteria")
     @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<List<IndividualListDTO>> search(
-            SearchObject<IndividualSearchCriteria> criteria) {
+            SearchObject<IndividualSearchCriteria> criteria) throws Exception {
 
         try {
 
@@ -373,7 +373,7 @@ public class IndividualApiImpl implements IndividualApi {
                     .ok(individualService.search(criteria.getCriteria(), sortings));
 
         } catch (Exception e) {
-            throw e;
+            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
         }
 
     }
@@ -390,7 +390,7 @@ public class IndividualApiImpl implements IndividualApi {
                     .ok(null);
 
         } catch (Exception e) {
-            throw e;
+            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -406,7 +406,7 @@ public class IndividualApiImpl implements IndividualApi {
                     .ok(null);
 
         } catch (Exception e) {
-            throw e;
+            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -423,7 +423,7 @@ public class IndividualApiImpl implements IndividualApi {
             return ResponseEntity.ok(individual);
 
         } catch (Exception e) {
-            throw e;
+            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -445,7 +445,7 @@ public class IndividualApiImpl implements IndividualApi {
             return ResponseEntity.ok(individualService.findByUserId(userId));
 
         } catch (Exception e) {
-            throw e;
+            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -469,7 +469,7 @@ public class IndividualApiImpl implements IndividualApi {
             return ResponseEntity.ok(individual);
 
         } catch (Exception e) {
-            throw e;
+            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
         }
 
     }

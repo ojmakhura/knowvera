@@ -36,7 +36,7 @@ public class AuditLogApiImpl implements AuditLogApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new AuditLogServiceException(e.getCause().getMessage()) : e;
         } 
     }
 
@@ -47,7 +47,7 @@ public class AuditLogApiImpl implements AuditLogApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new AuditLogServiceException(e.getCause().getMessage()) : e;
         } 
     }
 
@@ -58,7 +58,7 @@ public class AuditLogApiImpl implements AuditLogApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new AuditLogServiceException(e.getCause().getMessage()) : e;
         } 
     }
 
@@ -70,7 +70,7 @@ public class AuditLogApiImpl implements AuditLogApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new AuditLogServiceException(e.getCause().getMessage()) : e;
         } 
     }
 
@@ -82,7 +82,7 @@ public class AuditLogApiImpl implements AuditLogApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new AuditLogServiceException(e.getCause().getMessage()) : e;
         } 
     }
 
@@ -94,7 +94,7 @@ public class AuditLogApiImpl implements AuditLogApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new AuditLogServiceException(e.getCause().getMessage()) : e;
         } 
     }
 
@@ -106,7 +106,7 @@ public class AuditLogApiImpl implements AuditLogApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new AuditLogServiceException(e.getCause().getMessage()) : e;
         } 
     }
     

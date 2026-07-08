@@ -30,8 +30,6 @@ public class ContactApiImpl implements ContactApi {
         this.contactService = contactService;
     }
 
-
-
     @Override
     @Operation(summary = "Find Document Type", description = "Get the document type with the given id")
     @Audit(entity = "CONTACT", eventLabel="#id", logData = false)
@@ -41,10 +39,9 @@ public class ContactApiImpl implements ContactApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
         } 
     }
-
 
     @Override
     @Operation(summary = "Find Contacts by Type", description = "Get the contacts of the given type")
@@ -55,10 +52,9 @@ public class ContactApiImpl implements ContactApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
         } 
     }
-
 
     @Override
     @Operation(summary = "Find Contacts by Type with Pagination", description = "Get the contacts of the given type with pagination")
@@ -69,10 +65,9 @@ public class ContactApiImpl implements ContactApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
         } 
     }
-
 
     @Override
     @Operation(summary = "Get All Contacts", description = "Get all contacts")
@@ -83,10 +78,9 @@ public class ContactApiImpl implements ContactApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
         } 
     }
-
 
     @Override
     @Operation(summary = "Get All Contacts Paged", description = "Get all contacts with pagination")
@@ -97,10 +91,9 @@ public class ContactApiImpl implements ContactApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
         } 
     }
-
 
     @Override
     @Operation(summary = "Remove Contact", description = "Remove the contact with the given id")
@@ -111,10 +104,9 @@ public class ContactApiImpl implements ContactApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
         } 
     }
-
 
     @Override
     @Operation(summary = "Save Contact", description = "Save the contact. If the id is not provided, a new contact will be created.")
@@ -125,10 +117,9 @@ public class ContactApiImpl implements ContactApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
         } 
     }
-
 
     @Override
     @Operation(summary = "Search Contacts", description = "Search contacts by criteria")
@@ -139,7 +130,7 @@ public class ContactApiImpl implements ContactApi {
         } catch (Exception e) {
 
             logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
         } 
     }
     

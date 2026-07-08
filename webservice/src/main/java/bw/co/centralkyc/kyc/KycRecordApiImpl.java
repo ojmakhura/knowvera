@@ -115,7 +115,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -132,7 +132,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -149,7 +149,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -165,7 +165,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -182,7 +182,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -199,7 +199,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -213,7 +213,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -232,7 +232,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -249,7 +249,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -266,7 +266,7 @@ public class KycRecordApiImpl implements KycRecordApi {
             return ResponseEntity.ok(records);
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -282,7 +282,7 @@ public class KycRecordApiImpl implements KycRecordApi {
             return ResponseEntity.ok(records);
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -297,7 +297,7 @@ public class KycRecordApiImpl implements KycRecordApi {
             return ResponseEntity.ok(records);
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -321,7 +321,7 @@ public class KycRecordApiImpl implements KycRecordApi {
             return ResponseEntity.ok(records);
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -344,7 +344,7 @@ public class KycRecordApiImpl implements KycRecordApi {
             return ResponseEntity.ok(records);
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -369,7 +369,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -395,7 +395,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -428,7 +428,7 @@ public class KycRecordApiImpl implements KycRecordApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -486,7 +486,7 @@ public class KycRecordApiImpl implements KycRecordApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -566,7 +566,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -592,7 +592,7 @@ public class KycRecordApiImpl implements KycRecordApi {
             return ResponseEntity.ok(record);
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -647,7 +647,7 @@ public class KycRecordApiImpl implements KycRecordApi {
             return ResponseEntity.ok(updatedRecord);
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -690,7 +690,7 @@ public class KycRecordApiImpl implements KycRecordApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -712,7 +712,7 @@ public class KycRecordApiImpl implements KycRecordApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -737,7 +737,7 @@ public class KycRecordApiImpl implements KycRecordApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -762,7 +762,7 @@ public class KycRecordApiImpl implements KycRecordApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 }

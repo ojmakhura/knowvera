@@ -42,7 +42,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -57,7 +57,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -71,7 +71,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -86,7 +86,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -101,7 +101,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -115,7 +115,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -133,7 +133,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -148,7 +148,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
         } catch (Exception e) {
 
-            throw e;
+            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
         }
     }
 }

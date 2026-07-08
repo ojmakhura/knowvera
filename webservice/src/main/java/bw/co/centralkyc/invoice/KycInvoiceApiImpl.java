@@ -47,7 +47,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycInvoiceServiceException(e.getCause().getMessage()) : e;
         } 
     }
 
@@ -61,7 +61,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycInvoiceServiceException(e.getCause().getMessage()) : e;
         } 
     }
 
@@ -75,7 +75,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycInvoiceServiceException(e.getCause().getMessage()) : e;
         } 
     }
 
@@ -89,7 +89,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycInvoiceServiceException(e.getCause().getMessage()) : e;
         } 
     }
 
@@ -102,7 +102,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycInvoiceServiceException(e.getCause().getMessage()) : e;
         } 
     }
 
@@ -118,7 +118,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycInvoiceServiceException(e.getCause().getMessage()) : e;
         } 
     }
 
@@ -137,7 +137,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycInvoiceServiceException(e.getCause().getMessage()) : e;
         } 
     }
 
@@ -169,7 +169,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycInvoiceServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -185,7 +185,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycInvoiceServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -201,7 +201,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycInvoiceServiceException(e.getCause().getMessage()) : e;
         }
 
     }
@@ -220,7 +220,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycInvoiceServiceException(e.getCause().getMessage()) : e;
         }
     }
 
@@ -238,7 +238,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
+            throw e.getCause() != null ? new KycInvoiceServiceException(e.getCause().getMessage()) : e;
         }
     }
 }
