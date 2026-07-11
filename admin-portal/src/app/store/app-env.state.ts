@@ -22,6 +22,7 @@ export type AppEnvState = {
     username: string;
   } | null;
   currency: string | null;
+  novuConfig: any | null;
 };
 
 const initialState: AppEnvState = {
@@ -46,6 +47,7 @@ const initialState: AppEnvState = {
   username: null,
   profile: null,
   currency: null,
+  novuConfig: null,
 };
 
 export const AppEnvStore = signalStore(
@@ -97,6 +99,12 @@ export const AppEnvStore = signalStore(
         switchMap((profile) => {
           patchState(store, { profile });
           return of(store.profile);
+        }),
+      ),
+      setNovuConfig: rxMethod<any | null>(
+        switchMap((novuConfig) => {
+          patchState(store, { novuConfig });
+          return of(store.novuConfig);
         }),
       ),
     };

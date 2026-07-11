@@ -1,5 +1,5 @@
 import { AppEnvStore } from './store/app-env.state';
-import { Component, effect, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, effect, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TranslationService } from '@core/services/translation.service';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType, ReadyArgs, typeEventArgs } from 'keycloak-angular';
@@ -7,6 +7,7 @@ import Keycloak from 'keycloak-js';
 import { Shell } from './shell';
 import { TranslateModule } from '@ngx-translate/core';
 import { SettingsApiStore } from './store/bw/co/centralkyc/settings/settings-api.store';
+import { NovuService } from './services/novu.service';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,7 @@ import { SettingsApiStore } from './store/bw/co/centralkyc/settings/settings-api
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {
+export class App implements AfterViewInit {
   protected readonly title = signal('application');
   private translationService = inject(TranslationService);
   readonly appEnvState = inject(AppEnvStore);
@@ -22,6 +23,7 @@ export class App {
   private keycloakSignal = inject(KEYCLOAK_EVENT_SIGNAL);
   private keycloak = inject(Keycloak);
   settingsApiStore = inject(SettingsApiStore);
+  novuService = inject(NovuService);
 
   constructor() {
     // Translation service is initialized automatically via constructor
@@ -59,5 +61,18 @@ export class App {
     });
 
     this.settingsApiStore.getAll();
+  }
+
+  ngAfterViewInit(): void {
+    if(this.keycloak.authenticated) {
+      this.novuService.loadConfigs().subscribe({
+        next: (settings) => {
+          this.appEnvState.setNovuConfig(settings);
+        },
+        error: (error) => {
+          console.error('Error loading settings:', error);
+        }
+      });
+    }
   }
 }

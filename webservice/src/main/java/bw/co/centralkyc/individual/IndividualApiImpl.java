@@ -75,7 +75,7 @@ public class IndividualApiImpl implements IndividualApi {
     private final SettingsService settingsService;
     private final RabbitTemplate rabbitTemplate;
 
-    private SettingsDTO settings;
+    // private SettingsDTO settings;
 
     private static final String newUserTemplate = """
             Dear %s,
@@ -107,15 +107,15 @@ public class IndividualApiImpl implements IndividualApi {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    @PostConstruct
-    public void init() {
-        try {
-            settings = settingsService.getAll().stream().findFirst()
-                    .orElseThrow(() -> new RuntimeException("No application settings found"));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load application settings", e);
-        }
-    }
+    // @PostConstruct
+    // public void init() {
+    //     try {
+    //         settings = settingsService.getAll().stream().findFirst()
+    //                 .orElseThrow(() -> new RuntimeException("No application settings found"));
+    //     } catch (Exception e) {
+    //         throw new RuntimeException("Failed to load application settings", e);
+    //     }
+    // }
 
     @Override
     @Operation(summary = "Find Individual by ID", description = "Get the individual with the given id")
@@ -212,6 +212,9 @@ public class IndividualApiImpl implements IndividualApi {
     }
 
     private void newUserMessage(IndividualDTO individual, UserDTO user) {
+
+        SettingsDTO settings = settingsService.getAll().stream().findFirst()
+                .orElseThrow(() -> new RuntimeException("No application settings found"));
 
         Map<String, String> payload = new HashMap<>();
 
