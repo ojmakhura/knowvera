@@ -24,7 +24,7 @@ spring:
     virtual:
       enabled: true
   jpa:
-    show-sql: ${ SHOW_SQL:false }
+    show-sql: ${SHOW_SQL:false }
     properties:
       hibernate:
         format_sql: true
@@ -260,3 +260,25 @@ app:
   novu:
     api-key: ${NOVU_API_KEY:}
     base-url: ${NOVU_BASE_URL:https://api.novu.co}
+    queue:
+      newUserNovuId: ${NOVU_NEW_USER_NOVU_ID:novu-new-user}
+      newUserQueueExchange: ${NOVU_NEW_USER_QUEUE_EXCHANGE:x.novu-new-user-queue}
+      newUserQueue: ${NOVU_NEW_USER_QUEUE:q.novu-new-user}
+      newUserQueueRoutingKey: ${NOVU_NEW_USER_QUEUE_ROUTING_KEY:novu-new-user}
+
+      newOrgUserNovuId: ${NOVU_NEW_ORG_USER_NOVU_ID:novu-new-org-user}
+      newOrgUserQueueExchange: ${NOVU_NEW_ORG_USER_QUEUE_EXCHANGE:x.novu-new-org-user-queue}
+      newOrgUserQueue: ${NOVU_NEW_ORG_USER_QUEUE:q.novu-new-org-user}
+      newOrgUserQueueRoutingKey: ${NOVU_NEW_ORG_USER_QUEUE_ROUTING_KEY:novu-new-org-user}
+
+      newOrgClientRequestNovuId: ${NOVU_NEW_ORG_CLIENT_REQUEST_NOVU_ID:novu-new-org-client-request}
+      newOrgClientRequestQueueExchange: ${NOVU_NEW_ORG_CLIENT_REQUEST_QUEUE_EXCHANGE:x.novu-new-org-client-request-queue}
+      newOrgClientRequestQueue: ${NOVU_NEW_ORG_CLIENT_REQUEST_QUEUE:q.novu-new-org-client-request}
+      newOrgClientRequestQueueRoutingKey: ${NOVU_NEW_ORG_CLIENT_REQUEST_QUEUE_ROUTING_KEY:novu-new-org-client-request}
+
+      newKycRecordNovuId: ${NOVU_NEW_KYC_RECORD_NOVU_ID:novu-new-kyc-record}
+      newKycRecordQueueExchange: ${NOVU_NEW_KYC_RECORD_QUEUE_EXCHANGE:x.novu-new-kyc-record-queue}
+      newKycRecordQueue: ${NOVU_NEW_KYC_RECORD_QUEUE:q.novu-new-kyc-record}
+      newKycRecordQueueRoutingKey: ${NOVU_NEW_KYC_RECORD_QUEUE_ROUTING_KEY:novu-new-kyc-record}
+
+      

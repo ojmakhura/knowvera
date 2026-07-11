@@ -13,20 +13,24 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.Year;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 
 import bw.co.centralkyc.AuditTracker;
 import bw.co.centralkyc.PropertySearchOrder;
 import bw.co.centralkyc.SearchObject;
-import bw.co.centralkyc.email.EmailService;
 import bw.co.centralkyc.keycloak.KeycloakOrganisationService;
 import bw.co.centralkyc.keycloak.KeycloakUserService;
 import bw.co.centralkyc.logging.Audit;
@@ -34,12 +38,12 @@ import bw.co.centralkyc.organisation.OrganisationDTO;
 import bw.co.centralkyc.organisation.OrganisationListDTO;
 import bw.co.centralkyc.organisation.branch.BranchDTO;
 import bw.co.centralkyc.organisation.branch.BranchService;
+import bw.co.centralkyc.settings.SettingsDTO;
+import bw.co.centralkyc.settings.SettingsService;
 import bw.co.centralkyc.user.UserDTO;
-import bw.co.roguesystems.comm.ContentType;
-import bw.co.roguesystems.comm.MessagingPlatform;
-import bw.co.roguesystems.comm.message.CommMessageDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.PostConstruct;
 
 @RestController
 @Tag(name = "Individuals", description = "Individuals API")
@@ -57,13 +61,21 @@ public class IndividualApiImpl implements IndividualApi {
     @Value("${app.comm.source-email}")
     private String sourceEmail;
 
+    @Value("${app.novu.queue.newUserQueueExchange}")
+    private String newUserQueueExchange;
+
+    @Value("${app.novu.queue.newUserQueueRoutingKey}")
+    private String newUserQueueRoutingKey;
+
     private final KeycloakUserService keycloakUserService;
     private final KeycloakOrganisationService keycloakOrgService;
     private final BranchService branchService;
-    private final EmailService emailService;
     private final IndividualService individualService;
-
     private final OrganisationService organisationService;
+    private final SettingsService settingsService;
+    private final RabbitTemplate rabbitTemplate;
+
+    private SettingsDTO settings;
 
     private static final String newUserTemplate = """
             Dear %s,
@@ -82,20 +94,32 @@ public class IndividualApiImpl implements IndividualApi {
             """;
 
     public IndividualApiImpl(IndividualService individualService, KeycloakUserService keycloakUserService,
-            OrganisationService organisationService,
-            BranchService branchService, EmailService emailService, KeycloakOrganisationService keycloakOrgService) {
+            OrganisationService organisationService, SettingsService settingsService,
+            BranchService branchService, KeycloakOrganisationService keycloakOrgService,
+            RabbitTemplate rabbitTemplate) {
 
         this.individualService = individualService;
         this.keycloakUserService = keycloakUserService;
         this.branchService = branchService;
-        this.emailService = emailService;
         this.keycloakOrgService = keycloakOrgService;
         this.organisationService = organisationService;
+        this.settingsService = settingsService;
+        this.rabbitTemplate = rabbitTemplate;
+    }
+
+    @PostConstruct
+    public void init() {
+        try {
+            settings = settingsService.getAll().stream().findFirst()
+                    .orElseThrow(() -> new RuntimeException("No application settings found"));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load application settings", e);
+        }
     }
 
     @Override
     @Operation(summary = "Find Individual by ID", description = "Get the individual with the given id")
-    @Audit(entity = "INDIVIDUAL", eventLabel="#id", logData = false)
+    @Audit(entity = "INDIVIDUAL", eventLabel = "#id", logData = false)
     public ResponseEntity<IndividualDTO> findById(String id) throws Exception {
 
         try {
@@ -174,7 +198,7 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Remove Individual", description = "Remove the individual with the given id")
-    @Audit(entity = "INDIVIDUAL", eventLabel="#id", logData = false)
+    @Audit(entity = "INDIVIDUAL", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
         try {
@@ -187,53 +211,33 @@ public class IndividualApiImpl implements IndividualApi {
 
     }
 
-    private CommMessageDTO newUserMessage(IndividualDTO individual, UserDTO user) {
+    private void newUserMessage(IndividualDTO individual, UserDTO user) {
 
-        // OrganisationDTO org = keycloakOrgService.
-
-        CommMessageDTO message = new CommMessageDTO();
-
-        message.setContentType(ContentType.PLAIN_TEXT);
-        SortedSet<String> destinations = new TreeSet<>();
-        destinations.add(individual.getEmailAddress());
-        message.setDestinations(destinations);
-        message.setSource(sourceEmail);
+        Map<String, String> payload = new HashMap<>();
 
         StringBuilder nameBuilder = new StringBuilder();
         nameBuilder.append(individual.getFirstName()).append(' ');
         if (StringUtils.isNotBlank(individual.getMiddleName())) {
-
             nameBuilder.append(individual.getMiddleName()).append(' ');
         }
 
-        nameBuilder.append(individual.getSurname());
+        payload.put("firstName", nameBuilder.toString());
+        payload.put("surname", individual.getSurname());
+        payload.put("organisationName",
+                individual.getOrganisation() != null ? individual.getOrganisation().name() : "");
+        payload.put("loginUrl", settings.getPlatformUrl());
+        payload.put("username", user.getUsername());
+        payload.put("password", user.getPassword());
+        payload.put("currentYear", "" + LocalDate.now().getYear());
 
-        String messageStr = String.format(newUserTemplate, nameBuilder.toString(), individual.getOrganisation(),
-                adminWebUrl, user.getUsername(),
-                user.getPassword());
+        rabbitTemplate.convertAndSend(newUserQueueExchange, newUserQueueRoutingKey, payload);
 
-        message.setText(messageStr);
-        message.setPlatform(MessagingPlatform.EMAIL);
-
-        if(individual.getOrganisation() != null && StringUtils.isNotBlank(individual.getOrganisation().id())) {
-
-            OrganisationDTO org = keycloakOrgService.findById(individual.getOrganisation().id());
-
-            if (org != null) {
-
-                if (StringUtils.isNotBlank(org.getContactEmailAddress())) {
-                    message.setCcs(new TreeSet<>(List.of(org.getContactEmailAddress())));
-                }
-            }
-        }
-
-        return message;
 
     }
 
     @Override
     @Operation(summary = "Save Individual", description = "Save the individual. If the id is not provided, a new individual will be created.")
-    @Audit(entity = "INDIVIDUAL", eventLabel="#individual.id", logData = true)
+    @Audit(entity = "INDIVIDUAL", eventLabel = "#individual.id", logData = true)
     public ResponseEntity<IndividualDTO> save(IndividualDTO individual) throws Exception {
 
         try {
@@ -244,23 +248,22 @@ public class IndividualApiImpl implements IndividualApi {
             UserDTO user = keycloakUserService.getUserByIdentityNo(individual.getIdentityNo());
             boolean isNewUser = false;
 
-            if(user == null && StringUtils.isNotBlank(individual.getEmailAddress())) {
+            if (user == null && StringUtils.isNotBlank(individual.getEmailAddress())) {
                 user = keycloakUserService.getUserByEmail(individual.getEmailAddress());
             }
 
             OrganisationDTO org = null;
             BranchDTO branch = null;
 
-            if(individual.getBranch() != null) {
+            if (individual.getBranch() != null) {
 
                 branch = branchService.findById(individual.getBranch().getId());
 
                 org = organisationService.findById(branch.getOrganisationId());
 
-            } else if(individual.getOrganisation() != null) {
+            } else if (individual.getOrganisation() != null) {
                 org = organisationService.findById(individual.getOrganisation().id());
             }
-
 
             if (user == null) {
 
@@ -293,12 +296,12 @@ public class IndividualApiImpl implements IndividualApi {
 
                     user = keycloakUserService.registerUser(individual, org);
 
-                } else if(existing != null) {
+                } else if (existing != null) {
                     user = existing;
                 }
             } else {
 
-                if(org == null) {
+                if (org == null) {
 
                     user.setOrganisation(null);
                     user.setOrganisationId(null);
@@ -310,7 +313,7 @@ public class IndividualApiImpl implements IndividualApi {
                     user.setOrganisationRegistrationNo(org.getRegistrationNo());
                 }
 
-                if(branch == null) {
+                if (branch == null) {
 
                     user.setBranch(null);
                     user.setBranchId(null);
@@ -321,7 +324,7 @@ public class IndividualApiImpl implements IndividualApi {
 
                 }
 
-                if(StringUtils.isNotBlank(individual.getIdentityNo())) {
+                if (StringUtils.isNotBlank(individual.getIdentityNo())) {
 
                     user.setIdentityNo(individual.getIdentityNo());
                 }
@@ -337,7 +340,8 @@ public class IndividualApiImpl implements IndividualApi {
             individual = individualService.save(individual);
             if (isNewUser) {
                 try {
-                    emailService.sendEmail(List.of(newUserMessage(individual, user)));
+                    // emailService.sendEmail(List.of(newUserMessage(individual, user)));
+                    this.newUserMessage(individual, user);
                 } catch (Exception e) {
                     // Log and continue
                     System.err.println("Failed to send new user email: " + e.getMessage());
@@ -451,9 +455,9 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Override
     @Operation(summary = "Verify Individual", description = "Verify the individual with the given id")
-    @Audit(entity = "INDIVIDUAL", eventLabel="#id", logData = false)
+    @Audit(entity = "INDIVIDUAL", eventLabel = "#id", logData = false)
     public ResponseEntity<IndividualDTO> verifyIndividual(String id) throws Exception {
-        
+
         try {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

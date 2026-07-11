@@ -34,9 +34,6 @@ import bw.co.centralkyc.sequence.SequencePart;
 import bw.co.centralkyc.sequence.SequencePartType;
 import bw.co.centralkyc.settings.SettingsMapper;
 import bw.co.centralkyc.settings.SettingsRepository;
-import bw.co.roguesystems.comm.ContentType;
-import bw.co.roguesystems.comm.MessagingPlatform;
-import bw.co.roguesystems.comm.message.CommMessageDTO;
 import io.micrometer.common.util.StringUtils;
 
 import java.io.BufferedReader;

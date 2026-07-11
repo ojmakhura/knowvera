@@ -2,6 +2,7 @@ package bw.co.centralkyc.keycloak;
 
 import java.net.URI;
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +28,7 @@ import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.*;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -44,9 +46,6 @@ import bw.co.centralkyc.settings.SettingsDTO;
 import bw.co.centralkyc.settings.SettingsService;
 import bw.co.centralkyc.user.UserDTO;
 import bw.co.centralkyc.utils.KycUtils;
-import bw.co.roguesystems.comm.ContentType;
-import bw.co.roguesystems.comm.MessagingPlatform;
-import bw.co.roguesystems.comm.message.CommMessageDTO;
 
 @Component
 @RequiredArgsConstructor
@@ -79,14 +78,26 @@ public class KeycloakUserService {
     @Value("${app.comm.source-email}")
     private String sourceEmail;
 
+    @Value("${app.novu.queue.newUserQueueExchange}")
+    private String newUserQueueExchange;
+
+    @Value("${app.novu.queue.newUserQueueRoutingKey}")
+    private String newUserQueueRoutingKey;
+
+    @Value("${app.novu.queue.newOrgUserQueueExchange}")
+    private String newOrgUserQueueExchange;
+
+    @Value("${app.novu.queue.newOrgUserQueueRoutingKey}")
+    private String newOrgUserQueueRoutingKey;
+
     private SettingsDTO settings;
 
     private final KeycloakService keycloakService;
     private final BranchService branchService;
     private final IndividualService individualService;
     private final ClientRequestService clientRequestService;
-    private final OrganisationService organisationService;
     private final SettingsService settingsService;
+    private final RabbitTemplate rabbitTemplate;
 
     private final KycUtils kycUtils;
 
@@ -173,8 +184,9 @@ public class KeycloakUserService {
             attributes.put("identityNo", Collections.singletonList(user.getIdentityNo()));
         }
 
-        if(StringUtils.isNotBlank(user.getOrganisationRegistrationNo())) {
-            attributes.put("organisationRegistrationNo", Collections.singletonList(user.getOrganisationRegistrationNo()));
+        if (StringUtils.isNotBlank(user.getOrganisationRegistrationNo())) {
+            attributes.put("organisationRegistrationNo",
+                    Collections.singletonList(user.getOrganisationRegistrationNo()));
         }
 
         return attributes;
@@ -253,62 +265,30 @@ public class KeycloakUserService {
         return reps.stream().map(this::toUserDTO).collect(Collectors.toList());
     }
 
-    private CommMessageDTO newUserMessage(IndividualDTO individual, UserDTO user, OrganisationDTO organisation) {
+    private void newUserMessage(IndividualDTO individual, UserDTO user, OrganisationDTO organisation) {
 
-        CommMessageDTO message = new CommMessageDTO();
-
-        message.setContentType(ContentType.PLAIN_TEXT);
-        SortedSet<String> destinations = new TreeSet<>();
-        destinations.add(individual.getEmailAddress());
-        
-        message.setDestinations(destinations);
-        message.setSource(sourceEmail);
+        Map<String, String> payload = new HashMap<>();
 
         StringBuilder nameBuilder = new StringBuilder();
         nameBuilder.append(individual.getFirstName()).append(' ');
         if (StringUtils.isNotBlank(individual.getMiddleName())) {
-
             nameBuilder.append(individual.getMiddleName()).append(' ');
         }
 
-        nameBuilder.append(individual.getSurname());
+        payload.put("firstName", nameBuilder.toString());
+        payload.put("surname", individual.getSurname());
+        payload.put("loginUrl", settings.getKycPortalLink());
+        payload.put("username", user.getUsername());
+        payload.put("password", user.getPassword());
+        payload.put("currentYear", "" + LocalDate.now().getYear());
 
-        message.setPlatform(MessagingPlatform.EMAIL);
-
-        if (organisation != null && !StringUtils.isNotBlank(organisation.getId())) {
-
-            OrganisationDTO org = organisationService.findById(individual.getOrganisation().id());
-
-            if (org != null) {
-
-                if (StringUtils.isNotBlank(org.getContactEmailAddress())) {
-                    message.setCcs(new TreeSet<>(List.of(org.getContactEmailAddress())));
-                }
-
-                String messageStr = String.format(newOrgUserTemplate, nameBuilder.toString(),
-                        individual.getOrganisation(),
-                        adminWebUrl, user.getUsername(),
-                        user.getPassword());
-
-                message.setText(messageStr);
-
-            } else {
-                String messageStr = String.format(newUserTemplate, nameBuilder.toString(), settings.getKycPortalLink(),
-                        user.getUsername(),
-                        user.getPassword());
-
-                message.setText(messageStr);
-            }
+        if (organisation != null && StringUtils.isNotBlank(organisation.getId())) {
+            payload.put("organisationName",
+                    organisation != null ? organisation.getName() : "");
+            rabbitTemplate.convertAndSend(newOrgUserQueueExchange, newOrgUserQueueRoutingKey, payload);
         } else {
-
-            String messageStr = String.format(newUserTemplate, nameBuilder.toString(), settings.getKycPortalLink(),
-                    user.getUsername(),
-                    user.getPassword());
-
-            message.setText(messageStr);
+            rabbitTemplate.convertAndSend(newUserQueueExchange, newUserQueueRoutingKey, payload);
         }
-
-        return message;
 
     }
 
@@ -731,7 +711,7 @@ public class KeycloakUserService {
             throw new RuntimeException("Failed to create user for individual: " + individual.getId());
         }
 
-        CommMessageDTO message = newUserMessage(individual, user, organisation);
+        newUserMessage(individual, user, organisation);
 
         // Call messaging service to send the email
         // For now, just print to console (not recommended for production)

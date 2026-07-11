@@ -12,135 +12,82 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class NovuQueueConfig {
 
-//     @Value("${app.rabbitmq.newRenewalApplicationQueue}")
-//     private String newRenewalApplicationQueue;
+    @Value("${app.novu.queue.newUserQueueExchange}")
+    private String newUserQueueExchange;
 
-//     @Value("${app.rabbitmq.newRenewalApplicationExchange}")
-//     private String newRenewalApplicationExchange;
+    @Value("${app.novu.queue.newUserQueue}")
+    private String newUserQueue;
 
-//     @Value("${app.rabbitmq.newRenewalApplicationRoutingKey}")
-//     private String newRenewalApplicationRoutingKey;
+    @Value("${app.novu.queue.newUserQueueRoutingKey}")
+    private String newUserQueueRoutingKey;
 
-//     @Bean
-//     public Declarables renewalApplicationQueueSchema() {
-//         DirectExchange renewalApplicationQueueExchange = new DirectExchange(
-//                 newRenewalApplicationExchange);
-//         Queue renewalApplicationQueue = QueueBuilder.durable(newRenewalApplicationQueue).build();
+    @Value("${app.novu.queue.newOrgUserQueueExchange}")
+    private String newOrgUserQueueExchange;
 
-//         return new Declarables(
-//                 renewalApplicationQueueExchange,
-//                 renewalApplicationQueue,
-//                 BindingBuilder.bind(renewalApplicationQueue).to(renewalApplicationQueueExchange)
-//                         .with(newRenewalApplicationRoutingKey));
-//     }
+    @Value("${app.novu.queue.newOrgUserQueue}")
+    private String newOrgUserQueue;
 
-//     @Value("${app.rabbitmq.newPractitionerQueue}")
-//     private String newPractitionerQueue;
+    @Value("${app.novu.queue.newOrgUserQueueRoutingKey}")
+    private String newOrgUserQueueRoutingKey;
 
-//     @Value("${app.rabbitmq.newPractitionerExchange}")
-//     private String newPractitionerExchange;
+    @Value("${app.novu.queue.newOrgClientRequestQueueExchange}")
+    private String newOrgClientRequestQueueExchange;
 
-//     @Value("${app.rabbitmq.newPractitionerRoutingKey}")
-//     private String newPractitionerRoutingKey;
+    @Value("${app.novu.queue.newOrgClientRequestQueue}")
+    private String newOrgClientRequestQueue;
 
-//     @Bean
-//     public Declarables practitionerQueueSchema() {
-//         DirectExchange practitionerQueueExchange = new DirectExchange(
-//                 newPractitionerExchange);
-//         Queue practitionerQueue = QueueBuilder.durable(newPractitionerQueue).build();
+    @Value("${app.novu.queue.newOrgClientRequestQueueRoutingKey}")
+    private String newOrgClientRequestQueueRoutingKey;
 
-//         return new Declarables(
-//                 practitionerQueueExchange,
-//                 practitionerQueue,
-//                 BindingBuilder.bind(practitionerQueue).to(practitionerQueueExchange)
-//                         .with(newPractitionerRoutingKey));
-//     }
+    @Value("${app.novu.queue.newKycRecordQueueExchange}")
+    private String newKycRecordQueueExchange;
 
-//     @Value("${app.rabbitmq.practitionerLicenceToExpireQueue}")
-//     private String practitionerLicenceToExpireQueue;
+    @Value("${app.novu.queue.newKycRecordQueue}")
+    private String newKycRecordQueue;
 
-//     @Value("${app.rabbitmq.practitionerLicenceToExpireExchange}")
-//     private String practitionerLicenceToExpireExchange;
+    @Value("${app.novu.queue.newKycRecordQueueRoutingKey}")
+    private String newKycRecordQueueRoutingKey;
 
-//     @Value("${app.rabbitmq.practitionerLicenceToExpireRoutingKey}")
-//     private String practitionerLicenceToExpireRoutingKey;
+    @Bean
+    public Declarables newUserQueueSchema() {
+        DirectExchange newUserExchange = new DirectExchange(newUserQueueExchange);
+        Queue newUserQ = QueueBuilder.durable(newUserQueue).build();
 
-//     @Bean
-//     public Declarables practitionerLicenceToExpireQueueSchema() {
-//         DirectExchange licenceToExpireQueueExchange = new DirectExchange(
-//                 practitionerLicenceToExpireExchange);
-//         Queue licenceToExpireQueue = QueueBuilder.durable(practitionerLicenceToExpireQueue).build();
+        return new Declarables(
+                newUserExchange,
+                newUserQ,
+                BindingBuilder.bind(newUserQ).to(newUserExchange).with(newUserQueueRoutingKey));
+    }
 
-//         return new Declarables(
-//                 licenceToExpireQueueExchange,
-//                 licenceToExpireQueue,
-//                 BindingBuilder.bind(licenceToExpireQueue).to(licenceToExpireQueueExchange)
-//                         .with(practitionerLicenceToExpireRoutingKey));
-//     }
+    @Bean
+    public Declarables newOrgUserQueueSchema() {
+        DirectExchange newOrgUserExchange = new DirectExchange(newOrgUserQueueExchange);
+        Queue newOrgUserQ = QueueBuilder.durable(newOrgUserQueue).build();
 
-//     @Value("${app.rabbitmq.practitionerAccountExpiredQueue}")
-//     private String practitionerAccountExpiredQueue;
+        return new Declarables(
+                newOrgUserExchange,
+                newOrgUserQ,
+                BindingBuilder.bind(newOrgUserQ).to(newOrgUserExchange).with(newOrgUserQueueRoutingKey));
+    }
 
-//     @Value("${app.rabbitmq.practitionerAccountExpiredExchange}")
-//     private String practitionerAccountExpiredExchange;
+    @Bean
+    public Declarables newOrgClientRequestQueueSchema() {
+        DirectExchange newOrgClientRequestExchange = new DirectExchange(newOrgClientRequestQueueExchange);
+        Queue newOrgClientRequestQ = QueueBuilder.durable(newOrgClientRequestQueue).build();
 
-//     @Value("${app.rabbitmq.practitionerAccountExpiredRoutingKey}")
-//     private String practitionerAccountExpiredRoutingKey;
+        return new Declarables(
+                newOrgClientRequestExchange,
+                newOrgClientRequestQ,
+                BindingBuilder.bind(newOrgClientRequestQ).to(newOrgClientRequestExchange).with(newOrgClientRequestQueueRoutingKey));
+    }
 
-//     @Bean
-//     public Declarables practitionerAccountExpiredQueueSchema() {
-//         DirectExchange accountExpiredQueueExchange = new DirectExchange(
-//                 practitionerAccountExpiredExchange);
-//         Queue accountExpiredQueue = QueueBuilder.durable(practitionerAccountExpiredQueue).build();
-
-//         return new Declarables(
-//                 accountExpiredQueueExchange,
-//                 accountExpiredQueue,
-//                 BindingBuilder.bind(accountExpiredQueue).to(accountExpiredQueueExchange)
-//                         .with(practitionerAccountExpiredRoutingKey));
-//     }
-
-//     @Value("${app.rabbitmq.applicationSubmissionQueue}")
-//     private String applicationSubmissionQueue;
-
-//     @Value("${app.rabbitmq.applicationSubmissionExchange}")
-//     private String applicationSubmissionExchange;
-
-//     @Value("${app.rabbitmq.applicationSubmissionRoutingKey}")
-//     private String applicationSubmissionRoutingKey;
-
-//     @Bean
-//     public Declarables applicationSubmissionQueueSchema() {
-//         DirectExchange submissionQueueExchange = new DirectExchange(
-//                 applicationSubmissionExchange);
-//         Queue submissionQueue = QueueBuilder.durable(applicationSubmissionQueue).build();
-
-//         return new Declarables(
-//                 submissionQueueExchange,
-//                 submissionQueue,
-//                 BindingBuilder.bind(submissionQueue).to(submissionQueueExchange)
-//                         .with(applicationSubmissionRoutingKey));
-//     }
-
-//     @Value("${app.rabbitmq.applicationVerifiedQueue}")
-//     private String applicationVerifiedQueue;
-
-//     @Value("${app.rabbitmq.applicationVerifiedExchange}")
-//     private String applicationVerifiedExchange;
-
-//     @Value("${app.rabbitmq.applicationVerifiedRoutingKey}")
-//     private String applicationVerifiedRoutingKey;
-
-//     @Bean
-//     public Declarables applicationVerifiedQueueSchema() {
-//         DirectExchange verifiedQueueExchange = new DirectExchange(
-//                 applicationVerifiedExchange);
-//         Queue verifiedQueue = QueueBuilder.durable(applicationVerifiedQueue).build();
-
-//         return new Declarables(
-//                 verifiedQueueExchange,
-//                 verifiedQueue,
-//                 BindingBuilder.bind(verifiedQueue).to(verifiedQueueExchange)
-//                         .with(applicationVerifiedRoutingKey));
-//     }
+    @Bean
+    public Declarables newKycRecordQueueSchema() {
+        DirectExchange newKycRecordExchange = new DirectExchange(newKycRecordQueueExchange);
+        Queue newKycRecordQ = QueueBuilder.durable(newKycRecordQueue).build();
+        return new Declarables(
+                newKycRecordExchange,
+                newKycRecordQ,
+                BindingBuilder.bind(newKycRecordQ).to(newKycRecordExchange).with(newKycRecordQueueRoutingKey));
+    }
 }
