@@ -146,6 +146,15 @@ services:
       NOVU_NEW_KYC_RECORD_QUEUE_EXCHANGE: ${NOVU_NEW_KYC_RECORD_QUEUE_EXCHANGE:-x.novu-new-kyc-record-queue}
       NOVU_NEW_KYC_RECORD_QUEUE: ${NOVU_NEW_KYC_RECORD_QUEUE:-q.novu-new-kyc-record}
       NOVU_NEW_KYC_RECORD_QUEUE_ROUTING_KEY: ${NOVU_NEW_KYC_RECORD_QUEUE_ROUTING_KEY:-novu-new-kyc-record}
+    labels:
+      - "traefik.enable=true"
+      # HTTP router
+      - "traefik.http.routers.centralkyc.rule=Host(`${WEBSERVICE_HOST:-centralkyc.localhost}`)"
+      - "traefik.http.routers.centralkyc.entrypoints=web"
+      - "traefik.http.services.centralkyc.loadbalancer.server.port=8085"
+      # Health check
+      - "traefik.http.services.centralkyc.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.centralkyc.loadbalancer.healthcheck.interval=30s"
     networks:
       - centralkyc
 
@@ -153,8 +162,3 @@ networks:
   centralkyc:
     driver: bridge
 
-volumes:
-  postgres-data:
-  redis-data:
-  rabbitmq-data:
-  minio-data:
