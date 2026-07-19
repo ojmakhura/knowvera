@@ -19,12 +19,18 @@ import co.novu.models.operations.SubscribersControllerGetSubscriberResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class NovuQueueProcessor {
     
   private final Novu novuSdk;
   private final KeycloakUserService keycloakUserService;
   private final SettingsService settingsService;
+
+  public NovuQueueProcessor(Novu novuSdk, KeycloakUserService keycloakUserService,
+      SettingsService settingsService) {
+    this.novuSdk = novuSdk;
+    this.keycloakUserService = keycloakUserService;
+    this.settingsService = settingsService;
+  }
 
   @Value("${app.novu.queue.newUserNovuId}")
   private String novuNewUserId;

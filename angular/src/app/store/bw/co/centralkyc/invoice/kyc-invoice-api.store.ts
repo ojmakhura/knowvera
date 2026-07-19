@@ -4,7 +4,7 @@ import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { AppState } from '@app/store/app-state';
+import { AppState, getErrormessage } from '@app/store/app-state';
 import { SearchObject } from '@app/models/search-object';
 import { Page } from '@app/models/page.model';
 import { KycInvoiceDTO } from '@app/models/bw/co/centralkyc/invoice/kyc-invoice-dto';
@@ -12,12 +12,12 @@ import { KycInvoiceApi } from '@app/services/bw/co/centralkyc/invoice/kyc-invoic
 import { InvoiceSearchCriteria } from '@app/models/bw/co/centralkyc/invoice/invoice-search-criteria';
 import { UploadPurpose } from '@app/models/bw/co/centralkyc/invoice/upload-purpose';
 
-export type KycInvoiceApiState = AppState<any, any> & {};
+export type KycInvoiceApiState = AppState<KycInvoiceDTO, KycInvoiceDTO> & {};
 
 const initialState: KycInvoiceApiState = {
-  data: null,
+  data: new KycInvoiceDTO(),
   dataList: [],
-  dataPage: new Page<any>(),
+  dataPage: new Page<KycInvoiceDTO>(),
   searchCriteria: new SearchObject<any>(),
   loading: false,
   success: false,
@@ -47,7 +47,7 @@ export const KycInvoiceApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -59,7 +59,7 @@ export const KycInvoiceApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -79,7 +79,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -91,7 +91,7 @@ export const KycInvoiceApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -111,7 +111,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -123,7 +123,7 @@ export const KycInvoiceApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -143,7 +143,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -155,7 +155,7 @@ export const KycInvoiceApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -175,7 +175,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -187,7 +187,7 @@ export const KycInvoiceApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -207,7 +207,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -219,7 +219,7 @@ export const KycInvoiceApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -239,7 +239,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -251,7 +251,7 @@ export const KycInvoiceApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -271,7 +271,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -283,7 +283,7 @@ export const KycInvoiceApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -303,7 +303,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -315,7 +315,7 @@ export const KycInvoiceApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -335,7 +335,7 @@ export const KycInvoiceApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -347,7 +347,7 @@ export const KycInvoiceApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -367,7 +367,7 @@ export const KycInvoiceApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -379,7 +379,7 @@ export const KycInvoiceApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -399,7 +399,7 @@ export const KycInvoiceApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -411,7 +411,7 @@ export const KycInvoiceApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -431,7 +431,7 @@ export const KycInvoiceApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -443,7 +443,7 @@ export const KycInvoiceApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },

@@ -3,15 +3,13 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { KycFieldGroupDTO } from '@models/bw/co/centralkyc/settings/kyc/kyc-field-group-dto';
 import { HttpClient } from '@angular/common/http';
-import { Page } from '@models/page.model';
-import { SearchObject } from '@models/search-object';
 
 @Injectable({
   providedIn: 'root'
 })
 export class KycFieldGroupApi {
     
-    protected path = '/kyc-field-group';
+    protected path = '/kyc-field-groups';
 
     private http = inject(HttpClient);
 
@@ -30,4 +28,8 @@ export class KycFieldGroupApi {
         return this.http.post<KycFieldGroupDTO>(`${this.path}`, fieldGroup);
     }
 
+    public removeField(id: string, fieldId: string): Observable<KycFieldGroupDTO> {
+
+        return this.http.delete<KycFieldGroupDTO>(`${this.path}/${id}/field/${fieldId}`);
+    }
 }

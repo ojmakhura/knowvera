@@ -11,7 +11,7 @@ services:
       PORT: ${PORT:-8085}
       SPRING_LOG_LEVEL: ${SPRING_LOG_LEVEL:-INFO}
       HIBERNATE_LOG_LEVEL: ${HIBERNATE_LOG_LEVEL:-INFO}
-      KYC_LOG_LEVEL: ${KYC_LOG_LEVEL:-DEBUG}
+      KYC_LOG_LEVEL: ${KYC_LOG_LEVEL:-INFO}
       SHOW_SQL: ${SHOW_SQL:-false}
 
       # --- Datasource (core-application.properties) ---

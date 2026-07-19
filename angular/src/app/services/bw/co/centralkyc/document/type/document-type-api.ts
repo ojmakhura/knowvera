@@ -5,13 +5,14 @@ import { DocumentTypeDTO } from '@models/bw/co/centralkyc/document/type/document
 import { HttpClient } from '@angular/common/http';
 import { Page } from '@models/page.model';
 import { SearchObject } from '@models/search-object';
+import { ExpectedFieldDTO } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-dto';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DocumentTypeApi {
 
-    protected path = '/document/type';
+    protected path = '/document-type';
 
     private http = inject(HttpClient);
 
@@ -50,4 +51,8 @@ export class DocumentTypeApi {
         return this.http.get<DocumentTypeDTO[] | any[]>(`${this.path}/search?criteria=${criteria}`);
     }
 
+    public addExpectedField(documentTypeId: string | any, expectedFields: ExpectedFieldDTO[] | any): Observable<DocumentTypeDTO | any> {
+
+        return this.http.post<DocumentTypeDTO | any>(`${this.path}/${documentTypeId}/expected-fields`, expectedFields);
+    }
 }

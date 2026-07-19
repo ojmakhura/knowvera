@@ -21,7 +21,6 @@ import bw.co.centralkyc.properties.RabbitProperties;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class GeminiTextExtractionProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(GeminiTextExtractionProcessor.class);
@@ -31,6 +30,16 @@ public class GeminiTextExtractionProcessor {
     private final GeminiExtractorService geminiExtractorService;
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
+
+    public GeminiTextExtractionProcessor(DocumentService documentService, MinioService minioService,
+            GeminiExtractorService geminiExtractorService, RabbitTemplate rabbitTemplate,
+            RabbitProperties rabbitProperties) {
+        this.documentService = documentService;
+        this.minioService = minioService;
+        this.geminiExtractorService = geminiExtractorService;
+        this.rabbitTemplate = rabbitTemplate;
+        this.rabbitProperties = rabbitProperties;
+    }
 
     @RabbitListener(queues = "${app.rabbitmq.geminiTextExtractionQueue}")
     public void handleDocumentProcessing(QueueObject queueObject) {

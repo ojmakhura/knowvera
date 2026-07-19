@@ -28,11 +28,14 @@ import bw.co.centralkyc.organisation.OrganisationService;
 import bw.co.centralkyc.properties.RabbitProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class DocumentValidationService {
+
+    private static final Logger log = LoggerFactory.getLogger(DocumentValidationService.class);
 
     @Value("${app.llm.model}")
     private String llmModel;
@@ -46,6 +49,21 @@ public class DocumentValidationService {
     private final KycRecordService kycRecordService;
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
+
+    public DocumentValidationService(OrganisationService organisationService, IndividualService individualService,
+            DocumentService documentService, DocumentTypeService documentTypeService,
+            LmStudioExtractorService lmStudioExtractorService, DocumentProcessorService documentProcessorService,
+            KycRecordService kycRecordService, RabbitTemplate rabbitTemplate, RabbitProperties rabbitProperties) {
+        this.organisationService = organisationService;
+        this.individualService = individualService;
+        this.documentService = documentService;
+        this.documentTypeService = documentTypeService;
+        this.lmStudioExtractorService = lmStudioExtractorService;
+        this.documentProcessorService = documentProcessorService;
+        this.kycRecordService = kycRecordService;
+        this.rabbitTemplate = rabbitTemplate;
+        this.rabbitProperties = rabbitProperties;
+    }
 
     @RabbitListener(queues = "${app.rabbitmq.documentConfirmationQueue}")
     public void handleDocumentConfirmation(QueueObject queueObject) {

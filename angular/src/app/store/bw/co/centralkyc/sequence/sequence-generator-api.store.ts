@@ -4,16 +4,16 @@ import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { AppState } from '@app/store/app-state';
+import { AppState, getErrormessage } from '@app/store/app-state';
 import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { SequenceGeneratorApi } from '@app/services/bw/co/centralkyc/sequence/sequence-generator-api';
 import { SequenceGeneratorDTO } from '@app/models/bw/co/centralkyc/sequence/sequence-generator-dto';
 
-export type SequenceGeneratorApiState = AppState<any, any> & {};
+export type SequenceGeneratorApiState = AppState<SequenceGeneratorDTO, SequenceGeneratorDTO> & {};
 
 const initialState: SequenceGeneratorApiState = {
-  data: null,
+  data: new SequenceGeneratorDTO(),
   dataList: [],
   dataPage: new Page<any>(),
   searchCriteria: new SearchObject<any>(),
@@ -40,24 +40,24 @@ export const SequenceGeneratorApiStore = signalStore(
             tapResponse({
               next: (response: SequenceGeneratorDTO) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    loading: false,
+                    success: true,
+                    messages: [`${response.name} loaded successfully!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -72,24 +72,24 @@ export const SequenceGeneratorApiStore = signalStore(
             tapResponse({
               next: (response: SequenceGeneratorDTO) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    loading: false,
+                    success: true,
+                    messages: [`${response.name} loaded successfully!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -104,24 +104,24 @@ export const SequenceGeneratorApiStore = signalStore(
             tapResponse({
               next: (response: SequenceGeneratorDTO[]) => {
                 patchState(
-                  store, 
+                  store,
                   {
-                    dataList: response, 
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    dataList: response,
+                    loading: false,
+                    success: true,
+                    messages: [`${response.length} sequence generators loaded successfully!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -136,24 +136,24 @@ export const SequenceGeneratorApiStore = signalStore(
             tapResponse({
               next: (response: boolean) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    loading: false,
+                    success: true,
+                    messages: [`Sequence generator removed successfully!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -168,24 +168,24 @@ export const SequenceGeneratorApiStore = signalStore(
             tapResponse({
               next: (response: SequenceGeneratorDTO) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    loading: false,
+                    success: true,
+                    messages: [`Sequence generator "${response.name}" saved successfully!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -200,24 +200,24 @@ export const SequenceGeneratorApiStore = signalStore(
             tapResponse({
               next: (response: SequenceGeneratorDTO[]) => {
                 patchState(
-                  store, 
+                  store,
                   {
-                    dataList: response, 
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    dataList: response,
+                    loading: false,
+                    success: true,
+                    messages: [`${response.length} sequence generators loaded successfully!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },

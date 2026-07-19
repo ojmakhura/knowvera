@@ -34,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.json.JsonMapper;
 
 @Component
-@RequiredArgsConstructor
 public class KeycloakOrganisationService {
 
     private final KeycloakService keycloakService;
@@ -42,6 +41,13 @@ public class KeycloakOrganisationService {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSSSSS");
 
     private final KycSubscriptionRepository subscriptionRepository;
+
+    public KeycloakOrganisationService(KeycloakService keycloakService, JsonMapper jsonMapper,
+            KycSubscriptionRepository subscriptionRepository) {
+        this.keycloakService = keycloakService;
+        this.jsonMapper = jsonMapper;
+        this.subscriptionRepository = subscriptionRepository;
+    }
 
     // --------------------- Core Conversion Methods --------------------- //
 

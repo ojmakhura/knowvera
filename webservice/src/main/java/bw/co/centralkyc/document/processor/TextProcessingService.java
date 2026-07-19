@@ -4,6 +4,8 @@ import java.util.List;
 
 import bw.co.centralkyc.properties.RabbitProperties;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,8 +23,9 @@ import tools.jackson.databind.json.JsonMapper;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class TextProcessingService {
+
+  private static final Logger log = LoggerFactory.getLogger(TextProcessingService.class);
 
   @Value("${app.llm.model}")
   private String llmModel;
@@ -33,6 +36,17 @@ public class TextProcessingService {
   private final DocumentProcessorService documentProcessorService;
   private final RabbitTemplate rabbitTemplate;
   private final RabbitProperties rabbitProperties;
+
+  public TextProcessingService(DocumentService documentService, LmStudioExtractorService lmStudioExtractorService,
+      JsonMapper jsonMapper, DocumentProcessorService documentProcessorService, RabbitTemplate rabbitTemplate,
+      RabbitProperties rabbitProperties) {
+    this.documentService = documentService;
+    this.lmStudioExtractorService = lmStudioExtractorService;
+    this.jsonMapper = jsonMapper;
+    this.documentProcessorService = documentProcessorService;
+    this.rabbitTemplate = rabbitTemplate;
+    this.rabbitProperties = rabbitProperties;
+  }
 
   private final String initialPrompt = """
           Extract all required information from the text and return it strictly in JSON format.

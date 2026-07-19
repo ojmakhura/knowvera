@@ -4,7 +4,7 @@ import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { AppState } from '@app/store/app-state';
+import { AppState, getErrormessage } from '@app/store/app-state';
 import { SearchObject } from '@app/models/search-object';
 import { Page } from '@app/models/page.model';
 import { EmploymentRecordDTO } from '@app/models/bw/co/centralkyc/individual/employment/employment-record-dto';
@@ -45,7 +45,7 @@ export const EmploymentRecordApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -57,7 +57,7 @@ export const EmploymentRecordApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -77,7 +77,7 @@ export const EmploymentRecordApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -89,7 +89,7 @@ export const EmploymentRecordApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -109,7 +109,7 @@ export const EmploymentRecordApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -121,7 +121,7 @@ export const EmploymentRecordApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -141,7 +141,7 @@ export const EmploymentRecordApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -153,7 +153,7 @@ export const EmploymentRecordApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -173,7 +173,7 @@ export const EmploymentRecordApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -185,7 +185,7 @@ export const EmploymentRecordApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -205,7 +205,7 @@ export const EmploymentRecordApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -217,7 +217,7 @@ export const EmploymentRecordApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -237,7 +237,7 @@ export const EmploymentRecordApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -249,7 +249,7 @@ export const EmploymentRecordApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -269,7 +269,7 @@ export const EmploymentRecordApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: ['Success!!'],
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
@@ -281,7 +281,7 @@ export const EmploymentRecordApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred'],
+                    messages: [getErrormessage(error)],
                   }
                 );
               },

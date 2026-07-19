@@ -4,19 +4,19 @@ import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { AppState } from '@app/store/app-state';
+import { AppState, getErrormessage } from '@app/store/app-state';
 import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { ContactDTO } from '@app/models/bw/co/centralkyc/contact/contact-dto';
 import { ContactApi } from '@app/services/bw/co/centralkyc/contact/contact-api';
 import { ContactType } from '@app/models/bw/co/centralkyc/contact/contact-type';
 
-export type ContactApiState = AppState<any, any> & {};
+export type ContactApiState = AppState<ContactDTO, ContactDTO> & {};
 
 const initialState: ContactApiState = {
-  data: null,
+  data: new ContactDTO(),
   dataList: [],
-  dataPage: new Page<any>(),
+  dataPage: new Page<ContactDTO>(),
   searchCriteria: new SearchObject<any>(),
   loading: false,
   success: false,
@@ -41,24 +41,24 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: ContactDTO) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    loading: false,
+                    success: true,
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -73,24 +73,24 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: ContactDTO[]) => {
                 patchState(
-                  store, 
+                  store,
                   {
-                    dataList: response, 
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    dataList: response,
+                    loading: false,
+                    success: true,
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -105,24 +105,24 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: Page<ContactDTO>) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     dataPage: response,
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    loading: false,
+                    success: true,
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -137,24 +137,24 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: ContactDTO[]) => {
                 patchState(
-                  store, 
+                  store,
                   {
-                    dataList: response, 
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    dataList: response,
+                    loading: false,
+                    success: true,
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -169,24 +169,24 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: Page<ContactDTO>) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     dataPage: response,
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    loading: false,
+                    success: true,
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -201,24 +201,24 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: boolean) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    loading: false,
+                    success: true,
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -233,24 +233,24 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: ContactDTO) => {
                 patchState(
-                  store, 
+                  store,
                   {
                     data: response,
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    loading: false,
+                    success: true,
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },
@@ -265,24 +265,24 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: ContactDTO[]) => {
                 patchState(
-                  store, 
+                  store,
                   {
-                    dataList: response, 
-                    loading: false, 
-                    success: true, 
-                    messages: ['Success!!'],
+                    dataList: response,
+                    loading: false,
+                    success: true,
+                    messages: [`Success!!`],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
                 patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
+                  store, {
+                    status: (error?.status || 0),
+                    loading: false,
                     success: false,
                     error: true,
-                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                    messages: [getErrormessage(error)],
                   }
                 );
               },

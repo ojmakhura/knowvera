@@ -7,6 +7,7 @@ import { Page } from '@models/page.model';
 import { TargetEntity } from '@models/bw/co/centralkyc/target-entity';
 import { SearchObject } from '@models/search-object';
 import { DocumentSearchCriteria } from '@models/bw/co/centralkyc/document/document-search-criteria';
+import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
 
 @Injectable({
   providedIn: 'root',
@@ -65,15 +66,23 @@ export class DocumentApi {
   }
 
   public upload(
-    target: TargetEntity | any,
-    targetId: string | any,
-    documentTypeId: string | any,
-    file: File | any,
+    target: TargetEntity,
+    targetId: string,
+    documentTypeId: string,
+    file: File,
+    purpose?: string
   ): Observable<DocumentDTO | any> {
     const formData: FormData = new FormData();
     formData.append('file', file);
+
+    let url = `${this.path}/upload/${target}/${targetId}/type/${documentTypeId}`;
+
+    if (purpose) {
+      url += `?purpose=${purpose}`;
+    }
+
     return this.http.post<DocumentDTO | any>(
-      `${this.path}/upload/${target}/${targetId}/type/${documentTypeId}`,
+      url,
       formData,
     );
   }
@@ -88,5 +97,25 @@ export class DocumentApi {
     return this.http.get(`${this.path}/download?objectName=${objectName}`, {
       responseType: 'blob',
     });
+  }
+
+  public updateFileContent(id: string, content: string): Observable<DocumentDTO> {
+    return this.http.put<DocumentDTO>(`${this.path}/${id}/content`, content);
+  }
+
+  public analyseDocument(id: string): Observable<DocumentDTO> {
+    return this.http.get<DocumentDTO>(`${this.path}/${id}/analysis`);
+  }
+
+  public verifyData(id: string): Observable<DocumentDTO> {
+    return this.http.get<DocumentDTO>(`${this.path}/${id}/data-verification`);
+  }
+
+  public updateVerificationStatus(id: string, status: DocumentVerificationStatus): Observable<DocumentDTO> {
+    return this.http.get<DocumentDTO>(`${this.path}/${id}/verification-status?verificationStatus=${status}`);
+  }
+
+  public geminiTextExtration(id: string): Observable<DocumentDTO> {
+    return this.http.get<DocumentDTO>(`${this.path}/${id}/gemini-text-extraction`);
   }
 }

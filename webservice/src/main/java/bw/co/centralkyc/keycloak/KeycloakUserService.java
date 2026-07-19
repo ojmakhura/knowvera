@@ -48,7 +48,6 @@ import bw.co.centralkyc.user.UserDTO;
 import bw.co.centralkyc.utils.KycUtils;
 
 @Component
-@RequiredArgsConstructor
 public class KeycloakUserService {
 
     private static final String[] EXCLUDED_ROLES = { "offline_access", "uma_authorization",
@@ -100,6 +99,18 @@ public class KeycloakUserService {
     private final RabbitTemplate rabbitTemplate;
 
     private final KycUtils kycUtils;
+
+    public KeycloakUserService(KeycloakService keycloakService, BranchService branchService,
+            IndividualService individualService, ClientRequestService clientRequestService,
+            SettingsService settingsService, RabbitTemplate rabbitTemplate, KycUtils kycUtils) {
+        this.keycloakService = keycloakService;
+        this.branchService = branchService;
+        this.individualService = individualService;
+        this.clientRequestService = clientRequestService;
+        this.settingsService = settingsService;
+        this.rabbitTemplate = rabbitTemplate;
+        this.kycUtils = kycUtils;
+    }
 
     private static final String newOrgUserTemplate = """
             Dear %s,

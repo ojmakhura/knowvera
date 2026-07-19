@@ -35,13 +35,18 @@ import tools.jackson.databind.json.JsonMapper;
 
 @Aspect
 @Component
-@RequiredArgsConstructor
 public class AuditAspect {
 
     private final JsonMapper jsonMapper;
     private final AuditLogService auditLogService;
     private final AuditContextProvider contextProvider;
     private final SpelExpressionParser parser = new SpelExpressionParser();
+
+    public AuditAspect(JsonMapper jsonMapper, AuditLogService auditLogService, AuditContextProvider contextProvider) {
+        this.jsonMapper = jsonMapper;
+        this.auditLogService = auditLogService;
+        this.contextProvider = contextProvider;
+    }
 
     @Around("@annotation(audit)")
     public Object audit(

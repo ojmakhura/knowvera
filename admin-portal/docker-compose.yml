@@ -1,0 +1,25 @@
+services:
+  admin-portal:
+    image: centralkyc/admin-portal:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./public/env.json:/usr/share/nginx/html/env.json:ro
+    networks:
+      - traefik_proxy
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.admin-portal.rule=Host(`admin.centralkyc.local`)"
+        - "traefik.http.routers.admin-portal.entrypoints=websecure"
+        - "traefik.http.routers.admin-portal.tls=true"
+        - "traefik.http.services.admin-portal.loadbalancer.server.port=80"
+        - "traefik.docker.network=traefik_proxy"
+
+networks:
+  traefik_proxy:
+    external: true

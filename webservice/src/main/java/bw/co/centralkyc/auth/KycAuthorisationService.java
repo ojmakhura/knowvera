@@ -29,7 +29,6 @@ import bw.co.centralkyc.user.UserDTO;
 import lombok.RequiredArgsConstructor;
 
 @Service("kycAuthService")
-@RequiredArgsConstructor
 public class KycAuthorisationService {
 
     private final KycRecordService kycRecordService;
@@ -40,6 +39,20 @@ public class KycAuthorisationService {
     private final ClientRequestService clientRequestService;
     private final KycInvoiceService invoiceService;
     private final KycSubscriptionService subscriptionService;
+
+    public KycAuthorisationService(KycRecordService kycRecordService, KeycloakUserService keycloakUserService,
+            IndividualService individualService, OrganisationService organisationService,
+            DocumentService documentService, ClientRequestService clientRequestService,
+            KycInvoiceService invoiceService, KycSubscriptionService subscriptionService) {
+        this.kycRecordService = kycRecordService;
+        this.keycloakUserService = keycloakUserService;
+        this.individualService = individualService;
+        this.organisationService = organisationService;
+        this.documentService = documentService;
+        this.clientRequestService = clientRequestService;
+        this.invoiceService = invoiceService;
+        this.subscriptionService = subscriptionService;
+    }
 
     public boolean canViewRequest(UUID requestId, Authentication auth) {
         // 1. Extract orgId from JWT

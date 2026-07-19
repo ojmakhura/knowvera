@@ -14,7 +14,6 @@ import bw.co.centralkyc.llm.Prompt;
 import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.json.JsonMapper;
 
-@RequiredArgsConstructor
 @Service
 public class LmStudioExtractorService {
 
@@ -22,6 +21,13 @@ public class LmStudioExtractorService {
     private final OllamaIntegration ollamaIntegration;
     // private final ChatClient geminiClient;
     private final JsonMapper jsonMapper;
+
+    public LmStudioExtractorService(LmStudioExtractor lmStudioExtractor, OllamaIntegration ollamaIntegration,
+            JsonMapper jsonMapper) {
+        this.lmStudioExtractor = lmStudioExtractor;
+        this.ollamaIntegration = ollamaIntegration;
+        this.jsonMapper = jsonMapper;
+    }
 
     @Value("${app.llm.id}")
     private String llmId;

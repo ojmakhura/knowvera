@@ -1,9 +1,10 @@
 import { of, switchMap } from 'rxjs';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { Env } from '@app/models/env.model';
 
 export type AppEnvState = {
-  env: any;
+  env: Env;
   loading: boolean;
   loadingMenus: boolean;
   error?: any;
@@ -20,10 +21,20 @@ export type AppEnvState = {
     email: string;
     username: string;
   } | null;
+  currency: string | null;
+  novuConfig: any | null;
 };
 
 const initialState: AppEnvState = {
-  env: null,
+  env: {
+    apiUrl: '',
+    authDomain: '',
+    realm: '',
+    clientId: '',
+    currency: '',
+    redirectUri: '',
+    
+  },
   error: null,
   loading: false,
   loadingMenus: false,
@@ -34,7 +45,9 @@ const initialState: AppEnvState = {
   isLoggedIn: false,
   accountUri: null,
   username: null,
-  profile: null
+  profile: null,
+  currency: null,
+  novuConfig: null,
 };
 
 export const AppEnvStore = signalStore(
@@ -51,11 +64,17 @@ export const AppEnvStore = signalStore(
           return fetch('/env.json')
             .then((response) => response.json())
             .then((env) => {
-              patchState(store, { env, loading: false, error: false });
+              patchState(store, { env, loading: false, error: false, currency: env.currency || null });
             })
             .catch((error) => {
               patchState(store, { error, loading: false });
             });
+        }),
+      ),
+      setEnv: rxMethod<Env>(
+        switchMap((env) => {
+          patchState(store, { env });
+          return of(store.env());
         }),
       ),
       addRealmRole: rxMethod<any>(
@@ -80,6 +99,12 @@ export const AppEnvStore = signalStore(
         switchMap((profile) => {
           patchState(store, { profile });
           return of(store.profile);
+        }),
+      ),
+      setNovuConfig: rxMethod<any | null>(
+        switchMap((novuConfig) => {
+          patchState(store, { novuConfig });
+          return of(store.novuConfig);
         }),
       ),
     };

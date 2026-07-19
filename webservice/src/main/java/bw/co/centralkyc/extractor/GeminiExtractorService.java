@@ -26,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.json.JsonMapper;
 
 @Service
-@RequiredArgsConstructor
 public class GeminiExtractorService {
 
     private static final String EXTRACTION_PROMPT = "Extract all readable text from this document. Return only plain text.";
@@ -35,6 +34,12 @@ public class GeminiExtractorService {
     // private final RestClient.Builder restClientBuilder;
     private final RestClient restClient;
     private final JsonMapper jsonMapper;
+
+    public GeminiExtractorService(GeminiProperties properties, RestClient restClient, JsonMapper jsonMapper) {
+        this.properties = properties;
+        this.restClient = restClient;
+        this.jsonMapper = jsonMapper;
+    }
 
     @Value("${app.gemini.base-url}")
     private String geminiBaseUrl;

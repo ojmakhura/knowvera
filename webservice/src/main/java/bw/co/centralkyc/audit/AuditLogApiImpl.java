@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Tag(name = "Document Type", description = "Managing document types.")
+@Tag(name = "Audit Log", description = "Managing audit logs.")
 public class AuditLogApiImpl implements AuditLogApi {
 
     private static final Logger logger = LoggerFactory.getLogger(AuditLogApiImpl.class);

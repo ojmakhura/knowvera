@@ -5,12 +5,13 @@ import { KycSubscriptionDTO } from '@models/bw/co/centralkyc/subscription/kyc-su
 import { HttpClient } from '@angular/common/http';
 import { Page } from '@models/page.model';
 import { SearchObject } from '@models/search-object';
+import { SubscriptionSearchCriteria } from '@app/models/bw/co/centralkyc/subscription/subscription-search-criteria';
 
 @Injectable({
   providedIn: 'root'
 })
 export class KycSubscriptionApi {
-    
+
     protected path = '/subscription';
 
     private http = inject(HttpClient);

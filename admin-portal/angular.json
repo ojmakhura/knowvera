@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "onestitch": {
+    "admin-portal": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -72,10 +72,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "onestitch:build:production"
+              "buildTarget": "admin-portal:build:production"
             },
             "development": {
-              "buildTarget": "onestitch:build:development"
+              "buildTarget": "admin-portal:build:development"
             }
           },
           "defaultConfiguration": "development"
