@@ -73,6 +73,8 @@ spring:
     
       client:
         enabled: false
+    model:
+      chat: ${MODEL_CHAT:vertexai}
     openai:
       # Redirect from official API to LM Studio
       base-url: http://localhost:1234
@@ -97,9 +99,8 @@ spring:
         gemini:
           enabled: true
           # --- Core Connection Settings ---
-          # project-id: ${GEMINI_PROJECT_ID:central-kyc}
-          # location: ${GEMINI_LOCATION:us-central1}
-          api-key: ${GEMINI_API_KEY}
+          project-id: ${GEMINI_PROJECT_ID:central-kyc}
+          location: ${GEMINI_LOCATION:us-central1}
           # If using a physical file (not recommended for production)
           # credentials-uri: file://${GCP_CREDENTIALS_FILE:/path/to/credentials.json}
           
@@ -108,11 +109,11 @@ spring:
             enabled: false
             options:
               # Common models: gemini-1.5-pro, gemini-2.0-flash, gemini-3.1-flash
-              model: gemini-2.0-flash
+              model: ${SPRING_AI_VERTEX_MODEL:gemini-2.5-flash}
               temperature: 0.7        # 0.0 = deterministic, 1.0 = creative
               top-p: 0.95             # Nucleus sampling
               top-k: 40               # Top-K sampling
-              max-output-tokens: 2048
+              # max-output-tokens: 2048
               
               # --- 2026 Specific Features ---
               # thinking-budget: 8192   # Token budget for "Chain of Thought" reasoning
