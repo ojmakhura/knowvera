@@ -443,6 +443,198 @@
           </mat-tab>
         </mat-tab-group>
       </section>
+
+      <section class="tool-selector-section">
+        <div class="requirement-head">
+          <h3>Tool Selectors</h3>
+        </div>
+
+        <mat-tab-group class="tool-selector-tabs" animationDuration="0ms">
+          <mat-tab label="Text Extraction Tools">
+            <div class="tool-selector-pane">
+              <div class="requirement-add-row">
+                <button mat-raised-button color="primary" type="button" (click)="openAddToolSelectorDialog('textExtractionTools')">
+                  <mat-icon>add</mat-icon>
+                  Add Tool
+                </button>
+              </div>
+
+              @if (editSettingsSignal().textExtractionTools.length > 0) {
+              <div class="tool-selector-table-wrap">
+                <table class="tool-selector-table">
+                  <thead>
+                    <tr>
+                      <th>Position</th>
+                      <th>Tool</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of editSettingsSignal().textExtractionTools; track item.id || i; let i = $index) {
+                    <tr>
+                      <td>{{ i + 1 }}</td>
+                      <td>{{ item.tool || '-' }}</td>
+                      <td class="actions-col">
+                        <button mat-icon-button type="button" (click)="moveToolSelectorUp('textExtractionTools', i)" [disabled]="i === 0">
+                          <mat-icon>arrow_upward</mat-icon>
+                        </button>
+                        <button mat-icon-button type="button" (click)="moveToolSelectorDown('textExtractionTools', i)" [disabled]="i === editSettingsSignal().textExtractionTools.length - 1">
+                          <mat-icon>arrow_downward</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" type="button" (click)="removeToolSelector('textExtractionTools', i)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              } @else {
+              <p class="empty-copy">No text extraction tools configured.</p>
+              }
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Document Confirmation Tools">
+            <div class="tool-selector-pane">
+              <div class="requirement-add-row">
+                <button mat-raised-button color="primary" type="button" (click)="openAddToolSelectorDialog('documentConfirmationTools')">
+                  <mat-icon>add</mat-icon>
+                  Add Tool
+                </button>
+              </div>
+
+              @if (editSettingsSignal().documentConfirmationTools.length > 0) {
+              <div class="tool-selector-table-wrap">
+                <table class="tool-selector-table">
+                  <thead>
+                    <tr>
+                      <th>Position</th>
+                      <th>Tool</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of editSettingsSignal().documentConfirmationTools; track item.id || i; let i = $index) {
+                    <tr>
+                      <td>{{ i + 1 }}</td>
+                      <td>{{ item.tool || '-' }}</td>
+                      <td class="actions-col">
+                        <button mat-icon-button type="button" (click)="moveToolSelectorUp('documentConfirmationTools', i)" [disabled]="i === 0">
+                          <mat-icon>arrow_upward</mat-icon>
+                        </button>
+                        <button mat-icon-button type="button" (click)="moveToolSelectorDown('documentConfirmationTools', i)" [disabled]="i === editSettingsSignal().documentConfirmationTools.length - 1">
+                          <mat-icon>arrow_downward</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" type="button" (click)="removeToolSelector('documentConfirmationTools', i)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              } @else {
+              <p class="empty-copy">No document confirmation tools configured.</p>
+              }
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Text Processing Tools">
+            <div class="tool-selector-pane">
+              <div class="requirement-add-row">
+                <button mat-raised-button color="primary" type="button" (click)="openAddToolSelectorDialog('textProcessingTools')">
+                  <mat-icon>add</mat-icon>
+                  Add Tool
+                </button>
+              </div>
+
+              @if (editSettingsSignal().textProcessingTools.length > 0) {
+              <div class="tool-selector-table-wrap">
+                <table class="tool-selector-table">
+                  <thead>
+                    <tr>
+                      <th>Position</th>
+                      <th>Tool</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of editSettingsSignal().textProcessingTools; track item.id || i; let i = $index) {
+                    <tr>
+                      <td>{{ i + 1 }}</td>
+                      <td>{{ item.tool || '-' }}</td>
+                      <td class="actions-col">
+                        <button mat-icon-button type="button" (click)="moveToolSelectorUp('textProcessingTools', i)" [disabled]="i === 0">
+                          <mat-icon>arrow_upward</mat-icon>
+                        </button>
+                        <button mat-icon-button type="button" (click)="moveToolSelectorDown('textProcessingTools', i)" [disabled]="i === editSettingsSignal().textProcessingTools.length - 1">
+                          <mat-icon>arrow_downward</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" type="button" (click)="removeToolSelector('textProcessingTools', i)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              } @else {
+              <p class="empty-copy">No text processing tools configured.</p>
+              }
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Text Cleanup Tools">
+            <div class="tool-selector-pane">
+              <div class="requirement-add-row">
+                <button mat-raised-button color="primary" type="button" (click)="openAddToolSelectorDialog('textCleanupTools')">
+                  <mat-icon>add</mat-icon>
+                  Add Tool
+                </button>
+              </div>
+
+              @if (editSettingsSignal().textCleanupTools.length > 0) {
+              <div class="tool-selector-table-wrap">
+                <table class="tool-selector-table">
+                  <thead>
+                    <tr>
+                      <th>Position</th>
+                      <th>Tool</th>
+                      <th class="actions-col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of editSettingsSignal().textCleanupTools; track item.id || i; let i = $index) {
+                    <tr>
+                      <td>{{ i + 1 }}</td>
+                      <td>{{ item.tool || '-' }}</td>
+                      <td class="actions-col">
+                        <button mat-icon-button type="button" (click)="moveToolSelectorUp('textCleanupTools', i)" [disabled]="i === 0">
+                          <mat-icon>arrow_upward</mat-icon>
+                        </button>
+                        <button mat-icon-button type="button" (click)="moveToolSelectorDown('textCleanupTools', i)" [disabled]="i === editSettingsSignal().textCleanupTools.length - 1">
+                          <mat-icon>arrow_downward</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" type="button" (click)="removeToolSelector('textCleanupTools', i)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              } @else {
+              <p class="empty-copy">No text cleanup tools configured.</p>
+              }
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </section>
     </mat-card-content>
   </mat-card>
 

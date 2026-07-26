@@ -10,6 +10,7 @@ import java.util.List;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ public abstract class SalaryRangeMapper {
      * @param entity
      * @return SalaryRangeDTO
      */
+    @Mapping(source = "settings.id", target = "settings")
     public abstract SalaryRangeDTO toSalaryRangeDTO(SalaryRange entity);
 
      /**

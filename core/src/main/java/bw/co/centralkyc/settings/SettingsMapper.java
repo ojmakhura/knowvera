@@ -30,6 +30,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         ExpectedFieldMapper.class,
         KycFieldGroupMapper.class,
         GroupFieldMapper.class,
+        ToolSelectorMapper.class,
         MappingUtils.class
     }
 )
@@ -54,6 +55,10 @@ public abstract class SettingsMapper {
     @Mapping(source = "salaryRanges", target = "salaryRanges")
     @Mapping(source = "individualKycFieldGroups", target = "individualKycFieldGroups")
     @Mapping(source = "organisationKycFieldGroups", target = "organisationKycFieldGroups")
+    @Mapping(source = "documentConfirmationTools", target = "documentConfirmationTools")
+    @Mapping(source = "textProcessingTools", target = "textProcessingTools")
+    @Mapping(source = "textCleanupTools", target = "textCleanupTools")
+    @Mapping(source = "textExtractionTools", target = "textExtractionTools")
     public abstract SettingsDTO toSettingsDTO(Settings entity);
 
      /**

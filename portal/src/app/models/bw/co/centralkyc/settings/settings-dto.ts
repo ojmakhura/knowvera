@@ -4,6 +4,7 @@ import {KycFieldGroupDTO} from '@models/bw/co/centralkyc/settings/kyc/kyc-field-
 import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
 import {DocumentTypeDTO} from '@models/bw/co/centralkyc/document/type/document-type-dto';
 import {SalaryRangeDTO} from '@models/bw/co/centralkyc/settings/salary-range-dto';
+import { ToolSelectorDTO } from './tool-selector-dto';
 
 export class SettingsDTO extends AuditableDTO {
     kycDuration: number | any;
@@ -57,6 +58,10 @@ export class SettingsDTO extends AuditableDTO {
     individualKycFieldGroups: Array<KycFieldGroupDTO> | any;
     
     organisationKycFieldGroups: Array<KycFieldGroupDTO> | any;
+    textExtractionTools: Array<ToolSelectorDTO> | any = [];
+    documentConfirmationTools: Array<ToolSelectorDTO> | any = [];
+    textProcessingTools: Array<ToolSelectorDTO> | any = [];
+    textCleanupTools: Array<ToolSelectorDTO> | any = [];
     
     constructor() {
         super();
@@ -86,5 +91,9 @@ export class SettingsDTO extends AuditableDTO {
         this.maxDataVerificationFailureThreshold = null;
         this.individualKycFieldGroups = [];
         this.organisationKycFieldGroups = [];
+        this.textExtractionTools = [];
+        this.documentConfirmationTools = [];
+        this.textProcessingTools = [];
+        this.textCleanupTools = [];
     }
 }
