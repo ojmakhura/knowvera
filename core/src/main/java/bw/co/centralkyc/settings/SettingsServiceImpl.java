@@ -233,4 +233,13 @@ public class SettingsServiceImpl
         return settingsMapper.toSettingsDTO(settings);
     }
 
+    @Override
+    protected SettingsDTO handleLoadSettings() throws Exception {
+        
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElseThrow(() -> new Exception("Settings not found"));
+
+        return settingsMapper.toSettingsDTO(settings);
+    }
+
 }

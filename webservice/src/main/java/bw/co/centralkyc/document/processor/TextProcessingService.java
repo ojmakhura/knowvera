@@ -3,9 +3,19 @@ package bw.co.centralkyc.document.processor;
 import java.util.List;
 
 import bw.co.centralkyc.properties.RabbitProperties;
+import bw.co.centralkyc.settings.SettingsDTO;
+import bw.co.centralkyc.settings.SettingsService;
+import bw.co.centralkyc.settings.Tool;
+import bw.co.centralkyc.settings.ToolSelectorDTO;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +25,7 @@ import bw.co.centralkyc.QueueObject;
 import bw.co.centralkyc.document.DocumentDTO;
 import bw.co.centralkyc.document.DocumentService;
 import bw.co.centralkyc.extractor.LmStudioExtractorService;
+import bw.co.centralkyc.gemini.GeminiService;
 import bw.co.centralkyc.llm.Prompt;
 import bw.co.centralkyc.llm.PromptMessage;
 import lombok.RequiredArgsConstructor;
@@ -36,16 +47,20 @@ public class TextProcessingService {
   private final DocumentProcessorService documentProcessorService;
   private final RabbitTemplate rabbitTemplate;
   private final RabbitProperties rabbitProperties;
+  private final GeminiService geminiService;
+  private final SettingsService settingsService;
 
   public TextProcessingService(DocumentService documentService, LmStudioExtractorService lmStudioExtractorService,
       JsonMapper jsonMapper, DocumentProcessorService documentProcessorService, RabbitTemplate rabbitTemplate,
-      RabbitProperties rabbitProperties) {
+      RabbitProperties rabbitProperties, GeminiService geminiService, SettingsService settingsService) {
     this.documentService = documentService;
     this.lmStudioExtractorService = lmStudioExtractorService;
     this.jsonMapper = jsonMapper;
     this.documentProcessorService = documentProcessorService;
     this.rabbitTemplate = rabbitTemplate;
     this.rabbitProperties = rabbitProperties;
+    this.geminiService = geminiService;
+    this.settingsService = settingsService;
   }
 
   private final String initialPrompt = """
@@ -82,6 +97,9 @@ public class TextProcessingService {
         return;
       }
 
+      SettingsDTO settings = settingsService.loadSettings();
+      List<ToolSelectorDTO> textProcessingTools = settings.getTextProcessingTools();
+
       String extractedText = document.getFileContent(); // Assuming this contains the extracted text
 
       if (StringUtils.isBlank(extractedText)) {
@@ -89,59 +107,110 @@ public class TextProcessingService {
         return;
       }
 
-      // Call LmStudioExtractor to process the extracted text
-      Prompt request = new Prompt();
-      request.setModel(llmModel); // Specify the model you want to use
-      request.setStream(false);
+      if (textProcessingTools.get(0).getTool() == Tool.LM_STUDIO) {
 
-      PromptMessage system = new PromptMessage();
-      system.setRole("system");
-      system.setContent(
-          "You are a data extraction assistant. You **MUST ONLY output valid JSON**. Do not include explanations, notes, reasoning, or any extra text. Follow the instructions carefully.");
+        lmStudioProcessor(document, extractedText);
 
-      PromptMessage message = new PromptMessage();
-      message.setRole("user");
+      } else if (textProcessingTools.get(0).getTool() == Tool.GEMINI) {
 
-      StringBuilder contentBuilder = new StringBuilder();
-      contentBuilder.append(initialPrompt)
-          .append('\n')
-          .append(jsonMapper.writeValueAsString(document.getExpectedFields()))
-          .append('\n')
-          .append("Text to process: ")
-          .append(extractedText);
+        geminiProcessor(document, extractedText);
 
-      message.setContent(contentBuilder.toString());
-      System.out.println(contentBuilder.toString());
-      request.setMessages(List.of(system, message));
-
-      lmStudioExtractorService.extractInformation(request)
-          .thenAccept(response -> {
-            System.out.println("✅ Got response");
-            documentProcessorService.processExtractedData(response, document)
-                .thenAccept(continueProcessing -> {
-                  if (continueProcessing) {
-                    QueueObject queueItem = new QueueObject(
-                        document.getId(),
-                        document.getTarget(),
-                        document.getTargetId());
-
-                    rabbitTemplate.convertAndSend(
-                        rabbitProperties.getDocumentConfirmationQueueExchange(),
-                        rabbitProperties.getDocumentConfirmationQueueRoutingKey(),
-                        queueItem);
-                  }
-                });
-          })
-          .exceptionally(ex -> {
-            System.err.println("❌ ERROR:");
-            ex.printStackTrace();
-            return null;
-          });
+      } else {
+        log.warn("No valid text processing tool configured for document ID: {}", queueObject.objectId());
+      }
 
       log.info("Completed text processing for document ID: {}", queueObject.objectId());
+
     } catch (Exception e) {
       log.error("Text processing interrupted for document ID: {}", queueObject.objectId(), e);
     }
+  }
+
+  private void geminiProcessor(DocumentDTO document, String extractedText) {
+    // Call GeminiService to process the extracted text
+
+    Message systemMessage = new SystemMessage(
+        "You are a data extraction assistant. You **MUST ONLY output valid JSON**. Do not include explanations, notes, reasoning, or any extra text. Follow the instructions carefully.");
+
+    StringBuilder contentBuilder = new StringBuilder();
+    contentBuilder.append(initialPrompt)
+        .append('\n')
+        .append(jsonMapper.writeValueAsString(document.getExpectedFields()))
+        .append('\n')
+        .append("Text to process: ")
+        .append(extractedText);
+
+    Message userMessage = new UserMessage(contentBuilder.toString());
+
+    org.springframework.ai.chat.prompt.Prompt request = new org.springframework.ai.chat.prompt.Prompt(
+        List.of(systemMessage, userMessage));
+
+    ChatResponse response = geminiService.generate(request);
+    documentProcessorService.processExtractedData(response, document)
+        .thenAccept(continueProcessing -> {
+          if (continueProcessing) {
+            QueueObject queueItem = new QueueObject(
+                document.getId(),
+                document.getTarget(),
+                document.getTargetId());
+
+            rabbitTemplate.convertAndSend(
+                rabbitProperties.getDocumentConfirmationQueueExchange(),
+                rabbitProperties.getDocumentConfirmationQueueRoutingKey(),
+                queueItem);
+          }
+        });
+  }
+
+  private void lmStudioProcessor(DocumentDTO document, String extractedText) throws Exception {
+    // Call LmStudioExtractor to process the extracted text
+    Prompt request = new Prompt();
+    request.setModel(llmModel); // Specify the model you want to use
+    request.setStream(false);
+
+    PromptMessage system = new PromptMessage();
+    system.setRole("system");
+    system.setContent(
+        "You are a data extraction assistant. You **MUST ONLY output valid JSON**. Do not include explanations, notes, reasoning, or any extra text. Follow the instructions carefully.");
+
+    PromptMessage message = new PromptMessage();
+    message.setRole("user");
+
+    StringBuilder contentBuilder = new StringBuilder();
+    contentBuilder.append(initialPrompt)
+        .append('\n')
+        .append(jsonMapper.writeValueAsString(document.getExpectedFields()))
+        .append('\n')
+        .append("Text to process: ")
+        .append(extractedText);
+
+    message.setContent(contentBuilder.toString());
+    System.out.println(contentBuilder.toString());
+    request.setMessages(List.of(system, message));
+
+    lmStudioExtractorService.extractInformation(request)
+        .thenAccept(response -> {
+          System.out.println("✅ Got response");
+          documentProcessorService.processExtractedData(response, document)
+              .thenAccept(continueProcessing -> {
+                if (continueProcessing) {
+                  QueueObject queueItem = new QueueObject(
+                      document.getId(),
+                      document.getTarget(),
+                      document.getTargetId());
+
+                  rabbitTemplate.convertAndSend(
+                      rabbitProperties.getDocumentConfirmationQueueExchange(),
+                      rabbitProperties.getDocumentConfirmationQueueRoutingKey(),
+                      queueItem);
+                }
+              });
+        })
+        .exceptionally(ex -> {
+          System.err.println("❌ ERROR:");
+          ex.printStackTrace();
+          return null;
+        });
   }
 
   private String getExtractionSystemPrompt(DocumentDTO document) {
@@ -185,47 +254,86 @@ public class TextProcessingService {
 
       String finalPrompt = String.format(userCleanUpPromptTemplate, document.getFileContent());
 
-      Prompt request = new Prompt();
-      request.setModel(llmModel); // Specify the model you want to use
-      request.setStream(false);
+      SettingsDTO settings = settingsService.loadSettings();
+      List<ToolSelectorDTO> textCleanupTools = settings.getTextCleanupTools();
 
-      PromptMessage system = new PromptMessage();
-      system.setRole("system");
-      system.setContent(systemCleanUpPrompt);
-
-      PromptMessage message = new PromptMessage();
-      message.setRole("user");
-      message.setContent(finalPrompt);
-
-      request.setMessages(List.of(system, message));
-
-      lmStudioExtractorService.extractInformation(request)
-          .thenAccept(response -> {
-            documentProcessorService.updateFileContent(response, document)
-                .thenAccept(continueProcessing -> {
-
-                  if (continueProcessing) {
-                    QueueObject queueItem = new QueueObject(
-                        document.getId(),
-                        document.getTarget(),
-                        document.getTargetId());
-
-                    rabbitTemplate.convertAndSend(
-                        rabbitProperties.getTextProcessingQueueExchange(),
-                        rabbitProperties.getTextProcessingQueueRoutingKey(),
-                        queueItem);
-                  }
-                });
-          })
-          .exceptionally(ex -> {
-            log.error("Error during text cleanup for document ID: {}", queueObject.objectId(), ex);
-            return null;
-          });
+      if (textCleanupTools.get(0).getTool() == Tool.LM_STUDIO) {
+        lmStudioProcessorForCleanup(document, finalPrompt);
+      } else if (textCleanupTools.get(0).getTool() == Tool.GEMINI) {
+        geminiProcessorForCleanup(document, finalPrompt);
+      } else {
+        log.warn("No valid text cleanup tool configured for document ID: {}", queueObject.objectId());
+      }
 
     } catch (Exception e) {
       log.error("Error retrieving document for ID: {}", queueObject.objectId(), e);
       return;
     }
 
+  }
+
+  private void geminiProcessorForCleanup(DocumentDTO document, String finalPrompt) {
+    // Call GeminiService to process the extracted text
+    Message systemMessage = new AssistantMessage(systemCleanUpPrompt);
+
+    Message userMessage = new UserMessage(finalPrompt);
+
+    org.springframework.ai.chat.prompt.Prompt request = new org.springframework.ai.chat.prompt.Prompt(
+        List.of(systemMessage, userMessage));
+
+    ChatResponse response = geminiService.generate(request);
+    documentProcessorService.updateFileContent(response, document)
+        .thenAccept(continueProcessing -> {
+          if (continueProcessing) {
+            QueueObject queueItem = new QueueObject(
+                document.getId(),
+                document.getTarget(),
+                document.getTargetId());
+
+            rabbitTemplate.convertAndSend(
+                rabbitProperties.getTextProcessingQueueExchange(),
+                rabbitProperties.getTextProcessingQueueRoutingKey(),
+                queueItem);
+          }
+        });
+  }
+
+  private void lmStudioProcessorForCleanup(DocumentDTO document, String finalPrompt) throws Exception {
+    // Call LmStudioExtractor to process the extracted text
+    Prompt request = new Prompt();
+    request.setModel(llmModel); // Specify the model you want to use
+    request.setStream(false);
+
+    PromptMessage system = new PromptMessage();
+    system.setRole("system");
+    system.setContent(systemCleanUpPrompt);
+
+    PromptMessage message = new PromptMessage();
+    message.setRole("user");
+
+    message.setContent(finalPrompt);
+    request.setMessages(List.of(system, message));
+
+    lmStudioExtractorService.extractInformation(request)
+        .thenAccept(response -> {
+          documentProcessorService.updateFileContent(response, document)
+              .thenAccept(continueProcessing -> {
+                if (continueProcessing) {
+                  QueueObject queueItem = new QueueObject(
+                      document.getId(),
+                      document.getTarget(),
+                      document.getTargetId());
+
+                  rabbitTemplate.convertAndSend(
+                      rabbitProperties.getTextProcessingQueueExchange(),
+                      rabbitProperties.getTextProcessingQueueRoutingKey(),
+                      queueItem);
+                }
+              });
+        })
+        .exceptionally(ex -> {
+          log.error("Error during text cleanup for document ID: {}", document.getId(), ex);
+          return null;
+        });
   }
 }

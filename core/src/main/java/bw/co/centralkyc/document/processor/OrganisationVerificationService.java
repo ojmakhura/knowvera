@@ -31,10 +31,6 @@ public class OrganisationVerificationService {
                 return;
             }
 
-            // document.gete
-
-            // if(document.)
-
         } catch (Exception e) {
             log.error("Failed to run organisation verification for organisation ID: {}", queueObject.objectId(), e);
         }

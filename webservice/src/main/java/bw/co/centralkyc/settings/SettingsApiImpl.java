@@ -210,4 +210,15 @@ public class SettingsApiImpl implements SettingsApi {
             throw e;
         }
     }
+
+    @Override
+    public ResponseEntity<SettingsDTO> loadSettings() throws Exception {
+        
+        try {
+            return ResponseEntity.ok(settingsService.loadSettings());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }

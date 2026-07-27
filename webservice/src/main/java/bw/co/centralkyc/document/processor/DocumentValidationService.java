@@ -6,6 +6,11 @@ import java.util.concurrent.CompletableFuture;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +22,23 @@ import bw.co.centralkyc.document.DocumentVerificationStatus;
 import bw.co.centralkyc.document.type.DocumentTypeDTO;
 import bw.co.centralkyc.document.type.DocumentTypeService;
 import bw.co.centralkyc.extractor.LmStudioExtractorService;
+import bw.co.centralkyc.gemini.GeminiService;
 import bw.co.centralkyc.individual.IndividualDTO;
 import bw.co.centralkyc.individual.IndividualService;
 import bw.co.centralkyc.kyc.KycRecordDTO;
 import bw.co.centralkyc.kyc.KycRecordService;
-import bw.co.centralkyc.llm.Prompt;
 import bw.co.centralkyc.llm.PromptMessage;
 import bw.co.centralkyc.organisation.OrganisationDTO;
 import bw.co.centralkyc.organisation.OrganisationService;
 import bw.co.centralkyc.properties.RabbitProperties;
+import bw.co.centralkyc.settings.SettingsDTO;
+import bw.co.centralkyc.settings.SettingsService;
+import bw.co.centralkyc.settings.Tool;
+import bw.co.centralkyc.settings.ToolSelectorDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,11 +60,15 @@ public class DocumentValidationService {
     private final KycRecordService kycRecordService;
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
+    private final SettingsService settingsService;
+    private final GeminiService geminiService;
 
     public DocumentValidationService(OrganisationService organisationService, IndividualService individualService,
             DocumentService documentService, DocumentTypeService documentTypeService,
             LmStudioExtractorService lmStudioExtractorService, DocumentProcessorService documentProcessorService,
-            KycRecordService kycRecordService, RabbitTemplate rabbitTemplate, RabbitProperties rabbitProperties) {
+            KycRecordService kycRecordService, RabbitTemplate rabbitTemplate, RabbitProperties rabbitProperties,
+            SettingsService settingsService, GeminiService geminiService) {
+
         this.organisationService = organisationService;
         this.individualService = individualService;
         this.documentService = documentService;
@@ -63,6 +78,8 @@ public class DocumentValidationService {
         this.kycRecordService = kycRecordService;
         this.rabbitTemplate = rabbitTemplate;
         this.rabbitProperties = rabbitProperties;
+        this.settingsService = settingsService;
+        this.geminiService = geminiService;
     }
 
     @RabbitListener(queues = "${app.rabbitmq.documentConfirmationQueue}")
@@ -73,6 +90,57 @@ public class DocumentValidationService {
 
         log.info("Processing extracted information for document ID: {}", queueObject.objectId());
         DocumentDTO document = documentService.findById(queueObject.objectId());
+        SettingsDTO settings = settingsService.loadSettings();
+        List<ToolSelectorDTO> tools = settings.getDocumentConfirmationTools();
+        
+        if(CollectionUtils.isEmpty(tools)) {
+            log.warn("No tools configured for document confirmation. Skipping processing for document ID: {}", queueObject.objectId());
+            return;
+        }
+
+        if(tools.get(0).getTool() == Tool.GEMINI) {
+            log.info("Using Gemini for document confirmation for document ID: {}", queueObject.objectId());
+            // Implement Gemini processing logic here
+            geminiConfirmation(document);
+        } else if(tools.get(0).getTool() == Tool.LM_STUDIO) {
+            log.info("Using LM Studio for document confirmation for document ID: {}", queueObject.objectId());
+            lmStudioConfirmation(document);
+        } else {
+            log.warn("Unknown tool configured for document confirmation. Skipping processing for document ID: {}", queueObject.objectId());
+        }
+    }
+
+    private void geminiConfirmation(DocumentDTO document) {
+        
+        boolean hasCustomPrompts = document.getValidationPrompts() != null
+                && !document.getValidationPrompts().isEmpty();
+
+        PromptMessage systemPrompt = hasCustomPrompts ? buildCustomSystemPrompt(document)
+                : buildSystemPrompt();
+
+        PromptMessage userPrompt = hasCustomPrompts ? buildCustomUserPrompt(document)
+                : buildUserPrompt(document);
+
+        Message systemMessage = new SystemMessage(systemPrompt.getContent());
+        Message userMessage = new UserMessage(userPrompt.getContent());
+
+        Prompt request = new Prompt(List.of(systemMessage, userMessage));
+
+        ChatResponse response = geminiService.generate(request);
+        CompletableFuture<Boolean> result = documentProcessorService.processDocumentConfirmation(response, document);
+
+        result.thenAccept(continueProcessing -> {
+            // Information confirmation is already dispatched in
+            // DocumentProcessorService.processDocumentConfirmation.
+        }).exceptionally(ex -> {
+            System.err.println("❌ ERROR during Gemini document processing:");
+            ex.printStackTrace();
+            return null;
+        });
+    }
+
+    private void lmStudioConfirmation(DocumentDTO document) {
+        // DocumentDTO document = documentService.findById(queueObject.objectId());
 
         boolean hasCustomPrompts = document.getValidationPrompts() != null
                 && !document.getValidationPrompts().isEmpty();
@@ -85,11 +153,11 @@ public class DocumentValidationService {
 
         if (document != null) {
             // Example: Log the extracted information
-            log.info("Extracted Information for Document ID {}: {}", queueObject.objectId(),
+            log.info("Extracted Information for Document ID {}: {}", document.getId(),
                     document.getExtractedInformation());
         }
 
-        Prompt completionRequest = new Prompt();
+        bw.co.centralkyc.llm.Prompt completionRequest = new bw.co.centralkyc.llm.Prompt();
         completionRequest.setStream(false);
         completionRequest.setModel(llmModel);
         completionRequest.setMessages(List.of(systemPrompt, userPrompt));

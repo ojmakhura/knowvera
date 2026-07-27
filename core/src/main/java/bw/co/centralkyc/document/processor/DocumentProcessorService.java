@@ -4,14 +4,17 @@ import java.io.IOException;
 
 import bw.co.centralkyc.document.DocumentValidationResults;
 import bw.co.centralkyc.document.DocumentVerificationStatus;
+import bw.co.centralkyc.gemini.GeminiService;
 import bw.co.centralkyc.kyc.KycRecord;
 import bw.co.centralkyc.kyc.KycRecordRepository;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -26,6 +29,10 @@ import bw.co.centralkyc.llm.OllamaResponse;
 import bw.co.centralkyc.llm.LmStudioResponse;
 import bw.co.centralkyc.matcher.UniversalStringMatcher;
 import bw.co.centralkyc.properties.RabbitProperties;
+import bw.co.centralkyc.settings.SettingsDTO;
+import bw.co.centralkyc.settings.SettingsService;
+import bw.co.centralkyc.settings.Tool;
+import bw.co.centralkyc.settings.ToolSelectorDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITesseract;
@@ -34,13 +41,19 @@ import net.sourceforge.tess4j.TesseractException;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.awt.image.BufferedImage;
+import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.Prompt;
 
 @Service
 @Slf4j
@@ -62,6 +75,8 @@ public class DocumentProcessorService {
     private final DocumentService documentService;
     private final JsonMapper jsonMapper;
     private final UniversalStringMatcher stringMatcher;
+    private final SettingsService settingsService;
+    private final GeminiService geminiService;
 
     @Async("virtualThreadExecutor")
     public CompletableFuture<String> extractText(byte[] pdfBytes) {
@@ -78,7 +93,29 @@ public class DocumentProcessorService {
                 // 2. Fallback to OCR if text is empty
                 if (extractedText == null || extractedText.trim().isEmpty()) {
                     log.info("No text found; starting OCR process.");
-                    return performOcr(document);
+
+                    SettingsDTO settings = settingsService.loadSettings();
+
+                    List<ToolSelectorDTO> textExtractionTools = settings.getTextExtractionTools();
+
+                    if (CollectionUtils.isEmpty(textExtractionTools)) {
+                        return performOcr(document);
+                    } else {
+
+                        if (textExtractionTools.get(0).getTool() == Tool.TESSERACT) {
+                            return performOcr(document);
+                        } else if (textExtractionTools.get(0).getTool() == Tool.GEMINI) {
+                            try {
+                                return geminiExtraction(pdfBytes);
+                            } catch (Exception ex) {
+                                log.warn("Gemini extraction failed; falling back to OCR.", ex);
+                                return performOcr(document);
+                            }
+                        } else {
+                            log.warn("No valid text extraction tool configured. Skipping extraction.");
+                            throw new IllegalArgumentException("No valid text extraction tool configured.");
+                        }
+                    }
                 }
 
                 return extractedText;
@@ -118,6 +155,32 @@ public class DocumentProcessorService {
         return sb.toString();
     }
 
+    private String geminiExtraction(byte[] pdfBytes) throws IOException {
+        if (pdfBytes == null || pdfBytes.length == 0) {
+            throw new IllegalArgumentException("PDF payload is empty");
+        }
+
+        String encodedPdf = Base64.getEncoder().encodeToString(pdfBytes);
+
+        Message systemMessage = new SystemMessage(
+                "You are an OCR assistant. Extract all visible text from the provided PDF content and return only plain text.");
+
+        Message userMessage = new UserMessage(
+                "Extract text from this base64-encoded PDF. Return only the extracted text with line breaks preserved as much as possible. "
+                        + "Do not include explanations, markdown, or JSON.\n\n"
+                        + encodedPdf);
+
+        Prompt prompt = new Prompt(List.of(systemMessage, userMessage));
+        ChatResponse response = geminiService.generate(prompt);
+
+        if (response == null || response.getResult() == null || response.getResult().getOutput() == null
+                || StringUtils.isBlank(response.getResult().getOutput().getText())) {
+            throw new IllegalStateException("Gemini returned an empty extraction response");
+        }
+
+        return response.getResult().getOutput().getText();
+    }
+
     /**
      * Process extracted information from the document. This method is called
      * asynchronously after receiving the response from the LLM that performed
@@ -137,12 +200,15 @@ public class DocumentProcessorService {
         }
 
         boolean continueProcessing = true;
-        if (llmId.equalsIgnoreCase("lmstudio")) {
-            document = handleProcessLmCompletionResponse((LmStudioResponse) response, document);
-        } else if (llmId.equalsIgnoreCase("ollama")) {
+
+        if (response instanceof ChatResponse geminiResponse) {
+            document = handleProcessLmCompletionResponse(geminiResponse, document);
+        } else if (response instanceof LmStudioResponse lmStudioResponse) {
+            document = handleProcessLmCompletionResponse(lmStudioResponse, document);
+        } else if (response instanceof OllamaResponse ollamaResponse) {
             // For Ollama, we can directly handle the response without needing to extract
             // choices
-            document = handleProcessLmCompletionResponse((OllamaResponse) response, document);
+            document = handleProcessLmCompletionResponse(ollamaResponse, document);
         } else {
             log.warn("Unknown LLM ID: {}. Skipping LLM completion response processing for document ID: {}",
                     llmId, document.getId());
@@ -151,6 +217,19 @@ public class DocumentProcessorService {
         }
 
         return CompletableFuture.completedFuture(continueProcessing);
+    }
+
+    private DocumentDTO handleProcessLmCompletionResponse(ChatResponse response, DocumentDTO document) {
+
+        log.info("Received response from LLM: {}", response.getResult().getOutput().getText());
+
+        if (StringUtils.isNotBlank(response.getResult().getOutput().getText())) {
+            document = this.doHandleProcessLmCompletionResponse(response.getResult().getOutput().getText(), document);
+        } else {
+            log.warn("LLM response is empty for document ID: {}", document.getId());
+        }
+
+        return document;
     }
 
     private DocumentDTO handleProcessLmCompletionResponse(OllamaResponse response, DocumentDTO document) {
@@ -257,10 +336,15 @@ public class DocumentProcessorService {
         }
 
         boolean continueProcessing = true;
-        if (llmId.equalsIgnoreCase("lmstudio")) {
-            document = handleProcessDocumentConfirmation((LmStudioResponse) response, document);
-        } else if (llmId.equalsIgnoreCase("ollama")) {
-            document = handleProcessDocumentConfirmation((OllamaResponse) response, document);
+
+        if (response instanceof ChatResponse geminiResponse) {
+
+            document = handleProcessDocumentConfirmation(geminiResponse, document);
+        } else if (response instanceof LmStudioResponse lmStudioResponse) {
+            document = handleProcessDocumentConfirmation(lmStudioResponse, document);
+
+        } else if (response instanceof OllamaResponse ollamaResponse) {
+            document = handleProcessDocumentConfirmation(ollamaResponse, document);
         } else {
             log.warn("Unknown LLM ID: {}. Skipping file content update for document ID: {}",
                     llmId, document.getId());
@@ -283,6 +367,18 @@ public class DocumentProcessorService {
                     new QueueObject(document.getId(), document.getTarget(), document.getTargetId()));
         }
         return CompletableFuture.completedFuture(true);
+    }
+
+    private DocumentDTO handleProcessDocumentConfirmation(ChatResponse response, DocumentDTO document) {
+
+        log.info("Processing document confirmation for document ID: {}", document.getId());
+
+        if (response.getResult() != null && response.getResult().getOutput() != null
+                && StringUtils.isNotBlank(response.getResult().getOutput().getText())) {
+            document = this.handleProcessDocumentConfirmation(response.getResult().getOutput().getText(), document);
+        }
+
+        return document;
     }
 
     private DocumentDTO handleProcessDocumentConfirmation(OllamaResponse response, DocumentDTO document) {
@@ -417,10 +513,13 @@ public class DocumentProcessorService {
             return CompletableFuture.completedFuture(false);
         }
 
-        if (llmId.equalsIgnoreCase("lmstudio")) {
+        if (response instanceof LmStudioResponse) {
             document = updateFileContent((LmStudioResponse) response, document);
-        } else if (llmId.equalsIgnoreCase("ollama")) {
+        } else if (response instanceof OllamaResponse) {
             document = updateFileContent((OllamaResponse) response, document);
+
+        } else if (response instanceof ChatResponse) {
+            document = updateFileContent((ChatResponse) response, document);
         } else {
             log.warn("Unknown LLM ID: {}. Skipping file content update for document ID: {}",
                     llmId, document.getId());
@@ -432,6 +531,17 @@ public class DocumentProcessorService {
         }
 
         return CompletableFuture.completedFuture(false);
+    }
+
+    private DocumentDTO updateFileContent(ChatResponse response, DocumentDTO document) {
+        log.info("Updating file content for document ID: {}", document.getId());
+
+        if (response.getResult() != null && response.getResult().getOutput() != null
+                && StringUtils.isNotBlank(response.getResult().getOutput().getText())) {
+            document = this.handleContentUpdate(response.getResult().getOutput().getText(), document);
+        }
+
+        return document;
     }
 
     private DocumentDTO updateFileContent(LmStudioResponse response, DocumentDTO document) {
