@@ -97,7 +97,11 @@ public class TextProcessingService {
         return;
       }
 
-      SettingsDTO settings = settingsService.loadSettings();
+      SettingsDTO settings = settingsService.getAll().stream().findFirst().orElse(null);
+      if (settings == null) {
+        log.warn("No settings found.");
+        return;
+      }
       List<ToolSelectorDTO> textProcessingTools = settings.getTextProcessingTools();
 
       String extractedText = document.getFileContent(); // Assuming this contains the extracted text
