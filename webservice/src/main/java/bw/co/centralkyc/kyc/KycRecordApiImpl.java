@@ -37,12 +37,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
 
 @RestController
 @Tag(name = "KYC Records", description = "Operations related to KYC records.")
 public class KycRecordApiImpl implements KycRecordApi {
 
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(KycRecordApi.class);
     private final KycRecordService kycRecordService;
     private final KeycloakOrganisationService keycloakOrganisationService;
     private final KeycloakUserService keycloakUserService;
@@ -63,6 +65,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     private void updateOrganisations(Collection<KycRecordDTO> records) {
+
+        logger.debug("Updating organisations for KYC records: {}", records);
 
         if (records == null || records.isEmpty()) {
             return;
@@ -95,6 +99,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
     public ResponseEntity<KycRecordDTO> findById(String id) throws Exception {
 
+        logger.debug("Finding KYC record by ID: {}", id);
         try {
 
             KycRecordDTO record = kycRecordService.findById(id);
@@ -124,7 +129,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Audit(entity = "KYC_RECORD", eventLabel="#identityNo", logData = false)
     public ResponseEntity<List<KycRecordListDTO>> findByIdentityNo(String identityNo)
             throws Exception {
-
+        logger.debug("Finding KYC records by identity number: {}", identityNo);
         try {
             List<KycRecordListDTO> records = kycRecordService.findByIdentityNo(identityNo);
             // updateOrganisations(records);
@@ -142,6 +147,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     public ResponseEntity<List<KycRecordListDTO>> findByIndividual(String individualId)
             throws Exception {
 
+        logger.debug("Finding KYC records by individual ID: {}", individualId);
+
         try {
             List<KycRecordListDTO> records = kycRecordService.findByIndividual(individualId);
             // updateOrganisations(records);
@@ -157,6 +164,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Operation(summary = "Get All KYC Records", description = "Retrieve all KYC records")
     @Audit(entity = "KYC_RECORD", logData = false)
     public ResponseEntity<List<KycRecordListDTO>> getAll() throws Exception {
+
+        logger.debug("Retrieving all KYC records");
 
         try {
             List<KycRecordListDTO> records = kycRecordService.getAll();
@@ -175,6 +184,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     public ResponseEntity<Page<KycRecordListDTO>> getAllPaged(Integer pageNumber, Integer pageSize)
             throws Exception {
 
+        logger.debug("Retrieving all KYC records with pagination - Page Number: {}, Page Size: {}", pageNumber, pageSize);
+
         try {
             Page<KycRecordListDTO> records = kycRecordService.getAll(pageNumber, pageSize);
             // updateOrganisations(records.getContent());
@@ -192,6 +203,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     public ResponseEntity<Page<KycRecordListDTO>> pagedSearch(SearchObject<KycRecordSearchCriteria> criteria)
             throws Exception {
 
+        logger.debug("Performing paged search for KYC records with criteria: {}", criteria);
+
         try {
             Page<KycRecordListDTO> records = kycRecordService.search(criteria);
             // updateOrganisations(records.getContent());
@@ -207,6 +220,9 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Operation(summary = "Remove KYC Record", description = "Remove a KYC record by its ID")
     @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
+
+        logger.debug("Removing KYC record with ID: {}", id);
+
         try {
 
             return ResponseEntity.ok(kycRecordService.remove(id));
@@ -221,6 +237,9 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Operation(summary = "Save KYC Record", description = "Save a KYC record")
     @Audit(entity = "KYC_RECORD", logData = true)
     public ResponseEntity<KycRecordDTO> save(KycRecordDTO kycRecord) throws Exception {
+
+        logger.debug("Saving KYC record: {}", kycRecord);
+
         try {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -240,6 +259,9 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Operation(summary = "Search KYC Records", description = "Search KYC records based on criteria")
     @Audit(entity = "KYC_RECORD", logData = false)
     public ResponseEntity<List<KycRecordListDTO>> search(KycRecordSearchCriteria criteria) throws Exception {
+
+        logger.debug("Searching KYC records with criteria: {}", criteria);
+
         try {
 
             List<KycRecordListDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
@@ -259,6 +281,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     public ResponseEntity<Page<KycRecordListDTO>> findByIdentityNoPaged(String identityNo, Integer pageNumber,
             Integer pageSize) throws Exception {
 
+        logger.debug("Finding KYC records by identity number: {} with pagination - Page Number: {}, Page Size: {}", identityNo, pageNumber, pageSize);
+
         try {
 
             Page<KycRecordListDTO> records = kycRecordService.findByIdentityNo(identityNo, pageNumber, pageSize);
@@ -276,6 +300,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     public ResponseEntity<Page<KycRecordListDTO>> findByIndividualPaged(String individualId, Integer pageNumber,
             Integer pageSize) throws Exception {
 
+        logger.debug("Finding KYC records by individual ID: {} with pagination - Page Number: {}, Page Size: {}", individualId, pageNumber, pageSize);
+
         try {
             Page<KycRecordListDTO> records = kycRecordService.findByIndividual(individualId, pageNumber, pageSize);
             // updateOrganisations(records.getContent());
@@ -290,6 +316,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Operation(summary = "Find KYC Records by Organisation", description = "Find KYC records by their organisation ID")
     @Audit(entity = "KYC_RECORD", eventLabel="#organisationId", logData = false)
     public ResponseEntity<List<KycRecordListDTO>> findByOrganisation(String organisationId) throws Exception {
+
+        logger.debug("Finding KYC records by organisation ID: {}", organisationId);
 
         try {
             List<KycRecordListDTO> records = kycRecordService.findByOrganisation(organisationId);
@@ -306,6 +334,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Audit(entity = "KYC_RECORD", eventLabel="#registrationNo", logData = false)
     public ResponseEntity<List<KycRecordListDTO>> findByOrganisationRegistration(String registrationNo)
             throws Exception {
+
+        logger.debug("Finding KYC records by organisation registration number: {}", registrationNo);
 
         try {
 
@@ -331,6 +361,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     public ResponseEntity<Page<KycRecordListDTO>> findByOrganisationRegistrationPaged(String registrationNo,
             Integer pageNumber, Integer pageSize) throws Exception {
 
+        logger.debug("Finding KYC records by organisation registration number: {} with pagination - Page Number: {}, Page Size: {}", registrationNo, pageNumber, pageSize);
+
         try {
             OrganisationDTO org = keycloakOrganisationService.findByRegistrationNo(registrationNo);
 
@@ -352,6 +384,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Operation(summary = "Create Individual KYC Record", description = "Create a KYC record for an individual")
     @Audit(entity = "KYC_RECORD", eventLabel="#individualId", logData = false)
     public ResponseEntity<KycRecordDTO> createIndividualRecord(String individualId) throws Exception {
+
+        logger.debug("Creating KYC record for individual ID: {}", individualId);
 
         try {
 
@@ -377,6 +411,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Operation(summary = "Create Organisation KYC Record", description = "Create a KYC record for an organisation")
     @Audit(entity = "KYC_RECORD", eventLabel="#organisationId", logData = false)
     public ResponseEntity<KycRecordDTO> createOrganisationRecord(String organisationId) throws Exception {
+
+        logger.debug("Creating KYC record for organisation ID: {}", organisationId);
 
         try {
 
@@ -404,6 +440,8 @@ public class KycRecordApiImpl implements KycRecordApi {
 //    @Audit(entity = "KYC_RECORD", logData = false)
     public ResponseEntity<KycRecordDTO> findMyCurrentRecord(TargetEntity ownerType) throws Exception {
 
+        logger.debug("Finding current KYC record for authenticated user with owner type: {}", ownerType);
+        
         try {
             String username = "anonymousUser";
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -474,6 +512,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Audit(entity = "KYC_RECORD", logData = false)
     public ResponseEntity<List<KycRecordListDTO>> findMyRecords() throws Exception {
 
+        logger.debug("Finding KYC records for the authenticated user");
+
         try {
 
             KycRecordSearchCriteria criteria = buildSearchCriteriaForCurrentUser();
@@ -496,9 +536,23 @@ public class KycRecordApiImpl implements KycRecordApi {
     public ResponseEntity<KycRecordDTO> createNew(KycRecordDTO record,
             List<MultipartFile> files) throws Exception {
 
+        logger.debug("Creating new KYC record: {} with files: {}", record, files);
+
         if (record != null && StringUtils.isNotBlank(record.getId())) {
 
             throw new KycRecordServiceException("This is an existing record.");
+        }
+
+        if(record.getDocuments() == null || record.getDocuments().isEmpty()) {
+            throw new KycRecordServiceException("No documents provided.");
+        }
+
+        if(files == null || files.isEmpty()) {
+            throw new KycRecordServiceException("No files provided.");
+        }
+
+        if(record.getDocuments().size() != files.size()) {
+            throw new KycRecordServiceException("Number of documents and files do not match.");
         }
 
         try {
@@ -574,6 +628,9 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Operation(summary = "Remove KYC Record File", description = "Remove a file from a KYC record")
     @Audit(entity = "KYC_RECORD", eventLabel="#id + ' ' + #documentId", logData = false)
     public ResponseEntity<KycRecordDTO> removeRecordFile(String id, @Nullable String documentId) throws Exception {
+
+        logger.debug("Removing file with document ID: {} from KYC record with ID: {}", documentId, id);
+
         try {
 
             DocumentDTO doc = documentApi.findById(documentId).getBody();
@@ -601,6 +658,9 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
     public ResponseEntity<KycRecordDTO> updateRecordFiles(String id, List<DocumentDTO> documents,
             List<MultipartFile> files) throws Exception {
+
+        logger.debug("Updating files for KYC record with ID: {}. Documents: {}, {} Files", id, documents, files.size());
+
         try {
 
             // Ensure all documents are associated with the record and have valid targets
@@ -657,6 +717,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     public @Nullable ResponseEntity<Page<KycRecordListDTO>> findMyRecordsPaged(@Nullable Integer pageNumber,
             @Nullable Integer pageSize) throws Exception {
 
+        logger.debug("Searching KYC records for the authenticated user with pagination - Page Number: {}, Page Size: {}", pageNumber, pageSize);
+
         KycRecordSearchCriteria criteria = buildSearchCriteriaForCurrentUser();
 
         SearchObject<KycRecordSearchCriteria> searchObject = new SearchObject<>();
@@ -681,6 +743,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
     public ResponseEntity<KycRecordSummary> findSummaryById(String id) throws Exception {
 
+        logger.debug("Finding KYC record summary by ID: {}", id);
+
         try {
 
             KycRecordSummary summary = kycRecordService.findSummaryById(id);
@@ -698,6 +762,9 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Operation(summary = "Generate KYC Report", description = "Generate a KYC report for a given KYC record ID")
     @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
     public ResponseEntity<KycRecordDTO> generateKycReport(String id) throws Exception {
+
+        logger.debug("Generating KYC report for record ID: {}", id);
+
         try {
 
             String username = "anonymousUser";
@@ -720,6 +787,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Operation(summary = "Run KYC Verification", description = "Run KYC verification for a given KYC record ID")
     @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
     public ResponseEntity<KycRecordDTO> runVerification(String id) throws Exception {
+
+        logger.debug("Running KYC verification for record ID: {}", id);
 
         try {
 
@@ -746,6 +815,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Audit(entity = "KYC_RECORD", eventLabel="#id + ' ' + #kycStatus", logData = false)
     public ResponseEntity<KycRecordDTO> updateStatus(String id, KycComplianceStatus kycStatus) throws Exception {
         
+        logger.debug("Updating KYC record status for record ID: {} to status: {}", id, kycStatus);
+
         try {
 
             String username = "anonymousUser";

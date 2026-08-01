@@ -198,7 +198,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Search Organisations", description = "Search organisations based on criteria")
-    @Audit(entity = "ORGANISATION", logData = false)
+    @Audit(entity = "ORGANISATION", eventLabel = "List search", logData = false)
     public ResponseEntity<List<OrganisationListDTO>> search(
             SearchObject<OrganisationSearchCriteria> criteria) {
         try {
@@ -206,7 +206,7 @@ public class OrganisationApiImpl implements OrganisationApi {
             Set<PropertySearchOrder> sortings = new HashSet<>();
 
             if (criteria.getSortings() != null) {
-                sortings.addAll(sortings);
+                sortings.addAll(criteria.getSortings());
             }
 
             List<OrganisationListDTO> results = organisationService.search(criteria.getCriteria(), sortings);
@@ -238,7 +238,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Load My Organisation", description = "Load the organisation associated with the authenticated user")
-    @Audit(entity = "ORGANISATION", logData = false)
+    @Audit(entity = "ORGANISATION", eventLabel = "'loadMyOrganisation'", logData = false)
     public ResponseEntity<OrganisationDTO> loadMyOrganisation() throws Exception {
         
         try {

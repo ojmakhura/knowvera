@@ -92,8 +92,10 @@ public class KeycloakUserService {
     private SettingsDTO settings;
 
     private final KeycloakService keycloakService;
+    private final KeycloakOrganisationService keycloakOrganisationService;
     private final BranchService branchService;
     private final IndividualService individualService;
+    private final OrganisationService organisationService;
     private final ClientRequestService clientRequestService;
     private final SettingsService settingsService;
     private final RabbitTemplate rabbitTemplate;
@@ -101,11 +103,15 @@ public class KeycloakUserService {
     private final KycUtils kycUtils;
 
     public KeycloakUserService(KeycloakService keycloakService, BranchService branchService,
-            IndividualService individualService, ClientRequestService clientRequestService,
-            SettingsService settingsService, RabbitTemplate rabbitTemplate, KycUtils kycUtils) {
+            IndividualService individualService, OrganisationService organisationService,
+            ClientRequestService clientRequestService,
+            KeycloakOrganisationService keycloakOrganisationService, SettingsService settingsService,
+            RabbitTemplate rabbitTemplate, KycUtils kycUtils) {
         this.keycloakService = keycloakService;
+        this.keycloakOrganisationService = keycloakOrganisationService;
         this.branchService = branchService;
         this.individualService = individualService;
+        this.organisationService = organisationService;
         this.clientRequestService = clientRequestService;
         this.settingsService = settingsService;
         this.rabbitTemplate = rabbitTemplate;
@@ -249,16 +255,34 @@ public class KeycloakUserService {
                     .ifPresent(names -> dto.setBranch(names.get(0)));
             Optional.ofNullable(rep.getAttributes().get("identityNo"))
                     .ifPresent(ids -> dto.setIdentityNo(ids.get(0)));
+
+            Optional.ofNullable(rep.getAttributes().get("organisationId"))
+                    .ifPresent(ids -> dto.setOrganisationId(ids.get(0)));
+            Optional.ofNullable(rep.getAttributes().get("organisation"))
+                    .ifPresent(names -> dto.setOrganisation(names.get(0)));
+            Optional.ofNullable(rep.getAttributes().get("organisationRegistrationNo"))
+                    .ifPresent(ids -> dto.setOrganisationRegistrationNo(ids.get(0)));
         }
 
-        keycloakService.withRealm(realm -> {
-            // Fetch organizations for the user using realm-aware call
-            realm.organizations().members().getOrganizations(dto.getUserId())
-                    .stream().findFirst()
-                    .ifPresent(org -> {
-                        dto.setOrganisationId(org.getId());
-                        dto.setOrganisation(org.getName());
-                    });
+        keycloakService.withRegistrationRealm(realm -> {
+            // Fetch organizations for the user using realm-aware
+            if (StringUtils.isBlank(dto.getOrganisationId())) {
+                realm.organizations().members().getOrganizations(dto.getUserId())
+                        .stream().findFirst()
+                        .ifPresent(org -> {
+
+                            Map<String, List<String>> attributes = org.getAttributes();
+                            if (attributes != null && attributes.containsKey("registrationNo")) {
+                                OrganisationDTO o = organisationService
+                                        .findByRegistrationNo(attributes.get("registrationNo").get(0));
+                                if (o != null) {
+                                    dto.setOrganisationRegistrationNo(o.getRegistrationNo());
+                                    dto.setOrganisationId(o.getId());
+                                    dto.setOrganisation(o.getName());
+                                }
+                            }
+                        });
+            }
 
             // Roles
             List<RoleRepresentation> roles = realm.users().get(dto.getUserId()).roles().realmLevel().listAll();
@@ -306,21 +330,21 @@ public class KeycloakUserService {
     // -------------------- CRUD OPERATIONS --------------------
 
     public UserDTO findByUsername(String username) {
-        return keycloakService.withRealm(realm -> {
+        return keycloakService.withRegistrationRealm(realm -> {
             List<UserRepresentation> users = realm.users().search(username, true);
             return CollectionUtils.isEmpty(users) ? null : toUserDTO(users.get(0));
         });
     }
 
     public UserDTO findByEmail(String email) {
-        return keycloakService.withRealm(realm -> {
+        return keycloakService.withRegistrationRealm(realm -> {
             List<UserRepresentation> users = realm.users().searchByEmail(email, true);
             return CollectionUtils.isEmpty(users) ? null : toUserDTO(users.get(0));
         });
     }
 
     public UserDTO getLoggedInUser() {
-        return keycloakService.withRealm(realm -> {
+        return keycloakService.withRegistrationRealm(realm -> {
             String userId = keycloakService.getJwt().getSubject();
             UserRepresentation rep = realm.users().get(userId).toRepresentation();
             return toUserDTO(rep);
@@ -328,14 +352,14 @@ public class KeycloakUserService {
     }
 
     public UserDTO findUserById(String userId) {
-        return keycloakService.withRealm(realm -> {
+        return keycloakService.withRegistrationRealm(realm -> {
             UserRepresentation rep = realm.users().get(userId).toRepresentation();
             return rep == null ? null : toUserDTO(rep);
         });
     }
 
     public UserDTO createUser(UserDTO user) {
-        return keycloakService.withRealm(realm -> {
+        return keycloakService.withRegistrationRealm(realm -> {
             UserRepresentation rep = toUserRepresentation(user);
             Response response = realm.users().create(rep);
             String userId = getCreatedId(response);
@@ -391,7 +415,12 @@ public class KeycloakUserService {
 
             // Assign organization safely
             if (StringUtils.isNotBlank(user.getOrganisationId())) {
-                keycloakService.runWithOrganization(user.getOrganisationId(),
+
+                OrganisationDTO organisation = organisationService.findById(user.getOrganisationId());
+                OrganisationDTO keycloakOrganisation = keycloakOrganisationService
+                        .findByRegistrationNo(organisation.getRegistrationNo());
+
+                keycloakService.runWithOrganization(keycloakOrganisation.getId(),
                         org -> org.members().addMember(userId));
             }
 
@@ -419,7 +448,7 @@ public class KeycloakUserService {
     }
 
     public void updateUser(UserDTO user) {
-        keycloakService.runWithRealm(realm -> {
+        keycloakService.withRegistrationRealm(realm -> {
             UserResource userResource = realm.users().get(user.getUserId());
             UserRepresentation rep = userResource.toRepresentation();
             rep.setEmail(user.getEmail());
@@ -435,19 +464,27 @@ public class KeycloakUserService {
 
             // Assign organization safely
             if (StringUtils.isNotBlank(user.getOrganisationId())) {
-                keycloakService.runWithOrganization(user.getOrganisationId(),
+                OrganisationDTO organisation = organisationService.findById(user.getOrganisationId());
+                OrganisationDTO keycloakOrganisation = keycloakOrganisationService
+                        .findByRegistrationNo(organisation.getRegistrationNo());
+
+                keycloakService.runWithOrganization(keycloakOrganisation.getId(),
                         org -> org.members().addMember(user.getUserId()));
             }
 
             userResource.update(rep);
+
+            return user;
         });
     }
 
     public boolean updateUserPassword(String userId, String newPassword) {
-        keycloakService.runWithRealm(realm -> {
+        keycloakService.withRegistrationRealm(realm -> {
             String id = StringUtils.isNotBlank(userId) ? userId : keycloakService.getJwt().getSubject();
             UserResource userResource = realm.users().get(id);
             userResource.resetPassword(createCredential(CredentialRepresentation.PASSWORD, newPassword, false));
+
+            return Boolean.TRUE;
         });
         return true;
     }
@@ -455,7 +492,7 @@ public class KeycloakUserService {
     // -------------------- SEARCH / LIST --------------------
 
     public List<UserDTO> search(String criteria) {
-        return keycloakService.withRealm(realm -> {
+        return keycloakService.withRegistrationRealm(realm -> {
             List<UserRepresentation> reps;
             if (StringUtils.isBlank(criteria)) {
                 reps = realm.users().list();
@@ -467,16 +504,17 @@ public class KeycloakUserService {
     }
 
     public List<UserDTO> searchByAttributes(String criteria) {
-        return keycloakService.withRealm(realm -> toUserDTOs(realm.users().searchByAttributes(criteria)));
+        return keycloakService.withRegistrationRealm(realm -> toUserDTOs(realm.users().searchByAttributes(criteria)));
     }
 
     public Collection<UserDTO> getUsersByRealmRoles(Set<String> roles) {
-        return keycloakService.withRealm(realm -> collectUsersByRoles(realm.roles(), roles, realm));
+        return keycloakService.withRegistrationRealm(realm -> collectUsersByRoles(realm.roles(), roles, realm));
     }
 
     public Collection<UserDTO> getUsersByClientRoles(String clientId, Set<String> roles) {
         return keycloakService
-                .withRealm(realm -> collectUsersByRoles(realm.clients().get(clientId).roles(), roles, realm));
+                .withRegistrationRealm(
+                        realm -> collectUsersByRoles(realm.clients().get(clientId).roles(), roles, realm));
     }
 
     // -------------------- PRIVATE HELPERS --------------------
@@ -497,7 +535,7 @@ public class KeycloakUserService {
         if (StringUtils.isBlank(identityNo))
             return null;
 
-        return keycloakService.withRealm(realm -> {
+        return keycloakService.withRegistrationRealm(realm -> {
             List<UserRepresentation> users = realm.users()
                     .searchByAttributes("identityNo:" + identityNo);
 
@@ -520,7 +558,7 @@ public class KeycloakUserService {
         if (StringUtils.isBlank(email))
             return null;
 
-        return keycloakService.withRealm(realm -> {
+        return keycloakService.withRegistrationRealm(realm -> {
             // Search users by email
             List<UserRepresentation> users = realm.users().searchByEmail(email, true);
 
@@ -532,7 +570,7 @@ public class KeycloakUserService {
     }
 
     public UserDTO addClientRoles(String clientId, Set<String> roles, String userId) {
-        return keycloakService.withRealm(realm -> {
+        return keycloakService.withRegistrationRealm(realm -> {
             // Get the user
             UserResource userResource = realm.users().get(userId);
             UserRepresentation userRep = userResource.toRepresentation();
@@ -558,7 +596,7 @@ public class KeycloakUserService {
     }
 
     public boolean updateUserRoles(String userId, String roleName, int action) {
-        return keycloakService.withRealm(realm -> {
+        return keycloakService.withRegistrationRealm(realm -> {
             // Get the role
             RoleResource roleResource = realm.roles().get(roleName);
             if (roleResource == null) {
@@ -593,7 +631,7 @@ public class KeycloakUserService {
      * @return
      */
     public Collection<UserDTO> findAll() {
-        return keycloakService.withRealm(realm -> toUserDTOs(realm.users().list()));
+        return keycloakService.withRegistrationRealm(realm -> toUserDTOs(realm.users().list()));
     }
 
     /**
@@ -607,7 +645,7 @@ public class KeycloakUserService {
         if (StringUtils.isBlank(branchId))
             return Collections.emptyList();
 
-        return keycloakService.withRealm(realm -> {
+        return keycloakService.withRegistrationRealm(realm -> {
             List<UserRepresentation> users = realm.users()
                     .searchByAttributes("branchId:" + branchId);
 
@@ -637,7 +675,7 @@ public class KeycloakUserService {
         if (StringUtils.isBlank(organisationId))
             return Collections.emptyList();
 
-        return keycloakService.withRealm(realm -> {
+        return keycloakService.withRegistrationRealm(realm -> {
             List<UserRepresentation> users = realm.users()
                     .searchByAttributes("organisationId:" + organisationId);
             List<UserRepresentation> orgUsers = users.stream()

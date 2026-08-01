@@ -60,7 +60,9 @@ export class App implements AfterViewInit {
       }
     });
 
-    this.settingsApiStore.getAll();
+    if (this.keycloak.authenticated) {
+      this.settingsApiStore.getAll();
+    }
   }
 
   ngAfterViewInit(): void {
