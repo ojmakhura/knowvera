@@ -3,8 +3,8 @@ import { provideRouter } from '@angular/router';
 
 import { IndividualDetails } from './individual-details';
 import { AppEnvStore } from '@app/store/app-env.state';
-import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
-import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
+import { IndividualApiStore } from '@app/store/bw/co/kyvera/individual/individual-api.store';
+import { SettingsApiStore } from '@app/store/bw/co/kyvera/settings/settings-api.store';
 
 describe('IndividualDetails', () => {
   let component: IndividualDetails;

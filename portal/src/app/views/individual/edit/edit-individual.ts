@@ -10,25 +10,25 @@ import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { Loader } from "@app/@shared/loader/loader";
-import { EmploymentStatus } from "@app/models/bw/co/centralkyc/individual/employment-status";
-import { IndividualIdentityType } from "@app/models/bw/co/centralkyc/individual/individual-identity-type";
-import { MaritalStatus } from "@app/models/bw/co/centralkyc/individual/marital-status";
-import { Sex } from "@app/models/bw/co/centralkyc/individual/sex";
-import { KycComplianceStatus } from "@app/models/bw/co/centralkyc/kyc/kyc-compliance-status";
-import { BranchDTO } from "@app/models/bw/co/centralkyc/organisation/branch/branch-dto";
-import { OrganisationListDTO } from "@app/models/bw/co/centralkyc/organisation/organisation-list-dto";
-import { PhoneNumber } from "@app/models/bw/co/centralkyc/phone-number";
+import { EmploymentStatus } from "@app/models/bw/co/kyvera/individual/employment-status";
+import { IndividualIdentityType } from "@app/models/bw/co/kyvera/individual/individual-identity-type";
+import { MaritalStatus } from "@app/models/bw/co/kyvera/individual/marital-status";
+import { Sex } from "@app/models/bw/co/kyvera/individual/sex";
+import { KycComplianceStatus } from "@app/models/bw/co/kyvera/kyc/kyc-compliance-status";
+import { BranchDTO } from "@app/models/bw/co/kyvera/organisation/branch/branch-dto";
+import { OrganisationListDTO } from "@app/models/bw/co/kyvera/organisation/organisation-list-dto";
+import { PhoneNumber } from "@app/models/bw/co/kyvera/phone-number";
 import { TranslateModule } from "@ngx-translate/core";
 import { NgxMatSelectSearchModule } from "ngx-mat-select-search";
 import { swalFire } from '@app/@shared/swal-loader';
 import { AppEnvStore } from "@app/store/app-env.state";
-import { OrganisationApiStore } from "@app/store/bw/co/centralkyc/organisation/organisation-api.store";
-import { BranchApiStore } from "@app/store/bw/co/centralkyc/organisation/branch/branch-api.store";
-import { IndividualApiStore } from "@app/store/bw/co/centralkyc/individual/individual-api.store";
+import { OrganisationApiStore } from "@app/store/bw/co/kyvera/organisation/organisation-api.store";
+import { BranchApiStore } from "@app/store/bw/co/kyvera/organisation/branch/branch-api.store";
+import { IndividualApiStore } from "@app/store/bw/co/kyvera/individual/individual-api.store";
 import { Router } from "@angular/router";
-import { PhoneType } from "@app/models/bw/co/centralkyc/phone-type";
-import { GeneralStatus } from "@app/models/bw/co/centralkyc/general-status";
-import { IndividualDTO } from "@app/models/bw/co/centralkyc/individual/individual-dto";
+import { PhoneType } from "@app/models/bw/co/kyvera/phone-type";
+import { GeneralStatus } from "@app/models/bw/co/kyvera/general-status";
+import { IndividualDTO } from "@app/models/bw/co/kyvera/individual/individual-dto";
 import { ToastrService } from "ngx-toastr";
 
 export class EditIndividualVarsForm {
@@ -169,7 +169,7 @@ export class EditIndividual implements OnInit, AfterViewInit, OnDestroy {
         'Unknown', 'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
         'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
         'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia',
-        'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
+        'Cameroon', 'Canada', 'Kyvera African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
         'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt',
         'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon',
         'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',

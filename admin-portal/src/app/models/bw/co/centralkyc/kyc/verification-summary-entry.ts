@@ -1,5 +1,5 @@
 
-import {DataVerificationStatus} from '@models/bw/co/centralkyc/document/data-verification-status';
+import {DataVerificationStatus} from '@models/bw/co/kyvera/document/data-verification-status';
 
 export class VerificationSummaryEntry {
     verificationStatus: DataVerificationStatus | any = DataVerificationStatus.UNVERIFIED;

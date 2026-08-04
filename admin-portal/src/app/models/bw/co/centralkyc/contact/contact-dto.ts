@@ -1,6 +1,6 @@
-import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
+import {AuditableDTO} from '@models/bw/co/kyvera/auditable-dto';
 
-import {ContactType} from '@models/bw/co/centralkyc/contact/contact-type';
+import {ContactType} from '@models/bw/co/kyvera/contact/contact-type';
 
 export class ContactDTO extends AuditableDTO {
     message: string | any;

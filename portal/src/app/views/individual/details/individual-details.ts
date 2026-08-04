@@ -7,12 +7,12 @@ import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
 import { MatListModule } from "@angular/material/list";
 import { Router } from "@angular/router";
-import { DocumentListDTO } from "@app/models/bw/co/centralkyc/document/document-list-dto";
-import { EmploymentRecordDTO } from "@app/models/bw/co/centralkyc/individual/employment/employment-record-dto";
-import { PhoneNumber } from "@app/models/bw/co/centralkyc/phone-number";
+import { DocumentListDTO } from "@app/models/bw/co/kyvera/document/document-list-dto";
+import { EmploymentRecordDTO } from "@app/models/bw/co/kyvera/individual/employment/employment-record-dto";
+import { PhoneNumber } from "@app/models/bw/co/kyvera/phone-number";
 import { AppEnvStore } from "@app/store/app-env.state";
-import { IndividualApiStore } from "@app/store/bw/co/centralkyc/individual/individual-api.store";
-import { SettingsApiStore } from "@app/store/bw/co/centralkyc/settings/settings-api.store";
+import { IndividualApiStore } from "@app/store/bw/co/kyvera/individual/individual-api.store";
+import { SettingsApiStore } from "@app/store/bw/co/kyvera/settings/settings-api.store";
 
 @Component({
   selector: 'app-individual-details',

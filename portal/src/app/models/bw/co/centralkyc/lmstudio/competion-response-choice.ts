@@ -1,5 +1,5 @@
 
-import {CompletionRequestMessage} from '@models/bw/co/centralkyc/lmstudio/completion-request-message';
+import {CompletionRequestMessage} from '@models/bw/co/kyvera/lmstudio/completion-request-message';
 
 export class CompetionResponseChoice {
     index: number | any;

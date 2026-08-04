@@ -1,5 +1,5 @@
 
-import {PropertySearchOrder} from '@models/bw/co/centralkyc/property-search-order';
+import {PropertySearchOrder} from '@models/bw/co/kyvera/property-search-order';
 
 export class SearchObject<T> {
     criteria: T | any;

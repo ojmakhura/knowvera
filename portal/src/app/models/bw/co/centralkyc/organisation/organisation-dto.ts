@@ -1,13 +1,13 @@
-import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
+import {AuditableDTO} from '@models/bw/co/kyvera/auditable-dto';
 
-import {DocumentListDTO} from '@models/bw/co/centralkyc/document/document-list-dto';
-import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
-import {DocumentTypeDTO} from '@models/bw/co/centralkyc/document/type/document-type-dto';
-import {BranchDTO} from '@models/bw/co/centralkyc/organisation/branch/branch-dto';
-import {GeneralStatus} from '@models/bw/co/centralkyc/general-status';
-import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
-import {OrganisationDomain} from '@models/bw/co/centralkyc/organisation/organisation-domain';
+import {DocumentListDTO} from '@models/bw/co/kyvera/document/document-list-dto';
+import {KycComplianceStatus} from '@models/bw/co/kyvera/kyc/kyc-compliance-status';
+import {DocumentDTO} from '@models/bw/co/kyvera/document/document-dto';
+import {DocumentTypeDTO} from '@models/bw/co/kyvera/document/type/document-type-dto';
+import {BranchDTO} from '@models/bw/co/kyvera/organisation/branch/branch-dto';
+import {GeneralStatus} from '@models/bw/co/kyvera/general-status';
+import {PhoneNumber} from '@models/bw/co/kyvera/phone-number';
+import {OrganisationDomain} from '@models/bw/co/kyvera/organisation/organisation-domain';
 
 export class OrganisationDTO extends AuditableDTO {
     code: string | any;

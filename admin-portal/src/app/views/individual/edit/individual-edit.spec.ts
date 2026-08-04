@@ -2,9 +2,9 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { Router } from '@angular/router';
-import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
-import { BranchApiStore } from '@app/store/bw/co/centralkyc/organisation/branch/branch-api.store';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
+import { IndividualApiStore } from '@app/store/bw/co/kyvera/individual/individual-api.store';
+import { BranchApiStore } from '@app/store/bw/co/kyvera/organisation/branch/branch-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/kyvera/organisation/organisation-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { IndividualEdit } from './individual-edit';
 

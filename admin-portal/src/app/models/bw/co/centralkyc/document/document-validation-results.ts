@@ -1,5 +1,5 @@
 
-import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
+import {DocumentVerificationStatus} from '@models/bw/co/kyvera/document/document-verification-status';
 
 export class DocumentValidationResults {
     expectedType: string | any;

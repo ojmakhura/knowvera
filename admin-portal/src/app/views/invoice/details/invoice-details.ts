@@ -5,11 +5,11 @@ import { MatCardModule } from '@angular/material/card';
 import { ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { KycInvoiceApiStore } from '@app/store/bw/co/centralkyc/invoice/kyc-invoice-api.store';
+import { KycInvoiceApiStore } from '@app/store/bw/co/kyvera/invoice/kyc-invoice-api.store';
 import { ActivatedRoute, Router } from '@angular/router';
-import { KycInvoiceDTO } from '@app/models/bw/co/centralkyc/invoice/kyc-invoice-dto';
-import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
-import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
+import { KycInvoiceDTO } from '@app/models/bw/co/kyvera/invoice/kyc-invoice-dto';
+import { DocumentDTO } from '@app/models/bw/co/kyvera/document/document-dto';
+import { DocumentApi } from '@app/services/bw/co/kyvera/document/document-api';
 import { ToastrService } from 'ngx-toastr';
 import { AppEnvStore } from '@app/store/app-env.state';
 

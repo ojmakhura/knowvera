@@ -4,7 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MaterialModule } from '@app/material.module';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AnalyticsApiStore } from '@app/store/bw/co/centralkyc/analytics/analytics-api.store';
+import { AnalyticsApiStore } from '@app/store/bw/co/kyvera/analytics/analytics-api.store';
 
 interface StatCard {
   title: string;

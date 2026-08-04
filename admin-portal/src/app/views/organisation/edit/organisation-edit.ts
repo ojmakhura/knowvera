@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
-import { OrganisationApiStore } from './../../../store/bw/co/centralkyc/organisation/organisation-api.store';
+import { OrganisationApiStore } from './../../../store/bw/co/kyvera/organisation/organisation-api.store';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -24,12 +24,12 @@ import {
 import { applyEach, email, form, FormField, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { Loader } from '@app/@shared/loader/loader';
-import { GeneralStatus } from '@app/models/bw/co/centralkyc/general-status';
-import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import { OrganisationDomain } from '@app/models/bw/co/centralkyc/organisation/organisation-domain';
-import { OrganisationDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-dto';
-import { PhoneNumber } from '@app/models/bw/co/centralkyc/phone-number';
-import { PhoneType } from '@app/models/bw/co/centralkyc/phone-type';
+import { GeneralStatus } from '@app/models/bw/co/kyvera/general-status';
+import { KycComplianceStatus } from '@app/models/bw/co/kyvera/kyc/kyc-compliance-status';
+import { OrganisationDomain } from '@app/models/bw/co/kyvera/organisation/organisation-domain';
+import { OrganisationDTO } from '@app/models/bw/co/kyvera/organisation/organisation-dto';
+import { PhoneNumber } from '@app/models/bw/co/kyvera/phone-number';
+import { PhoneType } from '@app/models/bw/co/kyvera/phone-type';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
@@ -109,7 +109,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
     'Unknown', 'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
     'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
     'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia',
-    'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
+    'Cameroon', 'Canada', 'Kyvera African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
     'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt',
     'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon',
     'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',

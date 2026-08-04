@@ -6,8 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 
-import { Tool } from '@app/models/bw/co/centralkyc/settings/tool';
-import { ToolSelectorDTO } from '@app/models/bw/co/centralkyc/settings/tool-selector-dto';
+import { Tool } from '@app/models/bw/co/kyvera/settings/tool';
+import { ToolSelectorDTO } from '@app/models/bw/co/kyvera/settings/tool-selector-dto';
 
 interface AddToolSelectorDialogData {
   title: string;

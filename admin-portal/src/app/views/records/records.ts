@@ -20,13 +20,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
-import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
-import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
-import { KycRecordSearchCriteria } from '@app/models/bw/co/centralkyc/kyc/kyc-record-search-criteria';
-import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
+import { IndividualIdentityType } from '@app/models/bw/co/kyvera/individual/individual-identity-type';
+import { KycComplianceStatus } from '@app/models/bw/co/kyvera/kyc/kyc-compliance-status';
+import { KycRecordDTO } from '@app/models/bw/co/kyvera/kyc/kyc-record-dto';
+import { KycRecordSearchCriteria } from '@app/models/bw/co/kyvera/kyc/kyc-record-search-criteria';
+import { TargetEntity } from '@app/models/bw/co/kyvera/target-entity';
 import { SearchObject } from '@app/models/search-object';
-import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
+import { KycRecordApiStore } from '@app/store/bw/co/kyvera/kyc/kyc-record-api.store';
 
 export class SearchRecordsVarsForm {
   firstName = '';

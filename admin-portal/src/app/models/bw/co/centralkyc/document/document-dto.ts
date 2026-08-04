@@ -1,13 +1,13 @@
-import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
+import {AuditableDTO} from '@models/bw/co/kyvera/auditable-dto';
 
-import {DocumentValidationResults} from '@models/bw/co/centralkyc/document/document-validation-results';
-import {DataVerification} from '@models/bw/co/centralkyc/document/data-verification';
-import {DocumentVerificationStatus} from '@models/bw/co/centralkyc/document/document-verification-status';
-import {DataComparisons} from '@models/bw/co/centralkyc/document/data-comparisons';
-import {VerificationDataConfigDTO} from '@models/bw/co/centralkyc/document/type/verification/verification-data-config-dto';
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
-import {PromptMessage} from '@models/bw/co/centralkyc/llm/prompt-message';
-import {DocumentAnalyticsStatus} from '@models/bw/co/centralkyc/document/document-analytics-status';
+import {DocumentValidationResults} from '@models/bw/co/kyvera/document/document-validation-results';
+import {DataVerification} from '@models/bw/co/kyvera/document/data-verification';
+import {DocumentVerificationStatus} from '@models/bw/co/kyvera/document/document-verification-status';
+import {DataComparisons} from '@models/bw/co/kyvera/document/data-comparisons';
+import {VerificationDataConfigDTO} from '@models/bw/co/kyvera/document/type/verification/verification-data-config-dto';
+import {TargetEntity} from '@models/bw/co/kyvera/target-entity';
+import {PromptMessage} from '@models/bw/co/kyvera/llm/prompt-message';
+import {DocumentAnalyticsStatus} from '@models/bw/co/kyvera/document/document-analytics-status';
 
 export class DocumentDTO extends AuditableDTO {
     target: TargetEntity | any;

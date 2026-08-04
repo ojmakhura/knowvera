@@ -7,14 +7,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
-import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
-import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
-import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
-import { IndividualListDTO } from '@app/models/bw/co/centralkyc/individual/individual-list-dto';
+import { TargetEntity } from '@app/models/bw/co/kyvera/target-entity';
+import { OrganisationApiStore } from '@app/store/bw/co/kyvera/organisation/organisation-api.store';
+import { IndividualApiStore } from '@app/store/bw/co/kyvera/individual/individual-api.store';
+import { OrganisationListDTO } from '@app/models/bw/co/kyvera/organisation/organisation-list-dto';
+import { IndividualListDTO } from '@app/models/bw/co/kyvera/individual/individual-list-dto';
 import { SearchObject } from '@app/models/search-object';
-import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
-import { IndividualSearchCriteria } from '@app/models/bw/co/centralkyc/individual/individual-search-criteria';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/kyvera/organisation/organisation-search-criteria';
+import { IndividualSearchCriteria } from '@app/models/bw/co/kyvera/individual/individual-search-criteria';
 
 type CreateClientRequestDialogData = {
   defaultTarget?: TargetEntity;

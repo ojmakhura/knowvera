@@ -1,6 +1,6 @@
 
-import {CompletionResponseUsage} from '@models/bw/co/centralkyc/lmstudio/completion-response-usage';
-import {CompetionResponseChoice} from '@models/bw/co/centralkyc/lmstudio/competion-response-choice';
+import {CompletionResponseUsage} from '@models/bw/co/kyvera/lmstudio/completion-response-usage';
+import {CompetionResponseChoice} from '@models/bw/co/kyvera/lmstudio/competion-response-choice';
 
 export class CompletionResponse {
     id: string | any;

@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
+import { TargetEntity } from '@app/models/bw/co/kyvera/target-entity';
 import { swalFire } from '@app/@shared/swal-loader';
-import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
-import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
-import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
-import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
+import { KycRecordApiStore } from '@app/store/bw/co/kyvera/kyc/kyc-record-api.store';
+import { SettingsApiStore } from '@app/store/bw/co/kyvera/settings/settings-api.store';
+import { DocumentApi } from '@app/services/bw/co/kyvera/document/document-api';
+import { DocumentTypeDTO } from '@app/models/bw/co/kyvera/document/type/document-type-dto';
 import { Loader } from '@app/@shared/loader/loader';
 import { ToastrService } from 'ngx-toastr';
-import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
-import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
+import { DocumentDTO } from '@app/models/bw/co/kyvera/document/document-dto';
+import { DocumentVerificationStatus } from '@app/models/bw/co/kyvera/document/document-verification-status';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 

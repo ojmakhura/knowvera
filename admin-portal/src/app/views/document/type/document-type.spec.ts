@@ -2,8 +2,8 @@ import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
-import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
-import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
+import { DocumentTypeDTO } from '@app/models/bw/co/kyvera/document/type/document-type-dto';
+import { DocumentTypeApiStore } from '@app/store/bw/co/kyvera/document/type/document-type-api.store';
 import { ToastrService } from 'ngx-toastr';
 import { DocumentTypeComponent } from './document-type';
 

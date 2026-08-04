@@ -1,11 +1,11 @@
 
-import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
-import {SourceOfFunds} from '@models/bw/co/centralkyc/source-of-funds';
-import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
-import {PepStatus} from '@models/bw/co/centralkyc/individual/pep-status';
-import {PhoneNumber} from '@models/bw/co/centralkyc/phone-number';
-import {KeyValue} from '@models/bw/co/centralkyc/key-value';
+import {IndividualIdentityType} from '@models/bw/co/kyvera/individual/individual-identity-type';
+import {SourceOfFunds} from '@models/bw/co/kyvera/source-of-funds';
+import {KycComplianceStatus} from '@models/bw/co/kyvera/kyc/kyc-compliance-status';
+import {TargetEntity} from '@models/bw/co/kyvera/target-entity';
+import {PepStatus} from '@models/bw/co/kyvera/individual/pep-status';
+import {PhoneNumber} from '@models/bw/co/kyvera/phone-number';
+import {KeyValue} from '@models/bw/co/kyvera/key-value';
 
 export class KycRecordSummary {
     ref: string | any;

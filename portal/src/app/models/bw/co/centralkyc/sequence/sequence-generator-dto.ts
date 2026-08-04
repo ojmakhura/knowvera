@@ -1,6 +1,6 @@
 
-import {SequencePartDTO} from '@models/bw/co/centralkyc/sequence/sequence-part-dto';
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
+import {SequencePartDTO} from '@models/bw/co/kyvera/sequence/sequence-part-dto';
+import {TargetEntity} from '@models/bw/co/kyvera/target-entity';
 
 export class SequenceGeneratorDTO {
     id: string | any;

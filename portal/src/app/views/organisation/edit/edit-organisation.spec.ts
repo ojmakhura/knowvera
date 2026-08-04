@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { EditOrganisation } from './edit-organisation';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/kyvera/organisation/organisation-api.store';
 import { ToastrService } from 'ngx-toastr';
 import { AppEnvStore } from '@app/store/app-env.state';
 

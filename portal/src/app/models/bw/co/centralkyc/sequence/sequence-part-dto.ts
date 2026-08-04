@@ -1,5 +1,5 @@
 
-import {SequencePartType} from '@models/bw/co/centralkyc/sequence/sequence-part-type';
+import {SequencePartType} from '@models/bw/co/kyvera/sequence/sequence-part-type';
 
 export class SequencePartDTO {
     id: number | any;

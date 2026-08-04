@@ -1,13 +1,13 @@
-import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
+import {AuditableDTO} from '@models/bw/co/kyvera/auditable-dto';
 
-import {SourceOfFunds} from '@models/bw/co/centralkyc/source-of-funds';
-import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
-import {VerificationSummaryEntry} from '@models/bw/co/centralkyc/kyc/verification-summary-entry';
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
-import {OwnerDetails} from '@models/bw/co/centralkyc/kyc/owner-details';
-import {EmploymentRecordDTO} from '@models/bw/co/centralkyc/individual/employment/employment-record-dto';
-import {DeclarationDTO} from '@models/bw/co/centralkyc/kyc/declaration-dto';
+import {SourceOfFunds} from '@models/bw/co/kyvera/source-of-funds';
+import {KycComplianceStatus} from '@models/bw/co/kyvera/kyc/kyc-compliance-status';
+import {DocumentDTO} from '@models/bw/co/kyvera/document/document-dto';
+import {VerificationSummaryEntry} from '@models/bw/co/kyvera/kyc/verification-summary-entry';
+import {TargetEntity} from '@models/bw/co/kyvera/target-entity';
+import {OwnerDetails} from '@models/bw/co/kyvera/kyc/owner-details';
+import {EmploymentRecordDTO} from '@models/bw/co/kyvera/individual/employment/employment-record-dto';
+import {DeclarationDTO} from '@models/bw/co/kyvera/kyc/declaration-dto';
 import { KycReportSectionDTO } from './fields/kyc-report-section-dto';
 
 export class KycRecordDTO extends AuditableDTO {

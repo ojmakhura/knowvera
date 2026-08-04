@@ -1,7 +1,7 @@
-import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
+import {AuditableDTO} from '@models/bw/co/kyvera/auditable-dto';
 
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
-import {ExpectedFieldType} from '@models/bw/co/centralkyc/document/type/field/expected-field-type';
+import {TargetEntity} from '@models/bw/co/kyvera/target-entity';
+import {ExpectedFieldType} from '@models/bw/co/kyvera/document/type/field/expected-field-type';
 
 export class ExpectedFieldDTO extends AuditableDTO {
     field: string | any;

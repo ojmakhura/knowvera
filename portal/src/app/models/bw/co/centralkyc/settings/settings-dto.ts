@@ -1,9 +1,9 @@
-import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
+import {AuditableDTO} from '@models/bw/co/kyvera/auditable-dto';
 
-import {KycFieldGroupDTO} from '@models/bw/co/centralkyc/settings/kyc/kyc-field-group-dto';
-import {DocumentDTO} from '@models/bw/co/centralkyc/document/document-dto';
-import {DocumentTypeDTO} from '@models/bw/co/centralkyc/document/type/document-type-dto';
-import {SalaryRangeDTO} from '@models/bw/co/centralkyc/settings/salary-range-dto';
+import {KycFieldGroupDTO} from '@models/bw/co/kyvera/settings/kyc/kyc-field-group-dto';
+import {DocumentDTO} from '@models/bw/co/kyvera/document/document-dto';
+import {DocumentTypeDTO} from '@models/bw/co/kyvera/document/type/document-type-dto';
+import {SalaryRangeDTO} from '@models/bw/co/kyvera/settings/salary-range-dto';
 import { ToolSelectorDTO } from './tool-selector-dto';
 
 export class SettingsDTO extends AuditableDTO {

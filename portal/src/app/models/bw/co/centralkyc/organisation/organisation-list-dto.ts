@@ -1,6 +1,6 @@
 
-import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import {GeneralStatus} from '@models/bw/co/centralkyc/general-status';
+import {KycComplianceStatus} from '@models/bw/co/kyvera/kyc/kyc-compliance-status';
+import {GeneralStatus} from '@models/bw/co/kyvera/general-status';
 
 export class OrganisationListDTO {
     id: string | any;

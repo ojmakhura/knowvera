@@ -5,13 +5,13 @@
     compiling or testing or packaging, run mvn install from /mda instead of from the root directory. -->
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>bw.co.centralkyc</groupId>
-        <artifactId>centralkyc</artifactId>
+        <groupId>bw.co.kyvera</groupId>
+        <artifactId>kyvera</artifactId>
         <version>0.0.1</version>
     </parent>
-    <artifactId>centralkyc-mda</artifactId>
+    <artifactId>kyvera-mda</artifactId>
     <packaging>pom</packaging>
-    <name>The Centalised KYC Project MDA</name>
+    <name>The Kyvera KYC Project MDA</name>
     <dependencies>
         <!-- provided profile dependencies are not added to the manifest, used only at code generation time -->
         <dependency>
@@ -113,7 +113,7 @@
         </plugins>
     </build>
     <properties>
-        <model.uri>file:${project.basedir}/src/main/uml/centralkyc.uml</model.uri>
+        <model.uri>file:${project.basedir}/src/main/uml/kyvera.uml</model.uri>
         <javaVersion>${java.version}</javaVersion>
         <filter></filter>
         <validation>true</validation>

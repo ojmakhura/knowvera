@@ -1,7 +1,7 @@
-import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
+import {AuditableDTO} from '@models/bw/co/kyvera/auditable-dto';
 
-import {GroupFieldDTO} from '@models/bw/co/centralkyc/settings/kyc/group-field-dto';
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
+import {GroupFieldDTO} from '@models/bw/co/kyvera/settings/kyc/group-field-dto';
+import {TargetEntity} from '@models/bw/co/kyvera/target-entity';
 
 export class KycFieldGroupDTO extends AuditableDTO {
     label: string | any;

@@ -10,20 +10,20 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
-import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
-import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
-import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
+import { TargetEntity } from '@app/models/bw/co/kyvera/target-entity';
+import { DocumentTypeDTO } from '@app/models/bw/co/kyvera/document/type/document-type-dto';
+import { DocumentVerificationStatus } from '@app/models/bw/co/kyvera/document/document-verification-status';
 import { form, FormField, readonly } from '@angular/forms/signals';
 import { Loader } from '@app/@shared/loader/loader';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
-import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
-import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
-import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
+import { DocumentApiStore } from '@app/store/bw/co/kyvera/document/document-api.store';
+import { DocumentTypeApiStore } from '@app/store/bw/co/kyvera/document/type/document-type-api.store';
+import { DocumentDTO } from '@app/models/bw/co/kyvera/document/document-dto';
+import { DocumentApi } from '@app/services/bw/co/kyvera/document/document-api';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
-import { DocumentAnalyticsStatus } from '@app/models/bw/co/centralkyc/document/document-analytics-status';
+import { DocumentAnalyticsStatus } from '@app/models/bw/co/kyvera/document/document-analytics-status';
 
 class EditDocumentForm {
   id: string | any = null;

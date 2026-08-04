@@ -9,10 +9,10 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, linkedSig
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { IndividualListDTO } from '@app/models/bw/co/centralkyc/individual/individual-list-dto';
-import { IndividualSearchCriteria } from '@app/models/bw/co/centralkyc/individual/individual-search-criteria';
+import { IndividualListDTO } from '@app/models/bw/co/kyvera/individual/individual-list-dto';
+import { IndividualSearchCriteria } from '@app/models/bw/co/kyvera/individual/individual-search-criteria';
 import { SearchObject } from '@app/models/search-object';
-import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
+import { IndividualApiStore } from '@app/store/bw/co/kyvera/individual/individual-api.store';
 
 export class SearchIndividualsVarsForm {
   identityNo: string = '';

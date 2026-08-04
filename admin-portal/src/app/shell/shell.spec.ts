@@ -37,7 +37,7 @@ describe('Shell', () => {
   };
 
   const titleMock = {
-    getTitle: () => 'Central KYC Admin Portal',
+    getTitle: () => 'Kyvera KYC Admin Portal',
   };
 
   beforeEach(async () => {

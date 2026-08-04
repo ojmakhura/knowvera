@@ -1,10 +1,10 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
-import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
-import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
-import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
+import { DocumentVerificationStatus } from '@app/models/bw/co/kyvera/document/document-verification-status';
+import { DocumentApi } from '@app/services/bw/co/kyvera/document/document-api';
+import { DocumentApiStore } from '@app/store/bw/co/kyvera/document/document-api.store';
+import { DocumentTypeApiStore } from '@app/store/bw/co/kyvera/document/type/document-type-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';

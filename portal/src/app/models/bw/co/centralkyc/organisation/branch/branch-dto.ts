@@ -1,6 +1,6 @@
-import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
+import {AuditableDTO} from '@models/bw/co/kyvera/auditable-dto';
 
-import {DocumentListDTO} from '@models/bw/co/centralkyc/document/document-list-dto';
+import {DocumentListDTO} from '@models/bw/co/kyvera/document/document-list-dto';
 
 export class BranchDTO extends AuditableDTO {
     code: string | any;

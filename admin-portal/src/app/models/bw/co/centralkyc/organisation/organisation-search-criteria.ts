@@ -1,5 +1,5 @@
 
-import {GeneralStatus} from '@models/bw/co/centralkyc/general-status';
+import {GeneralStatus} from '@models/bw/co/kyvera/general-status';
 
 export class OrganisationSearchCriteria {
     registrationNo: string | any;

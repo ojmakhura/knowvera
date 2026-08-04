@@ -1,5 +1,5 @@
 
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
+import {TargetEntity} from '@models/bw/co/kyvera/target-entity';
 
 export class QueueObject {
     objectId: string | any;

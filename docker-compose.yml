@@ -1,9 +1,9 @@
 services:
   # ---------------------------------------------------------------------------
-  # CentralKYC Web Service - the application (built from ./Dockerfile)
+  # kyvera Web Service - the application (built from ./Dockerfile)
   # ---------------------------------------------------------------------------
-  centralkyc-webservice:
-    image: centralkyc-webservice:latest
+  kyvera-webservice:
+    image: kyvera-webservice:latest
     ports:
       - "${PORT:-8085}:8085"
     environment:
@@ -15,9 +15,9 @@ services:
       SHOW_SQL: ${SHOW_SQL:-false}
 
       # --- Datasource (core-application.properties) ---
-      DATABASE_URL: ${DATABASE_URL:-jdbc:postgresql://postgres:5432/centralkyc}
-      DB_USERNAME: ${DB_USERNAME:-centralkyc}
-      DB_PASSWORD: ${DB_PASSWORD:-centralkyc}
+      DATABASE_URL: ${DATABASE_URL:-jdbc:postgresql://postgres:5432/kyvera}
+      DB_USERNAME: ${DB_USERNAME:-kyvera}
+      DB_PASSWORD: ${DB_PASSWORD:-kyvera}
       HIKARI_CONNECTION_TIMEOUT: ${HIKARI_CONNECTION_TIMEOUT:-3000}
       HIKARI_MAX_LIFETIME: ${HIKARI_MAX_LIFETIME:-1200000}
       HIKARI_MIN_IDLE: ${HIKARI_MIN_IDLE:-5}
@@ -31,7 +31,7 @@ services:
 
       # --- Security / OAuth2 (Keycloak) ---
       AUTH_URL: ${AUTH_URL:-http://keycloak:8970}
-      REALM: ${REALM:-centralkyc}
+      REALM: ${REALM:-kyvera}
 
       # --- Redis ---
       REDIS_HOST: ${REDIS_HOST:-redis}
@@ -48,7 +48,7 @@ services:
       MINIO_URL: ${MINIO_URL:-http://minio:9000}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minio}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minio123}
-      MINIO_BUCKET: ${MINIO_BUCKET:-centralkyc}
+      MINIO_BUCKET: ${MINIO_BUCKET:-kyvera}
 
       # --- Application roles ---
       REALM_USER_ROLE: ${REALM_USER_ROLE:-KYC_USER}
@@ -79,7 +79,7 @@ services:
       SOURCE_EMAIL: ${SOURCE_EMAIL:-}
 
       # --- Registration client ---
-      REGISTRATION_CLIENT: ${REGISTRATION_CLIENT:-centralkyc-registration}
+      REGISTRATION_CLIENT: ${REGISTRATION_CLIENT:-kyvera-registration}
       REGISTRATION_CLIENT_SECRET: ${REGISTRATION_CLIENT_SECRET:-secret}
 
       # --- LLM / AI providers ---
@@ -149,16 +149,16 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTP router
-      - "traefik.http.routers.centralkyc.rule=Host(`${WEBSERVICE_HOST:-centralkyc.localhost}`)"
-      - "traefik.http.routers.centralkyc.entrypoints=web"
-      - "traefik.http.services.centralkyc.loadbalancer.server.port=8085"
+      - "traefik.http.routers.kyvera.rule=Host(`${WEBSERVICE_HOST:-kyvera.localhost}`)"
+      - "traefik.http.routers.kyvera.entrypoints=web"
+      - "traefik.http.services.kyvera.loadbalancer.server.port=8085"
       # Health check
-      - "traefik.http.services.centralkyc.loadbalancer.healthcheck.path=/actuator/health"
-      - "traefik.http.services.centralkyc.loadbalancer.healthcheck.interval=30s"
+      - "traefik.http.services.kyvera.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.kyvera.loadbalancer.healthcheck.interval=30s"
     networks:
-      - centralkyc
+      - kyvera
 
 networks:
-  centralkyc:
+  kyvera:
     driver: bridge
 

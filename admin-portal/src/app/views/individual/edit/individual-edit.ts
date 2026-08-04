@@ -10,28 +10,28 @@ import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
 import { applyEach, email, form, required, FormField } from '@angular/forms/signals';
-import { GeneralStatus } from '@app/models/bw/co/centralkyc/general-status';
-import { EmploymentStatus } from '@app/models/bw/co/centralkyc/individual/employment-status';
-import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
-import { MaritalStatus } from '@app/models/bw/co/centralkyc/individual/marital-status';
-import { PepStatus } from '@app/models/bw/co/centralkyc/individual/pep-status';
-import { Sex } from '@app/models/bw/co/centralkyc/individual/sex';
-import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import { BranchDTO } from '@app/models/bw/co/centralkyc/organisation/branch/branch-dto';
-import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
-import { PhoneNumber } from '@app/models/bw/co/centralkyc/phone-number';
-import { PhoneType } from '@app/models/bw/co/centralkyc/phone-type';
-import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
-import { BranchApiStore } from '@app/store/bw/co/centralkyc/organisation/branch/branch-api.store';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
+import { GeneralStatus } from '@app/models/bw/co/kyvera/general-status';
+import { EmploymentStatus } from '@app/models/bw/co/kyvera/individual/employment-status';
+import { IndividualIdentityType } from '@app/models/bw/co/kyvera/individual/individual-identity-type';
+import { MaritalStatus } from '@app/models/bw/co/kyvera/individual/marital-status';
+import { PepStatus } from '@app/models/bw/co/kyvera/individual/pep-status';
+import { Sex } from '@app/models/bw/co/kyvera/individual/sex';
+import { KycComplianceStatus } from '@app/models/bw/co/kyvera/kyc/kyc-compliance-status';
+import { BranchDTO } from '@app/models/bw/co/kyvera/organisation/branch/branch-dto';
+import { OrganisationListDTO } from '@app/models/bw/co/kyvera/organisation/organisation-list-dto';
+import { PhoneNumber } from '@app/models/bw/co/kyvera/phone-number';
+import { PhoneType } from '@app/models/bw/co/kyvera/phone-type';
+import { IndividualApiStore } from '@app/store/bw/co/kyvera/individual/individual-api.store';
+import { BranchApiStore } from '@app/store/bw/co/kyvera/organisation/branch/branch-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/kyvera/organisation/organisation-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
-import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/kyvera/organisation/organisation-search-criteria';
 import { SearchObject } from '@app/models/search-object';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { Loader } from '@app/@shared/loader/loader';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { IndividualDTO } from '@app/models/bw/co/centralkyc/individual/individual-dto';
+import { IndividualDTO } from '@app/models/bw/co/kyvera/individual/individual-dto';
 
 export class EditIndividualVarsForm {
   id: string | any = null;
@@ -161,7 +161,7 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
     'Unknown', 'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
     'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
     'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia',
-    'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
+    'Cameroon', 'Canada', 'Kyvera African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
     'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt',
     'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon',
     'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',

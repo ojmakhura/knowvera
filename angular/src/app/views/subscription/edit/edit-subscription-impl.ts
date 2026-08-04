@@ -7,11 +7,11 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MaterialModule } from '@app/material.module';
 import { Loader } from "@shared/loader/loader";
 import { FormField } from '@angular/forms/signals';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/kyvera/organisation/organisation-api.store';
 import { SearchObject } from '@app/models/search-object';
-import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
-import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
-import { KycSubscriptionDTO } from '@app/models/bw/co/centralkyc/subscription/kyc-subscription-dto';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/kyvera/organisation/organisation-search-criteria';
+import { OrganisationListDTO } from '@app/models/bw/co/kyvera/organisation/organisation-list-dto';
+import { KycSubscriptionDTO } from '@app/models/bw/co/kyvera/subscription/kyc-subscription-dto';
 
 @Component({
   selector: 'app-edit-subscription',

@@ -1,5 +1,5 @@
 
-import {OllamaResponseMessage} from '@models/bw/co/centralkyc/llm/ollama-response-message';
+import {OllamaResponseMessage} from '@models/bw/co/kyvera/llm/ollama-response-message';
 
 export class OllamaResponse {
     model: string | any;

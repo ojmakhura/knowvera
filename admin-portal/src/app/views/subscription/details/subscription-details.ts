@@ -21,13 +21,13 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { Loader } from '@app/@shared/loader/loader';
-import { KycInvoiceDTO } from '@app/models/bw/co/centralkyc/invoice/kyc-invoice-dto';
-import { KycSubsciptionStatus } from '@app/models/bw/co/centralkyc/subscription/kyc-subsciption-status';
-import { KycSubscriptionDTO } from '@app/models/bw/co/centralkyc/subscription/kyc-subscription-dto';
+import { KycInvoiceDTO } from '@app/models/bw/co/kyvera/invoice/kyc-invoice-dto';
+import { KycSubsciptionStatus } from '@app/models/bw/co/kyvera/subscription/kyc-subsciption-status';
+import { KycSubscriptionDTO } from '@app/models/bw/co/kyvera/subscription/kyc-subscription-dto';
 import { AppEnvStore } from '@app/store/app-env.state';
-import { KycInvoiceApiStore } from '@app/store/bw/co/centralkyc/invoice/kyc-invoice-api.store';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
-import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscription/kyc-subscription-api.store';
+import { KycInvoiceApiStore } from '@app/store/bw/co/kyvera/invoice/kyc-invoice-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/kyvera/organisation/organisation-api.store';
+import { KycSubscriptionApiStore } from '@app/store/bw/co/kyvera/subscription/kyc-subscription-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { swalFire } from '@app/@shared/swal';
 
@@ -187,7 +187,7 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   subtitle(): string {
-    return 'Central KYC / Compliance Environment';
+    return 'Kyvera KYC / Compliance Environment';
   }
 
   annualCommitment(): string {

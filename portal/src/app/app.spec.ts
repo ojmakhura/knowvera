@@ -5,8 +5,8 @@ import { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
 import { of } from 'rxjs';
 
 import { App } from './app';
-import { IndividualApi } from './services/bw/co/centralkyc/individual/individual-api';
-import { OrganisationApi } from './services/bw/co/centralkyc/organisation/organisation-api';
+import { IndividualApi } from './services/bw/co/kyvera/individual/individual-api';
+import { OrganisationApi } from './services/bw/co/kyvera/organisation/organisation-api';
 import { AppEnvStore } from './store/app-env.state';
 
 describe('App', () => {

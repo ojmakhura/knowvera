@@ -1,4 +1,4 @@
-import {AuditableDTO} from '@models/bw/co/centralkyc/auditable-dto';
+import {AuditableDTO} from '@models/bw/co/kyvera/auditable-dto';
 
 
 export class GroupFieldDTO extends AuditableDTO {

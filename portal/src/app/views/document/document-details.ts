@@ -1,10 +1,10 @@
 import Keycloak from 'keycloak-js';
 import { JsonPipe, KeyValuePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, OnInit, signal, AfterViewInit, OnDestroy, effect, inject, linkedSignal } from '@angular/core';
-import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
+import { DocumentApiStore } from '@app/store/bw/co/kyvera/document/document-api.store';
 import { ToastrService } from 'ngx-toastr';
-import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
-import { ExpectedFieldType } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-type';
+import { DocumentVerificationStatus } from '@app/models/bw/co/kyvera/document/document-verification-status';
+import { ExpectedFieldType } from '@app/models/bw/co/kyvera/document/type/field/expected-field-type';
 import { swalFire } from '@app/@shared/swal-loader';
 
 type InsightTab = 'signals' | 'extracted' | 'content' | 'verification';

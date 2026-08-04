@@ -1,8 +1,8 @@
 
-import {IndividualIdentityType} from '@models/bw/co/centralkyc/individual/individual-identity-type';
-import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import {PepStatus} from '@models/bw/co/centralkyc/individual/pep-status';
-import {Sex} from '@models/bw/co/centralkyc/individual/sex';
+import {IndividualIdentityType} from '@models/bw/co/kyvera/individual/individual-identity-type';
+import {KycComplianceStatus} from '@models/bw/co/kyvera/kyc/kyc-compliance-status';
+import {PepStatus} from '@models/bw/co/kyvera/individual/pep-status';
+import {Sex} from '@models/bw/co/kyvera/individual/sex';
 
 export class IndividualListDTO {
     id: string | any;

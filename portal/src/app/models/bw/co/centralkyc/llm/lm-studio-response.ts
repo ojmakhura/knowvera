@@ -1,6 +1,6 @@
 
-import {LmStudioResponseUsage} from '@models/bw/co/centralkyc/llm/lm-studio-response-usage';
-import {LmStudioResponseChoice} from '@models/bw/co/centralkyc/llm/lm-studio-response-choice';
+import {LmStudioResponseUsage} from '@models/bw/co/kyvera/llm/lm-studio-response-usage';
+import {LmStudioResponseChoice} from '@models/bw/co/kyvera/llm/lm-studio-response-choice';
 
 export class LmStudioResponse {
     id: string | any;

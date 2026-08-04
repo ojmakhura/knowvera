@@ -2,7 +2,7 @@ import { of, switchMap } from 'rxjs';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { Env } from '@app/models/env.model';
-import { IndividualDTO } from '@app/models/bw/co/centralkyc/individual/individual-dto';
+import { IndividualDTO } from '@app/models/bw/co/kyvera/individual/individual-dto';
 
 export type AppEnvState = {
   env: Env;

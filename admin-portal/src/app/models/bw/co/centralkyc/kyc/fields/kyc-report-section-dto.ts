@@ -1,5 +1,5 @@
 
-import {GroupFieldValueDTO} from '@models/bw/co/centralkyc/kyc/fields/group-field-value-dto';
+import {GroupFieldValueDTO} from '@models/bw/co/kyvera/kyc/fields/group-field-value-dto';
 
 export class KycReportSectionDTO {
 

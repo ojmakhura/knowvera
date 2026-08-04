@@ -1,5 +1,5 @@
 
-import {SortOrder} from '@models/bw/co/centralkyc/sort-order';
+import {SortOrder} from '@models/bw/co/kyvera/sort-order';
 
 export class PropertySearchOrder {
     propertyName: string | any;

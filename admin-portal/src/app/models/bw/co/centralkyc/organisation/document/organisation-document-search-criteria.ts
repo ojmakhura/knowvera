@@ -1,6 +1,6 @@
 
-import {TargetEntity} from '@models/bw/co/centralkyc/target-entity';
-import {OrganisationDocumentStatus} from '@models/bw/co/centralkyc/organisation/document/organisation-document-status';
+import {TargetEntity} from '@models/bw/co/kyvera/target-entity';
+import {OrganisationDocumentStatus} from '@models/bw/co/kyvera/organisation/document/organisation-document-status';
 
 export class OrganisationDocumentSearchCriteria {
     documentTypeId: string | any;

@@ -19,17 +19,17 @@ import {
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Loader } from '@app/@shared/loader/loader';
-import { TimePeriod } from '@app/models/bw/co/centralkyc/time-period';
-import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
+import { TimePeriod } from '@app/models/bw/co/kyvera/time-period';
+import { OrganisationListDTO } from '@app/models/bw/co/kyvera/organisation/organisation-list-dto';
 import { disabled, form, FormField, required } from '@angular/forms/signals';
-import { KycInvoiceDTO } from '@app/models/bw/co/centralkyc/invoice/kyc-invoice-dto';
+import { KycInvoiceDTO } from '@app/models/bw/co/kyvera/invoice/kyc-invoice-dto';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { KycInvoiceApiStore } from '@app/store/bw/co/centralkyc/invoice/kyc-invoice-api.store';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
+import { KycInvoiceApiStore } from '@app/store/bw/co/kyvera/invoice/kyc-invoice-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/kyvera/organisation/organisation-api.store';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { SearchObject } from '@app/models/search-object';
-import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/kyvera/organisation/organisation-search-criteria';
 import { AppEnvStore } from '@app/store/app-env.state';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 

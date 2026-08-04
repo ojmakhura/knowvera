@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
+import { DocumentTypeDTO } from '@app/models/bw/co/kyvera/document/type/document-type-dto';
 
 export interface UploadDocumentDialogData {
   documentTypes: DocumentTypeDTO[];

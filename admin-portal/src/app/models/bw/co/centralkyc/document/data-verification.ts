@@ -1,6 +1,6 @@
 
-import {DataVerificationStatus} from '@models/bw/co/centralkyc/document/data-verification-status';
-import {KeyFieldMatchResult} from '@models/bw/co/centralkyc/key-field-match-result';
+import {DataVerificationStatus} from '@models/bw/co/kyvera/document/data-verification-status';
+import {KeyFieldMatchResult} from '@models/bw/co/kyvera/key-field-match-result';
 
 export class DataVerification {
     verificationDataConfigId: string | any;

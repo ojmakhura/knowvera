@@ -17,18 +17,18 @@ export class PrivacyPolicy implements OnInit {
   protected readonly lastUpdated = 'January 23, 2026';
 
   ngOnInit(): void {
-    this.title.setTitle('Privacy Policy - Central KYC Portal');
+    this.title.setTitle('Privacy Policy - Kyvera KYC Portal');
     this.meta.updateTag({ 
       name: 'description', 
-      content: 'Privacy Policy for Central KYC Portal. Learn how we collect, use, and protect your personal information in our KYC verification services.' 
+      content: 'Privacy Policy for Kyvera KYC Portal. Learn how we collect, use, and protect your personal information in our KYC verification services.' 
     });
     this.meta.updateTag({ 
       property: 'og:title', 
-      content: 'Privacy Policy - Central KYC Portal' 
+      content: 'Privacy Policy - Kyvera KYC Portal' 
     });
     this.meta.updateTag({ 
       property: 'og:description', 
-      content: 'Privacy Policy for Central KYC Portal. Learn how we collect, use, and protect your personal information.' 
+      content: 'Privacy Policy for Kyvera KYC Portal. Learn how we collect, use, and protect your personal information.' 
     });
     this.meta.updateTag({ 
       property: 'og:type', 

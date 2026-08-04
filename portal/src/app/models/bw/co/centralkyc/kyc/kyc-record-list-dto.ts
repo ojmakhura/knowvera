@@ -1,5 +1,5 @@
 
-import {KycComplianceStatus} from '@models/bw/co/centralkyc/kyc/kyc-compliance-status';
+import {KycComplianceStatus} from '@models/bw/co/kyvera/kyc/kyc-compliance-status';
 
 export class KycRecordListDTO {
     id: string | any;

@@ -4,9 +4,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, computed, inject, Input, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ClientRequestStatus } from '@app/models/bw/co/centralkyc/organisation/client/client-request-status';
-import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import { ClientRequestApiStore } from '@app/store/bw/co/centralkyc/organisation/client/client-request-api.store';
+import { ClientRequestStatus } from '@app/models/bw/co/kyvera/organisation/client/client-request-status';
+import { KycComplianceStatus } from '@app/models/bw/co/kyvera/kyc/kyc-compliance-status';
+import { ClientRequestApiStore } from '@app/store/bw/co/kyvera/organisation/client/client-request-api.store';
 
 type LabeledValue = {
   label: string;

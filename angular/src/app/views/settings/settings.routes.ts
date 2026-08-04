@@ -9,7 +9,7 @@ import { AuthenticationGuard } from '@app/auth/authentication.guard';
 
 import { EditSettingsImplComponent } from '@app/views/settings/edit/edit-settings-impl';
 import { SettingsControllerImpl } from '@app/controllers/settings/settings-controller-impl';
-import { SettingsApi } from '@app/services/bw/co/centralkyc/settings/settings-api';
+import { SettingsApi } from '@app/services/bw/co/kyvera/settings/settings-api';
 
 export const settingsRoutes: Routes = [
   { 

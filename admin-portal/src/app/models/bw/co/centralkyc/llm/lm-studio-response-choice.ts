@@ -1,5 +1,5 @@
 
-import {PromptMessage} from '@models/bw/co/centralkyc/llm/prompt-message';
+import {PromptMessage} from '@models/bw/co/kyvera/llm/prompt-message';
 
 export class LmStudioResponseChoice {
     index: number | any;

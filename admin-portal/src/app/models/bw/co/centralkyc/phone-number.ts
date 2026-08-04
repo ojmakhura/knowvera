@@ -1,5 +1,5 @@
 
-import {PhoneType} from '@models/bw/co/centralkyc/phone-type';
+import {PhoneType} from '@models/bw/co/kyvera/phone-type';
 
 export class PhoneNumber {
     type: PhoneType | any;

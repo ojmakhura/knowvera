@@ -3,16 +3,16 @@ import { provideRouter } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
 import { OrganisationDetails } from './organisation-details';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
-import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
-import { BranchApiStore } from '@app/store/bw/co/centralkyc/organisation/branch/branch-api.store';
-import { BranchApi } from '@app/services/bw/co/centralkyc/organisation/branch/branch-api';
-import { KycInvoiceApiStore } from '@app/store/bw/co/centralkyc/invoice/kyc-invoice-api.store';
-import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscription/kyc-subscription-api.store';
-import { ClientRequestApiStore } from '@app/store/bw/co/centralkyc/organisation/client/client-request-api.store';
-import { ClientRequestApi } from '@app/services/bw/co/centralkyc/organisation/client/client-request-api';
-import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
-import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/kyvera/organisation/organisation-api.store';
+import { SettingsApiStore } from '@app/store/bw/co/kyvera/settings/settings-api.store';
+import { BranchApiStore } from '@app/store/bw/co/kyvera/organisation/branch/branch-api.store';
+import { BranchApi } from '@app/services/bw/co/kyvera/organisation/branch/branch-api';
+import { KycInvoiceApiStore } from '@app/store/bw/co/kyvera/invoice/kyc-invoice-api.store';
+import { KycSubscriptionApiStore } from '@app/store/bw/co/kyvera/subscription/kyc-subscription-api.store';
+import { ClientRequestApiStore } from '@app/store/bw/co/kyvera/organisation/client/client-request-api.store';
+import { ClientRequestApi } from '@app/services/bw/co/kyvera/organisation/client/client-request-api';
+import { DocumentApi } from '@app/services/bw/co/kyvera/document/document-api';
+import { DocumentApiStore } from '@app/store/bw/co/kyvera/document/document-api.store';
 import { AppEnvStore } from '@app/store/app-env.state';
 import { ToastrService } from 'ngx-toastr';
 

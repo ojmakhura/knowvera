@@ -1,5 +1,5 @@
 
-import {Tool} from '@models/bw/co/centralkyc/settings/tool';
+import {Tool} from '@models/bw/co/kyvera/settings/tool';
 
 export class ToolSelectorDTO {
 

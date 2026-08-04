@@ -12,8 +12,8 @@ ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4/tessdata
 RUN mkdir -p /app
 WORKDIR /app
 
-ARG WAR_FILE=webservice/target/centralkyc-webservice*.jar
-COPY ${WAR_FILE} centralkyc-webservice.jar
+ARG WAR_FILE=webservice/target/kyvera-webservice*.jar
+COPY ${WAR_FILE} kyvera-webservice.jar
 COPY kyc_start.sh kyc_start.sh
 
 ENTRYPOINT ["sh", "/app/kyc_start.sh"]

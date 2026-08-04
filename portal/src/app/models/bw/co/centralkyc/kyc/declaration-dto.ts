@@ -1,5 +1,5 @@
 
-import {PepStatus} from '@models/bw/co/centralkyc/individual/pep-status';
+import {PepStatus} from '@models/bw/co/kyvera/individual/pep-status';
 
 export class DeclarationDTO {
     pepStatus: PepStatus | any;
