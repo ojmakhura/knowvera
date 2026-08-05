@@ -2,25 +2,25 @@ import { CommonModule } from "@angular/common";
 import { AfterViewInit, Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit, signal } from "@angular/core";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { Loader } from "@app/@shared/loader/loader";
-import { DocumentDTO } from "@app/models/bw/co/kyvera/document/document-dto";
-import { KycComplianceStatus } from "@app/models/bw/co/kyvera/kyc/kyc-compliance-status";
-import { TargetEntity } from "@app/models/bw/co/kyvera/target-entity";
-import { KycRecordApiStore } from "@app/store/bw/co/kyvera/kyc/kyc-record-api.store";
+import { DocumentDTO } from "@app/models/bw/co/knowvera/document/document-dto";
+import { KycComplianceStatus } from "@app/models/bw/co/knowvera/kyc/kyc-compliance-status";
+import { TargetEntity } from "@app/models/bw/co/knowvera/target-entity";
+import { KycRecordApiStore } from "@app/store/bw/co/knowvera/kyc/kyc-record-api.store";
 import { TranslateModule } from "@ngx-translate/core";
 import { ToastrService } from "ngx-toastr";
-import { IndividualApi } from "@app/services/bw/co/kyvera/individual/individual-api";
-import { OrganisationApi } from "@app/services/bw/co/kyvera/organisation/organisation-api";
-import { IndividualListDTO } from "@app/models/bw/co/kyvera/individual/individual-list-dto";
-import { OrganisationListDTO } from "@app/models/bw/co/kyvera/organisation/organisation-list-dto";
-import { DeclarationDTO } from "@app/models/bw/co/kyvera/kyc/declaration-dto";
-import { SourceOfFunds } from "@app/models/bw/co/kyvera/source-of-funds";
+import { IndividualApi } from "@app/services/bw/co/knowvera/individual/individual-api";
+import { OrganisationApi } from "@app/services/bw/co/knowvera/organisation/organisation-api";
+import { IndividualListDTO } from "@app/models/bw/co/knowvera/individual/individual-list-dto";
+import { OrganisationListDTO } from "@app/models/bw/co/knowvera/organisation/organisation-list-dto";
+import { DeclarationDTO } from "@app/models/bw/co/knowvera/kyc/declaration-dto";
+import { SourceOfFunds } from "@app/models/bw/co/knowvera/source-of-funds";
 import { FormControl } from "@angular/forms";
 import { applyEach, form, FormField, minLength, required } from "@angular/forms/signals";
 import { MaterialModule } from "@app/material.module";
 import { NgxMatSelectSearchModule } from "ngx-mat-select-search";
-import { PepStatus } from "@app/models/bw/co/kyvera/individual/pep-status";
-import { KycRecordDTO } from "@app/models/bw/co/kyvera/kyc/kyc-record-dto";
-import { KycRecordApi } from "@app/services/bw/co/kyvera/kyc/kyc-record-api";
+import { PepStatus } from "@app/models/bw/co/knowvera/individual/pep-status";
+import { KycRecordDTO } from "@app/models/bw/co/knowvera/kyc/kyc-record-dto";
+import { KycRecordApi } from "@app/services/bw/co/knowvera/kyc/kyc-record-api";
 
 class KycRecordForm {
 

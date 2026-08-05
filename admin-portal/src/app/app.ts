@@ -6,7 +6,7 @@ import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType, ReadyArgs, typeEventArgs } fr
 import Keycloak from 'keycloak-js';
 import { Shell } from './shell';
 import { TranslateModule } from '@ngx-translate/core';
-import { SettingsApiStore } from './store/bw/co/kyvera/settings/settings-api.store';
+import { SettingsApiStore } from './store/bw/co/knowvera/settings/settings-api.store';
 import { NovuService } from './services/novu.service';
 
 @Component({

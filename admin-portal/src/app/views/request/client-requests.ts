@@ -11,15 +11,15 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { Loader } from '@app/@shared/loader/loader';
-import { KycComplianceStatus } from '@app/models/bw/co/kyvera/kyc/kyc-compliance-status';
-import { OrganisationListDTO } from '@app/models/bw/co/kyvera/organisation/organisation-list-dto';
-import { ClientRequestDTO } from '@app/models/bw/co/kyvera/organisation/client/client-request-dto';
-import { ClientRequestSearchCriteria } from '@app/models/bw/co/kyvera/organisation/client/client-request-search-criteria';
-import { ClientRequestStatus } from '@app/models/bw/co/kyvera/organisation/client/client-request-status';
-import { TargetEntity } from '@app/models/bw/co/kyvera/target-entity';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
+import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
+import { ClientRequestDTO } from '@app/models/bw/co/knowvera/organisation/client/client-request-dto';
+import { ClientRequestSearchCriteria } from '@app/models/bw/co/knowvera/organisation/client/client-request-search-criteria';
+import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { SearchObject } from '@app/models/search-object';
-import { OrganisationApiStore } from '@app/store/bw/co/kyvera/organisation/organisation-api.store';
-import { ClientRequestApiStore } from '@app/store/bw/co/kyvera/organisation/client/client-request-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
+import { ClientRequestApiStore } from '@app/store/bw/co/knowvera/organisation/client/client-request-api.store';
 
 type ClientRequestSearchForm = {
   name: string;

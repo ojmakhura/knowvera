@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
-import { KycComplianceStatus } from '@app/models/bw/co/kyvera/kyc/kyc-compliance-status';
-import { KycRecordDTO } from '@app/models/bw/co/kyvera/kyc/kyc-record-dto';
-import { KycRecordListDTO } from '@app/models/bw/co/kyvera/kyc/kyc-record-list-dto';
-import { TargetEntity } from '@app/models/bw/co/kyvera/target-entity';
-import { KycRecordApiStore } from '@app/store/bw/co/kyvera/kyc/kyc-record-api.store';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
+import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
+import { KycRecordListDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-list-dto';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
+import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
 
-import { SettingsApiStore } from './../../store/bw/co/kyvera/settings/settings-api.store';
+import { SettingsApiStore } from './../../store/bw/co/knowvera/settings/settings-api.store';
 import { AppEnvStore } from '@app/store/app-env.state';
 
 type RegistryFilter = 'ALL' | 'CURRENT' | 'ATTENTION';

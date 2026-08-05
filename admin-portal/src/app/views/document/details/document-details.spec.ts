@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DocumentVerificationStatus } from '@app/models/bw/co/kyvera/document/document-verification-status';
-import { DocumentApiStore } from '@app/store/bw/co/kyvera/document/document-api.store';
+import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
+import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import Keycloak from 'keycloak-js';
@@ -84,13 +84,13 @@ describe('DocumentDetails', () => {
   it('should save metadata changes', () => {
     component.openMetadataEdit();
     component.updateMetadataKey(0, 'issuer');
-    component.updateMetadataValue(0, 'Kyvera Registry');
+    component.updateMetadataValue(0, 'Knowvera Registry');
 
     component.saveMetadata();
 
     expect(documentApiStoreMock.save).toHaveBeenCalled();
     const payload = documentApiStoreMock.save.mock.calls.at(-1)?.[0]?.document;
-    expect(payload.metadata.issuer).toBe('Kyvera Registry');
+    expect(payload.metadata.issuer).toBe('Knowvera Registry');
   });
 
   it('should trigger verify, analyse and status update', () => {

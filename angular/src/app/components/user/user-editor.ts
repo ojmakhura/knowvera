@@ -47,10 +47,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MaterialModule } from '@app/material.module';
 import { Page } from "@app/models/page.model";
 
-import { OrganisationListDTO } from '@models/bw/co/kyvera/organisation/organisation-list-dto';
-import { GeneralStatus } from '@models/bw/co/kyvera/general-status';
-import { KycComplianceStatus } from '@models/bw/co/kyvera/kyc/kyc-compliance-status';
-import { BranchDTO } from '@models/bw/co/kyvera/organisation/branch/branch-dto';
+import { OrganisationListDTO } from '@models/bw/co/knowvera/organisation/organisation-list-dto';
+import { GeneralStatus } from '@models/bw/co/knowvera/general-status';
+import { KycComplianceStatus } from '@models/bw/co/knowvera/kyc/kyc-compliance-status';
+import { BranchDTO } from '@models/bw/co/knowvera/organisation/branch/branch-dto';
 import { SearchObject } from '@models/search-object';
 import { GenericComponent } from "@views/generic.component";
 

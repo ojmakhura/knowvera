@@ -8,7 +8,7 @@ import { MaterialModule } from '@app/material.module';
 import { TableComponent } from '@components/table/table';
 import { Loader } from "@shared/loader/loader";
 import { FormField } from '@angular/forms/signals';
-import { OrganisationSearchCriteria } from '@app/models/bw/co/kyvera/organisation/organisation-search-criteria';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
 import { SearchObject } from '@app/models/search-object';
 import { Page } from '@app/models/page.model';
 import { MatPaginator } from '@angular/material/paginator';

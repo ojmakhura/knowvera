@@ -6,7 +6,7 @@ import { ClientRequestComponent } from '@views/client/client-request';
 import { AuthenticationGuard } from '@app/auth/authentication.guard';
 
 import { ClientRequestControllerImpl } from '@controllers/client/client-request-controller-impl';
-import { ClientRequestApi } from '@services/bw/co/kyvera/organisation/client/client-request-api';
+import { ClientRequestApi } from '@services/bw/co/knowvera/organisation/client/client-request-api';
 import { EditClientRequestComponent } from './edit/edit-client-request';
 import { UseCaseScope } from '@app/utils/use-case-scope';
 

@@ -1,6 +1,6 @@
 services:
   admin-portal:
-    image: kyvera/admin-portal:latest
+    image: knowvera/admin-portal:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,7 +14,7 @@ services:
         condition: on-failure
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.admin-portal.rule=Host(`admin.kyvera.local`)"
+        - "traefik.http.routers.admin-portal.rule=Host(`admin.knowvera.local`)"
         - "traefik.http.routers.admin-portal.entrypoints=websecure"
         - "traefik.http.routers.admin-portal.tls=true"
         - "traefik.http.services.admin-portal.loadbalancer.server.port=80"

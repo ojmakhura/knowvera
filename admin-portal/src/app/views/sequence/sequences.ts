@@ -9,10 +9,10 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { SequenceGeneratorDTO } from '@app/models/bw/co/kyvera/sequence/sequence-generator-dto';
-import { SequencePartDTO } from '@app/models/bw/co/kyvera/sequence/sequence-part-dto';
-import { TargetEntity } from '@app/models/bw/co/kyvera/target-entity';
-import { SequenceGeneratorApiStore } from '@app/store/bw/co/kyvera/sequence/sequence-generator-api.store';
+import { SequenceGeneratorDTO } from '@app/models/bw/co/knowvera/sequence/sequence-generator-dto';
+import { SequencePartDTO } from '@app/models/bw/co/knowvera/sequence/sequence-part-dto';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
+import { SequenceGeneratorApiStore } from '@app/store/bw/co/knowvera/sequence/sequence-generator-api.store';
 import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
 

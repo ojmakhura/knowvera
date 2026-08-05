@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Sample environment file for kyvera.
+# Sample environment file for knowvera.
 #
 # Usage:
 #   cp env.sh env.local.sh   # keep your real secrets out of git
@@ -18,9 +18,9 @@ export KYC_LOG_LEVEL=DEBUG
 export SHOW_SQL=false
 
 # --- Datasource (core-application.properties) ---
-export DATABASE_URL=jdbc:postgresql://postgres:5432/kyvera
-export DB_USERNAME=kyvera
-export DB_PASSWORD=kyvera
+export DATABASE_URL=jdbc:postgresql://postgres:5432/knowvera
+export DB_USERNAME=knowvera
+export DB_PASSWORD=knowvera
 export HIKARI_CONNECTION_TIMEOUT=3000
 export HIKARI_MAX_LIFETIME=1200000
 export HIKARI_MIN_IDLE=5
@@ -34,7 +34,7 @@ export RABBITMQ_PASSWORD=guest
 
 # --- Security / OAuth2 (Keycloak) ---
 export AUTH_URL=http://keycloak:8970
-export REALM=kyvera
+export REALM=knowvera
 
 # --- Redis ---
 export REDIS_HOST=redis
@@ -51,7 +51,7 @@ export RATE_LIMIT=2000
 export MINIO_URL=http://minio:9000
 export MINIO_ACCESS_KEY=minio
 export MINIO_SECRET_KEY=minio123
-export MINIO_BUCKET=kyvera
+export MINIO_BUCKET=knowvera
 
 # --- Application roles ---
 export REALM_USER_ROLE=KYC_USER
@@ -82,7 +82,7 @@ export SEND_MESSAGE_URL=
 export SOURCE_EMAIL=
 
 # --- Registration client ---
-export REGISTRATION_CLIENT=kyvera-registration
+export REGISTRATION_CLIENT=knowvera-registration
 export REGISTRATION_CLIENT_SECRET=secret
 
 # --- LLM / AI providers ---
@@ -151,4 +151,4 @@ export NOVU_NEW_KYC_RECORD_QUEUE=q.novu-new-kyc-record
 export NOVU_NEW_KYC_RECORD_QUEUE_ROUTING_KEY=novu-new-kyc-record
 
 # --- Traefik routing ---
-export WEBSERVICE_HOST=kyvera.localhost
+export WEBSERVICE_HOST=knowvera.localhost

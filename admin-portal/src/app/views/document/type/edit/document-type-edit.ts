@@ -28,29 +28,29 @@ import {
   signal,
 } from '@angular/core';
 import { form, required, applyEach, FormField, min, minLength } from '@angular/forms/signals';
-import { DocumentTypeDTO } from '@app/models/bw/co/kyvera/document/type/document-type-dto';
-import { KeyField } from '@app/models/bw/co/kyvera/key-field';
-import { DocumentTypeApiStore } from '@app/store/bw/co/kyvera/document/type/document-type-api.store';
+import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
+import { KeyField } from '@app/models/bw/co/knowvera/key-field';
+import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
 import { swalFire } from '@app/@shared/swal';
 import { Loader } from '@app/@shared/loader/loader';
 import { TranslateModule } from '@ngx-translate/core';
-import { ExpectedFieldDTO } from '@app/models/bw/co/kyvera/document/type/field/expected-field-dto';
-import { VerificationDataConfigDTO } from '@app/models/bw/co/kyvera/document/type/verification/verification-data-config-dto';
+import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
+import { VerificationDataConfigDTO } from '@app/models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
 import { ToastrService } from 'ngx-toastr';
-import { PromptMessage } from '@app/models/bw/co/kyvera/llm/prompt-message';
-import { ExpectedFieldType } from '@app/models/bw/co/kyvera/document/type/field/expected-field-type';
-import { TargetEntity } from '@app/models/bw/co/kyvera/target-entity';
-import { IndividualDTO } from '@app/models/bw/co/kyvera/individual/individual-dto';
-import { OrganisationDTO } from '@app/models/bw/co/kyvera/organisation/organisation-dto';
-import { KycInvoiceDTO } from '@app/models/bw/co/kyvera/invoice/kyc-invoice-dto';
-import { KycRecordDTO } from '@app/models/bw/co/kyvera/kyc/kyc-record-dto';
-import { ContactDTO } from '@app/models/bw/co/kyvera/contact/contact-dto';
-import { SettingsDTO } from '@app/models/bw/co/kyvera/settings/settings-dto';
-import { DocumentDTO } from '@app/models/bw/co/kyvera/document/document-dto';
-import { ExpectedFieldApiStore } from '@app/store/bw/co/kyvera/document/type/field/expected-field-api.store';
-import { VerificationDataConfigApiStore } from '@app/store/bw/co/kyvera/document/type/verification/verification-data-config-api.store';
-import { VerificationDataConfigApi } from '@app/services/bw/co/kyvera/document/type/verification/verification-data-config-api';
-import { TimePeriod } from '@app/models/bw/co/kyvera/time-period';
+import { PromptMessage } from '@app/models/bw/co/knowvera/llm/prompt-message';
+import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
+import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
+import { OrganisationDTO } from '@app/models/bw/co/knowvera/organisation/organisation-dto';
+import { KycInvoiceDTO } from '@app/models/bw/co/knowvera/invoice/kyc-invoice-dto';
+import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
+import { ContactDTO } from '@app/models/bw/co/knowvera/contact/contact-dto';
+import { SettingsDTO } from '@app/models/bw/co/knowvera/settings/settings-dto';
+import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { ExpectedFieldApiStore } from '@app/store/bw/co/knowvera/document/type/field/expected-field-api.store';
+import { VerificationDataConfigApiStore } from '@app/store/bw/co/knowvera/document/type/verification/verification-data-config-api.store';
+import { VerificationDataConfigApi } from '@app/services/bw/co/knowvera/document/type/verification/verification-data-config-api';
+import { TimePeriod } from '@app/models/bw/co/knowvera/time-period';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;

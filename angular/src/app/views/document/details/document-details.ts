@@ -44,11 +44,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { TableComponent } from '@components/table/table';
-import { DocumentApiStore } from '@store/bw/co/kyvera/document/document-api.store';
+import { DocumentApiStore } from '@store/bw/co/knowvera/document/document-api.store';
 import { ColumnModel } from '@models/column.model';
 import { ActionTemplate } from '@models/action-template';
 
-import { DocumentApi } from '@services/bw/co/kyvera/document/document-api';
+import { DocumentApi } from '@services/bw/co/knowvera/document/document-api';
 import { DocumentControllerImpl } from '@controllers/document/document-controller-impl';
 import { ToastrService } from 'ngx-toastr';
 import { Page } from '@app/models/page.model';

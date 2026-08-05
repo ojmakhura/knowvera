@@ -13,13 +13,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { ToastrService } from 'ngx-toastr';
 import { MatRadioModule } from '@angular/material/radio';
 import { swalFire } from '@app/@shared/swal-loader';
-import { IndividualDTO } from '@app/models/bw/co/kyvera/individual/individual-dto';
-import { OrganisationDTO } from '@app/models/bw/co/kyvera/organisation/organisation-dto';
-import { ClientRequestStatus } from '@app/models/bw/co/kyvera/organisation/client/client-request-status';
-import { IndividualApiStore } from '@app/store/bw/co/kyvera/individual/individual-api.store';
-import { OrganisationApiStore } from '@app/store/bw/co/kyvera/organisation/organisation-api.store';
-import { ClientRequestApiStore } from '@app/store/bw/co/kyvera/organisation/client/client-request-api.store';
-import { ClientRequestApi } from '@app/services/bw/co/kyvera/organisation/client/client-request-api';
+import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
+import { OrganisationDTO } from '@app/models/bw/co/knowvera/organisation/organisation-dto';
+import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
+import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
+import { ClientRequestApiStore } from '@app/store/bw/co/knowvera/organisation/client/client-request-api.store';
+import { ClientRequestApi } from '@app/services/bw/co/knowvera/organisation/client/client-request-api';
 
 class RegisterParams {
   // identificationType: string = '';

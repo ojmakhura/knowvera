@@ -4,11 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { form, min, required } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
-import { ExpectedFieldDTO } from '@app/models/bw/co/kyvera/document/type/field/expected-field-dto';
-import { ExpectedFieldType } from '@app/models/bw/co/kyvera/document/type/field/expected-field-type';
-import { KycFieldGroupDTO } from '@app/models/bw/co/kyvera/settings/kyc/kyc-field-group-dto';
-import { GroupFieldDTO } from '@app/models/bw/co/kyvera/settings/kyc/group-field-dto';
-import { TargetEntity } from '@app/models/bw/co/kyvera/target-entity';
+import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
+import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
+import { KycFieldGroupDTO } from '@app/models/bw/co/knowvera/settings/kyc/kyc-field-group-dto';
+import { GroupFieldDTO } from '@app/models/bw/co/knowvera/settings/kyc/group-field-dto';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 
 interface DialogData {
   expectedFieldOptions: ExpectedFieldDTO[];

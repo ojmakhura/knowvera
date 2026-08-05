@@ -2,8 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { CreateClientRequestDialogComponent } from './create-client-request-dialog';
-import { OrganisationApiStore } from '@app/store/bw/co/kyvera/organisation/organisation-api.store';
-import { IndividualApiStore } from '@app/store/bw/co/kyvera/individual/individual-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
+import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
 
 describe('CreateClientRequestDialogComponent', () => {
   let component: CreateClientRequestDialogComponent;

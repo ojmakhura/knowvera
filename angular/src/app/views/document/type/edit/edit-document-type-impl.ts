@@ -7,8 +7,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MaterialModule } from '@app/material.module';
 import { Loader } from '@app/@shared/loader/loader';
 import { EditDocumentTypeComponent, EditDocumentTypeVarsForm } from './edit-document-type';
-import { DocumentTypeDTO } from '@app/models/bw/co/kyvera/document/type/document-type-dto';
-import { ExpectedField } from '@app/models/bw/co/kyvera/document/type/expected-field';
+import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
+import { ExpectedField } from '@app/models/bw/co/knowvera/document/type/expected-field';
 import { ExpectedFieldDialogComponent } from '@app/views/document/type/expected-field-dialog/expected-field-dialog';
 import { FormField } from '@angular/forms/signals';
 

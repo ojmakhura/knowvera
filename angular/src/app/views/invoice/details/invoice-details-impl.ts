@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { MaterialModule } from '@app/material.module';
 import { Loader } from "@shared/loader/loader";
-import { DocumentApiStore } from '@app/store/bw/co/kyvera/document/document-api.store';
+import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 
 @Component({
   selector: 'app-invoice-details',

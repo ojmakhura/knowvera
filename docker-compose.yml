@@ -1,9 +1,9 @@
 services:
   # ---------------------------------------------------------------------------
-  # kyvera Web Service - the application (built from ./Dockerfile)
+  # knowvera Web Service - the application (built from ./Dockerfile)
   # ---------------------------------------------------------------------------
-  kyvera-webservice:
-    image: kyvera-webservice:latest
+  knowvera-webservice:
+    image: knowvera-webservice:latest
     ports:
       - "${PORT:-8085}:8085"
     environment:
@@ -15,9 +15,9 @@ services:
       SHOW_SQL: ${SHOW_SQL:-false}
 
       # --- Datasource (core-application.properties) ---
-      DATABASE_URL: ${DATABASE_URL:-jdbc:postgresql://postgres:5432/kyvera}
-      DB_USERNAME: ${DB_USERNAME:-kyvera}
-      DB_PASSWORD: ${DB_PASSWORD:-kyvera}
+      DATABASE_URL: ${DATABASE_URL:-jdbc:postgresql://postgres:5432/knowvera}
+      DB_USERNAME: ${DB_USERNAME:-knowvera}
+      DB_PASSWORD: ${DB_PASSWORD:-knowvera}
       HIKARI_CONNECTION_TIMEOUT: ${HIKARI_CONNECTION_TIMEOUT:-3000}
       HIKARI_MAX_LIFETIME: ${HIKARI_MAX_LIFETIME:-1200000}
       HIKARI_MIN_IDLE: ${HIKARI_MIN_IDLE:-5}
@@ -31,7 +31,7 @@ services:
 
       # --- Security / OAuth2 (Keycloak) ---
       AUTH_URL: ${AUTH_URL:-http://keycloak:8970}
-      REALM: ${REALM:-kyvera}
+      REALM: ${REALM:-knowvera}
 
       # --- Redis ---
       REDIS_HOST: ${REDIS_HOST:-redis}
@@ -48,7 +48,7 @@ services:
       MINIO_URL: ${MINIO_URL:-http://minio:9000}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minio}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minio123}
-      MINIO_BUCKET: ${MINIO_BUCKET:-kyvera}
+      MINIO_BUCKET: ${MINIO_BUCKET:-knowvera}
 
       # --- Application roles ---
       REALM_USER_ROLE: ${REALM_USER_ROLE:-KYC_USER}
@@ -79,7 +79,7 @@ services:
       SOURCE_EMAIL: ${SOURCE_EMAIL:-}
 
       # --- Registration client ---
-      REGISTRATION_CLIENT: ${REGISTRATION_CLIENT:-kyvera-registration}
+      REGISTRATION_CLIENT: ${REGISTRATION_CLIENT:-knowvera-registration}
       REGISTRATION_CLIENT_SECRET: ${REGISTRATION_CLIENT_SECRET:-secret}
 
       # --- LLM / AI providers ---
@@ -149,16 +149,16 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTP router
-      - "traefik.http.routers.kyvera.rule=Host(`${WEBSERVICE_HOST:-kyvera.localhost}`)"
-      - "traefik.http.routers.kyvera.entrypoints=web"
-      - "traefik.http.services.kyvera.loadbalancer.server.port=8085"
+      - "traefik.http.routers.knowvera.rule=Host(`${WEBSERVICE_HOST:-knowvera.localhost}`)"
+      - "traefik.http.routers.knowvera.entrypoints=web"
+      - "traefik.http.services.knowvera.loadbalancer.server.port=8085"
       # Health check
-      - "traefik.http.services.kyvera.loadbalancer.healthcheck.path=/actuator/health"
-      - "traefik.http.services.kyvera.loadbalancer.healthcheck.interval=30s"
+      - "traefik.http.services.knowvera.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.knowvera.loadbalancer.healthcheck.interval=30s"
     networks:
-      - kyvera
+      - knowvera
 
 networks:
-  kyvera:
+  knowvera:
     driver: bridge
 

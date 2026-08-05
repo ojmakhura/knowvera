@@ -9,12 +9,12 @@
         <version>4.1.0</version>
         <relativePath />
     </parent>
-    <groupId>bw.co.kyvera</groupId>
-    <artifactId>kyvera</artifactId>
+    <groupId>bw.co.knowvera</groupId>
+    <artifactId>knowvera</artifactId>
     <packaging>pom</packaging>
     <version>0.0.1</version>
-    <name>The Kyvera KYC Project</name>
-    <description>The The Kyvera KYC Project Project.</description>
+    <name>The Knowvera KYC Project</name>
+    <description>The The Knowvera KYC Project Project.</description>
     <inceptionYear>2025</inceptionYear>
     <url>http://andromda.sourceforge.net/</url>
     <issueManagement>
@@ -465,9 +465,9 @@
             org.hibernate.dialect.PostgreSQLDialect
         </hibernate.dialect>
         <tomcat.home>${env.CATALINA_HOME}</tomcat.home>
-        <application.id>kyvera</application.id>
-        <application.package>bw.co.kyvera</application.package>
-        <application.name>The Kyvera KYC Project</application.name>
+        <application.id>knowvera</application.id>
+        <application.package>bw.co.knowvera</application.package>
+        <application.name>The Knowvera KYC Project</application.name>
         <application.version>0.0.1</application.version>
         <dataSource.name>jdbc/${application.id}</dataSource.name>
         <dataSource>java:comp/env/${dataSource.name}</dataSource>
@@ -537,29 +537,29 @@
                 </jdbc.driver>
                 <!--
                     Change connection url for appropriate database
-                    For H2 use: jdbc:h2:~/kyvera
-                    For MySQL use: jdbc:mysql://localhost:3306/kyvera
-                    For Hypersonic use: jdbc:hsqldb:hsql://127.0.0.1/kyvera or
-                jdbc:hsqldb:file:<path>/kyvera;shutdown=true
+                    For H2 use: jdbc:h2:~/knowvera
+                    For MySQL use: jdbc:mysql://localhost:3306/knowvera
+                    For Hypersonic use: jdbc:hsqldb:hsql://127.0.0.1/knowvera or
+                jdbc:hsqldb:file:<path>/knowvera;shutdown=true
                     For Oracle9i use: jdbc:oracle:thin:@localhost:1521:yoursid
-                    For DB2 use: jdbc:db2:kyvera
-                    For Informix use: jdbc:informix-sqli://localhost:1557/kyvera:INFORMIXSERVER=myserver
-                    For MSSQL use: jdbc:microsoft:sqlserver://localhost:1433;DatabaseName=kyvera
+                    For DB2 use: jdbc:db2:knowvera
+                    For Informix use: jdbc:informix-sqli://localhost:1557/knowvera:INFORMIXSERVER=myserver
+                    For MSSQL use: jdbc:microsoft:sqlserver://localhost:1433;DatabaseName=knowvera
                     For Pointbase use:
-                jdbc:pointbase:server://@pointbase.server@:@pointbase.port/pointbase.kyvera@,new
-                    For Postgres use: jdbc:postgresql://localhost/kyvera
-                    For Sybase use: jdbc:sybase:Tds:localhost:5000/kyvera?JCONNECT_VERSION=6
-                    For SapDB use: jdbc:sapdb://127.0.0.1/kyvera
-                    For Progress use: jdbc:JdbcProgress:T:localhost:3305:kyvera
+                jdbc:pointbase:server://@pointbase.server@:@pointbase.port/pointbase.knowvera@,new
+                    For Postgres use: jdbc:postgresql://localhost/knowvera
+                    For Sybase use: jdbc:sybase:Tds:localhost:5000/knowvera?JCONNECT_VERSION=6
+                    For SapDB use: jdbc:sapdb://127.0.0.1/knowvera
+                    For Progress use: jdbc:JdbcProgress:T:localhost:3305:knowvera
                 -->
                 <jdbc.url>
-                    ${DATABASE_URL:jdbc:postgresql://localhost/kyvera}
+                    ${DATABASE_URL:jdbc:postgresql://localhost/knowvera}
                 </jdbc.url>
                 <!-- Enter id/password for the database connection -->
                 <jdbc.username>
-                    ${DB_USERNAME:kyvera}
+                    ${DB_USERNAME:knowvera}
                 </jdbc.username>
-                <jdbc.password>${DB_PASSWORD:kyvera}</jdbc.password>
+                <jdbc.password>${DB_PASSWORD:knowvera}</jdbc.password>
                 <!--
                     Change exception sorter class name for appropriate database
                     For H2 use: org.jboss.resource.adapter.jdbc.vendor.DummyExceptionSorter
@@ -627,18 +627,18 @@
                 <repository>
                     <id>andromda-repository</id>
                     <name>AndroMDA Repository</name>
-                    <url>file:/scratch/hudson/workspace/Andromda/kyvera/</url>
+                    <url>file:/scratch/hudson/workspace/Andromda/knowvera/</url>
                     <uniqueVersion>false</uniqueVersion>
                 </repository>
                 <snapshotRepository>
                     <id>andromda-snapshots</id>
                     <name>AndroMDA Snapshot Repository</name>
-                    <url>file:/scratch/hudson/workspace/Andromda/kyvera/</url>
+                    <url>file:/scratch/hudson/workspace/Andromda/knowvera/</url>
                     <uniqueVersion>false</uniqueVersion>
                 </snapshotRepository>
                 <site>
                     <id>website</id>
-                    <url>file:/scratch/hudson/workspace/Andromda/site/kyvera/</url>
+                    <url>file:/scratch/hudson/workspace/Andromda/site/knowvera/</url>
                 </site>
             </distributionManagement-->
         </profile>

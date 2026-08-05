@@ -27,15 +27,15 @@ import {
 } from '@angular/core';
 import { Loader } from '@app/@shared/loader/loader';
 import { ToastrService } from 'ngx-toastr';
-import { DocumentApiStore } from '@app/store/bw/co/kyvera/document/document-api.store';
-import { TargetEntity } from '@app/models/bw/co/kyvera/target-entity';
-import { DocumentVerificationStatus } from '@app/models/bw/co/kyvera/document/document-verification-status';
+import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
+import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
 import { form, FormField, readonly } from '@angular/forms/signals';
 import { MatSelectModule } from '@angular/material/select';
 import { swalFire } from '@app/@shared/swal';
 import Keycloak from 'keycloak-js';
 import { HasRolesDirective } from 'keycloak-angular';
-import { ExpectedFieldType } from '@app/models/bw/co/kyvera/document/type/field/expected-field-type';
+import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
 
 @Component({
   selector: 'app-document-details',

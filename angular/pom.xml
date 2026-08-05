@@ -2,18 +2,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>bw.co.kyvera</groupId>
-        <artifactId>kyvera</artifactId>
+        <groupId>bw.co.knowvera</groupId>
+        <artifactId>knowvera</artifactId>
         <version>0.0.1</version>
     </parent>
 
-    <groupId>bw.co.kyvera</groupId>
-    <artifactId>kyvera-angular</artifactId>
+    <groupId>bw.co.knowvera</groupId>
+    <artifactId>knowvera-angular</artifactId>
     <version>0.0.1</version>
     <packaging>jar</packaging>
 
-    <name>The Kyvera KYC Project Angular Frontend</name>
-    <description>The Kyvera KYC Project angular front end</description>
+    <name>The Knowvera KYC Project Angular Frontend</name>
+    <description>The Knowvera KYC Project angular front end</description>
     <build>
         <plugins>
             <plugin>
@@ -29,27 +29,27 @@
                 </executions>
                 <configuration>
                     <target>
-                        <copy todir="${project.basedir}/target/kyvera/src" overwrite="true" failonerror="false">
+                        <copy todir="${project.basedir}/target/knowvera/src" overwrite="true" failonerror="false">
                             <fileset dir="${project.basedir}/target/src">
                                 <include name="**/*"/>
                             </fileset>
                         </copy>
-                        <copy todir="${project.basedir}/target/kyvera/src" overwrite="true" failonerror="false">
+                        <copy todir="${project.basedir}/target/knowvera/src" overwrite="true" failonerror="false">
                             <fileset dir="${project.basedir}/src">
                                 <include name="**/*"/>
                             </fileset>
                         </copy>
-                        <copy todir="${project.basedir}/target/kyvera/public" overwrite="true" failonerror="false">
+                        <copy todir="${project.basedir}/target/knowvera/public" overwrite="true" failonerror="false">
                             <fileset dir="${project.basedir}/public">
                                 <include name="**/*"/>
                             </fileset>
                         </copy>
-                        <copy todir="${project.basedir}/target/kyvera/.husky" overwrite="true" failonerror="false">
+                        <copy todir="${project.basedir}/target/knowvera/.husky" overwrite="true" failonerror="false">
                             <fileset dir="${project.basedir}/.husky">
                                 <include name="**/*"/>
                             </fileset>
                         </copy>
-                        <copy todir="${project.basedir}/target/kyvera" overwrite="true" failonerror="false">
+                        <copy todir="${project.basedir}/target/knowvera" overwrite="true" failonerror="false">
                             <fileset dir="${project.basedir}">
                                 <include name=".browserslistrc"/>
                                 <include name=".editorconfig"/>

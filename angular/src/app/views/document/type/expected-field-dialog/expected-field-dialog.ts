@@ -3,8 +3,8 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MaterialModule } from '@app/material.module';
-import { ExpectedField } from '@models/bw/co/kyvera/document/type/expected-field';
-import { KeyField } from '@models/bw/co/kyvera/key-field';
+import { ExpectedField } from '@models/bw/co/knowvera/document/type/expected-field';
+import { KeyField } from '@models/bw/co/knowvera/key-field';
 import { TranslateModule } from '@ngx-translate/core';
 
 export interface ExpectedFieldDialogData {

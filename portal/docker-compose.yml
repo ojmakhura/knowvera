@@ -1,6 +1,6 @@
 services:
   portal:
-    image: ojmakhura/kyvera-portal:latest
+    image: ojmakhura/knowvera-portal:latest
     volumes:
       - ./public/env.json:/usr/share/nginx/html/env.json:ro
     networks:
@@ -11,10 +11,10 @@ services:
         condition: on-failure
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.kyvera-portal.rule=Host(`kyvera.roguedev.local`)"
-        - "traefik.http.routers.kyvera-portal.entrypoints=websecure"
-        - "traefik.http.routers.kyvera-portal.tls=true"
-        - "traefik.http.services.kyvera-portal.loadbalancer.server.port=80"
+        - "traefik.http.routers.knowvera-portal.rule=Host(`knowvera.roguedev.local`)"
+        - "traefik.http.routers.knowvera-portal.entrypoints=websecure"
+        - "traefik.http.routers.knowvera-portal.tls=true"
+        - "traefik.http.services.knowvera-portal.loadbalancer.server.port=80"
         - "traefik.docker.network=traefik_proxy"
 
 networks:

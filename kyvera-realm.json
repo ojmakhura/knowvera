@@ -1,6 +1,6 @@
 {
   "id": "25766eca-de01-45b8-97b8-0211d583acaa",
-  "realm": "kyvera",
+  "realm": "knowvera",
   "displayName": "",
   "displayNameHtml": "",
   "notBefore": 0,
@@ -60,7 +60,7 @@
       },
       {
         "id": "916205ef-f3b4-42ca-be34-96c3e7cdae59",
-        "name": "default-roles-kyvera",
+        "name": "default-roles-knowvera",
         "description": "${role_default-roles}",
         "composite": true,
         "composites": {
@@ -89,7 +89,7 @@
             "KYC_USER"
           ],
           "client": {
-            "kyvera-api": [
+            "knowvera-api": [
               "DOCUMENT_REVIEWER",
               "DOCUMENT_VIEWER",
               "KYC_REVIEWER",
@@ -97,7 +97,7 @@
               "DOCUMENT_TYPE_EDITOR",
               "DOCUMENT_EDITOR"
             ],
-            "kyvera-web": [
+            "knowvera-web": [
               "portal-user"
             ],
             "admin-portal": [
@@ -117,7 +117,7 @@
         "composite": true,
         "composites": {
           "client": {
-            "kyvera-web": [
+            "knowvera-web": [
               "portal-user"
             ],
             "admin-portal": [
@@ -191,7 +191,7 @@
       }
     ],
     "client": {
-      "kyvera-api": [
+      "knowvera-api": [
         {
           "id": "88286d7d-967e-400b-99b7-9689b27e6c53",
           "name": "KYC_ADMIN",
@@ -199,7 +199,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "kyvera-api": [
+              "knowvera-api": [
                 "KYC_REVIEWER",
                 "INDIVIDUAL_ADMIN",
                 "ORGANISATION_ADMIN"
@@ -226,7 +226,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "kyvera-api": [
+              "knowvera-api": [
                 "INDIVIDUAL_EDITOR",
                 "DOCUMENT_TYPE_EDITOR",
                 "ORGANISATION_VIEWER",
@@ -245,7 +245,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "kyvera-api": [
+              "knowvera-api": [
                 "DOCUMENT_TYPE_VIEWER"
               ]
             }
@@ -270,7 +270,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "kyvera-api": [
+              "knowvera-api": [
                 "DOCUMENT_REVIEWER"
               ]
             }
@@ -286,7 +286,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "kyvera-api": [
+              "knowvera-api": [
                 "CLIENT_REQUEST_EDITOR"
               ]
             }
@@ -302,7 +302,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "kyvera-api": [
+              "knowvera-api": [
                 "ORGANISATION_VIEWER"
               ]
             }
@@ -327,7 +327,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "kyvera-api": [
+              "knowvera-api": [
                 "DOCUMENT_VIEWER"
               ]
             }
@@ -343,7 +343,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "kyvera-api": [
+              "knowvera-api": [
                 "INDIVIDUAL_VIEWER"
               ]
             }
@@ -359,7 +359,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "kyvera-api": [
+              "knowvera-api": [
                 "CLIENT_REQUEST_VIEWER"
               ]
             }
@@ -384,7 +384,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "kyvera-api": [
+              "knowvera-api": [
                 "INDIVIDUAL_EDITOR"
               ]
             }
@@ -409,7 +409,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "kyvera-api": [
+              "knowvera-api": [
                 "ORGANISATION_MANAGER",
                 "CLIENT_REQUEST_ADMIN",
                 "ORGANISATION_EDITOR"
@@ -427,7 +427,7 @@
           "composite": true,
           "composites": {
             "client": {
-              "kyvera-api": [
+              "knowvera-api": [
                 "ORGANISATION_VIEWER"
               ]
             }
@@ -652,7 +652,7 @@
       "security-admin-console": [],
       "admin-cli": [],
       "account-console": [],
-      "kyvera-registration": [
+      "knowvera-registration": [
         {
           "id": "8db50e0d-d95f-4de1-9c9a-b8b28d6251df",
           "name": "uma_protection",
@@ -662,7 +662,7 @@
           "attributes": {}
         }
       ],
-      "kyvera-web": [
+      "knowvera-web": [
         {
           "id": "814fde0b-3cb6-4e59-b44f-31789c5cd0cb",
           "name": "portal-user",
@@ -806,7 +806,7 @@
   "groups": [],
   "defaultRole": {
     "id": "916205ef-f3b4-42ca-be34-96c3e7cdae59",
-    "name": "default-roles-kyvera",
+    "name": "default-roles-knowvera",
     "description": "${role_default-roles}",
     "composite": true,
     "clientRole": false,
@@ -859,39 +859,39 @@
   "users": [
     {
       "id": "3826dd8c-7a3a-4bfc-a4dc-4a25a4205718",
-      "username": "service-account-kyvera-api",
+      "username": "service-account-knowvera-api",
       "emailVerified": false,
       "enabled": true,
       "createdTimestamp": 1775392202493,
       "totp": false,
-      "serviceAccountClientId": "kyvera-api",
+      "serviceAccountClientId": "knowvera-api",
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": [
-        "default-roles-kyvera"
+        "default-roles-knowvera"
       ],
       "notBefore": 0,
       "groups": []
     },
     {
       "id": "69e641da-9e2f-41e0-877d-8248a5e59bb9",
-      "username": "service-account-kyvera-registration",
+      "username": "service-account-knowvera-registration",
       "emailVerified": false,
       "enabled": true,
       "createdTimestamp": 1778665324972,
       "totp": false,
-      "serviceAccountClientId": "kyvera-registration",
+      "serviceAccountClientId": "knowvera-registration",
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": [
-        "default-roles-kyvera"
+        "default-roles-knowvera"
       ],
       "clientRoles": {
         "realm-management": [
           "manage-users",
           "manage-realm"
         ],
-        "kyvera-registration": [
+        "knowvera-registration": [
           "uma_protection"
         ]
       },
@@ -924,13 +924,13 @@
       "clientId": "account",
       "name": "${client_account}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/kyvera/account/",
+      "baseUrl": "/realms/knowvera/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/kyvera/account/*"
+        "/realms/knowvera/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -971,13 +971,13 @@
       "clientId": "account-console",
       "name": "${client_account-console}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/kyvera/account/",
+      "baseUrl": "/realms/knowvera/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/kyvera/account/*"
+        "/realms/knowvera/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -1169,8 +1169,8 @@
     },
     {
       "id": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-      "clientId": "kyvera-api",
-      "name": "Kyvera KYC API Client",
+      "clientId": "knowvera-api",
+      "name": "Knowvera KYC API Client",
       "description": "",
       "rootUrl": "",
       "adminUrl": "",
@@ -1235,7 +1235,7 @@
         "resources": [
           {
             "name": "Default Resource",
-            "type": "urn:kyvera-api:resources:default",
+            "type": "urn:knowvera-api:resources:default",
             "ownerManagedAccess": false,
             "attributes": {},
             "uris": [
@@ -1514,7 +1514,7 @@
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
             "config": {
-              "defaultResourceType": "urn:kyvera-api:resources:default",
+              "defaultResourceType": "urn:knowvera-api:resources:default",
               "applyPolicies": "[\"Default Policy\"]"
             }
           },
@@ -1566,8 +1566,8 @@
     },
     {
       "id": "1f8b97e4-2625-4b5a-81bd-8186a7b754cf",
-      "clientId": "kyvera-registration",
-      "name": "kyvera Registration Client",
+      "clientId": "knowvera-registration",
+      "name": "knowvera Registration Client",
       "description": "",
       "rootUrl": "",
       "adminUrl": "",
@@ -1636,8 +1636,8 @@
     },
     {
       "id": "b0edaf1e-2c2d-4d18-98c6-1ea824614cea",
-      "clientId": "kyvera-web",
-      "name": "Kyvera KYC Web Client",
+      "clientId": "knowvera-web",
+      "name": "Knowvera KYC Web Client",
       "description": "",
       "rootUrl": "http://localhost:4300",
       "adminUrl": "http://localhost:4300",
@@ -1741,13 +1741,13 @@
       "clientId": "security-admin-console",
       "name": "${client_security-admin-console}",
       "rootUrl": "${authAdminUrl}",
-      "baseUrl": "/admin/kyvera/console/",
+      "baseUrl": "/admin/knowvera/console/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/admin/kyvera/console/*"
+        "/admin/knowvera/console/*"
       ],
       "webOrigins": [
         "+"

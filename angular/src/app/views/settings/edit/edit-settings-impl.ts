@@ -11,15 +11,15 @@ import { MaterialModule } from '@app/material.module';
 import { TableComponent } from '@components/table/table';
 import { Loader } from '@shared/loader/loader';
 import { FormField } from '@angular/forms/signals';
-import { SettingsApi } from '@app/services/bw/co/kyvera/settings/settings-api';
-import { DocumentTypeApi } from '@app/services/bw/co/kyvera/document/type/document-type-api';
-import { DocumentApi } from '@app/services/bw/co/kyvera/document/document-api';
-import { DocumentTypeDTO } from '@app/models/bw/co/kyvera/document/type/document-type-dto';
-import { SettingsDTO } from '@app/models/bw/co/kyvera/settings/settings-dto';
-import { TargetEntity } from '@app/models/bw/co/kyvera/target-entity';
+import { SettingsApi } from '@app/services/bw/co/knowvera/settings/settings-api';
+import { DocumentTypeApi } from '@app/services/bw/co/knowvera/document/type/document-type-api';
+import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
+import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
+import { SettingsDTO } from '@app/models/bw/co/knowvera/settings/settings-dto';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { ColumnModel } from '@app/models/column.model';
-import { SettingsApiStore } from '@app/store/bw/co/kyvera/settings/settings-api.store';
-import { DocumentTypePurpose } from '@app/models/bw/co/kyvera/settings/document-type-purpose';
+import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
+import { DocumentTypePurpose } from '@app/models/bw/co/knowvera/settings/document-type-purpose';
 import Swal from 'sweetalert2';
 
 @Component({

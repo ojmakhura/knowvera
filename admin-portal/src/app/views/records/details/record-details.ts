@@ -9,24 +9,24 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { KycRecordApiStore } from '@app/store/bw/co/kyvera/kyc/kyc-record-api.store';
-import { SettingsApiStore } from '@app/store/bw/co/kyvera/settings/settings-api.store';
+import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
+import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 import { ActivatedRoute, Router } from '@angular/router';
-import { KycRecordDTO } from '@app/models/bw/co/kyvera/kyc/kyc-record-dto';
-import { DocumentDTO } from '@app/models/bw/co/kyvera/document/document-dto';
-import { DocumentApi } from '@app/services/bw/co/kyvera/document/document-api';
+import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
+import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { ToastrService } from 'ngx-toastr';
 import { AppEnvStore } from '@app/store/app-env.state';
-import { TargetEntity } from '@app/models/bw/co/kyvera/target-entity';
-import { KycComplianceStatus } from '@app/models/bw/co/kyvera/kyc/kyc-compliance-status';
-import { IndividualIdentityType } from '@app/models/bw/co/kyvera/individual/individual-identity-type';
-import { SourceOfFunds } from '@app/models/bw/co/kyvera/source-of-funds';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
+import { IndividualIdentityType } from '@app/models/bw/co/knowvera/individual/individual-identity-type';
+import { SourceOfFunds } from '@app/models/bw/co/knowvera/source-of-funds';
 import {
   IndividualUploadDocumentDialogComponent,
   UploadDocumentDialogResult,
 } from '@app/views/individual/details/upload-document-dialog';
 import { Loader } from '@app/@shared/loader/loader';
-import { ExpectedFieldType } from '@app/models/bw/co/kyvera/document/type/field/expected-field-type';
+import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
 
 @Component({
   selector: 'app-record-details',

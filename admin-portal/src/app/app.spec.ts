@@ -6,7 +6,7 @@ import Keycloak from 'keycloak-js';
 import { TranslateModule } from '@ngx-translate/core';
 import { TranslationService } from '@core/services/translation.service';
 import { AppEnvStore } from './store/app-env.state';
-import { SettingsApiStore } from './store/bw/co/kyvera/settings/settings-api.store';
+import { SettingsApiStore } from './store/bw/co/knowvera/settings/settings-api.store';
 import { App } from './app';
 
 describe('App', () => {
@@ -151,7 +151,7 @@ describe('App', () => {
 
     appEnvStoreMock.env.set({
       authDomain: 'https://auth.example.com',
-      realm: 'kyvera',
+      realm: 'knowvera',
       clientId: 'admin-portal',
       redirectUri: 'https://portal.example.com',
     });
@@ -159,7 +159,7 @@ describe('App', () => {
 
     expect(appEnvStoreMock.setAccountUri).toHaveBeenCalledTimes(1);
     expect(appEnvStoreMock.setAccountUri).toHaveBeenCalledWith(
-      "https://auth.example.com/realms/kyvera/account?referrer=' + admin-portal&referrer_uri=' + https%3A%2F%2Fportal.example.com",
+      "https://auth.example.com/realms/knowvera/account?referrer=' + admin-portal&referrer_uri=' + https%3A%2F%2Fportal.example.com",
     );
   });
 });

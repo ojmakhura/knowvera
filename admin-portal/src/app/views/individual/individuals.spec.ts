@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { IndividualApiStore } from '@app/store/bw/co/kyvera/individual/individual-api.store';
+import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
 import { Individuals, SearchIndividualsVarsForm } from './individuals';
 
 describe('SearchIndividualsVarsForm', () => {

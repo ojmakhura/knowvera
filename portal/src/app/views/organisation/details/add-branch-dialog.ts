@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { BranchDTO } from '@app/models/bw/co/kyvera/organisation/branch/branch-dto';
+import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch-dto';
 
 @Component({
   selector: 'app-branch-form-dialog',

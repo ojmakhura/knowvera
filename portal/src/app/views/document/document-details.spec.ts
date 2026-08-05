@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import Keycloak from 'keycloak-js';
 
 import { DocumentDetails } from './document-details';
-import { DocumentApiStore } from '@app/store/bw/co/kyvera/document/document-api.store';
+import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { ToastrService } from 'ngx-toastr';
 
 describe('DocumentDetails', () => {

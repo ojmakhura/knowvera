@@ -22,7 +22,7 @@ build_web:
 	mvn -f angular install -DskipTests=true -o
 
 build_web_dist: build_web local_web_deps
-	. ./.env && cd angular/target/kyvera && npm run build --configuration=production
+	. ./.env && cd angular/target/knowvera && npm run build --configuration=production
 
 build_portal_dist: 
 	. ./.env && cd portal && npm run build --configuration=production
@@ -78,13 +78,13 @@ run_api_local:
 	. ./.env && mvn -pl webservice/ -am spring-boot:run
 
 local_web_deps: build_web
-	cd angular/target/kyvera && npm i
+	cd angular/target/knowvera && npm i
 
 local_web_deps_force:
-	cd angular/target/kyvera && npm i --force
+	cd angular/target/knowvera && npm i --force
 
 run_web_local: build_web
-	cd angular/target/kyvera && npm start
+	cd angular/target/knowvera && npm start
 
 run_portal_local: update_portal_deps
 	cd portal && npm start

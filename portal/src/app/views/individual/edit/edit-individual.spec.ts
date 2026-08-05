@@ -3,9 +3,9 @@ import { provideRouter } from '@angular/router';
 
 import { EditIndividual } from './edit-individual';
 import { AppEnvStore } from '@app/store/app-env.state';
-import { OrganisationApiStore } from '@app/store/bw/co/kyvera/organisation/organisation-api.store';
-import { BranchApiStore } from '@app/store/bw/co/kyvera/organisation/branch/branch-api.store';
-import { IndividualApiStore } from '@app/store/bw/co/kyvera/individual/individual-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
+import { BranchApiStore } from '@app/store/bw/co/knowvera/organisation/branch/branch-api.store';
+import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
 import { ToastrService } from 'ngx-toastr';
 
 describe('EditIndividual', () => {

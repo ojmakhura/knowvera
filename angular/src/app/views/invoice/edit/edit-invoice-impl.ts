@@ -11,8 +11,8 @@ import { MaterialModule } from '@app/material.module';
 import { TableComponent } from '@components/table/table';
 import { Loader } from "@shared/loader/loader";
 import { FormField } from '@angular/forms/signals';
-import { OrganisationApiStore } from '@app/store/bw/co/kyvera/organisation/organisation-api.store';
-import { OrganisationListDTO } from '@app/models/bw/co/kyvera/organisation/organisation-list-dto';
+import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
+import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
 
 @Component({
   selector: 'app-edit-invoice',

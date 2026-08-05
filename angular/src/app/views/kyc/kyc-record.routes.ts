@@ -7,7 +7,7 @@ import { KycRecordsComponent } from '@app/views/kyc/kyc-records';
 import { AuthenticationGuard } from '@app/auth/authentication.guard';
 
 import { KycRecordControllerImpl } from '@controllers/kyc/kyc-record-controller-impl';
-import { KycRecordApi } from '@services/bw/co/kyvera/kyc/kyc-record-api';
+import { KycRecordApi } from '@services/bw/co/knowvera/kyc/kyc-record-api';
 import { KycRecordDetails } from './details/kyc-record-details';
 import { UseCaseScope } from '@app/utils/use-case-scope';
 import { EditKycRecord } from './edit/edit-kyc-record';

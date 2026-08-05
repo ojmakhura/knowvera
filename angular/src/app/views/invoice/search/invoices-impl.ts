@@ -8,7 +8,7 @@ import { MaterialModule } from '@app/material.module';
 import { TableComponent } from '@components/table/table';
 import { Loader } from "@shared/loader/loader";
 import { FormField } from '@angular/forms/signals';
-import { InvoiceSearchCriteria } from '@app/models/bw/co/kyvera/invoice/invoice-search-criteria';
+import { InvoiceSearchCriteria } from '@app/models/bw/co/knowvera/invoice/invoice-search-criteria';
 import { SearchObject } from '@app/models/search-object';
 import { ColumnModel } from '@app/models/column.model';
 

@@ -25,20 +25,20 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
-import { DocumentDTO } from '@app/models/bw/co/kyvera/document/document-dto';
-import { DocumentVerificationStatus } from '@app/models/bw/co/kyvera/document/document-verification-status';
-import { DocumentSearchCriteria } from '@app/models/bw/co/kyvera/document/document-search-criteria';
-import { DocumentTypeDTO } from '@app/models/bw/co/kyvera/document/type/document-type-dto';
-import { TargetEntity } from '@app/models/bw/co/kyvera/target-entity';
+import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
+import { DocumentSearchCriteria } from '@app/models/bw/co/knowvera/document/document-search-criteria';
+import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { SearchObject } from '@app/models/search-object';
-import { DocumentApi } from '@app/services/bw/co/kyvera/document/document-api';
-import { DocumentApiStore } from '@app/store/bw/co/kyvera/document/document-api.store';
-import { DocumentTypeApiStore } from '@app/store/bw/co/kyvera/document/type/document-type-api.store';
+import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
+import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
+import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
 import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
-import { DocumentListDTO } from '@app/models/bw/co/kyvera/document/document-list-dto';
+import { DocumentListDTO } from '@app/models/bw/co/knowvera/document/document-list-dto';
 
 export class SearchDocumentsVarsForm {
   fileName: string = '';
