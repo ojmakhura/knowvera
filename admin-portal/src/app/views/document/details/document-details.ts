@@ -345,6 +345,14 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     this.documentApiStore.analyseDocument({ id: documentId });
   }
 
+  textExtraction(): void {
+    console.log('Initiating text extraction for document:', this.document());
+    const documentId = this.document()?.id;
+    if (!documentId) return;
+
+    this.documentApiStore.textExtraction({ id: documentId, block: false });
+  }
+
   verifyData(): void {
     const documentId = this.document()?.id;
     if (!documentId) return;

@@ -156,7 +156,7 @@ public class KeycloakService {
 
     // Single organization by ID (returns a result)
     public <T> T withOrganization(String orgId, Function<OrganizationResource, T> fn) {
-        return withRealm(realm -> {
+        return withRegistrationRealm(realm -> {
             OrganizationResource org = realm.organizations().get(orgId);
             return fn.apply(org);
         });
@@ -172,7 +172,7 @@ public class KeycloakService {
 
     // All organizations (returns a result)
     public <T> T withOrganizations(Function<OrganizationsResource, T> fn) {
-        return withRealm(realm -> fn.apply(realm.organizations()));
+        return withRegistrationRealm(realm -> fn.apply(realm.organizations()));
     }
 
     // All organizations (void)

@@ -549,6 +549,38 @@ export const DocumentApiStore = signalStore(
           );
         }),
       ),
+      textExtraction: rxMethod<{ id: string, block: boolean }>(
+        switchMap((data: { id: string, block: boolean }) => {
+          patchState(store, { loading: true, loaderMessage: 'Extracting text ...' });
+          return documentApi.textExtraction(data.id, data.block).pipe(
+            tapResponse({
+              next: (response: DocumentDTO) => {
+                patchState(
+                  store,
+                  {
+                    data: response,
+                    loading: false,
+                    success: true,
+                    messages: [`Document "${response?.fileName || 'unknown'}" text extraction happening in the background!!`],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, {
+                  status: (error?.status || 0),
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [getErrormessage(error)],
+                }
+                );
+              },
+            }),
+          );
+        }),
+      ),
     }
   }),
 );

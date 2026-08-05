@@ -211,6 +211,10 @@
                   placeholder="No file content available..." spellcheck="false"></textarea>
                 @if(document().verificationStatus != 'REJECTED') {
                 <div class="file-content-actions">
+                  <button mat-stroked-button (click)="textExtraction()" [disabled]="loading() || !document().id">
+                    <mat-icon>text_snippet</mat-icon>
+                    Text Extraction
+                  </button>
                   <button mat-stroked-button (click)="analyseDocument()" [disabled]="loading() || !document().id">
                     <mat-icon>analytics</mat-icon>
                     Analyse Document

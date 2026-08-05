@@ -115,7 +115,7 @@ export class DocumentApi {
     return this.http.get<DocumentDTO>(`${this.path}/${id}/verification-status?verificationStatus=${status}`);
   }
 
-  public geminiTextExtration(id: string): Observable<DocumentDTO> {
-    return this.http.get<DocumentDTO>(`${this.path}/${id}/gemini-text-extraction`);
+  public textExtraction(id: string, block: boolean): Observable<DocumentDTO> {
+    return this.http.get<DocumentDTO>(`${this.path}/${id}/text-extraction?block=${block}`);
   }
 }

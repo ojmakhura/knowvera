@@ -124,11 +124,11 @@ public abstract class AuditLogServiceBase
             throw new IllegalArgumentException(
                 "bw.co.knowvera.audit.AuditLogService.save(@Valid AuditLogDTO auditLog) - 'auditLog.agent' can not be null or empty");
         }
-        if (auditLog.getEventLabel() == null || auditLog.getEventLabel().trim().isEmpty())
-        {
-            throw new IllegalArgumentException(
-                "bw.co.knowvera.audit.AuditLogService.save(@Valid AuditLogDTO auditLog) - 'auditLog.eventLabel' can not be null or empty");
-        }
+//        if (auditLog.getEventLabel() == null || auditLog.getEventLabel().trim().isEmpty())
+//        {
+//            throw new IllegalArgumentException(
+//                "bw.co.knowvera.audit.AuditLogService.save(@Valid AuditLogDTO auditLog) - 'auditLog.eventLabel' can not be null or empty");
+//        }
         if (auditLog.getEntityType() == null || auditLog.getEntityType().trim().isEmpty())
         {
             throw new IllegalArgumentException(

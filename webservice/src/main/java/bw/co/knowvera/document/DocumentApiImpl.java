@@ -35,18 +35,12 @@ import bw.co.knowvera.QueueObject;
 import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.document.processor.DocumentProcessorService;
+import bw.co.knowvera.document.processor.DocumentQueueProcessor;
 import bw.co.knowvera.document.processor.GeminiTextExtractionProcessor;
+import bw.co.knowvera.document.processor.TextProcessingService;
 import bw.co.knowvera.logging.Audit;
 import bw.co.knowvera.minio.MinioService;
 import bw.co.knowvera.properties.RabbitProperties;
-import bw.co.knowvera.document.DocumentAnalyticsStatus;
-import bw.co.knowvera.document.DocumentApi;
-import bw.co.knowvera.document.DocumentDTO;
-import bw.co.knowvera.document.DocumentListDTO;
-import bw.co.knowvera.document.DocumentSearchCriteria;
-import bw.co.knowvera.document.DocumentService;
-import bw.co.knowvera.document.DocumentServiceException;
-import bw.co.knowvera.document.DocumentVerificationStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -58,6 +52,7 @@ public class DocumentApiImpl implements DocumentApi {
     private final MinioService minioService;
     private final DocumentService documentService;
     private final DocumentProcessorService documentProcessor;
+    private final DocumentQueueProcessor documentQueueProcessor;
     
     private final GeminiTextExtractionProcessor geminiTextExtractionProcessor;
     private final RabbitTemplate rabbitTemplate;
@@ -65,7 +60,7 @@ public class DocumentApiImpl implements DocumentApi {
 
     public DocumentApiImpl(DocumentService documentService, RabbitTemplate rabbitTemplate, MinioService minioService,
             DocumentProcessorService documentProcessor, GeminiTextExtractionProcessor geminiTextExtractionProcessor,
-            RabbitProperties rabbitProperties) {
+            RabbitProperties rabbitProperties, DocumentQueueProcessor documentQueueProcessor) {
 
         this.documentService = documentService;
         this.minioService = minioService;
@@ -73,6 +68,7 @@ public class DocumentApiImpl implements DocumentApi {
         this.geminiTextExtractionProcessor = geminiTextExtractionProcessor;
         this.rabbitTemplate = rabbitTemplate;
         this.rabbitProperties = rabbitProperties;
+        this.documentQueueProcessor = documentQueueProcessor;
     }
 
     @Override
@@ -499,9 +495,9 @@ public class DocumentApiImpl implements DocumentApi {
     }
 
     @Override
-    @Operation(summary = "Gemini Text Extraction", description = "Extract text using google gemini. Be careful since this requires an account that has charges on it.")
+    @Operation(summary = "Text Extraction", description = "Extract text from the document with the given id.")
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
-    public ResponseEntity<DocumentDTO> geminiTextExtration(String id, Boolean block) throws Exception {
+    public ResponseEntity<DocumentDTO> textExtration(String id, Boolean block) throws Exception {
 
         try {
 
@@ -517,13 +513,13 @@ public class DocumentApiImpl implements DocumentApi {
                     document.getTargetId());
 
             if (block != null && block) {
-                geminiTextExtractionProcessor.handleDocumentProcessing(queueObject);
+                documentQueueProcessor.handleDocumentProcessing(queueObject);
                 return ResponseEntity.ok(documentService.findById(id));
             }
 
             rabbitTemplate.convertAndSend(
-                    rabbitProperties.getGeminiTextExtractionQueueExchange(),
-                    rabbitProperties.getGeminiTextExtractionQueueRoutingKey(),
+                    rabbitProperties.getTextExtractionQueueExchange(),
+                    rabbitProperties.getTextExtractionQueueRoutingKey(),
                     queueObject);
 
             return ResponseEntity.ok(document);
