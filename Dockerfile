@@ -14,6 +14,6 @@ WORKDIR /app
 
 ARG WAR_FILE=webservice/target/knowvera-webservice*.jar
 COPY ${WAR_FILE} knowvera-webservice.jar
-COPY kyc_start.sh kyc_start.sh
+COPY knowvera_start.sh knowvera_start.sh
 
-ENTRYPOINT ["sh", "/app/kyc_start.sh"]
+ENTRYPOINT ["sh", "/app/knowvera_start.sh"]
