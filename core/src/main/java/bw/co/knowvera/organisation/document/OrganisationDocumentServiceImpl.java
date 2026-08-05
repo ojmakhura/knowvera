@@ -14,7 +14,6 @@ import bw.co.knowvera.document.DocumentMapper;
 import bw.co.knowvera.document.DocumentRepository;
 import bw.co.knowvera.individual.IndividualMapper;
 import bw.co.knowvera.individual.IndividualRepository;
-import bw.co.knowvera.organisation.document.bw;
 import bw.co.knowvera.organisation.document.OrganisationDocument;
 import bw.co.knowvera.organisation.document.OrganisationDocumentDTO;
 import bw.co.knowvera.organisation.document.OrganisationDocumentRepository;

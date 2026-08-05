@@ -28,7 +28,6 @@ import bw.co.knowvera.GeneralStatus;
 import bw.co.knowvera.PropertySearchOrder;
 import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.kyc.KycComplianceStatus;
-import bw.co.knowvera.organisation.bw;
 import bw.co.knowvera.organisation.client.ClientRequestRepository;
 import bw.co.knowvera.organisation.Organisation;
 import bw.co.knowvera.organisation.OrganisationDTO;

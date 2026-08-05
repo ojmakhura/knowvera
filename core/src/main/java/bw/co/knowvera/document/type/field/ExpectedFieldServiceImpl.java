@@ -10,21 +10,13 @@ package bw.co.knowvera.document.type.field;
 
 import jakarta.validation.Valid;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import bw.co.knowvera.document.type.field.bw;
-import bw.co.knowvera.document.type.field.ExpectedField;
-import bw.co.knowvera.document.type.field.ExpectedFieldDTO;
-import bw.co.knowvera.document.type.field.ExpectedFieldRepository;
-import bw.co.knowvera.document.type.field.ExpectedFieldServiceBase;
 
 /**
  * @see bw.co.knowvera.document.type.field.ExpectedFieldService

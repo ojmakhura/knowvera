@@ -27,7 +27,6 @@ import bw.co.knowvera.kyc.KycComplianceStatus;
 import bw.co.knowvera.messaging.ClientRequestNotification;
 import bw.co.knowvera.organisation.Organisation;
 import bw.co.knowvera.organisation.OrganisationRepository;
-import bw.co.knowvera.organisation.client.bw;
 import bw.co.knowvera.sequence.SequenceGenerator;
 import bw.co.knowvera.sequence.SequenceGeneratorRepository;
 import bw.co.knowvera.sequence.SequenceGeneratorService;

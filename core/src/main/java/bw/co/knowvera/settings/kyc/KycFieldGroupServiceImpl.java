@@ -10,7 +10,6 @@ package bw.co.knowvera.settings.kyc;
 
 import bw.co.knowvera.settings.Settings;
 import bw.co.knowvera.settings.SettingsRepository;
-import bw.co.knowvera.settings.kyc.bw;
 import bw.co.knowvera.settings.kyc.GroupField;
 import bw.co.knowvera.settings.kyc.GroupFieldRepository;
 import bw.co.knowvera.settings.kyc.KycFieldGroup;

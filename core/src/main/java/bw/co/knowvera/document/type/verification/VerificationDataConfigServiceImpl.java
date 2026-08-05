@@ -12,7 +12,6 @@ import bw.co.knowvera.document.type.DocumentType;
 import bw.co.knowvera.document.type.DocumentTypeRepository;
 import bw.co.knowvera.document.type.field.ExpectedField;
 import bw.co.knowvera.document.type.field.ExpectedFieldRepository;
-import bw.co.knowvera.document.type.verification.bw;
 import bw.co.knowvera.document.type.verification.VerificationDataConfig;
 import bw.co.knowvera.document.type.verification.VerificationDataConfigDTO;
 import bw.co.knowvera.document.type.verification.VerificationDataConfigRepository;

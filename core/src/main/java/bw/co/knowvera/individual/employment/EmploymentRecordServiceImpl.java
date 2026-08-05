@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import bw.co.knowvera.individual.employment.bw;
 import bw.co.knowvera.individual.employment.EmploymentRecord;
 import bw.co.knowvera.individual.employment.EmploymentRecordDTO;
 import bw.co.knowvera.individual.employment.EmploymentRecordRepository;

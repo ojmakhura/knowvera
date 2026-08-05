@@ -36,7 +36,6 @@ import bw.co.knowvera.sequence.SequenceGeneratorRepository;
 import bw.co.knowvera.sequence.SequenceGeneratorService;
 import bw.co.knowvera.sequence.SequencePart;
 import bw.co.knowvera.sequence.SequencePartType;
-import bw.co.knowvera.subscription.bw;
 import bw.co.knowvera.subscription.KycSubsciptionStatus;
 import bw.co.knowvera.subscription.KycSubscription;
 import bw.co.knowvera.subscription.KycSubscriptionDTO;

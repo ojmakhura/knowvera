@@ -29,7 +29,6 @@ import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.document.Document;
 import bw.co.knowvera.document.DocumentVerificationStatus;
 import bw.co.knowvera.document.type.DocumentTypeDTO;
-import bw.co.knowvera.individual.bw;
 import bw.co.knowvera.kyc.KycComplianceStatus;
 import bw.co.knowvera.organisation.client.ClientRequest;
 import bw.co.knowvera.organisation.client.ClientRequestRepository;

@@ -24,7 +24,6 @@ import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.document.Document;
 import bw.co.knowvera.document.DocumentRepository;
 import bw.co.knowvera.document.type.DocumentTypeRepository;
-import bw.co.knowvera.settings.bw;
 import bw.co.knowvera.settings.DocumentTypePurpose;
 import bw.co.knowvera.settings.SalaryRangeRepository;
 import bw.co.knowvera.settings.Settings;

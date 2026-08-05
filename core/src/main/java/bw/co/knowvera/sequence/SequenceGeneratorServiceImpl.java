@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import bw.co.knowvera.sequence.bw;
 import bw.co.knowvera.sequence.SequenceGenerator;
 import bw.co.knowvera.sequence.SequenceGeneratorDTO;
 import bw.co.knowvera.sequence.SequenceGeneratorRepository;

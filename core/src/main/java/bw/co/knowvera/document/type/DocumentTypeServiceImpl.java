@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import bw.co.knowvera.document.type.bw;
 import bw.co.knowvera.document.type.field.ExpectedField;
 import bw.co.knowvera.document.type.field.ExpectedFieldDTO;
 import bw.co.knowvera.document.type.field.ExpectedFieldMapper;

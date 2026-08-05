@@ -39,7 +39,6 @@ import bw.co.knowvera.document.DocumentVerificationStatus;
 import bw.co.knowvera.document.type.DocumentType;
 import bw.co.knowvera.individual.Individual;
 import bw.co.knowvera.individual.IndividualRepository;
-import bw.co.knowvera.kyc.bw;
 import bw.co.knowvera.kyc.fields.GroupFieldValue;
 import bw.co.knowvera.kyc.fields.KycReportSection;
 import bw.co.knowvera.kyc.fields.KycReportSectionRepository;

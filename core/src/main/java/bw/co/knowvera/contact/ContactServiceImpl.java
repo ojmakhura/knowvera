@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import bw.co.knowvera.TargetEntity;
-import bw.co.knowvera.contact.bw;
 import bw.co.knowvera.sequence.SequenceGenerator;
 import bw.co.knowvera.sequence.SequenceGeneratorRepository;
 import bw.co.knowvera.sequence.SequenceGeneratorService;

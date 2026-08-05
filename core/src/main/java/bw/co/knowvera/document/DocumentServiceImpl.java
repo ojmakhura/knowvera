@@ -14,7 +14,6 @@ import bw.co.knowvera.QueueObject;
 import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.SortOrder;
 import bw.co.knowvera.TargetEntity;
-import bw.co.knowvera.document.bw;
 import bw.co.knowvera.document.type.DocumentType;
 import bw.co.knowvera.document.type.DocumentTypeDTO;
 import bw.co.knowvera.document.type.DocumentTypeMapper;
