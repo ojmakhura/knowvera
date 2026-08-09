@@ -183,6 +183,7 @@ export class SystemSettings {
   selectedKycIndDocumentFilteredList = linkedSignal<DocumentTypeDTO[]>(() => []);
   readonly individualKycExpectedFieldOptions = signal<ExpectedFieldDTO[]>([]);
   readonly organisationKycExpectedFieldOptions = signal<ExpectedFieldDTO[]>([]);
+  readonly kycFieldGroupView = signal<'individual' | 'organisation'>('individual');
 
   TargetEntityT: any = TargetEntity;
   TargetEntityOptions = Object.keys(this.TargetEntityT);
@@ -586,6 +587,45 @@ export class SystemSettings {
     const source = field.documentType ? ` (${field.documentType})` : '';
 
     return `${base}${source}`;
+  }
+
+  documentNames(items: DocumentTypeDTO[] | null | undefined, limit = 3): string {
+    const names = (items || [])
+      .map((item) => item?.name)
+      .filter((name): name is string => Boolean(name));
+
+    if (names.length === 0) {
+      return 'No documents configured';
+    }
+
+    return names.slice(0, limit).join(', ');
+  }
+
+  kycDocumentNames(limit = 3): string {
+    return this.documentNames(
+      [...(this.editSettingsSignal().orgKycDocuments || []), ...(this.editSettingsSignal().indKycDocuments || [])],
+      limit,
+    );
+  }
+
+  groupFieldPreview(group: KycFieldGroupDTO | null | undefined, limit = 3): string {
+    const fields = (group?.groupFields || [])
+      .map((field: GroupFieldDTO) => field?.field || '')
+      .filter((field: string): field is string => Boolean(field));
+
+    if (fields.length === 0) {
+      return 'No fields configured';
+    }
+
+    return fields.slice(0, limit).join(', ');
+  }
+
+  groupFieldCount(group: KycFieldGroupDTO | null | undefined): number {
+    return (group?.groupFields || []).length;
+  }
+
+  setKycFieldGroupView(view: 'individual' | 'organisation'): void {
+    this.kycFieldGroupView.set(view);
   }
 
   compareExpectedField = (left: ExpectedFieldDTO | null, right: ExpectedFieldDTO | null): boolean =>
@@ -1275,4 +1315,3 @@ export class SystemSettings {
   }
 
 }
-

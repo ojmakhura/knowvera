@@ -186,6 +186,13 @@ export class EditOrganisation implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  copyPhysicalAddress(): void {
+    this.editOrganisationFormSignal.update((val) => ({
+      ...val,
+      postalAddress: val.physicalAddress ?? '',
+    }));
+  }
+
   addPhoneNumber(): void {
     this.editOrganisationFormSignal.update((val) => {
       return {

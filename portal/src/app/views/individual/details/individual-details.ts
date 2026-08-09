@@ -99,6 +99,10 @@ export class IndividualDetails {
     this.router.navigate(['/individual/edit']);
   }
 
+  goBack(): void {
+    // this.router.back();
+  }
+
   protected humanize(value: unknown): string {
     if (value === null || value === undefined || value === '') {
       return 'Not provided';

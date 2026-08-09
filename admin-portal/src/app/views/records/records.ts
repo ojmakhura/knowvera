@@ -20,6 +20,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { IndividualIdentityType } from '@app/models/bw/co/knowvera/individual/individual-identity-type';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
@@ -27,6 +28,7 @@ import { KycRecordSearchCriteria } from '@app/models/bw/co/knowvera/kyc/kyc-reco
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { SearchObject } from '@app/models/search-object';
 import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
+import { swalFire } from '@app/@shared/swal';
 
 export class SearchRecordsVarsForm {
   firstName = '';
@@ -67,6 +69,7 @@ export class SearchRecordsVarsForm {
 export class Records implements OnInit {
   private readonly kycRecordApiStore = inject(KycRecordApiStore);
   private readonly router = inject(Router);
+  private readonly toaster = inject(ToastrService);
 
   readonly searchRecordsSignal = signal(new SearchRecordsVarsForm());
   readonly dataSource = new MatTableDataSource<KycRecordDTO>([]);
@@ -74,6 +77,7 @@ export class Records implements OnInit {
   readonly currentPage = signal(0);
   readonly pageSize = signal(10);
   readonly totalElements = signal(0);
+  readonly pendingDeleteId = signal<string | null>(null);
 
   readonly loading = linkedSignal(() => this.kycRecordApiStore.loading());
   readonly loaderMessage = linkedSignal(() => this.kycRecordApiStore.loaderMessage());
@@ -119,6 +123,26 @@ export class Records implements OnInit {
       this.currentPage.set(page.page?.number || 0);
       this.pageSize.set(page.page?.size || 10);
       this.totalElements.set(page.page?.totalElements || 0);
+    });
+
+    effect(() => {
+      const pendingDeleteId = this.pendingDeleteId();
+
+      if (!pendingDeleteId || this.kycRecordApiStore.loading()) {
+        return;
+      }
+
+      if (this.kycRecordApiStore.error()) {
+        this.pendingDeleteId.set(null);
+        this.toaster.error(this.kycRecordApiStore.messages()?.[0] || 'Failed to delete record.');
+        return;
+      }
+
+      if (this.kycRecordApiStore.success()) {
+        this.pendingDeleteId.set(null);
+        this.toaster.success('Record deleted successfully.');
+        this.doSearch(this.currentPage(), this.pageSize());
+      }
     });
   }
 
@@ -225,6 +249,30 @@ export class Records implements OnInit {
     }
 
     this.router.navigate(['/', 'individuals', 'details', row.targetId]);
+  }
+
+  deleteRecord(row: KycRecordDTO): void {
+    if (!row?.id) {
+      this.toaster.warning('Cannot delete a record without an id.');
+      return;
+    }
+
+    swalFire({
+      title: 'Delete Record',
+      text: `Are you sure you want to delete "${row.ref || row.ownerDetails?.name || 'this record'}"? This cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+    }).then((result) => {
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      this.pendingDeleteId.set(row.id);
+      this.kycRecordApiStore.remove({ id: row.id });
+    });
   }
 
   exportCsv(): void {

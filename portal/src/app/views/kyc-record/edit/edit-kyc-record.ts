@@ -214,7 +214,7 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
 
   availableDocumentTypes = computed(() => {
     const record = this.formModel();
-    const allTypes = record?.target === 'INDIVIDUAL' ? this.indKycDocuments() : this.orgKycDocuments();
+    const allTypes = (record?.target === 'INDIVIDUAL' ? this.indKycDocuments() : this.orgKycDocuments()) ?? [];
     console.log('All types', allTypes);
     console.log(record?.target)
     const uploadedTypes = record?.documents?.map((d: DocumentDTO) => d.documentTypeId) || [];
@@ -480,6 +480,12 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
 
   protected submit(): void {
     const formValue = this.formModel();
+    const missingDocumentType = formValue.documentsToUpload.some((doc) => !doc.documentType?.id);
+
+    if (missingDocumentType) {
+      this.toaster.error('Select a document type for each attached file.', 'Validation');
+      return;
+    }
 
     let record: KycRecordDTO = {
       id: formValue.id,

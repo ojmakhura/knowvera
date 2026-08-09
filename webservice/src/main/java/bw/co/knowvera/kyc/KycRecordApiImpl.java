@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,14 +26,6 @@ import bw.co.knowvera.keycloak.KeycloakUserService;
 import bw.co.knowvera.logging.Audit;
 import bw.co.knowvera.organisation.OrganisationDTO;
 import bw.co.knowvera.user.UserDTO;
-import bw.co.knowvera.kyc.KycComplianceStatus;
-import bw.co.knowvera.kyc.KycRecordApi;
-import bw.co.knowvera.kyc.KycRecordDTO;
-import bw.co.knowvera.kyc.KycRecordListDTO;
-import bw.co.knowvera.kyc.KycRecordSearchCriteria;
-import bw.co.knowvera.kyc.KycRecordService;
-import bw.co.knowvera.kyc.KycRecordServiceException;
-import bw.co.knowvera.kyc.KycRecordSummary;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -104,7 +95,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     @Operation(summary = "Find KYC Record by ID", description = "Find a KYC record by its ID")
-    @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
+    // @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
     public ResponseEntity<KycRecordDTO> findById(String id) throws Exception {
 
         logger.debug("Finding KYC record by ID: {}", id);

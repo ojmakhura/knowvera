@@ -175,6 +175,9 @@
             <button mat-icon-button type="button" matTooltip="Edit record" [routerLink]="['/records/edit', row.id]">
               <mat-icon>edit</mat-icon>
             </button>
+            <button mat-icon-button type="button" color="warn" matTooltip="Delete record" (click)="deleteRecord(row)">
+              <mat-icon>delete</mat-icon>
+            </button>
           </td>
         </ng-container>
 

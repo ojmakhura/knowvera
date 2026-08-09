@@ -1,98 +1,175 @@
-<mat-sidenav-container class="shell-layout">
-  @if(keycloak.authenticated) {
-  <mat-sidenav #sidenav class="shell-sidebar" mode="side" opened aria-label="Primary navigation">
-    <div class="brand">
-      <div class="brand-mark">◍</div>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+<div class="shell-layout" *ngIf="keycloak.authenticated">
+  <!-- Desktop Sidebar -->
+  <aside class="shell-sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">◍</div>
       <div>
-        <p class="brand-title">Knowvera KYC</p>
+        <div class="brand-name">Knowvera KYC</div>
+        <div class="brand-subtitle">Compliance Portal</div>
       </div>
     </div>
 
-    <nav class="sidebar-nav" aria-label="Primary navigation">
+    <button class="new-verification-btn">
+      <span class="material-symbols-outlined">add</span>
+      New Verification
+    </button>
+
+    <nav class="sidebar-nav">
       @for (item of menus; track item.titleKey) {
-      <a class="nav-item" [routerLink]="item.routerLink" routerLinkActive="nav-item-active"
-        [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }">
-        <mat-icon>{{ item.icon }}</mat-icon>
+      <a
+        class="nav-item"
+        [routerLink]="item.routerLink"
+        routerLinkActive="nav-item-active"
+        [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }"
+      >
+        <span class="material-symbols-outlined">{{ item.icon }}</span>
         <span translate>{{ item.titleKey }}</span>
       </a>
       }
     </nav>
-  </mat-sidenav>
-  }
 
-  <mat-sidenav-content class="shell-main" aria-label="Application shell">
-    <header class="topbar">
-      <p class="topbar-title">Knowvera KYC Admin Portal</p>
-      <span class="spacer"></span>
-      <div class="topbar-search-field" role="search">
-        <mat-icon aria-hidden="true">search</mat-icon>
-        <input type="search" placeholder="Search verifications or entities..." aria-label="Search" />
+    <div class="sidebar-footer">
+      <a class="nav-item" href="/settings">
+        <span class="material-symbols-outlined">settings</span>
+        <span translate>settings.title</span>
+      </a>
+      <a class="nav-item" href="/support">
+        <span class="material-symbols-outlined">contact_support</span>
+        <span translate>support.title</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="shell-content">
+    <!-- Top Header -->
+    <header class="shell-header">
+      <div class="header-left">
+        <div class="mobile-brand-text">Knowvera</div>
       </div>
 
-      <div class="topbar-actions">
+      <div class="header-search">
+        <span class="material-symbols-outlined">search</span>
+        <input
+          type="search"
+          placeholder="Search records, entities, alerts..."
+          aria-label="Search"
+        />
+      </div>
+
+      <div class="header-actions">
         <button class="icon-btn" type="button" aria-label="Notifications">
-          <mat-icon>notifications</mat-icon>
+          <span class="material-symbols-outlined">notifications</span>
         </button>
-        <button class="icon-btn" type="button" aria-label="Help">
-          <mat-icon>help_outline</mat-icon>
+        <button class="icon-btn hidden-mobile" type="button" aria-label="Help">
+          <span class="material-symbols-outlined">help_outline</span>
         </button>
-
-        @if (keycloak.authenticated) {
-        <button
-          class="account-btn"
-          type="button"
-          (click)="toggleAccountMenu($event)"
-          [attr.aria-expanded]="accountMenuOpen()"
-          aria-haspopup="menu"
-        >
-          <span class="account-avatar">{{ userInitials }}</span>
-          <span class="account-label">{{ userDisplayName }}</span>
-          <mat-icon>expand_more</mat-icon>
+        <button class="icon-btn hidden-mobile" type="button" aria-label="Settings">
+          <span class="material-symbols-outlined">settings</span>
         </button>
 
-        @if (accountMenuOpen()) {
-        <div class="account-menu" role="menu" (click)="$event.stopPropagation()">
-          <div class="account-menu-head">
-            <span class="menu-avatar">{{ userInitials }}</span>
-            <div>
-              <p class="menu-name">{{ userDisplayName }}</p>
-              <p class="menu-email">{{ userEmail }}</p>
-            </div>
-          </div>
-          <hr class="menu-divider" />
-          <a class="menu-item" [href]="profileUrl" (click)="closeAccountMenu()">
-            <mat-icon>account_circle</mat-icon>
-            <span>Profile</span>
-          </a>
-          <button class="menu-item menu-link-danger" (click)="logout()">
-            <mat-icon color="warn">logout</mat-icon>
-            <span class="warn-text">Logout</span>
+        <div class="account-section">
+          <button
+            class="account-btn"
+            type="button"
+            (click)="toggleAccountMenu($event)"
+            [attr.aria-expanded]="accountMenuOpen()"
+            aria-haspopup="menu"
+          >
+            <span class="account-avatar">{{ userInitials }}</span>
+            <span class="account-label hidden-mobile">{{ userDisplayName }}</span>
+            <span class="material-symbols-outlined">expand_more</span>
           </button>
+
+          @if (accountMenuOpen()) {
+          <div class="account-menu" role="menu" (click)="$event.stopPropagation()">
+            <div class="account-menu-head">
+              <span class="menu-avatar">{{ userInitials }}</span>
+              <div>
+                <p class="menu-name">{{ userDisplayName }}</p>
+                <p class="menu-email">{{ userEmail }}</p>
+              </div>
+            </div>
+            <hr class="menu-divider" />
+            <a class="menu-item" [href]="profileUrl" (click)="closeAccountMenu()">
+              <span class="material-symbols-outlined">account_circle</span>
+              <span>Profile</span>
+            </a>
+            <button class="menu-item menu-link-danger" (click)="logout()">
+              <span class="material-symbols-outlined">logout</span>
+              <span class="warn-text">Logout</span>
+            </button>
+          </div>
+          }
         </div>
-        }
-        }
       </div>
     </header>
 
-    <main class="content">
+    <!-- Main Content -->
+    <main class="shell-main">
       @if (keycloak.authenticated) {
         <router-outlet></router-outlet>
-      } @else {
-        <div class="login-screen">
-          <div class="login-card">
-            <div class="login-brand">
-              <span class="login-brand-mark">◍</span>
-              <span class="login-brand-name">Knowvera KYC</span>
-            </div>
-            <h1 class="login-heading">Admin Portal</h1>
-            <p class="login-sub">Sign in with your organisational account to access the compliance dashboard.</p>
-            <button class="login-btn" type="button" (click)="login()">
-              <mat-icon>lock_open</mat-icon>
-              Sign in
-            </button>
-          </div>
-        </div>
       }
     </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  </div>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-bottom-nav">
+    <a
+      class="mobile-nav-item"
+      [routerLink]="'/organisation'"
+      routerLinkActive="mobile-nav-active"
+      [routerLinkActiveOptions]="{ exact: false }"
+    >
+      <span class="material-symbols-outlined">dashboard</span>
+      <span class="nav-label">Dashboard</span>
+    </a>
+    <a
+      class="mobile-nav-item"
+      [routerLink]="'/individual'"
+      routerLinkActive="mobile-nav-active"
+      [routerLinkActiveOptions]="{ exact: false }"
+    >
+      <span class="material-symbols-outlined">fingerprint</span>
+      <span class="nav-label">Identities</span>
+    </a>
+    <a
+      class="mobile-nav-item"
+      [routerLink]="'/records'"
+      routerLinkActive="mobile-nav-active"
+      [routerLinkActiveOptions]="{ exact: false }"
+    >
+      <span class="material-symbols-outlined">verified_user</span>
+      <span class="nav-label">Cases</span>
+    </a>
+    <a
+      class="mobile-nav-item"
+      [routerLink]="'/settings'"
+      routerLinkActive="mobile-nav-active"
+      [routerLinkActiveOptions]="{ exact: false }"
+    >
+      <span class="material-symbols-outlined">settings</span>
+      <span class="nav-label">Settings</span>
+    </a>
+  </nav>
+</div>
+
+<!-- Login Screen -->
+@if (!keycloak.authenticated) {
+<div class="login-screen">
+  <div class="login-card">
+    <div class="login-brand">
+      <span class="login-brand-mark">◍</span>
+      <span class="login-brand-name">Knowvera KYC</span>
+    </div>
+    <h1 class="login-heading">Admin Portal</h1>
+    <p class="login-sub">Sign in with your organisational account to access the compliance dashboard.</p>
+    <button class="login-btn" type="button" (click)="login()">
+      <span class="material-symbols-outlined">lock_open</span>
+      Sign in
+    </button>
+  </div>
+</div>
+}

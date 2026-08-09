@@ -60,7 +60,7 @@ spring:
 
   cache:
     redis:
-      time-to-live: 600000 # 10 minutes in milliseconds
+      time-to-live: 30m # 10 minutes in milliseconds
       cache-null-values: false
   data:
     redis:
@@ -68,6 +68,12 @@ spring:
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD}
       timeout: 100
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+          max-wait: 3s
   ai:
     chat:
     
@@ -99,7 +105,7 @@ spring:
         gemini:
           enabled: true
           # --- Core Connection Settings ---
-          project-id: ${GEMINI_PROJECT_ID:knowvera-kyc}
+          project-id: ${GEMINI_PROJECT_ID:central-kyc}
           location: ${GEMINI_LOCATION:us-central1}
           # If using a physical file (not recommended for production)
           # credentials-uri: file://${GCP_CREDENTIALS_FILE:/path/to/credentials.json}

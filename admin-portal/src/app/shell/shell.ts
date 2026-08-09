@@ -1,7 +1,5 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, ElementRef, HostListener, inject, signal, ViewChild } from '@angular/core';
-import { MatSidenavModule, MatDrawer } from '@angular/material/sidenav';
-import { MatIconModule } from '@angular/material/icon';
+import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 import { Route, Router, RouterModule, RouterOutlet, Routes } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -12,16 +10,12 @@ import { AppEnvStore } from '@app/store/app-env.state';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterModule, TranslateModule, MatSidenavModule, MatIconModule],
+  imports: [CommonModule, RouterOutlet, RouterModule, TranslateModule],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })
 export class Shell {
-  @ViewChild('sidenav') sidenav!: MatDrawer;
-
-  protected readonly currentYear = new Date().getFullYear();
   protected readonly accountMenuOpen = signal(false);
-  private breakpoint = inject(BreakpointObserver);
   private elementRef = inject(ElementRef<HTMLElement>);
   private titleService = inject(Title);
   protected router = inject(Router);
@@ -43,23 +37,9 @@ export class Shell {
 
   ngOnInit() {
     this.menus = nav.menuItems;
-
-    // Watch for breakpoint changes and adjust drawer accordingly
-    this.breakpoint.observe([Breakpoints.Small, Breakpoints.XSmall]).subscribe(result => {
-      if (this.sidenav) {
-        if (result.matches) {
-          // Mobile: close drawer
-          this.sidenav.close();
-        } else {
-          // Desktop: open drawer
-          this.sidenav.open();
-        }
-      }
-    });
   }
 
   logout() {
-    console.log('Logout clicked');
     this.accountMenuOpen.set(false);
     this.keycloak.logout();
     this.appEnvState.reset();
@@ -133,10 +113,6 @@ export class Shell {
     } catch (e) {
       console.error('Login failed', e);
     }
-  }
-
-  get isMobile(): boolean {
-    return this.breakpoint.isMatched(Breakpoints.Small) || this.breakpoint.isMatched(Breakpoints.XSmall);
   }
 
   get title(): string {

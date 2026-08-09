@@ -1,364 +1,369 @@
 <app-loader [isLoading]="loading()" [message]="loaderMessage()"></app-loader>
 
-<main class="vault-page">
-	<header class="vault-header">
-		<section class="title-block">
-			<div class="brand-icon" aria-hidden="true">{{ organisationInitials() }}</div>
-			<div>
-				<h1>{{ organisation().name || 'Organisation Profile' }}</h1>
-				<div class="tag-row">
-					  <span class="tag-code">{{ organisation().code || 'ORG' }}</span>
-					<mat-chip class="chip verified" highlighted>
-						<mat-icon>verified</mat-icon>
-						Verified Enterprise
-					</mat-chip>
-					<mat-chip class="chip compliant" highlighted>
-						<mat-icon>shield</mat-icon>
-						{{ formatStatus(organisation().kycStatus) }}
-					</mat-chip>
-				</div>
-			</div>
-		</section>
+<div class="page-container">
+  <main class="kyc-page-shell">
+    <!-- Hero Header -->
+    <header class="kyc-hero-card hero-card hero-primary">
+      <div class="kyc-hero-content">
+        <div class="kyc-hero-copy">
+          <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
+            <h1 class="section-title mb-0 text-start">{{ organisation()?.name || 'Organisation Profile' }}</h1>
+            @if (organisation()?.kycStatus) {
+              <span class="kyc-status-pill kyc-status-pill--current">
+                {{ formatStatus(organisation()?.kycStatus) }}
+              </span>
+            }
+          </div>
 
-		<section class="header-actions">
-			<button mat-stroked-button type="button" (click)="openEditOrganisation()">
-				<mat-icon>edit</mat-icon>
-				Edit Organisation
-			</button>
-			<!-- <button mat-flat-button type="button" class="primary-action" (click)="openNewAudit()">
-				<mat-icon>fact_check</mat-icon>
-				New Audit
-			</button> -->
-		</section>
-	</header>
+          @if (organisation()) {
+            <p class="kyc-hero-subtitle">
+              {{ organisation()?.description || 'Leading organization specializing in advanced technological infrastructure and global compliance.' }}
+            </p>
 
-	<section class="overview-grid">
-		<mat-card class="vault-card core-identity">
-			<mat-card-header>
-				<mat-icon mat-card-avatar>fingerprint</mat-icon>
-				<mat-card-title>Core Identity</mat-card-title>
-			</mat-card-header>
-			<mat-card-content>
-				<div class="detail-grid">
-					<div>
-						<p class="field-label">Registration Number</p>
-						<p class="field-value">{{ organisation().registrationNo || '-' }}</p>
-					</div>
-					<div>
-						<p class="field-label">Jurisdiction</p>
-						<p class="field-value">{{ organisation().countryOfRegistration || '-' }}</p>
-					</div>
-					<div class="span-2">
-						<p class="field-label">Description</p>
-						<p class="field-body">{{ organisation().description || 'No description available.' }}</p>
-					</div>
-				</div>
-			</mat-card-content>
-		</mat-card>
+            <div class="kyc-meta-row">
+              @if (organisation()?.registrationNo) {
+                <span class="kyc-meta-pill">Reg {{ organisation()?.registrationNo }}</span>
+              }
+              @if (organisation()?.registrationDate) {
+                <span class="kyc-meta-pill">Est. {{ organisation()?.registrationDate | date:'mediumDate' }}</span>
+              }
+              @if (organisation()?.countryOfRegistration) {
+                <span class="kyc-meta-pill">{{ organisation()?.countryOfRegistration }}</span>
+              }
+            </div>
+          }
+        </div>
 
-		<mat-card class="vault-card infrastructure">
-			<mat-card-header>
-				<mat-icon mat-card-avatar>lan</mat-icon>
-				<mat-card-title>Infrastructure</mat-card-title>
-			</mat-card-header>
-			<mat-card-content>
-				<p class="field-label">Verified Domains</p>
-				<div class="domain-list">
-					@for (domain of organisationDomains(); track domain.name) {
-						<div class="domain-item">
-							<span>{{ domain.name || '-' }}</span>
-							<mat-chip class="chip" [class]="domainVerificationClass(domain.verified)">
-								<mat-icon>{{ domain.verified ? 'check_circle' : 'pending' }}</mat-icon>
-								{{ domain.verified ? 'Verified' : 'Pending' }}
-							</mat-chip>
-						</div>
-					}
-					@if (!organisationDomains().length) {
-						<p class="empty-state">No domains registered.</p>
-					}
-				</div>
-			</mat-card-content>
-		</mat-card>
+        <div class="hero-actions kyc-hero-actions">
+          <button type="button" class="btn btn-outline-light btn-sm fw-bold text-uppercase" (click)="openEditOrganisation()">
+            <mat-icon>edit</mat-icon>
+            Edit Profile
+          </button>
+          <button type="button" class="btn btn-success btn-sm fw-bold text-uppercase shadow-sm" (click)="openEditOrganisation()">
+            <mat-icon>cloud_upload</mat-icon>
+            Save/Upload
+          </button>
+        </div>
+      </div>
+    </header>
 
-		<mat-card class="vault-card contact-card">
-			<mat-card-header>
-				<mat-icon mat-card-avatar>contact_support</mat-icon>
-				<mat-card-title>Contact Information</mat-card-title>
-			</mat-card-header>
-			<mat-card-content>
-				<div class="contact-grid">
-					<div>
-						<p class="field-label">Primary Email</p>
-						<a class="email-link" [href]="'mailto:' + organisation().contactEmailAddress">{{ organisation().contactEmailAddress || '-' }}</a>
-					</div>
-					<div>
-						<p class="field-label">Physical Address</p>
-						<p class="field-body">{{ organisation().physicalAddress || '-' }}</p>
-					</div>
-					<div>
-						<p class="field-label">Postal Address</p>
-						<p class="field-body">{{ organisation().postalAddress || '-' }}</p>
-					</div>
-					<div>
-						<p class="field-label">Phone Numbers</p>
-						<div class="phone-list">
-							@for (phone of organisationPhoneNumbers(); track phone.phoneNumber) {
-								<div class="phone-row">
-									<span>{{ phone.phoneNumber || '-' }}</span>
-									<span class="phone-type">{{ formatPhoneType(phone.type) }}</span>
-								</div>
-							}
-							@if (!organisationPhoneNumbers().length) {
-								<p class="empty-state">No phone numbers available.</p>
-							}
-						</div>
-					</div>
-				</div>
-			</mat-card-content>
-		</mat-card>
-	</section>
+    @if (organisation()) {
+      <div class="row g-4">
+        <!-- Left Column -->
+        <div class="col-12 col-xl-8 d-flex flex-column gap-4">
+          <!-- Core Identity Card -->
+          <section class="kyc-card">
+            <div class="kyc-card__header">
+              <div class="kyc-icon-badge">
+                <mat-icon>fingerprint</mat-icon>
+              </div>
+              <div>
+                <h2>Core Identity</h2>
+                <p>Registration and jurisdiction details</p>
+              </div>
+            </div>
+            <div class="kyc-card__body">
+              <div class="row g-4">
+                <div class="col-12 col-md-6">
+                  <label class="kyc-field-label">Registration No</label>
+                  <p class="kyc-value">{{ organisation()?.registrationNo || '-' }}</p>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="kyc-field-label">Jurisdiction</label>
+                  <p class="kyc-value">{{ organisation()?.countryOfRegistration || '-' }}</p>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="kyc-field-label">Incorporation Date</label>
+                  <p class="kyc-value">{{ formatSubscriptionDate(organisation()?.registrationDate) || '-' }}</p>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="kyc-field-label">Status</label>
+                  <p class="kyc-value">{{ formatStatus(organisation()?.status) || '-' }}</p>
+                </div>
+              </div>
+            </div>
+          </section>
 
-	<mat-card class="vault-card operations-card">
-		<mat-tab-group class="ops-tabs" dynamicHeight>
-			<mat-tab label="Uploaded Documents">
-				<section class="tab-pane">
-					<div class="tab-header">
-						<h2>Compliance Archive</h2>
-						<div class="upload-controls">
-							<mat-form-field subscriptSizing="dynamic" appearance="outline">
-								<mat-label>Document Type ID</mat-label>
-								<input matInput #docTypeInput [value]="documentTypeIdForUpload()" (input)="selectUploadDocumentType(docTypeInput.value)" placeholder="KYC_UTILITY_BILL" />
-							</mat-form-field>
+          <!-- Infrastructure Card -->
+          <section class="kyc-card">
+            <div class="kyc-card__header">
+              <div class="kyc-icon-badge">
+                <mat-icon>dns</mat-icon>
+              </div>
+              <div>
+                <h2>Infrastructure</h2>
+                <p>Registered domains and digital presence</p>
+              </div>
+            </div>
+            <div class="kyc-card__body">
+              @if (organisation()?.domains && organisation()?.domains.length > 0) {
+                <div class="kyc-summary-list">
+                  @for (domain of organisation()?.domains; track domain.id) {
+                    <div class="kyc-summary-item">
+                      <div>
+                        <p class="kyc-summary-item__title">{{ domain.domain }}</p>
+                      </div>
+                      <div class="kyc-summary-pill" [class.kyc-summary-pill--verified]="domain.verified" [class.kyc-summary-pill--warning]="!domain.verified">
+                        {{ domain.verified ? 'Verified' : 'Pending' }}
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <p class="kyc-empty-state">No domains registered</p>
+              }
+            </div>
+          </section>
 
-							<input #documentFileInput type="file" (change)="onDocumentFileSelected($event)" hidden />
+          <!-- Operations Card (Tabs) -->
+          <section class="kyc-card">
+            <div class="kyc-card__header">
+              <div class="kyc-icon-badge">
+                <mat-icon>view_list</mat-icon>
+              </div>
+              <div>
+                <h2>Operations</h2>
+                <p>Compliance, subscriptions, and organisational records</p>
+              </div>
+            </div>
+            <div class="kyc-card__body">
+              <div class="kyc-tab-group">
+                @for (tab of operationsTabs; let i = $index; track i) {
+                  <button 
+                    type="button"
+                    [class.kyc-tab--active]="activeTab() === i"
+                    class="kyc-tab"
+                    (click)="setActiveTab(i)">
+                    {{ tab.label }}
+                  </button>
+                }
+              </div>
 
-							<button mat-stroked-button type="button" (click)="documentFileInput.click()">
-								<mat-icon>attach_file</mat-icon>
-								Choose File
-							</button>
-							<button mat-flat-button type="button" class="primary-action" [disabled]="!canUploadDocument()" (click)="uploadOrganisationDocument(documentFileInput)">
-								<mat-icon>upload</mat-icon>
-								Upload Archive
-							</button>
-						</div>
-					</div>
+              <div style="margin-top: 1.5rem;">
+                <!-- Compliance Archive Tab -->
+                @if (activeTab() === 0) {
+                  <div>
+                    @if (organisationDocuments() && organisationDocuments().length > 0) {
+                      <table class="kyc-table">
+                        <thead>
+                          <tr>
+                            <th>Document Type</th>
+                            <th>Upload Date</th>
+                            <th>Reference ID</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (doc of organisationDocuments(); track doc.id; let i = $index) {
+                            @if (i < 5) {
+                              <tr>
+                                <td class="kyc-table__field">{{ doc.documentType || 'Document' }}</td>
+                                <td>{{ formatSubscriptionDate(doc.createdAt) }}</td>
+                                <td>{{ doc.id || '-' }}</td>
+                                <td>
+                                  <span class="kyc-summary-pill" [class.kyc-summary-pill--verified]="doc.verificationStatus === 'VERIFIED'" [class.kyc-summary-pill--warning]="doc.verificationStatus !== 'VERIFIED'">
+                                    {{ formatStatus(doc.verificationStatus) }}
+                                  </span>
+                                </td>
+                              </tr>
+                            }
+                          }
+                        </tbody>
+                      </table>
+                    } @else {
+                      <p class="kyc-empty-state">No compliance documents</p>
+                    }
+                  </div>
+                }
 
-					<p class="selected-file">{{ selectedDocumentFileName() }}</p>
+                <!-- Subscriptions Tab -->
+                @if (activeTab() === 1) {
+                  <div>
+                    @if (subscriptions() && subscriptions().length > 0) {
+                      <table class="kyc-table">
+                        <thead>
+                          <tr>
+                            <th>Service</th>
+                            <th>Ref ID</th>
+                            <th>Period</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (sub of subscriptions(); track sub.id; let i = $index) {
+                            @if (i < 5) {
+                              <tr>
+                                <td class="kyc-table__field">{{ sub.organisationName || 'Service' }}</td>
+                                <td>{{ sub.ref || '-' }}</td>
+                                <td>{{ sub.period || '-' }}</td>
+                                <td>{{ sub.amount || '-' }}</td>
+                                <td>
+                                  <span class="kyc-summary-pill" [class.kyc-summary-pill--verified]="sub.status?.toUpperCase() === 'ACTIVE'" [class.kyc-summary-pill--neutral]="sub.status?.toUpperCase() !== 'ACTIVE'">
+                                    {{ formatStatus(sub.status) }}
+                                  </span>
+                                </td>
+                              </tr>
+                            }
+                          }
+                        </tbody>
+                      </table>
+                    } @else {
+                      <p class="kyc-empty-state">No subscriptions</p>
+                    }
+                  </div>
+                }
 
-					<div class="table-wrap">
-						<table class="vault-table" aria-label="Uploaded documents table">
-							<thead>
-								<tr>
-									<th>File Name</th>
-									<th>Type</th>
-									<th>Status</th>
-									<th class="align-right">Actions</th>
-								</tr>
-							</thead>
-							<tbody>
-								@for (document of organisationDocuments(); track document.id || document.fileName) {
-									<tr>
-										<td class="weight-600">{{ document.fileName || '-' }}</td>
-										<td>{{ document.documentType || '-' }}</td>
-										<td>
-											<mat-chip class="chip" [class]="documentStatusClass(document.verificationStatus)">
-												{{ formatStatus(document.verificationStatus) }}
-											</mat-chip>
-										</td>
-										<td class="align-right">
-											<button mat-icon-button type="button" (click)="openDocumentDetails(document)" aria-label="View document details">
-												<mat-icon>visibility</mat-icon>
-											</button>
-											<!-- <button mat-icon-button type="button" (click)="openDocumentEdit(document)" aria-label="Edit document">
-												<mat-icon>edit</mat-icon>
-											</button> -->
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-						@if (!organisationDocuments().length) {
-							<p class="empty-state table-empty">No uploaded documents found.</p>
-						}
-					</div>
-				</section>
-			</mat-tab>
+                <!-- Branches Tab -->
+                @if (activeTab() === 2) {
+                  <div>
+                    @if (branches() && branches().length > 0) {
+                      <div class="kyc-summary-list">
+                        @for (branch of branches(); track branch.id; let i = $index) {
+                          @if (i < 4) {
+                            <div class="kyc-summary-item">
+                              <div class="flex-grow-1">
+                                <p class="kyc-summary-item__title">{{ branch.name || branch.code }}</p>
+                                <p class="kyc-summary-item__meta">
+                                  <mat-icon class="text-sm">location_on</mat-icon>
+                                  {{ branch.physicalAddress || '-' }}
+                                </p>
+                              </div>
+                              <div class="kyc-count-pill">{{ branch.code }}</div>
+                            </div>
+                          }
+                        }
+                      </div>
+                    } @else {
+                      <p class="kyc-empty-state">No branches</p>
+                    }
+                  </div>
+                }
 
-			<mat-tab label="Subscriptions">
-				<section class="tab-pane">
-					<div class="tab-header slim">
-						<h2>Service Subscriptions</h2>
-					</div>
-					<div class="table-wrap">
-						<table class="vault-table" aria-label="Subscriptions table">
-							<thead>
-								<tr>
-									<th>Ref ID</th>
-									<th>Period</th>
-									<th>Dates</th>
-									<th>Amount</th>
-									<th>Status</th>
-								</tr>
-							</thead>
-							<tbody>
-								@for (subscription of subscriptions(); track subscription.id || subscription.ref) {
-									<tr>
-										<td class="mono">{{ subscription.ref || '-' }}</td>
-										<td>{{ subscription.period || '-' }}</td>
-										<td>{{ formatSubscriptionDate(subscription.startDate) }} - {{ formatSubscriptionDate(subscription.endDate) }}</td>
-										<td class="weight-600">{{ formatSubscriptionAmount(subscription.amount) }}</td>
-										<td>
-											<mat-chip class="chip" [class]="subscriptionStatusClass(subscription.status)">
-												{{ formatStatus(subscription.status) }}
-											</mat-chip>
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-						@if (!subscriptions().length) {
-							<p class="empty-state table-empty">No subscriptions found.</p>
-						}
-					</div>
-				</section>
-			</mat-tab>
+                <!-- Individual KYC Tab -->
+                @if (activeTab() === 3) {
+                  <div>
+                    <p class="kyc-subheading" style="margin-bottom: 1rem;">Displaying key personnel and UBOs.</p>
+                    @if (individualRequestsList() && individualRequestsList().length > 0) {
+                      <table class="kyc-table">
+                        <thead>
+                          <tr>
+                            <th>Name / Role</th>
+                            <th>Reg Date</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (request of individualRequestsList(); track request.id; let i = $index) {
+                            @if (i < 5) {
+                              <tr>
+                                <td>
+                                  <p class="kyc-value mb-0">{{ request.name || '-' }}</p>
+                                  <p class="kyc-summary-item__meta">ID Verification</p>
+                                </td>
+                                <td>{{ formatSubscriptionDate(request.createdAt) }}</td>
+                                <td>
+                                  <span class="kyc-summary-pill" [class.kyc-summary-pill--verified]="request.status?.toUpperCase() === 'ACCEPTED'" [class.kyc-summary-pill--warning]="request.status?.toUpperCase() !== 'ACCEPTED'">
+                                    {{ formatStatus(request.status) }}
+                                  </span>
+                                </td>
+                              </tr>
+                            }
+                          }
+                        </tbody>
+                      </table>
+                    } @else {
+                      <p class="kyc-empty-state">No individual KYC records</p>
+                    }
+                  </div>
+                }
 
-			<mat-tab label="Branches">
-				<section class="tab-pane">
-					<div class="tab-header slim">
-						<h2>Global Branches</h2>
-						<button mat-stroked-button type="button" (click)="openAddBranchDialog()">
-							<mat-icon>add_business</mat-icon>
-							Add Branch
-						</button>
-					</div>
+                <!-- Corporate KYC Tab -->
+                @if (activeTab() === 4) {
+                  <div>
+                    <p class="kyc-subheading" style="margin-bottom: 1rem;">Displaying subsidiary entities.</p>
+                    @if (clientRequests() && clientRequests().length > 0) {
+                      <table class="kyc-table">
+                        <thead>
+                          <tr>
+                            <th>Entity Name</th>
+                            <th>Registry</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (request of clientRequests(); track request.id; let i = $index) {
+                            @if (i < 5) {
+                              <tr>
+                                <td class="kyc-table__field">{{ request.organisation || '-' }}</td>
+                                <td>{{ request.organisationRegistrationNo || '-' }}</td>
+                                <td>
+                                  <span class="kyc-summary-pill" [class.kyc-summary-pill--verified]="request.status?.toUpperCase() === 'ACCEPTED'" [class.kyc-summary-pill--warning]="request.status?.toUpperCase() !== 'ACCEPTED'">
+                                    {{ formatStatus(request.status) }}
+                                  </span>
+                                </td>
+                              </tr>
+                            }
+                          }
+                        </tbody>
+                      </table>
+                    } @else {
+                      <p class="kyc-empty-state">No corporate KYC records</p>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </section>
+        </div>
 
-					<div class="branch-grid">
-						@for (branch of branches(); track branch.id || branch.code) {
-							<article class="branch-card">
-								<div class="branch-head">
-									<span class="branch-code">{{ branch.code || '-' }}</span>
-									<mat-chip class="chip status-active">Active</mat-chip>
-								</div>
-								<h3>{{ branch.name || 'Unnamed branch' }}</h3>
-								<p class="field-body">{{ branch.physicalAddress || '-' }}</p>
-								@if (branch.description) {
-									<p class="description">{{ branch.description }}</p>
-								}
-								<div class="branch-actions">
-									<button mat-icon-button type="button" (click)="openEditBranchDialog(branch)" aria-label="Edit branch">
-										<mat-icon>edit</mat-icon>
-									</button>
-									<button mat-icon-button type="button" (click)="deleteBranch(branch)" aria-label="Delete branch">
-										<mat-icon>delete</mat-icon>
-									</button>
-								</div>
-							</article>
-						}
-					</div>
-
-					@if (!branches().length) {
-						<p class="empty-state">No branches have been registered.</p>
-					}
-				</section>
-			</mat-tab>
-
-			<mat-tab label="Individual Client Requests">
-				<section class="tab-pane request-pane">
-					<div class="tab-header slim">
-						<h2>Individual Client KYC</h2>
-						<button mat-stroked-button type="button" (click)="openCreateClientRequestDialog(targetEntity.INDIVIDUAL)">
-							<mat-icon>add</mat-icon>
-							Add Individual Request
-						</button>
-					</div>
-					<div class="table-wrap">
-						<table class="vault-table" aria-label="Individual client requests">
-							<thead>
-								<tr>
-									<th>Client Name</th>
-									<th>Registration</th>
-									<th>Status</th>
-									<th class="align-right">Action</th>
-								</tr>
-							</thead>
-							<tbody>
-								@for (request of individualRequestsList(); track request.id || request.ref) {
-									<tr>
-										<td class="weight-600">{{ request.name || '-' }}</td>
-										<td>{{ request.registration || '-' }}</td>
-										<td>
-											<mat-chip class="chip" [class]="clientRequestStatusClass(request.status)">
-												{{ formatStatus(request.status) }}
-											</mat-chip>
-										</td>
-										<td class="align-right">
-											<button mat-button type="button" (click)="openCreateClientRequestDialog(targetEntity.INDIVIDUAL)">Review</button>
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-						@if (!individualRequestsList().length) {
-							<p class="empty-state table-empty">No individual client requests found.</p>
-						}
-					</div>
-				</section>
-			</mat-tab>
-
-			<mat-tab label="Organisation Client Requests">
-				<section class="tab-pane request-pane">
-					<div class="tab-header slim">
-						<h2>Corporate Client KYC</h2>
-						<button mat-stroked-button type="button" (click)="openCreateClientRequestDialog(targetEntity.ORGANISATION)">
-							<mat-icon>add</mat-icon>
-							Add Organisation Request
-						</button>
-					</div>
-					<div class="table-wrap">
-						<table class="vault-table" aria-label="Corporate client requests">
-							<thead>
-								<tr>
-									<th>Entity Name</th>
-									<th>Registry</th>
-									<th>Status</th>
-									<th class="align-right">Action</th>
-								</tr>
-							</thead>
-							<tbody>
-								@for (request of organisationRequestsList(); track request.id || request.ref) {
-									<tr>
-										<td class="weight-600">{{ request.name || '-' }}</td>
-										<td>{{ request.registration || '-' }}</td>
-										<td>
-											<mat-chip class="chip" [class]="clientRequestStatusClass(request.status)">
-												{{ formatStatus(request.status) }}
-											</mat-chip>
-										</td>
-										<td class="align-right">
-											<button mat-button type="button" (click)="openCreateClientRequestDialog(targetEntity.ORGANISATION)">Review</button>
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-						@if (!organisationRequestsList().length) {
-							<p class="empty-state table-empty">No corporate client requests found.</p>
-						}
-					</div>
-				</section>
-			</mat-tab>
-		</mat-tab-group>
-	</mat-card>
-
-	<footer class="vault-footer">
-		<div class="footer-brand">
-			<span class="logo-square">V</span>
-			<span>VaultOS | Knowvera KYC Engine</span>
-		</div>
-		<div class="footer-meta">
-			<p>&copy; 2026 VaultOS Security. All rights reserved.</p>
-			<p class="live-state"><span class="pulse"></span>System Operational</p>
-		</div>
-	</footer>
-</main>
+        <!-- Right Column: Contact Info -->
+        <div class="col-12 col-xl-4">
+          <section class="kyc-card">
+            <div class="kyc-card__header">
+              <div class="kyc-icon-badge">
+                <mat-icon>contact_mail</mat-icon>
+              </div>
+              <div>
+                <h2>Contact Information</h2>
+                <p>Communication channels and addresses</p>
+              </div>
+            </div>
+            <div class="kyc-card__body">
+              <div class="kyc-summary-list">
+                <div class="kyc-summary-item">
+                  <div class="flex-grow-1">
+                    <label class="kyc-field-label">Email</label>
+                    <p class="kyc-value" style="font-size: 0.9rem;">{{ organisation()?.contactEmailAddress || '-' }}</p>
+                  </div>
+                </div>
+                @for (phone of organisation()?.phoneNumbers || []; track phone.id; let i = $index) {
+                  @if (i < 2) {
+                    <div class="kyc-summary-item">
+                      <div class="flex-grow-1">
+                        <label class="kyc-field-label">{{ phone.type || 'Phone' }}</label>
+                        <p class="kyc-value" style="font-size: 0.9rem;">{{ phone.number || '-' }}</p>
+                      </div>
+                    </div>
+                  }
+                }
+                <div class="kyc-summary-item">
+                  <div class="flex-grow-1">
+                    <label class="kyc-field-label">Physical Address</label>
+                    <p class="kyc-value" style="font-size: 0.9rem; white-space: pre-wrap;">{{ organisation()?.physicalAddress || '-' }}</p>
+                  </div>
+                </div>
+                <div class="kyc-summary-item">
+                  <div class="flex-grow-1">
+                    <label class="kyc-field-label">Postal Address</label>
+                    <p class="kyc-value kyc-value--muted" style="font-size: 0.9rem; white-space: pre-wrap;">{{ organisation()?.postalAddress || 'Same as physical address' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    }
+  </main>
+</div>

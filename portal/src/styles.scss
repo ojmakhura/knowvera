@@ -45,131 +45,222 @@ body {
   height: 100%;
 }
 
-/* ===== ARCHITECTURAL VAULT DESIGN SYSTEM ===== */
+/* ===== CORPORATE PRECISION SYSTEM ===== */
 
 :root {
-  /* Colors */
-  --vault-primary: #001b44;
-  --vault-primary-container: #002f6c;
-  --vault-on-primary: #ffffff;
-  --vault-on-primary-container: #c8e0ff;
+  /* Colors - Surface and Neutral Tones */
+  --surface: #f8f9ff;
+  --surface-bright: #f8f9ff;
+  --surface-dim: #d1dbeb;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #eef4ff;
+  --surface-container: #e5efff;
+  --surface-container-high: #dfe9f9;
+  --surface-container-highest: #d9e3f3;
+  --surface-tint: #4c5e86;
+  --surface-variant: #d9e3f3;
+  --background: #f8f9ff;
 
-  --vault-surface: #faf8ff;
-  --vault-surface-bright: #faf8ff;
-  --vault-surface-dim: #d2d9f4;
-  --vault-surface-container-lowest: #ffffff;
-  --vault-surface-container-low: #f2f3ff;
-  --vault-surface-container: #eaedff;
-  --vault-surface-container-high: #e2e7ff;
-  --vault-surface-container-highest: #dae2fd;
-  --vault-surface-variant: #dae2fd;
-  --vault-on-surface: #131b2e;
-  --vault-on-surface-variant: #434750;
+  /* On-Surface Colors */
+  --on-surface: #121c28;
+  --on-surface-variant: #44464e;
+  --on-background: #121c28;
 
-  --vault-outline: #747781;
-  --vault-outline-variant: #c4c6d2;
-  --vault-outline-ghost: rgba(116, 119, 129, 0.2);
+  /* Inverse Colors */
+  --inverse-surface: #27313d;
+  --inverse-on-surface: #e9f1ff;
+  --inverse-primary: #b4c6f4;
 
-  --vault-secondary: #515f74;
-  --vault-secondary-container: #d5e3fc;
-  --vault-on-secondary: #ffffff;
-  --vault-on-secondary-container: #57657a;
+  /* Outlines */
+  --outline: #75777f;
+  --outline-variant: #c5c6cf;
 
-  --vault-tertiary: #371000;
-  --vault-tertiary-container: #591f00;
-  --vault-on-tertiary: #ffffff;
-  --vault-on-tertiary-container: #db835a;
+  /* Primary Colors - Deep Navy Blue */
+  --primary: #00081e;
+  --on-primary: #ffffff;
+  --primary-container: #0a1f44;
+  --on-primary-container: #7687b2;
+  --primary-fixed: #d9e2ff;
+  --primary-fixed-dim: #b4c6f4;
+  --on-primary-fixed: #041a3f;
+  --on-primary-fixed-variant: #34466d;
 
-  --vault-error: #ba1a1a;
-  --vault-error-container: #ffdad6;
-  --vault-on-error: #ffffff;
-  --vault-on-error-container: #93000a;
+  /* Secondary Colors - Emerald Green */
+  --secondary: #006c47;
+  --on-secondary: #ffffff;
+  --secondary-container: #6efcb9;
+  --on-secondary-container: #00734c;
+  --secondary-fixed: #6efcb9;
+  --secondary-fixed-dim: #4edf9f;
+  --on-secondary-fixed: #002113;
+  --on-secondary-fixed-variant: #005234;
 
-  /* Semantic status colors */
-  --vault-success: #106b34;
-  --vault-success-container: #dcfce7;
-  --vault-on-success: #166534;
-  --vault-warning: #8f6000;
-  --vault-warning-container: #fef9c3;
-  --vault-on-warning: #854d0e;
-  --vault-critical: #8d1616;
-  --vault-critical-container: #fee2e2;
-  --vault-on-critical: #991b1b;
-  --vault-info: #1b4f92;
-  --vault-info-container: #e7efff;
-  --vault-on-info: #414f70;
-  --vault-accent-success: #34f3a8;
+  /* Tertiary Colors - Gold */
+  --tertiary: #0d0700;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #2b1e00;
+  --on-tertiary-container: #ac8100;
+  --tertiary-fixed: #ffdf9d;
+  --tertiary-fixed-dim: #f9bd14;
+  --on-tertiary-fixed: #251a00;
+  --on-tertiary-fixed-variant: #5b4300;
 
-  --vault-surface-tint: #3c5d9c;
+  /* Error Colors */
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
 
-  /* Spacing */
-  --vault-spacing-2: 0.4rem;
-  --vault-spacing-3: 0.6rem;
-  --vault-spacing-4: 0.8rem;
-  --vault-spacing-5: 1rem;
-  --vault-spacing-6: 1.2rem;
-  --vault-spacing-7: 1.4rem;
-  --vault-spacing-8: 1.6rem;
-  --vault-spacing-10: 2rem;
-  --vault-spacing-12: 2.4rem;
-  --vault-spacing-16: 3.2rem;
-  --vault-spacing-20: 4rem;
-  --vault-spacing-24: 4.8rem;
-  --vault-spacing-40: 8rem;
+  /* Semantic Status Colors */
+  --success: #006c47;
+  --success-container: #6efcb9;
+  --on-success: #ffffff;
+  --on-success-container: #00734c;
+  
+  --warning: #ac8100;
+  --warning-container: #ffdf9d;
+  --on-warning: #ffffff;
+  --on-warning-container: #251a00;
+  
+  --critical: #ba1a1a;
+  --critical-container: #ffdad6;
+  --on-critical: #ffffff;
+  --on-critical-container: #93000a;
+  
+  --info: #4c5e86;
+  --info-container: #d9e2ff;
+  --on-info: #ffffff;
+  --on-info-container: #041a3f;
 
-  /* Typography */
-  --vault-font-headline: 'Manrope', sans-serif;
-  --vault-font-display: 'Manrope', sans-serif;
-  --vault-font-body: 'Inter', sans-serif;
+  /* Spacing - 8px Grid System */
+  --spacing-xs: 0.25rem; /* 4px */
+  --spacing-sm: 0.5rem;  /* 8px */
+  --spacing-md: 1rem;    /* 16px */
+  --spacing-lg: 1.5rem;  /* 24px */
+  --spacing-xl: 2rem;    /* 32px */
+  --spacing-xxl: 3rem;   /* 48px */
+  --spacing-gutter: 1.5rem; /* 24px */
+  --spacing-margin: 2rem; /* 32px */
 
-  --vault-headline-lg: 2.25rem;
-  --vault-headline-md: 1.75rem;
-  --vault-headline-sm: 1.5rem;
-  --vault-body-md: 1rem;
-  --vault-body-sm: 0.875rem;
-  --vault-body-xs: 0.75rem;
-  --vault-label-xs: 0.625rem;
-  --vault-label-sm: 0.75rem;
+  /* Typography - Poppins for Headlines, Inter for Body */
+  --font-headline: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Headline Styles */
+  --headline-h1-size: 3rem; /* 48px */
+  --headline-h1-weight: 600;
+  --headline-h1-line: 3.5rem; /* 56px */
+
+  --headline-h1-mobile-size: 2rem; /* 32px */
+  --headline-h1-mobile-weight: 600;
+  --headline-h1-mobile-line: 2.5rem; /* 40px */
+
+  --headline-h2-size: 2rem; /* 32px */
+  --headline-h2-weight: 600;
+  --headline-h2-line: 2.5rem; /* 40px */
+
+  --headline-h3-size: 1.5rem; /* 24px */
+  --headline-h3-weight: 500;
+  --headline-h3-line: 2rem; /* 32px */
+
+  /* Body Styles */
+  --body-lg-size: 1rem; /* 16px */
+  --body-lg-weight: 400;
+  --body-lg-line: 1.5rem; /* 24px */
+
+  --body-md-size: 0.875rem; /* 14px */
+  --body-md-weight: 400;
+  --body-md-line: 1.25rem; /* 20px */
+
+  /* Label and Button Styles */
+  --label-md-size: 0.875rem; /* 14px */
+  --label-md-weight: 500;
+  --label-md-line: 1.25rem; /* 20px */
+
+  --button-size: 0.875rem; /* 14px */
+  --button-weight: 500;
+  --button-line: 1.25rem; /* 20px */
+
+  /* Caption */
+  --caption-size: 0.75rem; /* 12px */
+  --caption-weight: 400;
+  --caption-line: 1rem; /* 16px */
 
   /* Border Radius */
-  --vault-radius-sm: 0.25rem;
-  --vault-radius-md: 0.375rem;
-  --vault-radius-lg: 0.5rem;
-  --vault-radius-full: 9999px;
+  --radius-sm: 0.25rem;
+  --radius-DEFAULT: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
 
   /* Shadows */
-  --vault-ambient-shadow: 0 12px 32px rgba(19, 27, 46, 0.06);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.16);
 
   /* Gradients */
-  --vault-primary-gradient: linear-gradient(132deg, #001b44 0%, #002f6c 100%);
+  --primary-gradient: linear-gradient(132deg, #00081e 0%, #0a1f44 100%);
 
-  /* Compatibility aliases for legacy styles */
-  --primary: var(--vault-primary);
-  --primary-container: var(--vault-primary-container);
-  --on-primary-container: var(--vault-on-primary-container);
-  --surface: var(--vault-surface);
-  --surface-container-lowest: var(--vault-surface-container-lowest);
-  --surface-container-low: var(--vault-surface-container-low);
-  --surface-container: var(--vault-surface-container);
-  --surface-container-high: var(--vault-surface-container-high);
-  --on-surface: var(--vault-on-surface);
-  --on-surface-variant: var(--vault-on-surface-variant);
-  --outline-variant: var(--vault-outline-variant);
-  --error: var(--vault-error);
-  --error-container: var(--vault-error-container);
-  --on-error-container: var(--vault-on-error-container);
-  --success: var(--vault-success);
-  --success-container: var(--vault-success-container);
-  --on-success: var(--vault-on-success);
-  --warning: var(--vault-warning);
-  --warning-container: var(--vault-warning-container);
-  --on-warning: var(--vault-on-warning);
-  --critical: var(--vault-critical);
-  --critical-container: var(--vault-critical-container);
-  --on-critical: var(--vault-on-critical);
-  --info: var(--vault-info);
-  --info-container: var(--vault-info-container);
-  --on-info: var(--vault-on-info);
+  /* Design System Specific Colors */
+  --corporate-navy: #0a1f44;
+  --emerald-green: #00b67a;
+  --light-gray: #f8f9ff;
+  --text-dark: #121c28;
+  --text-muted: #44464e;
+  --border-color: #c5c6cf;
+  --font-poppins: 'Poppins', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+
+  /* Legacy aliases for compatibility */
+  --vault-primary: var(--primary);
+  --vault-primary-container: var(--primary-container);
+  --vault-on-primary: var(--on-primary);
+  --vault-on-primary-container: var(--on-primary-container);
+  --vault-surface: var(--surface);
+  --vault-surface-bright: var(--surface-bright);
+  --vault-surface-dim: var(--surface-dim);
+  --vault-surface-container-lowest: var(--surface-container-lowest);
+  --vault-surface-container-low: var(--surface-container-low);
+  --vault-surface-container: var(--surface-container);
+  --vault-surface-container-high: var(--surface-container-high);
+  --vault-surface-container-highest: var(--surface-container-highest);
+  --vault-surface-variant: var(--surface-variant);
+  --vault-on-surface: var(--on-surface);
+  --vault-on-surface-variant: var(--on-surface-variant);
+  --vault-outline: var(--outline);
+  --vault-outline-variant: var(--outline-variant);
+  --vault-outline-ghost: rgba(75, 94, 134, 0.2);
+  --vault-secondary: var(--secondary);
+  --vault-secondary-container: var(--secondary-container);
+  --vault-on-secondary: var(--on-secondary);
+  --vault-on-secondary-container: var(--on-secondary-container);
+  --vault-tertiary: var(--tertiary);
+  --vault-tertiary-container: var(--tertiary-container);
+  --vault-on-tertiary: var(--on-tertiary);
+  --vault-on-tertiary-container: var(--on-tertiary-container);
+  --vault-error: var(--error);
+  --vault-error-container: var(--error-container);
+  --vault-on-error: var(--on-error);
+  --vault-on-error-container: var(--on-error-container);
+  --vault-success: var(--success);
+  --vault-success-container: var(--success-container);
+  --vault-on-success: var(--on-success);
+  --vault-warning: var(--warning);
+  --vault-warning-container: var(--warning-container);
+  --vault-on-warning: var(--on-warning);
+  --vault-critical: var(--critical);
+  --vault-critical-container: var(--critical-container);
+  --vault-on-critical: var(--on-critical);
+  --vault-info: var(--info);
+  --vault-info-container: var(--info-container);
+  --vault-on-info: var(--on-info);
+  --vault-accent-success: var(--secondary);
+  --vault-surface-tint: var(--surface-tint);
+  --vault-primary-gradient: var(--primary-gradient);
+  --vault-font-headline: var(--font-headline);
+  --vault-font-body: var(--font-body);
 }
 
 /* Material Symbols Outlined */
@@ -197,7 +288,7 @@ body {
 body {
   background-color: var(--surface);
   color: var(--on-surface);
-  font-family: var(--vault-font-body);
+  font-family: var(--font-body);
 }
 
 .bg-surface {
@@ -222,13 +313,13 @@ body {
 }
 
 .rounded-xl {
-  border-radius: 0.75rem;
+  border-radius: var(--radius-xl); /* 1.5rem */
 }
 .ring-1 {
   box-shadow: 0 0 0 1px var(--outline-variant);
 }
 .shadow-sm {
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .tracking-tight {

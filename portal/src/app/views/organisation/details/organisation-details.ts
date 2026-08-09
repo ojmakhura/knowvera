@@ -143,6 +143,16 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   toaster: ToastrService = inject(ToastrService);
 
+  // Tab management
+  activeTab = signal(0);
+  operationsTabs = [
+    { label: 'Compliance Archive', id: 'archive' },
+    { label: 'Service Subscriptions', id: 'subscriptions' },
+    { label: 'Global Branches', id: 'branches' },
+    { label: 'Individual Client KYC', id: 'individual-kyc' },
+    { label: 'Corporate Client KYC', id: 'corporate-kyc' }
+  ];
+
   constructor() {
     effect(() => {
       const page = this.clientRequestsTableSignal();
@@ -615,6 +625,10 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/organisation/edit']);
   }
 
+  goBack(): void {
+    this.router.navigate(['/organisation']);
+  }
+
   openNewAudit(): void {
     this.toaster.info('Audit workflow will be available soon.');
   }
@@ -706,5 +720,9 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       .join('');
 
     return initials || 'ORG';
+  }
+
+  setActiveTab(index: number): void {
+    this.activeTab.set(index);
   }
 }

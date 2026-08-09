@@ -1,871 +1,879 @@
 <div class="settings-page">
   <app-loader [isLoading]="loading()" [message]="'Loading settings...'" [size]="'medium'"></app-loader>
 
-  <header class="settings-header">
-    <div class="header-brand">
-      <div class="brand-mark">
-        <mat-icon>security</mat-icon>
-      </div>
-
-      <div>
+  <div class="settings-main">
+    <header class="settings-topbar">
+      <div class="topbar-title">
         <h1>System Settings Editor</h1>
-        <p>KYC Configuration Hub</p>
-      </div>
-    </div>
-
-    <div class="header-actions">
-      <button mat-stroked-button type="button" (click)="resetForm()">Discard Changes</button>
-      <button mat-flat-button color="primary" type="button" (click)="saveSettings()" [disabled]="editSettingsSignalForm().invalid()">
-        <mat-icon>save</mat-icon>
-        Save Configuration
-      </button>
-    </div>
-  </header>
-
-  <section class="overview-grid">
-    <mat-card class="vault-card identity-card">
-      <mat-card-header>
-        <mat-icon mat-card-avatar>fingerprint</mat-icon>
-        <mat-card-title>Platform Identity</mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="field-grid two-column">
-          <mat-form-field class="vault-field">
-            <mat-label>Platform Name</mat-label>
-            <input matInput [formField]="editSettingsSignalForm.platformName" id="platformName" />
-          </mat-form-field>
-
-          <mat-form-field class="vault-field">
-            <mat-label>Platform URL</mat-label>
-            <input matInput [formField]="editSettingsSignalForm.platformUrl" id="platformUrl" />
-          </mat-form-field>
-
-          <mat-form-field class="vault-field">
-            <mat-label>KYC Portal Link</mat-label>
-            <input matInput [formField]="editSettingsSignalForm.kycPortalLink" id="kycPortalLink" />
-          </mat-form-field>
-
-          <mat-form-field class="vault-field">
-            <mat-label>Support Contact</mat-label>
-            <input matInput type="email" [formField]="editSettingsSignalForm.supportContact" id="supportContact" />
-          </mat-form-field>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="vault-card metrics-card">
-      <mat-card-header>
-        <mat-icon mat-card-avatar>speed</mat-icon>
-        <mat-card-title>Operational Metrics</mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="metrics-stack">
-          <div class="metric-block">
-            <div class="metric-label-row">
-              <span>KYC Duration (Years)</span>
-              <strong>{{ editSettingsSignal().kycDuration || 0 }}</strong>
-            </div>
-
-            <mat-slider min="1" max="5" step="1" discrete class="metric-slider">
-              <input matSliderThumb [formField]="editSettingsSignalForm.kycDuration" id="kycDuration" />
-            </mat-slider>
-          </div>
-
-          <mat-form-field class="vault-field">
-            <mat-label>Time to Account Creation</mat-label>
-            <input matInput type="number" [formField]="editSettingsSignalForm.timeToAccountCreation">
-          </mat-form-field>
-
-          <div class="access-grid">
-            <mat-form-field class="vault-field">
-              <mat-label>Organisation Admin Role</mat-label>
-              <mat-select [formField]="editSettingsSignalForm.organisationAdminRole" id="organisationAdminRole">
-                @for (role of roleOptions; track role) {
-                <mat-option [value]="role">{{ role }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field class="vault-field">
-              <mat-label>Normal User Role</mat-label>
-              <mat-select [formField]="editSettingsSignalForm.normalUserRole" id="normalUserRole">
-                @for (role of roleOptions; track role) {
-                <mat-option [value]="role">{{ role }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-
-          <!-- <div class="summary-chip-row">
-						<mat-chip-set>
-							<mat-chip>Creation: {{ accountCreationLabel }}</mat-chip>
-							<mat-chip>Admin: {{ settingsForm.organisationAdminRole || 'Unset' }}</mat-chip>
-						</mat-chip-set>
-					</div> -->
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </section>
-
-  <mat-card class="vault-card">
-    <mat-card-header>
-      <mat-icon mat-card-avatar>description</mat-icon>
-      <mat-card-title>Document Requirements</mat-card-title>
-      <mat-card-subtitle>Manage mandatory documentation for each verification flow.</mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content>
-      <div class="section-tools">
-        <mat-form-field class="vault-field filter-field">
-          <mat-label>Filter lists</mat-label>
-          <input matInput [(ngModel)]="documentFilter" name="documentFilter" />
-          <mat-icon matSuffix>filter_list</mat-icon>
-        </mat-form-field>
+        <p>Corporate precision configuration hub</p>
       </div>
 
-      <div class="requirements-grid">
-        <article class="requirement-card">
-          <div class="requirement-head">
-            <h3>Individual Docs</h3>
-          </div>
-
-          <div class="requirement-add-row">
-            <mat-form-field class="vault-field compact-field">
-              <mat-label>Add document</mat-label>
-              <mat-select [formField]="editSettingsSignalForm.selectedIndDocument" id="selectedIndividualDocumentId">
-                <mat-option>
-                  <ngx-mat-select-search [placeholderLabel]="'Search'"
-                    [formField]="editSettingsSignalForm.selectedIndDocumentFilter"
-                    (keyup.enter)="filterSelectedIndDocument()"
-                    [noEntriesFoundLabel]="'No Entries Found'"></ngx-mat-select-search>
-                  <button mat-flat-button type="button" color="primary"
-                    (click)="filterSelectedIndDocument()">Search</button>
-                </mat-option>
-                @for (item of selectedIndDocumentFilteredList(); track item.id) {
-                <mat-option [value]="item">{{ item.name
-                  }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <button mat-icon-button type="button" (click)="addDocumentRequirement(documentTypePurpose.INDIVIDUAL)">
-              <mat-icon>add_circle</mat-icon>
-            </button>
-          </div>
-
-          <div class="requirement-list">
-            @for (item of editSettingsSignal().individualDocuments; track item.id) {
-            <div class="requirement-item">
-              <span>{{ item.name }}</span>
-              <button mat-icon-button type="button" color="warn"
-                (click)="removeDocumentRequirement(documentTypePurpose.INDIVIDUAL, item)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-            } @empty {
-            <p class="empty-copy">No individual documents configured.</p>
-            }
-          </div>
-        </article>
-
-        <article class="requirement-card">
-          <div class="requirement-head">
-            <h3>Organisation Docs</h3>
-          </div>
-
-          <div class="requirement-add-row">
-            <mat-form-field class="vault-field compact-field">
-              <mat-label>Add document</mat-label>
-              <mat-select [formField]="editSettingsSignalForm.selectedOrgDocument" id="selectedOrganisationDocumentId">
-                <mat-option>
-                  <ngx-mat-select-search [placeholderLabel]="'Search'"
-                    [formField]="editSettingsSignalForm.selectedOrgDocumentFilter"
-                    (keyup.enter)="filterSelectedOrgDocument()"
-                    [noEntriesFoundLabel]="'No Entries Found'"></ngx-mat-select-search>
-                  <button mat-flat-button type="button" color="primary"
-                    (click)="filterSelectedOrgDocument()">Search</button>
-                </mat-option>
-                @for (item of selectedOrgDocumentFilteredList(); track item.id) {
-                <mat-option [value]="item">{{ item.name
-                  }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <button mat-icon-button type="button" (click)="addDocumentRequirement(documentTypePurpose.ORGANISATION)">
-              <mat-icon>add_circle</mat-icon>
-            </button>
-          </div>
-
-          <div class="requirement-list">
-            @for (item of editSettingsSignal().organisationDocuments; track item.id) {
-            <div class="requirement-item">
-              <span>{{ item.name }}</span>
-              <button mat-icon-button type="button" color="warn"
-                (click)="removeDocumentRequirement(documentTypePurpose.ORGANISATION, item)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-            } @empty {
-            <p class="empty-copy">No organisation documents configured.</p>
-            }
-          </div>
-        </article>
-
-        <article class="requirement-card">
-          <div class="requirement-head">
-            <h3>Org KYC Suite</h3>
-          </div>
-
-          <div class="requirement-add-row">
-            <mat-form-field class="vault-field compact-field">
-              <mat-label>Add document</mat-label>
-              <mat-select [formField]="editSettingsSignalForm.selectedKycOrgDocument"
-                id="selectedOrganisationKycDocumentId">
-                <mat-option>
-                  <ngx-mat-select-search [placeholderLabel]="'Search'"
-                    [formField]="editSettingsSignalForm.selectedKycOrgDocumentFilter"
-                    (keyup.enter)="filterSelectedKycOrgDocument()"
-                    [noEntriesFoundLabel]="'No Entries Found'"></ngx-mat-select-search>
-                  <button mat-flat-button type="button" color="primary"
-                    (click)="filterSelectedKycOrgDocument()">Search</button>
-                </mat-option>
-                @for (item of selectedKycOrgDocumentFilteredList(); track item.id) {
-                <mat-option [value]="item">{{ item.name
-                  }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <button mat-icon-button type="button"
-              (click)="addDocumentRequirement(documentTypePurpose.ORGANISATION_KYC)">
-              <mat-icon>add_circle</mat-icon>
-            </button>
-          </div>
-
-          <div class="requirement-list">
-            @for (item of editSettingsSignal().orgKycDocuments; track item.id) {
-            <div class="requirement-item highlighted">
-              <span>{{ item.name }}</span>
-              <button mat-icon-button type="button" color="warn"
-                (click)="removeDocumentRequirement(documentTypePurpose.ORGANISATION_KYC, item)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-            } @empty {
-            <p class="empty-copy">No organisation KYC documents configured.</p>
-            }
-          </div>
-        </article>
-
-        <article class="requirement-card">
-          <div class="requirement-head">
-            <h3>Ind. KYC Suite</h3>
-          </div>
-
-          <div class="requirement-add-row">
-            <mat-form-field class="vault-field compact-field">
-              <mat-label>Add document</mat-label>
-              <mat-select [formField]="editSettingsSignalForm.selectedKycIndDocument"
-                id="selectedIndividualKycDocumentId">
-                <mat-option>
-                  <ngx-mat-select-search [placeholderLabel]="'Search'"
-                    [formField]="editSettingsSignalForm.selectedKycIndDocumentFilter"
-                    (keyup.enter)="filterSelectedKycIndDocument()"
-                    [noEntriesFoundLabel]="'No Entries Found'"></ngx-mat-select-search>
-                  <button mat-flat-button type="button" color="primary"
-                    (click)="filterSelectedKycIndDocument()">Search</button>
-                </mat-option>
-                @for (item of selectedKycIndDocumentFilteredList(); track item.id) {
-                <mat-option [value]="item">{{ item.name
-                  }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <button mat-icon-button type="button" (click)="addDocumentRequirement(documentTypePurpose.INDIVIDUAL_KYC)">
-              <mat-icon>add_circle</mat-icon>
-            </button>
-          </div>
-
-          <div class="requirement-list">
-            @for (item of editSettingsSignal().indKycDocuments; track item.id) {
-            <div class="requirement-item highlighted">
-              <span>{{ item.name }}</span>
-              <button mat-icon-button type="button" color="warn"
-                (click)="removeDocumentRequirement(documentTypePurpose.INDIVIDUAL_KYC, item)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-            } @empty {
-            <p class="empty-copy">No individual KYC documents configured.</p>
-            }
-          </div>
-        </article>
+      <div class="topbar-actions">
+        <button mat-stroked-button type="button" (click)="resetForm()">
+          <mat-icon>cancel</mat-icon>
+          Discard Changes
+        </button>
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="saveSettings()"
+          [disabled]="editSettingsSignalForm().invalid()"
+        >
+          <mat-icon>check_circle</mat-icon>
+          Save Configuration
+        </button>
       </div>
+    </header>
 
-      <section class="kyc-fields-section">
-        <div class="requirement-head">
-          <h3>KYC Field Groups</h3>
-        </div>
+    <div class="settings-content">
+      <section class="overview-grid">
+        <mat-card class="vault-card identity-card" id="identity">
+          <mat-card-header class="section-heading">
+            <div class="section-heading-copy">
+              <h2>Platform Identity</h2>
+              <p>Configure the environment and support endpoints.</p>
+            </div>
+            <mat-icon mat-card-avatar>shield</mat-icon>
+          </mat-card-header>
 
-        <mat-tab-group class="kyc-fields-tabs" animationDuration="0ms">
-          <mat-tab label="Individual KYC Field Groups">
-            <div class="kyc-fields-pane">
+          <mat-card-content>
+            <div class="identity-stack">
+              <mat-form-field class="vault-field" appearance="outline">
+                <mat-label>Instance Name</mat-label>
+                <input matInput [formField]="editSettingsSignalForm.platformName" id="platformName" />
+              </mat-form-field>
+
+              <div class="identity-meta-grid">
+                <mat-form-field class="vault-field" appearance="outline">
+                  <mat-label>Environment</mat-label>
+                  <mat-select [value]="'Production'" disabled>
+                    <mat-option value="Production">Production</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <div class="identity-version">
+                  <span>Version</span>
+                  <strong>4.12.0-stable</strong>
+                </div>
+              </div>
+
+              <div class="field-grid two-column compact-fields">
+                <mat-form-field class="vault-field" appearance="outline">
+                  <mat-label>Platform URL</mat-label>
+                  <input matInput [formField]="editSettingsSignalForm.platformUrl" id="platformUrl" />
+                </mat-form-field>
+
+                <mat-form-field class="vault-field" appearance="outline">
+                  <mat-label>KYC Portal Link</mat-label>
+                  <input matInput [formField]="editSettingsSignalForm.kycPortalLink" id="kycPortalLink" />
+                </mat-form-field>
+              </div>
+
+              <mat-form-field class="vault-field" appearance="outline">
+                <mat-label>Support Contact</mat-label>
+                <input matInput type="email" [formField]="editSettingsSignalForm.supportContact" id="supportContact" />
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="vault-card metrics-card" id="metrics">
+          <mat-card-header class="section-heading">
+            <div class="section-heading-copy">
+              <h2>Operational Metrics</h2>
+              <p>Track cadence, account setup timing, and roles.</p>
+            </div>
+            <mat-icon mat-card-avatar>query_stats</mat-icon>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="metrics-stack">
+              <div class="metric-grid">
+                <div class="metric-tile status-tile">
+                  <span>Status</span>
+                  <strong><i class="status-dot"></i> Active</strong>
+                </div>
+                <div class="metric-tile">
+                  <span>Latency</span>
+                  <strong>42ms</strong>
+                </div>
+                <div class="metric-tile">
+                  <span>Queue</span>
+                  <strong>0</strong>
+                </div>
+              </div>
+
+              <div class="quota-block">
+                <div class="metric-label-row">
+                  <span>Daily Quota</span>
+                  <strong>84%</strong>
+                </div>
+                <div class="quota-bar" aria-hidden="true">
+                  <span></span>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </section>
+
+      <mat-card class="vault-card requirements-card" id="requirements">
+        <mat-card-header class="section-heading">
+          <div class="section-heading-copy">
+            <h2>Document Requirements</h2>
+            <p>Configure mandatory documentation across entity types.</p>
+          </div>
+          <div class="section-nav-buttons">
+            <button mat-icon-button type="button" aria-label="Scroll document groups left">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <button mat-icon-button type="button" aria-label="Scroll document groups right">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="requirements-grid custom-scrollbar">
+            <article class="requirement-card">
+              <div class="requirement-head">
+                <div>
+                  <h3>Individual</h3>
+                  <p>{{ documentNames(editSettingsSignal().individualDocuments) }}</p>
+                </div>
+                <mat-icon>person</mat-icon>
+              </div>
+
+              <div class="requirement-list">
+                @for (item of editSettingsSignal().individualDocuments; track item.id) {
+                  <div class="requirement-item">
+                    <span>{{ item.name }}</span>
+                    <mat-checkbox checked disabled></mat-checkbox>
+                  </div>
+                } @empty {
+                  <p class="empty-copy">No individual documents configured.</p>
+                }
+              </div>
+
               <div class="requirement-add-row">
+                <mat-form-field class="vault-field compact-field" appearance="outline">
+                  <mat-label>Add document</mat-label>
+                  <mat-select [formField]="editSettingsSignalForm.selectedIndDocument" id="selectedIndividualDocumentId">
+                    <mat-option>
+                      <ngx-mat-select-search
+                        [placeholderLabel]="'Search'"
+                        [formField]="editSettingsSignalForm.selectedIndDocumentFilter"
+                        (keyup.enter)="filterSelectedIndDocument()"
+                        [noEntriesFoundLabel]="'No Entries Found'"
+                      ></ngx-mat-select-search>
+                      <button mat-flat-button type="button" color="primary" (click)="filterSelectedIndDocument()">Search</button>
+                    </mat-option>
+                    @for (item of selectedIndDocumentFilteredList(); track item.id) {
+                      <mat-option [value]="item">{{ item.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <button mat-icon-button type="button" (click)="addDocumentRequirement(documentTypePurpose.INDIVIDUAL)">
+                  <mat-icon>add_circle</mat-icon>
+                </button>
+              </div>
+            </article>
+
+            <article class="requirement-card">
+              <div class="requirement-head">
+                <div>
+                  <h3>Organisation</h3>
+                  <p>{{ documentNames(editSettingsSignal().organisationDocuments) }}</p>
+                </div>
+                <mat-icon>business</mat-icon>
+              </div>
+
+              <div class="requirement-list">
+                @for (item of editSettingsSignal().organisationDocuments; track item.id) {
+                  <div class="requirement-item">
+                    <span>{{ item.name }}</span>
+                    <mat-checkbox checked disabled></mat-checkbox>
+                  </div>
+                } @empty {
+                  <p class="empty-copy">No organisation documents configured.</p>
+                }
+              </div>
+
+              <div class="requirement-add-row">
+                <mat-form-field class="vault-field compact-field" appearance="outline">
+                  <mat-label>Add document</mat-label>
+                  <mat-select [formField]="editSettingsSignalForm.selectedOrgDocument" id="selectedOrganisationDocumentId">
+                    <mat-option>
+                      <ngx-mat-select-search
+                        [placeholderLabel]="'Search'"
+                        [formField]="editSettingsSignalForm.selectedOrgDocumentFilter"
+                        (keyup.enter)="filterSelectedOrgDocument()"
+                        [noEntriesFoundLabel]="'No Entries Found'"
+                      ></ngx-mat-select-search>
+                      <button mat-flat-button type="button" color="primary" (click)="filterSelectedOrgDocument()">Search</button>
+                    </mat-option>
+                    @for (item of selectedOrgDocumentFilteredList(); track item.id) {
+                      <mat-option [value]="item">{{ item.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <button mat-icon-button type="button" (click)="addDocumentRequirement(documentTypePurpose.ORGANISATION)">
+                  <mat-icon>add_circle</mat-icon>
+                </button>
+              </div>
+            </article>
+
+            <article class="requirement-card">
+              <div class="requirement-head">
+                <div>
+                  <h3>KYC Suites</h3>
+                  <p>{{ kycDocumentNames() }}</p>
+                </div>
+                <mat-icon>assignment</mat-icon>
+              </div>
+
+              <div class="requirement-list stacked">
+                <div class="requirement-group">
+                  <span class="requirement-group-label">Organisation KYC</span>
+                  @for (item of editSettingsSignal().orgKycDocuments; track item.id) {
+                    <div class="requirement-item">
+                      <span>{{ item.name }}</span>
+                      <mat-checkbox checked disabled></mat-checkbox>
+                    </div>
+                  } @empty {
+                    <p class="empty-copy">No organisation KYC documents configured.</p>
+                  }
+                </div>
+
+                <div class="requirement-group">
+                  <span class="requirement-group-label">Individual KYC</span>
+                  @for (item of editSettingsSignal().indKycDocuments; track item.id) {
+                    <div class="requirement-item">
+                      <span>{{ item.name }}</span>
+                      <mat-checkbox checked disabled></mat-checkbox>
+                    </div>
+                  } @empty {
+                    <p class="empty-copy">No individual KYC documents configured.</p>
+                  }
+                </div>
+              </div>
+
+              <div class="requirement-add-row">
+                <mat-form-field class="vault-field compact-field" appearance="outline">
+                  <mat-label>Add document</mat-label>
+                  <mat-select [formField]="editSettingsSignalForm.selectedKycOrgDocument" id="selectedOrganisationKycDocumentId">
+                    <mat-option>
+                      <ngx-mat-select-search
+                        [placeholderLabel]="'Search'"
+                        [formField]="editSettingsSignalForm.selectedKycOrgDocumentFilter"
+                        (keyup.enter)="filterSelectedKycOrgDocument()"
+                        [noEntriesFoundLabel]="'No Entries Found'"
+                      ></ngx-mat-select-search>
+                      <button mat-flat-button type="button" color="primary" (click)="filterSelectedKycOrgDocument()">Search</button>
+                    </mat-option>
+                    @for (item of selectedKycOrgDocumentFilteredList(); track item.id) {
+                      <mat-option [value]="item">{{ item.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <button mat-icon-button type="button" (click)="addDocumentRequirement(documentTypePurpose.ORGANISATION_KYC)">
+                  <mat-icon>add_circle</mat-icon>
+                </button>
+              </div>
+            </article>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="vault-card kyc-card" id="kyc">
+        <mat-card-header class="section-heading">
+          <div class="section-heading-copy">
+            <h2>KYC Field Groups</h2>
+            <p>Structure the field collection for each verification journey.</p>
+          </div>
+
+          <div class="kyc-view-toggle" role="tablist" aria-label="KYC field group view">
+            <button
+              mat-stroked-button
+              type="button"
+              [class.active]="kycFieldGroupView() === 'individual'"
+              (click)="setKycFieldGroupView('individual')"
+            >
+              Individual
+            </button>
+            <button
+              mat-stroked-button
+              type="button"
+              [class.active]="kycFieldGroupView() === 'organisation'"
+              (click)="setKycFieldGroupView('organisation')"
+            >
+              Organisation
+            </button>
+          </div>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="kyc-fields-pane">
+            <div class="section-action-row">
+              @if (kycFieldGroupView() === 'individual') {
                 <button mat-raised-button color="primary" type="button" (click)="openAddFieldGroupDialog()">
                   <mat-icon>add</mat-icon>
                   Add Field Group
                 </button>
-              </div>
-
-              <div class="field-groups-container">
-                @for (group of editSettingsSignal().individualKycFieldGroups; let i = $index; track group.id || i) {
-                <mat-card class="field-group-card">
-                  <mat-card-header>
-                    <div class="group-header">
-                      <div class="group-info">
-                        <h3>{{ group.label || 'Individual KYC Group' }}</h3>
-                        @if (group.description) {
-                          <p class="group-description">{{ group.description }}</p>
-                        }
-                        <span class="group-position"><mat-icon>tag</mat-icon>Position: {{ group.position ?? '—' }}</span>
-                      </div>
-                      <div class="group-actions">
-                        <button mat-icon-button type="button" (click)="editFieldGroup(group)" matTooltip="Edit">
-                          <mat-icon>edit</mat-icon>
-                        </button>
-                        <button mat-icon-button type="button" color="warn" (click)="deleteFieldGroup(group)" matTooltip="Delete">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </div>
-                    </div>
-                  </mat-card-header>
-
-                  <mat-card-content>
-                    <details class="fields-list" closed>
-                      <summary>Fields ({{ (group.groupFields || []).length }})</summary>
-                      @if ((group.groupFields || []).length > 0) {
-                        @for (field of group.groupFields; let j = $index; track field.id || j) {
-                          <div class="field-item">
-                            <mat-icon>check_circle</mat-icon>
-                            <span>{{ expectedFieldLabel(field) }} : {{ field.documentType }}</span>
-                            <button
-                              mat-icon-button
-                              type="button"
-                              color="warn"
-                              (click)="removeGroupField(false, field, i)"
-                              matTooltip="Remove field"
-                              aria-label="Remove field from group"
-                            >
-                              <mat-icon>close</mat-icon>
-                            </button>
-                          </div>
-                        }
-                      } @else {
-                        <p class="no-fields">No fields in this group</p>
-                      }
-                    </details>
-                  </mat-card-content>
-                </mat-card>
-                } @empty {
-                <p class="empty-copy">No individual KYC field groups configured. Click "Add Field Group" to create one.</p>
-                }
-              </div>
-            </div>
-          </mat-tab>
-
-          <mat-tab label="Organisation KYC Field Groups">
-            <div class="kyc-fields-pane">
-              <div class="requirement-add-row">
+              } @else {
                 <button mat-raised-button color="primary" type="button" (click)="openAddOrganisationFieldGroupDialog()">
                   <mat-icon>add</mat-icon>
                   Add Field Group
                 </button>
-              </div>
+              }
+            </div>
 
-              <div class="field-groups-container">
-                @for (group of editSettingsSignal().organisationKycFieldGroups; let i = $index; track group.id || $index) {
-                <mat-card class="field-group-card">
-                  <mat-card-header>
-                    <div class="group-header">
-                      <div class="group-info">
-                        <h3>{{ group.label || 'Organisation KYC Group' }}</h3>
-                        @if (group.description) {
-                          <p class="group-description">{{ group.description }}</p>
-                        }
-                        <span class="group-position"><mat-icon>tag</mat-icon>Position: {{ group.position ?? '—' }}</span>
+            <div class="field-groups-container">
+              @if (kycFieldGroupView() === 'individual') {
+                @for (group of editSettingsSignal().individualKycFieldGroups; let i = $index; track group.id || i) {
+                  <mat-card class="field-group-card">
+                    <mat-card-header>
+                      <div class="group-header">
+                        <div class="group-info">
+                          <h3>{{ group.label || 'Individual KYC Group' }}</h3>
+                          @if (group.description) {
+                            <p class="group-description">{{ group.description }}</p>
+                          }
+                          <span class="group-position"><mat-icon>tag</mat-icon>Position: {{ group.position ?? '—' }}</span>
+                        </div>
+                        <div class="group-actions">
+                          <button mat-icon-button type="button" (click)="editFieldGroup(group)" matTooltip="Edit">
+                            <mat-icon>edit</mat-icon>
+                          </button>
+                          <button mat-icon-button type="button" color="warn" (click)="deleteFieldGroup(group)" matTooltip="Delete">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
                       </div>
-                      <div class="group-actions">
-                        <button mat-icon-button type="button" (click)="editOrganisationFieldGroup(group)" matTooltip="Edit">
-                          <mat-icon>edit</mat-icon>
-                        </button>
-                        <button mat-icon-button type="button" color="warn" (click)="deleteFieldGroup(group)" matTooltip="Delete">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </div>
-                    </div>
-                  </mat-card-header>
+                    </mat-card-header>
 
-                  <mat-card-content>
-                    <details class="fields-list" closed>
-                      <summary>Fields ({{ (group.groupFields || []).length }})</summary>
-                      @if ((group.groupFields || []).length > 0) {
-                        @for (field of group.groupFields; let j = $index; track field.id || $index) {
-                          <div class="field-item">
-                            <mat-icon>check_circle</mat-icon>
-                            <span>{{ expectedFieldLabel(field) }}</span>
-                            <button
-                              mat-icon-button
-                              type="button"
-                              color="warn"
-                              (click)="removeGroupField(false, field, i)"
-                              matTooltip="Remove field"
-                              aria-label="Remove field from group"
-                            >
-                              <mat-icon>close</mat-icon>
-                            </button>
-                          </div>
-                        }
-                      } @else {
-                        <p class="no-fields">No fields in this group</p>
-                      }
-                    </details>
-                  </mat-card-content>
-                </mat-card>
+                    <mat-card-content>
+                      <div class="group-preview">
+                        <div class="group-preview-head">
+                          <mat-icon>visibility</mat-icon>
+                          <span>{{ groupFieldPreview(group) }}</span>
+                        </div>
+                        <button mat-stroked-button type="button">Show {{ groupFieldCount(group) }} Fields</button>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
                 } @empty {
-                <p class="empty-copy">No organisation KYC field groups configured. Click "Add Field Group" to create one.</p>
+                  <p class="empty-copy">No individual KYC field groups configured. Click "Add Field Group" to create one.</p>
                 }
-              </div>
-            </div>
-          </mat-tab>
-        </mat-tab-group>
-      </section>
-
-      <section class="tool-selector-section">
-        <div class="requirement-head">
-          <h3>Tool Selectors</h3>
-        </div>
-
-        <mat-tab-group class="tool-selector-tabs" animationDuration="0ms">
-          <mat-tab label="Text Extraction Tools">
-            <div class="tool-selector-pane">
-              <div class="requirement-add-row">
-                <button mat-raised-button color="primary" type="button" (click)="openAddToolSelectorDialog('textExtractionTools')">
-                  <mat-icon>add</mat-icon>
-                  Add Tool
-                </button>
-              </div>
-
-              @if (editSettingsSignal().textExtractionTools.length > 0) {
-              <div class="tool-selector-table-wrap">
-                <table class="tool-selector-table">
-                  <thead>
-                    <tr>
-                      <th>Position</th>
-                      <th>Tool</th>
-                      <th class="actions-col">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (item of editSettingsSignal().textExtractionTools; track item.id || i; let i = $index) {
-                    <tr>
-                      <td>{{ i + 1 }}</td>
-                      <td>{{ item.tool || '-' }}</td>
-                      <td class="actions-col">
-                        <button mat-icon-button type="button" (click)="moveToolSelectorUp('textExtractionTools', i)" [disabled]="i === 0">
-                          <mat-icon>arrow_upward</mat-icon>
-                        </button>
-                        <button mat-icon-button type="button" (click)="moveToolSelectorDown('textExtractionTools', i)" [disabled]="i === editSettingsSignal().textExtractionTools.length - 1">
-                          <mat-icon>arrow_downward</mat-icon>
-                        </button>
-                        <button mat-icon-button color="warn" type="button" (click)="removeToolSelector('textExtractionTools', i)">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </td>
-                    </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
               } @else {
-              <p class="empty-copy">No text extraction tools configured.</p>
-              }
-            </div>
-          </mat-tab>
+                @for (group of editSettingsSignal().organisationKycFieldGroups; let i = $index; track group.id || i) {
+                  <mat-card class="field-group-card">
+                    <mat-card-header>
+                      <div class="group-header">
+                        <div class="group-info">
+                          <h3>{{ group.label || 'Organisation KYC Group' }}</h3>
+                          @if (group.description) {
+                            <p class="group-description">{{ group.description }}</p>
+                          }
+                          <span class="group-position"><mat-icon>tag</mat-icon>Position: {{ group.position ?? '—' }}</span>
+                        </div>
+                        <div class="group-actions">
+                          <button mat-icon-button type="button" (click)="editOrganisationFieldGroup(group)" matTooltip="Edit">
+                            <mat-icon>edit</mat-icon>
+                          </button>
+                          <button mat-icon-button type="button" color="warn" (click)="deleteFieldGroup(group)" matTooltip="Delete">
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+                    </mat-card-header>
 
-          <mat-tab label="Document Confirmation Tools">
-            <div class="tool-selector-pane">
-              <div class="requirement-add-row">
-                <button mat-raised-button color="primary" type="button" (click)="openAddToolSelectorDialog('documentConfirmationTools')">
-                  <mat-icon>add</mat-icon>
-                  Add Tool
-                </button>
-              </div>
-
-              @if (editSettingsSignal().documentConfirmationTools.length > 0) {
-              <div class="tool-selector-table-wrap">
-                <table class="tool-selector-table">
-                  <thead>
-                    <tr>
-                      <th>Position</th>
-                      <th>Tool</th>
-                      <th class="actions-col">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (item of editSettingsSignal().documentConfirmationTools; track item.id || i; let i = $index) {
-                    <tr>
-                      <td>{{ i + 1 }}</td>
-                      <td>{{ item.tool || '-' }}</td>
-                      <td class="actions-col">
-                        <button mat-icon-button type="button" (click)="moveToolSelectorUp('documentConfirmationTools', i)" [disabled]="i === 0">
-                          <mat-icon>arrow_upward</mat-icon>
-                        </button>
-                        <button mat-icon-button type="button" (click)="moveToolSelectorDown('documentConfirmationTools', i)" [disabled]="i === editSettingsSignal().documentConfirmationTools.length - 1">
-                          <mat-icon>arrow_downward</mat-icon>
-                        </button>
-                        <button mat-icon-button color="warn" type="button" (click)="removeToolSelector('documentConfirmationTools', i)">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </td>
-                    </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-              } @else {
-              <p class="empty-copy">No document confirmation tools configured.</p>
-              }
-            </div>
-          </mat-tab>
-
-          <mat-tab label="Text Processing Tools">
-            <div class="tool-selector-pane">
-              <div class="requirement-add-row">
-                <button mat-raised-button color="primary" type="button" (click)="openAddToolSelectorDialog('textProcessingTools')">
-                  <mat-icon>add</mat-icon>
-                  Add Tool
-                </button>
-              </div>
-
-              @if (editSettingsSignal().textProcessingTools.length > 0) {
-              <div class="tool-selector-table-wrap">
-                <table class="tool-selector-table">
-                  <thead>
-                    <tr>
-                      <th>Position</th>
-                      <th>Tool</th>
-                      <th class="actions-col">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (item of editSettingsSignal().textProcessingTools; track item.id || i; let i = $index) {
-                    <tr>
-                      <td>{{ i + 1 }}</td>
-                      <td>{{ item.tool || '-' }}</td>
-                      <td class="actions-col">
-                        <button mat-icon-button type="button" (click)="moveToolSelectorUp('textProcessingTools', i)" [disabled]="i === 0">
-                          <mat-icon>arrow_upward</mat-icon>
-                        </button>
-                        <button mat-icon-button type="button" (click)="moveToolSelectorDown('textProcessingTools', i)" [disabled]="i === editSettingsSignal().textProcessingTools.length - 1">
-                          <mat-icon>arrow_downward</mat-icon>
-                        </button>
-                        <button mat-icon-button color="warn" type="button" (click)="removeToolSelector('textProcessingTools', i)">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </td>
-                    </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-              } @else {
-              <p class="empty-copy">No text processing tools configured.</p>
-              }
-            </div>
-          </mat-tab>
-
-          <mat-tab label="Text Cleanup Tools">
-            <div class="tool-selector-pane">
-              <div class="requirement-add-row">
-                <button mat-raised-button color="primary" type="button" (click)="openAddToolSelectorDialog('textCleanupTools')">
-                  <mat-icon>add</mat-icon>
-                  Add Tool
-                </button>
-              </div>
-
-              @if (editSettingsSignal().textCleanupTools.length > 0) {
-              <div class="tool-selector-table-wrap">
-                <table class="tool-selector-table">
-                  <thead>
-                    <tr>
-                      <th>Position</th>
-                      <th>Tool</th>
-                      <th class="actions-col">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (item of editSettingsSignal().textCleanupTools; track item.id || i; let i = $index) {
-                    <tr>
-                      <td>{{ i + 1 }}</td>
-                      <td>{{ item.tool || '-' }}</td>
-                      <td class="actions-col">
-                        <button mat-icon-button type="button" (click)="moveToolSelectorUp('textCleanupTools', i)" [disabled]="i === 0">
-                          <mat-icon>arrow_upward</mat-icon>
-                        </button>
-                        <button mat-icon-button type="button" (click)="moveToolSelectorDown('textCleanupTools', i)" [disabled]="i === editSettingsSignal().textCleanupTools.length - 1">
-                          <mat-icon>arrow_downward</mat-icon>
-                        </button>
-                        <button mat-icon-button color="warn" type="button" (click)="removeToolSelector('textCleanupTools', i)">
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </td>
-                    </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-              } @else {
-              <p class="empty-copy">No text cleanup tools configured.</p>
-              }
-            </div>
-          </mat-tab>
-        </mat-tab-group>
-      </section>
-    </mat-card-content>
-  </mat-card>
-
-  <section class="bottom-grid">
-    <mat-card class="vault-card">
-      <mat-card-header>
-        <mat-icon mat-card-avatar>terminal</mat-icon>
-        <mat-card-title>Template Mappings</mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="mapping-stack">
-          <section class="mapping-block">
-            <h3>Invoice Configuration</h3>
-
-            <div class="field-grid two-column">
-              <mat-form-field class="vault-field">
-                <mat-label>Document Type</mat-label>
-                <mat-select [formField]="editSettingsSignalForm.invoiceDocumentType" id="invoiceDocumentType"
-                  [compareWith]="compareDocumentType">
-                  @for (item of availableDocumentTypes(); track item.id) {
-                  <mat-option [value]="item">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field class="vault-field">
-                <mat-label>Template Type</mat-label>
-                <mat-select [formField]="editSettingsSignalForm.invoiceTemplateType" id="invoiceTemplateType"
-                  [compareWith]="compareDocumentType">
-                  @for (item of availableDocumentTypes(); track item.id) {
-                  <mat-option [value]="item">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </div>
-
-            <div class="field-row">
-              <button mat-raised-button color="primary" type="button" (click)="attachInvoiceTemplate()"
-                class="action-button">
-                <mat-icon>attach_file</mat-icon>
-                <span>{{ 'attach.template' | translate }}</span>
-              </button>
-            </div>
-            @if (editSettingsSignal().invoiceTemplate) {
-            <div class="field-row">
-              <div class="document-info">
-                <mat-icon>insert_drive_file</mat-icon>
-                <div class="document-details">
-                  <span class="document-name">{{
-                    editSettingsSignal().invoiceTemplate.fileName || 'N/A'
-                    }}</span>
-                  <!-- <span class="document-type">{{ editSettingsForm.get('invoiceTemplate.documentType')?.value || 'N/A' }}</span> -->
-                </div>
-                @if (editSettingsSignal().invoiceTemplate.url) {
-                <a (click)="downloadTemplate(TargetEntityT.INVOICE)" target="_blank" mat-icon-button color="primary">
-                  <mat-icon>download</mat-icon>
-                </a>
+                    <mat-card-content>
+                      <div class="group-preview">
+                        <div class="group-preview-head">
+                          <mat-icon>visibility</mat-icon>
+                          <span>{{ groupFieldPreview(group) }}</span>
+                        </div>
+                        <button mat-stroked-button type="button">Show {{ groupFieldCount(group) }} Fields</button>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                } @empty {
+                  <p class="empty-copy">No organisation KYC field groups configured. Click "Add Field Group" to create one.</p>
                 }
-              </div>
+              }
             </div>
-            } @else {
-            <div class="field-row">
-              <div class="empty-state">
-                <mat-icon>cloud_upload</mat-icon>
-                <p>{{ 'no.invoice.template.attached' | translate }}</p>
-              </div>
-            </div>
-            }
-          </section>
-
-          <section class="mapping-block">
-            <h3>Quotation Configuration</h3>
-
-            <div class="field-grid two-column">
-              <mat-form-field class="vault-field">
-                <mat-label>Document Type</mat-label>
-                <mat-select [formField]="editSettingsSignalForm.quotationDocumentType" id="quotationDocumentType"
-                  [compareWith]="compareDocumentType">
-                  @for (item of availableDocumentTypes(); track item.id) {
-                  <mat-option [value]="item">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field class="vault-field">
-                <mat-label>Template Type</mat-label>
-                <mat-select [formField]="editSettingsSignalForm.quotationTemplateType" id="quotationTemplateType"
-                  [compareWith]="compareDocumentType">
-                  @for (item of availableDocumentTypes(); track item.id) {
-                  <mat-option [value]="item">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </div>
-
-            <div class="field-row">
-              <button mat-raised-button color="primary" type="button" (click)="attachQuotationTemplate()"
-                class="action-button">
-                <mat-icon>attach_file</mat-icon>
-                <span>{{ 'attach.template' | translate }}</span>
-              </button>
-            </div>
-            @if (editSettingsSignalForm.quotationTemplate) {
-            <div class="field-row">
-              <div class="document-info">
-                <mat-icon>insert_drive_file</mat-icon>
-                <div class="document-details">
-                  <span class="document-name">{{
-                    editSettingsSignalForm.quotationTemplate.fileName || 'N/A'
-                    }}</span>
-                  <!-- <span class="document-type">{{ editSettingsForm.get('quotationTemplate.documentType')?.value || 'N/A' }}</span> -->
-                </div>
-                @if (editSettingsSignalForm.quotationTemplate.url) {
-                <a (click)="downloadTemplate(TargetEntityT.QUOTATION)" target="_blank" mat-icon-button color="primary">
-                  <mat-icon>download</mat-icon>
-                </a>
-                }
-              </div>
-            </div>
-            } @else {
-            <div class="field-row">
-              <div class="empty-state">
-                <mat-icon>cloud_upload</mat-icon>
-                <p>{{ 'no.quotation.template.attached' | translate }}</p>
-              </div>
-            </div>
-            }
-          </section>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="vault-card">
-      <mat-card-header>
-        <mat-icon mat-card-avatar>payments</mat-icon>
-        <mat-card-title>Financial Settings</mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="financial-head">
-          <h3>Manage Salary Ranges</h3>
-          <button mat-stroked-button type="button" (click)="salaryRangesAdd()">Add Range</button>
-        </div>
-        @for (item of editSettingsSignalForm.salaryRanges; track i; let i = $index) {
-        <div class="salary-range-item">
-          <div class="salary-range-row">
-            <mat-form-field class="vault-field salary-range-field">
-              <mat-label translate>min</mat-label>
-              <input matInput type="number" id="salaryRangeMin_{{i}}" [formField]="item.min" />
-              <mat-icon matSuffix>trending_down</mat-icon>
-            </mat-form-field>
-
-            <mat-form-field class="vault-field salary-range-field">
-              <mat-label translate>max</mat-label>
-              <input matInput type="number" id="salaryRangeMax_{{i}}" [formField]="item.max" />
-              <mat-icon matSuffix>trending_up</mat-icon>
-            </mat-form-field>
-
-            <mat-form-field class="vault-field salary-range-field">
-              <mat-label translate>active</mat-label>
-              <mat-select id="salaryRangeActive_{{i}}" [formField]="item.active">
-                <mat-option [value]="true">{{ 'yes' | translate }}</mat-option>
-                <mat-option [value]="false">{{ 'no' | translate }}</mat-option>
-              </mat-select>
-              <mat-icon matSuffix>toggle_on</mat-icon>
-            </mat-form-field>
-
-            <button class="salary-range-remove" mat-icon-button color="warn" type="button"
-              (click)="salaryRangesRemove(i, item().value())" matTooltip="{{ 'remove' | translate }}">
-              <mat-icon>delete</mat-icon>
-            </button>
           </div>
-        </div>
-        }
+        </mat-card-content>
+      </mat-card>
 
-        <div class="request-settings">
-          <h3>Client Request Settings</h3>
-
-          <div class="field-grid two-column">
-            <mat-form-field class="vault-field col-md-4">
-              <mat-label>VAT (%)</mat-label>
-              <input matInput type="number" [formField]="editSettingsSignalForm.vat" id="vat" />
-            </mat-form-field>
-
-            <mat-form-field class="vault-field">
-              <mat-label>Client Request File Type</mat-label>
-              <mat-select [formField]="editSettingsSignalForm.clientRequestFileType" id="clientRequestFileType"
-                [compareWith]="compareDocumentType">
-                @for (item of availableDocumentTypes(); track item.id) {
-                <mat-option [value]="item">{{ item.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field class="vault-field">
-              <mat-label>Document Duration Limit</mat-label>
-              <input matInput type="number" [formField]="editSettingsSignalForm.documentDurationLimit"
-                id="documentDurationLimit" />
-            </mat-form-field>
-
-            <mat-form-field class="vault-field">
-              <mat-label>Data Verification Threshold</mat-label>
-              <input matInput type="number" [formField]="editSettingsSignalForm.dataVerificationThreshold"
-                id="dataVerificationThreshold" />
-            </mat-form-field>
-
-            <mat-form-field class="vault-field">
-              <mat-label>Max Data Verification Failure Threshold</mat-label>
-              <input matInput type="number" [formField]="editSettingsSignalForm.maxDataVerificationFailureThreshold"
-                id="maxDataVerificationFailureThreshold" />
-            </mat-form-field>
+      <mat-card class="vault-card tools-card" id="tools">
+        <mat-card-header class="section-heading tools-heading">
+          <div class="section-heading-copy">
+            <h2>Tool Selectors</h2>
+            <p>Configure where each processing tool participates in the workflow.</p>
           </div>
 
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </section>
+          <div class="tools-callout">
+            <span class="tools-callout-label">Pro</span>
+            <strong>Configuration Updated</strong>
+            <small>Changes have been committed to production.</small>
+          </div>
+        </mat-card-header>
 
-  <footer class="audit-footer">
-    <div class="audit-copy">
-      <!-- <div class="audit-icon">
-        <mat-icon>verified_user</mat-icon>
-      </div> -->
+        <mat-card-content>
+          <mat-tab-group class="tool-selector-tabs" animationDuration="0ms">
+            <mat-tab label="Text Extraction">
+              <div class="tool-selector-pane">
+                <div class="section-action-row">
+                  <button mat-raised-button color="primary" type="button" (click)="openAddToolSelectorDialog('textExtractionTools')">
+                    <mat-icon>add</mat-icon>
+                    Add Tool
+                  </button>
+                </div>
 
-      <!-- <div>
-				<h2>Audit Ready Configuration</h2>
-				<p>Last verified on {{ lastVerifiedAt }}</p>
-			</div> -->
+                @if (editSettingsSignal().textExtractionTools.length > 0) {
+                  <div class="tool-selector-table-wrap">
+                    <table class="tool-selector-table">
+                      <thead>
+                        <tr>
+                          <th>Tool Name</th>
+                          <th>Position</th>
+                          <th>Status</th>
+                          <th class="actions-col">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (item of editSettingsSignal().textExtractionTools; track item.id || i; let i = $index) {
+                          <tr>
+                            <td>
+                              <div class="tool-cell">
+                                <mat-icon>precision_manufacturing</mat-icon>
+                                <div>
+                                  <strong>{{ item.tool || '-' }}</strong>
+                                  <small>OCR Engine v3.1</small>
+                                </div>
+                              </div>
+                            </td>
+                            <td>PRIMARY_0{{ i + 1 }}</td>
+                            <td><span class="status-pill active">Active</span></td>
+                            <td class="actions-col">
+                              <button mat-icon-button type="button" (click)="moveToolSelectorUp('textExtractionTools', i)" [disabled]="i === 0">
+                                <mat-icon>arrow_upward</mat-icon>
+                              </button>
+                              <button mat-icon-button type="button" (click)="moveToolSelectorDown('textExtractionTools', i)" [disabled]="i === editSettingsSignal().textExtractionTools.length - 1">
+                                <mat-icon>arrow_downward</mat-icon>
+                              </button>
+                              <button mat-icon-button color="warn" type="button" (click)="removeToolSelector('textExtractionTools', i)">
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                } @else {
+                  <p class="empty-copy">No text extraction tools configured.</p>
+                }
+              </div>
+            </mat-tab>
+
+            <mat-tab label="Doc Confirmation">
+              <div class="tool-selector-pane">
+                <div class="section-action-row">
+                  <button mat-raised-button color="primary" type="button" (click)="openAddToolSelectorDialog('documentConfirmationTools')">
+                    <mat-icon>add</mat-icon>
+                    Add Tool
+                  </button>
+                </div>
+
+                @if (editSettingsSignal().documentConfirmationTools.length > 0) {
+                  <div class="tool-selector-table-wrap">
+                    <table class="tool-selector-table">
+                      <thead>
+                        <tr>
+                          <th>Tool Name</th>
+                          <th>Position</th>
+                          <th>Status</th>
+                          <th class="actions-col">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (item of editSettingsSignal().documentConfirmationTools; track item.id || i; let i = $index) {
+                          <tr>
+                            <td>
+                              <div class="tool-cell">
+                                <mat-icon>language</mat-icon>
+                                <div>
+                                  <strong>{{ item.tool || '-' }}</strong>
+                                  <small>Fallback Processor</small>
+                                </div>
+                              </div>
+                            </td>
+                            <td>FALLBACK_0{{ i + 1 }}</td>
+                            <td><span class="status-pill active">Active</span></td>
+                            <td class="actions-col">
+                              <button mat-icon-button type="button" (click)="moveToolSelectorUp('documentConfirmationTools', i)" [disabled]="i === 0">
+                                <mat-icon>arrow_upward</mat-icon>
+                              </button>
+                              <button mat-icon-button type="button" (click)="moveToolSelectorDown('documentConfirmationTools', i)" [disabled]="i === editSettingsSignal().documentConfirmationTools.length - 1">
+                                <mat-icon>arrow_downward</mat-icon>
+                              </button>
+                              <button mat-icon-button color="warn" type="button" (click)="removeToolSelector('documentConfirmationTools', i)">
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                } @else {
+                  <p class="empty-copy">No document confirmation tools configured.</p>
+                }
+              </div>
+            </mat-tab>
+
+            <mat-tab label="Text Processing">
+              <div class="tool-selector-pane">
+                <div class="section-action-row">
+                  <button mat-raised-button color="primary" type="button" (click)="openAddToolSelectorDialog('textProcessingTools')">
+                    <mat-icon>add</mat-icon>
+                    Add Tool
+                  </button>
+                </div>
+
+                @if (editSettingsSignal().textProcessingTools.length > 0) {
+                  <div class="tool-selector-table-wrap">
+                    <table class="tool-selector-table">
+                      <thead>
+                        <tr>
+                          <th>Tool Name</th>
+                          <th>Position</th>
+                          <th>Status</th>
+                          <th class="actions-col">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (item of editSettingsSignal().textProcessingTools; track item.id || i; let i = $index) {
+                          <tr>
+                            <td>
+                              <div class="tool-cell">
+                                <mat-icon>text_fields</mat-icon>
+                                <div>
+                                  <strong>{{ item.tool || '-' }}</strong>
+                                  <small>Processing Layer</small>
+                                </div>
+                              </div>
+                            </td>
+                            <td>PROCESS_0{{ i + 1 }}</td>
+                            <td><span class="status-pill active">Active</span></td>
+                            <td class="actions-col">
+                              <button mat-icon-button type="button" (click)="moveToolSelectorUp('textProcessingTools', i)" [disabled]="i === 0">
+                                <mat-icon>arrow_upward</mat-icon>
+                              </button>
+                              <button mat-icon-button type="button" (click)="moveToolSelectorDown('textProcessingTools', i)" [disabled]="i === editSettingsSignal().textProcessingTools.length - 1">
+                                <mat-icon>arrow_downward</mat-icon>
+                              </button>
+                              <button mat-icon-button color="warn" type="button" (click)="removeToolSelector('textProcessingTools', i)">
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                } @else {
+                  <p class="empty-copy">No text processing tools configured.</p>
+                }
+              </div>
+            </mat-tab>
+
+            <mat-tab label="Text Cleanup">
+              <div class="tool-selector-pane">
+                <div class="section-action-row">
+                  <button mat-raised-button color="primary" type="button" (click)="openAddToolSelectorDialog('textCleanupTools')">
+                    <mat-icon>add</mat-icon>
+                    Add Tool
+                  </button>
+                </div>
+
+                @if (editSettingsSignal().textCleanupTools.length > 0) {
+                  <div class="tool-selector-table-wrap">
+                    <table class="tool-selector-table">
+                      <thead>
+                        <tr>
+                          <th>Tool Name</th>
+                          <th>Position</th>
+                          <th>Status</th>
+                          <th class="actions-col">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (item of editSettingsSignal().textCleanupTools; track item.id || i; let i = $index) {
+                          <tr>
+                            <td>
+                              <div class="tool-cell">
+                                <mat-icon>cleaning_services</mat-icon>
+                                <div>
+                                  <strong>{{ item.tool || '-' }}</strong>
+                                  <small>Cleanup Stage</small>
+                                </div>
+                              </div>
+                            </td>
+                            <td>CLEANUP_0{{ i + 1 }}</td>
+                            <td><span class="status-pill active">Active</span></td>
+                            <td class="actions-col">
+                              <button mat-icon-button type="button" (click)="moveToolSelectorUp('textCleanupTools', i)" [disabled]="i === 0">
+                                <mat-icon>arrow_upward</mat-icon>
+                              </button>
+                              <button mat-icon-button type="button" (click)="moveToolSelectorDown('textCleanupTools', i)" [disabled]="i === editSettingsSignal().textCleanupTools.length - 1">
+                                <mat-icon>arrow_downward</mat-icon>
+                              </button>
+                              <button mat-icon-button color="warn" type="button" (click)="removeToolSelector('textCleanupTools', i)">
+                                <mat-icon>delete</mat-icon>
+                              </button>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                } @else {
+                  <p class="empty-copy">No text cleanup tools configured.</p>
+                }
+              </div>
+            </mat-tab>
+          </mat-tab-group>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="vault-card templates-card" id="templates">
+        <mat-card-header class="section-heading">
+          <div class="section-heading-copy">
+            <h2>Template Mappings</h2>
+            <p>Link document templates to the invoice and quotation workflows.</p>
+          </div>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="mapping-grid">
+            <section class="mapping-block">
+              <div class="mapping-block-head">
+                <div class="mapping-block-title">
+                  <div class="mapping-icon-wrap">
+                    <mat-icon>receipt_long</mat-icon>
+                  </div>
+                  <div>
+                    <h3>Invoice Configuration</h3>
+                    <p>Standard JSON schema</p>
+                  </div>
+                </div>
+                <span class="pill">v2.4</span>
+              </div>
+
+              <div class="field-grid two-column">
+                <mat-form-field class="vault-field" appearance="outline">
+                  <mat-label>Document Type</mat-label>
+                  <mat-select [formField]="editSettingsSignalForm.invoiceDocumentType" id="invoiceDocumentType" [compareWith]="compareDocumentType">
+                    @for (item of availableDocumentTypes(); track item.id) {
+                      <mat-option [value]="item">{{ item.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field class="vault-field" appearance="outline">
+                  <mat-label>Template Type</mat-label>
+                  <mat-select [formField]="editSettingsSignalForm.invoiceTemplateType" id="invoiceTemplateType" [compareWith]="compareDocumentType">
+                    @for (item of availableDocumentTypes(); track item.id) {
+                      <mat-option [value]="item">{{ item.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="mapping-actions">
+                <button mat-raised-button color="primary" type="button" (click)="attachInvoiceTemplate()" class="action-button">
+                  <mat-icon>upload</mat-icon>
+                  <span>{{ 'attach.template' | translate }}</span>
+                </button>
+                @if (editSettingsSignal().invoiceTemplate?.url) {
+                  <button mat-stroked-button type="button" (click)="downloadTemplate(TargetEntityT.INVOICE)">
+                    <mat-icon>download</mat-icon>
+                    Download
+                  </button>
+                }
+              </div>
+
+              @if (editSettingsSignal().invoiceTemplate) {
+                <div class="document-info">
+                  <mat-icon>insert_drive_file</mat-icon>
+                  <div class="document-details">
+                    <span class="document-name">{{ editSettingsSignal().invoiceTemplate.fileName || 'N/A' }}</span>
+                  </div>
+                </div>
+              } @else {
+                <div class="empty-state">
+                  <mat-icon>cloud_upload</mat-icon>
+                  <p>{{ 'no.invoice.template.attached' | translate }}</p>
+                </div>
+              }
+            </section>
+
+            <section class="mapping-block">
+              <div class="mapping-block-head">
+                <div class="mapping-block-title">
+                  <div class="mapping-icon-wrap">
+                    <mat-icon>request_quote</mat-icon>
+                  </div>
+                  <div>
+                    <h3>Quotation Configuration</h3>
+                    <p>B2B custom mappings</p>
+                  </div>
+                </div>
+                <span class="pill">v1.8</span>
+              </div>
+
+              <div class="field-grid two-column">
+                <mat-form-field class="vault-field" appearance="outline">
+                  <mat-label>Document Type</mat-label>
+                  <mat-select [formField]="editSettingsSignalForm.quotationDocumentType" id="quotationDocumentType" [compareWith]="compareDocumentType">
+                    @for (item of availableDocumentTypes(); track item.id) {
+                      <mat-option [value]="item">{{ item.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field class="vault-field" appearance="outline">
+                  <mat-label>Template Type</mat-label>
+                  <mat-select [formField]="editSettingsSignalForm.quotationTemplateType" id="quotationTemplateType" [compareWith]="compareDocumentType">
+                    @for (item of availableDocumentTypes(); track item.id) {
+                      <mat-option [value]="item">{{ item.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="mapping-actions">
+                <button mat-raised-button color="primary" type="button" (click)="attachQuotationTemplate()" class="action-button">
+                  <mat-icon>upload</mat-icon>
+                  <span>{{ 'attach.template' | translate }}</span>
+                </button>
+                @if (editSettingsSignal().quotationTemplate?.url) {
+                  <button mat-stroked-button type="button" (click)="downloadTemplate(TargetEntityT.QUOTATION)">
+                    <mat-icon>download</mat-icon>
+                    Download
+                  </button>
+                }
+              </div>
+
+              @if (editSettingsSignal().quotationTemplate) {
+                <div class="document-info">
+                  <mat-icon>insert_drive_file</mat-icon>
+                  <div class="document-details">
+                    <span class="document-name">{{ editSettingsSignal().quotationTemplate.fileName || 'N/A' }}</span>
+                  </div>
+                </div>
+              } @else {
+                <div class="empty-state">
+                  <mat-icon>cloud_upload</mat-icon>
+                  <p>{{ 'no.quotation.template.attached' | translate }}</p>
+                </div>
+              }
+            </section>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="vault-card financial-card" id="financial">
+        <mat-card-header class="section-heading">
+          <div class="section-heading-copy">
+            <h2>Financial Settings</h2>
+            <p>Manage salary ranges and client request thresholds.</p>
+          </div>
+          <button mat-stroked-button type="button" (click)="salaryRangesAdd()">
+            <mat-icon>add</mat-icon>
+            Add Range
+          </button>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="financial-grid">
+            <section class="salary-panel">
+              <h3>Defined Salary Ranges (Annual)</h3>
+
+              <div class="salary-range-list">
+                @for (item of editSettingsSignalForm.salaryRanges; track i; let i = $index) {
+                  <div class="salary-range-item">
+                    <div class="salary-range-name">{{ i === 0 ? 'Low Entry' : 'Mid Executive' }}</div>
+                    <div class="salary-range-row">
+                      <mat-form-field class="vault-field salary-range-field" appearance="outline">
+                        <mat-label>Min</mat-label>
+                        <input matInput type="number" id="salaryRangeMin_{{ i }}" [formField]="item.min" />
+                      </mat-form-field>
+
+                      <span class="salary-separator">—</span>
+
+                      <mat-form-field class="vault-field salary-range-field" appearance="outline">
+                        <mat-label>Max</mat-label>
+                        <input matInput type="number" id="salaryRangeMax_{{ i }}" [formField]="item.max" />
+                      </mat-form-field>
+
+                      <button class="salary-range-remove" mat-icon-button color="warn" type="button" (click)="salaryRangesRemove(i, item().value())" matTooltip="{{ 'remove' | translate }}">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </section>
+
+            <section class="request-settings">
+              <h3>Client Requests</h3>
+
+              <div class="request-toggle">
+                <div class="request-toggle-copy">
+                  <span>Auto-apply VAT</span>
+                  <small>Toggle the VAT surcharge workflow on new requests.</small>
+                </div>
+                <mat-checkbox [checked]="(editSettingsSignal().vat || 0) > 0" disabled></mat-checkbox>
+              </div>
+
+              <div class="request-control">
+                <div class="request-control-row">
+                  <span>Threshold (USD)</span>
+                  <strong>{{ editSettingsSignal().dataVerificationThreshold || 0 }}</strong>
+                </div>
+                <mat-slider min="0" max="10000" step="100" discrete class="metric-slider">
+                  <input matSliderThumb [formField]="editSettingsSignalForm.dataVerificationThreshold" id="dataVerificationThreshold" />
+                </mat-slider>
+              </div>
+
+              <div class="request-footer-grid">
+                <mat-form-field class="vault-field" appearance="outline">
+                  <mat-label>Data Retention</mat-label>
+                  <mat-select [formField]="editSettingsSignalForm.documentDurationLimit" id="documentDurationLimit">
+                    <mat-option [value]="1">1 Year</mat-option>
+                    <mat-option [value]="2">2 Years</mat-option>
+                    <mat-option [value]="3">3 Years</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field class="vault-field" appearance="outline">
+                  <mat-label>VAT (%)</mat-label>
+                  <input matInput type="number" [formField]="editSettingsSignalForm.vat" id="vat" />
+                </mat-form-field>
+              </div>
+            </section>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
-
-    <!-- <button mat-stroked-button type="button" (click)="exportAuditLog()">Export Audit Log (.JSON)</button> -->
-  </footer>
+  </div>
 </div>

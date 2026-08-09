@@ -1,6 +1,8 @@
 
 @use 'ngx-toastr/toastr';
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -89,31 +91,66 @@
 }
 
 :root {
-    --vault-primary: #001735;
-    --vault-primary-container: #0e2c52;
-    --vault-primary-fixed: #6f87a4;
-    --vault-error: #b3261e;
+    --vault-primary: #00081e;
+    --vault-on-primary: #ffffff;
+    --vault-primary-container: #0a1f44;
+    --vault-on-primary-container: #7687b2;
+    --vault-primary-fixed: #d9e2ff;
+    --vault-primary-fixed-dim: #b4c6f4;
+    --vault-on-primary-fixed: #041a3f;
+    --vault-on-primary-fixed-variant: #34466d;
 
-    --vault-surface: #f7f9fb;
-    --vault-surface-variant: #d8dbe2;
+    --vault-secondary: #006c47;
+    --vault-on-secondary: #ffffff;
+    --vault-secondary-container: #6efcb9;
+    --vault-on-secondary-container: #00734c;
+    --vault-secondary-fixed: #6efcb9;
+    --vault-secondary-fixed-dim: #4edf9f;
+    --vault-on-secondary-fixed: #002113;
+    --vault-on-secondary-fixed-variant: #005234;
+
+    --vault-tertiary: #0d0700;
+    --vault-on-tertiary: #ffffff;
+    --vault-tertiary-container: #2b1e00;
+    --vault-on-tertiary-container: #ac8100;
+    --vault-tertiary-fixed: #ffdf9d;
+    --vault-tertiary-fixed-dim: #f9bd14;
+    --vault-on-tertiary-fixed: #251a00;
+    --vault-on-tertiary-fixed-variant: #5b4300;
+
+    --vault-error: #ba1a1a;
+    --vault-on-error: #ffffff;
+    --vault-error-container: #ffdad6;
+    --vault-on-error-container: #93000a;
+
+    --vault-surface: #f8f9ff;
+    --vault-surface-dim: #d1dbeb;
+    --vault-surface-bright: #f8f9ff;
     --vault-surface-container-lowest: #ffffff;
-    --vault-surface-container-low: #f1f3f7;
-    --vault-surface-container: #eceef0;
-    --vault-surface-container-high: #e3e8ef;
-    --vault-surface-container-highest: #dce2ea;
-
-    --vault-on-surface: #191c1e;
-    --vault-on-surface-variant: #43474f;
-
-    --vault-secondary-container: #d2e4f7;
-    --vault-on-secondary-container: #0e2b4e;
-    --vault-error-container: #f4d5d8;
-    --vault-on-error-container: #5f0f17;
+    --vault-surface-container-low: #eef4ff;
+    --vault-surface-container: #e5efff;
+    --vault-surface-container-high: #dfe9f9;
+    --vault-surface-container-highest: #d9e3f3;
+    --vault-on-surface: #121c28;
+    --vault-on-surface-variant: #44464e;
+    --vault-inverse-surface: #27313d;
+    --vault-inverse-on-surface: #e9f1ff;
+    --vault-outline: #75777f;
+    --vault-outline-variant: #c5c6cf;
+    --vault-surface-tint: #4c5e86;
+    --vault-background: #f8f9ff;
+    --vault-on-background: #121c28;
 
     --vault-space-2_5: 0.5rem;
     --vault-space-4: 0.9rem;
     --vault-space-8: 1.75rem;
     --vault-space-12: 2.75rem;
+    --vault-radius-sm: 0.25rem;
+    --vault-radius: 0.5rem;
+    --vault-radius-md: 0.75rem;
+    --vault-radius-lg: 1rem;
+    --vault-radius-xl: 1.5rem;
+    --vault-radius-full: 9999px;
 }
 
 * {
@@ -128,8 +165,10 @@ body {
 
 body {
     font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background: var(--vault-surface);
+    background: var(--vault-background);
     color: var(--vault-on-surface);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .search-results-card {
@@ -573,7 +612,7 @@ body {
 }
 
 .edit-page .status-card {
-    background: linear-gradient(135deg, var(--vault-primary-container), var(--vault-primary))
+    background: linear-gradient(135deg, var(--vault-primary-container), var(--vault-primary));
 }
 
 .edit-page .status-card .status-label,
@@ -702,7 +741,7 @@ body {
 
 .primary-action {
 	color: #fff !important;
-	background: linear-gradient(135deg, #001735, #0e2c52) !important;
+	background: linear-gradient(135deg, var(--vault-primary), var(--vault-primary-container)) !important;
 }
 
 .edit-page .btn-save,
@@ -1372,7 +1411,7 @@ body {
     position: relative;
     min-height: 7rem;
     overflow: hidden;
-    background: linear-gradient(135deg, #081d3d, #163764)
+    background: linear-gradient(135deg, var(--vault-primary), var(--vault-primary-container));
 }
 
 .documents-page .vault-card-alt {
@@ -1386,7 +1425,7 @@ body {
 .documents-page .vault-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, transparent, rgb(0 23 53 /.78))
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--vault-primary) 78%, transparent));
 }
 
 .documents-page .vault-content {
@@ -1463,14 +1502,14 @@ body {
 .btn-save.mdc-button {
 	font-size: 0.8rem;
 	font-weight: 700;
-	background: #001735;
+	background: var(--vault-primary);
 	color: #fff;
 	border-radius: 8px;
 	padding: 0 2rem;
 	height: 40px;
 
 	&:hover {
-		background: #0e2c52;
+		background: var(--vault-primary-container);
 	}
 }
 
@@ -1518,4 +1557,242 @@ body {
 .split-grid,
 .audit-grid {
 	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+
+
+.page-shell {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.page-title-group {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.page-title {
+    margin: 0;
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--vault-primary);
+}
+
+.page-subtitle {
+    margin: 0;
+    color: var(--vault-on-surface-variant);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.field-label,
+.section-heading h2,
+.section-heading h3,
+.metric-label,
+.audit-label {
+    margin: 0;
+    color: var(--vault-on-surface-variant);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.field-group {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.vault-card,
+.results-card,
+.metric-card,
+.insight-card,
+.mat-mdc-card {
+    border: 1px solid var(--vault-outline-variant);
+    border-radius: var(--vault-radius-lg);
+    background: var(--vault-surface-container-lowest);
+    box-shadow: 0 12px 24px rgba(0, 8, 30, 0.08);
+}
+
+.vault-card,
+.results-card,
+.metric-card,
+.insight-card {
+    padding: 1.25rem;
+}
+
+.mat-mdc-card {
+    overflow: hidden;
+}
+
+.mat-mdc-card-content {
+    padding: 1.25rem;
+}
+
+.mat-mdc-card-header {
+    padding: 1.25rem 1.25rem 0;
+}
+
+.mat-mdc-button-base,
+.mat-mdc-icon-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button {
+    border-radius: var(--vault-radius) !important;
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-button-touch-target,
+.mat-mdc-unelevated-button {
+    min-height: 44px;
+    font-weight: 600;
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button {
+    background-color: var(--vault-secondary) !important;
+    color: var(--vault-on-secondary) !important;
+}
+
+.mat-mdc-outlined-button {
+    border-color: var(--vault-outline-variant) !important;
+    color: var(--vault-primary) !important;
+    background: var(--vault-surface-container-lowest) !important;
+}
+
+.mat-mdc-icon-button {
+    color: var(--vault-primary) !important;
+}
+
+.mat-mdc-form-field {
+    --mat-form-field-focus-state-layer-opacity: 0;
+    width: 100%;
+}
+
+.vault-field {
+    width: 100%;
+    display: block;
+}
+
+.vault-field .mat-mdc-text-field-wrapper {
+    background: var(--vault-surface-container-low) !important;
+    border-radius: 0.75rem !important;
+    border: 1px solid var(--vault-outline-variant) !important;
+}
+
+.vault-field .mdc-notched-outline__leading,
+.vault-field .mdc-notched-outline__notch,
+.vault-field .mdc-notched-outline__trailing {
+    border-color: var(--vault-outline-variant) !important;
+}
+
+.vault-field.mat-focused .mdc-notched-outline__leading,
+.vault-field.mat-focused .mdc-notched-outline__notch,
+.vault-field.mat-focused .mdc-notched-outline__trailing {
+    border-color: var(--vault-secondary) !important;
+    border-width: 1.5px !important;
+}
+
+.vault-field .mat-mdc-input-element,
+.vault-field .mat-mdc-select-value-text,
+.vault-field .mat-mdc-select-placeholder {
+    color: var(--vault-on-surface) !important;
+}
+
+.search-results-card {
+    overflow: hidden;
+    border-radius: var(--vault-radius-lg);
+}
+
+.search-results-table-wrap {
+    overflow-x: auto;
+}
+
+.search-results-table {
+    width: 100%;
+    min-width: 56rem;
+    background: transparent;
+}
+
+.search-results-table .mat-mdc-header-row,
+.search-results-table .mat-mdc-row,
+.search-results-table .mdc-data-table__content,
+.search-results-footer .mat-mdc-paginator,
+.search-results-footer .mat-mdc-paginator-container {
+    background: transparent;
+}
+
+.search-results-table .mat-mdc-header-row {
+    background: var(--vault-surface-container-low);
+}
+
+.search-results-table .mat-mdc-header-cell {
+    border-bottom: 0;
+    padding: 1rem 1.1rem;
+    color: var(--vault-on-surface-variant);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.search-results-table .mat-mdc-cell {
+    border-bottom: 1px solid rgb(197 202 214 / 0.4);
+    padding: 1rem 1.1rem;
+    vertical-align: middle;
+    color: var(--vault-on-surface);
+}
+
+.search-results-table .mat-mdc-row:hover .mat-mdc-cell {
+    background: var(--vault-surface-container-low);
+}
+
+.search-results-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    border-top: 1px solid rgb(197 202 214 / 0.4);
+    background: var(--vault-surface-container-low);
+}
+
+.search-results-summary {
+    margin: 0;
+    color: var(--vault-on-surface-variant);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.primary-action {
+    background: var(--vault-secondary) !important;
+    color: var(--vault-on-secondary) !important;
+}
+
+.secondary-action {
+    border-color: var(--vault-outline-variant) !important;
+    color: var(--vault-primary) !important;
+}
+
+@media (max-width: 960px) {
+    .page-header {
+        flex-direction: column;
+    }
+
+    .search-results-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
 }

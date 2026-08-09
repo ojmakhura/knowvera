@@ -162,7 +162,8 @@ export class EditIndividual implements OnInit, AfterViewInit, OnDestroy {
         return '';
     });
 
-    readonly selectedOrganisationId = computed(() => this.editIndividualSignal().organisation?.id ?? null);
+    readonly selectedOrganisationId = computed(() => this.editIndividualSignal().organisation?.id ?? '');
+    readonly selectedBranchId = computed(() => this.editIndividualSignal().branch?.id ?? '');
     readonly auditIdentifier = computed(() => this.editIndividualSignal().id || this.appEnvStore.individual()?.id || 'Pending');
 
     countries: string[] = [
@@ -316,6 +317,15 @@ export class EditIndividual implements OnInit, AfterViewInit, OnDestroy {
         });
     }
 
+    onPhoneTypeSelectionChange(index: number, nextType: string): void {
+        const resolvedType = this.PhoneTypeOptions.find((type) => type === nextType);
+        if (!resolvedType) {
+            return;
+        }
+
+        this.updatePhoneType(index, resolvedType);
+    }
+
     updatePhoneNumber(index: number, phoneNumber: string): void {
         this.editIndividualSignal.update((value) => {
             const phoneNumbers = [...(value.phoneNumbers || [])];
@@ -400,11 +410,32 @@ export class EditIndividual implements OnInit, AfterViewInit, OnDestroy {
         }));
     }
 
+    onOrganisationSelectionChange(organisationId: string): void {
+        if (!organisationId) {
+            this.selectOrganisation(null);
+            return;
+        }
+
+        const selectedOrganisation =
+            this.organisationList().find((organisation) => String(organisation.id) === organisationId) ?? null;
+        this.selectOrganisation(selectedOrganisation);
+    }
+
     selectBranch(branch: BranchDTO | null): void {
         this.editIndividualSignal.update((value) => ({
             ...value,
             branch,
         }));
+    }
+
+    onBranchSelectionChange(branchId: string): void {
+        if (!branchId) {
+            this.selectBranch(null);
+            return;
+        }
+
+        const selectedBranch = this.branchList().find((branch) => String(branch.id) === branchId) ?? null;
+        this.selectBranch(selectedBranch);
     }
 
     formatAuditDate(value: Date | string | null | undefined): string {

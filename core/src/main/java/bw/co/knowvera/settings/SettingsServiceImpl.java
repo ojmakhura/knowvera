@@ -65,7 +65,7 @@ public class SettingsServiceImpl
     }
 
     @Override
-    @CacheEvict(key = "'allSettings'")
+    @CacheEvict(allEntries = true)
     public SettingsDTO save(SettingsDTO settings) {
         return super.save(settings);
     }

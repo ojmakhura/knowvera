@@ -1,8 +1,12 @@
 <div class="edit-organisation-page">
-	<div class="ambient-orb ambient-orb--top" aria-hidden="true"></div>
-	<div class="ambient-orb ambient-orb--bottom" aria-hidden="true"></div>
+	<header class="mobile-app-bar" aria-label="Mobile page header">
+		<button type="button" mat-icon-button class="mobile-app-bar__back" (click)="cancel()" aria-label="Go back">
+			<mat-icon>arrow_back</mat-icon>
+		</button>
+		<h1>Edit Organisation</h1>
+	</header>
 
-	<main class="page-shell">
+	<main class="page-container">
 		<header class="page-header">
 			<nav class="breadcrumb" aria-label="Breadcrumb">
 				<span>Organisation</span>
@@ -12,36 +16,50 @@
 				<span class="is-active">Edit</span>
 			</nav>
 
-			<h1>Edit Organisation</h1>
+			<div class="page-header__title-row">
+				<h1>Edit Organisation</h1>
+				<div class="page-actions page-actions--header">
+					<button type="button" mat-stroked-button class="page-actions__button" (click)="cancel()">
+						Cancel
+					</button>
+					<button
+						type="button"
+						mat-flat-button
+						class="page-actions__button save-button"
+						[disabled]="loading()"
+						(click)="saveOrganisation()">
+						Save Organisation
+					</button>
+				</div>
+			</div>
 		</header>
 
 		@let editForm = editOrganisationFormSignalForm;
 
-		<div class="layout-grid">
+		<div class="page-grid">
 			<section class="main-column">
-				<mat-card class="vault-card">
-					<div class="section-heading">
-						<mat-icon>corporate_fare</mat-icon>
+				<mat-card class="edit-card">
+					<div class="card-header">
 						<h2>Core Identity</h2>
 					</div>
 
 					<div class="form-grid">
-						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
 							<mat-label>Organisation Name</mat-label>
 							<input matInput [formField]="editForm.name" />
 						</mat-form-field>
 
-						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
 							<mat-label>Abbreviation / Code</mat-label>
 							<input matInput [formField]="editForm.code" />
 						</mat-form-field>
 
-						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
 							<mat-label>Registration No.</mat-label>
 							<input matInput [formField]="editForm.registrationNo" />
 						</mat-form-field>
 
-						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
 							<mat-label>Country of Registration</mat-label>
 							<mat-select [formField]="editForm.countryOfRegistration">
 								@for (country of countries; track country) {
@@ -64,14 +82,13 @@
 					</div>
 				</mat-card>
 
-				<mat-card class="vault-card">
-					<div class="section-heading">
-						<mat-icon>verified</mat-icon>
+				<mat-card class="edit-card">
+					<div class="card-header">
 						<h2>Operational Status</h2>
 					</div>
 
 					<div class="form-grid">
-						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
 							<mat-label>General Status</mat-label>
 							<mat-select [formField]="editForm.status">
 								@for (status of generalStatuses; track status) {
@@ -80,7 +97,7 @@
 							</mat-select>
 						</mat-form-field>
 
-						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
 							<mat-label>KYC Compliance Status</mat-label>
 							<mat-select [formField]="editForm.kycStatus">
 								@for (status of kycComplianceStatuses; track status) {
@@ -89,21 +106,20 @@
 							</mat-select>
 						</mat-form-field>
 
-						<mat-form-field class="vault-field vault-field--full" subscriptSizing="dynamic">
+						<mat-form-field class="vault-field vault-field--full" appearance="outline" subscriptSizing="dynamic">
 							<mat-label>Description</mat-label>
 							<textarea matInput rows="4" [formField]="editForm.description"></textarea>
 						</mat-form-field>
 					</div>
 				</mat-card>
 
-				<mat-card class="vault-card">
-					<div class="section-heading section-heading--row">
-						<div class="section-heading__title">
-							<mat-icon>language</mat-icon>
+				<mat-card class="edit-card desktop-only-section">
+					<div class="card-header card-header--split">
+						<div class="card-header__title">
 							<h2>Managed Domains</h2>
 						</div>
 
-						<button type="button" mat-button (click)="addDomain()">
+						<button type="button" mat-button class="inline-action" (click)="addDomain()">
 							<mat-icon>add</mat-icon>
 							<span>Add Domain</span>
 						</button>
@@ -117,9 +133,9 @@
 						@for (domainForm of editForm.domains; track $index) {
 							@let domain = domainForm().value();
 							<div class="domain-item">
-								<mat-icon>link</mat-icon>
+								<mat-icon class="domain-item__icon">language</mat-icon>
 
-								<mat-form-field class="vault-field vault-field--ghost" subscriptSizing="dynamic">
+								<mat-form-field class="vault-field vault-field--ghost" appearance="outline" subscriptSizing="dynamic">
 									<mat-label>Domain</mat-label>
 									<input matInput [formField]="domainForm.name" />
 								</mat-form-field>
@@ -139,14 +155,13 @@
 			</section>
 
 			<aside class="side-column">
-				<mat-card class="vault-card">
-					<div class="section-heading">
-						<mat-icon>contact_mail</mat-icon>
+				<mat-card class="edit-card desktop-only-section">
+					<div class="card-header">
 						<h2>Contact</h2>
 					</div>
 
 					<div class="side-stack">
-						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
 							<mat-label>Contact Email Address</mat-label>
 							<input matInput type="email" [formField]="editForm.contactEmailAddress" />
 						</mat-form-field>
@@ -154,20 +169,20 @@
 						<div class="phone-block">
 							<div class="phone-block__header">
 								<h3>Phone Numbers</h3>
-								<button type="button" mat-button (click)="addPhoneNumber()">
+								<button type="button" mat-button class="inline-action" (click)="addPhoneNumber()">
 									<mat-icon>add</mat-icon>
 									<span>Add</span>
 								</button>
 							</div>
 
-							  @if (!editOrganisationFormSignal().phoneNumbers.length) {
+							@if (!editOrganisationFormSignal().phoneNumbers.length) {
 								<p class="list-empty">No phone numbers added yet.</p>
 							}
 
 							@for (phoneForm of editForm.phoneNumbers; track $index) {
 								@let phone = phoneForm().value();
 								<div class="phone-row">
-									<mat-form-field class="vault-field vault-field--compact" subscriptSizing="dynamic">
+									<mat-form-field class="vault-field vault-field--compact" appearance="outline" subscriptSizing="dynamic">
 										<mat-label>Type</mat-label>
 										<mat-select
 											[value]="phone?.type"
@@ -178,7 +193,7 @@
 										</mat-select>
 									</mat-form-field>
 
-									<mat-form-field class="vault-field vault-field--grow" subscriptSizing="dynamic">
+									<mat-form-field class="vault-field vault-field--grow" appearance="outline" subscriptSizing="dynamic">
 										<mat-label>Phone Number</mat-label>
 										<input
 											matInput
@@ -199,32 +214,39 @@
 					</div>
 				</mat-card>
 
-				<mat-card class="vault-card">
-					<div class="section-heading">
-						<mat-icon>location_on</mat-icon>
+				<mat-card class="edit-card desktop-only-section">
+					<div class="card-header">
 						<h2>Addresses</h2>
 					</div>
 
 					<div class="side-stack">
-						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
 							<mat-label>Physical Address</mat-label>
 							<textarea matInput rows="3" [formField]="editForm.physicalAddress"></textarea>
 						</mat-form-field>
 
-						<mat-form-field class="vault-field" subscriptSizing="dynamic">
+						<div class="card-inline-action">
+							<span class="card-inline-action__label">Postal Address</span>
+							<button type="button" mat-button class="card-inline-action__button" (click)="copyPhysicalAddress()">
+								<mat-icon>content_copy</mat-icon>
+								<span>Same as Physical</span>
+							</button>
+						</div>
+
+						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
 							<mat-label>Postal Address</mat-label>
 							<textarea matInput rows="3" [formField]="editForm.postalAddress"></textarea>
 						</mat-form-field>
 					</div>
 				</mat-card>
 
-				<section class="audit-card" aria-label="Managed entity audit trail">
+				<section class="audit-card desktop-only-section" aria-label="Managed entity audit trail">
 					<div class="audit-card__heading">
 						<mat-icon>security</mat-icon>
 						<p>Managed Entity Audit Trail</p>
 					</div>
 
-					<p>
+					<p class="audit-card__body">
 						All changes to this organisation record are cryptographically signed and logged for compliance auditing.
 					</p>
 
@@ -239,19 +261,22 @@
 						</div>
 					</dl>
 
-					<button type="button" mat-button class="audit-card__cta" aria-label="View organisation version history">
-						View Version History
+					<button type="button" mat-stroked-button class="audit-card__cta" aria-label="View organisation version history">
+						<mat-icon>history</mat-icon>
+						<span>View Version History</span>
 					</button>
 				</section>
 			</aside>
 		</div>
 
-		<footer class="page-actions">
-			<button type="button" mat-button (click)="cancel()">Cancel</button>
+		<footer class="page-actions page-actions--mobile">
+			<button type="button" mat-stroked-button class="page-actions__button" (click)="cancel()">
+				Cancel
+			</button>
 			<button
 				type="button"
 				mat-flat-button
-				class="save-button"
+				class="page-actions__button save-button"
 				[disabled]="loading()"
 				(click)="saveOrganisation()">
 				Save Organisation
