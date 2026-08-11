@@ -15,17 +15,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.context.MessageSource;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import bw.co.knowvera.sequence.SequenceGenerator;
-import bw.co.knowvera.sequence.SequenceGeneratorDTO;
-import bw.co.knowvera.sequence.SequenceGeneratorRepository;
-import bw.co.knowvera.sequence.SequenceGeneratorServiceBase;
-import bw.co.knowvera.sequence.SequencePart;
 
 /**
  * @see bw.co.knowvera.sequence.SequenceGeneratorService
@@ -35,9 +28,8 @@ import bw.co.knowvera.sequence.SequencePart;
 public class SequenceGeneratorServiceImpl
     extends SequenceGeneratorServiceBase
 {
-    public SequenceGeneratorServiceImpl(SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorMapper sequenceGeneratorMapper,
-            MessageSource messageSource) {
-        super(sequenceGeneratorRepository, sequenceGeneratorMapper, messageSource);
+    public SequenceGeneratorServiceImpl(SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorMapper sequenceGeneratorMapper) {
+        super(sequenceGeneratorRepository, sequenceGeneratorMapper);
         //TODO Auto-generated constructor stub
     }
 

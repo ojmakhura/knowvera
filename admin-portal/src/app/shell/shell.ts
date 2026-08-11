@@ -7,14 +7,52 @@ import { TranslationService } from '@core/services/translation.service';
 import * as nav from './navigation';
 import Keycloak from 'keycloak-js';
 import { AppEnvStore } from '@app/store/app-env.state';
+import { MatIconModule } from '@angular/material/icon';
+
+interface RecordRegistry {
+  clientName: string;
+  clientType: string;
+  identityNo: string;
+  status: 'Verified' | 'Pending' | 'Action Req';
+  uploadDate: string;
+  expiry: string;
+}
 
 @Component({
   selector: 'app-shell',
-  imports: [CommonModule, RouterOutlet, RouterModule, TranslateModule],
+  imports: [CommonModule, RouterOutlet, RouterModule, TranslateModule, MatIconModule],
   templateUrl: './shell.html',
-  styleUrl: './shell.scss',
+  styleUrls: ['./shell.scss'],
 })
 export class Shell {
+
+  registryData: RecordRegistry[] = [
+    {
+      clientName: 'Acme Corp Ltd',
+      clientType: 'Corporate',
+      identityNo: 'ORG-88421-A',
+      status: 'Verified',
+      uploadDate: 'Oct 12, 2023',
+      expiry: 'Oct 12, 2024'
+    },
+    {
+      clientName: 'John Doe',
+      clientType: 'Individual (UBO)',
+      identityNo: 'IND-33921-X',
+      status: 'Pending',
+      uploadDate: 'Oct 14, 2023',
+      expiry: '-'
+    },
+    {
+      clientName: 'Global Finance LLC',
+      clientType: 'Institutional',
+      identityNo: 'ORG-11092-B',
+      status: 'Action Req',
+      uploadDate: 'Sep 01, 2022',
+      expiry: 'Sep 01, 2023'
+    }
+  ];
+
   protected readonly accountMenuOpen = signal(false);
   private elementRef = inject(ElementRef<HTMLElement>);
   private titleService = inject(Title);

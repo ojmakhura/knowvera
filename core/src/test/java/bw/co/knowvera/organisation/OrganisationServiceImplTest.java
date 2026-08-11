@@ -37,15 +37,7 @@ import bw.co.knowvera.PropertySearchOrder;
 import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.SortOrder;
 import bw.co.knowvera.kyc.KycComplianceStatus;
-import bw.co.knowvera.organisation.OrganisationMapper;
-import bw.co.knowvera.organisation.OrganisationServiceImpl;
 import bw.co.knowvera.organisation.client.ClientRequestRepository;
-import bw.co.knowvera.organisation.Organisation;
-import bw.co.knowvera.organisation.OrganisationDTO;
-import bw.co.knowvera.organisation.OrganisationListDTO;
-import bw.co.knowvera.organisation.OrganisationRepository;
-import bw.co.knowvera.organisation.OrganisationSearchCriteria;
-import bw.co.knowvera.organisation.OrganisationServiceException;
 
 @ExtendWith(MockitoExtension.class)
 class OrganisationServiceImplTest {
@@ -58,8 +50,6 @@ class OrganisationServiceImplTest {
     private ClientRequestRepository clientRequestRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
-    @Mock
-    private MessageSource messageSource;
 
     private OrganisationServiceImpl service;
 
@@ -69,8 +59,7 @@ class OrganisationServiceImplTest {
                 organisationRepository,
                 organisationMapper,
                 clientRequestRepository,
-                passwordEncoder,
-                messageSource);
+                passwordEncoder);
     }
 
     @Test

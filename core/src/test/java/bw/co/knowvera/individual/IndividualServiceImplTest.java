@@ -35,24 +35,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import bw.co.knowvera.PropertySearchOrder;
 import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.SortOrder;
-import bw.co.knowvera.individual.IndividualMapper;
-import bw.co.knowvera.individual.IndividualServiceImpl;
 import bw.co.knowvera.kyc.KycComplianceStatus;
 import bw.co.knowvera.organisation.client.ClientRequest;
 import bw.co.knowvera.organisation.client.ClientRequestRepository;
 import bw.co.knowvera.settings.SettingsService;
-import bw.co.knowvera.individual.EmploymentStatus;
-import bw.co.knowvera.individual.Individual;
-import bw.co.knowvera.individual.IndividualDTO;
-import bw.co.knowvera.individual.IndividualIdentityType;
-import bw.co.knowvera.individual.IndividualListDTO;
-import bw.co.knowvera.individual.IndividualRepository;
-import bw.co.knowvera.individual.IndividualSearchCriteria;
-import bw.co.knowvera.individual.IndividualService;
-import bw.co.knowvera.individual.IndividualServiceException;
-import bw.co.knowvera.individual.MaritalStatus;
-import bw.co.knowvera.individual.PepStatus;
-import bw.co.knowvera.individual.Sex;
 
 @ExtendWith(MockitoExtension.class)
 class IndividualServiceImplTest {
@@ -61,8 +47,6 @@ class IndividualServiceImplTest {
     private IndividualRepository individualRepository;
     @Mock
     private IndividualMapper individualMapper;
-    @Mock
-    private MessageSource messageSource;
     @Mock
     private ClientRequestRepository clientRequestRepository;
     @Mock
@@ -78,7 +62,6 @@ class IndividualServiceImplTest {
                 individualRepository,
             settingsService,
                 individualMapper,
-                messageSource,
                 clientRequestRepository,
                 passwordEncoder);
     }

@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -49,11 +51,12 @@ import jakarta.validation.Valid;
 @Tag(name = "Document Management", description = "APIs for managing documents in the Knowvera KYC system")
 public class DocumentApiImpl implements DocumentApi {
 
+    private static final Logger logger = LoggerFactory.getLogger(DocumentApi.class);
     private final MinioService minioService;
     private final DocumentService documentService;
     private final DocumentProcessorService documentProcessor;
     private final DocumentQueueProcessor documentQueueProcessor;
-    
+
     private final GeminiTextExtractionProcessor geminiTextExtractionProcessor;
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
@@ -76,15 +79,8 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", eventLabel = "#documentTypeId", logData = false)
     public ResponseEntity<List<DocumentListDTO>> findByDocumentType(String documentTypeId) {
 
-        try {
-
-            return ResponseEntity.ok(documentService.findByDocumentType(documentTypeId));
-
-        } catch (Exception e) {
-
-            throw e;
-        }
-
+        logger.debug("Finding documents with document type id: {}", documentTypeId);
+        return ResponseEntity.ok(documentService.findByDocumentType(documentTypeId));
     }
 
     @Override
@@ -92,14 +88,8 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
     public ResponseEntity<DocumentDTO> findById(String id) {
 
-        try {
-
-            return ResponseEntity.ok(documentService.findById(id));
-
-        } catch (Exception e) {
-
-            throw e;
-        }
+        logger.debug("Finding document with id: {}", id);
+        return ResponseEntity.ok(documentService.findById(id));
     }
 
     @Override
@@ -108,21 +98,17 @@ public class DocumentApiImpl implements DocumentApi {
     public ResponseEntity<List<DocumentListDTO>> findByTarget(
             bw.co.knowvera.TargetEntity target, String targetId) {
 
-        try {
-
-            return ResponseEntity.ok(documentService.findByTarget(target, targetId));
-        } catch (Exception e) {
-
-            throw e;
-        }
+        logger.debug("Finding documents with target: {} and targetId: {}", target, targetId);
+        return ResponseEntity.ok(documentService.findByTarget(target, targetId));
     }
 
     @Override
     @Operation(summary = "Get All Documents", description = "Get all documents in the system")
     @Audit(entity = "DOCUMENT", logData = false)
     public ResponseEntity<List<DocumentListDTO>> getAll() {
-        return ResponseEntity.ok(documentService.getAll());
 
+        logger.debug("Getting all documents");
+        return ResponseEntity.ok(documentService.getAll());
     }
 
     @Override
@@ -130,15 +116,8 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", logData = false)
     public ResponseEntity<Page<DocumentListDTO>> getAllPaged(Integer pageNumber, Integer pageSize) {
 
-        try {
-
-            return ResponseEntity.ok(documentService.getAll(pageNumber, pageSize));
-
-        } catch (Exception e) {
-
-            throw e;
-        }
-
+        logger.debug("Getting all documents with pagination, pageNumber: {}, pageSize: {}", pageNumber, pageSize);
+        return ResponseEntity.ok(documentService.getAll(pageNumber, pageSize));
     }
 
     @Override
@@ -146,29 +125,24 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) {
 
-        try {
+        logger.debug("Removing document with id: {}", id);
 
-            DocumentDTO document = documentService.findById(id);
-            if (document == null) {
-                throw new IllegalArgumentException("Document not found with id: " + id);
-            }
-
-            boolean removed = documentService.remove(id);
-            String url = document.getUrl();
-            if (StringUtils.isNotBlank(url) && removed) {
-                try {
-                    minioService.deleteFile(url);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new DocumentServiceException("Error deleting file from MinIO for document id: " + id);
-                }
-            }
-            return ResponseEntity.ok(removed);
-
-        } catch (Exception e) {
-
-            throw e;
+        DocumentDTO document = documentService.findById(id);
+        if (document == null) {
+            throw new IllegalArgumentException("Document not found with id: " + id);
         }
+
+        boolean removed = documentService.remove(id);
+        String url = document.getUrl();
+        if (StringUtils.isNotBlank(url) && removed) {
+            try {
+                minioService.deleteFile(url);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new DocumentServiceException("Error deleting file from MinIO for document id: " + id);
+            }
+        }
+        return ResponseEntity.ok(removed);
 
     }
 
@@ -177,16 +151,10 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", eventLabel = "#document.fileName", logData = true)
     public ResponseEntity<DocumentDTO> save(DocumentDTO document) {
 
-        try {
-
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            AuditTracker.auditTrail(document, authentication);
-            return ResponseEntity.ok(documentService.save(document));
-
-        } catch (Exception e) {
-
-            throw e;
-        }
+        logger.debug("Saving document with fileName: {}", document.getFileName());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(document, authentication);
+        return ResponseEntity.ok(documentService.save(document));
 
     }
 
@@ -195,14 +163,9 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", logData = false)
     public ResponseEntity<List<DocumentListDTO>> search(SearchObject<DocumentSearchCriteria> criteria) {
 
-        try {
-
-            return ResponseEntity
-                    .ok(documentService.search(criteria.getCriteria(), Set.copyOf(criteria.getSortings())));
-        } catch (Exception e) {
-
-            throw e;
-        }
+        logger.debug("Searching documents with criteria: {}", criteria);
+        return ResponseEntity
+                .ok(documentService.search(criteria.getCriteria(), Set.copyOf(criteria.getSortings())));
 
     }
 
@@ -238,55 +201,49 @@ public class DocumentApiImpl implements DocumentApi {
     public ResponseEntity<DocumentDTO> upload(TargetEntity target, String targetId,
             String documentTypeId, String purpose, MultipartFile file) {
 
+        logger.debug("Uploading document for target: {}, targetId: {}, documentTypeId: {}, purpose: {}, fileName: {}", target, targetId, documentTypeId, purpose, file.getOriginalFilename());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+
+        String username = jwt.getClaimAsString("preferred_username");
+
+        DocumentDTO document = new DocumentDTO();
+        document.setAnalyticsStatus(DocumentAnalyticsStatus.INITIALISED);
+        document.setVerificationStatus(DocumentVerificationStatus.UNVERIFIED);
+        document.setCreatedAt(LocalDateTime.now());
+        document.setCreatedBy(username);
+        document.setTarget(target);
+        document.setTargetId(targetId);
+        document.setFileName(file.getOriginalFilename());
+
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("fileSize", file.getSize());
+        metadata.put("fileType", file.getContentType());
+        metadata.put("contentType", file.getContentType());
+
+        document.setMetadata(metadata);
+
+        String filePath = constructFilePath(target, targetId, purpose, file.getOriginalFilename());
         try {
-
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Jwt jwt = (Jwt) authentication.getPrincipal();
-
-            String username = jwt.getClaimAsString("preferred_username");
-
-            DocumentDTO document = new DocumentDTO();
-            document.setAnalyticsStatus(DocumentAnalyticsStatus.INITIALISED);
-            document.setVerificationStatus(DocumentVerificationStatus.UNVERIFIED);
-            document.setCreatedAt(LocalDateTime.now());
-            document.setCreatedBy(username);
-            document.setTarget(target);
-            document.setTargetId(targetId);
-            document.setFileName(file.getOriginalFilename());
-
-            Map<String, Object> metadata = new HashMap<>();
-            metadata.put("fileSize", file.getSize());
-            metadata.put("fileType", file.getContentType());
-            metadata.put("contentType", file.getContentType());
-
-            document.setMetadata(metadata);
-
-            String filePath = constructFilePath(target, targetId, purpose, file.getOriginalFilename());
-            try {
-                document.setUrl(uploadToMinio(file, filePath));
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                throw new DocumentServiceException("Error uploading file: " + file.getOriginalFilename());
-            }
-
-            document.setDocumentTypeId(documentTypeId);
-
-            document = documentService.save(document);
-            QueueObject queueObject = new QueueObject(
-                    document.getId(),
-                    target,
-                    targetId);
-
-            rabbitTemplate.convertAndSend(rabbitProperties.getTextExtractionQueueExchange(),
-                    rabbitProperties.getTextExtractionQueueRoutingKey(), queueObject);
-
-            return ResponseEntity.ok(document);
-
+            document.setUrl(uploadToMinio(file, filePath));
         } catch (Exception e) {
-
-            throw e;
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            throw new DocumentServiceException("Error uploading file: " + file.getOriginalFilename());
         }
+
+        document.setDocumentTypeId(documentTypeId);
+
+        document = documentService.save(document);
+        QueueObject queueObject = new QueueObject(
+                document.getId(),
+                target,
+                targetId);
+
+        rabbitTemplate.convertAndSend(rabbitProperties.getTextExtractionQueueExchange(),
+                rabbitProperties.getTextExtractionQueueRoutingKey(), queueObject);
+
+        return ResponseEntity.ok(document);
 
     }
 
@@ -303,9 +260,11 @@ public class DocumentApiImpl implements DocumentApi {
     @Operation(summary = "Download Document", description = "Download the document with the given id")
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
     public ResponseEntity<InputStreamResource> downloadFile(String id) {
-        try {
 
-            DocumentDTO document = documentService.findById(id);
+        logger.debug("Downloading document with id: {}", id);
+        DocumentDTO document = documentService.findById(id);
+
+        try {
             InputStreamResource data = downloadFromMinio(document.getUrl());
             ResponseEntity<InputStreamResource> response = ResponseEntity.status(HttpStatus.OK)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + document.getUrl() + "\"")
@@ -313,11 +272,11 @@ public class DocumentApiImpl implements DocumentApi {
                     .body(data);
 
             return response;
-
         } catch (Exception e) {
             e.printStackTrace();
-            throw new DocumentServiceException("Error downloading file: " + e.getMessage());
+            throw new DocumentServiceException("Error downloading file: " + document.getUrl());
         }
+
     }
 
     @Override
@@ -325,6 +284,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", eventLabel = "#objectName", logData = false)
     public ResponseEntity<InputStreamResource> downloadFileByUrl(@RequestParam String objectName) throws Exception {
 
+        logger.debug("Downloading a document with url: {}", objectName);
         InputStreamResource data = downloadFromMinio(objectName);
         ResponseEntity<InputStreamResource> response = ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + objectName + "\"")
@@ -340,6 +300,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = true)
     public ResponseEntity<DocumentDTO> updateDocument(String id, MultipartFile file) throws Exception {
 
+        logger.debug("Updating document with id: {}", id);
         DocumentDTO document = documentService.findById(id);
         if (document == null) {
             throw new IllegalArgumentException("Document not found with id: " + id);
@@ -392,13 +353,9 @@ public class DocumentApiImpl implements DocumentApi {
     public @Nullable ResponseEntity<Page<DocumentListDTO>> searchPaged(
             @Valid SearchObject<DocumentSearchCriteria> criteria) throws Exception {
 
-        try {
-
-            Page<DocumentListDTO> results = documentService.search(criteria);
-            return ResponseEntity.ok(results);
-        } catch (Exception e) {
-            throw e;
-        }
+        logger.debug("Searching documents paged with criteria: {}", criteria);
+        Page<DocumentListDTO> results = documentService.search(criteria);
+        return ResponseEntity.ok(results);
 
     }
 
@@ -407,6 +364,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", logData = false)
     public ResponseEntity<Page<DocumentListDTO>> findMyDocumentsPaged(TargetEntity target, @Nullable Integer pageNumber,
             @Nullable Integer pageSize) throws Exception {
+        logger.debug("Finding my documents paged with target: {}, pageNumber: {}, pageSize: {}", target, pageNumber, pageSize);
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findByDocumentsPaged'");
     }
@@ -415,6 +373,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Operation(summary = "Find My Documents", description = "Find documents for the current user based on the given criteria")
     @Audit(entity = "DOCUMENT", logData = false)
     public @Nullable ResponseEntity<List<DocumentListDTO>> findMyDocuments(TargetEntity target) throws Exception {
+        logger.debug("Finding my documents with target: {}", target);
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'findMyDocuments'");
     }
@@ -424,24 +383,22 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
     public ResponseEntity<DocumentDTO> analyseDocument(String id) throws Exception {
 
-        try {
-            DocumentDTO document = documentService.findById(id);
-            if (document == null) {
-                throw new IllegalArgumentException("Document not found with id: " + id);
-            }
-
-            QueueObject queueObject = new QueueObject(
-                    document.getId(),
-                    document.getTarget(),
-                    document.getTargetId());
-
-            rabbitTemplate.convertAndSend(rabbitProperties.getTextProcessingQueueExchange(),
-                    rabbitProperties.getTextProcessingQueueRoutingKey(), queueObject);
-
-            return ResponseEntity.ok(documentService.findById(id));
-        } catch (Exception e) {
-            throw e;
+        logger.debug("Analysing document with id: {}", id);
+        DocumentDTO document = documentService.findById(id);
+        if (document == null) {
+            throw new IllegalArgumentException("Document not found with id: " + id);
         }
+
+        QueueObject queueObject = new QueueObject(
+                document.getId(),
+                document.getTarget(),
+                document.getTargetId());
+
+        rabbitTemplate.convertAndSend(rabbitProperties.getTextProcessingQueueExchange(),
+                rabbitProperties.getTextProcessingQueueRoutingKey(), queueObject);
+
+        return ResponseEntity.ok(documentService.findById(id));
+
     }
 
     @Override
@@ -449,13 +406,8 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = true)
     public ResponseEntity<DocumentDTO> updateFileContent(String id, String content) throws Exception {
 
-        try {
-
-            return ResponseEntity.ok(documentService.updateFileContent(id, content));
-        } catch (Exception e) {
-            throw e;
-        }
-
+        logger.debug("Updating file content for document with id: {}", id);
+        return ResponseEntity.ok(documentService.updateFileContent(id, content));
     }
 
     @Override
@@ -463,17 +415,13 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = true)
     public ResponseEntity<DocumentDTO> verifyData(String id) throws Exception {
 
-        try {
+        logger.debug("Verifying data for document with id: {}", id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Jwt jwt = (Jwt) authentication.getPrincipal();
+        String username = jwt.getClaimAsString("preferred_username");
 
-            String username = jwt.getClaimAsString("preferred_username");
-
-            return ResponseEntity.ok(documentService.verifyData(id, username));
-        } catch (Exception e) {
-            throw e;
-        }
+        return ResponseEntity.ok(documentService.verifyData(id, username));
 
     }
 
@@ -483,15 +431,13 @@ public class DocumentApiImpl implements DocumentApi {
     public ResponseEntity<DocumentDTO> updateVerificationStatus(String id,
             DocumentVerificationStatus verificationStatus) throws Exception {
 
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            Jwt jwt = (Jwt) authentication.getPrincipal();
+        logger.debug("Updating verification status for document with id: {} to {}", id, verificationStatus);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
 
-            String username = jwt.getClaimAsString("preferred_username");
-            return ResponseEntity.ok(documentService.updateVerificationStatus(id, verificationStatus, username));
-        } catch (Exception e) {
-            throw e;
-        }
+        String username = jwt.getClaimAsString("preferred_username");
+        return ResponseEntity.ok(documentService.updateVerificationStatus(id, verificationStatus, username));
+
     }
 
     @Override
@@ -499,32 +445,29 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
     public ResponseEntity<DocumentDTO> textExtration(String id, Boolean block) throws Exception {
 
-        try {
+        logger.debug("Extracting text from document with id: {}", id);
+        DocumentDTO document = documentService.findById(id);
 
-            DocumentDTO document = documentService.findById(id);
-
-            if (document == null) {
-                throw new IllegalArgumentException("Document not found for id: " + id);
-            }
-
-            QueueObject queueObject = new QueueObject(
-                    id,
-                    document.getTarget(),
-                    document.getTargetId());
-
-            if (block != null && block) {
-                documentQueueProcessor.handleDocumentProcessing(queueObject);
-                return ResponseEntity.ok(documentService.findById(id));
-            }
-
-            rabbitTemplate.convertAndSend(
-                    rabbitProperties.getTextExtractionQueueExchange(),
-                    rabbitProperties.getTextExtractionQueueRoutingKey(),
-                    queueObject);
-
-            return ResponseEntity.ok(document);
-        } catch (Exception e) {
-            throw e;
+        if (document == null) {
+            throw new IllegalArgumentException("Document not found for id: " + id);
         }
+
+        QueueObject queueObject = new QueueObject(
+                id,
+                document.getTarget(),
+                document.getTargetId());
+
+        if (block != null && block) {
+            documentQueueProcessor.handleDocumentProcessing(queueObject);
+            return ResponseEntity.ok(documentService.findById(id));
+        }
+
+        rabbitTemplate.convertAndSend(
+                rabbitProperties.getTextExtractionQueueExchange(),
+                rabbitProperties.getTextExtractionQueueRoutingKey(),
+                queueObject);
+
+        return ResponseEntity.ok(document);
+
     }
 }

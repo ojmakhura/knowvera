@@ -17,73 +17,51 @@ import org.springframework.web.bind.annotation.RestController;
 
 import bw.co.knowvera.AuditTracker;
 import bw.co.knowvera.logging.Audit;
-import bw.co.knowvera.document.type.verification.VerificationDataConfigApi;
-import bw.co.knowvera.document.type.verification.VerificationDataConfigDTO;
-import bw.co.knowvera.document.type.verification.VerificationDataConfigService;
-import bw.co.knowvera.document.type.verification.VerificationDataConfigServiceException;
 
 @RestController
 @Tag(name = "Verification Data Config", description = "Managing verification data configurations in the Knowvera KYC system")
 public class VerificationDataConfigApiImpl implements VerificationDataConfigApi {
 
     private static final Logger logger = LoggerFactory.getLogger(VerificationDataConfigApiImpl.class);
-        protected final VerificationDataConfigService verificationDataConfigService;
-    
+    protected final VerificationDataConfigService verificationDataConfigService;
+
     public VerificationDataConfigApiImpl(
-        VerificationDataConfigService verificationDataConfigService    ) {
-        
+            VerificationDataConfigService verificationDataConfigService) {
+
         this.verificationDataConfigService = verificationDataConfigService;
     }
 
     @Override
     @Operation(summary = "Find Verification Data Config", description = "Get the verification data config with the given id")
-    @Audit(entity = "VERIFICATION_DATA_CONFIG", eventLabel="#id", logData = false)
+    @Audit(entity = "VERIFICATION_DATA_CONFIG", eventLabel = "#id", logData = false)
     public ResponseEntity<VerificationDataConfigDTO> findById(String id) throws Exception {
-        try {
-            return ResponseEntity.ok(verificationDataConfigService.findById(id));
-        } catch (Exception e) {
-
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new VerificationDataConfigServiceException(e.getCause().getMessage()) : e;
-        } 
+        return ResponseEntity.ok(verificationDataConfigService.findById(id));
     }
-
 
     @Override
     @Operation(summary = "Remove Verification Data Config", description = "Remove the verification data config with the given id")
-    @Audit(entity = "VERIFICATION_DATA_CONFIG", eventLabel="#id", logData = false)
+    @Audit(entity = "VERIFICATION_DATA_CONFIG", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
-        try {
-            return ResponseEntity.ok(verificationDataConfigService.remove(id));
-        } catch (Exception e) {
+        return ResponseEntity.ok(verificationDataConfigService.remove(id));
 
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new VerificationDataConfigServiceException(e.getCause().getMessage()) : e;
-        } 
     }
-
 
     @Override
     @Operation(summary = "Save Verification Data Config", description = "Save the verification data config")
-    @Audit(entity = "VERIFICATION_DATA_CONFIG", eventLabel="#verificationDataConfig.id", logData = true)
-    public ResponseEntity<VerificationDataConfigDTO> save(@Valid VerificationDataConfigDTO verificationDataConfig) throws Exception {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            AuditTracker.auditTrail(verificationDataConfig, authentication);
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
-
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new VerificationDataConfigServiceException(e.getCause().getMessage()) : e;
-        } 
+    @Audit(entity = "VERIFICATION_DATA_CONFIG", eventLabel = "#verificationDataConfig.id", logData = true)
+    public ResponseEntity<VerificationDataConfigDTO> save(@Valid VerificationDataConfigDTO verificationDataConfig)
+            throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(verificationDataConfig, authentication);
+        throw new UnsupportedOperationException("Not implemented yet");
     }
-    
+
     /**
      * Gets the reference to <code>$serviceRef.daoName</code>.
+     * 
      * @return verificationDataConfigService
      */
-    protected VerificationDataConfigService getVerificationDataConfigService()
-    {
+    protected VerificationDataConfigService getVerificationDataConfigService() {
         return this.verificationDataConfigService;
     }
 }

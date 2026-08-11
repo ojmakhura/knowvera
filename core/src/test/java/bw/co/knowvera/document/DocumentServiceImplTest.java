@@ -91,8 +91,6 @@ class DocumentServiceImplTest {
     @Mock
     private DocumentMapper documentMapper;
     @Mock
-    private MessageSource messageSource;
-    @Mock
     private DocumentTypeRepository documentTypeRepository;
 
     private DocumentServiceImpl service;
@@ -112,7 +110,6 @@ class DocumentServiceImplTest {
                 rabbitProperties,
                 rabbitTemplate,
                 documentMapper,
-                messageSource,
                 documentTypeRepository);
     }
 

@@ -19,10 +19,6 @@ import bw.co.knowvera.AuditTracker;
 import bw.co.knowvera.logging.Audit;
 import bw.co.knowvera.organisation.OrganisationDTO;
 import bw.co.knowvera.organisation.OrganisationService;
-import bw.co.knowvera.organisation.branch.BranchApi;
-import bw.co.knowvera.organisation.branch.BranchDTO;
-import bw.co.knowvera.organisation.branch.BranchService;
-import bw.co.knowvera.organisation.branch.BranchServiceException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -34,159 +30,96 @@ public class BranchApiImpl implements BranchApi {
     private final BranchService branchService;
 
     public BranchApiImpl(BranchService branchService, OrganisationService orgService) {
-        
+
         this.orgService = orgService;
         this.branchService = branchService;
     }
 
-
     @Override
     @Operation(summary = "Find Branch by ID", description = "Find a branch by its ID")
-    @Audit(entity = "BRANCH", eventLabel="#id", logData = false)
+    @Audit(entity = "BRANCH", eventLabel = "#id", logData = false)
     public ResponseEntity<BranchDTO> findById(String id) {
-        
-        try {
 
-            BranchDTO branch = branchService.findById(id);
+        BranchDTO branch = branchService.findById(id);
 
-            if(StringUtils.isBlank(branch.getOrganisationId())) {
+        if (StringUtils.isBlank(branch.getOrganisationId())) {
 
-                throw new BranchServiceException("This branch has no organisation.");
-            }
-
-            OrganisationDTO org = orgService.findById(branch.getOrganisationId());
-            branch.setOrganisation(org.getName());
-
-            return ResponseEntity.ok(branchService.findById(id));
-        } catch (Exception e) {
-            // logger.error(e.getMessage());
-            e.printStackTrace();
-            throw e;
+            throw new BranchServiceException("This branch has no organisation.");
         }
+
+        OrganisationDTO org = orgService.findById(branch.getOrganisationId());
+        branch.setOrganisation(org.getName());
+
+        return ResponseEntity.ok(branchService.findById(id));
+
     }
 
     @Override
     @Operation(summary = "Find Branches by Organisation", description = "Find branches for a specific organisation")
-    @Audit(entity = "BRANCH", eventLabel="#organisationId", logData = false)
+    @Audit(entity = "BRANCH", eventLabel = "#organisationId", logData = false)
     public ResponseEntity<List<BranchDTO>> findByOrganisation(String organisationId) {
-        
-        try {
-            OrganisationDTO org = orgService.findById(organisationId);
-            return ResponseEntity.ok(branchService.findByOrganisation(org.getId()));
-        } catch (Exception e) {
-            // logger.error(e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
 
+        OrganisationDTO org = orgService.findById(organisationId);
+        return ResponseEntity.ok(branchService.findByOrganisation(org.getId()));
 
     }
 
     @Override
     @Operation(summary = "Find Branches by Organisation (Paged)", description = "Find branches for a specific organisation with pagination")
-    @Audit(entity = "BRANCH", eventLabel="#organisationId", logData = false)
-    public ResponseEntity<Page<BranchDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber, Integer pageSize) {
-        
-        try {
+    @Audit(entity = "BRANCH", eventLabel = "#organisationId", logData = false)
+    public ResponseEntity<Page<BranchDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber,
+            Integer pageSize) {
 
-            return ResponseEntity.ok(branchService.findByOrganisation(organisationId, pageNumber, pageSize));
-            
-        } catch (Exception e) {
-            
-            e.printStackTrace();
-            throw e;
-        }
+        return ResponseEntity.ok(branchService.findByOrganisation(organisationId, pageNumber, pageSize));
     }
 
     @Override
     @Operation(summary = "Get All Branches", description = "Get all branches")
     @Audit(entity = "BRANCH", logData = false)
     public ResponseEntity<List<BranchDTO>> getAll() {
-        
-        try {
-            return ResponseEntity.ok(branchService.getAll());
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
+
+        return ResponseEntity.ok(branchService.getAll());
     }
 
     @Override
     @Operation(summary = "Get All Branches Paged", description = "Get all branches with pagination")
     @Audit(entity = "BRANCH", logData = false)
     public ResponseEntity<Page<BranchDTO>> getAllPaged(Integer pageNumber, Integer pageSize) {
-        
-        try {
-            return ResponseEntity.ok(branchService.getAll(pageNumber, pageSize));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
 
-
+        return ResponseEntity.ok(branchService.getAll(pageNumber, pageSize));
     }
 
     @Override
     @Operation(summary = "Paged Search Branches", description = "Search branches with pagination")
     @Audit(entity = "BRANCH", logData = false)
     public ResponseEntity<Page<BranchDTO>> pagedSearch(String criteria, Integer pageNumber, Integer pageSize) {
-        
-        try {
-            return ResponseEntity.ok(branchService.search(criteria, pageNumber, pageSize));
-            
-        } catch (Exception e) {
-            // logger.error(e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
+
+        return ResponseEntity.ok(branchService.search(criteria, pageNumber, pageSize));
     }
 
     @Override
     @Operation(summary = "Remove Branch", description = "Remove a branch by its ID")
-    @Audit(entity = "BRANCH", eventLabel="#id", logData = false)
+    @Audit(entity = "BRANCH", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) {
-        
-        try {
 
-            return ResponseEntity.ok(branchService.remove(id));
-
-        } catch (Exception e) {
-            // logger.error(e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
+        return ResponseEntity.ok(branchService.remove(id));
     }
 
     @Override
     @Operation(summary = "Save Branch", description = "Save a branch")
-    @Audit(entity = "BRANCH", eventLabel="#branch.id", logData = false)
+    @Audit(entity = "BRANCH", eventLabel = "#branch.id", logData = false)
     public ResponseEntity<BranchDTO> save(BranchDTO branch) {
-        
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            AuditTracker.auditTrail(branch, authentication);
-            return ResponseEntity.ok(branchService.save(branch));
 
-        } catch (Exception e) {
-            // logger.error(e.getMessage());
-            e.printStackTrace();
-
-            throw e;
-        }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(branch, authentication);
+        return ResponseEntity.ok(branchService.save(branch));
     }
 
     @Override
     @Operation(summary = "Search Branches", description = "Search branches based on criteria")
     @Audit(entity = "BRANCH", logData = false)
     public ResponseEntity<List<BranchDTO>> search(String criteria) {
-        
-        try {
-            return ResponseEntity.ok(branchService.search(criteria));
-            
-        } catch (Exception e) {
-            // logger.error(e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
+
+        return ResponseEntity.ok(branchService.search(criteria));
     }
 }

@@ -22,14 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 import bw.co.knowvera.AuditTracker;
 import bw.co.knowvera.PropertySearchOrder;
 import bw.co.knowvera.SearchObject;
-import bw.co.knowvera.individual.IndividualDTO;
 import bw.co.knowvera.keycloak.KeycloakOrganisationService;
 import bw.co.knowvera.logging.Audit;
-import bw.co.knowvera.organisation.OrganisationApi;
-import bw.co.knowvera.organisation.OrganisationDTO;
-import bw.co.knowvera.organisation.OrganisationListDTO;
-import bw.co.knowvera.organisation.OrganisationSearchCriteria;
-import bw.co.knowvera.organisation.OrganisationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -50,7 +44,6 @@ public class OrganisationApiImpl implements OrganisationApi {
     @Operation(summary = "Find Organisation by ID", description = "Find an organisation by its ID")
     @Audit(entity = "ORGANISATION", eventLabel="#id", logData = false)
     public ResponseEntity<OrganisationDTO> findById(String id) {
-        try {
 
             OrganisationDTO organisation = organisationService.findById(id);
 
@@ -62,24 +55,14 @@ public class OrganisationApiImpl implements OrganisationApi {
             }
 
             return ResponseEntity.ok(organisation);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
     @Operation(summary = "Get All Organisations", description = "Retrieve all organisations")
     @Audit(entity = "ORGANISATION", logData = false)
     public ResponseEntity<List<OrganisationListDTO>> getAll() {
-        try {
+        
             return ResponseEntity.ok(organisationService.getAll());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -87,13 +70,8 @@ public class OrganisationApiImpl implements OrganisationApi {
     @Audit(entity = "ORGANISATION", eventLabel="#pageNumber + ' ' + #pageSize", logData = false)
     public ResponseEntity<Page<OrganisationListDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) {
-        try {
+        
             return ResponseEntity.ok(organisationService.getAll(pageNumber, pageSize));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
 
     }
 
@@ -102,32 +80,20 @@ public class OrganisationApiImpl implements OrganisationApi {
     @Audit(entity = "ORGANISATION", logData = false)
     public ResponseEntity<Page<OrganisationListDTO>> pagedSearch(
             SearchObject<OrganisationSearchCriteria> criteria) {
-        try {
 
             Page<OrganisationListDTO> results = organisationService.search(criteria);
 
             // updateOrganisationsDetails(results.getContent());
 
             return ResponseEntity.ok(results);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
     }
 
     @Override
     @Operation(summary = "Remove Organisation", description = "Remove an organisation by its ID")
     @Audit(entity = "ORGANISATION", eventLabel="#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) {
-        try {
+        
             return ResponseEntity.ok(organisationService.remove(id));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     private Collection<OrganisationListDTO> updateOrganisationsDetails(Collection<OrganisationListDTO> orgs) {
@@ -164,7 +130,6 @@ public class OrganisationApiImpl implements OrganisationApi {
     @Operation(summary = "Save Organisation", description = "Save an organisation")
     @Audit(entity = "ORGANISATION", eventLabel="#organisation.id", logData = true)
     public ResponseEntity<OrganisationDTO> save(OrganisationDTO organisation) {
-        try {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             AuditTracker.auditTrail(organisation, authentication);
@@ -195,10 +160,6 @@ public class OrganisationApiImpl implements OrganisationApi {
 
             return ResponseEntity.ok(organisation);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -206,7 +167,6 @@ public class OrganisationApiImpl implements OrganisationApi {
     @Audit(entity = "ORGANISATION", eventLabel = "List search", logData = false)
     public ResponseEntity<List<OrganisationListDTO>> search(
             SearchObject<OrganisationSearchCriteria> criteria) {
-        try {
 
             Set<PropertySearchOrder> sortings = new HashSet<>();
 
@@ -217,12 +177,6 @@ public class OrganisationApiImpl implements OrganisationApi {
             List<OrganisationListDTO> results = organisationService.search(criteria.getCriteria(), sortings);
 
             return ResponseEntity.ok(results);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
     }
 
     @Override
@@ -231,14 +185,9 @@ public class OrganisationApiImpl implements OrganisationApi {
     public ResponseEntity<OrganisationDTO> loadRequestOrganisation(String requestId, String identityConfirmationToken,
             String registrationNo) throws Exception {
         
-        try {
             OrganisationDTO organisation = organisationService.loadRequestOrganisation(requestId, identityConfirmationToken,
                     registrationNo);
             return ResponseEntity.ok(organisation);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -246,7 +195,6 @@ public class OrganisationApiImpl implements OrganisationApi {
     @Audit(entity = "ORGANISATION", eventLabel = "'loadMyOrganisation'", logData = false)
     public ResponseEntity<OrganisationDTO> loadMyOrganisation() throws Exception {
         
-        try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if(!authentication.isAuthenticated()) {
                 throw new IndividualServiceException("Unauthenticated");
@@ -256,15 +204,11 @@ public class OrganisationApiImpl implements OrganisationApi {
             Map<String, Object> org = jwt.getClaimAsMap("organization");
             if(org == null) {
 
-                return ResponseEntity.ok(null);
+                throw new UnsupportedOperationException("Not implemented yet");
             }
 
             String code = org.keySet().iterator().next();
             return ResponseEntity.ok(organisationService.findByCode(code));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -272,13 +216,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     @Audit(entity = "ORGANISATION", eventLabel="#registrationNo", logData = false)
     public ResponseEntity<OrganisationDTO> findByRegistrationNo(String registrationNo) throws Exception {
         
-        try {
             return ResponseEntity.ok(organisationService.findByRegistrationNo(registrationNo));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
     }
 
     @Override
@@ -286,7 +224,6 @@ public class OrganisationApiImpl implements OrganisationApi {
     @Audit(entity = "ORGANISATION", eventLabel="#id", logData = false)
     public ResponseEntity<OrganisationDTO> verifyOrganisation(String id) throws Exception {
         
-        try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (!authentication.isAuthenticated()) {
                 throw new IndividualServiceException("Unauthenticated");
@@ -296,9 +233,5 @@ public class OrganisationApiImpl implements OrganisationApi {
             String userId = jwt.getSubject();
 
             return ResponseEntity.ok(organisationService.verifyOrganisation(id, userId));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 }

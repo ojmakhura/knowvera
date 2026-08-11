@@ -54,8 +54,6 @@ class DocumentTypeServiceImplTest {
     private ExpectedFieldMapper expectedFieldMapper;
     @Mock
     private VerificationDataConfigMapper verificationDataConfigMapper;
-    @Mock
-    private MessageSource messageSource;
 
     private DocumentTypeServiceImpl service;
 
@@ -67,8 +65,7 @@ class DocumentTypeServiceImplTest {
                 expectedFieldRepository,
                 verificationDataConfigRepository,
                 expectedFieldMapper,
-                verificationDataConfigMapper,
-                messageSource);
+                verificationDataConfigMapper);
     }
 
     @Test

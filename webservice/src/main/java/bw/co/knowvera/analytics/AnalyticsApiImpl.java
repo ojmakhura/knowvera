@@ -13,16 +13,17 @@ import bw.co.knowvera.kyc.KycComplianceStatus;
 import bw.co.knowvera.organisation.OrganisationService;
 import bw.co.knowvera.organisation.client.ClientRequestService;
 import bw.co.knowvera.subscription.KycSubscriptionService;
-import bw.co.knowvera.analytics.AnalyticsApi;
-import bw.co.knowvera.analytics.CountDTO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Tag(name = "Analytics", description = "The analytics API")
 public class AnalyticsApiImpl implements AnalyticsApi {
+    private static final Logger logger = LoggerFactory.getLogger(AnalyticsApi.class);
     protected final ClientRequestService clientRequestService;
     protected final IndividualService individualService;
     protected final KycSubscriptionService kycSubscriptionService;
@@ -45,40 +46,31 @@ public class AnalyticsApiImpl implements AnalyticsApi {
 
     @Override
     public ResponseEntity<CountDTO> countAnalytics() throws Exception {
-        try {
 
-            CountDTO counts = new CountDTO();
-            counts.setOrganisationCount(organisationService.count());
-            counts.setIndividualCount(individualService.count());
-            counts.setRequestCount(clientRequestService.count());
-            counts.setSubscriptionCount(kycSubscriptionService.count());
-            counts.setPaidInvoicesCount(kycInvoiceService.countInvoices(true));
-            counts.setUnpaidInvoicesCount(kycInvoiceService.countInvoices(false));
-            counts.setInvoicesCount(kycInvoiceService.count());
-            counts.setPepCount(individualService.countByPepStatus(PepStatus.PEP_SELF));
-            counts.setPepRelativeCount(individualService.countByPepStatus(PepStatus.PEP_RELATIVE));
-            counts.setPepAssociateCount(individualService.countByPepStatus(PepStatus.PEP_ASSOCIATE));
-            counts.setKycComplianceExpiredCount(individualService.countByKycStatus(KycComplianceStatus.EXPIRED));
-            counts.setKycComplianceAbsentCount(individualService.countByKycStatus(KycComplianceStatus.ABSENT));
-            counts.setKycComplianceIncompleteCount(individualService.countByKycStatus(KycComplianceStatus.INCOMPLETE));
+        logger.debug("Counting analytics data");
 
-            return ResponseEntity.ok(counts);
-        } catch (Exception e) {
+        CountDTO counts = new CountDTO();
+        counts.setOrganisationCount(organisationService.count());
+        counts.setIndividualCount(individualService.count());
+        counts.setRequestCount(clientRequestService.count());
+        counts.setSubscriptionCount(kycSubscriptionService.count());
+        counts.setPaidInvoicesCount(kycInvoiceService.countInvoices(true));
+        counts.setUnpaidInvoicesCount(kycInvoiceService.countInvoices(false));
+        counts.setInvoicesCount(kycInvoiceService.count());
+        counts.setPepCount(individualService.countByPepStatus(PepStatus.PEP_SELF));
+        counts.setPepRelativeCount(individualService.countByPepStatus(PepStatus.PEP_RELATIVE));
+        counts.setPepAssociateCount(individualService.countByPepStatus(PepStatus.PEP_ASSOCIATE));
+        counts.setKycComplianceExpiredCount(individualService.countByKycStatus(KycComplianceStatus.EXPIRED));
+        counts.setKycComplianceAbsentCount(individualService.countByKycStatus(KycComplianceStatus.ABSENT));
+        counts.setKycComplianceIncompleteCount(individualService.countByKycStatus(KycComplianceStatus.INCOMPLETE));
 
-            e.printStackTrace();
-            throw e;
-        }
+        return ResponseEntity.ok(counts);
     }
 
     @Override
     public ResponseEntity<CountDTO> organisationCountAnalytics(String organisationId) throws Exception {
-        try {
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
+        
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     /**

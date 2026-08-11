@@ -11,18 +11,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 import bw.co.knowvera.AuditTracker;
-import bw.co.knowvera.individual.employment.EmploymentRecordApi;
-import bw.co.knowvera.individual.employment.EmploymentRecordDTO;
-import bw.co.knowvera.individual.employment.EmploymentRecordService;
-import bw.co.knowvera.individual.employment.EmploymentRecordServiceException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 
 @RestController
 @Tag(name = "Individual Employment Records", description = "Operations related to individual employment records.")
@@ -40,14 +34,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     @Operation(summary = "Find Employment Record by ID", description = "Find an employment record by its ID")
     public ResponseEntity<EmploymentRecordDTO> findById(String id) throws Exception {
 
-        try {
-
-            return ResponseEntity.ok(employmentRecordService.findById(id));
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(employmentRecordService.findById(id));
     }
 
     @Override
@@ -55,28 +42,14 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     public ResponseEntity<List<EmploymentRecordDTO>> findByIndividual(String individualId)
             throws Exception {
 
-        try {
-
-            return ResponseEntity.ok(employmentRecordService.findByIndividual(individualId));
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(employmentRecordService.findByIndividual(individualId));
     }
 
     @Override
     @Operation(summary = "Get All Employment Records", description = "Get all employment records")
     public ResponseEntity<List<EmploymentRecordDTO>> getAll() throws Exception {
 
-        try {
-
-            return ResponseEntity.ok(employmentRecordService.getAll());
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(employmentRecordService.getAll());
     }
 
     @Override
@@ -84,14 +57,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     public ResponseEntity<Page<EmploymentRecordDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) throws Exception {
 
-        try {
-
-            return ResponseEntity.ok(employmentRecordService.getAll(pageNumber, pageSize));
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(employmentRecordService.getAll(pageNumber, pageSize));
     }
 
     @Override
@@ -99,28 +65,14 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     public ResponseEntity<Page<EmploymentRecordDTO>> pagedSearch(String criteria,
             Integer pageNumber, Integer pageSize) throws Exception {
 
-        try {
-
-            return ResponseEntity.ok(employmentRecordService.search(criteria, pageNumber, pageSize));
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(employmentRecordService.search(criteria, pageNumber, pageSize));
     }
 
     @Override
     @Operation(summary = "Remove Employment Record", description = "Remove an employment record by its ID")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
-        try {
-
-            return ResponseEntity.ok(employmentRecordService.remove(id));
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(employmentRecordService.remove(id));
     }
 
     @Override
@@ -128,17 +80,10 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     public ResponseEntity<EmploymentRecordDTO> save(EmploymentRecordDTO employmentRecord)
             throws Exception {
 
-        try {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(employmentRecord, authentication);
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            AuditTracker.auditTrail(employmentRecord, authentication);
-
-            return ResponseEntity.ok(employmentRecordService.save(employmentRecord));
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(employmentRecordService.save(employmentRecord));
     }
 
     @Override
@@ -146,13 +91,6 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     public ResponseEntity<List<EmploymentRecordDTO>> search(String criteria)
             throws Exception {
 
-        try {
-
-            return ResponseEntity.ok(employmentRecordService.search(criteria));
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new EmploymentRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(employmentRecordService.search(criteria));
     }
 }

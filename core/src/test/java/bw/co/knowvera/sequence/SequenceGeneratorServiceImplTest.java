@@ -34,8 +34,6 @@ class SequenceGeneratorServiceImplTest {
     private SequenceGeneratorRepository sequenceGeneratorRepository;
     @Mock
     private SequenceGeneratorMapper sequenceGeneratorMapper;
-    @Mock
-    private MessageSource messageSource;
 
     private SequenceGeneratorServiceImpl service;
 
@@ -43,8 +41,7 @@ class SequenceGeneratorServiceImplTest {
     void setUp() {
         service = new SequenceGeneratorServiceImpl(
                 sequenceGeneratorRepository,
-                sequenceGeneratorMapper,
-                messageSource);
+                sequenceGeneratorMapper);
     }
 
     @Test

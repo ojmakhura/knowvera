@@ -5,9 +5,7 @@
 //
 package bw.co.knowvera.document.type;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -21,10 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import bw.co.knowvera.AuditTracker;
 import bw.co.knowvera.document.type.field.ExpectedFieldDTO;
 import bw.co.knowvera.logging.Audit;
-import bw.co.knowvera.document.type.DocumentTypeApi;
-import bw.co.knowvera.document.type.DocumentTypeDTO;
-import bw.co.knowvera.document.type.DocumentTypeService;
-import bw.co.knowvera.document.type.DocumentTypeServiceException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -43,14 +37,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     @Operation(summary = "Find Document Type", description = "Get the document type with the given id")
     public ResponseEntity<DocumentTypeDTO> findById(String id) throws Exception {
 
-        try {
-
-            return ResponseEntity.ok(documentTypeService.findById(id));
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(documentTypeService.findById(id));
 
     }
 
@@ -58,21 +45,14 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     @Operation(summary = "Get All Document Types", description = "Get all document types")
     public ResponseEntity<List<DocumentTypeDTO>> getAll() throws Exception {
 
-        try {
+        List<DocumentTypeDTO> results = documentTypeService.getAll();
 
-            List<DocumentTypeDTO> results = documentTypeService.getAll();
+        if (CollectionUtils.isEmpty(results)) {
 
-            if (CollectionUtils.isEmpty(results)) {
-
-                return ResponseEntity.noContent().build();
-            }   
-
-            return ResponseEntity.ok(results);
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
+            return ResponseEntity.noContent().build();
         }
+
+        return ResponseEntity.ok(results);
 
     }
 
@@ -81,19 +61,14 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     public ResponseEntity<Page<DocumentTypeDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) throws Exception {
 
-        try {
-            Page<DocumentTypeDTO> results = documentTypeService.getAll(pageNumber, pageSize);
+        Page<DocumentTypeDTO> results = documentTypeService.getAll(pageNumber, pageSize);
 
-            if (CollectionUtils.isEmpty(results.getContent())) {
+        if (CollectionUtils.isEmpty(results.getContent())) {
 
-                return ResponseEntity.noContent().build();
-            }
-
-            return ResponseEntity.ok(results);
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
+            return ResponseEntity.noContent().build();
         }
+
+        return ResponseEntity.ok(results);
     }
 
     @Override
@@ -102,70 +77,48 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
             Integer pageNumber,
             Integer pageSize) throws Exception {
 
-        try {
+        Page<DocumentTypeDTO> results = documentTypeService.search(criteria, pageNumber, pageSize);
 
-            Page<DocumentTypeDTO> results = documentTypeService.search(criteria, pageNumber, pageSize);
+        if (CollectionUtils.isEmpty(results.getContent())) {
 
-            if (CollectionUtils.isEmpty(results.getContent())) {
-
-                return ResponseEntity.noContent().build();
-            }
-
-            return ResponseEntity.ok(results);
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
+            return ResponseEntity.noContent().build();
         }
+
+        return ResponseEntity.ok(results);
 
     }
 
     @Override
     @Operation(summary = "Remove Document Type", description = "Remove the document type with the given id")
-    @Audit(entity = "DOCUMENT_TYPE", eventLabel="#id", logData = false)
+    @Audit(entity = "DOCUMENT_TYPE", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
-        try {
-
-            return ResponseEntity.ok(documentTypeService.remove(id));
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
-        }
-
+        return ResponseEntity.ok(documentTypeService.remove(id));
     }
 
     @Override
     @Operation(summary = "Save Document Type", description = "Save the document type. If the id is not provided, a new document type will be created.")
-    @Audit(entity = "DOCUMENT_TYPE", eventLabel="#documentType.name", logData = false)
+    @Audit(entity = "DOCUMENT_TYPE", eventLabel = "#documentType.name", logData = false)
     public ResponseEntity<DocumentTypeDTO> save(DocumentTypeDTO documentType) throws Exception {
 
-        try {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(documentType, authentication);
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            AuditTracker.auditTrail(documentType, authentication);
+        if (documentType.getExpectedFields() != null) {
 
-            if (documentType.getExpectedFields() != null) {
-
-                documentType.getExpectedFields().forEach(field -> {
-                    AuditTracker.auditTrail(field, authentication);
-                });
-            }
-
-            if (documentType.getVerificationDataConfigs() != null) {
-
-                documentType.getVerificationDataConfigs().forEach(config -> {
-                    AuditTracker.auditTrail(config, authentication);
-                });
-            }
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(documentTypeService.save(documentType));
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
+            documentType.getExpectedFields().forEach(field -> {
+                AuditTracker.auditTrail(field, authentication);
+            });
         }
+
+        if (documentType.getVerificationDataConfigs() != null) {
+
+            documentType.getVerificationDataConfigs().forEach(config -> {
+                AuditTracker.auditTrail(config, authentication);
+            });
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(documentTypeService.save(documentType));
 
     }
 
@@ -173,38 +126,25 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     @Operation(summary = "Search Document Types", description = "Search document types by criteria")
     public ResponseEntity<List<DocumentTypeDTO>> search(String criteria) throws Exception {
 
-        try {
-            List<DocumentTypeDTO> results = documentTypeService.search(criteria);
+        List<DocumentTypeDTO> results = documentTypeService.search(criteria);
 
-            if (CollectionUtils.isEmpty(results)) {
+        if (CollectionUtils.isEmpty(results)) {
 
-                return ResponseEntity.noContent().build();
-            }
-
-            return ResponseEntity.ok(results);
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
+            return ResponseEntity.noContent().build();
         }
 
+        return ResponseEntity.ok(results);
     }
 
     @Override
     @Operation(summary = "Add Expected Fields to Document Type", description = "Add expected fields to the document type with the given id")
-    @Audit(entity = "DOCUMENT_TYPE", eventLabel="#id", logData = true)
+    @Audit(entity = "DOCUMENT_TYPE", eventLabel = "#id", logData = true)
     public ResponseEntity<DocumentTypeDTO> addExpectedField(String id, @Valid Set<ExpectedFieldDTO> expectedFields)
             throws Exception {
-        
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            expectedFields.forEach(field -> AuditTracker.auditTrail(field, authentication));
 
-            return ResponseEntity.ok(documentTypeService.addExpectedField(id, expectedFields));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        expectedFields.forEach(field -> AuditTracker.auditTrail(field, authentication));
 
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new DocumentTypeServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(documentTypeService.addExpectedField(id, expectedFields));
     }
 }

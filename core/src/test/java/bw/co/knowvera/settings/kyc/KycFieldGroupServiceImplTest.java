@@ -41,8 +41,6 @@ class KycFieldGroupServiceImplTest {
     private GroupFieldRepository groupFieldRepository;
     @Mock
     private SettingsRepository settingsRepository;
-    @Mock
-    private MessageSource messageSource;
 
     private KycFieldGroupServiceImpl service;
 
@@ -52,8 +50,7 @@ class KycFieldGroupServiceImplTest {
                 kycFieldGroupRepository,
                 kycFieldGroupMapper,
                 groupFieldRepository,
-                settingsRepository,
-                messageSource);
+                settingsRepository);
     }
 
     @Test
@@ -86,8 +83,7 @@ class KycFieldGroupServiceImplTest {
     @Test
     void removeThrowsWhenGroupDoesNotExist() {
         UUID id = UUID.randomUUID();
-        when(messageSource.getMessage("kycFieldGroup.notFound", new Object[] { id.toString() }, null))
-                .thenReturn("not found");
+        when("Not found").thenReturn("not found");
         when(kycFieldGroupRepository.existsById(id)).thenReturn(false);
 
         assertThrows(KycFieldGroupServiceException.class, () -> service.remove(id.toString()));

@@ -54,8 +54,8 @@ public class DocumentTypeServiceImpl
     public DocumentTypeServiceImpl(DocumentTypeRepository documentTypeRepository,
             DocumentTypeMapper documentTypeMapper, ExpectedFieldRepository expectedFieldRepository,
             VerificationDataConfigRepository verificationDataConfigRepository, ExpectedFieldMapper expectedFieldMapper,
-            VerificationDataConfigMapper verificationDataConfigMapper, MessageSource messageSource) {
-        super(documentTypeRepository, documentTypeMapper, messageSource);
+            VerificationDataConfigMapper verificationDataConfigMapper) {
+        super(documentTypeRepository, documentTypeMapper);
         // TODO Auto-generated constructor stub
 
         this.expectedFieldRepository = expectedFieldRepository;

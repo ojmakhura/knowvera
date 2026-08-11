@@ -21,11 +21,6 @@ import bw.co.knowvera.sequence.SequenceGeneratorRepository;
 import bw.co.knowvera.sequence.SequenceGeneratorService;
 import bw.co.knowvera.sequence.SequencePart;
 import bw.co.knowvera.sequence.SequencePartType;
-import bw.co.knowvera.contact.Contact;
-import bw.co.knowvera.contact.ContactDTO;
-import bw.co.knowvera.contact.ContactRepository;
-import bw.co.knowvera.contact.ContactServiceBase;
-import bw.co.knowvera.contact.ContactType;
 
 /**
  * @see bw.co.knowvera.contact.ContactService
@@ -41,12 +36,10 @@ public class ContactServiceImpl
             ContactRepository contactRepository,
             ContactMapper contactMapper,
             SequenceGeneratorService sequenceGeneratorService,
-            SequenceGeneratorRepository sequenceGeneratorRepository,
-            MessageSource messageSource) {
+            SequenceGeneratorRepository sequenceGeneratorRepository) {
         super(
                 contactRepository,
-                contactMapper,
-                messageSource);
+                contactMapper);
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.sequenceGeneratorRepository = sequenceGeneratorRepository;
     }

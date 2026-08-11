@@ -41,8 +41,6 @@ class SettingsServiceImplTest {
     private SalaryRangeMapper salaryRangeMapper;
     @Mock
     private SalaryRangeRepository salaryRangeRepository;
-    @Mock
-    private MessageSource messageSource;
 
     private SettingsServiceImpl service;
 
@@ -54,8 +52,7 @@ class SettingsServiceImplTest {
                 documentRepository,
                 documentTypeRepository,
                 salaryRangeMapper,
-                salaryRangeRepository,
-                messageSource);
+                salaryRangeRepository);
     }
 
     @Test

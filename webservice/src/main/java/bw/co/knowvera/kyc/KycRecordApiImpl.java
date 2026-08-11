@@ -99,64 +99,49 @@ public class KycRecordApiImpl implements KycRecordApi {
     public ResponseEntity<KycRecordDTO> findById(String id) throws Exception {
 
         logger.debug("Finding KYC record by ID: {}", id);
-        try {
 
-            KycRecordDTO record = kycRecordService.findById(id);
+        KycRecordDTO record = kycRecordService.findById(id);
 
-            if (CollectionUtils.isEmpty(record.getKycReportSections())) {
-                String username = "anonymousUser";
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                if (authentication != null) {
+        if (CollectionUtils.isEmpty(record.getKycReportSections())) {
+            String username = "anonymousUser";
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null) {
 
-                    username = authentication.getName();
-                }
-                record = kycRecordService.generateKycReport(id, username);
+                username = authentication.getName();
             }
-
-            updateOrganisations(List.of(record));
-
-            return ResponseEntity.ok(record);
-
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
+            record = kycRecordService.generateKycReport(id, username);
         }
+
+        updateOrganisations(List.of(record));
+
+        return ResponseEntity.ok(record);
+
     }
 
     @Override
     @Operation(summary = "Find KYC Records by Identity Number", description = "Find KYC records by their identity number")
-    @Audit(entity = "KYC_RECORD", eventLabel="#identityNo", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#identityNo", logData = false)
     public ResponseEntity<List<KycRecordListDTO>> findByIdentityNo(String identityNo)
             throws Exception {
         logger.debug("Finding KYC records by identity number: {}", identityNo);
-        try {
-            List<KycRecordListDTO> records = kycRecordService.findByIdentityNo(identityNo);
-            // updateOrganisations(records);
-            return ResponseEntity.ok(records);
 
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        List<KycRecordListDTO> records = kycRecordService.findByIdentityNo(identityNo);
+        // updateOrganisations(records);
+        return ResponseEntity.ok(records);
     }
 
     @Override
     @Operation(summary = "Find KYC Records by Individual", description = "Find KYC records by their individual ID")
-    @Audit(entity = "KYC_RECORD", eventLabel="#individualId", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#individualId", logData = false)
     public ResponseEntity<List<KycRecordListDTO>> findByIndividual(String individualId)
             throws Exception {
 
         logger.debug("Finding KYC records by individual ID: {}", individualId);
 
-        try {
-            List<KycRecordListDTO> records = kycRecordService.findByIndividual(individualId);
-            // updateOrganisations(records);
-            return ResponseEntity.ok(records);
+        List<KycRecordListDTO> records = kycRecordService.findByIndividual(individualId);
+        // updateOrganisations(records);
+        return ResponseEntity.ok(records);
 
-        } catch (Exception e) {
-
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
-        }
     }
 
     @Override
@@ -166,15 +151,10 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         logger.debug("Retrieving all KYC records");
 
-        try {
-            List<KycRecordListDTO> records = kycRecordService.getAll();
-            // updateOrganisations(records);
-            return ResponseEntity.ok(records);
+        List<KycRecordListDTO> records = kycRecordService.getAll();
+        // updateOrganisations(records);
+        return ResponseEntity.ok(records);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
-        }
     }
 
     @Override
@@ -183,17 +163,12 @@ public class KycRecordApiImpl implements KycRecordApi {
     public ResponseEntity<Page<KycRecordListDTO>> getAllPaged(Integer pageNumber, Integer pageSize)
             throws Exception {
 
-        logger.debug("Retrieving all KYC records with pagination - Page Number: {}, Page Size: {}", pageNumber, pageSize);
+        logger.debug("Retrieving all KYC records with pagination - Page Number: {}, Page Size: {}", pageNumber,
+                pageSize);
 
-        try {
-            Page<KycRecordListDTO> records = kycRecordService.getAll(pageNumber, pageSize);
-            // updateOrganisations(records.getContent());
-            return ResponseEntity.ok(records);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        Page<KycRecordListDTO> records = kycRecordService.getAll(pageNumber, pageSize);
+        // updateOrganisations(records.getContent());
+        return ResponseEntity.ok(records);
     }
 
     @Override
@@ -204,32 +179,21 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         logger.debug("Performing paged search for KYC records with criteria: {}", criteria);
 
-        try {
-            Page<KycRecordListDTO> records = kycRecordService.search(criteria);
-            // updateOrganisations(records.getContent());
-            return ResponseEntity.ok(records);
+        Page<KycRecordListDTO> records = kycRecordService.search(criteria);
+        // updateOrganisations(records.getContent());
+        return ResponseEntity.ok(records);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
-        }
     }
 
     @Override
     @Operation(summary = "Remove KYC Record", description = "Remove a KYC record by its ID")
-    @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
         logger.debug("Removing KYC record with ID: {}", id);
 
-        try {
+        return ResponseEntity.ok(kycRecordService.remove(id));
 
-            return ResponseEntity.ok(kycRecordService.remove(id));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
-        }
     }
 
     @Override
@@ -239,19 +203,13 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         logger.debug("Saving KYC record: {}", kycRecord);
 
-        try {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(kycRecord, authentication);
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            AuditTracker.auditTrail(kycRecord, authentication);
+        KycRecordDTO savedRecord = kycRecordService.save(kycRecord);
+        updateOrganisations(List.of(savedRecord));
+        return ResponseEntity.ok(savedRecord);
 
-            KycRecordDTO savedRecord = kycRecordService.save(kycRecord);
-            updateOrganisations(List.of(savedRecord));
-            return ResponseEntity.ok(savedRecord);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
-        }
     }
 
     @Override
@@ -261,212 +219,162 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         logger.debug("Searching KYC records with criteria: {}", criteria);
 
-        try {
+        List<KycRecordListDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
+        // updateOrganisations(records);
 
-            List<KycRecordListDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
-            // updateOrganisations(records);
+        return ResponseEntity.ok(records);
 
-            return ResponseEntity.ok(records);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
-        }
     }
 
     @Override
     @Operation(summary = "Find KYC Records by Identity Number Paged", description = "Find KYC records by their identity number with pagination")
-    @Audit(entity = "KYC_RECORD", eventLabel="#identityNo + ' ' + #pageNumber + ' ' + #pageSize", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#identityNo + ' ' + #pageNumber + ' ' + #pageSize", logData = false)
     public ResponseEntity<Page<KycRecordListDTO>> findByIdentityNoPaged(String identityNo, Integer pageNumber,
             Integer pageSize) throws Exception {
 
-        logger.debug("Finding KYC records by identity number: {} with pagination - Page Number: {}, Page Size: {}", identityNo, pageNumber, pageSize);
+        logger.debug("Finding KYC records by identity number: {} with pagination - Page Number: {}, Page Size: {}",
+                identityNo, pageNumber, pageSize);
 
-        try {
-
-            Page<KycRecordListDTO> records = kycRecordService.findByIdentityNo(identityNo, pageNumber, pageSize);
-            // updateOrganisations(records.getContent());
-            return ResponseEntity.ok(records);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        Page<KycRecordListDTO> records = kycRecordService.findByIdentityNo(identityNo, pageNumber, pageSize);
+        // updateOrganisations(records.getContent());
+        return ResponseEntity.ok(records);
     }
 
     @Override
     @Operation(summary = "Find KYC Records by Individual Paged", description = "Find KYC records by their individual ID with pagination")
-    @Audit(entity = "KYC_RECORD", eventLabel="#individualId + ' ' + #pageNumber + ' ' + #pageSize", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#individualId + ' ' + #pageNumber + ' ' + #pageSize", logData = false)
     public ResponseEntity<Page<KycRecordListDTO>> findByIndividualPaged(String individualId, Integer pageNumber,
             Integer pageSize) throws Exception {
 
-        logger.debug("Finding KYC records by individual ID: {} with pagination - Page Number: {}, Page Size: {}", individualId, pageNumber, pageSize);
-
-        try {
-            Page<KycRecordListDTO> records = kycRecordService.findByIndividual(individualId, pageNumber, pageSize);
-            // updateOrganisations(records.getContent());
-            return ResponseEntity.ok(records);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        logger.debug("Finding KYC records by individual ID: {} with pagination - Page Number: {}, Page Size: {}",
+                individualId, pageNumber, pageSize);
+        Page<KycRecordListDTO> records = kycRecordService.findByIndividual(individualId, pageNumber, pageSize);
+        // updateOrganisations(records.getContent());
+        return ResponseEntity.ok(records);
     }
 
     @Override
     @Operation(summary = "Find KYC Records by Organisation", description = "Find KYC records by their organisation ID")
-    @Audit(entity = "KYC_RECORD", eventLabel="#organisationId", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
     public ResponseEntity<List<KycRecordListDTO>> findByOrganisation(String organisationId) throws Exception {
 
         logger.debug("Finding KYC records by organisation ID: {}", organisationId);
 
-        try {
-            List<KycRecordListDTO> records = kycRecordService.findByOrganisation(organisationId);
-            // updateOrganisations(records);
-            return ResponseEntity.ok(records);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        List<KycRecordListDTO> records = kycRecordService.findByOrganisation(organisationId);
+        // updateOrganisations(records);
+        return ResponseEntity.ok(records);
     }
 
     @Override
     @Operation(summary = "Find KYC Records by Organisation Registration", description = "Find KYC records by their organisation registration number")
-    @Audit(entity = "KYC_RECORD", eventLabel="#registrationNo", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#registrationNo", logData = false)
     public ResponseEntity<List<KycRecordListDTO>> findByOrganisationRegistration(String registrationNo)
             throws Exception {
 
         logger.debug("Finding KYC records by organisation registration number: {}", registrationNo);
 
-        try {
+        OrganisationDTO org = keycloakOrganisationService.findByRegistrationNo(registrationNo);
 
-            OrganisationDTO org = keycloakOrganisationService.findByRegistrationNo(registrationNo);
-
-            if (org == null) {
-                throw new Exception("Organisation not found for registration no: " + registrationNo);
-            }
-
-            List<KycRecordListDTO> records = kycRecordService.findByOrganisation(org.getId());
-            // updateOrganisations(records);
-
-            return ResponseEntity.ok(records);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
+        if (org == null) {
+            throw new Exception("Organisation not found for registration no: " + registrationNo);
         }
+
+        List<KycRecordListDTO> records = kycRecordService.findByOrganisation(org.getId());
+        // updateOrganisations(records);
+
+        return ResponseEntity.ok(records);
     }
 
     @Override
     @Operation(summary = "Find KYC Records by Organisation Registration Paged", description = "Find KYC records by their organisation registration number with pagination")
-    @Audit(entity = "KYC_RECORD", eventLabel="#registrationNo + ' ' + #pageNumber + ' ' + #pageSize", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#registrationNo + ' ' + #pageNumber + ' ' + #pageSize", logData = false)
     public ResponseEntity<Page<KycRecordListDTO>> findByOrganisationRegistrationPaged(String registrationNo,
             Integer pageNumber, Integer pageSize) throws Exception {
 
-        logger.debug("Finding KYC records by organisation registration number: {} with pagination - Page Number: {}, Page Size: {}", registrationNo, pageNumber, pageSize);
+        logger.debug(
+                "Finding KYC records by organisation registration number: {} with pagination - Page Number: {}, Page Size: {}",
+                registrationNo, pageNumber, pageSize);
 
-        try {
-            OrganisationDTO org = keycloakOrganisationService.findByRegistrationNo(registrationNo);
+        OrganisationDTO org = keycloakOrganisationService.findByRegistrationNo(registrationNo);
 
-            if (org == null) {
-                throw new Exception("Organisation not found for registration no: " + registrationNo);
-            }
-
-            Page<KycRecordListDTO> records = kycRecordService.findByOrganisation(org.getId(), pageNumber, pageSize);
-            // updateOrganisations(records.getContent());
-
-            return ResponseEntity.ok(records);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
+        if (org == null) {
+            throw new Exception("Organisation not found for registration no: " + registrationNo);
         }
+
+        Page<KycRecordListDTO> records = kycRecordService.findByOrganisation(org.getId(), pageNumber, pageSize);
+        // updateOrganisations(records.getContent());
+
+        return ResponseEntity.ok(records);
     }
 
     @Override
     @Operation(summary = "Create Individual KYC Record", description = "Create a KYC record for an individual")
-    @Audit(entity = "KYC_RECORD", eventLabel="#individualId", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#individualId", logData = false)
     public ResponseEntity<KycRecordDTO> createIndividualRecord(String individualId) throws Exception {
 
         logger.debug("Creating KYC record for individual ID: {}", individualId);
 
-        try {
+        String username = "anonymousUser";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
 
-            String username = "anonymousUser";
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null) {
-
-                username = authentication.getName();
-            }
-
-            KycRecordDTO record = kycRecordService.createTargetRecord(individualId, TargetEntity.INDIVIDUAL, username);
-            updateOrganisations(List.of(record));
-
-            return ResponseEntity.ok(record);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
+            username = authentication.getName();
         }
+
+        KycRecordDTO record = kycRecordService.createTargetRecord(individualId, TargetEntity.INDIVIDUAL, username);
+        updateOrganisations(List.of(record));
+
+        return ResponseEntity.ok(record);
     }
 
     @Override
     @Operation(summary = "Create Organisation KYC Record", description = "Create a KYC record for an organisation")
-    @Audit(entity = "KYC_RECORD", eventLabel="#organisationId", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
     public ResponseEntity<KycRecordDTO> createOrganisationRecord(String organisationId) throws Exception {
 
         logger.debug("Creating KYC record for organisation ID: {}", organisationId);
 
-        try {
+        String username = "anonymousUser";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
 
-            String username = "anonymousUser";
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null) {
-
-                username = authentication.getName();
-            }
-
-            KycRecordDTO record = kycRecordService.createTargetRecord(organisationId, TargetEntity.ORGANISATION,
-                    username);
-            updateOrganisations(List.of(record));
-
-            return ResponseEntity.ok(record);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
+            username = authentication.getName();
         }
+
+        KycRecordDTO record = kycRecordService.createTargetRecord(organisationId, TargetEntity.ORGANISATION,
+                username);
+        updateOrganisations(List.of(record));
+
+        return ResponseEntity.ok(record);
     }
 
     @Override
     @Operation(summary = "Find My Current KYC Record", description = "Find the current KYC record for the authenticated user")
-//    @Audit(entity = "KYC_RECORD", logData = false)
+    // @Audit(entity = "KYC_RECORD", logData = false)
     public ResponseEntity<KycRecordDTO> findMyCurrentRecord(TargetEntity ownerType) throws Exception {
 
         logger.debug("Finding current KYC record for authenticated user with owner type: {}", ownerType);
-        
-        try {
-            String username = "anonymousUser";
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null) {
 
-                username = authentication.getName();
-            }
+        String username = "anonymousUser";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
 
-            UserDTO user = keycloakUserService.findByUsername(username);
-            IndividualDTO individual = individualService.findByUserId(user.getUserId());
-
-            if (individual == null || StringUtils.isBlank(individual.getId())) {
-
-                throw new Exception("No individual or organisation associated with user: " + username);
-            }
-
-            KycRecordDTO current = kycRecordService.findLatestValidForOwner(individual.getId(), ownerType,
-                    LocalDate.now());
-
-            return ResponseEntity
-                    .ok(current);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
+            username = authentication.getName();
         }
+
+        UserDTO user = keycloakUserService.findByUsername(username);
+        IndividualDTO individual = individualService.findByUserId(user.getUserId());
+
+        if (individual == null || StringUtils.isBlank(individual.getId())) {
+
+            throw new Exception("No individual or organisation associated with user: " + username);
+        }
+
+        KycRecordDTO current = kycRecordService.findLatestValidForOwner(individual.getId(), ownerType,
+                LocalDate.now());
+
+        return ResponseEntity
+                .ok(current);
     }
 
     private KycRecordSearchCriteria buildSearchCriteriaForCurrentUser() throws Exception {
@@ -494,7 +402,7 @@ public class KycRecordApiImpl implements KycRecordApi {
 
             targetIds.add(individual.getId());
 
-            if(individual.getOrganisation() != null && StringUtils.isNotBlank(individual.getOrganisation().id())) {
+            if (individual.getOrganisation() != null && StringUtils.isNotBlank(individual.getOrganisation().id())) {
                 targetIds.add(individual.getOrganisation().id());
 
             }
@@ -513,20 +421,13 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         logger.debug("Finding KYC records for the authenticated user");
 
-        try {
+        KycRecordSearchCriteria criteria = buildSearchCriteriaForCurrentUser();
 
-            KycRecordSearchCriteria criteria = buildSearchCriteriaForCurrentUser();
+        List<KycRecordListDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
+        // updateOrganisations(records);
 
-            List<KycRecordListDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
-            // updateOrganisations(records);
+        return ResponseEntity.ok(records);
 
-            return ResponseEntity.ok(records);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
-        }
     }
 
     @Override
@@ -542,181 +443,164 @@ public class KycRecordApiImpl implements KycRecordApi {
             throw new KycRecordServiceException("This is an existing record.");
         }
 
-        if(record.getDocuments() == null || record.getDocuments().isEmpty()) {
+        if (record.getDocuments() == null || record.getDocuments().isEmpty()) {
             throw new KycRecordServiceException("No documents provided.");
         }
 
-        if(files == null || files.isEmpty()) {
+        if (files == null || files.isEmpty()) {
             throw new KycRecordServiceException("No files provided.");
         }
 
-        if(record.getDocuments().size() != files.size()) {
+        if (record.getDocuments().size() != files.size()) {
             throw new KycRecordServiceException("Number of documents and files do not match.");
         }
 
-        try {
+        String username = "anonymousUser";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
 
-            String username = "anonymousUser";
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null) {
-
-                username = authentication.getName();
-            }
-
-            // Keep a record of the incoming documents to preserve sequence
-            List<DocumentDTO> docs = record.getDocuments();
-
-            AuditTracker.auditTrail(record, authentication);
-
-            docs.forEach(d -> {
-                AuditTracker.auditTrail(d, authentication);
-                d.setTarget(TargetEntity.KYC_RECORD);
-                d.setTargetId(record.getId());
-            });
-
-            // Save the record first to generate IDs for documents, then upload files and
-            // update document records with file info
-            KycRecordDTO createdRecord = kycRecordService.createNew(record, username);
-
-            if (files != null) {
-                for (int i = 0; i < files.size(); i++) {
-
-                    DocumentDTO doc = docs.get(i);
-                    DocumentDTO savedDoc = createdRecord.getDocuments().stream()
-                            .filter(d -> Strings.CS.equals(d.getDocumentTypeId(), doc.getDocumentTypeId()))
-                            .findFirst()
-                            .orElseThrow(() -> new Exception(
-                                    "Document not found in created record for file: " + doc.getFileName()));
-                    ResponseEntity<DocumentDTO> uploadResponse = documentApi
-                            .updateDocument(savedDoc.getId(), files.get(i));
-
-                    if (uploadResponse == null || uploadResponse.getBody() == null
-                            || uploadResponse.getStatusCode().isError()) {
-
-                        throw new Exception("Failed to upload document: " + doc.getFileName());
-                    }
-
-                    DocumentDTO uploaded = uploadResponse.getBody();
-
-                    if (StringUtils.isBlank(doc.getId())) {
-                        doc.setId(uploaded.getId());
-                        doc.setCreatedAt(uploaded.getCreatedAt());
-                        doc.setModifiedAt(uploaded.getModifiedAt());
-                    }
-
-                    doc.setModifiedAt(uploaded.getModifiedAt());
-                    doc.setModifiedBy(uploaded.getModifiedBy());
-                    doc.setFileContent(uploaded.getFileContent());
-                    doc.setMetadata(uploaded.getMetadata());
-                    doc.setUrl(uploaded.getUrl());
-                    doc.setFileName(uploaded.getFileName());
-
-                }
-            }
-
-            createdRecord.setDocuments(docs);
-            return ResponseEntity.ok(createdRecord);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
+            username = authentication.getName();
         }
+
+        // Keep a record of the incoming documents to preserve sequence
+        List<DocumentDTO> docs = record.getDocuments();
+
+        AuditTracker.auditTrail(record, authentication);
+
+        docs.forEach(d -> {
+            AuditTracker.auditTrail(d, authentication);
+            d.setTarget(TargetEntity.KYC_RECORD);
+            d.setTargetId(record.getId());
+        });
+
+        // Save the record first to generate IDs for documents, then upload files and
+        // update document records with file info
+        KycRecordDTO createdRecord = kycRecordService.createNew(record, username);
+
+        if (files != null) {
+            for (int i = 0; i < files.size(); i++) {
+
+                DocumentDTO doc = docs.get(i);
+                DocumentDTO savedDoc = createdRecord.getDocuments().stream()
+                        .filter(d -> Strings.CS.equals(d.getDocumentTypeId(), doc.getDocumentTypeId()))
+                        .findFirst()
+                        .orElseThrow(() -> new Exception(
+                                "Document not found in created record for file: " + doc.getFileName()));
+                ResponseEntity<DocumentDTO> uploadResponse = documentApi
+                        .updateDocument(savedDoc.getId(), files.get(i));
+
+                if (uploadResponse == null || uploadResponse.getBody() == null
+                        || uploadResponse.getStatusCode().isError()) {
+
+                    throw new Exception("Failed to upload document: " + doc.getFileName());
+                }
+
+                DocumentDTO uploaded = uploadResponse.getBody();
+
+                if (StringUtils.isBlank(doc.getId())) {
+                    doc.setId(uploaded.getId());
+                    doc.setCreatedAt(uploaded.getCreatedAt());
+                    doc.setModifiedAt(uploaded.getModifiedAt());
+                }
+
+                doc.setModifiedAt(uploaded.getModifiedAt());
+                doc.setModifiedBy(uploaded.getModifiedBy());
+                doc.setFileContent(uploaded.getFileContent());
+                doc.setMetadata(uploaded.getMetadata());
+                doc.setUrl(uploaded.getUrl());
+                doc.setFileName(uploaded.getFileName());
+
+            }
+        }
+
+        createdRecord.setDocuments(docs);
+        return ResponseEntity.ok(createdRecord);
     }
 
     @Override
     @Operation(summary = "Remove KYC Record File", description = "Remove a file from a KYC record")
-    @Audit(entity = "KYC_RECORD", eventLabel="#id + ' ' + #documentId", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#id + ' ' + #documentId", logData = false)
     public ResponseEntity<KycRecordDTO> removeRecordFile(String id, @Nullable String documentId) throws Exception {
 
         logger.debug("Removing file with document ID: {} from KYC record with ID: {}", documentId, id);
 
-        try {
-
-            DocumentDTO doc = documentApi.findById(documentId).getBody();
-            if (doc == null) {
-                throw new Exception("Document not found for id: " + documentId);
-            }
-
-            if (doc.getTarget() != TargetEntity.KYC_RECORD) {
-                throw new Exception("Document with id: " + documentId + " is not associated with a KYC record");
-            }
-
-            KycRecordDTO record = kycRecordService.removeRecordFile(id, documentId);
-
-            documentApi.remove(documentId);
-
-            return ResponseEntity.ok(record);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
+        DocumentDTO doc = documentApi.findById(documentId).getBody();
+        if (doc == null) {
+            throw new Exception("Document not found for id: " + documentId);
         }
+
+        if (doc.getTarget() != TargetEntity.KYC_RECORD) {
+            throw new Exception("Document with id: " + documentId + " is not associated with a KYC record");
+        }
+
+        KycRecordDTO record = kycRecordService.removeRecordFile(id, documentId);
+
+        documentApi.remove(documentId);
+
+        return ResponseEntity.ok(record);
     }
 
     @Override
     @Operation(summary = "Update KYC Record Files", description = "Update the files associated with a KYC record")
-    @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#id", logData = false)
     public ResponseEntity<KycRecordDTO> updateRecordFiles(String id, List<DocumentDTO> documents,
             List<MultipartFile> files) throws Exception {
 
         logger.debug("Updating files for KYC record with ID: {}. Documents: {}, {} Files", id, documents, files.size());
 
-        try {
+        // Ensure all documents are associated with the record and have valid targets
+        // before proceeding with uploads
+        documents.forEach(doc -> {
 
-            // Ensure all documents are associated with the record and have valid targets
-            // before proceeding with uploads
-            documents.forEach(doc -> {
-
-                if (doc.getTarget() != null && doc.getTarget() != TargetEntity.KYC_RECORD) {
-                    throw new RuntimeException(
-                            "Document with id: " + doc.getId() + " is not associated with a KYC record");
-                }
-
-                if (StringUtils.isNotBlank(doc.getTargetId()) && !doc.getTargetId().equals(id)) {
-
-                    throw new RuntimeException(
-                            "Document with id: " + doc.getId() + " is not associated with KYC record with id: " + id);
-                }
-
-            });
-
-            List<DocumentDTO> saved = new ArrayList<>();
-            // KycRecordDTO record = kycRecordService.findById(id);
-
-            if (files != null) {
-                for (int i = 0; i < files.size(); i++) {
-
-                    DocumentDTO doc = documents.get(i);
-
-                    if (StringUtils.isBlank(doc.getId())) {
-
-                        DocumentDTO created = documentApi
-                                .upload(TargetEntity.KYC_RECORD, id, doc.getDocumentTypeId(), id, files.get(i))
-                                .getBody();
-                        saved.add(created);
-                    } else {
-
-                        DocumentDTO updated = documentApi.updateDocument(doc.getId(), files.get(i)).getBody();
-                        saved.add(updated);
-                    }
-                }
+            if (doc.getTarget() != null && doc.getTarget() != TargetEntity.KYC_RECORD) {
+                throw new RuntimeException(
+                        "Document with id: " + doc.getId() + " is not associated with a KYC record");
             }
 
-            KycRecordDTO updatedRecord = kycRecordService.updateRecordFiles(id, saved);
+            if (StringUtils.isNotBlank(doc.getTargetId()) && !doc.getTargetId().equals(id)) {
 
-            return ResponseEntity.ok(updatedRecord);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
+                throw new RuntimeException(
+                        "Document with id: " + doc.getId() + " is not associated with KYC record with id: " + id);
+            }
+
+        });
+
+        List<DocumentDTO> saved = new ArrayList<>();
+        // KycRecordDTO record = kycRecordService.findById(id);
+
+        if (files != null) {
+            for (int i = 0; i < files.size(); i++) {
+
+                DocumentDTO doc = documents.get(i);
+
+                if (StringUtils.isBlank(doc.getId())) {
+
+                    DocumentDTO created = documentApi
+                            .upload(TargetEntity.KYC_RECORD, id, doc.getDocumentTypeId(), id, files.get(i))
+                            .getBody();
+                    saved.add(created);
+                } else {
+
+                    DocumentDTO updated = documentApi.updateDocument(doc.getId(), files.get(i)).getBody();
+                    saved.add(updated);
+                }
+            }
         }
+
+        KycRecordDTO updatedRecord = kycRecordService.updateRecordFiles(id, saved);
+
+        return ResponseEntity.ok(updatedRecord);
     }
 
     @Override
     @Operation(summary = "Search My KYC Records Paged", description = "Search KYC records for the authenticated user with pagination")
-    @Audit(entity = "KYC_RECORD", eventLabel="#pageNumber + ' ' + #pageSize", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#pageNumber + ' ' + #pageSize", logData = false)
     public @Nullable ResponseEntity<Page<KycRecordListDTO>> findMyRecordsPaged(@Nullable Integer pageNumber,
             @Nullable Integer pageSize) throws Exception {
 
-        logger.debug("Searching KYC records for the authenticated user with pagination - Page Number: {}, Page Size: {}", pageNumber, pageSize);
+        logger.debug(
+                "Searching KYC records for the authenticated user with pagination - Page Number: {}, Page Size: {}",
+                pageNumber, pageSize);
 
         KycRecordSearchCriteria criteria = buildSearchCriteriaForCurrentUser();
 
@@ -739,100 +623,71 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     @Operation(summary = "Find KYC Record Summary by ID", description = "Find a summary of a KYC record by its ID")
-    @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#id", logData = false)
     public ResponseEntity<KycRecordSummary> findSummaryById(String id) throws Exception {
 
         logger.debug("Finding KYC record summary by ID: {}", id);
 
-        try {
+        KycRecordSummary summary = kycRecordService.findSummaryById(id);
 
-            KycRecordSummary summary = kycRecordService.findSummaryById(id);
-
-            return ResponseEntity.ok(summary);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(summary);
     }
 
     @Override
     @Operation(summary = "Generate KYC Report", description = "Generate a KYC report for a given KYC record ID")
-    @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#id", logData = false)
     public ResponseEntity<KycRecordDTO> generateKycReport(String id) throws Exception {
 
         logger.debug("Generating KYC report for record ID: {}", id);
 
-        try {
+        String username = "anonymousUser";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
 
-            String username = "anonymousUser";
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null) {
-
-                username = authentication.getName();
-            }
-
-            return ResponseEntity.ok(kycRecordService.generateKycReport(id, username));
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
+            username = authentication.getName();
         }
+
+        return ResponseEntity.ok(kycRecordService.generateKycReport(id, username));
+
     }
 
     @Override
     @Operation(summary = "Run KYC Verification", description = "Run KYC verification for a given KYC record ID")
-    @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#id", logData = false)
     public ResponseEntity<KycRecordDTO> runVerification(String id) throws Exception {
 
         logger.debug("Running KYC verification for record ID: {}", id);
 
-        try {
+        String username = "anonymousUser";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
 
-            String username = "anonymousUser";
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null) {
-
-                username = authentication.getName();
-            }
-
-            KycRecordDTO record = kycRecordService.runVerification(id, username);
-
-            return ResponseEntity.ok(record);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
+            username = authentication.getName();
         }
+
+        KycRecordDTO record = kycRecordService.runVerification(id, username);
+
+        return ResponseEntity.ok(record);
+
     }
 
     @Override
     @Operation(summary = "Update KYC Record Status", description = "Update the compliance status of a KYC record")
-    @Audit(entity = "KYC_RECORD", eventLabel="#id + ' ' + #kycStatus", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#id + ' ' + #kycStatus", logData = false)
     public ResponseEntity<KycRecordDTO> updateStatus(String id, KycComplianceStatus kycStatus) throws Exception {
-        
+
         logger.debug("Updating KYC record status for record ID: {} to status: {}", id, kycStatus);
 
-        try {
+        String username = "anonymousUser";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
 
-            String username = "anonymousUser";
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null) {
-
-                username = authentication.getName();
-            }
-
-            KycRecordDTO record = kycRecordService.updateStatus(id, kycStatus, username);
-
-            return ResponseEntity.ok(record);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e.getCause() != null ? new KycRecordServiceException(e.getCause().getMessage()) : e;
+            username = authentication.getName();
         }
+
+        KycRecordDTO record = kycRecordService.updateStatus(id, kycStatus, username);
+
+        return ResponseEntity.ok(record);
+
     }
 }

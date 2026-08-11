@@ -1,6 +1,6 @@
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, linkedSignal, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, inject, linkedSignal, signal, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -42,6 +42,8 @@ import { GroupFieldDTO } from '@app/models/bw/co/knowvera/settings/kyc/group-fie
 import { ToolSelectorDTO } from '@app/models/bw/co/knowvera/settings/tool-selector-dto';
 import { Tool } from '@app/models/bw/co/knowvera/settings/tool';
 import { AddToolSelectorDialog } from './add-tool-selector-dialog/add-tool-selector-dialog';
+import {MatExpansionModule} from '@angular/material/expansion';
+import { MatButtonToggleGroup, MatButtonToggleModule } from '@angular/material/button-toggle';
 
 export class EditSettingsVarsForm {
   id: string | any = null;
@@ -113,6 +115,7 @@ type ToolSelectorTarget =
     FormsModule,
     Loader,
     MatButtonModule,
+    MatButtonToggleModule,
     MatCardModule,
     MatChipsModule,
     MatFormFieldModule,
@@ -127,7 +130,8 @@ type ToolSelectorTarget =
     FormField,
     NgxMatSelectSearchModule,
     TranslateModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatExpansionModule
   ],
 })
 export class SystemSettings {
@@ -1314,4 +1318,8 @@ export class SystemSettings {
     });
   }
 
+  @ViewChild('docScroller') private docScroller?: ElementRef<HTMLDivElement>;
+  scrollDocs(direction: -1 | 1): void {
+    this.docScroller?.nativeElement.scrollBy({ left: direction * 280, behavior: 'smooth' });
+  }
 }

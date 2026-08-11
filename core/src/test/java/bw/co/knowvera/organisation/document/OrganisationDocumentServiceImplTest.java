@@ -50,8 +50,6 @@ class OrganisationDocumentServiceImplTest {
     private DocumentRepository documentRepository;
     @Mock
     private DocumentMapper documentMapper;
-    @Mock
-    private MessageSource messageSource;
 
     private OrganisationDocumentServiceImpl service;
 
@@ -63,8 +61,7 @@ class OrganisationDocumentServiceImplTest {
                 individualRepository,
                 individualMapper,
                 documentRepository,
-                documentMapper,
-                messageSource);
+                documentMapper);
     }
 
     @Test

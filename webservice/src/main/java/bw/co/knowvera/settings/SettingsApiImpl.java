@@ -10,14 +10,9 @@ import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.document.DocumentApi;
 import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.logging.Audit;
-import bw.co.knowvera.settings.DocumentTypePurpose;
-import bw.co.knowvera.settings.SettingsApi;
-import bw.co.knowvera.settings.SettingsDTO;
-import bw.co.knowvera.settings.SettingsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -44,43 +39,24 @@ public class SettingsApiImpl implements SettingsApi {
     @Operation(summary = "Find Settings by ID", description = "Find settings by their ID")
     @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<SettingsDTO> findById(String id) {
-        try {
 
-            return ResponseEntity.ok(null);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     @Operation(summary = "Get All Settings", description = "Retrieve all settings")
     @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<List<SettingsDTO>> getAll() {
-        try {
-            return ResponseEntity.ok(settingsService.getAll());
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
+        return ResponseEntity.ok(settingsService.getAll());
     }
 
     @Override
     @Operation(summary = "Get All Settings Paged", description = "Retrieve all settings with pagination")
     @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<Page<SettingsDTO>> getAllPaged(Integer pageNumber, Integer pageSize) {
-        try {
-            return ResponseEntity.ok(settingsService.getAll(pageNumber, pageSize));
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
+        return ResponseEntity.ok(settingsService.getAll(pageNumber, pageSize));
     }
 
     @Override
@@ -88,61 +64,37 @@ public class SettingsApiImpl implements SettingsApi {
     @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<Page<SettingsDTO>> pagedSearch(String criteria, Integer pageNumber,
             Integer pageSize) {
-        try {
-            return ResponseEntity.ok(null);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     @Operation(summary = "Remove Settings", description = "Remove settings by their ID")
     @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<Boolean> remove(String id) {
-        try {
-            return ResponseEntity.ok(false);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
+        return ResponseEntity.ok(false);
     }
 
     @Override
     @Operation(summary = "Save Settings", description = "Save settings")
     @Audit(entity = "SETTINGS", logData = true)
     public ResponseEntity<SettingsDTO> save(SettingsDTO setttings) {
-        try {
+        
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             AuditTracker.auditTrail(setttings, authentication);
 
             return ResponseEntity.ok(
                     settingsService.save(setttings));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
     }
 
     @Override
     @Operation(summary = "Search Settings", description = "Search settings based on criteria")
     @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<List<SettingsDTO>> search(String criteria) {
-        try {
-            return ResponseEntity.ok(null);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-
+        
+            throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
@@ -151,9 +103,7 @@ public class SettingsApiImpl implements SettingsApi {
     public ResponseEntity<SettingsDTO> uploadTemplate(MultipartFile template, TargetEntity target)
             throws Exception {
 
-        try {
-
-            if(target != TargetEntity.INVOICE && target != TargetEntity.QUOTATION) {
+            if (target != TargetEntity.INVOICE && target != TargetEntity.QUOTATION) {
                 throw new IllegalArgumentException("Invalid target entity for template upload: " + target);
             }
 
@@ -170,20 +120,15 @@ public class SettingsApiImpl implements SettingsApi {
                             template)
                     .getBody();
 
-            if(target == TargetEntity.INVOICE) {
+            if (target == TargetEntity.INVOICE) {
 
                 settings.setInvoiceTemplate(doc);
             } else if (target == TargetEntity.QUOTATION) {
-                
+
                 settings.setQuotationTemplate(doc);
             }
 
             return this.save(settings);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -191,14 +136,8 @@ public class SettingsApiImpl implements SettingsApi {
     @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<SettingsDTO> attachDocumentType(String documentTypeId, DocumentTypePurpose purpose)
             throws Exception {
-        
 
-        try {
-            return ResponseEntity.ok(settingsService.attachDocumentType(documentTypeId, purpose));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
+        return ResponseEntity.ok(settingsService.attachDocumentType(documentTypeId, purpose));
     }
 
     @Override
@@ -206,23 +145,13 @@ public class SettingsApiImpl implements SettingsApi {
     @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<SettingsDTO> detachDocumentType(String documentTypeId, DocumentTypePurpose purpose)
             throws Exception {
-        
-        try {
-            return ResponseEntity.ok(settingsService.detachDocumentType(documentTypeId, purpose));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
+
+        return ResponseEntity.ok(settingsService.detachDocumentType(documentTypeId, purpose));
     }
 
     @Override
     public ResponseEntity<SettingsDTO> loadSettings() throws Exception {
-        
-        try {
-            return ResponseEntity.ok(settingsService.loadSettings());
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
+
+        return ResponseEntity.ok(settingsService.loadSettings());
     }
 }

@@ -32,96 +32,62 @@ import bw.co.knowvera.settings.kyc.KycFieldGroupService;
 public class KycFieldGroupApiImpl implements KycFieldGroupApi {
 
     private static final Logger logger = LoggerFactory.getLogger(KycFieldGroupApiImpl.class);
-        protected final KycFieldGroupService kycFieldGroupService;
-    
+    protected final KycFieldGroupService kycFieldGroupService;
+
     public KycFieldGroupApiImpl(
-        KycFieldGroupService kycFieldGroupService    ) {
-        
+            KycFieldGroupService kycFieldGroupService) {
+
         this.kycFieldGroupService = kycFieldGroupService;
     }
-
-
 
     @Override
     @Operation(summary = "Find Document Type", description = "Get the document type with the given id")
     public ResponseEntity<KycFieldGroupDTO> findById(String id) throws Exception {
-        try {
-            return ResponseEntity.ok(this.kycFieldGroupService.findById(id));
-        } catch (Exception e) {
-
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
-        } 
+        return ResponseEntity.ok(this.kycFieldGroupService.findById(id));
     }
-
 
     @Override
     public ResponseEntity<Boolean> remove(String id) throws Exception {
-        try {
-            return ResponseEntity.ok(this.kycFieldGroupService.remove(id));
-        } catch (Exception e) {
 
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
-        } 
+        return ResponseEntity.ok(this.kycFieldGroupService.remove(id));
     }
-
 
     @Override
     public ResponseEntity<KycFieldGroupDTO> save(@Valid KycFieldGroupDTO fieldGroup) throws Exception {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            AuditTracker.auditTrail(fieldGroup, authentication);
 
-            if(fieldGroup.getGroupFields() != null) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(fieldGroup, authentication);
 
-                for(GroupFieldDTO field : fieldGroup.getGroupFields()) {
-                    AuditTracker.auditTrail(field, authentication);
-                }
+        if (fieldGroup.getGroupFields() != null) {
+
+            for (GroupFieldDTO field : fieldGroup.getGroupFields()) {
+                AuditTracker.auditTrail(field, authentication);
             }
+        }
 
-            return ResponseEntity.ok(this.kycFieldGroupService.save(fieldGroup));
-        } catch (Exception e) {
-
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
-        } 
+        return ResponseEntity.ok(this.kycFieldGroupService.save(fieldGroup));
     }
-    
+
     /**
      * Gets the reference to <code>$serviceRef.daoName</code>.
+     * 
      * @return kycFieldGroupService
      */
-    protected KycFieldGroupService getKycFieldGroupService()
-    {
+    protected KycFieldGroupService getKycFieldGroupService() {
         return this.kycFieldGroupService;
     }
 
-
-
     @Override
     public @Nullable ResponseEntity<List<KycFieldGroupDTO>> findByTarget(TargetEntity targetType) throws Exception {
-        try {
-            List<KycFieldGroupDTO> kycFieldGroups = this.kycFieldGroupService.findByTarget(targetType);
-            return ResponseEntity.ok(kycFieldGroups);
-        } catch (Exception e) {
+        List<KycFieldGroupDTO> kycFieldGroups = this.kycFieldGroupService.findByTarget(targetType);
+        return ResponseEntity.ok(kycFieldGroups);
 
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
-        } 
     }
-
-
 
     @Override
     public ResponseEntity<KycFieldGroupDTO> removeField(String id, String fieldId) throws Exception {
-        
-        try {
-            return ResponseEntity.ok(this.kycFieldGroupService.removeField(id, fieldId));
-        } catch (Exception e) {
 
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new Exception(e.getCause()) : e;
-        }
+        return ResponseEntity.ok(this.kycFieldGroupService.removeField(id, fieldId));
+
     }
 }

@@ -45,13 +45,11 @@ public class KycFieldGroupServiceImpl
             KycFieldGroupRepository kycFieldGroupRepository,
             KycFieldGroupMapper kycFieldGroupMapper,
             GroupFieldRepository groupFieldRepository,
-            SettingsRepository settingsRepository,
-            MessageSource messageSource) {
+            SettingsRepository settingsRepository) {
 
         super(
                 kycFieldGroupRepository,
-                kycFieldGroupMapper,
-                messageSource);
+                kycFieldGroupMapper);
 
         this.groupFieldRepository = groupFieldRepository;
         this.settingsRepository = settingsRepository;
@@ -65,8 +63,7 @@ public class KycFieldGroupServiceImpl
             throws Exception {
 
         KycFieldGroup kycFieldGroup = this.kycFieldGroupRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new KycFieldGroupServiceException(
-                        messageSource.getMessage("kycFieldGroup.notFound", new Object[] { id }, null)));
+                .orElseThrow(() -> new KycFieldGroupServiceException("KycFieldGroup not found for id: " + id));
 
         return this.kycFieldGroupMapper.toKycFieldGroupDTO(kycFieldGroup);
     }
@@ -127,7 +124,7 @@ public class KycFieldGroupServiceImpl
 
         if (!this.kycFieldGroupRepository.existsById(UUID.fromString(id))) {
             throw new KycFieldGroupServiceException(
-                    messageSource.getMessage("kycFieldGroup.notFound", new Object[] { id }, null));
+                    "KycFieldGroup not found for id: " + id);
         }
 
         this.kycFieldGroupRepository.deleteById(UUID.fromString(id));
@@ -152,7 +149,7 @@ public class KycFieldGroupServiceImpl
 
         KycFieldGroup kycFieldGroup = this.kycFieldGroupRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new KycFieldGroupServiceException(
-                        messageSource.getMessage("kycFieldGroup.notFound", new Object[] { id }, null)));
+                        "KycFieldGroup not found for id: " + id));
 
         return this.kycFieldGroupMapper.toKycFieldGroupDTO(kycFieldGroup);
     }

@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -22,10 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import bw.co.knowvera.AuditTracker;
 import bw.co.knowvera.logging.Audit;
-import bw.co.knowvera.document.type.field.ExpectedFieldApi;
-import bw.co.knowvera.document.type.field.ExpectedFieldDTO;
-import bw.co.knowvera.document.type.field.ExpectedFieldService;
-import bw.co.knowvera.document.type.field.ExpectedFieldServiceException;
 
 @RestController
 @Tag(name = "Expected Fields", description = "Fields expected in document types.")
@@ -42,45 +37,29 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
 
     @Override
     @Operation(summary = "Find Expected Field", description = "Get the expected field with the given id")
-    @Audit(entity = "EXPECTED_FIELD", eventLabel="#id", logData = false)
+    @Audit(entity = "EXPECTED_FIELD", eventLabel = "#id", logData = false)
     public ResponseEntity<ExpectedFieldDTO> findById(String id) throws Exception {
-        try {
-            return ResponseEntity.ok(expectedFieldService.findById(id));
-        } catch (Exception e) {
 
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new ExpectedFieldServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(expectedFieldService.findById(id));
+
     }
 
     @Override
     @Operation(summary = "Remove Expected Field", description = "Remove the expected field with the given id")
-    @Audit(entity = "EXPECTED_FIELD", eventLabel="#id", logData = false)
+    @Audit(entity = "EXPECTED_FIELD", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
-        try {
-            return ResponseEntity.ok(expectedFieldService.remove(id));
-        } catch (Exception e) {
-
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new ExpectedFieldServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(expectedFieldService.remove(id));
     }
 
     @Override
     @Operation(summary = "Save Expected Field", description = "Save the expected field. If the id is not provided, a new expected field will be created.")
-    @Audit(entity = "EXPECTED_FIELD", eventLabel="#expectedField.id", logData = true)
+    @Audit(entity = "EXPECTED_FIELD", eventLabel = "#expectedField.id", logData = true)
     public ResponseEntity<ExpectedFieldDTO> save(@Valid ExpectedFieldDTO expectedField) throws Exception {
-        try {
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            AuditTracker.auditTrail(expectedField, authentication);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(expectedField, authentication);
 
-            return ResponseEntity.ok(expectedFieldService.save(expectedField));
-        } catch (Exception e) {
-
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new ExpectedFieldServiceException(e.getCause().getMessage()) : e;
-        }
+        return ResponseEntity.ok(expectedFieldService.save(expectedField));
     }
 
     /**
@@ -110,7 +89,8 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
     @Override
     @Operation(summary = "Find Expected Fields by Document Type with Pagination", description = "Get the expected fields for the given document type id with pagination")
     @Audit(entity = "EXPECTED_FIELD", logData = false)
-    public ResponseEntity<Page<ExpectedFieldDTO>> findByDocumentTypePage(List<String> documentTypeIds, Integer pageNumber,
+    public ResponseEntity<Page<ExpectedFieldDTO>> findByDocumentTypePage(List<String> documentTypeIds,
+            Integer pageNumber,
             Integer pageSize) throws Exception {
         try {
             return ResponseEntity.ok(expectedFieldService.findByDocumentType(documentTypeIds, pageNumber, pageSize));

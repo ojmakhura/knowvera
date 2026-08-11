@@ -55,15 +55,6 @@ import bw.co.knowvera.settings.SettingsRepository;
 import bw.co.knowvera.settings.kyc.GroupField;
 import bw.co.knowvera.settings.kyc.KycFieldGroup;
 import bw.co.knowvera.user.UserDTO;
-import bw.co.knowvera.kyc.KycComplianceStatus;
-import bw.co.knowvera.kyc.KycRecord;
-import bw.co.knowvera.kyc.KycRecordDTO;
-import bw.co.knowvera.kyc.KycRecordListDTO;
-import bw.co.knowvera.kyc.KycRecordRepository;
-import bw.co.knowvera.kyc.KycRecordSearchCriteria;
-import bw.co.knowvera.kyc.KycRecordServiceBase;
-import bw.co.knowvera.kyc.KycRecordServiceException;
-import bw.co.knowvera.kyc.KycRecordSummary;
 import jakarta.validation.Valid;
 
 /**
@@ -86,17 +77,20 @@ public class KycRecordServiceImpl
     private final KycReportSectionRepository kycReportSectionRepository;
 
     public KycRecordServiceImpl(KycRecordRepository kycRecordRepository,
-            KycRecordMapper kycRecordMapper, MessageSource messageSource,
-            SettingsRepository settingsRepository, KycRecordMapper kycRecordMpper,
-            IndividualRepository individualRepository, DocumentRepository documentRepository,
-            SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorService sequenceGeneratorService,
-            KycReportSectionRepository kycReportSectionRepository, OrganisationRepository organisationRepository) {
-        super(kycRecordRepository, kycRecordMapper, messageSource);
+            KycRecordMapper kycRecordMapper,
+            SettingsRepository settingsRepository,
+            IndividualRepository individualRepository,
+            DocumentRepository documentRepository,
+            SequenceGeneratorRepository sequenceGeneratorRepository,
+            SequenceGeneratorService sequenceGeneratorService,
+            KycReportSectionRepository kycReportSectionRepository,
+            OrganisationRepository organisationRepository) {
+        super(kycRecordRepository, kycRecordMapper);
         // TODO Auto-generated constructor stub
         this.individualRepository = individualRepository;
         this.settingsRepository = settingsRepository;
         this.organisationRepository = organisationRepository;
-        this.kycRecordMapper = kycRecordMpper;
+        this.kycRecordMapper = kycRecordMapper;
         this.documentRepository = documentRepository;
         this.sequenceGeneratorRepository = sequenceGeneratorRepository;
         this.sequenceGeneratorService = sequenceGeneratorService;

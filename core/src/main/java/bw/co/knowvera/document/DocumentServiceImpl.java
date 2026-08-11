@@ -104,8 +104,8 @@ public class DocumentServiceImpl
             KycRecordRepository kycRecordRepository, ClientRequestRepository clientRequestRepository,
             KycSubscriptionRepository kycSubscriptionRepository, DocumentTypeMapper documentTypeMapper,
             UniversalStringMatcher stringMatcher, RabbitProperties rabbitProperties, RabbitTemplate rabbitTemplate,
-            DocumentMapper documentMapper, MessageSource messageSource, DocumentTypeRepository documentTypeRepository) {
-        super(documentRepository, documentMapper, messageSource);
+            DocumentMapper documentMapper, DocumentTypeRepository documentTypeRepository) {
+        super(documentRepository, documentMapper);
         // TODO Auto-generated constructor stub
 
         this.organisationRepository = organisationRepository;

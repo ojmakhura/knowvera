@@ -14,19 +14,11 @@ import bw.co.knowvera.document.DocumentMapper;
 import bw.co.knowvera.document.DocumentRepository;
 import bw.co.knowvera.individual.IndividualMapper;
 import bw.co.knowvera.individual.IndividualRepository;
-import bw.co.knowvera.organisation.document.OrganisationDocument;
-import bw.co.knowvera.organisation.document.OrganisationDocumentDTO;
-import bw.co.knowvera.organisation.document.OrganisationDocumentRepository;
-import bw.co.knowvera.organisation.document.OrganisationDocumentSearchCriteria;
-import bw.co.knowvera.organisation.document.OrganisationDocumentServiceBase;
-import bw.co.knowvera.organisation.document.OrganisationDocumentStatus;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -48,9 +40,9 @@ public class OrganisationDocumentServiceImpl
             OrganisationDocumentRepository organisationDocumentRepository,
             OrganisationDocumentMapper organisationDocumentMapper,
             IndividualRepository individualRepository, IndividualMapper individualMapper, 
-            DocumentRepository documentRepository, DocumentMapper documentMapper, MessageSource messageSource) {
+            DocumentRepository documentRepository, DocumentMapper documentMapper) {
         super(organisationDocumentRepository, organisationDocumentMapper,
-                individualRepository, individualMapper, documentRepository, documentMapper, messageSource);
+                individualRepository, individualMapper, documentRepository, documentMapper);
         //TODO Auto-generated constructor stub
     }
 

@@ -16,17 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-
-import bw.co.knowvera.document.type.field.ExpectedFieldMapper;
-import bw.co.knowvera.document.type.field.ExpectedFieldServiceImpl;
-import bw.co.knowvera.document.type.field.ExpectedField;
-import bw.co.knowvera.document.type.field.ExpectedFieldDTO;
-import bw.co.knowvera.document.type.field.ExpectedFieldRepository;
-import bw.co.knowvera.document.type.field.ExpectedFieldServiceException;
-import bw.co.knowvera.document.type.field.ExpectedFieldType;
 
 @ExtendWith(MockitoExtension.class)
 class ExpectedFieldServiceImplTest {
@@ -35,8 +26,6 @@ class ExpectedFieldServiceImplTest {
     private ExpectedFieldRepository expectedFieldRepository;
     @Mock
     private ExpectedFieldMapper expectedFieldMapper;
-    @Mock
-    private MessageSource messageSource;
 
     private ExpectedFieldServiceImpl service;
 
@@ -44,8 +33,7 @@ class ExpectedFieldServiceImplTest {
     void setUp() {
         service = new ExpectedFieldServiceImpl(
                 expectedFieldRepository,
-                expectedFieldMapper,
-                messageSource);
+                expectedFieldMapper);
     }
 
     @Test

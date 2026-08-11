@@ -43,8 +43,6 @@ class ContactServiceImplTest {
     private SequenceGeneratorService sequenceGeneratorService;
     @Mock
     private SequenceGeneratorRepository sequenceGeneratorRepository;
-    @Mock
-    private MessageSource messageSource;
 
     private ContactServiceImpl service;
 
@@ -54,8 +52,7 @@ class ContactServiceImplTest {
                 contactRepository,
                 contactMapper,
                 sequenceGeneratorService,
-                sequenceGeneratorRepository,
-                messageSource);
+                sequenceGeneratorRepository);
     }
 
     @Test

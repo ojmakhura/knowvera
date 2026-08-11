@@ -13,138 +13,109 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
+import bw.co.knowvera.AuditTracker;
 import bw.co.knowvera.logging.Audit;
-import bw.co.knowvera.contact.ContactApi;
-import bw.co.knowvera.contact.ContactDTO;
-import bw.co.knowvera.contact.ContactService;
-import bw.co.knowvera.contact.ContactServiceException;
-import bw.co.knowvera.contact.ContactType;
 
 @RestController
 @Tag(name = "Client Contact Management", description = "Clients may contact us.")
 public class ContactApiImpl implements ContactApi {
 
     private static final Logger logger = LoggerFactory.getLogger(ContactApiImpl.class);
-        protected final ContactService contactService;
-    
+    protected final ContactService contactService;
+
     public ContactApiImpl(
-        ContactService contactService    ) {
-        
+            ContactService contactService) {
+
         this.contactService = contactService;
     }
 
     @Override
-    @Operation(summary = "Find Document Type", description = "Get the document type with the given id")
-    @Audit(entity = "CONTACT", eventLabel="#id", logData = false)
+    @Operation(summary = "Find Contact", description = "Get the contact with the given id")
+    @Audit(entity = "CONTACT", eventLabel = "#id", logData = false)
     public ResponseEntity<ContactDTO> findById(String id) throws Exception {
-        try {
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
 
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
-        } 
+        logger.debug("Finding contact with id: {}", id);
+        return ResponseEntity.ok(contactService.findById(id));
     }
 
     @Override
     @Operation(summary = "Find Contacts by Type", description = "Get the contacts of the given type")
     @Audit(entity = "CONTACT", logData = false)
     public ResponseEntity<List<ContactDTO>> findByType(ContactType type) throws Exception {
-        try {
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
 
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
-        } 
+        logger.debug("Finding contacts with type: {}", type);
+        return ResponseEntity.ok(contactService.findByType(type));
     }
 
     @Override
     @Operation(summary = "Find Contacts by Type with Pagination", description = "Get the contacts of the given type with pagination")
     @Audit(entity = "CONTACT", logData = false)
-    public ResponseEntity<Page<ContactDTO>> findByTypePaged(ContactType type, Integer pageNumber, Integer pageSize) throws Exception {
-        try {
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
+    public ResponseEntity<Page<ContactDTO>> findByTypePaged(ContactType type, Integer pageNumber, Integer pageSize)
+            throws Exception {
 
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
-        } 
+        logger.debug("Finding contacts with type: {} with pagination, pageNumber: {}, pageSize: {}", type, pageNumber, pageSize);
+        return ResponseEntity.ok(contactService.findByType(type, pageNumber, pageSize));
+
     }
 
     @Override
     @Operation(summary = "Get All Contacts", description = "Get all contacts")
     @Audit(entity = "CONTACT", logData = false)
     public ResponseEntity<List<ContactDTO>> getAll() throws Exception {
-        try {
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
 
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
-        } 
+        logger.debug("Getting all contacts");
+        return ResponseEntity.ok(contactService.getAll());
     }
 
     @Override
     @Operation(summary = "Get All Contacts Paged", description = "Get all contacts with pagination")
     @Audit(entity = "CONTACT", logData = false)
     public ResponseEntity<Page<ContactDTO>> getAllPaged(Integer pageNumber, Integer pageSize) throws Exception {
-        try {
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
 
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
-        } 
+        logger.debug("Getting all contacts with pagination, pageNumber: {}, pageSize: {}", pageNumber, pageSize);
+        return ResponseEntity.ok(contactService.getAll(pageNumber, pageSize));
     }
 
     @Override
     @Operation(summary = "Remove Contact", description = "Remove the contact with the given id")
-    @Audit(entity = "CONTACT", eventLabel="#id", logData = false)
+    @Audit(entity = "CONTACT", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
-        try {
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
 
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
-        } 
+        logger.debug("Removing contact with id: {}", id);
+        return ResponseEntity.ok(contactService.remove(id));
     }
 
     @Override
     @Operation(summary = "Save Contact", description = "Save the contact. If the id is not provided, a new contact will be created.")
-    @Audit(entity = "CONTACT", eventLabel="#document.id", logData = true)
-    public ResponseEntity<ContactDTO> save(ContactDTO document) throws Exception {
-        try {
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
+    @Audit(entity = "CONTACT", eventLabel = "#contact.id", logData = true)
+    public ResponseEntity<ContactDTO> save(ContactDTO contact) throws Exception {
+        
+        logger.debug("Saving contact with id: {}", contact.getId());
 
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
-        } 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(contact, authentication);
+        return ResponseEntity.ok(contactService.save(contact));
     }
 
     @Override
     @Operation(summary = "Search Contacts", description = "Search contacts by criteria")
     @Audit(entity = "CONTACT", logData = false)
     public ResponseEntity<List<ContactDTO>> search(String criteria) throws Exception {
-        try {
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
 
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new ContactServiceException(e.getCause().getMessage()) : e;
-        } 
+        logger.debug("Searching contacts with criteria: {}", criteria);
+        return ResponseEntity.ok(contactService.search(criteria));
     }
-    
+
     /**
      * Gets the reference to <code>$serviceRef.daoName</code>.
+     * 
      * @return contactService
      */
-    protected ContactService getContactService()
-    {
+    protected ContactService getContactService() {
         return this.contactService;
     }
 }

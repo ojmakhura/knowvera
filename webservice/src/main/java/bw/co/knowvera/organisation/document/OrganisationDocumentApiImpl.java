@@ -26,146 +26,82 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
 
     private final OrganisationDocumentService organisationDocumentService;
-    
+
     public OrganisationDocumentApiImpl(
-        OrganisationDocumentService organisationDocumentService    ) {
-        
+            OrganisationDocumentService organisationDocumentService) {
+
         this.organisationDocumentService = organisationDocumentService;
     }
 
-
-
     @Override
     public ResponseEntity<OrganisationDocumentDTO> findById(String id) throws Exception {
-        try {
-            return ResponseEntity.ok(organisationDocumentService.findById(id));
-        } catch (Exception e) {
 
-            e.printStackTrace();
-            throw e;
-        } 
+        return ResponseEntity.ok(organisationDocumentService.findById(id));
     }
-
 
     @Override
     public ResponseEntity<List<OrganisationDocumentDTO>> findByOrganisation(String organisationId) throws Exception {
-        try {
-            return ResponseEntity.ok(organisationDocumentService.findByOrganisation(organisationId));
-        } catch (Exception e) {
 
-            e.printStackTrace();
-            throw e;
-        } 
+        return ResponseEntity.ok(organisationDocumentService.findByOrganisation(organisationId));
+
     }
-
 
     @Override
-    public ResponseEntity<Page<OrganisationDocumentDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber, Integer pageSize) throws Exception {
-        try {
-            return ResponseEntity.ok(organisationDocumentService.findByOrganisation(organisationId, pageNumber, pageSize));
-        } catch (Exception e) {
+    public ResponseEntity<Page<OrganisationDocumentDTO>> findByOrganisationPaged(String organisationId,
+            Integer pageNumber, Integer pageSize) throws Exception {
 
-            e.printStackTrace();
-            throw e;
-        } 
+        return ResponseEntity.ok(organisationDocumentService.findByOrganisation(organisationId, pageNumber, pageSize));
     }
-
 
     @Override
-    public ResponseEntity<List<OrganisationDocumentDTO>> findByStatus(OrganisationDocumentStatus status) throws Exception {
-        try {
-            return ResponseEntity.ok(organisationDocumentService.findByStatus(status));
-        } catch (Exception e) {
+    public ResponseEntity<List<OrganisationDocumentDTO>> findByStatus(OrganisationDocumentStatus status)
+            throws Exception {
 
-            e.printStackTrace();
-            throw e;
-        } 
+        return ResponseEntity.ok(organisationDocumentService.findByStatus(status));
     }
-
 
     @Override
-    public ResponseEntity<Page<OrganisationDocumentDTO>> findByStatusPaged(OrganisationDocumentStatus status, Integer pageNumber, Integer pageSize) throws Exception {
-        try {
-            return ResponseEntity.ok(organisationDocumentService.findByStatus(status, pageNumber, pageSize));
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        } 
+    public ResponseEntity<Page<OrganisationDocumentDTO>> findByStatusPaged(OrganisationDocumentStatus status,
+            Integer pageNumber, Integer pageSize) throws Exception {
+        return ResponseEntity.ok(organisationDocumentService.findByStatus(status, pageNumber, pageSize));
     }
-
 
     @Override
     public ResponseEntity<List<OrganisationDocumentDTO>> getAll() throws Exception {
-        try {
-            return ResponseEntity.ok(organisationDocumentService.getAll());
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        } 
+        return ResponseEntity.ok(organisationDocumentService.getAll());
     }
-
 
     @Override
-    public ResponseEntity<Page<OrganisationDocumentDTO>> getAllPaged(Integer pageNumber, Integer pageSize) throws Exception {
-        try {
-            return ResponseEntity.ok(organisationDocumentService.getAll(pageNumber, pageSize));
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        } 
+    public ResponseEntity<Page<OrganisationDocumentDTO>> getAllPaged(Integer pageNumber, Integer pageSize)
+            throws Exception {
+        return ResponseEntity.ok(organisationDocumentService.getAll(pageNumber, pageSize));
     }
-
 
     @Override
-    public ResponseEntity<Page<OrganisationDocumentDTO>> pagedSearch(SearchObject<OrganisationDocumentSearchCriteria> criteria) throws Exception {
-        try {
-            return ResponseEntity.ok(organisationDocumentService.search(criteria));
-        } catch (Exception e) {
+    public ResponseEntity<Page<OrganisationDocumentDTO>> pagedSearch(
+            SearchObject<OrganisationDocumentSearchCriteria> criteria) throws Exception {
 
-            e.printStackTrace();
-            throw e;
-        } 
+        return ResponseEntity.ok(organisationDocumentService.search(criteria));
     }
-
 
     @Override
     public ResponseEntity<Boolean> remove(String id) throws Exception {
-        try {
-            return ResponseEntity.ok(organisationDocumentService.remove(id));
-        } catch (Exception e) {
 
-            e.printStackTrace();
-            throw e;
-        } 
+        return ResponseEntity.ok(organisationDocumentService.remove(id));
     }
-
 
     @Override
     public ResponseEntity<OrganisationDocumentDTO> save(OrganisationDocumentDTO clientRequest) throws Exception {
-        try {
-            
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            AuditTracker.auditTrail(clientRequest, authentication);
-            return ResponseEntity.ok(organisationDocumentService.save(clientRequest));
-        } catch (Exception e) {
 
-            e.printStackTrace();
-            throw e;
-        } 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(clientRequest, authentication);
+        return ResponseEntity.ok(organisationDocumentService.save(clientRequest));
     }
 
-
     @Override
-    public ResponseEntity<List<OrganisationDocumentDTO>> search(SearchObject<OrganisationDocumentSearchCriteria> criteria) throws Exception {
-        try {
-            return ResponseEntity.ok(null);
-        } catch (Exception e) {
+    public ResponseEntity<List<OrganisationDocumentDTO>> search(
+            SearchObject<OrganisationDocumentSearchCriteria> criteria) throws Exception {
 
-            e.printStackTrace();
-            throw e;
-        } 
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 }

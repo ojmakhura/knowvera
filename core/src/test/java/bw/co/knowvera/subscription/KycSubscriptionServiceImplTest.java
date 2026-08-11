@@ -58,8 +58,6 @@ class KycSubscriptionServiceImplTest {
     private KycInvoiceRepository kycInvoiceRepository;
     @Mock
     private KycInvoiceMapper kycInvoiceMapper;
-    @Mock
-    private MessageSource messageSource;
 
     private KycSubscriptionServiceImpl service;
 
@@ -71,8 +69,7 @@ class KycSubscriptionServiceImplTest {
                 sequenceGeneratorRepository,
                 kycSubscriptionMapper,
                 kycInvoiceRepository,
-                kycInvoiceMapper,
-                messageSource);
+                kycInvoiceMapper);
     }
 
     @Test

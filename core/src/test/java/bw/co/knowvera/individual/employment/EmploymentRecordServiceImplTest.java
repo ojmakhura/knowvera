@@ -23,13 +23,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
-import bw.co.knowvera.individual.employment.EmploymentRecordMapper;
-import bw.co.knowvera.individual.employment.EmploymentRecordServiceImpl;
-import bw.co.knowvera.individual.employment.EmploymentRecord;
-import bw.co.knowvera.individual.employment.EmploymentRecordDTO;
-import bw.co.knowvera.individual.employment.EmploymentRecordRepository;
-import bw.co.knowvera.individual.employment.EmploymentRecordServiceException;
-
 @ExtendWith(MockitoExtension.class)
 class EmploymentRecordServiceImplTest {
 
@@ -46,8 +39,7 @@ class EmploymentRecordServiceImplTest {
     void setUp() {
         service = new EmploymentRecordServiceImpl(
                 employmentRecordRepository,
-                employmentRecordMapper,
-                messageSource);
+                employmentRecordMapper);
     }
 
     @Test

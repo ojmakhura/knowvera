@@ -34,13 +34,6 @@ import bw.co.knowvera.sequence.SequencePart;
 import bw.co.knowvera.sequence.SequencePartType;
 import bw.co.knowvera.settings.SettingsMapper;
 import bw.co.knowvera.settings.SettingsRepository;
-import bw.co.knowvera.organisation.client.ClientRequest;
-import bw.co.knowvera.organisation.client.ClientRequestDTO;
-import bw.co.knowvera.organisation.client.ClientRequestRepository;
-import bw.co.knowvera.organisation.client.ClientRequestSearchCriteria;
-import bw.co.knowvera.organisation.client.ClientRequestServiceBase;
-import bw.co.knowvera.organisation.client.ClientRequestServiceException;
-import bw.co.knowvera.organisation.client.ClientRequestStatus;
 import io.micrometer.common.util.StringUtils;
 
 import java.io.BufferedReader;
@@ -73,12 +66,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -106,10 +97,10 @@ public class ClientRequestServiceImpl
             IndividualMapper individualMapper, OrganisationRepository organisationRepository,
             SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorService sequenceGeneratorService,
             DocumentRepository documentRepository, DocumentMapper documentMapper,
-            SettingsRepository settingsRepository, SettingsMapper settingsMapper, MessageSource messageSource) {
+            SettingsRepository settingsRepository, SettingsMapper settingsMapper) {
         super(clientRequestRepository, clientRequestMapper, individualRepository,
                 individualMapper, documentRepository, documentMapper, settingsRepository,
-                settingsMapper, messageSource);
+                settingsMapper);
         // TODO Auto-generated constructor stub
         this.passwordEncoder = passwordEncoder;
         this.clientRequestNotification = clientRequestNotification;

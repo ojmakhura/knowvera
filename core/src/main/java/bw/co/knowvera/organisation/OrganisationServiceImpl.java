@@ -29,13 +29,6 @@ import bw.co.knowvera.PropertySearchOrder;
 import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.kyc.KycComplianceStatus;
 import bw.co.knowvera.organisation.client.ClientRequestRepository;
-import bw.co.knowvera.organisation.Organisation;
-import bw.co.knowvera.organisation.OrganisationDTO;
-import bw.co.knowvera.organisation.OrganisationListDTO;
-import bw.co.knowvera.organisation.OrganisationRepository;
-import bw.co.knowvera.organisation.OrganisationSearchCriteria;
-import bw.co.knowvera.organisation.OrganisationServiceBase;
-import bw.co.knowvera.organisation.OrganisationServiceException;
 
 /**
  * @see bw.co.knowvera.organisation.OrganisationService
@@ -50,9 +43,8 @@ public class OrganisationServiceImpl
 
 
     public OrganisationServiceImpl(OrganisationRepository organisationRepository, OrganisationMapper organisationMapper,
-            ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder,
-            MessageSource messageSource) {
-        super( organisationRepository, organisationMapper, messageSource);
+            ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder) {
+        super( organisationRepository, organisationMapper);
         this.organisationRepository = organisationRepository;
         // TODO Auto-generated constructor stub
 

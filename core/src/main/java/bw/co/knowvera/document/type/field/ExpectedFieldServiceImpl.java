@@ -26,13 +26,11 @@ public class ExpectedFieldServiceImpl
         extends ExpectedFieldServiceBase {
     public ExpectedFieldServiceImpl(
             ExpectedFieldRepository expectedFieldRepository,
-            ExpectedFieldMapper expectedFieldMapper,
-            MessageSource messageSource) {
+            ExpectedFieldMapper expectedFieldMapper) {
 
         super(
                 expectedFieldRepository,
-                expectedFieldMapper,
-                messageSource);
+                expectedFieldMapper);
     }
 
     /**

@@ -32,20 +32,8 @@ import bw.co.knowvera.document.type.DocumentTypeDTO;
 import bw.co.knowvera.kyc.KycComplianceStatus;
 import bw.co.knowvera.organisation.client.ClientRequest;
 import bw.co.knowvera.organisation.client.ClientRequestRepository;
-import bw.co.knowvera.settings.Settings;
 import bw.co.knowvera.settings.SettingsDTO;
 import bw.co.knowvera.settings.SettingsService;
-import bw.co.knowvera.individual.EmploymentStatus;
-import bw.co.knowvera.individual.Individual;
-import bw.co.knowvera.individual.IndividualDTO;
-import bw.co.knowvera.individual.IndividualIdentityType;
-import bw.co.knowvera.individual.IndividualListDTO;
-import bw.co.knowvera.individual.IndividualRepository;
-import bw.co.knowvera.individual.IndividualSearchCriteria;
-import bw.co.knowvera.individual.IndividualServiceBase;
-import bw.co.knowvera.individual.IndividualServiceException;
-import bw.co.knowvera.individual.PepStatus;
-import bw.co.knowvera.individual.Sex;
 
 /**
  * @see bw.co.knowvera.individual.IndividualService
@@ -59,8 +47,8 @@ public class IndividualServiceImpl
     private final SettingsService settingsService;
 
     public IndividualServiceImpl(IndividualRepository individualRepository, SettingsService settingsService,
-            IndividualMapper individualMapper, MessageSource messageSource, ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder) {
-        super(individualRepository, individualMapper, messageSource);
+            IndividualMapper individualMapper, ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder) {
+        super(individualRepository, individualMapper);
         // TODO Auto-generated constructor stub
 
         this.clientRequestRepository = clientRequestRepository;

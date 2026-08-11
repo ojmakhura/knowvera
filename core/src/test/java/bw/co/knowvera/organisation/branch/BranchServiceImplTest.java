@@ -23,12 +23,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import bw.co.knowvera.organisation.branch.BranchMapper;
-import bw.co.knowvera.organisation.branch.BranchServiceImpl;
-import bw.co.knowvera.organisation.branch.Branch;
-import bw.co.knowvera.organisation.branch.BranchDTO;
-import bw.co.knowvera.organisation.branch.BranchRepository;
-
 @ExtendWith(MockitoExtension.class)
 class BranchServiceImplTest {
 
@@ -36,14 +30,12 @@ class BranchServiceImplTest {
     private BranchRepository branchRepository;
     @Mock
     private BranchMapper branchMapper;
-    @Mock
-    private MessageSource messageSource;
 
     private BranchServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        service = new BranchServiceImpl(branchRepository, branchMapper, messageSource);
+        service = new BranchServiceImpl(branchRepository, branchMapper);
     }
 
     @Test

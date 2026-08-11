@@ -12,19 +12,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import bw.co.knowvera.individual.employment.EmploymentRecord;
-import bw.co.knowvera.individual.employment.EmploymentRecordDTO;
-import bw.co.knowvera.individual.employment.EmploymentRecordRepository;
-import bw.co.knowvera.individual.employment.EmploymentRecordServiceBase;
-import bw.co.knowvera.individual.employment.EmploymentRecordServiceException;
 
 /**
  * @see bw.co.knowvera.individual.employment.EmploymentRecordService
@@ -36,9 +29,8 @@ public class EmploymentRecordServiceImpl
 {
     
 
-    public EmploymentRecordServiceImpl(EmploymentRecordRepository employmentRecordRepository, EmploymentRecordMapper employmentRecordMapper,
-            MessageSource messageSource) {
-        super(employmentRecordRepository, employmentRecordMapper, messageSource);
+    public EmploymentRecordServiceImpl(EmploymentRecordRepository employmentRecordRepository, EmploymentRecordMapper employmentRecordMapper) {
+        super(employmentRecordRepository, employmentRecordMapper);
         //TODO Auto-generated constructor stub
     }
 

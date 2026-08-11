@@ -38,8 +38,6 @@ class VerificationDataConfigServiceImplTest {
     private ExpectedFieldRepository expectedFieldRepository;
     @Mock
     private JdbcTemplate jdbcTemplate;
-    @Mock
-    private MessageSource messageSource;
 
     private VerificationDataConfigServiceImpl service;
 
@@ -50,8 +48,7 @@ class VerificationDataConfigServiceImplTest {
                 verificationDataConfigMapper,
                 documentTypeRepository,
                 expectedFieldRepository,
-                jdbcTemplate,
-                messageSource);
+                jdbcTemplate);
     }
 
     @Test

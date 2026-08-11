@@ -44,8 +44,6 @@ import bw.co.knowvera.document.DocumentRepository;
 import bw.co.knowvera.individual.Individual;
 import bw.co.knowvera.individual.IndividualRepository;
 import bw.co.knowvera.individual.employment.EmploymentRecord;
-import bw.co.knowvera.kyc.KycRecordMapper;
-import bw.co.knowvera.kyc.KycRecordServiceImpl;
 import bw.co.knowvera.kyc.fields.KycReportSectionRepository;
 import bw.co.knowvera.organisation.Organisation;
 import bw.co.knowvera.organisation.OrganisationRepository;
@@ -55,15 +53,6 @@ import bw.co.knowvera.sequence.SequenceGeneratorService;
 import bw.co.knowvera.settings.Settings;
 import bw.co.knowvera.settings.SettingsRepository;
 import bw.co.knowvera.user.UserDTO;
-import bw.co.knowvera.kyc.KycComplianceStatus;
-import bw.co.knowvera.kyc.KycRecord;
-import bw.co.knowvera.kyc.KycRecordDTO;
-import bw.co.knowvera.kyc.KycRecordListDTO;
-import bw.co.knowvera.kyc.KycRecordRepository;
-import bw.co.knowvera.kyc.KycRecordSearchCriteria;
-import bw.co.knowvera.kyc.KycRecordServiceException;
-import bw.co.knowvera.kyc.KycRecordSummary;
-import bw.co.knowvera.kyc.OwnerDetails;
 
 @ExtendWith(MockitoExtension.class)
 class KycRecordServiceImplTest {
@@ -72,8 +61,6 @@ class KycRecordServiceImplTest {
     private KycRecordRepository kycRecordRepository;
     @Mock
     private KycRecordMapper kycRecordMapper;
-    @Mock
-    private MessageSource messageSource;
     @Mock
     private SettingsRepository settingsRepository;
     @Mock
@@ -93,18 +80,16 @@ class KycRecordServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        service = new KycRecordServiceImpl(
-                kycRecordRepository,
-                kycRecordMapper,
-                messageSource,
-                settingsRepository,
-                kycRecordMapper,
-                individualRepository,
-                documentRepository,
-                sequenceGeneratorRepository,
-                sequenceGeneratorService,
-                kycReportSectionRepository,
-                organisationRepository);
+        service = new KycRecordServiceImpl(kycRecordRepository,
+            kycRecordMapper,
+            settingsRepository,
+            individualRepository,
+            documentRepository,
+            sequenceGeneratorRepository,
+            sequenceGeneratorService,
+            kycReportSectionRepository,
+            organisationRepository);
+        
     }
 
     @Test

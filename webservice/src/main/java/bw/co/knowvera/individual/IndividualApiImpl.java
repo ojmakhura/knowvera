@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -36,18 +38,14 @@ import bw.co.knowvera.organisation.branch.BranchService;
 import bw.co.knowvera.settings.SettingsDTO;
 import bw.co.knowvera.settings.SettingsService;
 import bw.co.knowvera.user.UserDTO;
-import bw.co.knowvera.individual.IndividualApi;
-import bw.co.knowvera.individual.IndividualDTO;
-import bw.co.knowvera.individual.IndividualListDTO;
-import bw.co.knowvera.individual.IndividualSearchCriteria;
-import bw.co.knowvera.individual.IndividualService;
-import bw.co.knowvera.individual.IndividualServiceException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @Tag(name = "Individuals", description = "Individuals API")
 public class IndividualApiImpl implements IndividualApi {
+
+    private static final Logger logger = LoggerFactory.getLogger(IndividualApi.class);
 
     @Value("${app.organisation.manager-role}")
     private String organisationManagerRole;
@@ -109,12 +107,12 @@ public class IndividualApiImpl implements IndividualApi {
 
     // @PostConstruct
     // public void init() {
-    //     try {
-    //         settings = settingsService.getAll().stream().findFirst()
-    //                 .orElseThrow(() -> new RuntimeException("No application settings found"));
-    //     } catch (Exception e) {
-    //         throw new RuntimeException("Failed to load application settings", e);
-    //     }
+    // try {
+    // settings = settingsService.getAll().stream().findFirst()
+    // .orElseThrow(() -> new RuntimeException("No application settings found"));
+    // } catch (Exception e) {
+    // throw new RuntimeException("Failed to load application settings", e);
+    // }
     // }
 
     @Override
@@ -122,36 +120,33 @@ public class IndividualApiImpl implements IndividualApi {
     @Audit(entity = "INDIVIDUAL", eventLabel = "#id", logData = false)
     public ResponseEntity<IndividualDTO> findById(String id) throws Exception {
 
-        try {
+        logger.debug("Finding individual with id: {}", id);
 
-            IndividualDTO data = individualService.findById(id);
+        IndividualDTO data = individualService.findById(id);
 
-            if (data.getHasUser()) {
+        if (data.getHasUser()) {
 
-                if (data.getOrganisation() != null && StringUtils.isNotBlank(data.getOrganisation().id())) {
+            if (data.getOrganisation() != null && StringUtils.isNotBlank(data.getOrganisation().id())) {
 
-                    OrganisationDTO org = organisationService.findById(data.getOrganisation().id());
-                    OrganisationListDTO o = new OrganisationListDTO(
-                            org.getId(),
-                            org.getCode(),
-                            org.getName(),
-                            org.getRegistrationNo(),
-                            org.getStatus(),
-                            org.getContactEmailAddress(),
-                            org.getKycStatus(),
-                            org.getIsClient(),
-                            org.getKeycloakId(),
-                            org.getPhysicalAddress(),
-                            org.getPostalAddress());
+                OrganisationDTO org = organisationService.findById(data.getOrganisation().id());
+                OrganisationListDTO o = new OrganisationListDTO(
+                        org.getId(),
+                        org.getCode(),
+                        org.getName(),
+                        org.getRegistrationNo(),
+                        org.getStatus(),
+                        org.getContactEmailAddress(),
+                        org.getKycStatus(),
+                        org.getIsClient(),
+                        org.getKeycloakId(),
+                        org.getPhysicalAddress(),
+                        org.getPostalAddress());
 
-                    data.setOrganisation(o);
-                }
+                data.setOrganisation(o);
             }
-
-            return ResponseEntity.ok(data);
-        } catch (Exception e) {
-            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
         }
+
+        return ResponseEntity.ok(data);
     }
 
     @Override
@@ -159,12 +154,8 @@ public class IndividualApiImpl implements IndividualApi {
     @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<List<IndividualListDTO>> getAll() throws Exception {
 
-        try {
-
-            return ResponseEntity.ok(individualService.getAll());
-        } catch (Exception e) {
-            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
-        }
+        logger.debug("Retrieving all individuals");
+        return ResponseEntity.ok(individualService.getAll());
     }
 
     @Override
@@ -173,12 +164,8 @@ public class IndividualApiImpl implements IndividualApi {
     public ResponseEntity<Page<IndividualListDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) throws Exception {
 
-        try {
-            return ResponseEntity.ok(individualService.getAll(pageNumber, pageSize));
-
-        } catch (Exception e) {
-            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
-        }
+        logger.debug("Retrieving individuals with pagination - page: {}, size: {}", pageNumber, pageSize);
+        return ResponseEntity.ok(individualService.getAll(pageNumber, pageSize));
     }
 
     @Override
@@ -187,13 +174,8 @@ public class IndividualApiImpl implements IndividualApi {
     public ResponseEntity<Page<IndividualListDTO>> pagedSearch(
             SearchObject<IndividualSearchCriteria> criteria) throws Exception {
 
-        try {
-
-            return ResponseEntity.ok(individualService.search(criteria));
-
-        } catch (Exception e) {
-            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
-        }
+        logger.debug("Searching individuals with criteria: {}", criteria);
+        return ResponseEntity.ok(individualService.search(criteria));
     }
 
     @Override
@@ -201,13 +183,8 @@ public class IndividualApiImpl implements IndividualApi {
     @Audit(entity = "INDIVIDUAL", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
-        try {
-
-            return ResponseEntity.ok(individualService.remove(id));
-
-        } catch (Exception e) {
-            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
-        }
+        logger.debug("Removing individual with id: {}", id);
+        return ResponseEntity.ok(individualService.remove(id));
 
     }
 
@@ -235,7 +212,6 @@ public class IndividualApiImpl implements IndividualApi {
 
         rabbitTemplate.convertAndSend(newUserQueueExchange, newUserQueueRoutingKey, payload);
 
-
     }
 
     @Override
@@ -243,122 +219,118 @@ public class IndividualApiImpl implements IndividualApi {
     @Audit(entity = "INDIVIDUAL", eventLabel = "#individual.id", logData = true)
     public ResponseEntity<IndividualDTO> save(IndividualDTO individual) throws Exception {
 
-        try {
+        logger.debug("Saving individual: {}", individual);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(individual, authentication);
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            AuditTracker.auditTrail(individual, authentication);
+        UserDTO user = keycloakUserService.getUserByIdentityNo(individual.getIdentityNo());
+        boolean isNewUser = false;
 
-            UserDTO user = keycloakUserService.getUserByIdentityNo(individual.getIdentityNo());
-            boolean isNewUser = false;
+        if (user == null && StringUtils.isNotBlank(individual.getEmailAddress())) {
+            user = keycloakUserService.getUserByEmail(individual.getEmailAddress());
+        }
 
-            if (user == null && StringUtils.isNotBlank(individual.getEmailAddress())) {
-                user = keycloakUserService.getUserByEmail(individual.getEmailAddress());
-            }
+        OrganisationDTO org = null;
+        BranchDTO branch = null;
 
-            OrganisationDTO org = null;
-            BranchDTO branch = null;
+        if (individual.getBranch() != null) {
 
-            if (individual.getBranch() != null) {
+            branch = branchService.findById(individual.getBranch().getId());
 
-                branch = branchService.findById(individual.getBranch().getId());
+            org = organisationService.findById(branch.getOrganisationId());
 
-                org = organisationService.findById(branch.getOrganisationId());
+        } else if (individual.getOrganisation() != null) {
+            org = organisationService.findById(individual.getOrganisation().id());
+        }
 
-            } else if (individual.getOrganisation() != null) {
-                org = organisationService.findById(individual.getOrganisation().id());
-            }
+        if (user == null) {
 
-            if (user == null) {
+            UserDTO existing = keycloakUserService.getUserByEmail(individual.getEmailAddress());
 
-                UserDTO existing = keycloakUserService.getUserByEmail(individual.getEmailAddress());
+            boolean createUser = isNewUser = (existing == null)
+                    && (individual.getHasUser() != null && individual.getHasUser());
 
-                boolean createUser = isNewUser = (existing == null)
-                        && (individual.getHasUser() != null && individual.getHasUser());
+            if (createUser) {
 
-                if (createUser) {
+                if (existing != null) {
+                    boolean sameUser = existing.getFirstName().equals(individual.getFirstName())
+                            && existing.getUsername().equals(individual.getSurname());
 
-                    if (existing != null) {
-                        boolean sameUser = existing.getFirstName().equals(individual.getFirstName())
-                                && existing.getUsername().equals(individual.getSurname());
+                    if (!sameUser) {
 
-                        if (!sameUser) {
-
-                            throw new IndividualServiceException(
-                                    "The provided individual has an email used by a user who does not match the given information.");
-                        }
+                        throw new IndividualServiceException(
+                                "The provided individual has an email used by a user who does not match the given information.");
                     }
-
-                    if (individual.getOrganisation() != null) {
-                        org = new OrganisationDTO();
-                        org.setId(individual.getOrganisation().id());
-                        org.setName(individual.getOrganisation().name());
-                        org.setContactEmailAddress(individual.getOrganisation().contactEmailAddress());
-                        org.setRegistrationNo(individual.getOrganisation().registrationNo());
-                        org.setCode(individual.getOrganisation().code());
-                    }
-
-                    user = keycloakUserService.registerUser(individual, org);
-
-                } else if (existing != null) {
-                    user = existing;
                 }
+
+                if (individual.getOrganisation() != null) {
+                    org = new OrganisationDTO();
+                    org.setId(individual.getOrganisation().id());
+                    org.setName(individual.getOrganisation().name());
+                    org.setContactEmailAddress(individual.getOrganisation().contactEmailAddress());
+                    org.setRegistrationNo(individual.getOrganisation().registrationNo());
+                    org.setCode(individual.getOrganisation().code());
+                }
+
+                user = keycloakUserService.registerUser(individual, org);
+
+            } else if (existing != null) {
+                user = existing;
+            }
+        } else {
+
+            if (org == null) {
+
+                user.setOrganisation(null);
+                user.setOrganisationId(null);
+                user.setOrganisationRegistrationNo(null);
             } else {
 
-                if (org == null) {
-
-                    user.setOrganisation(null);
-                    user.setOrganisationId(null);
-                    user.setOrganisationRegistrationNo(null);
-                } else {
-
-                    user.setOrganisation(org.getName());
-                    user.setOrganisationId(org.getId());
-                    user.setOrganisationRegistrationNo(org.getRegistrationNo());
-                }
-
-                if (branch == null) {
-
-                    user.setBranch(null);
-                    user.setBranchId(null);
-                } else {
-
-                    user.setBranch(branch.getName());
-                    user.setBranchId(branch.getId());
-
-                }
-
-                if (StringUtils.isNotBlank(individual.getIdentityNo())) {
-
-                    user.setIdentityNo(individual.getIdentityNo());
-                }
-
-                keycloakUserService.updateUser(user);
+                user.setOrganisation(org.getName());
+                user.setOrganisationId(org.getId());
+                user.setOrganisationRegistrationNo(org.getRegistrationNo());
             }
 
-            if (user != null && StringUtils.isNotBlank(user.getUserId())) {
-                individual.setHasUser(true);
-                individual.setUserId(user.getUserId());
-            }
+            if (branch == null) {
 
-            individual = individualService.save(individual);
-            if (isNewUser) {
-                try {
-                    // emailService.sendEmail(List.of(newUserMessage(individual, user)));
-                    this.newUserMessage(individual, user);
-                } catch (Exception e) {
-                    // Log and continue
-                    System.err.println("Failed to send new user email: " + e.getMessage());
-                    throw new IndividualServiceException(
-                            "Individual saved but failed to send new user email notification.", e);
-                }
+                user.setBranch(null);
+                user.setBranchId(null);
+            } else {
+
+                user.setBranch(branch.getName());
+                user.setBranchId(branch.getId());
 
             }
 
-            return ResponseEntity.ok(individual);
+            if (StringUtils.isNotBlank(individual.getIdentityNo())) {
 
-        } catch (Exception e) {
-            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
+                user.setIdentityNo(individual.getIdentityNo());
+            }
+
+            keycloakUserService.updateUser(user);
         }
+
+        if (user != null && StringUtils.isNotBlank(user.getUserId())) {
+            individual.setHasUser(true);
+            individual.setUserId(user.getUserId());
+        }
+
+        individual = individualService.save(individual);
+        if (isNewUser) {
+            try {
+                // emailService.sendEmail(List.of(newUserMessage(individual, user)));
+                this.newUserMessage(individual, user);
+            } catch (Exception e) {
+                // Log and continue
+                System.err.println("Failed to send new user email: " + e.getMessage());
+                throw new IndividualServiceException(
+                        "Individual saved but failed to send new user email notification.", e);
+            }
+
+        }
+
+        return ResponseEntity.ok(individual);
+
     }
 
     @Override
@@ -367,21 +339,16 @@ public class IndividualApiImpl implements IndividualApi {
     public ResponseEntity<List<IndividualListDTO>> search(
             SearchObject<IndividualSearchCriteria> criteria) throws Exception {
 
-        try {
+        logger.debug("Searching individuals with criteria: {}", criteria);
+        Set<PropertySearchOrder> sortings = new java.util.HashSet<>();
 
-            Set<PropertySearchOrder> sortings = new java.util.HashSet<>();
+        if (criteria.getSortings() != null) {
 
-            if (criteria.getSortings() != null) {
-
-                sortings.addAll(criteria.getSortings());
-            }
-
-            return ResponseEntity
-                    .ok(individualService.search(criteria.getCriteria(), sortings));
-
-        } catch (Exception e) {
-            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
+            sortings.addAll(criteria.getSortings());
         }
+
+        return ResponseEntity
+                .ok(individualService.search(criteria.getCriteria(), sortings));
 
     }
 
@@ -390,15 +357,9 @@ public class IndividualApiImpl implements IndividualApi {
     @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<List<IndividualListDTO>> getOrganisationClients(
             String organisationId) throws Exception {
+        logger.debug("Getting organisation clients for organisationId: {}", organisationId);
+        throw new UnsupportedOperationException("Not implemented yet");
 
-        try {
-
-            return ResponseEntity
-                    .ok(null);
-
-        } catch (Exception e) {
-            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
-        }
     }
 
     @Override
@@ -407,14 +368,8 @@ public class IndividualApiImpl implements IndividualApi {
     public ResponseEntity<Page<IndividualListDTO>> getOrganisationClientsPaged(
             String criteria, Integer pageNumber, Integer pageSize) throws Exception {
 
-        try {
-
-            return ResponseEntity
-                    .ok(null);
-
-        } catch (Exception e) {
-            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
-        }
+        logger.debug("Getting organisation clients paged for criteria: {}, pageNumber: {}, pageSize: {}", criteria, pageNumber, pageSize);
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
@@ -423,15 +378,12 @@ public class IndividualApiImpl implements IndividualApi {
     public ResponseEntity<IndividualDTO> loadRequestIndividual(String requestId, String identityConfirmationToken,
             String identityNo) throws Exception {
 
-        try {
-            IndividualDTO individual = individualService.loadRequestIndividual(requestId, identityConfirmationToken,
-                    identityNo);
+        logger.debug("Loading request individual with requestId: {}, identityConfirmationToken: {}, identityNo: {}", requestId, identityConfirmationToken, identityNo);
+        IndividualDTO individual = individualService.loadRequestIndividual(requestId, identityConfirmationToken,
+                identityNo);
 
-            return ResponseEntity.ok(individual);
+        return ResponseEntity.ok(individual);
 
-        } catch (Exception e) {
-            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
-        }
     }
 
     @Override
@@ -439,21 +391,18 @@ public class IndividualApiImpl implements IndividualApi {
     @Audit(entity = "INDIVIDUAL", logData = false)
     public ResponseEntity<IndividualDTO> loadMe() throws Exception {
 
-        try {
+        logger.debug("Loading currently authenticated individual");
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (!authentication.isAuthenticated()) {
-                throw new IndividualServiceException("Unauthenticated");
-            }
-
-            Jwt jwt = (Jwt) authentication.getPrincipal();
-            String userId = jwt.getSubject();
-
-            return ResponseEntity.ok(individualService.findByUserId(userId));
-
-        } catch (Exception e) {
-            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!authentication.isAuthenticated()) {
+            throw new IndividualServiceException("Unauthenticated");
         }
+
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        String userId = jwt.getSubject();
+
+        return ResponseEntity.ok(individualService.findByUserId(userId));
+
     }
 
     @Override
@@ -461,23 +410,18 @@ public class IndividualApiImpl implements IndividualApi {
     @Audit(entity = "INDIVIDUAL", eventLabel = "#id", logData = false)
     public ResponseEntity<IndividualDTO> verifyIndividual(String id) throws Exception {
 
-        try {
-
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (!authentication.isAuthenticated()) {
-                throw new IndividualServiceException("Unauthenticated");
-            }
-
-            Jwt jwt = (Jwt) authentication.getPrincipal();
-            String userId = jwt.getSubject();
-
-            IndividualDTO individual = individualService.verifyIndividual(id, userId);
-
-            return ResponseEntity.ok(individual);
-
-        } catch (Exception e) {
-            throw e.getCause() != null ? new IndividualServiceException(e.getCause().getMessage()) : e;
+        logger.debug("Verifying individual with id: {}", id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!authentication.isAuthenticated()) {
+            throw new IndividualServiceException("Unauthenticated");
         }
+
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        String userId = jwt.getSubject();
+
+        IndividualDTO individual = individualService.verifyIndividual(id, userId);
+
+        return ResponseEntity.ok(individual);
 
     }
 }

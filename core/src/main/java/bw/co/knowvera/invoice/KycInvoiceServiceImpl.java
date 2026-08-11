@@ -69,10 +69,9 @@ public class KycInvoiceServiceImpl
             KycInvoiceMapper kycInvoiceMapper,
             SequenceGeneratorService sequenceGeneratorService, SequenceGeneratorRepository sequenceGeneratorRepository,
             KycSubscriptionRepository kycSubscriptionRepository, KycSubscriptionMapper kycSubscriptionMapper,
-            SettingsService settingsService,
-            MessageSource messageSource) {
+            SettingsService settingsService) {
         super(kycInvoiceRepository, kycInvoiceMapper, kycSubscriptionRepository,
-                kycSubscriptionMapper, messageSource);
+                kycSubscriptionMapper);
         // TODO Auto-generated constructor stub
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.sequenceGeneratorRepository = sequenceGeneratorRepository;

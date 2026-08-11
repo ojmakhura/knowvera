@@ -45,9 +45,8 @@ public class SettingsServiceImpl
     public SettingsServiceImpl(SettingsRepository settingsRepository,
             SettingsMapper settingsMapper,
             DocumentRepository documentRepository, DocumentTypeRepository documentTypeRepository,
-            SalaryRangeMapper salaryRangeMapper, SalaryRangeRepository salaryRangeRepository, MessageSource messageSource) {
-        super(settingsRepository, settingsMapper, salaryRangeRepository, salaryRangeMapper,
-                messageSource);
+            SalaryRangeMapper salaryRangeMapper, SalaryRangeRepository salaryRangeRepository) {
+        super(settingsRepository, settingsMapper, salaryRangeRepository, salaryRangeMapper);
         // TODO Auto-generated constructor stub
 
         this.documentRepository = documentRepository;

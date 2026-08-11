@@ -40,14 +40,12 @@ public class VerificationDataConfigServiceImpl
         VerificationDataConfigMapper verificationDataConfigMapper,
         DocumentTypeRepository typeRepository,
         ExpectedFieldRepository expectedFieldRepository,
-        JdbcTemplate jdbcTemplate,
-        MessageSource messageSource
+        JdbcTemplate jdbcTemplate
     ) {
         
         super(
             verificationDataConfigRepository,
-            verificationDataConfigMapper,
-            messageSource
+            verificationDataConfigMapper
         );
 
         this.documentTypeRepository = typeRepository;

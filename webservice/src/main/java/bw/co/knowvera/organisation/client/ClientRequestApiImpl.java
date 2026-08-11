@@ -22,17 +22,10 @@ import bw.co.knowvera.organisation.OrganisationService;
 import bw.co.knowvera.settings.SettingsDTO;
 import bw.co.knowvera.settings.SettingsService;
 import bw.co.knowvera.user.UserDTO;
-import bw.co.knowvera.organisation.client.ClientRequestApi;
-import bw.co.knowvera.organisation.client.ClientRequestDTO;
-import bw.co.knowvera.organisation.client.ClientRequestSearchCriteria;
-import bw.co.knowvera.organisation.client.ClientRequestService;
-import bw.co.knowvera.organisation.client.ClientRequestServiceException;
-import bw.co.knowvera.organisation.client.ClientRequestStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -84,30 +77,19 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Operation(summary = "Find Client Request by ID", description = "Find a client request by its ID")
     @Audit(entity = "CLIENT_REQUEST", eventLabel="#id", logData = false)
     public ResponseEntity<ClientRequestDTO> findById(String id) throws Exception {
-        try {
 
             ClientRequestDTO request = clientRequestService.findById(id);
 
             return ResponseEntity.ok(request);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
     @Operation(summary = "Find Client Requests by Individual", description = "Find client requests by individual ID")
     @Audit(entity = "CLIENT_REQUEST", eventLabel="#individualId", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findByIndividual(String individualId) throws Exception {
-        try {
+        
             List<ClientRequestDTO> requests = clientRequestService.findByIndividual(individualId);
             return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -115,14 +97,9 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", eventLabel="#individualId", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> findByIndividualPaged(String individualId, Integer pageNumber,
             Integer pageSize) throws Exception {
-        try {
+        
             Page<ClientRequestDTO> requests = clientRequestService.findByIndividual(individualId, pageNumber, pageSize);
             return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -130,14 +107,9 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", eventLabel="#organisationId", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findByOrganisation(String organisationId, TargetEntity target)
             throws Exception {
-        try {
+
             List<ClientRequestDTO> requests = clientRequestService.findByOrganisation(organisationId);
             return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -145,59 +117,35 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", eventLabel="#organisationId", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber,
             Integer pageSize, TargetEntity target) throws Exception {
-        try {
+        
             Page<ClientRequestDTO> requests = clientRequestService.findByOrganisation(organisationId, pageNumber,
                     pageSize);
 
             return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
     @Operation(summary = "Find Client Requests by Status", description = "Find client requests by their status")
     @Audit(entity = "CLIENT_REQUEST", eventLabel="#status", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findByStatus(ClientRequestStatus status) throws Exception {
-        try {
             List<ClientRequestDTO> requests = clientRequestService.findByStatus(status);
-
             return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
     @Operation(summary = "Get All Client Requests", description = "Retrieve all client requests")
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> getAll() throws Exception {
-        try {
             List<ClientRequestDTO> requests = clientRequestService.getAll();
             return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
     @Operation(summary = "Get All Client Requests (Paged)", description = "Retrieve all client requests with pagination")
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> getAllPaged(Integer pageNumber, Integer pageSize) throws Exception {
-        try {
             Page<ClientRequestDTO> requests = clientRequestService.getAll(pageNumber, pageSize);
             return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -205,45 +153,30 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> pagedSearch(SearchObject<ClientRequestSearchCriteria> criteria)
             throws Exception {
-        try {
+        
             Page<ClientRequestDTO> requests = clientRequestService.search(criteria);
             return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
     @Operation(summary = "Remove Client Request", description = "Remove a client request by its ID")
     @Audit(entity = "CLIENT_REQUEST", eventLabel="#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
-        try {
+        
 
             return ResponseEntity.ok(clientRequestService.remove(id));
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
     @Operation(summary = "Save Client Request", description = "Save a client request")
     @Audit(entity = "CLIENT_REQUEST", eventLabel="#clientRequest.id", logData = true)
     public ResponseEntity<ClientRequestDTO> save(ClientRequestDTO clientRequest) throws Exception {
-        try {
+        
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             AuditTracker.auditTrail(clientRequest, authentication);
 
             ClientRequestDTO savedRequest = clientRequestService.save(clientRequest);
             return ResponseEntity.ok(savedRequest);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -251,7 +184,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> search(SearchObject<ClientRequestSearchCriteria> criteria)
             throws Exception {
-        try {
+        
             Set<PropertySearchOrder> sorting = new HashSet<>();
             if (criteria.getSortings() != null) {
 
@@ -260,11 +193,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
             List<ClientRequestDTO> requests = clientRequestService.search(criteria.getCriteria(), sorting);
             return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
+        
     }
 
     @Override
@@ -272,14 +201,8 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", eventLabel="#documentId", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findByDocument(String documentId) throws Exception {
 
-        try {
-            List<ClientRequestDTO> requests = clientRequestService.findByDocument(documentId);
-            return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
+        List<ClientRequestDTO> requests = clientRequestService.findByDocument(documentId);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
@@ -288,13 +211,8 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     public ResponseEntity<Page<ClientRequestDTO>> findByDocumentPaged(String documentId, Integer pageNumber,
             Integer pageSize) throws Exception {
 
-        try {
-            Page<ClientRequestDTO> requests = clientRequestService.findByDocument(documentId, pageNumber, pageSize);
-            return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
+        Page<ClientRequestDTO> requests = clientRequestService.findByDocument(documentId, pageNumber, pageSize);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
@@ -303,13 +221,8 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     public ResponseEntity<Page<ClientRequestDTO>> findByStatusPaged(ClientRequestStatus status,
             Integer pageNumber, Integer pageSize) throws Exception {
 
-        try {
-            Page<ClientRequestDTO> requests = clientRequestService.findByStatus(status, pageNumber, pageSize);
-            return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
+        Page<ClientRequestDTO> requests = clientRequestService.findByStatus(status, pageNumber, pageSize);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
@@ -338,7 +251,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
             // organisationId, doc, target, org.getName());
             // updateOrganisationsDetails(requests.getContent());
 
-            return ResponseEntity.ok(null);
+            throw new UnsupportedOperationException("Not implemented yet");
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -350,7 +263,6 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<InputStreamResource> downloadRequestTemplate() throws Exception {
 
-        try {
             // Read the individual template file from resources
             Resource resource = new ClassPathResource("templates/client-request-template.xlsx");
 
@@ -391,10 +303,6 @@ public class ClientRequestApiImpl implements ClientRequestApi {
                     .contentLength(resource.contentLength())
                     .body(inputStreamResource);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -403,14 +311,8 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     public ResponseEntity<List<ClientRequestDTO>> findByTarget(TargetEntity target, String targetId)
             throws Exception {
 
-        try {
             List<ClientRequestDTO> requests = clientRequestService.findByTarget(target, targetId);
             return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -419,15 +321,9 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     public ResponseEntity<Page<ClientRequestDTO>> findByTargetPaged(TargetEntity target,
             String targetId, Integer pageNumber, Integer pageSize) throws Exception {
 
-        try {
             Page<ClientRequestDTO> requests = clientRequestService.findByTarget(target, targetId, pageNumber, pageSize);
 
             return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -436,15 +332,9 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     public ResponseEntity<List<ClientRequestDTO>> findIndividualsByOrganisation(String organisationId)
             throws Exception {
 
-        try {
-            List<ClientRequestDTO> requests = clientRequestService
-                    .findByTargetAndOrganisation(TargetEntity.INDIVIDUAL, null, organisationId);
-            return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
+        List<ClientRequestDTO> requests = clientRequestService
+                .findByTargetAndOrganisation(TargetEntity.INDIVIDUAL, null, organisationId);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
@@ -453,15 +343,9 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     public ResponseEntity<Page<ClientRequestDTO>> findIndividualsByOrganisationPaged(String organisationId,
             Integer pageNumber, Integer pageSize) throws Exception {
 
-        try {
-            Page<ClientRequestDTO> requests = clientRequestService.findByTargetAndOrganisation(TargetEntity.INDIVIDUAL,
-                    null, organisationId, pageNumber, pageSize);
-            return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
+        Page<ClientRequestDTO> requests = clientRequestService.findByTargetAndOrganisation(TargetEntity.INDIVIDUAL,
+                null, organisationId, pageNumber, pageSize);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
@@ -469,15 +353,10 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findOrganisationsByOrganisation(String organisationId)
             throws Exception {
-        try {
+        
             List<ClientRequestDTO> requests = clientRequestService
                     .findByTargetAndOrganisation(TargetEntity.ORGANISATION, null, organisationId);
             return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -486,23 +365,15 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     public ResponseEntity<Page<ClientRequestDTO>> findOrganisationsByOrganisationPaged(String organisationId,
             Integer pageNumber, Integer pageSize) throws Exception {
 
-        try {
-            Page<ClientRequestDTO> requests = clientRequestService
-                    .findByTargetAndOrganisation(TargetEntity.ORGANISATION, null, organisationId, pageNumber, pageSize);
-            return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
+        Page<ClientRequestDTO> requests = clientRequestService
+                .findByTargetAndOrganisation(TargetEntity.ORGANISATION, null, organisationId, pageNumber, pageSize);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
     @Operation(summary = "Update Client Request Status", description = "Update the status of a client request")
     @Audit(entity = "CLIENT_REQUEST", eventLabel="#status", logData = false)
     public ResponseEntity<ClientRequestDTO> updateStatus(String id, ClientRequestStatus status) throws Exception {
-
-        try {
 
             ClientRequestDTO request = clientRequestService.updateStatus(id, status);
 
@@ -528,20 +399,12 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
             return ResponseEntity.ok(request);
 
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
-
     }
 
     @Override
     @Operation(summary = "Confirm Client Request Token", description = "Confirm the token for a client request")
     @Audit(entity = "CLIENT_REQUEST", eventLabel="#token", logData = false)
     public ResponseEntity<String> confirmToken(String requestId, String token) throws Exception {
-
-        try {
 
             ClientRequestDTO request = clientRequestService.findById(requestId);
             if (request.getStatus() == ClientRequestStatus.ACCEPTED
@@ -572,11 +435,6 @@ public class ClientRequestApiImpl implements ClientRequestApi {
             String confirmationToken = clientRequestService.confirmToken(requestId, token);
             return ResponseEntity.ok(confirmationToken);
 
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override
@@ -585,7 +443,6 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     public ResponseEntity<Boolean> confirmRegistration(String id, Boolean confirm, String registrationToken)
             throws Exception {
 
-        try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (confirm) {
@@ -645,10 +502,6 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
             return ResponseEntity.ok(result);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @Override

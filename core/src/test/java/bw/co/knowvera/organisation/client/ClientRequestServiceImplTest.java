@@ -74,8 +74,6 @@ class ClientRequestServiceImplTest {
     private SettingsRepository settingsRepository;
     @Mock
     private SettingsMapper settingsMapper;
-    @Mock
-    private MessageSource messageSource;
 
     private ClientRequestServiceImpl service;
 
@@ -94,8 +92,7 @@ class ClientRequestServiceImplTest {
                 documentRepository,
                 documentMapper,
                 settingsRepository,
-                settingsMapper,
-                messageSource);
+                settingsMapper);
     }
 
     @Test

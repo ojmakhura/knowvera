@@ -27,7 +27,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -39,8 +38,6 @@ import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.SortOrder;
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.TimePeriod;
-import bw.co.knowvera.invoice.KycInvoiceMapper;
-import bw.co.knowvera.invoice.KycInvoiceServiceImpl;
 import bw.co.knowvera.sequence.SequenceGenerator;
 import bw.co.knowvera.sequence.SequenceGeneratorRepository;
 import bw.co.knowvera.sequence.SequenceGeneratorService;
@@ -50,12 +47,6 @@ import bw.co.knowvera.subscription.KycSubsciptionStatus;
 import bw.co.knowvera.subscription.KycSubscription;
 import bw.co.knowvera.subscription.KycSubscriptionMapper;
 import bw.co.knowvera.subscription.KycSubscriptionRepository;
-import bw.co.knowvera.invoice.InvoiceSearchCriteria;
-import bw.co.knowvera.invoice.KycInvoice;
-import bw.co.knowvera.invoice.KycInvoiceDTO;
-import bw.co.knowvera.invoice.KycInvoiceRepository;
-import bw.co.knowvera.invoice.KycInvoiceServiceException;
-import bw.co.knowvera.invoice.UploadPurpose;
 import bw.co.knowvera.organisation.Organisation;
 
 @ExtendWith(MockitoExtension.class)
@@ -75,8 +66,6 @@ class KycInvoiceServiceImplTest {
     private KycSubscriptionMapper kycSubscriptionMapper;
     @Mock
     private SettingsService settingsService;
-    @Mock
-    private MessageSource messageSource;
 
     private KycInvoiceServiceImpl service;
 
@@ -89,8 +78,7 @@ class KycInvoiceServiceImplTest {
                 sequenceGeneratorRepository,
                 kycSubscriptionRepository,
                 kycSubscriptionMapper,
-                settingsService,
-                messageSource);
+                settingsService);
     }
 
     @Test

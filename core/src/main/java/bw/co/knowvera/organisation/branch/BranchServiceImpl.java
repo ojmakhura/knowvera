@@ -23,11 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import bw.co.knowvera.organisation.branch.Branch;
-import bw.co.knowvera.organisation.branch.BranchDTO;
-import bw.co.knowvera.organisation.branch.BranchRepository;
-import bw.co.knowvera.organisation.branch.BranchServiceBase;
-
 /**
  * @see bw.co.knowvera.organisation.branch.BranchService
  */
@@ -37,9 +32,8 @@ public class BranchServiceImpl
     extends BranchServiceBase
 {
     
-    public BranchServiceImpl(BranchRepository branchRepository, BranchMapper branchMapper,
-            MessageSource messageSource) {
-        super(branchRepository, branchMapper, messageSource);
+    public BranchServiceImpl(BranchRepository branchRepository, BranchMapper branchMapper) {
+        super(branchRepository, branchMapper);
         //TODO Auto-generated constructor stub
     }
 

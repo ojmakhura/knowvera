@@ -57,10 +57,10 @@ public class KycSubscriptionServiceImpl
 
     public KycSubscriptionServiceImpl(KycSubscriptionRepository kycSubscriptionRepository, 
             SequenceGeneratorService sequenceGeneratorService, SequenceGeneratorRepository sequenceGeneratorRepository, KycSubscriptionMapper kycSubscriptionMapper,
-            KycInvoiceRepository kycInvoiceRepository, KycInvoiceMapper kycInvoiceMapper, MessageSource messageSource) {
+            KycInvoiceRepository kycInvoiceRepository, KycInvoiceMapper kycInvoiceMapper) {
 
         super(kycSubscriptionRepository, kycSubscriptionMapper,
-                kycInvoiceRepository, kycInvoiceMapper, messageSource);
+                kycInvoiceRepository, kycInvoiceMapper);
 
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.sequenceGeneratorRepository = sequenceGeneratorRepository;
