@@ -5,17 +5,22 @@
 //
 package bw.co.knowvera.kyc;
 
-import bw.co.knowvera.ErrorResponse;
-import java.time.Instant;
-import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+
+import bw.co.knowvera.ValidationMapping;
+
+import java.net.URI;
+import java.time.Instant;
+import java.util.List;
 
 /**
  * Translates the errors thrown by {@link KycRecordApiServiceBase}
@@ -31,147 +36,181 @@ public class KycRecordApiControllerAdvice {
     private static final Logger LOGGER = LoggerFactory.getLogger(KycRecordApiControllerAdvice.class);
 
     /**
+     * Ordered list of validation-message mappings.
+     * Each entry matches a method-name substring and (optionally) a
+     * field-name substring against the raw exception message, and
+     * supplies the user-facing replacement text.
+     */
+    private static final List<ValidationMapping> VALIDATION_MAPPINGS = List.of(
+
+            new ValidationMapping(".findById(", "'id'",
+                    "Id is required."),
+
+            new ValidationMapping(".save(", "'kycRecord'",
+                    "Kyc Record is required."),
+
+            new ValidationMapping(".remove(", "'id'",
+                    "Id is required."),
+
+            new ValidationMapping(".findByIndividual(", "'individualId'",
+                    "Individual Id is required."),
+
+            new ValidationMapping(".findByIdentityNo(", "'identityNo'",
+                    "Identity No is required."),
+
+            new ValidationMapping(".findByOrganisation(", "'organisationId'",
+                    "Organisation Id is required."),
+
+            new ValidationMapping(".findByIndividualPaged(", "'individualId'",
+                    "Individual Id is required."),
+
+            new ValidationMapping(".findByIdentityNoPaged(", "'identityNo'",
+                    "Identity No is required."),
+
+            new ValidationMapping(".findByOrganisationRegistration(", "'registrationNo'",
+                    "Registration No is required."),
+
+            new ValidationMapping(".findByOrganisationRegistrationPaged(", "'registrationNo'",
+                    "Registration No is required."),
+
+            new ValidationMapping(".createIndividualRecord(", "'individualId'",
+                    "Individual Id is required."),
+
+            new ValidationMapping(".createOrganisationRecord(", "'organisationId'",
+                    "Organisation Id is required."),
+
+            new ValidationMapping(".findMyCurrentRecord(", "'ownerType'",
+                    "Owner Type is required."),
+
+            new ValidationMapping(".createNew(", "'record'",
+                    "Record is required."),
+
+            new ValidationMapping(".updateRecordFiles(", "'id'",
+                    "Id is required."),
+            new ValidationMapping(".updateRecordFiles(", "'documents'",
+                    "Documents is required."),
+            new ValidationMapping(".updateRecordFiles(", "'files'",
+                    "Files is required."),
+
+            new ValidationMapping(".removeRecordFile(", "'id'",
+                    "Id is required."),
+            new ValidationMapping(".removeRecordFile(", "'documentId'",
+                    "Document Id is required."),
+
+            new ValidationMapping(".findSummaryById(", "'id'",
+                    "Id is required."),
+
+            new ValidationMapping(".runVerification(", "'id'",
+                    "Id is required."),
+
+            new ValidationMapping(".generateKycReport(", "'id'",
+                    "Id is required."),
+
+            new ValidationMapping(".updateStatus(", "'id'",
+                    "Id is required."),
+            new ValidationMapping(".updateStatus(", "'kycStatus'",
+                    "Kyc Status is required.")
+    );
+
+    /**
      * Handles manual argument validation checks thrown by KycRecordApiServiceBase.
      * Maps generated validation messages to friendly human-readable descriptions.
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+    public ResponseEntity<ProblemDetail> handleIllegalArgument(
+            IllegalArgumentException ex,
+            WebRequest request) {
+
         String message = ex.getMessage() == null ? "" : ex.getMessage();
         String friendly = toFriendlyMessage(message);
 
+        List<String> errors = message.isBlank()
+                ? List.of()
+                : List.of(message);
+
         LOGGER.warn("KycRecordApi validation failed: {}", message);
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.name(),
+        ProblemDetail problemDetail = buildProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "service-validation-error",
+                "KycRecordApi validation failed",
                 friendly,
-                Arrays.asList(ex.getMessage()),
-                Instant.now()
+                request,
+                errors
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(errorResponse);
+                .body(problemDetail);
     }
 
     /**
      * Handles {@link KycRecordServiceException} thrown by referenced services.
      */
     @ExceptionHandler(KycRecordServiceException.class)
-    public ResponseEntity<ErrorResponse> handleKycRecordServiceException(KycRecordServiceException ex) {
+    public ResponseEntity<ProblemDetail> handleKycRecordServiceException(
+            KycRecordServiceException ex,
+            WebRequest request) {
+
         LOGGER.error("Referenced service error (KycRecordService)", ex);
 
+        ProblemDetail problemDetail = buildProblemDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "service-error",
+                "KycRecordApi service error",
+                "An error occurred while communicating with dependent services. Please try again shortly.",
+                request,
+                List.of()
+        );
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
-                        "An error occurred while communicating with dependent services. Please try again shortly.",
-                        null,
-                        Instant.now()
-                ));
+                .body(problemDetail);
     }
 
     /**
-     * Maps validation messages thrown by KycRecordApiServiceBase to plain-language equivalents.
+     * Builds an RFC 9457 {@link ProblemDetail} response body, with
+     * {@code timestamp} and {@code errors} as extension members.
+     */
+    private ProblemDetail buildProblemDetail(
+            HttpStatus status,
+            String type,
+            String title,
+            String detail,
+            WebRequest request,
+            List<String> errors) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+        problemDetail.setType(URI.create(type));
+        problemDetail.setTitle(title);
+        problemDetail.setInstance(URI.create(getInstanceUri(request)));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("errors", errors);
+
+        return problemDetail;
+    }
+
+    /**
+     * Extracts the request URI from the Spring WebRequest.
+     */
+    private String getInstanceUri(WebRequest request) {
+        return request.getDescription(false)
+                .replace("uri=", "");
+    }
+
+    /**
+     * Maps validation messages thrown by KycRecordApiServiceBase to
+     * plain-language equivalents, using {@link #VALIDATION_MAPPINGS}.
+     *
+     * <p>
+     * The fallback returns the raw exception message rather than a
+     * generic sentence — preserved from the original generated behavior.
+     * </p>
      */
     private String toFriendlyMessage(String message) {
-        if (message.contains(".findById(") && message.contains("'id'")) {
-            return "Id is required.";
-        }
 
-        if (message.contains(".save(") && message.contains("'kycRecord'")) {
-            return "Kyc Record is required.";
-        }
-
-        if (message.contains(".remove(") && message.contains("'id'")) {
-            return "Id is required.";
-        }
-
-        if (message.contains(".findByIndividual(") && message.contains("'individualId'")) {
-            return "Individual Id is required.";
-        }
-
-        if (message.contains(".findByIdentityNo(") && message.contains("'identityNo'")) {
-            return "Identity No is required.";
-        }
-
-        if (message.contains(".findByOrganisation(") && message.contains("'organisationId'")) {
-            return "Organisation Id is required.";
-        }
-
-        if (message.contains(".findByIndividualPaged(") && message.contains("'individualId'")) {
-            return "Individual Id is required.";
-        }
-
-        if (message.contains(".findByIdentityNoPaged(") && message.contains("'identityNo'")) {
-            return "Identity No is required.";
-        }
-
-        if (message.contains(".findByOrganisationRegistration(") && message.contains("'registrationNo'")) {
-            return "Registration No is required.";
-        }
-
-        if (message.contains(".findByOrganisationRegistrationPaged(") && message.contains("'registrationNo'")) {
-            return "Registration No is required.";
-        }
-
-        if (message.contains(".createIndividualRecord(") && message.contains("'individualId'")) {
-            return "Individual Id is required.";
-        }
-
-        if (message.contains(".createOrganisationRecord(") && message.contains("'organisationId'")) {
-            return "Organisation Id is required.";
-        }
-
-        if (message.contains(".findMyCurrentRecord(") && message.contains("'ownerType'")) {
-            return "Owner Type is required.";
-        }
-
-        if (message.contains(".createNew(") && message.contains("'record'")) {
-            return "Record is required.";
-        }
-
-        if (message.contains(".updateRecordFiles(") && message.contains("'id'")) {
-            return "Id is required.";
-        }
-
-        if (message.contains(".updateRecordFiles(") && message.contains("'documents'")) {
-            return "Documents is required.";
-        }
-
-        if (message.contains(".updateRecordFiles(") && message.contains("'files'")) {
-            return "Files is required.";
-        }
-
-        if (message.contains(".removeRecordFile(") && message.contains("'id'")) {
-            return "Id is required.";
-        }
-
-        if (message.contains(".removeRecordFile(") && message.contains("'documentId'")) {
-            return "Document Id is required.";
-        }
-
-        if (message.contains(".findSummaryById(") && message.contains("'id'")) {
-            return "Id is required.";
-        }
-
-        if (message.contains(".runVerification(") && message.contains("'id'")) {
-            return "Id is required.";
-        }
-
-        if (message.contains(".generateKycReport(") && message.contains("'id'")) {
-            return "Id is required.";
-        }
-
-        if (message.contains(".updateStatus(") && message.contains("'id'")) {
-            return "Id is required.";
-        }
-
-        if (message.contains(".updateStatus(") && message.contains("'kycStatus'")) {
-            return "Kyc Status is required.";
-        }
-
-
-        // Fallback for any unmapped validation message
-        return message;
+        return VALIDATION_MAPPINGS.stream()
+                .filter(mapping -> mapping.matches(message))
+                .map(ValidationMapping::friendlyMessage)
+                .findFirst()
+                .orElse(message);
     }
 }

@@ -5,22 +5,26 @@
 //
 package bw.co.knowvera.analytics;
 
-import bw.co.knowvera.ErrorResponse;
+import bw.co.knowvera.exception.ValidationMapping;
 import bw.co.knowvera.individual.IndividualServiceException;
 import bw.co.knowvera.invoice.KycInvoiceServiceException;
 import bw.co.knowvera.organisation.client.ClientRequestServiceException;
 import bw.co.knowvera.subscription.KycSubscriptionServiceException;
 
-import java.time.Instant;
-import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+
+import java.net.URI;
+import java.time.Instant;
+import java.util.List;
 
 /**
  * Translates the errors thrown by {@link AnalyticsApiServiceBase}
@@ -36,103 +40,181 @@ public class AnalyticsApiControllerAdvice {
     private static final Logger LOGGER = LoggerFactory.getLogger(AnalyticsApiControllerAdvice.class);
 
     /**
+     * Ordered list of validation-message mappings.
+     * Each entry matches a method-name substring and (optionally) a
+     * field-name substring against the raw exception message, and
+     * supplies the user-facing replacement text.
+     */
+    private static final List<ValidationMapping> VALIDATION_MAPPINGS = List.of(
+
+            new ValidationMapping(".organisationCountAnalytics(", "'organisationId'",
+                    "Organisation Id is required.")
+    );
+
+    /**
      * Handles manual argument validation checks thrown by AnalyticsApiServiceBase.
      * Maps generated validation messages to friendly human-readable descriptions.
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+    public ResponseEntity<ProblemDetail> handleIllegalArgument(
+            IllegalArgumentException ex,
+            WebRequest request) {
+
         String message = ex.getMessage() == null ? "" : ex.getMessage();
         String friendly = toFriendlyMessage(message);
 
+        List<String> errors = message.isBlank()
+                ? List.of()
+                : List.of(message);
+
         LOGGER.warn("AnalyticsApi validation failed: {}", message);
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.name(),
+        ProblemDetail problemDetail = buildProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "service-validation-error",
+                "AnalyticsApi validation failed",
                 friendly,
-                Arrays.asList(ex.getMessage()),
-                Instant.now()
+                request,
+                errors
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(errorResponse);
+                .body(problemDetail);
     }
 
     /**
      * Handles {@link ClientRequestServiceException} thrown by referenced services.
      */
     @ExceptionHandler(ClientRequestServiceException.class)
-    public ResponseEntity<ErrorResponse> handleClientRequestServiceException(ClientRequestServiceException ex) {
+    public ResponseEntity<ProblemDetail> handleClientRequestServiceException(
+            ClientRequestServiceException ex,
+            WebRequest request) {
+
         LOGGER.error("Referenced service error (ClientRequestService)", ex);
 
+        ProblemDetail problemDetail = buildProblemDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "service-error",
+                "AnalyticsApi service error",
+                "An error occurred while communicating with dependent services. Please try again shortly.",
+                request,
+                List.of()
+        );
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
-                        "An error occurred while communicating with dependent services. Please try again shortly.",
-                        null,
-                        Instant.now()
-                ));
+                .body(problemDetail);
     }
+
     /**
      * Handles {@link IndividualServiceException} thrown by referenced services.
      */
     @ExceptionHandler(IndividualServiceException.class)
-    public ResponseEntity<ErrorResponse> handleIndividualServiceException(IndividualServiceException ex) {
+    public ResponseEntity<ProblemDetail> handleIndividualServiceException(
+            IndividualServiceException ex,
+            WebRequest request) {
+
         LOGGER.error("Referenced service error (IndividualService)", ex);
 
+        ProblemDetail problemDetail = buildProblemDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "service-error",
+                "AnalyticsApi service error",
+                "An error occurred while communicating with dependent services. Please try again shortly.",
+                request,
+                List.of()
+        );
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
-                        "An error occurred while communicating with dependent services. Please try again shortly.",
-                        null,
-                        Instant.now()
-                ));
+                .body(problemDetail);
     }
+
     /**
      * Handles {@link KycSubscriptionServiceException} thrown by referenced services.
      */
     @ExceptionHandler(KycSubscriptionServiceException.class)
-    public ResponseEntity<ErrorResponse> handleKycSubscriptionServiceException(KycSubscriptionServiceException ex) {
+    public ResponseEntity<ProblemDetail> handleKycSubscriptionServiceException(
+            KycSubscriptionServiceException ex,
+            WebRequest request) {
+
         LOGGER.error("Referenced service error (KycSubscriptionService)", ex);
 
+        ProblemDetail problemDetail = buildProblemDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "service-error",
+                "AnalyticsApi service error",
+                "An error occurred while communicating with dependent services. Please try again shortly.",
+                request,
+                List.of()
+        );
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
-                        "An error occurred while communicating with dependent services. Please try again shortly.",
-                        null,
-                        Instant.now()
-                ));
+                .body(problemDetail);
     }
+
     /**
      * Handles {@link KycInvoiceServiceException} thrown by referenced services.
      */
     @ExceptionHandler(KycInvoiceServiceException.class)
-    public ResponseEntity<ErrorResponse> handleKycInvoiceServiceException(KycInvoiceServiceException ex) {
+    public ResponseEntity<ProblemDetail> handleKycInvoiceServiceException(
+            KycInvoiceServiceException ex,
+            WebRequest request) {
+
         LOGGER.error("Referenced service error (KycInvoiceService)", ex);
 
+        ProblemDetail problemDetail = buildProblemDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "service-error",
+                "AnalyticsApi service error",
+                "An error occurred while communicating with dependent services. Please try again shortly.",
+                request,
+                List.of()
+        );
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
-                        "An error occurred while communicating with dependent services. Please try again shortly.",
-                        null,
-                        Instant.now()
-                ));
+                .body(problemDetail);
     }
 
     /**
-     * Maps validation messages thrown by AnalyticsApiServiceBase to plain-language equivalents.
+     * Builds an RFC 9457 {@link ProblemDetail} response body, with
+     * {@code timestamp} and {@code errors} as extension members.
+     */
+    private ProblemDetail buildProblemDetail(
+            HttpStatus status,
+            String type,
+            String title,
+            String detail,
+            WebRequest request,
+            List<String> errors) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+        problemDetail.setType(URI.create(type));
+        problemDetail.setTitle(title);
+        problemDetail.setInstance(URI.create(getInstanceUri(request)));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("errors", errors);
+
+        return problemDetail;
+    }
+
+    /**
+     * Extracts the request URI from the Spring WebRequest.
+     */
+    private String getInstanceUri(WebRequest request) {
+        return request.getDescription(false)
+                .replace("uri=", "");
+    }
+
+    /**
+     * Maps validation messages thrown by AnalyticsApiServiceBase to
+     * plain-language equivalents, using {@link #VALIDATION_MAPPINGS}.
      */
     private String toFriendlyMessage(String message) {
-        if (message.contains(".organisationCountAnalytics(") && message.contains("'organisationId'")) {
-            return "Organisation Id is required.";
-        }
 
-
-        // Fallback for any unmapped validation message
-        return message;
+        return VALIDATION_MAPPINGS.stream()
+                .filter(mapping -> mapping.matches(message))
+                .map(ValidationMapping::friendlyMessage)
+                .findFirst()
+                .orElse(message);
     }
+
 }

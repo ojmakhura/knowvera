@@ -1,0 +1,12 @@
+package bw.co.knowvera;
+
+public record ValidationMapping(
+        String methodMarker,
+        String fieldMarker,
+        String friendlyMessage) {
+
+    public boolean matches(String message) {
+        return message.contains(methodMarker)
+                && message.contains(fieldMarker);
+    }
+}

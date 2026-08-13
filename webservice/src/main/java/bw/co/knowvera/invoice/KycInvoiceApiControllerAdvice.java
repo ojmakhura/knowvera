@@ -5,17 +5,22 @@
 //
 package bw.co.knowvera.invoice;
 
-import bw.co.knowvera.ErrorResponse;
-import java.time.Instant;
-import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+
+import bw.co.knowvera.ValidationMapping;
+
+import java.net.URI;
+import java.time.Instant;
+import java.util.List;
 
 /**
  * Translates the errors thrown by {@link KycInvoiceApiServiceBase}
@@ -31,95 +36,139 @@ public class KycInvoiceApiControllerAdvice {
     private static final Logger LOGGER = LoggerFactory.getLogger(KycInvoiceApiControllerAdvice.class);
 
     /**
+     * Ordered list of validation-message mappings.
+     * Each entry matches a method-name substring and (optionally) a
+     * field-name substring against the raw exception message, and
+     * supplies the user-facing replacement text.
+     */
+    private static final List<ValidationMapping> VALIDATION_MAPPINGS = List.of(
+
+            new ValidationMapping(".findById(", "'id'",
+                    "Id is required."),
+
+            new ValidationMapping(".save(", "'invoice'",
+                    "Invoice is required."),
+
+            new ValidationMapping(".remove(", "'id'",
+                    "Id is required."),
+
+            new ValidationMapping(".upload(", "'id'",
+                    "Id is required."),
+            new ValidationMapping(".upload(", "'purpose'",
+                    "Purpose is required."),
+            new ValidationMapping(".upload(", "'file'",
+                    "File is required."),
+
+            new ValidationMapping(".generateInvoice(", "'subscriptionId'",
+                    "Subscription Id is required."),
+
+            new ValidationMapping(".findBySubscription(", "'subscriptionId'",
+                    "Subscription Id is required."),
+
+            new ValidationMapping(".findByOrganisation(", "'organisationId'",
+                    "Organisation Id is required."),
+
+            new ValidationMapping(".findBySubscriptionPaged(", "'subscriptionId'",
+                    "Subscription Id is required."),
+
+            new ValidationMapping(".findByOrganisationPaged(", "'organisationId'",
+                    "Organisation Id is required.")
+    );
+
+    /**
      * Handles manual argument validation checks thrown by KycInvoiceApiServiceBase.
      * Maps generated validation messages to friendly human-readable descriptions.
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+    public ResponseEntity<ProblemDetail> handleIllegalArgument(
+            IllegalArgumentException ex,
+            WebRequest request) {
+
         String message = ex.getMessage() == null ? "" : ex.getMessage();
         String friendly = toFriendlyMessage(message);
 
+        List<String> errors = message.isBlank()
+                ? List.of()
+                : List.of(message);
+
         LOGGER.warn("KycInvoiceApi validation failed: {}", message);
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.name(),
+        ProblemDetail problemDetail = buildProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "service-validation-error",
+                "KycInvoiceApi validation failed",
                 friendly,
-                Arrays.asList(ex.getMessage()),
-                Instant.now()
+                request,
+                errors
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(errorResponse);
+                .body(problemDetail);
     }
 
     /**
      * Handles {@link KycInvoiceServiceException} thrown by referenced services.
      */
     @ExceptionHandler(KycInvoiceServiceException.class)
-    public ResponseEntity<ErrorResponse> handleKycInvoiceServiceException(KycInvoiceServiceException ex) {
+    public ResponseEntity<ProblemDetail> handleKycInvoiceServiceException(
+            KycInvoiceServiceException ex,
+            WebRequest request) {
+
         LOGGER.error("Referenced service error (KycInvoiceService)", ex);
 
+        ProblemDetail problemDetail = buildProblemDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "service-error",
+                "KycInvoiceApi service error",
+                "An error occurred while communicating with dependent services. Please try again shortly.",
+                request,
+                List.of()
+        );
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
-                        "An error occurred while communicating with dependent services. Please try again shortly.",
-                        null,
-                        Instant.now()
-                ));
+                .body(problemDetail);
     }
 
     /**
-     * Maps validation messages thrown by KycInvoiceApiServiceBase to plain-language equivalents.
+     * Builds an RFC 9457 {@link ProblemDetail} response body, with
+     * {@code timestamp} and {@code errors} as extension members.
+     */
+    private ProblemDetail buildProblemDetail(
+            HttpStatus status,
+            String type,
+            String title,
+            String detail,
+            WebRequest request,
+            List<String> errors) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+        problemDetail.setType(URI.create(type));
+        problemDetail.setTitle(title);
+        problemDetail.setInstance(URI.create(getInstanceUri(request)));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("errors", errors);
+
+        return problemDetail;
+    }
+
+    /**
+     * Extracts the request URI from the Spring WebRequest.
+     */
+    private String getInstanceUri(WebRequest request) {
+        return request.getDescription(false)
+                .replace("uri=", "");
+    }
+
+    /**
+     * Maps validation messages thrown by KycInvoiceApiServiceBase to
+     * plain-language equivalents, using {@link #VALIDATION_MAPPINGS}.
      */
     private String toFriendlyMessage(String message) {
-        if (message.contains(".findById(") && message.contains("'id'")) {
-            return "Id is required.";
-        }
 
-        if (message.contains(".save(") && message.contains("'invoice'")) {
-            return "Invoice is required.";
-        }
-
-        if (message.contains(".remove(") && message.contains("'id'")) {
-            return "Id is required.";
-        }
-
-        if (message.contains(".upload(") && message.contains("'id'")) {
-            return "Id is required.";
-        }
-
-        if (message.contains(".upload(") && message.contains("'purpose'")) {
-            return "Purpose is required.";
-        }
-
-        if (message.contains(".upload(") && message.contains("'file'")) {
-            return "File is required.";
-        }
-
-        if (message.contains(".generateInvoice(") && message.contains("'subscriptionId'")) {
-            return "Subscription Id is required.";
-        }
-
-        if (message.contains(".findBySubscription(") && message.contains("'subscriptionId'")) {
-            return "Subscription Id is required.";
-        }
-
-        if (message.contains(".findByOrganisation(") && message.contains("'organisationId'")) {
-            return "Organisation Id is required.";
-        }
-
-        if (message.contains(".findBySubscriptionPaged(") && message.contains("'subscriptionId'")) {
-            return "Subscription Id is required.";
-        }
-
-        if (message.contains(".findByOrganisationPaged(") && message.contains("'organisationId'")) {
-            return "Organisation Id is required.";
-        }
-
-
-        // Fallback for any unmapped validation message
-        return message;
+        return VALIDATION_MAPPINGS.stream()
+                .filter(mapping -> mapping.matches(message))
+                .map(ValidationMapping::friendlyMessage)
+                .findFirst()
+                .orElse(message);
     }
 }

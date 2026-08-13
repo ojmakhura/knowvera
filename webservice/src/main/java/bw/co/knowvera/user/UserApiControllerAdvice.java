@@ -5,17 +5,22 @@
 //
 package bw.co.knowvera.user;
 
-import bw.co.knowvera.ErrorResponse;
-import java.time.Instant;
-import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+
+import bw.co.knowvera.ValidationMapping;
+
+import java.net.URI;
+import java.time.Instant;
+import java.util.List;
 
 /**
  * Translates the errors thrown by {@link UserApiServiceBase}
@@ -31,87 +36,125 @@ public class UserApiControllerAdvice {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserApiControllerAdvice.class);
 
     /**
+     * Ordered list of validation-message mappings.
+     * Each entry matches a method-name substring and (optionally) a
+     * field-name substring against the raw exception message, and
+     * supplies the user-facing replacement text.
+     */
+    private static final List<ValidationMapping> VALIDATION_MAPPINGS = List.of(
+
+            new ValidationMapping(".saveUser(", "'user'",
+                    "User is required."),
+
+            new ValidationMapping(".updateUserName(", "'userId'",
+                    "User Id is required."),
+            new ValidationMapping(".updateUserName(", "'username'",
+                    "Username is required."),
+
+            new ValidationMapping(".addClientRoles(", "'clientId'",
+                    "Client Id is required."),
+            new ValidationMapping(".addClientRoles(", "'userId'",
+                    "User Id is required."),
+
+            new ValidationMapping(".findUserById(", "'userId'",
+                    "User Id is required."),
+
+            new ValidationMapping(".changePassword(", "'userId'",
+                    "User Id is required."),
+            new ValidationMapping(".changePassword(", "'newPassword'",
+                    "New Password is required."),
+
+            new ValidationMapping(".findByClientRoles(", "'clientId'",
+                    "Client Id is required."),
+
+            new ValidationMapping(".addRole(", "'userId'",
+                    "User Id is required."),
+            new ValidationMapping(".addRole(", "'role'",
+                    "Role is required."),
+
+            new ValidationMapping(".findByOrganisationName(", "'organisation'",
+                    "Organisation is required."),
+
+            new ValidationMapping(".findByBranchName(", "'branch'",
+                    "Branch is required.")
+    );
+
+    /**
      * Handles manual argument validation checks thrown by UserApiServiceBase.
      * Maps generated validation messages to friendly human-readable descriptions.
      */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+    public ResponseEntity<ProblemDetail> handleIllegalArgument(
+            IllegalArgumentException ex,
+            WebRequest request) {
+
         String message = ex.getMessage() == null ? "" : ex.getMessage();
         String friendly = toFriendlyMessage(message);
 
+        List<String> errors = message.isBlank()
+                ? List.of()
+                : List.of(message);
+
         LOGGER.warn("UserApi validation failed: {}", message);
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.name(),
+        ProblemDetail problemDetail = buildProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "service-validation-error",
+                "UserApi validation failed",
                 friendly,
-                Arrays.asList(ex.getMessage()),
-                Instant.now()
+                request,
+                errors
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(errorResponse);
+                .body(problemDetail);
     }
 
+    /**
+     * Builds an RFC 9457 {@link ProblemDetail} response body, with
+     * {@code timestamp} and {@code errors} as extension members.
+     */
+    private ProblemDetail buildProblemDetail(
+            HttpStatus status,
+            String type,
+            String title,
+            String detail,
+            WebRequest request,
+            List<String> errors) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+        problemDetail.setType(URI.create(type));
+        problemDetail.setTitle(title);
+        problemDetail.setInstance(URI.create(getInstanceUri(request)));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("errors", errors);
+
+        return problemDetail;
+    }
 
     /**
-     * Maps validation messages thrown by UserApiServiceBase to plain-language equivalents.
+     * Extracts the request URI from the Spring WebRequest.
+     */
+    private String getInstanceUri(WebRequest request) {
+        return request.getDescription(false)
+                .replace("uri=", "");
+    }
+
+    /**
+     * Maps validation messages thrown by UserApiServiceBase to
+     * plain-language equivalents, using {@link #VALIDATION_MAPPINGS}.
+     *
+     * <p>
+     * The fallback returns the raw exception message rather than a
+     * generic sentence — preserved from the original generated behavior.
+     * </p>
      */
     private String toFriendlyMessage(String message) {
-        if (message.contains(".saveUser(") && message.contains("'user'")) {
-            return "User is required.";
-        }
 
-        if (message.contains(".updateUserName(") && message.contains("'userId'")) {
-            return "User Id is required.";
-        }
-
-        if (message.contains(".updateUserName(") && message.contains("'username'")) {
-            return "Username is required.";
-        }
-
-        if (message.contains(".addClientRoles(") && message.contains("'clientId'")) {
-            return "Client Id is required.";
-        }
-
-        if (message.contains(".addClientRoles(") && message.contains("'userId'")) {
-            return "User Id is required.";
-        }
-
-        if (message.contains(".findUserById(") && message.contains("'userId'")) {
-            return "User Id is required.";
-        }
-
-        if (message.contains(".changePassword(") && message.contains("'userId'")) {
-            return "User Id is required.";
-        }
-
-        if (message.contains(".changePassword(") && message.contains("'newPassword'")) {
-            return "New Password is required.";
-        }
-
-        if (message.contains(".findByClientRoles(") && message.contains("'clientId'")) {
-            return "Client Id is required.";
-        }
-
-        if (message.contains(".addRole(") && message.contains("'userId'")) {
-            return "User Id is required.";
-        }
-
-        if (message.contains(".addRole(") && message.contains("'role'")) {
-            return "Role is required.";
-        }
-
-        if (message.contains(".findByOrganisationName(") && message.contains("'organisation'")) {
-            return "Organisation is required.";
-        }
-
-        if (message.contains(".findByBranchName(") && message.contains("'branch'")) {
-            return "Branch is required.";
-        }
-
-
-        // Fallback for any unmapped validation message
-        return message;
+        return VALIDATION_MAPPINGS.stream()
+                .filter(mapping -> mapping.matches(message))
+                .map(ValidationMapping::friendlyMessage)
+                .findFirst()
+                .orElse(message);
     }
 }
