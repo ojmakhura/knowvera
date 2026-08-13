@@ -5,7 +5,7 @@
 //
 package bw.co.knowvera.analytics;
 
-import bw.co.knowvera.exception.ValidationMapping;
+import bw.co.knowvera.ValidationMapping;
 import bw.co.knowvera.individual.IndividualServiceException;
 import bw.co.knowvera.invoice.KycInvoiceServiceException;
 import bw.co.knowvera.organisation.client.ClientRequestServiceException;
