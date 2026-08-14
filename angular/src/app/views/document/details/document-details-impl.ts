@@ -6,7 +6,7 @@ import { MaterialModule } from '@app/material.module';
 import { TranslateModule } from '@ngx-translate/core';
 import { Loader } from '@shared/loader/loader';
 import { take } from 'rxjs';
-import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
+import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 
 @Component({
   selector: 'app-document-details',

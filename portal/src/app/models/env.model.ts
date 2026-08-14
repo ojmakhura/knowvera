@@ -3,4 +3,6 @@ export class Env {
     authDomain: string = '';
     realm: string = '';
     clientId: string = '';
+    currency: string = '';
+    redirectUri: string = '';
 }

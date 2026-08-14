@@ -10,7 +10,7 @@ import { Loader } from "@shared/loader/loader";
 import { FormField } from '@angular/forms/signals';
 import { MatPaginator } from '@angular/material/paginator';
 import { Page } from '@app/models/page.model';
-import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
+import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { ActionTemplate } from '@app/models/action-template';
 
 @Component({

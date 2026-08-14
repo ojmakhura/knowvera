@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 import { KycRecord } from './kyc-record';
 
@@ -8,7 +10,17 @@ describe('KycRecord', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [KycRecord]
+      imports: [KycRecord],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ToastrService,
+          useValue: {
+            success: () => undefined,
+            error: () => undefined,
+          },
+        },
+      ],
     })
     .compileComponents();
 

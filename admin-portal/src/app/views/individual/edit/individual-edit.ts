@@ -10,26 +10,28 @@ import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
 import { applyEach, email, form, required, FormField } from '@angular/forms/signals';
-import { GeneralStatus } from '@app/models/bw/co/centralkyc/general-status';
-import { EmploymentStatus } from '@app/models/bw/co/centralkyc/individual/employment-status';
-import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
-import { MaritalStatus } from '@app/models/bw/co/centralkyc/individual/marital-status';
-import { PepStatus } from '@app/models/bw/co/centralkyc/individual/pep-status';
-import { Sex } from '@app/models/bw/co/centralkyc/individual/sex';
-import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import { BranchDTO } from '@app/models/bw/co/centralkyc/organisation/branch/branch-dto';
-import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
-import { PhoneNumber } from '@app/models/bw/co/centralkyc/phone-number';
-import { PhoneType } from '@app/models/bw/co/centralkyc/phone-type';
-import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
-import { BranchApiStore } from '@app/store/bw/co/centralkyc/organisation/branch/branch-api.store';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
+import { GeneralStatus } from '@app/models/bw/co/knowvera/general-status';
+import { EmploymentStatus } from '@app/models/bw/co/knowvera/individual/employment-status';
+import { IndividualIdentityType } from '@app/models/bw/co/knowvera/individual/individual-identity-type';
+import { MaritalStatus } from '@app/models/bw/co/knowvera/individual/marital-status';
+import { PepStatus } from '@app/models/bw/co/knowvera/individual/pep-status';
+import { Sex } from '@app/models/bw/co/knowvera/individual/sex';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
+import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch-dto';
+import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
+import { PhoneNumber } from '@app/models/bw/co/knowvera/phone-number';
+import { PhoneType } from '@app/models/bw/co/knowvera/phone-type';
+import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
+import { BranchApiStore } from '@app/store/bw/co/knowvera/organisation/branch/branch-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
-import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
 import { SearchObject } from '@app/models/search-object';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { Loader } from '@app/@shared/loader/loader';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
 
 export class EditIndividualVarsForm {
   id: string | any = null;
@@ -52,6 +54,7 @@ export class EditIndividualVarsForm {
   physicalAddress: string | any = null;
   emailAddress: string | any = null;
   maritalStatus: MaritalStatus | any = null;
+  dateOfBirth: Date | any = null;
   employmentStatus: EmploymentStatus | any = null;
   hasUser: boolean | any = null;
   organisation: OrganisationListDTO | any = null;
@@ -76,6 +79,7 @@ export class EditIndividualVarsForm {
     MatDividerModule,
     MatAutocompleteModule,
     MatFormFieldModule,
+    MatDatepickerModule,
     FormField,
     NgxMatSelectSearchModule,
     TranslateModule,
@@ -157,7 +161,7 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
     'Unknown', 'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
     'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
     'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia',
-    'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
+    'Cameroon', 'Canada', 'Knowvera African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
     'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt',
     'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon',
     'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',
@@ -305,7 +309,19 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
 
   save(): void {
     this.isSaving.set(true);
-    this.individualApiStore.save({ individual: this.editIndividualSignal() as any });
+
+    let individual = new IndividualDTO();
+    individual = {
+      ...individual,
+      ...this.editIndividualSignal(),
+    };
+
+    if (individual.dateOfBirth instanceof Date) {
+      const d = individual.dateOfBirth as Date;
+      individual.dateOfBirth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    this.individualApiStore.save({ individual: individual });
   }
 
   filterOrganisations() {

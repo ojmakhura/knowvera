@@ -1,13 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
-import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
-import { KycRecordListDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-list-dto';
-import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
-import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
+import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
+import { KycRecordListDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-list-dto';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
+import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
 
-import { SettingsApiStore } from './../../store/bw/co/centralkyc/settings/settings-api.store';
+import { SettingsApiStore } from './../../store/bw/co/knowvera/settings/settings-api.store';
+import { AppEnvStore } from '@app/store/app-env.state';
 
 type RegistryFilter = 'ALL' | 'CURRENT' | 'ATTENTION';
 
@@ -86,6 +87,7 @@ export class Dashboard implements OnInit {
     const rate = (this.currentRecordsCount() / total) * 100;
     return `${rate.toFixed(rate % 1 === 0 ? 0 : 1)}%`;
   });
+
   readonly metrics = computed<DashboardMetric[]>(() => {
     const total = this.totalRecords();
     const current = this.currentRecordsCount();
@@ -123,6 +125,45 @@ export class Dashboard implements OnInit {
       },
     ];
   });
+
+  readonly filteredRecords = computed(() => {
+    const filter = this.registryFilter();
+    const records = this.records();
+
+    switch (filter) {
+      case 'CURRENT':
+        return records.filter((record) => this.isCurrentStatus(record.kycStatus));
+      case 'ATTENTION':
+        return records.filter((record) => this.requiresAttention(record.kycStatus));
+      default:
+        return records;
+    }
+  });
+
+  readonly visibleRecords = computed(() => this.filteredRecords().slice(0, 10));
+  readonly resultLabel = computed(() => {
+    const filteredCount = this.filteredRecords().length;
+    if (!filteredCount) {
+      return 'No registry results available';
+    }
+
+    return `Showing 1-${Math.min(10, filteredCount)} of ${filteredCount} results`;
+  });
+
+  readonly filterButtonLabel = computed(() => {
+    switch (this.registryFilter()) {
+      case 'CURRENT':
+        return 'Filter: Current';
+      case 'ATTENTION':
+        return 'Filter: Needs Attention';
+      default:
+        return 'Filter: All Records';
+    }
+  });
+
+  appEnvStore = inject(AppEnvStore);
+  readonly hasOrg = computed(() => !!this.appEnvStore.userOrganisation());
+
   readonly featuredCards = computed<FeaturedRecordCard[]>(() => [
     this.buildFeaturedCard(
       this.currentIndividualRecord(),
@@ -139,38 +180,16 @@ export class Dashboard implements OnInit {
       'Address Deficiencies',
     ),
   ]);
-  readonly filteredRecords = computed(() => {
-    const filter = this.registryFilter();
-    const records = this.records();
 
-    switch (filter) {
-      case 'CURRENT':
-        return records.filter((record) => this.isCurrentStatus(record.kycStatus));
-      case 'ATTENTION':
-        return records.filter((record) => this.requiresAttention(record.kycStatus));
-      default:
-        return records;
-    }
-  });
-  readonly visibleRecords = computed(() => this.filteredRecords().slice(0, 10));
-  readonly resultLabel = computed(() => {
-    const filteredCount = this.filteredRecords().length;
-    if (!filteredCount) {
-      return 'No registry results available';
-    }
+  targetEntity = Object.values(TargetEntity);
 
-    return `Showing 1-${Math.min(10, filteredCount)} of ${filteredCount} results`;
-  });
-  readonly filterButtonLabel = computed(() => {
-    switch (this.registryFilter()) {
-      case 'CURRENT':
-        return 'Filter: Current';
-      case 'ATTENTION':
-        return 'Filter: Needs Attention';
-      default:
-        return 'Filter: All Records';
-    }
-  });
+  constructor() {
+
+    effect(() => {
+      const org = this.appEnvStore.userOrganisation();
+      console.log('User organisation updated:', org);
+    });
+  }
 
   ngOnInit(): void {
     this.settingsApiStore.getAll();

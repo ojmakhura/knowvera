@@ -1,14 +1,27 @@
 import { Logger, LogLevel, LogOutput } from './logger.service';
 
-const logMethods = ['log', 'info', 'warn', 'error'];
+const logMethods: Array<'log' | 'info' | 'warn' | 'error'> = ['log', 'info', 'warn', 'error'];
+
+type LogOutputSpy = LogOutput & {
+  calls: any[][];
+};
+
+const createLogOutputSpy = (): LogOutputSpy => {
+  const spy = ((...args: any[]) => {
+    spy.calls.push(args);
+  }) as LogOutputSpy;
+
+  spy.calls = [];
+  return spy;
+};
 
 describe('Logger', () => {
-  let savedConsole: any[];
+  let savedConsole: Partial<Record<'log' | 'info' | 'warn' | 'error', (...args: any[]) => void>>;
   let savedLevel: LogLevel;
   let savedOutputs: LogOutput[];
 
   beforeAll(() => {
-    savedConsole = [];
+    savedConsole = {};
     logMethods.forEach((m) => {
       savedConsole[m] = console[m];
       console[m] = () => {};
@@ -23,7 +36,10 @@ describe('Logger', () => {
 
   afterAll(() => {
     logMethods.forEach((m) => {
-      console[m] = savedConsole[m];
+      const original = savedConsole[m];
+      if (original) {
+        console[m] = original;
+      }
     });
     Logger.level = savedLevel;
     Logger.outputs = savedOutputs;
@@ -35,7 +51,7 @@ describe('Logger', () => {
 
   it('should add a new LogOutput and receives log entries', () => {
     // Arrange
-    const outputSpy = jasmine.createSpy('outputSpy');
+    const outputSpy = createLogOutputSpy();
     const log = new Logger('test');
 
     // Act
@@ -47,17 +63,16 @@ describe('Logger', () => {
     log.error('e', { error: true });
 
     // Assert
-    expect(outputSpy).toHaveBeenCalled();
-    expect(outputSpy.calls.count()).toBe(4);
-    expect(outputSpy).toHaveBeenCalledWith('test', LogLevel.Debug, 'd');
-    expect(outputSpy).toHaveBeenCalledWith('test', LogLevel.Info, 'i');
-    expect(outputSpy).toHaveBeenCalledWith('test', LogLevel.Warning, 'w');
-    expect(outputSpy).toHaveBeenCalledWith('test', LogLevel.Error, 'e', { error: true });
+    expect(outputSpy.calls.length).toBe(4);
+    expect(outputSpy.calls).toContainEqual(['test', LogLevel.Debug, 'd']);
+    expect(outputSpy.calls).toContainEqual(['test', LogLevel.Info, 'i']);
+    expect(outputSpy.calls).toContainEqual(['test', LogLevel.Warning, 'w']);
+    expect(outputSpy.calls).toContainEqual(['test', LogLevel.Error, 'e', { error: true }]);
   });
 
   it('should add a new LogOutput and receives only production log entries', () => {
     // Arrange
-    const outputSpy = jasmine.createSpy('outputSpy');
+    const outputSpy = createLogOutputSpy();
     const log = new Logger('test');
 
     // Act
@@ -70,9 +85,8 @@ describe('Logger', () => {
     log.error('e', { error: true });
 
     // Assert
-    expect(outputSpy).toHaveBeenCalled();
-    expect(outputSpy.calls.count()).toBe(2);
-    expect(outputSpy).toHaveBeenCalledWith('test', LogLevel.Warning, 'w');
-    expect(outputSpy).toHaveBeenCalledWith('test', LogLevel.Error, 'e', { error: true });
+    expect(outputSpy.calls.length).toBe(2);
+    expect(outputSpy.calls).toContainEqual(['test', LogLevel.Warning, 'w']);
+    expect(outputSpy.calls).toContainEqual(['test', LogLevel.Error, 'e', { error: true }]);
   });
 });

@@ -7,8 +7,8 @@
 				<span class="page-breadcrumb-current">Sequence Editor</span>
 			</nav>
 
-			<h1>Edit Sequence Generator</h1>
-			<p>Define the structural logic for unique identifier generation across the protocol.</p>
+			<h3>Edit Sequence Generator</h3>
+			<!-- <p>Define the structural logic for unique identifier generation across the protocol.</p> -->
 		</div>
 
 		<div class="draft-badge">{{ isDraft() ? 'Draft State' : 'Published' }}</div>
@@ -256,3 +256,4 @@
 		</div>
 	}
 </div>
+<app-loader [isLoading]="loading()" [size]="'medium'" ></app-loader>

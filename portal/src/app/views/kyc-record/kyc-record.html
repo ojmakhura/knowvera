@@ -1,481 +1,509 @@
 <app-loader [isLoading]="loading()" [message]="loaderMessage()"></app-loader>
 
-<div class="bg-surface min-vh-100 py-5">
-  <main class="container-xl px-4 space-y-4">
-    <!-- Header & Top Metadata -->
-    <div
-      class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end pb-4 border-bottom border-light gap-3"
-    >
-      <div>
-        <h1 class="h2 fw-bolder text-primary tracking-tight mb-0">KYC Record Details</h1>
-        <!-- @if (record()) {
-          <p class="text-on-surface-variant small mt-1 mb-0">
-            {{ record().target === 'INDIVIDUAL' ? 'Individual' : 'Organisation' }} Review for {{ record().name }}
-            @if (record().ref) {
-              (Case Ref: {{ record().ref }})
+<div class="page-container">
+  <main class="kyc-page-shell">
+    <header class="kyc-hero-card hero-card hero-primary">
+      <div class="kyc-hero-content">
+        <div class="kyc-hero-copy">
+          <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
+            <h1 class="section-title mb-0 text-start">KYC Record Details</h1>
+            @if (record()) {
+              <span
+                class="kyc-status-pill"
+                [class.kyc-status-pill--current]="record().kycStatus === 'CURRENT'"
+                [class.kyc-status-pill--expired]="record().kycStatus === 'EXPIRED' || record().kycStatus === 'DOCUMENT_VERIFICATION_FAILED'"
+                [class.kyc-status-pill--warning]="record().kycStatus === 'INCOMPLETE'"
+                [class.kyc-status-pill--neutral]="record().kycStatus === 'ABSENT'"
+                [class.kyc-status-pill--info]="!record().kycStatus"
+              >
+                {{ record().kycStatus || 'UNKNOWN' }}
+              </span>
             }
-          </p>
-        } -->
-      </div>
-      <div class="d-flex gap-4">
-        <div class="text-end">
-          <p class="text-10px text-on-surface-variant fw-bold text-uppercase tracking-widest mb-1">KYC Status</p>
-          <span
-            class="badge rounded-pill px-3 py-2"
-            [class.bg-success]="record().kycStatus === 'CURRENT'"
-            [class.bg-danger]="record().kycStatus === 'EXPIRED'"
-            [class.bg-warning]="record().kycStatus === 'INCOMPLETE'"
-            [class.text-dark]="record().kycStatus === 'INCOMPLETE'"
-            [class.bg-secondary]="record().kycStatus === 'ABSENT'"
-            [class.bg-info]="!record().kycStatus"
-          >
-            {{ record().kycStatus || 'UNKNOWN' }}
-          </span>
+          </div>
+
+          @if (record()) {
+            <p class="kyc-hero-subtitle">
+              @if (record().recordSummary) {
+                {{ record().recordSummary }}
+              } @else {
+                Record details prepared for review.
+              }
+            </p>
+
+            <div class="kyc-meta-row">
+              @if (record().ref) {
+                <span class="kyc-meta-pill">Ref {{ record().ref }}</span>
+              }
+              @if (record().uploadDate) {
+                <span class="kyc-meta-pill">Uploaded {{ record().uploadDate | date:'mediumDate' }}</span>
+              }
+              @if (record().expiryDate) {
+                <span class="kyc-meta-pill">Expires {{ record().expiryDate | date:'mediumDate' }}</span>
+              }
+            </div>
+          }
         </div>
-        <div class="text-end">
-          <p class="text-10px text-on-surface-variant fw-bold text-uppercase tracking-widest mb-1">Expiry Date</p>
-          <p class="small fw-bold text-primary mb-0">{{ record().expiryDate | date:'mediumDate' }}</p>
+
+        <div class="hero-actions kyc-hero-actions">
+          <button type="button" class="btn btn-outline-light btn-sm fw-bold text-uppercase">
+            <mat-icon>download</mat-icon>
+            Download PDF Report
+          </button>
+          <button type="button" class="btn btn-success btn-sm fw-bold text-uppercase shadow-sm">
+            <mat-icon>task_alt</mat-icon>
+            Approve Record
+          </button>
         </div>
       </div>
-    </div>
+    </header>
 
     @if (record()) {
-      <!-- Info Grid -->
-      <div class="row g-4 mt-4">
-
-        <!-- Section 1: Personal/Organization Identity -->
-        <section class="col-12 col-lg-8">
-          <div class="bg-surface-container-lowest p-4 p-md-5 rounded-xl ring-1 shadow-sm h-100">
-            <div class="d-flex justify-content-between align-items-start mb-4">
-              <h2 class="h5 fw-bold text-primary d-flex align-items-center gap-2 mb-0">
-                <mat-icon class="text-primary">account_circle</mat-icon>
-                @if (record().target === 'INDIVIDUAL') { Personal Identity } @else { Organisation Identity }
-              </h2>
-              <!-- @if (record().kycVerification?.identityVerification === 'VERIFIED') {
-                <span class="bg-light px-3 py-1 rounded-pill text-10px fw-bold text-primary text-uppercase">Identity Verified</span>
-              } -->
-            </div>
-            <div class="row row-cols-1 row-cols-md-2 g-4">
-              <!-- <div class="col">
-                <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">
-                  @if (record().target === 'INDIVIDUAL') { Full Legal Name } @else { Organisation Name }
-                </label>
-                <p class="small fw-medium text-primary mb-0">{{ record().name }}</p>
-              </div>
-              <div class="col">
-                <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">Primary Email</label>
-                <p class="small fw-medium text-primary mb-0">{{ record().emailAddress }}</p>
-              </div> -->
-              <!-- <div class="col">
-                <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">
-                  @if (record().identityType) { ID Number ({{ record().identityType }}) } @else { ID Number }
-                </label>
-                <p class="small fw-medium text-primary mb-0">{{ record().identityNo }}</p>
-              </div> -->
-              <div class="col">
-                <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">Entity Type</label>
-                <p class="small fw-medium text-primary mb-0">{{ record().target }}</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Section 2: Audit Trail -->
-        <!-- <section class="col-12 col-lg-4">
-          <div class="bg-primary-container text-white p-4 p-md-5 rounded-xl shadow h-100 position-relative overflow-hidden">
-            <div class="position-relative z-1 h-100 d-flex flex-column justify-content-between">
-              <div>
-                <h2 class="h5 fw-bold mb-2">Audit trail</h2>
-                <p class="small text-light opacity-75">System generated metadata for record integrity.</p>
-              </div>
-              <div class="mt-4">
-                <div class="d-flex justify-content-between border-bottom border-secondary pb-2 mb-2">
-                  <span class="small opacity-75">Upload Date</span>
-                  <span class="small fw-bold">{{ record().uploadDate | date:'mediumDate' }}</span>
+      <div class="row g-4">
+        <div class="col-12 col-xl-4">
+          <div class="d-flex flex-column gap-4">
+            <section class="kyc-card">
+              <div class="kyc-card__header">
+                <div class="kyc-icon-badge">
+                  <mat-icon>person</mat-icon>
                 </div>
-                <div class="d-flex justify-content-between border-bottom border-secondary pb-2 mb-2">
-                  <span class="small opacity-75">Last Verified By</span>
-                  <span class="small fw-bold">{{ record().kycVerification?.identityVerificationBy || 'N/A' }}</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                  <span class="small opacity-75">Record ID</span>
-                  <span class="small font-monospace fw-bold">{{ record().id | slice:0:12 }}...</span>
+                <div>
+                  <h2>{{ record().target === 'INDIVIDUAL' ? 'Owner Details' : 'Organisation Details' }}</h2>
+                  <p>Primary profile and contact information</p>
                 </div>
               </div>
-            </div>
-            <div
-              class="position-absolute end-0 bottom-0 opacity-10"
-              style="margin-right: -2rem; margin-bottom: -2rem;"
-            >
-              <mat-icon style="font-size: 160px; width: 160px; height: 160px;">shield</mat-icon>
-            </div>
-          </div>
-        </section> -->
-
-        <!-- Section 3: Address Information -->
-        <section class="col-12 col-lg-4">
-          <div class="bg-surface-container-low p-4 p-md-5 rounded-xl h-100">
-            <div class="d-flex justify-content-between align-items-start mb-4">
-              <h2 class="h5 fw-bold text-primary d-flex align-items-center gap-2 mb-0">
-                <mat-icon class="text-primary">location_on</mat-icon>
-                Address Information
-              </h2>
-              <!-- @if (record().kycVerification?.addressVerification === 'VERIFIED') {
-                <span class="d-flex align-items-center gap-1 small fw-semibold text-success">
-                  <mat-icon style="font-size: 18px; width: 18px; height: 18px;">check_circle</mat-icon> Verified
-                </span>
-              } -->
-            </div>
-            <!-- <div class="vstack gap-4">
-              <div>
-                <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">Physical Residential Address</label>
-                <p class="small text-primary mb-0">{{ record().physicalAddress || 'Not provided' }}</p>
+              <div class="kyc-card__body">
+                <div class="row g-4">
+                  <div class="col-12">
+                    <label class="kyc-field-label">
+                      {{ record().target === 'INDIVIDUAL' ? 'Full Legal Name' : 'Organisation Name' }}
+                    </label>
+                    <p class="kyc-value">{{ record().ownerDetails?.name }}</p>
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label class="kyc-field-label">Email Address</label>
+                    <p class="kyc-value">{{ record().ownerDetails?.emailAddress }}</p>
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label class="kyc-field-label">
+                      @if (record().ownerDetails?.identityType) {
+                        Identity No ({{ record().ownerDetails?.identityType }})
+                      } @else {
+                        Identity No
+                      }
+                    </label>
+                    <p class="kyc-value">{{ record().ownerDetails?.identityNo }}</p>
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label class="kyc-field-label">Identity Type</label>
+                    <p class="kyc-value">{{ record().ownerDetails?.identityType || record().target }}</p>
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <label class="kyc-field-label">Physical Address</label>
+                    <p class="kyc-value">{{ record().ownerDetails?.physicalAddress }}</p>
+                  </div>
+                  <div class="col-12">
+                    <label class="kyc-field-label">Postal Address</label>
+                    @if (record().ownerDetails?.postalAddress) {
+                      <p class="kyc-value">{{ record().ownerDetails?.postalAddress }}</p>
+                    } @else {
+                      <p class="kyc-value kyc-value--muted">Same as physical address</p>
+                    }
+                  </div>
+                </div>
               </div>
-              <div class="p-3 bg-surface-container-lowest rounded-3 border border-light">
-                <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">Postal Address</label>
-                @if (record().postalAddress) {
-                  <p class="small text-primary mb-0">{{ record().postalAddress }}</p>
+            </section>
+
+            <section class="kyc-card">
+              <div class="kyc-card__header">
+                <div class="kyc-icon-badge kyc-icon-badge--accent">
+                  <mat-icon>verified_user</mat-icon>
+                </div>
+                <div>
+                  <h2>Verification Status</h2>
+                  <p>Current review checkpoints and outcomes</p>
+                </div>
+              </div>
+              <div class="kyc-card__body">
+                @if (record().dataVerificationSummaries?.length) {
+                  <ul class="kyc-summary-list">
+                    @for (entry of record().dataVerificationSummaries; track entry.verificationParameter) {
+                      <li class="kyc-summary-item">
+                        <div>
+                          <p class="kyc-summary-item__title">{{ entry.verificationParameter }}</p>
+                          <p class="kyc-summary-item__meta">{{ entry.verificationReport || 'Manual verification review in progress.' }}</p>
+                        </div>
+                        <span
+                          class="kyc-summary-pill"
+                          [class.kyc-summary-pill--verified]="entry.verificationStatus === 'VERIFIED'"
+                          [class.kyc-summary-pill--warning]="entry.verificationStatus === 'UNVERIFIED'"
+                          [class.kyc-summary-pill--failed]="entry.verificationStatus === 'VERIFICATION_FAILED'"
+                        >
+                          {{ entry.verificationStatus }}
+                        </span>
+                      </li>
+                    }
+                  </ul>
                 } @else {
-                  <p class="small text-primary fst-italic mb-0">Same as physical address</p>
+                  <p class="kyc-empty-state">No verification entries available.</p>
                 }
               </div>
-            </div> -->
-          </div>
-        </section>
+            </section>
 
-        <!-- Section 4: Employment Profile -->
-        @if (record().employmentRecord) {
-          <section class="col-12 col-lg-6">
-            <div class="bg-surface-container-low p-4 p-md-5 rounded-xl h-100">
-              <div class="d-flex justify-content-between align-items-start mb-4">
-                <h2 class="h5 fw-bold text-primary d-flex align-items-center gap-2 mb-0">
-                  <mat-icon class="text-primary">work</mat-icon>
-                  Employment Profile
-                </h2>
-                <!-- @if (record().kycVerification?.employmentVerification) {
-                  <span
-                    class="d-flex align-items-center gap-1 small fw-semibold"
-                    [class.text-success]="record().kycVerification?.employmentVerification === 'VERIFIED'"
-                    [class.text-warning]="record().kycVerification?.employmentVerification !== 'VERIFIED'"
-                  >
-                    <mat-icon style="font-size: 18px; width: 18px; height: 18px;">
-                      {{ record().kycVerification?.employmentVerification === 'VERIFIED' ? 'check_circle' : 'history' }}
-                    </mat-icon>
-                    {{ record().kycVerification?.employmentVerification }}
-                  </span>
-                } -->
-              </div>
-              <div class="row g-3">
-                <div class="col-12">
-                  <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">Current Employer</label>
-                  <p class="small fw-bold text-primary mb-0">{{ record().employmentRecord?.employer?.name }}</p>
-                </div>
-                @if (record().employmentRecord?.positions?.length) {
-                  <div class="col-6">
-                    <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">Position</label>
-                    <p class="small text-primary mb-0">{{ record().employmentRecord?.positions?.join(', ') }}</p>
+            @if (record().sourceOfFunds?.length || record().declaration) {
+              <section class="kyc-card">
+                <div class="kyc-card__header">
+                  <div class="kyc-icon-badge kyc-icon-badge--success">
+                    <mat-icon>fact_check</mat-icon>
                   </div>
-                }
-                @if (record().employmentRecord?.salaryRange) {
-                  <div class="col-6">
-                    <label class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-wider d-block mb-1">Salary Range</label>
-                    <p class="small text-primary mb-0">
-                      {{ record().employmentRecord?.salaryRange?.min | number }} – {{ record().employmentRecord?.salaryRange?.max | number }}
-                    </p>
-                  </div>
-                }
-                <div class="col-12 pt-2">
-                  <div class="d-flex gap-4">
-                    <div>
-                      <label class="text-10px fw-bold text-on-surface-variant text-uppercase">Start Date</label>
-                      <p class="text-10px text-primary mb-0">{{ record().employmentRecord?.employmentStart | date:'MMM yyyy' }}</p>
-                    </div>
-                    <div class="vr"></div>
-                    <div>
-                      <label class="text-10px fw-bold text-on-surface-variant text-uppercase">End Date</label>
-                      <p class="text-10px text-primary mb-0">
-                        @if (record().employmentRecord?.employmentEnd) {
-                          {{ record().employmentRecord?.employmentEnd | date:'MMM yyyy' }}
-                        } @else {
-                          Present
-                        }
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        }
-
-        <!-- Section 5: Source of Funds -->
-        @if (record().sourceOfFunds?.length) {
-          <section class="col-12 col-lg-4">
-            <div class="bg-surface-container-lowest p-4 p-md-5 rounded-xl ring-1 h-100">
-              <h2 class="h5 fw-bold text-primary mb-4 d-flex align-items-center gap-2">
-                <mat-icon class="text-primary">account_balance_wallet</mat-icon>
-                Source of Funds
-              </h2>
-              <div class="vstack gap-3">
-                @for (fund of record()!.sourceOfFunds; track fund) {
-                  <div class="d-flex align-items-start gap-3 p-3 rounded-3 bg-surface-container-low">
-                    <mat-icon class="text-primary mt-1">payments</mat-icon>
-                    <p class="small fw-bold text-primary mb-0">{{ fund }}</p>
-                  </div>
-                }
-              </div>
-              @if (record().sourceOfFundsDetails) {
-                <div class="mt-3 p-3 bg-surface-container-low rounded-3">
-                  <label class="text-10px fw-bold text-on-surface-variant text-uppercase mb-1 d-block">Additional Details</label>
-                  <p class="text-10px text-on-surface-variant mb-0">{{ record().sourceOfFundsDetails }}</p>
-                </div>
-              }
-              <!-- @if (record().kycVerification?.sourceOfFundsVerification) {
-                <div class="mt-4 pt-3 border-top border-light d-flex justify-content-between align-items-center">
-                  <span class="text-10px fw-bold text-on-surface-variant">Verification:</span>
-                  <span
-                    class="text-10px fw-bold"
-                    [class.text-success]="record().kycVerification?.sourceOfFundsVerification === 'VERIFIED'"
-                    [class.text-warning]="record().kycVerification?.sourceOfFundsVerification !== 'VERIFIED'"
-                  >
-                    {{ record().kycVerification?.sourceOfFundsVerification }}
-                  </span>
-                </div>
-              } -->
-            </div>
-          </section>
-        }
-
-        <!-- Section 6: Compliance & AML Declarations -->
-        <!-- @if (record().declaration) {
-          <section
-            class="col-12"
-            [class.col-lg-8]="record().sourceOfFunds?.length"
-          >
-            <div class="bg-surface-container-lowest p-4 p-md-5 rounded-xl ring-1 h-100">
-              <h2 class="h5 fw-bold text-primary mb-4 d-flex align-items-center gap-2">
-                <mat-icon class="text-primary">fact_check</mat-icon>
-                Compliance & AML Declarations
-              </h2>
-              <div class="row g-4">
-                <div class="col-12 col-md-6">
-                  <div class="vstack gap-3">
-                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3">
-                      <span class="small fw-medium text-primary">PEP Status (Politically Exposed)</span>
-                      <span
-                        class="text-10px fw-bold"
-                        [class.text-muted]="record().declaration?.pepStatus === 'NOT_PEP'"
-                        [class.text-danger]="record().declaration?.pepStatus !== 'NOT_PEP'"
-                      >
-                        {{ record().declaration?.pepStatus }}
-                      </span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3">
-                      <span class="small fw-medium text-primary">Sanctions Match</span>
-                      <span
-                        class="text-10px fw-bold"
-                        [class.text-success]="!record().declaration?.sanctionsMatch"
-                        [class.text-danger]="record().declaration?.sanctionsMatch"
-                      >
-                        {{ record().declaration?.sanctionsMatch ? 'MATCH' : 'CLEAR' }}
-                      </span>
-                    </div>
-                    @if (record().declaration?.pepDetails) {
-                      <div class="p-3 bg-light rounded-3">
-                        <label class="text-10px fw-bold text-on-surface-variant text-uppercase mb-2 d-block">PEP Details / Comments</label>
-                        <p class="text-10px text-on-surface-variant fst-italic mb-0">{{ record().declaration?.pepDetails }}</p>
-                      </div>
-                    }
-                    @if (record().declaration?.sanctionsDetails) {
-                      <div class="p-3 bg-light rounded-3">
-                        <label class="text-10px fw-bold text-on-surface-variant text-uppercase mb-2 d-block">Sanctions Details</label>
-                        <p class="text-10px text-on-surface-variant fst-italic mb-0">{{ record().declaration?.sanctionsDetails }}</p>
-                      </div>
-                    }
-                  </div>
-                </div>
-                <div class="col-12 col-md-6">
-                  <p class="text-10px fw-bold text-on-surface-variant text-uppercase tracking-widest mb-3">Verification Status</p>
-                  <div class="vstack gap-2">
-                    <div
-                      class="bg-surface p-3 rounded-3 d-flex align-items-center justify-content-between border-start border-4"
-                      [class.border-success]="record().kycVerification?.sanctionsMatchVerification === 'VERIFIED'"
-                      [class.border-secondary]="record().kycVerification?.sanctionsMatchVerification !== 'VERIFIED'"
-                    >
-                      <div>
-                        <p class="text-10px fw-bold text-primary mb-0">Sanctions Match</p>
-                        <p class="text-10px text-on-surface-variant mb-0">{{ record().kycVerification?.sanctionsMatchVerification || 'Not checked' }}</p>
-                      </div>
-                    </div>
-                    <div
-                      class="bg-surface p-3 rounded-3 d-flex align-items-center justify-content-between border-start border-4"
-                      [class.border-success]="record().kycVerification?.sanctionsDetailsVerification === 'VERIFIED'"
-                      [class.border-secondary]="record().kycVerification?.sanctionsDetailsVerification !== 'VERIFIED'"
-                    >
-                      <div>
-                        <p class="text-10px fw-bold text-primary mb-0">Sanctions Details</p>
-                        <p class="text-10px text-on-surface-variant mb-0">{{ record().kycVerification?.sanctionsDetailsVerification || 'Not checked' }}</p>
-                      </div>
-                    </div>
-                    <div
-                      class="bg-surface p-3 rounded-3 d-flex align-items-center justify-content-between border-start border-4"
-                      [class.border-success]="record().kycVerification?.pepStatusVerification === 'VERIFIED'"
-                      [class.border-secondary]="record().kycVerification?.pepStatusVerification !== 'VERIFIED'"
-                    >
-                      <div>
-                        <p class="text-10px fw-bold text-primary mb-0">PEP Status</p>
-                        <p class="text-10px text-on-surface-variant mb-0">{{ record().kycVerification?.pepStatusVerification || 'Not checked' }}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        } -->
-
-        <!-- Section 7: Verification Documents -->
-        <div class="col-12">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="h4 fw-bold text-primary d-flex align-items-center gap-2 mb-0">
-              <mat-icon class="text-primary">description</mat-icon>
-              Verification Documents
-            </h2>
-            <span class="small text-on-surface-variant fw-medium">{{ record().documents?.length || 0 }} Document(s) Uploaded</span>
-          </div>
-          <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
-            @for (doc of record()!.documents; track doc.id) {
-              <div class="col">
-                <div class="bg-surface-container-lowest p-4 rounded-xl border border-light shadow-sm d-flex flex-column justify-content-between h-100 card-hover">
                   <div>
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                      <div class="p-2 rounded bg-primary bg-opacity-10 text-primary">
-                        <mat-icon>{{ getDocumentIconMaterial(doc.fileName) }}</mat-icon>
-                      </div>
-                      <span
-                        class="text-10px fw-bold px-2 py-1 rounded"
-                        [class.bg-success]="doc.verificationStatus === 'VERIFIED'"
-                        [class.text-success]="doc.verificationStatus === 'VERIFIED'"
-                        [class.bg-warning]="doc.verificationStatus === 'REVIEW'"
-                        [class.text-dark]="doc.verificationStatus === 'REVIEW'"
-                        [class.bg-danger]="doc.verificationStatus === 'FAILED'"
-                        [class.text-white]="doc.verificationStatus === 'FAILED'"
-                        [class.bg-secondary]="doc.verificationStatus === 'PENDING'"
-                        [class.text-muted]="doc.verificationStatus === 'PENDING'"
-                      translate>
-                        {{ doc.verificationStatus | translate }}
-                      </span>
-                    </div>
-                    <h3 class="small fw-bold text-primary text-truncate mb-1">{{ doc.fileName }}</h3>
-                    <p class="text-10px text-on-surface-variant mb-1">{{ doc.documentType }}</p>
-                    <p class="text-10px text-on-surface-variant fw-medium mb-0">{{ doc.createdAt | date:'mediumDate' }}</p>
-                  </div>
-                  <div class="mt-4 d-flex gap-2">
-                    <button
-                      type="button"
-                      class="btn btn-outline-secondary btn-sm text-10px fw-bold"
-                      (click)="downloadDocument(doc)"
-                    >
-                      <mat-icon style="font-size: 18px; width: 18px; height: 18px;">download</mat-icon>
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline-danger btn-sm"
-                      (click)="removeDocument(doc)"
-                    >
-                      <mat-icon style="font-size: 18px; width: 18px; height: 18px;">delete</mat-icon>
-                    </button>
+                    <h2>Compliance Summary</h2>
+                    <p>Key risk indicators and declarations</p>
                   </div>
                 </div>
-              </div>
+                <div class="kyc-card__body">
+                  @if (record().sourceOfFunds?.length) {
+                    <div class="mb-4">
+                      <h3 class="kyc-subheading">Source of Funds</h3>
+                      <div class="kyc-chip-row">
+                        @for (fund of record().sourceOfFunds; track fund) {
+                          <span class="kyc-chip">{{ fund }}</span>
+                        }
+                      </div>
+                      @if (record().sourceOfFundsDetails) {
+                        <p class="kyc-detail-text">{{ record().sourceOfFundsDetails }}</p>
+                      }
+                    </div>
+                  }
+
+                  @if (record().declaration) {
+                    <div class="row g-3">
+                      <div class="col-12 col-md-6">
+                        <div class="kyc-soft-panel">
+                          <p class="kyc-field-label">PEP Status</p>
+                          <p class="kyc-value">{{ record().declaration.pepStatus || 'NO' }}</p>
+                          @if (record().declaration.pepDetails) {
+                            <p class="kyc-detail-text">{{ record().declaration.pepDetails }}</p>
+                          }
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <div class="kyc-soft-panel">
+                          <p class="kyc-field-label">Sanctions Match</p>
+                          <p class="kyc-value">{{ record().declaration.sanctionsMatch ? 'MATCH' : 'CLEAR' }}</p>
+                          @if (record().declaration.sanctionsDetails) {
+                            <p class="kyc-detail-text">{{ record().declaration.sanctionsDetails }}</p>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </section>
             }
 
-            <!-- Add Document placeholder -->
-            <div class="col">
-              <div class="bg-surface-container-lowest p-4 rounded-xl border border-secondary border-dashed d-flex flex-column align-items-center justify-content-center h-100">
-                <div class="p-2 rounded-circle bg-light text-muted mb-2">
-                  <mat-icon>add</mat-icon>
-                </div>
-                <p class="text-10px fw-bold text-secondary mb-0">Add Document</p>
+            <section class="kyc-assistance-card">
+              <div class="kyc-assistance-card__icon">
+                <mat-icon>headset_mic</mat-icon>
               </div>
-            </div>
+              <div>
+                <h3>Need assistance?</h3>
+                <p>Our compliance reviewer is available to walk through edge cases and next steps.</p>
+                <button type="button" class="btn btn-link p-0 fw-bold text-primary text-decoration-none d-flex align-items-center gap-1">
+                  Schedule review call
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </section>
           </div>
         </div>
 
-        <!-- Section 8: Upload New Document -->
-        <section class="col-12 col-lg-7">
-          <div class="bg-surface-container p-4 p-md-5 rounded-xl h-100">
-            <h2 class="h5 fw-bold text-primary mb-4">Upload New Document</h2>
-            <div class="row g-3">
-              <div class="col-12 col-md-6">
-                <label class="text-10px fw-bold text-on-surface-variant text-uppercase mb-2 d-block" for="documentTypeSelect">Document Type</label>
-                <select
-                  id="documentTypeSelect"
-                  class="form-select border-0 shadow-sm py-2"
-                  (change)="onDocumentTypeSelected($event)"
-                >
-                  <option value="">Select document type...</option>
-                  @for (type of availableDocumentTypes(); track type.id) {
-                    <option [value]="type.id">{{ type.name }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-12 col-md-6">
-                <label class="text-10px fw-bold text-on-surface-variant text-uppercase mb-2 d-block" for="fileInput">Upload File</label>
-                <div class="position-relative">
-                  <input
-                    id="fileInput"
-                    class="form-control position-absolute opacity-0 w-100 h-100 cursor-pointer"
-                    style="z-index: 1;"
-                    type="file"
-                    (change)="onFileSelected($event)"
-                  />
-                  <div class="form-control d-flex align-items-center border-2 border-dashed text-muted py-2">
-                    <mat-icon class="me-2">upload</mat-icon>
-                    {{ selectedFile ? selectedFile.name : 'Choose file...' }}
+        <div class="col-12 col-xl-8">
+          <div class="d-flex flex-column gap-4">
+            <section class="kyc-card">
+              <div class="kyc-card__header kyc-card__header--split">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="kyc-icon-badge">
+                    <mat-icon>manage_search</mat-icon>
+                  </div>
+                  <div>
+                    <h2>Analysis & Verification</h2>
+                    <p>Cross-checking of report sections and extracted document data</p>
                   </div>
                 </div>
+                <div class="kyc-tab-group">
+                  <button
+                    type="button"
+                    class="kyc-tab"
+                    [class.kyc-tab--active]="selectedAnalysisTab() === 'report'"
+                    (click)="selectedAnalysisTab.set('report')"
+                  >
+                    Report Sections
+                  </button>
+                  <button
+                    type="button"
+                    class="kyc-tab"
+                    [class.kyc-tab--active]="selectedAnalysisTab() === 'documents'"
+                    (click)="selectedAnalysisTab.set('documents')"
+                  >
+                    Document Data
+                  </button>
+                </div>
               </div>
-              <div class="col-12 d-flex flex-column flex-md-row align-items-center gap-3 mt-3">
+
+              <div class="kyc-card__body">
+                @if (selectedAnalysisTab() === 'report') {
+                  @if (record().kycReportSections?.length) {
+                    <div class="vstack gap-4">
+                      @for (section of record().kycReportSections; track section.id) {
+                        <div class="kyc-panel">
+                          <h3 class="kyc-panel__title">
+                            <span class="kyc-panel__index">{{ section.position }}</span>
+                            {{ section.label }}
+                          </h3>
+                          @if (section.fieldValues?.length) {
+                            <div class="table-responsive">
+                              <table class="table align-middle mb-0 kyc-table">
+                                <thead>
+                                  <tr>
+                                    <th>Field</th>
+                                    <th>Expected Value</th>
+                                    <th>Extracted Value</th>
+                                    <th>Similarity</th>
+                                    <th>Status</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  @for (fv of section.fieldValues; track fv.id) {
+                                    <tr>
+                                      <td>
+                                        <span class="kyc-table__field">{{ fv.fieldLabel || fv.field }}</span>
+                                        @if (fv.data?.mandatory) {
+                                          <span class="kyc-required" aria-label="Required">*</span>
+                                        }
+                                      </td>
+                                      <td>{{ fv.data?.expectedValue }}</td>
+                                      <td [class.text-danger]="!fv.data?.success" [class.text-primary]="fv.data?.success">
+                                        {{ fv.data?.extractedValue }}
+                                      </td>
+                                      <td>
+                                        @if (fv.data?.similarity != null) {
+                                          <div class="kyc-progress-row">
+                                            <div class="progress" role="progressbar" [attr.aria-valuenow]="fv.data.similarity * 100" aria-valuemin="0" aria-valuemax="100">
+                                              <div
+                                                class="progress-bar"
+                                                [style.width.%]="fv.data.similarity * 100"
+                                                [class.bg-success]="fv.data.similarity >= 0.8"
+                                                [class.bg-warning]="fv.data.similarity >= 0.5 && fv.data.similarity < 0.8"
+                                                [class.bg-danger]="fv.data.similarity < 0.5"
+                                              ></div>
+                                            </div>
+                                            <span class="kyc-progress-value">{{ (fv.data.similarity * 100) | number:'1.0-0' }}%</span>
+                                          </div>
+                                        }
+                                      </td>
+                                      <td>
+                                        @if (fv.data?.success) {
+                                          <mat-icon class="text-success">check_circle</mat-icon>
+                                        } @else {
+                                          <mat-icon class="text-danger">cancel</mat-icon>
+                                        }
+                                      </td>
+                                    </tr>
+                                  }
+                                </tbody>
+                              </table>
+                            </div>
+                          } @else {
+                            <p class="kyc-empty-state">No field values in this section.</p>
+                          }
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <p class="kyc-empty-state">No report sections available.</p>
+                  }
+                }
+
+                @if (selectedAnalysisTab() === 'documents') {
+                  @if (record().documents?.length) {
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                      @for (doc of record().documents; track doc.id; let i = $index) {
+                        @if (doc.dataComparisons?.length) {
+                          <button
+                            type="button"
+                            class="kyc-tab"
+                            [class.kyc-tab--active]="selectedDocumentIndex() === i"
+                            (click)="selectedDocumentIndex.set(i)"
+                          >
+                            {{ doc.documentType || ('Document ' + (i + 1)) }}
+                          </button>
+                        }
+                      }
+                    </div>
+
+                    @if (record().documents[selectedDocumentIndex()]?.dataComparisons?.length) {
+                      <div class="table-responsive">
+                        <table class="table align-middle mb-0 kyc-table">
+                          <thead>
+                            <tr>
+                              <th>Field Parameter</th>
+                              <th>Expected Value (User Input)</th>
+                              <th>Extracted Value (OCR/API)</th>
+                              <th>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (cmp of record().documents[selectedDocumentIndex()].dataComparisons; track cmp.field) {
+                              <tr>
+                                <td>{{ cmp.field }}</td>
+                                <td>{{ cmp.expected }}</td>
+                                <td [class.text-danger]="!cmp.matches" [class.text-primary]="cmp.matches">
+                                  {{ cmp.extracted }}
+                                  @if (!cmp.matches) {
+                                    <span class="kyc-required">(OCR Mismatch)</span>
+                                  }
+                                </td>
+                                <td>
+                                  @if (cmp.matches) {
+                                    <mat-icon class="text-success">check_circle</mat-icon>
+                                  } @else {
+                                    <mat-icon class="text-danger">cancel</mat-icon>
+                                  }
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    } @else {
+                      <p class="kyc-empty-state">No field comparison data available for this document.</p>
+                    }
+                  } @else {
+                    <p class="kyc-empty-state">No documents uploaded yet.</p>
+                  }
+                }
+              </div>
+            </section>
+
+            <section class="kyc-card">
+              <div class="kyc-card__header kyc-card__header--split">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="kyc-icon-badge">
+                    <mat-icon>folder_open</mat-icon>
+                  </div>
+                  <div>
+                    <h2>Document Repository</h2>
+                    <p>Manage uploaded files and status updates</p>
+                  </div>
+                </div>
+                <span class="kyc-count-pill">{{ record().documents?.length || 0 }} documents</span>
+              </div>
+              <div class="kyc-card__body">
+                @if (record().documents?.length) {
+                  <div class="row g-3">
+                    @for (doc of record().documents; track doc.id) {
+                      <div class="col-12 col-md-6 col-xl-4">
+                        <div class="kyc-document-card">
+                          <div class="kyc-document-card__top">
+                            <span
+                              class="kyc-summary-pill"
+                              [class.kyc-summary-pill--verified]="doc.verificationStatus === 'VERIFIED'"
+                              [class.kyc-summary-pill--warning]="doc.verificationStatus === 'MANUAL_REVIEW' || doc.verificationStatus === 'IN_PROGRESS'"
+                              [class.kyc-summary-pill--failed]="doc.verificationStatus === 'REJECTED'"
+                              [class.kyc-summary-pill--neutral]="doc.verificationStatus === 'UNVERIFIED'"
+                            >
+                              {{ doc.verificationStatus }}
+                            </span>
+                            <span class="kyc-chip kyc-chip--soft">{{ doc.analyticsStatus }}</span>
+                          </div>
+
+                          <div class="kyc-document-card__body">
+                            <div class="kyc-document-icon">
+                              <mat-icon>{{ getDocumentIconMaterial(doc.fileName) }}</mat-icon>
+                            </div>
+                            <div class="overflow-hidden">
+                              <h3>{{ doc.fileName }}</h3>
+                              <p>{{ doc.documentType }}</p>
+                            </div>
+                          </div>
+
+                          <p class="kyc-document-card__meta">Uploaded {{ doc.createdAt | date:'mediumDate' }}</p>
+
+                          <div class="kyc-document-card__actions">
+                            <button type="button" class="btn btn-outline-secondary btn-sm fw-bold flex-grow-1" (click)="downloadDocument(doc)">
+                              Download
+                            </button>
+                            @if (doc.verificationStatus === 'REJECTED') {
+                              <button type="button" class="btn btn-primary btn-sm fw-bold flex-grow-1" (click)="updateDocument(doc)">
+                                Update
+                              </button>
+                            }
+                            <button type="button" class="btn btn-outline-danger btn-sm" aria-label="Remove document" (click)="removeDocument(doc)">
+                              <mat-icon>delete</mat-icon>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <p class="kyc-empty-state">No uploaded documents yet.</p>
+                }
+
                 <button
                   type="button"
-                  class="btn btn-primary px-4 py-2 fw-bold text-uppercase shadow-sm"
-                  [disabled]="!selectedFile || !selectedDocumentType"
-                  (click)="uploadDocument()"
+                  class="kyc-add-document"
+                  (click)="triggerFileInput()"
                 >
-                  UPLOAD DOCUMENT
+                  <div class="kyc-add-document__icon">
+                    <mat-icon>add</mat-icon>
+                  </div>
+                  <span>Add document</span>
                 </button>
-                <p class="text-10px text-on-surface-variant fst-italic mb-0">Max file size: 25MB. Accepted formats: PDF, PNG, JPG.</p>
+
+                @if (showUploadForm()) {
+                  <div class="kyc-upload-panel">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                      <h3>Upload New Document</h3>
+                      <button type="button" class="btn btn-link p-0 text-on-surface-variant" aria-label="Close" (click)="showUploadForm.set(false)">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
+                    <div class="row g-3">
+                      <div class="col-12 col-md-5">
+                        <label class="kyc-field-label" for="documentTypeSelect">Document Type</label>
+                        <select id="documentTypeSelect" class="form-select shadow-sm" (change)="onDocumentTypeSelected($event)">
+                          <option value="">Select document type...</option>
+                          @for (type of availableDocumentTypes(); track type.id) {
+                            <option [value]="type.id">{{ type.name }}</option>
+                          }
+                        </select>
+                      </div>
+                      <div class="col-12 col-md-5">
+                        <label class="kyc-field-label" for="fileInput">File</label>
+                        <input id="fileInput" class="form-control" type="file" accept=".pdf,.png,.jpg,.jpeg" (change)="onFileSelected($event)" />
+                      </div>
+                      <div class="col-12 col-md-2 d-flex align-items-end">
+                        <button
+                          type="button"
+                          class="btn btn-primary fw-bold text-uppercase w-100"
+                          [disabled]="!selectedFile || !selectedDocumentType"
+                          (click)="uploadDocument()"
+                        >Upload</button>
+                      </div>
+                    </div>
+                  </div>
+                }
               </div>
-            </div>
+            </section>
           </div>
-        </section>
-
-        <!-- Support/Help Section -->
-        <section class="col-12 col-lg-5">
-          <div class="bg-white p-4 p-md-5 rounded-xl ring-1 d-flex align-items-center gap-4 h-100">
-            <div class="p-3 rounded-circle bg-light d-none d-sm-flex align-items-center justify-content-center flex-shrink-0">
-              <mat-icon class="text-primary opacity-25" style="font-size: 40px; width: 40px; height: 40px;">headset_mic</mat-icon>
-            </div>
-            <div>
-              <h3 class="h6 fw-bold text-primary mb-1">Need assistance?</h3>
-              <p class="text-10px text-on-surface-variant mb-3">Your dedicated compliance officer is available for review calls between 9 AM and 5 PM PST.</p>
-              <button type="button" class="btn btn-link p-0 text-10px fw-bold text-primary text-decoration-none d-flex align-items-center gap-1">
-                SCHEDULE A CALL <mat-icon style="font-size: 18px; width: 18px; height: 18px;">arrow_forward</mat-icon>
-              </button>
-            </div>
-          </div>
-        </section>
-
+        </div>
       </div>
     } @else if (!loading()) {
-      <div class="d-flex flex-column align-items-center justify-content-center py-5 text-center">
-        <mat-icon class="text-muted" style="font-size: 48px; width: 48px; height: 48px;">search_off</mat-icon>
-        <p class="text-on-surface-variant mt-3 mb-0">No record found.</p>
+      <div class="kyc-empty-state kyc-empty-state--center">
+        <mat-icon>search_off</mat-icon>
+        <p>No record found.</p>
       </div>
     }
-
-    <!-- Footer Spacer -->
-    <div class="py-4"></div>
   </main>
 </div>

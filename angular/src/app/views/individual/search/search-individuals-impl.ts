@@ -9,7 +9,7 @@ import { TableComponent } from '@components/table/table';
 import { Loader } from "@shared/loader/loader";
 import { FormField } from '@angular/forms/signals';
 import { MatPaginator } from '@angular/material/paginator';
-import { IndividualSearchCriteria } from '@app/models/bw/co/centralkyc/individual/individual-search-criteria';
+import { IndividualSearchCriteria } from '@app/models/bw/co/knowvera/individual/individual-search-criteria';
 import { SearchObject } from '@app/models/search-object';
 
 @Component({

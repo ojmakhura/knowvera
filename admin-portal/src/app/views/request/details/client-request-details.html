@@ -7,7 +7,7 @@
 			</button>
 
 			<h1 class="page-title">Client Request Details</h1>
-			<p class="page-subtitle">Request Reference: REQ-002934-VP</p>
+			<p class="page-subtitle">Request Reference: {{ requestReference() }}</p>
 		</div>
 
 		<div class="header-actions">
@@ -103,14 +103,14 @@
 
 			<div class="artifact-content">
 				<span class="section-label light-label">Verification Artifact</span>
-				<h2>Corporate Certificate</h2>
-				<p class="artifact-meta">Type ID: DOC_992_CERT</p>
+				<h2>{{ artifactTitle() }}</h2>
+				<p class="artifact-meta">{{ artifactTypeMeta() }}</p>
 
 				<div class="file-tile">
 					<mat-icon>picture_as_pdf</mat-icon>
 					<div>
-						<p>sterling_assets_auth_2024.pdf</p>
-						<small>2.4 MB • PDF Document</small>
+						<p>{{ artifactFileName() }}</p>
+						<small>File attachment</small>
 					</div>
 				</div>
 

@@ -22,14 +22,14 @@ import {
 } from '@angular/forms';
 import { UseCaseScope } from '@app/utils/use-case-scope';
 import { MatDialog } from '@angular/material/dialog';
-import { DocumentTypeApiStore } from '@store/bw/co/centralkyc/document/type/document-type-api.store';
+import { DocumentTypeApiStore } from '@store/bw/co/knowvera/document/type/document-type-api.store';
 
-import { CompletionRequestMessage } from '@models/bw/co/centralkyc/lmstudio/completion-request-message';
-import { DocumentTypeDTO } from '@models/bw/co/centralkyc/document/type/document-type-dto';
-import { DocumentTypeApi } from '@services/bw/co/centralkyc/document/type/document-type-api';
+import { CompletionRequestMessage } from '@models/bw/co/knowvera/lmstudio/completion-request-message';
+import { DocumentTypeDTO } from '@models/bw/co/knowvera/document/type/document-type-dto';
+import { DocumentTypeApi } from '@services/bw/co/knowvera/document/type/document-type-api';
 import { DocumentTypeControllerImpl } from '@controllers/document/type/document-type-controller-impl';
-import { ExpectedField } from '@models/bw/co/centralkyc/document/type/expected-field';
-import { KeyField } from '@models/bw/co/centralkyc/key-field';
+import { ExpectedField } from '@models/bw/co/knowvera/document/type/expected-field';
+import { KeyField } from '@models/bw/co/knowvera/key-field';
 import { ToastrService } from 'ngx-toastr';
 
 export class EditDocumentTypeVarsForm {

@@ -24,30 +24,32 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Loader } from '@app/@shared/loader/loader';
 import { disabled, email, form, FormField, readonly, required } from '@angular/forms/signals';
-import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
+import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
-import { DeclarationDTO } from '@app/models/bw/co/centralkyc/kyc/declaration-dto';
-import { PepStatus } from '@app/models/bw/co/centralkyc/individual/pep-status';
-import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import { SourceOfFunds } from '@app/models/bw/co/centralkyc/source-of-funds';
-import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
-import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
-import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
-import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
-import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
-import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
+import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
+import { DeclarationDTO } from '@app/models/bw/co/knowvera/kyc/declaration-dto';
+import { PepStatus } from '@app/models/bw/co/knowvera/individual/pep-status';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
+import { SourceOfFunds } from '@app/models/bw/co/knowvera/source-of-funds';
+import { IndividualIdentityType } from '@app/models/bw/co/knowvera/individual/individual-identity-type';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
+import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
+import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
+import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
 import { SearchObject } from '@app/models/search-object';
-import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
-import { IndividualSearchCriteria } from '@app/models/bw/co/centralkyc/individual/individual-search-criteria';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
+import { IndividualSearchCriteria } from '@app/models/bw/co/knowvera/individual/individual-search-criteria';
 import { QuillEditorComponent, QuillModule } from 'ngx-quill';
-import { OwnerDetails } from '@app/models/bw/co/centralkyc/kyc/owner-details';
-import { EmploymentRecordDTO } from '@app/models/bw/co/centralkyc/individual/employment/employment-record-dto';
-import Swal from 'sweetalert2';
-import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
-import { VerificationSummaryEntry } from '@app/models/bw/co/centralkyc/kyc/verification-summary-entry';
+import { OwnerDetails } from '@app/models/bw/co/knowvera/kyc/owner-details';
+import { EmploymentRecordDTO } from '@app/models/bw/co/knowvera/individual/employment/employment-record-dto';
+import { swalFire } from '@app/@shared/swal';
+import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
+import { VerificationSummaryEntry } from '@app/models/bw/co/knowvera/kyc/verification-summary-entry';
+import { KycReportSectionDTO } from '@app/models/bw/co/knowvera/kyc/fields/kyc-report-section-dto';
+import 'quill/dist/quill.snow.css';
 
 type QueuedDocumentUpload = {
   file: File;
@@ -77,6 +79,7 @@ export class EditRecordVarsForm {
   dataVerificationSummaries: VerificationSummaryEntry[] = [];
   employmentRecord: EmploymentRecordDTO | any = new EmploymentRecordDTO();
   recordSummary: string | any = null;
+  kycReportSections: KycReportSectionDTO[] | any = [];
 
   constructor() {
     this.declaration = new DeclarationDTO();
@@ -147,6 +150,7 @@ export class RecordEdit implements OnInit {
   loading = linkedSignal(() => this.kycRecordApiStore.loading());
   private readonly saveRequested = signal(false);
   readonly allowedDocumentTypes = signal<DocumentTypeDTO[]>([]);
+  readonly bulkDocumentType = signal<DocumentTypeDTO | null>(null);
   private readonly quillEditors = new Map<string, any>();
 
   ownerOptions = linkedSignal(() => {
@@ -309,6 +313,7 @@ export class RecordEdit implements OnInit {
       employmentRecord: this.editRecordSignal().employmentRecord,
       dataVerificationSummaries: this.editRecordSignal().dataVerificationSummaries,
       recordSummary: this.editRecordSignal().recordSummary,
+      kycReportSections: this.editRecordSignal().kycReportSections,
     }
 
     console.log('Saving record with data:', this.editRecordSignal());
@@ -423,7 +428,9 @@ export class RecordEdit implements OnInit {
   onDocumentSelected(event: any): void {
     const files: FileList = event.target.files;
     if (files && files.length > 0) {
-      const defaultDocumentType = this.allowedDocumentTypes()[0] || null;
+      const configuredBulkType = this.bulkDocumentType();
+      const documentTypes = this.allowedDocumentTypes();
+      const defaultDocumentType = configuredBulkType || (documentTypes.length === 1 ? documentTypes[0] : null);
       const newFiles = Array.from(files).filter((file) =>
         !this.editRecordSignal().documentsToUpload.some((entry) => entry.file.name === file.name)
       );
@@ -452,6 +459,26 @@ export class RecordEdit implements OnInit {
     if (event.target) {
       event.target.value = '';
     }
+  }
+
+  setBulkDocumentType(documentType: DocumentTypeDTO | null): void {
+    this.bulkDocumentType.set(documentType);
+  }
+
+  applyDocumentTypeToAll(): void {
+    const selectedType = this.bulkDocumentType();
+
+    if (!selectedType) {
+      return;
+    }
+
+    this.editRecordSignal.update((form) => ({
+      ...form,
+      documentsToUpload: form.documentsToUpload.map((entry) => ({
+        ...entry,
+        documentType: selectedType,
+      })),
+    }));
   }
 
   removeDocument(index: number): void {
@@ -493,7 +520,7 @@ export class RecordEdit implements OnInit {
 
   deleteDocument(documentId: string): void {
 
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: 'This will permanently delete the document.',
       icon: 'warning',

@@ -1,18 +1,18 @@
-import { CommonModule, JsonPipe } from '@angular/common';
-import { AfterViewInit, Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
-import Swal from 'sweetalert2';
-import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
-import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
-import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
-import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
+import { swalFire } from '@app/@shared/swal-loader';
+import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
+import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
+import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
+import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { Loader } from '@app/@shared/loader/loader';
 import { ToastrService } from 'ngx-toastr';
-import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
-import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
+import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-kyc-record',
@@ -22,7 +22,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   providers: [
     CommonModule,
     Loader,
-
+    TranslateModule
   ]
 })
 export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
@@ -38,6 +38,10 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
 
   record = linkedSignal(() => this.kycRecordApiStore.data());
 
+  selectedDocumentIndex = signal(0);
+  showUploadForm = signal(false);
+  selectedAnalysisTab = signal<'report' | 'documents'>('report');
+
   availableDocumentTypes = computed(() => {
     const record = this.record();
     const allTypes = record?.target === 'INDIVIDUAL' ? this.indKycDocuments() : this.orgKycDocuments();
@@ -50,7 +54,6 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
   updatingDocument: DocumentDTO | null = null;
 
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   toaster: ToastrService = inject(ToastrService);
 
   loading = linkedSignal(() => this.kycRecordApiStore.loading());
@@ -115,6 +118,14 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  triggerFileInput(): void {
+    this.showUploadForm.set(true);
+    setTimeout(() => {
+      const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+      if (fileInput) fileInput.click();
+    }, 100);
+  }
+
   onDocumentTypeSelected(event: Event): void {
     const select = event.target as HTMLSelectElement;
     this.selectedDocumentType = select.value;
@@ -170,7 +181,7 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
   removeDocument(doc: DocumentDTO): void {
     if (!doc.id) {
 
-      Swal.fire({
+      swalFire({
         title: 'Cannot remove document',
         text: 'This document does not have an ID and cannot be removed.',
         icon: 'error',
@@ -181,7 +192,7 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    Swal.fire({
+    swalFire({
       title: 'Confirm Removal',
       text: `Are you sure you want to remove the document "${doc.fileName}"?`,
       icon: 'warning',

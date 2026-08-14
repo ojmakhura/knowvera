@@ -1,9 +1,263 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap');
+@import 'bootstrap/scss/bootstrap';
 
-@use 'ngx-toastr/toastr';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+// @font-face {
+//     font-family: 'Inter';
+//     src: url('/fonts/Inter-Light.otf') format('opentype');
+//     font-style: normal;
+//     font-weight: 300;
+//     font-display: swap;
+// }
+
+// @font-face {
+//     font-family: 'Inter';
+//     src: url('/fonts/Inter-Regular.otf') format('opentype');
+//     font-style: normal;
+//     font-weight: 400;
+//     font-display: swap;
+// }
+
+// @font-face {
+//     font-family: 'Inter';
+//     src: url('/fonts/Inter-Medium.otf') format('opentype');
+//     font-style: normal;
+//     font-weight: 500;
+//     font-display: swap;
+// }
+
+// @font-face {
+//     font-family: 'Inter';
+//     src: url('/fonts/Inter-SemiBold.otf') format('opentype');
+//     font-style: normal;
+//     font-weight: 600;
+//     font-display: swap;
+// }
+
+// @font-face {
+//     font-family: 'Inter';
+//     src: url('/fonts/Inter-Bold.otf') format('opentype');
+//     font-style: normal;
+//     font-weight: 700;
+//     font-display: swap;
+// }
+
+// @font-face {
+//     font-family: 'Inter';
+//     src: url('/fonts/Inter-ExtraBold.otf') format('opentype');
+//     font-style: normal;
+//     font-weight: 800;
+//     font-display: swap;
+// }
+
+// @font-face {
+//     font-family: 'Roboto';
+//     src: url('/fonts/Roboto-Light.ttf') format('truetype');
+//     font-style: normal;
+//     font-weight: 300;
+//     font-display: swap;
+// }
+
+// @font-face {
+//     font-family: 'Roboto';
+//     src: url('/fonts/Roboto-Regular.woff2') format('woff2'),
+//         url('/fonts/Roboto-Regular.woff') format('woff');
+//     font-style: normal;
+//     font-weight: 400;
+//     font-display: swap;
+// }
+
+// @font-face {
+//     font-family: 'Roboto';
+//     src: url('/fonts/Roboto-Medium.ttf') format('truetype');
+//     font-style: normal;
+//     font-weight: 500;
+//     font-display: swap;
+// }
+
+// @font-face {
+//     font-family: 'Roboto';
+//     src: url('/fonts/Roboto-Bold.woff2') format('woff2');
+//     font-style: normal;
+//     font-weight: 700;
+//     font-display: swap;
+// }
+
+// // Custom CSS Tokens matching Corporate Precision System Design
+// :root {
+//   --primary: #00081e;
+//   --primary-container: #0a1f44;
+//   --on-primary: #ffffff;
+//   --inverse-primary: #b4c6f4;
+//   --emerald: #00b67a;
+//   --emerald-dark: #006c47;
+//   --bg-surface: #f8f9ff;
+//   --surface-lowest: #ffffff;
+//   --surface-low: #eef4ff;
+//   --outline-variant: #c5c6cf;
+//   --text-muted: #44464e;
+// }
+
+// body {
+//   font-family: 'Inter', sans-serif;
+//   background-color: var(--bg-surface);
+//   color: #121c28;
+//   margin: 0;
+//   padding: 0;
+//   min-height: 100vh;
+// }
+
+// // Global Reusable Utility Classes
+// .text-emerald { color: var(--emerald); }
+// .text-emerald-dark { color: var(--emerald-dark); }
+// .text-amber { color: #f9bd14; }
+
+// .status-pill {
+//   display: inline-block;
+//   padding: 4px 10px;
+//   border-radius: 9999px;
+//   font-size: 0.6875rem;
+//   font-weight: 700;
+//   text-transform: uppercase;
+//   letter-spacing: 0.05em;
+
+//   &.pill-verified {
+//     background-color: rgba(0, 182, 122, 0.15);
+//     color: var(--emerald-dark);
+//   }
+
+//   &.pill-pending {
+//     background-color: #ffdf9d;
+//     color: #5b4300;
+//   }
+
+//   &.pill-action {
+//     background-color: #ffdad6;
+//     color: #93000a;
+//   }
+// }
+
+// .card {
+//   background-color: var(--surface-lowest);
+//   border: 1px solid rgba(197, 198, 207, 0.3);
+//   border-radius: 8px;
+//   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+// }
+
+
+// .vault-card {
+//   border-radius: 1rem;
+//   border: 0;
+//   box-shadow: 0 4px 20px rgb(25 28 30 / 4%);
+//   background: var(--vault-surface-container-lowest, #fff);
+// }
+
+
+// .mat-mdc-form-field input.mat-mdc-input-element:focus,
+// .mat-mdc-form-field input.mat-mdc-input-element:focus-visible,
+// .mat-mdc-form-field textarea.mat-mdc-input-element:focus,
+// .mat-mdc-form-field textarea.mat-mdc-input-element:focus-visible {
+//     outline: none;
+//     box-shadow: none;
+// }
+
+// .vault-field input.mat-mdc-input-element,
+// .vault-field textarea.mat-mdc-input-element,
+// .vault-field .mat-mdc-select-value-text,
+// .vault-field .mat-mdc-select-placeholder {
+//     font-size: 0.875rem !important;
+//     font-weight: 500 !important;
+//     color: var(--vault-on-surface) !important;
+// }
+
+// .vault-field .mdc-floating-label {
+//     color: var(--vault-on-surface-variant) !important;
+// }
+
+// .vault-textarea .mat-mdc-form-field-infix {
+//     min-height: 100px !important;
+// }
+
+// .vault-textarea textarea.mat-mdc-input-element {
+//     resize: none;
+// }
+
+// .mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__leading,
+// .mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__notch,
+// .mat-mdc-form-field.mat-form-field-invalid .mdc-notched-outline__trailing,
+// .mat-mdc-form-field.mat-mdc-form-field-invalid .mdc-notched-outline__leading,
+// .mat-mdc-form-field.mat-mdc-form-field-invalid .mdc-notched-outline__notch,
+// .mat-mdc-form-field.mat-mdc-form-field-invalid .mdc-notched-outline__trailing,
+// .mat-mdc-form-field .mdc-text-field--invalid .mdc-notched-outline__leading,
+// .mat-mdc-form-field .mdc-text-field--invalid .mdc-notched-outline__notch,
+// .mat-mdc-form-field .mdc-text-field--invalid .mdc-notched-outline__trailing {
+//     border-color: var(--vault-error) !important;
+// }
+
+// .mat-mdc-form-field.mat-form-field-invalid input.mat-mdc-input-element,
+// .mat-mdc-form-field.mat-form-field-invalid textarea.mat-mdc-input-element,
+// .mat-mdc-form-field.mat-form-field-invalid .mat-mdc-select-value-text,
+// .mat-mdc-form-field.mat-form-field-invalid .mat-mdc-select-placeholder,
+// .mat-mdc-form-field.mat-mdc-form-field-invalid input.mat-mdc-input-element,
+// .mat-mdc-form-field.mat-mdc-form-field-invalid textarea.mat-mdc-input-element,
+// .mat-mdc-form-field.mat-mdc-form-field-invalid .mat-mdc-select-value-text,
+// .mat-mdc-form-field.mat-mdc-form-field-invalid .mat-mdc-select-placeholder,
+// .mat-mdc-form-field .mdc-text-field--invalid input.mat-mdc-input-element,
+// .mat-mdc-form-field .mdc-text-field--invalid textarea.mat-mdc-input-element,
+// .mat-mdc-form-field .mdc-text-field--invalid .mat-mdc-select-value-text,
+// .mat-mdc-form-field .mdc-text-field--invalid .mat-mdc-select-placeholder,
+// .mat-mdc-form-field .mat-mdc-form-field-error,
+// .error-message {
+//     color: var(--vault-error) !important;
+// }
+
+
+// :host ::ng-deep .vault-field input.mat-mdc-input-element:focus,
+// :host ::ng-deep .vault-field input.mat-mdc-input-element:focus-visible,
+// :host ::ng-deep .vault-field textarea.mat-mdc-input-element:focus,
+// :host ::ng-deep .vault-field textarea.mat-mdc-input-element:focus-visible {
+// 	outline: none;
+// 	box-shadow: none;
+// }
+
+// .field-input-mono,
+// .table-input {
+//     font-family: ui-monospace, 'SFMono-Regular', 'SF Mono', Consolas, 'Liberation Mono', monospace
+// }
+
+// .field-input,
+// .table-input,
+// .format-select {
+//     width: 100%;
+//     padding: .9rem 1rem;
+//     border: 1px solid rgb(196 198 208 / 20%);
+//     border-radius: .75rem;
+//     background: var(--vault-surface-container-low);
+//     color: var(--vault-on-surface)
+// }
+
+// .field-input:focus-visible,
+// .table-input:focus-visible,
+// .format-select:focus-visible {
+//     outline: none;
+//     border-color: var(--vault-primary);
+//     box-shadow: 0 0 0 2px rgb(111 135 164 / 30%)
+// }
+
+// :host ::ng-deep .vault-field input.mat-mdc-input-element:focus,
+// :host ::ng-deep .vault-field input.mat-mdc-input-element:focus-visible,
+// :host ::ng-deep .vault-field textarea.mat-mdc-input-element:focus,
+// :host ::ng-deep .vault-field textarea.mat-mdc-input-element:focus-visible {
+// 	outline: none;
+// 	box-shadow: none;
+// }
+
+
+// @use 'ngx-toastr/toastr';
+
+// @tailwind base;
+// @tailwind components;
+// @tailwind utilities;
 
 @import "quill/dist/quill.snow.css";
 
@@ -89,6 +343,19 @@
 }
 
 :root {
+
+    --primary: #00081e;
+    --primary-container: #0a1f44;
+    --on-primary: #ffffff;
+    --inverse-primary: #b4c6f4;
+    --emerald: #00b67a;
+    --emerald-dark: #006c47;
+    --bg-surface: #f8f9ff;
+    --surface-lowest: #ffffff;
+    --surface-low: #eef4ff;
+    --outline-variant: #c5c6cf;
+    --text-muted: #44464e;
+
     --vault-primary: #001735;
     --vault-primary-container: #0e2c52;
     --vault-primary-fixed: #6f87a4;
@@ -696,13 +963,13 @@ body {
 
 .primary-action,
 .secondary-action {
-	min-height: 3rem;
-	border-radius: 0.75rem;
+    min-height: 3rem;
+    border-radius: 0.75rem;
 }
 
 .primary-action {
-	color: #fff !important;
-	background: linear-gradient(135deg, #001735, #0e2c52) !important;
+    color: #fff !important;
+    background: linear-gradient(135deg, #001735, #0e2c52) !important;
 }
 
 .edit-page .btn-save,
@@ -806,6 +1073,7 @@ body {
 }
 
 @media (max-width: 960px) {
+
     .edit-page,
     .invoice-edit-page,
     .sequence-edit-page,
@@ -834,15 +1102,16 @@ body {
         justify-content: stretch;
     }
 
-    .edit-page .header-btns > *,
-    .edit-page .top-actions > *,
-    .invoice-edit-page .header-actions > *,
-    .client-request-edit-page .header-actions > *,
-    .document-edit-page .header-actions > *,
-    .sequence-edit-page .sticky-actions > * {
+    .edit-page .header-btns>*,
+    .edit-page .top-actions>*,
+    .invoice-edit-page .header-actions>*,
+    .client-request-edit-page .header-actions>*,
+    .document-edit-page .header-actions>*,
+    .sequence-edit-page .sticky-actions>* {
         flex: 1;
     }
 }
+
 .edit-page .btn-secondary,
 .edit-page .add-btn,
 .edit-page .text-action,
@@ -873,8 +1142,8 @@ body {
 :host ::ng-deep .vault-field input.mat-mdc-input-element:focus-visible,
 :host ::ng-deep .vault-field textarea.mat-mdc-input-element:focus,
 :host ::ng-deep .vault-field textarea.mat-mdc-input-element:focus-visible {
-	outline: none;
-	box-shadow: none;
+    outline: none;
+    box-shadow: none;
 }
 
 .edit-page .field-input-mono,
@@ -1071,13 +1340,13 @@ body {
 
 @media (max-width:720px) {
 
-	.header-btns {
-		justify-content: stretch;
-	}
+    .header-btns {
+        justify-content: stretch;
+    }
 
-	.header-btns .mdc-button {
-		flex: 1;
-	}
+    .header-btns .mdc-button {
+        flex: 1;
+    }
 
     .edit-page .edit-header,
     .edit-page .header-actions,
@@ -1423,99 +1692,100 @@ body {
         justify-content: start
     }
 }
+
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 
 .header-btns {
-	display: flex;
-	gap: 0.75rem;
-	align-items: center;
-	flex-shrink: 0;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 .btn-cancel.mdc-button {
-	font-size: 0.8rem;
-	font-weight: 700;
-	color: #515f74;
-	background: #eceef0;
-	border-radius: 8px;
-	padding: 0 1.5rem;
-	height: 40px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #515f74;
+    background: #eceef0;
+    border-radius: 8px;
+    padding: 0 1.5rem;
+    height: 40px;
 
-	&:hover {
-		background: #e0e3e5;
-	}
+    &:hover {
+        background: #e0e3e5;
+    }
 }
 
 .error-message {
-	position: absolute;
-	bottom: 0.1rem;
-	left: 0;
-	margin: 0;
-	font-size: 0.7rem;
-	line-height: 1.4;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	max-width: 100%;
+    position: absolute;
+    bottom: 0.1rem;
+    left: 0;
+    margin: 0;
+    font-size: 0.7rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .btn-save.mdc-button {
-	font-size: 0.8rem;
-	font-weight: 700;
-	background: #001735;
-	color: #fff;
-	border-radius: 8px;
-	padding: 0 2rem;
-	height: 40px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: #001735;
+    color: #fff;
+    border-radius: 8px;
+    padding: 0 2rem;
+    height: 40px;
 
-	&:hover {
-		background: #0e2c52;
-	}
+    &:hover {
+        background: #0e2c52;
+    }
 }
 
 
 .page-shell {
-	display: grid;
-	gap: 1.5rem;
-	max-width: 68rem;
-	margin: 0 auto;
-	width: 100%;
+    display: grid;
+    gap: 1.5rem;
+    max-width: 68rem;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .vault-card {
-	border: 0;
-	border-radius: 1rem;
-	background: #fff;
-	box-shadow: 0 4px 20px rgba(25, 28, 30, 0.04);
+    border: 0;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(25, 28, 30, 0.04);
 }
 
 .section-heading {
-	margin-bottom: 1.25rem;
+    margin-bottom: 1.25rem;
 }
 
 .section-heading h2,
 .field-label,
 .audit-label {
-	font-size: 0.72rem;
-	font-weight: 800;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
 }
 
 .section-heading h2 {
-	color: #43474f;
+    color: #43474f;
 }
 
 .field-grid,
 .split-grid,
 .audit-grid {
-	display: grid;
-	gap: 1rem;
+    display: grid;
+    gap: 1rem;
 }
 
 .field-grid.two-column,
 .split-grid,
 .audit-grid {
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 }

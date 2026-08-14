@@ -27,11 +27,15 @@ import {
 } from '@angular/core';
 import { Loader } from '@app/@shared/loader/loader';
 import { ToastrService } from 'ngx-toastr';
-import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
-import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
+import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
+import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
 import { form, FormField, readonly } from '@angular/forms/signals';
 import { MatSelectModule } from '@angular/material/select';
-import Swal from 'sweetalert2';
+import { swalFire } from '@app/@shared/swal';
+import Keycloak from 'keycloak-js';
+import { HasRolesDirective } from 'keycloak-angular';
+import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
 
 @Component({
   selector: 'app-document-details',
@@ -56,17 +60,31 @@ import Swal from 'sweetalert2';
     TranslateModule,
     Loader,
     FormField,
+    HasRolesDirective
   ],
 })
 export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   toaster: ToastrService = inject(ToastrService);
   readonly documentApiStore = inject(DocumentApiStore);
+  private readonly keycloak = inject(Keycloak);
+
+  readonly isDocumentReviewer = computed(() => this.keycloak.hasRealmRole('DOCUMENT_REVIEWER') || this.keycloak.hasResourceRole('DOCUMENT_REVIEWER'));
+
+  readonly verificationStatusOptions: DocumentVerificationStatus[] = [
+    DocumentVerificationStatus.UNVERIFIED,
+    DocumentVerificationStatus.VERIFIED,
+    DocumentVerificationStatus.REJECTED,
+    DocumentVerificationStatus.MANUAL_REVIEW,
+    DocumentVerificationStatus.IN_PROGRESS,
+  ];
 
   loaderMessage = linkedSignal(() => this.documentApiStore.loaderMessage());
   messages = linkedSignal(() => this.documentApiStore.messages());
   success = linkedSignal(() => this.documentApiStore.success());
   loading = linkedSignal(() => this.documentApiStore.loading());
   error = linkedSignal(() => this.documentApiStore.error());
+
+  readonly ExpectedFieldType = ExpectedFieldType;
 
   @Input() id!: string;
 
@@ -112,12 +130,14 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
       const error = this.error();
       console.log('Error state changed:', error);
-
+      if (error) {
+        this.toaster.error(this.messages()[0] || 'An error occurred while processing the document. Please try again.');
+      }
     });
   }
 
   removeVerificationTagResult(index: number): void {
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: 'This action cannot be undone.',
       icon: 'warning',
@@ -145,9 +165,11 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
 
-  ngOnDestroy(): void {}
+  }
+
+  ngOnDestroy(): void { }
 
   get statusIcon(): string {
     switch (this.document()?.verificationStatus) {
@@ -174,18 +196,18 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     return this.document()?.validationResults?.match ? 'Pass' : 'Fail';
   }
 
-  entityTypeLabel = computed(() => {
-    switch (this.document()?.target) {
-      case TargetEntity.INDIVIDUAL:
-        return 'Natural Person';
-      case TargetEntity.ORGANISATION:
-        return 'Organisation';
-      case TargetEntity.BRANCH:
-        return 'Branch';
-      default:
-        return this.document()?.target ?? '—';
-    }
-  });
+  // entityTypeLabel = computed(() => {
+  //   switch (this.document()?.target) {
+  //     case TargetEntity.INDIVIDUAL:
+  //       return 'Natural Person';
+  //     case TargetEntity.ORGANISATION:
+  //       return 'Organisation';
+  //     case TargetEntity.BRANCH:
+  //       return 'Branch';
+  //     default:
+  //       return this.document()?.target ?? '—';
+  //   }
+  // });
 
   analyticsStatusLabel = computed(() => {
     const status = this.document()?.analyticsStatus;
@@ -323,10 +345,25 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     this.documentApiStore.analyseDocument({ id: documentId });
   }
 
+  textExtraction(): void {
+    console.log('Initiating text extraction for document:', this.document());
+    const documentId = this.document()?.id;
+    if (!documentId) return;
+
+    this.documentApiStore.textExtraction({ id: documentId, block: false });
+  }
+
   verifyData(): void {
     const documentId = this.document()?.id;
     if (!documentId) return;
 
     this.documentApiStore.verifyData({ id: documentId });
+  }
+
+  updateStatus(status: DocumentVerificationStatus): void {
+    const documentId = this.document()?.id;
+    if (!documentId) return;
+
+    this.documentApiStore.updateVerificationStatus({ id: documentId, status });
   }
 }

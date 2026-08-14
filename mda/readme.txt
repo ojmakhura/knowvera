@@ -34,11 +34,11 @@
 
     Magic Draw 11.5 (or above) is supported via its 'Export to EMF-UML2' feature. You'll notice
     that the andromda.xml is already configured to load these exported files. It expects
-    that a model called 'centralkyc' has been created within your Magic Draw model.
+    that a model called 'knowvera' has been created within your Magic Draw model.
 
     Important: before launching AndroMDA, be sure to have exported your model.
 
-    /centralkyc J2EE project
+    /knowvera J2EE project
          |
          |    The root of the project contains a few files that control the overall
          |    build process and common properties (in the pom.xml).
@@ -251,7 +251,7 @@
         C:\Documents and Settings${author}\.m2\repository${applicationId}\
 
         (*nix)
-        /home/Onalenna Junior Makhura/.m2/repository/centralkyc/
+        /home/Onalenna Junior Makhura/.m2/repository/knowvera/
 
     For questions or feature requests please use our forum:
     http://forum.andromda.org/

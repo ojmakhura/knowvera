@@ -4,7 +4,7 @@
 
 .records-page {
 	padding: 1.5rem 2rem 3rem;
-	background: #f7f9fb;
+	background: var(--vault-surface);
 }
 
 .page-header,
@@ -31,7 +31,7 @@
 	line-height: 1;
 	font-weight: 800;
 	letter-spacing: -0.03em;
-	color: #191c1e;
+	color: var(--vault-on-surface);
 }
 
 .page-shell {
@@ -67,7 +67,7 @@
 	font-size: 0.78rem;
 	font-weight: 700;
 	letter-spacing: 0.04em;
-	color: #43474f;
+	color: var(--vault-on-surface-variant);
 }
 
 .filter-actions {
@@ -86,11 +86,11 @@
 
 .primary-action {
 	color: #ffffff !important;
-	background: linear-gradient(135deg, #001735, #0e2c52) !important;
+	background: linear-gradient(135deg, var(--vault-primary), var(--vault-primary-container)) !important;
 }
 
 .secondary-action {
-	color: #001735 !important;
+	color: var(--vault-primary) !important;
 	border-color: rgba(196, 198, 208, 0.35) !important;
 	background: rgba(255, 255, 255, 0.7) !important;
 }
@@ -128,25 +128,25 @@
 }
 
 .tone-primary {
-	background: #d5e3fc;
-	color: #2d476f;
+	background: var(--vault-primary-fixed);
+	color: var(--vault-on-primary-fixed);
 }
 
 .tone-secondary {
-	background: #001735;
-	color: #ffffff;
+	background: var(--vault-secondary);
+	color: var(--vault-on-secondary);
 }
 
 .tone-tertiary {
-	background: #ffdad6;
-	color: #93000a;
+	background: var(--vault-error-container);
+	color: var(--vault-on-error-container);
 }
 
 .entity-link {
 	padding: 0;
 	border: 0;
 	background: transparent;
-	color: #191c1e;
+	color: var(--vault-on-surface);
 	font-weight: 700;
 	text-align: left;
 	cursor: pointer;
@@ -158,7 +158,7 @@
 }
 
 .muted-cell {
-	color: #43474f;
+	color: var(--vault-on-surface-variant);
 }
 
 .status-pill {
@@ -180,23 +180,23 @@
 }
 
 .status-current {
-	background: #d5e3fc;
-	color: #2d476f;
+	background: var(--vault-primary-fixed);
+	color: var(--vault-on-primary-fixed);
 }
 
 .status-incomplete {
-	background: rgba(255, 179, 0, 0.15);
-	color: #b57400;
+	background: var(--vault-tertiary-fixed);
+	color: var(--vault-on-tertiary-fixed);
 }
 
 .status-expired {
-	background: #ffdad6;
-	color: #93000a;
+	background: var(--vault-error-container);
+	color: var(--vault-on-error-container);
 }
 
 .status-absent {
-	background: #eceef0;
-	color: #43474f;
+	background: var(--vault-surface-container);
+	color: var(--vault-on-surface-variant);
 }
 
 .align-end {
@@ -214,7 +214,7 @@
 	place-items: center;
 	gap: 0.5rem;
 	padding: 2rem 1rem;
-	color: #43474f;
+	color: var(--vault-on-surface-variant);
 }
 
 .results-footer {
@@ -225,7 +225,7 @@
 .results-summary {
 	margin: 0;
 	font-size: 0.85rem;
-	color: #57657a;
+	color: var(--vault-on-surface-variant);
 }
 
 .results-footer .mat-mdc-paginator {
@@ -258,7 +258,7 @@
 	font-weight: 800;
 	letter-spacing: 0.12em;
 	text-transform: uppercase;
-	color: #747780;
+	color: var(--vault-on-surface-variant);
 }
 
 .metric-card strong {
@@ -266,34 +266,34 @@
 	margin-top: 0.55rem;
 	font-size: 2rem;
 	line-height: 1;
-	color: #001735;
+	color: var(--vault-primary);
 }
 
 .metric-card p,
 .insight-card p {
 	margin: 0.5rem 0 0;
-	color: #43474f;
+	color: var(--vault-on-surface-variant);
 }
 
 .hero-card {
-	background: linear-gradient(135deg, #001735, #0e2c52);
+	background: linear-gradient(135deg, var(--vault-primary), var(--vault-primary-container));
 }
 
 .hero-card .metric-label,
 .hero-card strong,
 .hero-card p {
-	color: #eff1f3;
+	color: var(--vault-inverse-on-surface);
 }
 
 .insight-card mat-icon {
-	color: #001735;
+	color: var(--vault-primary);
 }
 
 .insight-card h2 {
 	margin: 0.5rem 0 0;
 	font-size: 1rem;
 	font-weight: 700;
-	color: #191c1e;
+	color: var(--vault-on-surface);
 }
 
 @media (max-width: 960px) {

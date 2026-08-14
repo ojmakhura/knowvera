@@ -1,0 +1,342 @@
+<main class="document-details-page">
+	<div class="page-shell">
+		<header class="hero-row" aria-labelledby="document-title">
+			<div class="hero-title-block">
+				<div class="hero-title-line">
+					<span class="material-symbols-outlined hero-icon" aria-hidden="true">description</span>
+					<h1 id="document-title">{{ document().fileName || 'Document details' }}</h1>
+				</div>
+				<p>{{ document().targetLabel || document().target || 'Unknown target' }}</p>
+			</div>
+
+			<div class="status-toggle" role="group" aria-label="Document verification status">
+				@for (status of heroStatusOptions; track status) {
+					<button
+						type="button"
+						class="status-toggle__button"
+						[class.status-toggle__button--active]="isHeroStatusActive(status)"
+						[attr.aria-pressed]="isHeroStatusActive(status)">
+						{{ status }}
+					</button>
+				}
+			</div>
+		</header>
+
+		@if (loading()) {
+			<p class="text-on-surface-variant">{{ loaderMessage() || 'Loading document...' }}</p>
+		}
+
+		<section class="content-grid">
+			<div class="content-main">
+				<article class="vault-card identity-card" aria-label="Target entity identity">
+					<div class="identity-card__halo" aria-hidden="true"></div>
+					<div class="identity-heading">
+						<div class="identity-icon-wrap">
+							<span class="material-symbols-outlined" aria-hidden="true">account_balance</span>
+						</div>
+						<div>
+							<h2>{{ document().targetLabel || 'Unlabelled target' }}</h2>
+							<p>Global Investment Entity • ID: {{ document().targetId || document().id || 'N/A' }}</p>
+						</div>
+					</div>
+
+					<div class="identity-grid">
+						<div class="identity-detail">
+							<p class="identity-detail__label">Entity Type</p>
+							<p class="identity-detail__value">{{ document().target || 'N/A' }}</p>
+						</div>
+						<div class="identity-detail">
+							<p class="identity-detail__label">Document Type</p>
+							<p class="identity-detail__value">{{ document().documentType || 'N/A' }}</p>
+						</div>
+						<div class="identity-detail identity-detail--status">
+							<p class="identity-detail__label">Analytics Status</p>
+							<div class="status-indicator">
+								<span aria-hidden="true"></span>
+								<p class="status-indicator__text">{{ analyticsStatusLabel() }}</p>
+							</div>
+						</div>
+						<div class="identity-detail">
+							<p class="identity-detail__label">Registration</p>
+							<p class="identity-detail__value">{{ document().metadata?.registration || document().metadata?.country || 'N/A' }}</p>
+						</div>
+						<div class="identity-detail">
+							<p class="identity-detail__label">Risk Profile</p>
+							<p class="risk-badge">{{ document().metadata?.riskProfile || 'LOW RISK' }}</p>
+						</div>
+					</div>
+				</article>
+
+				<article class="vault-card ai-validation" aria-label="AI automated validation">
+					<div class="ai-validation__ornament" aria-hidden="true"></div>
+					<div class="ai-validation__header">
+						<div>
+							<h3>AI Automated Validation</h3>
+							<p>Neural OCR Engine v4.2 analysis complete.</p>
+						</div>
+						<div class="confidence">
+							<p>Confidence Score</p>
+							<strong>{{ confidenceScore().toFixed(2) }}%</strong>
+						</div>
+					</div>
+
+					<div class="ai-validation__content">
+						<section class="validation-box" aria-label="Data comparison results">
+							<header>
+								<p>DATA COMPARISON</p>
+								<span class="material-symbols-outlined" aria-hidden="true">{{ matchIcon }}</span>
+							</header>
+
+							<dl>
+								<div>
+									<dt>Expected Type</dt>
+									<dd>{{ document().validationResults?.expectedType || '—' }}</dd>
+								</div>
+								<div>
+									<dt>Detected Type</dt>
+									<dd>{{ document().validationResults?.detectedType || '—' }}</dd>
+								</div>
+								<div>
+									<dt>Match Status</dt>
+									<dd class="match-success">{{ matchLabel() }}</dd>
+								</div>
+							</dl>
+						</section>
+
+						<section class="validation-highlights" aria-label="Validation highlights">
+							<p [class.match-success]="thresholdLabel === 'Pass'">
+								<span class="material-symbols-outlined" aria-hidden="true">verified</span>
+								{{ thresholdLabel === 'Pass' ? 'SIGNATURE VALIDATED' : 'SIGNATURE REVIEW REQUIRED' }}
+							</p>
+							<p>
+								<span class="material-symbols-outlined" aria-hidden="true">shield</span>
+								{{ document().validationResults?.informationMatchResults || 'COMPLIANCE UNKNOWN' }}
+							</p>
+						</section>
+					</div>
+				</article>
+
+				<article class="vault-card tabbed-panel" aria-label="Document insight tabs">
+					<div class="tabbed-panel__tabs" aria-label="Document details tabs">
+						@for (tab of insightTabs; track tab.id) {
+							<button
+								type="button"
+								class="tabbed-panel__tab"
+								[class.tabbed-panel__tab--active]="activeInsightTab() === tab.id"
+								[attr.aria-selected]="activeInsightTab() === tab.id"
+								(click)="setActiveInsightTab(tab.id)">
+								{{ tab.label }}
+							</button>
+						}
+					</div>
+
+					<div class="tabbed-panel__body" aria-label="Document insight content">
+						@if (activeInsightTab() === 'signals') {
+							<div class="signal-list">
+								@if (integritySignalRows.length === 0) {
+									<article class="signal-item">
+										<div class="signal-item__meta">
+											<span class="material-symbols-outlined" aria-hidden="true">info</span>
+											<div>
+												<h4>No integrity signals available</h4>
+												<p>Run analysis to generate signal scores for this document.</p>
+											</div>
+										</div>
+										<span class="signal-pill">N/A</span>
+									</article>
+								}
+
+								@for (entry of integritySignalRows; track entry.key) {
+									<article class="signal-item">
+										<div class="signal-item__meta">
+											<span class="material-symbols-outlined" aria-hidden="true">{{ signalIcon(entry.key) }}</span>
+											<div>
+												<h4>{{ entry.label }}</h4>
+												<p>Signal extracted from validation engine output.</p>
+											</div>
+										</div>
+										<span class="signal-pill">{{ entry.value }}</span>
+									</article>
+								}
+							</div>
+						}
+
+						@if (activeInsightTab() === 'extracted') {
+							@if (document().extractedInformation) {
+								<div class="content-preview">
+									<p>{{ document().extractedInformation | json }}</p>
+								</div>
+							} @else {
+								<p class="text-on-surface-variant">No extracted data is available yet.</p>
+							}
+						}
+
+						@if (activeInsightTab() === 'content') {
+							@if (document().fileContent) {
+								<div class="content-preview">
+									<p>{{ document().fileContent }}</p>
+								</div>
+							} @else {
+								<p class="text-on-surface-variant">No file content is available yet.</p>
+							}
+						}
+
+						@if (activeInsightTab() === 'verification') {
+							@if (document().dataVerifications?.length) {
+								<div class="verification-table-wrap">
+									<table class="verification-table">
+										<thead>
+											<tr>
+												<th scope="col">Verification Data</th>
+												<th scope="col">Status</th>
+												<th scope="col">Score</th>
+												<th scope="col">Action</th>
+											</tr>
+										</thead>
+										<tbody>
+											@for (item of document().dataVerifications; track item.verificationDataConfigId; let i = $index) {
+												<tr>
+													<td>{{ item.verificationDataName || 'Unnamed verification' }}</td>
+													<td>{{ item.verificationStatus || 'UNKNOWN' }}</td>
+													<td>{{ item.score ?? 0 }}</td>
+													<td>
+														<button type="button" class="btn-secondary" (click)="removeVerificationTagResult(i)">
+															Remove
+														</button>
+													</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								</div>
+							} @else {
+								<p class="text-on-surface-variant">No verification records are available yet.</p>
+							}
+						}
+					</div>
+				</article>
+			</div>
+
+			<aside class="content-side" aria-label="Document actions">
+				<section class="action-stack">
+					<button type="button" class="btn-primary" (click)="analyseDocument()">
+						<span class="material-symbols-outlined" aria-hidden="true">download</span>
+						Download Archive
+					</button>
+					<div class="action-row">
+						<button type="button" class="btn-secondary" (click)="openMetadataEdit()">Metadata</button>
+						<button type="button" class="btn-secondary" (click)="saveDocument()">Update Status</button>
+					</div>
+				</section>
+
+				<section class="vault-card metadata-card" aria-label="Edit metadata">
+					<header>
+						<h3>Edit Metadata</h3>
+						<button type="button" class="icon-button" aria-label="Edit metadata fields" (click)="openMetadataEdit()">
+							<span class="material-symbols-outlined" aria-hidden="true">edit_note</span>
+						</button>
+					</header>
+
+					<div class="metadata-fields">
+						@if (!metadataEditing()) {
+							@if ((document().metadata | keyvalue)?.length) {
+								@for (entry of document().metadata | keyvalue; track entry.key) {
+									<label>
+										<span>{{ entry.key }}</span>
+										<input type="text" [value]="entry.value" [attr.aria-label]="entry.key" readonly />
+									</label>
+								}
+							} @else {
+								<label>
+									<span>Reference ID</span>
+									<input type="text" [value]="document().id || 'N/A'" aria-label="Reference ID" readonly />
+								</label>
+								<label>
+									<span>Document Origin</span>
+									<input type="text" [value]="document().metadata?.documentOrigin || 'Internal Portal Upload'" aria-label="Document Origin" readonly />
+								</label>
+								<label>
+									<span>Archive Location</span>
+									<input type="text" [value]="document().metadata?.archiveLocation || 'Vault-A / Section-9'" aria-label="Archive Location" readonly />
+								</label>
+							}
+						}
+
+						@if (metadataEditing()) {
+							@for (field of metadataFields(); track $index; let i = $index) {
+								<label>
+									<span>Key</span>
+									<input
+										type="text"
+										[value]="field.key"
+										(input)="updateMetadataKey(i, $any($event.target).value)"
+										aria-label="Metadata key" />
+									<span>Value</span>
+									<input
+										type="text"
+										[value]="field.value"
+										(input)="updateMetadataValue(i, $any($event.target).value)"
+										aria-label="Metadata value" />
+									<button type="button" class="btn-secondary" (click)="removeMetadataField(i)">Remove</button>
+								</label>
+							}
+						}
+
+						@if (metadataEditing() && metadataFields().length === 0) {
+							<label>
+								<span>No metadata fields</span>
+								<input type="text" value="Click Add Field to start" aria-label="No metadata" readonly />
+							</label>
+						}
+					</div>
+
+					<div class="metadata-actions">
+						<button type="button" class="btn-ghost" (click)="addMetadataField()">
+							<span class="material-symbols-outlined" aria-hidden="true">add</span>
+							Add Field
+						</button>
+						@if (metadataEditing()) {
+							<button type="button" class="btn-primary btn-primary--compact" (click)="saveMetadata()">Save Changes</button>
+							<button type="button" class="btn-secondary" (click)="cancelMetadataEdit()">Cancel</button>
+						}
+					</div>
+				</section>
+
+				<section class="vault-card preview-card" aria-label="Visual preview">
+					<header>
+						<p>VISUAL PREVIEW</p>
+						<button type="button" class="icon-button icon-button--inverse" aria-label="Open preview fullscreen">
+							<span class="material-symbols-outlined" aria-hidden="true">fullscreen</span>
+						</button>
+					</header>
+
+					<div class="preview-canvas">
+						<div class="preview-image" aria-hidden="true"></div>
+						<div class="preview-overlay">SCANNING OVERLAY ACTIVE</div>
+					</div>
+
+					<footer>
+						<span>Page 1 of 12</span>
+						<div>
+							<button type="button" class="nav-button" aria-label="Previous page">
+								<span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+							</button>
+							<button type="button" class="nav-button" aria-label="Next page">
+								<span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+							</button>
+						</div>
+					</footer>
+				</section>
+			</aside>
+		</section>
+
+		<footer class="page-footer" aria-label="Legal and utility links">
+			<p>© 2024 Ironclad Finance Systems. All regulatory protocols active.</p>
+			<nav aria-label="Footer links">
+				<a href="#">Privacy Framework</a>
+				<a href="#">Audit Logs</a>
+				<a href="#">System Health</a>
+			</nav>
+		</footer>
+	</div>
+</main>

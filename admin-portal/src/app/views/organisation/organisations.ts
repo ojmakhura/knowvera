@@ -22,10 +22,10 @@ import {
 import { form } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
-import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
-import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
+import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
 import { SearchObject } from '@app/models/search-object';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
@@ -143,7 +143,7 @@ export class Organisations implements OnInit, OnDestroy {
   }
 
   openDetails(id: string): void {
-    this.router.navigate(['organisation', 'details', id]);
+    this.router.navigate(['organisation', id]);
   }
 
   createNewOrganisation(): void {

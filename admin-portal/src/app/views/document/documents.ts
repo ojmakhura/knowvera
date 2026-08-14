@@ -25,20 +25,20 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
-import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
-import { DocumentVerificationStatus } from '@app/models/bw/co/centralkyc/document/document-verification-status';
-import { DocumentSearchCriteria } from '@app/models/bw/co/centralkyc/document/document-search-criteria';
-import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
-import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
+import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
+import { DocumentSearchCriteria } from '@app/models/bw/co/knowvera/document/document-search-criteria';
+import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { SearchObject } from '@app/models/search-object';
-import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
-import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
-import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
+import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
+import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
+import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
 import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
-import { DocumentListDTO } from '@app/models/bw/co/centralkyc/document/document-list-dto';
+import { DocumentListDTO } from '@app/models/bw/co/knowvera/document/document-list-dto';
 
 export class SearchDocumentsVarsForm {
   fileName: string = '';
@@ -132,6 +132,15 @@ export class Documents implements OnInit {
       if(error) {
         console.error('Error state changed:', error, this.messages());
         this.toastr.error(this.messages()[0] || 'An error occurred while fetching documents.');
+      }
+    });
+
+    effect(() => {
+      let success = this.success();
+      
+      if(success) {
+        console.log('Success state changed:', success, this.messages());
+        this.toastr.success(this.messages()[0] || 'Documents fetched successfully.');
       }
     });
   }

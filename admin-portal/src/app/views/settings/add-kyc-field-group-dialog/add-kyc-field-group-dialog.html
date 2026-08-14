@@ -1,0 +1,224 @@
+<div class="dialog-wrapper">
+
+  <!-- ─── Header ─────────────────────────────────────────────────────────── -->
+  <header class="dialog-header">
+    <div class="header-left">
+      <nav class="breadcrumb">
+        <span class="breadcrumb-item">Compliance Engine</span>
+        <span class="material-symbols-outlined breadcrumb-sep">chevron_right</span>
+        <span class="breadcrumb-item">Field Groups</span>
+        <span class="material-symbols-outlined breadcrumb-sep">chevron_right</span>
+        <span class="breadcrumb-item breadcrumb-active">Editor</span>
+      </nav>
+      <h1 class="dialog-title">KYC Field Group Editor</h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn-ghost" type="button" (click)="cancel()">Cancel Changes</button>
+      <button
+        class="btn-primary"
+        type="button"
+        [disabled]="!groupForm().valid()"
+        (click)="save()"
+      >
+        <span class="material-symbols-outlined">save</span>
+        {{ isEditing ? 'Save Changes' : 'Save Group' }}
+      </button>
+    </div>
+  </header>
+
+  <!-- ─── Main ──────────────────────────────────────────────────────────── -->
+  <main class="dialog-main">
+    <div class="dialog-grid">
+
+      <!-- Left column: Group Configuration -->
+      <div class="col-config">
+        <section class="card">
+          <div class="card-heading">
+            <div class="card-icon">
+              <span class="material-symbols-outlined">settings</span>
+            </div>
+            <h2 class="card-title">Group Configuration</h2>
+          </div>
+
+          <div class="form-stack">
+
+            <!-- Label -->
+            <div class="form-field">
+              <label class="field-label">Label</label>
+              <input
+                class="field-input"
+                type="text"
+                placeholder="e.g., Personal Identity Verification"
+                [value]="groupSignal().label ?? ''"
+                (input)="groupSignal.update(s => ({...s, label: $any($event).target.value}))"
+              />
+              @if (groupForm.label().errors(); as errs) {
+                <span class="field-error">{{ errs[0]?.message }}</span>
+              }
+            </div>
+
+            <!-- Target Entity Type -->
+            <div class="form-field">
+              <label class="field-label">Target Entity Type</label>
+              <div class="field-input field-input--readonly">
+                {{ targetTypeLabel }}
+              </div>
+            </div>
+
+            <!-- Position -->
+            <div class="form-field">
+              <label class="field-label">Position Index</label>
+              <input
+                class="field-input"
+                type="number"
+                min="1"
+                [value]="groupSignal().position"
+                (input)="groupSignal.update(s => ({...s, position: +$any($event).target.value}))"
+              />
+            </div>
+
+            <!-- Description -->
+            <div class="form-field">
+              <label class="field-label">Description</label>
+              <textarea
+                class="field-input field-input--textarea"
+                rows="4"
+                placeholder="Briefly describe the purpose of this collection group..."
+                [value]="groupSignal().description ?? ''"
+                (input)="groupSignal.update(s => ({...s, description: $any($event).target.value}))"
+              ></textarea>
+            </div>
+
+          </div>
+        </section>
+      </div>
+
+      <!-- Right column: Fields -->
+      <div class="col-fields">
+        <section class="card card--fields">
+
+          <!-- Fields header -->
+          <div class="fields-header">
+            <div class="card-heading">
+              <div class="card-icon card-icon--secondary">
+                <span class="material-symbols-outlined">schema</span>
+              </div>
+              <h2 class="card-title">Fields in this Group</h2>
+            </div>
+            <button class="btn-add-field" type="button" (click)="toggleBrowsePanel()">
+              <span class="material-symbols-outlined">add</span>
+              ADD NEW FIELD
+            </button>
+          </div>
+
+          <!-- Field rows -->
+          <div class="field-list">
+            @for (gf of groupSignal().groupFields; track gf.fieldId; let i = $index) {
+              <div class="field-row" [class.field-row--active]="i === groupSignal().groupFields.length - 1 && groupSignal().groupFields.length > 0">
+                <!-- Order controls -->
+                <div class="order-controls">
+                  <button class="order-btn" type="button" (click)="moveUp(i)" [disabled]="i === 0">
+                    <span class="material-symbols-outlined">expand_less</span>
+                  </button>
+                  <button class="order-btn" type="button" (click)="moveDown(i)" [disabled]="i === groupSignal().groupFields.length - 1">
+                    <span class="material-symbols-outlined">expand_more</span>
+                  </button>
+                </div>
+
+                <!-- Position badge -->
+                <div class="position-badge" [class.position-badge--active]="i === groupSignal().groupFields.length - 1 && groupSignal().groupFields.length > 0">
+                  {{ padIndex(i) }}
+                </div>
+
+                <!-- Field info -->
+                <div class="field-info">
+                  <p class="field-name">{{ getFieldLabel(gf) }}</p>
+                  <p class="field-code">{{ getFieldCode(gf) }}</p>
+                </div>
+
+                <!-- Type badge -->
+                <span class="type-badge">{{ getFieldTypeBadge(gf) }}</span>
+
+                <!-- Actions -->
+                <div class="field-actions">
+                  <button class="icon-btn" type="button" title="Remove field" (click)="removeField(i)">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </div>
+            }
+
+            <!-- Empty / Browse section -->
+            @if (!showBrowsePanel()) {
+              <div class="empty-state">
+                <span class="material-symbols-outlined empty-icon">add_circle</span>
+                <p class="empty-text">Need more data points? Connect existing fields or create a custom entry.</p>
+                <div class="empty-actions">
+                  <button class="btn-ghost-sm" type="button" (click)="toggleBrowsePanel()">BROWSE FIELD LIBRARY</button>
+                </div>
+              </div>
+            }
+
+            <!-- Browse panel -->
+            @if (showBrowsePanel()) {
+              <div class="browse-panel">
+                <div class="browse-header">
+                  <span class="browse-title">
+                    <span class="material-symbols-outlined">search</span>
+                    Field Library
+                  </span>
+                  <button class="icon-btn" type="button" (click)="toggleBrowsePanel()">
+                    <span class="material-symbols-outlined">close</span>
+                  </button>
+                </div>
+
+                <input
+                  class="browse-search"
+                  type="text"
+                  placeholder="Search by name or code..."
+                  [ngModel]="browseQuery()"
+                  (ngModelChange)="browseQuery.set($event)"
+                  autofocus
+                />
+
+                <div class="browse-results">
+                  @if (filteredAvailableFields().length === 0) {
+                    <p class="browse-empty">
+                      @if (allAvailableFields().length === 0) {
+                        No fields available in the configured KYC suite.
+                      } @else {
+                        No matching fields found.
+                      }
+                    </p>
+                  }
+                  @for (field of filteredAvailableFields(); track field.id) {
+                    <div class="browse-item" (click)="addFieldFromLibrary(field)" role="button" tabindex="0" (keydown.enter)="addFieldFromLibrary(field)">
+                      <div class="browse-item-info">
+                        <span class="browse-item-label">{{ field.fieldLabel || field.field }}</span>
+                        <span class="browse-item-code">{{ field.field }} : {{ field.documentType }}</span>
+                      </div>
+                      <span class="material-symbols-outlined browse-item-add">add_circle</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Footer -->
+          <div class="fields-footer">
+            <p class="fields-count">
+              Showing <strong>{{ groupSignal().groupFields.length }}</strong>
+              {{ groupSignal().groupFields.length === 1 ? 'field' : 'fields' }} assigned to this group
+            </p>
+            @if (data.suiteLabel) {
+              <span class="suite-badge">{{ data.suiteLabel }}</span>
+            }
+          </div>
+
+        </section>
+      </div>
+
+    </div>
+  </main>
+</div>

@@ -493,6 +493,26 @@
 	gap: 0.65rem;
 }
 
+.doc-queue-tools {
+	display: grid;
+	grid-template-columns: minmax(16rem, 22rem) auto;
+	gap: 0.65rem;
+	align-items: center;
+	margin-bottom: 0.85rem;
+}
+
+.doc-queue-quick-select {
+	margin: 0;
+}
+
+.doc-apply-all-btn {
+	min-height: 3rem;
+	border-radius: 0.8rem;
+	font-weight: 700;
+	color: #001735 !important;
+	border-color: rgba(0, 23, 53, 0.35) !important;
+}
+
 .doc-queue-item {
 	display: grid;
 	grid-template-columns: auto minmax(0, 1fr) minmax(14rem, 18rem) auto;
@@ -737,6 +757,14 @@
 
 		.doc-type-select {
 			grid-column: 1 / -1;
+		}
+	}
+
+	.doc-queue-tools {
+		grid-template-columns: 1fr;
+
+		.doc-apply-all-btn {
+			width: 100%;
 		}
 	}
 

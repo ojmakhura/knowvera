@@ -1,126 +1,145 @@
 <div class="vault-shell">
-  @if (appEnvState.isLoggedIn()) {
-  <aside
-    class="vault-sidebar"
-    [class.vault-sidebar--mobile-open]="isMobileMenuOpen()"
-    [class.vault-sidebar--collapsed]="isSidebarCollapsed()"
-    role="navigation"
-    aria-label="Main navigation">
-    <div class="vault-sidebar__brand">
-      <h1 class="vault-sidebar__title">Central KYC Portal</h1>
-      <p class="vault-sidebar__subtitle">Secure KYC Portal</p>
-    </div>
+  @if (isLoggedIn()) {
+    <aside class="vault-sidebar" aria-label="Primary navigation">
+      <div class="vault-brand">
+        <span class="vault-brand__mark" aria-hidden="true">K</span>
+        <div class="vault-brand__copy">
+          <p class="vault-brand__name">Knowvera</p>
+          <p class="vault-brand__subtitle">Compliance Portal</p>
+        </div>
+      </div>
 
-    <nav class="vault-nav">
-      <ul class="vault-nav__list" role="list">
-        @for (item of navigationItems(); track item.route) {
-        <li>
-          <a
-            class="vault-nav__link"
-            [routerLink]="item.route"
-            routerLinkActive="vault-nav__link--active"
-            (click)="closeMobileMenu()">
-            <mat-icon>{{ item.icon }}</mat-icon>
-            @if (!isSidebarCollapsed()) {
-            <span>{{ item.label }}</span>
-            }
-          </a>
-        </li>
-        }
-      </ul>
-    </nav>
-
-    <div class="vault-sidebar__footer">
-      <a class="vault-nav__link" routerLink="/">
-        <mat-icon>settings</mat-icon>
-        @if (!isSidebarCollapsed()) {
-        <span>Settings</span>
-        }
+      <a class="vault-sidebar__cta" routerLink="/kyc-record/edit">
+        <mat-icon aria-hidden="true">add</mat-icon>
+        <span>New Verification</span>
       </a>
-      @if (!isSidebarCollapsed()) {
-      <button type="button" class="vault-sidebar__support">Support Center</button>
-      }
-      <button type="button" class="vault-nav__link vault-nav__link--logout" (click)="logout()">
-        <mat-icon>logout</mat-icon>
-        @if (!isSidebarCollapsed()) {
-        <span>Logout</span>
-        }
-      </button>
-    </div>
-  </aside>
-  }
 
-  <header
-    class="vault-topbar"
-    [class.vault-topbar--with-sidebar]="appEnvState.isLoggedIn()"
-    role="banner">
-    <div class="vault-topbar__left">
-      @if (appEnvState.isLoggedIn()) {
-      <button
-        type="button"
-        class="vault-topbar__menu"
-        (click)="toggleMobileMenu()"
-        aria-label="Toggle menu"
-        [attr.aria-expanded]="isMobileMenuOpen()">
-        <mat-icon>menu</mat-icon>
-      </button>
-      }
-      <span class="vault-topbar__product">Secure KYC Portal</span>
-    </div>
+      <nav class="vault-nav" aria-label="Main navigation">
+        <ul class="vault-nav__list" role="list">
+          @for (item of desktopNavigationItems(); track item.route) {
+            <li>
+              <a
+                class="vault-nav__link"
+                [routerLink]="item.route"
+                routerLinkActive="vault-nav__link--active"
+                [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+              >
+                <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+                <span>{{ item.label }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      </nav>
 
-    <div class="vault-topbar__right">
-      <button type="button" class="vault-topbar__icon" aria-label="Notifications">
-        <mat-icon>notifications</mat-icon>
-      </button>
-      <button type="button" class="vault-topbar__icon" aria-label="Help">
-        <mat-icon>help_outline</mat-icon>
-      </button>
-
-      @if (appEnvState.isLoggedIn()) {
-      <button type="button" mat-button class="vault-user" [matMenuTriggerFor]="userMenu">
-        <div class="vault-user__text">
-          <p class="vault-user__name">{{ profile()?.firstName || profile()?.username || 'Account' }}</p>
-          <p class="vault-user__tier">Verified Tier 1</p>
-        </div>
-        <div class="vault-user__avatar">
-          <mat-icon>account_circle</mat-icon>
-        </div>
-      </button>
-
-      <mat-menu #userMenu="matMenu" class="modern-menu user-dropdown">
-        <div class="user-profile-header">
-          <div class="profile-avatar">
-            <mat-icon>account_circle</mat-icon>
-          </div>
-          <div class="profile-info">
-            <div class="profile-name">{{ profile()?.firstName }} {{ profile()?.lastName }}</div>
-            <div class="profile-email">{{ profile()?.email }}</div>
-          </div>
-        </div>
-        <mat-divider></mat-divider>
-        <a mat-menu-item type="button" [href]="appEnvState.accountUri()" target="_blank" rel="noopener noreferrer">
-          <mat-icon>person_outline</mat-icon>
-          <span>Profile</span>
+      <div class="vault-sidebar__footer">
+        <a class="vault-nav__link vault-nav__link--footer" routerLink="/organisation">
+          <mat-icon aria-hidden="true">settings</mat-icon>
+          <span>Settings</span>
         </a>
-        <button mat-menu-item (click)="logout()" class="logout-item">
-          <mat-icon>logout</mat-icon>
+        <button type="button" class="vault-nav__link vault-nav__link--footer">
+          <mat-icon aria-hidden="true">contact_support</mat-icon>
+          <span>Support</span>
+        </button>
+        <button type="button" class="vault-nav__link vault-nav__link--logout" (click)="logout()">
+          <mat-icon aria-hidden="true">logout</mat-icon>
           <span>Logout</span>
         </button>
-      </mat-menu>
+      </div>
+    </aside>
+  }
+
+  <div class="vault-shell__frame" [class.vault-shell__frame--logged-in]="isLoggedIn()">
+    <header class="vault-topbar" role="banner">
+      @if (isLoggedIn()) {
+        <div class="vault-topbar__mobile-brand" aria-label="Knowvera">
+          <span class="vault-brand__mark vault-brand__mark--small" aria-hidden="true">K</span>
+          <span class="vault-topbar__brand">Knowvera</span>
+        </div>
+
+        <div class="vault-topbar__search" role="search">
+          <mat-icon aria-hidden="true">search</mat-icon>
+          <input
+            type="search"
+            placeholder="Search records, entities, alerts..."
+            aria-label="Search records, entities, alerts"
+          />
+        </div>
+
+        <div class="vault-topbar__actions">
+          <button type="button" class="vault-topbar__icon-button" aria-label="Notifications">
+            <mat-icon aria-hidden="true">notifications_none</mat-icon>
+          </button>
+          <button type="button" class="vault-topbar__icon-button vault-topbar__icon-button--desktop" aria-label="Help">
+            <mat-icon aria-hidden="true">help_outline</mat-icon>
+          </button>
+          <button type="button" class="vault-topbar__icon-button vault-topbar__icon-button--desktop" aria-label="Settings">
+            <mat-icon aria-hidden="true">settings</mat-icon>
+          </button>
+          <button
+            type="button"
+            class="vault-topbar__avatar"
+            [matMenuTriggerFor]="accountMenu"
+            [attr.aria-label]="'Account menu for ' + displayName()"
+          >
+            <span aria-hidden="true">{{ accountInitials() }}</span>
+          </button>
+        </div>
+
+        <mat-menu #accountMenu="matMenu" class="modern-menu user-dropdown">
+          <div class="user-profile-header">
+            <div class="profile-avatar" aria-hidden="true">
+              <mat-icon>account_circle</mat-icon>
+            </div>
+            <div class="profile-info">
+              <div class="profile-name">{{ profile()?.firstName }} {{ profile()?.lastName }}</div>
+              <div class="profile-email">{{ profile()?.email }}</div>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+          @if (accountUri()) {
+            <a mat-menu-item [href]="accountUri()" target="_blank" rel="noopener noreferrer">
+              <mat-icon>person_outline</mat-icon>
+              <span>Profile</span>
+            </a>
+          }
+          <button mat-menu-item type="button" class="logout-item" (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+          </button>
+        </mat-menu>
       } @else {
-      <button mat-raised-button color="primary" (click)="login()" class="login-btn">
-        <mat-icon>login</mat-icon>
-        <span>Login</span>
-      </button>
+        <div class="vault-topbar__mobile-brand" aria-label="Knowvera">
+          <span class="vault-brand__mark vault-brand__mark--small" aria-hidden="true">K</span>
+          <span class="vault-topbar__brand">Knowvera</span>
+        </div>
+        <button type="button" class="vault-topbar__login" (click)="login()">
+          <mat-icon aria-hidden="true">login</mat-icon>
+          <span>Login</span>
+        </button>
       }
-    </div>
-  </header>
+    </header>
 
-  <main class="vault-content" [class.vault-content--with-sidebar]="appEnvState.isLoggedIn()" role="main">
-    <router-outlet />
-  </main>
+    <main class="vault-content" role="main">
+      <router-outlet />
+    </main>
+  </div>
 
-  @if (isMobileMenuOpen()) {
-  <div class="vault-overlay" (click)="closeMobileMenu()" [attr.aria-hidden]="true"></div>
+  @if (isLoggedIn()) {
+    <nav class="vault-bottom-nav" aria-label="Bottom navigation">
+      @for (item of mobileNavigationItems(); track item.route) {
+        <a
+          class="vault-bottom-nav__item"
+          [routerLink]="item.route"
+          routerLinkActive="vault-bottom-nav__item--active"
+          [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+        >
+          <span class="vault-bottom-nav__icon" aria-hidden="true">
+            <mat-icon>{{ item.icon }}</mat-icon>
+          </span>
+          <span class="vault-bottom-nav__label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
   }
 </div>

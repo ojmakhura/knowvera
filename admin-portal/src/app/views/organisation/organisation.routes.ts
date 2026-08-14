@@ -20,13 +20,7 @@ export const organisationRoutes: Routes = [
       import('./edit/organisation-edit').then((module) => module.OrganisationEdit),
   },
   {
-    path: 'details',
-    canActivate: [AuthenticationGuard],
-    loadComponent: () =>
-      import('./details/organisation-details').then((module) => module.OrganisationDetails),
-  },
-  {
-    path: 'details/:id',
+    path: ':id',
     canActivate: [AuthenticationGuard],
     loadComponent: () =>
       import('./details/organisation-details').then((module) => module.OrganisationDetails),

@@ -1,4 +1,4 @@
-import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
+import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
 import { Component, signal, inject, effect } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { TranslationService } from './services/translation.service';
@@ -7,8 +7,8 @@ import { Shell } from './shell/shell';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType, ReadyArgs, typeEventArgs } from 'keycloak-angular';
 import Keycloak, { KeycloakUserInfo } from 'keycloak-js';
 import { AppEnvStore } from './store/app-env.state';
-import { IndividualApi } from './services/bw/co/centralkyc/individual/individual-api';
-import { OrganisationApi } from './services/bw/co/centralkyc/organisation/organisation-api';
+import { IndividualApi } from './services/bw/co/knowvera/individual/individual-api';
+import { OrganisationApi } from './services/bw/co/knowvera/organisation/organisation-api';
 
 @Component({
   selector: 'app-root',
@@ -31,7 +31,7 @@ export class App {
     effect(() => {
       const keycloakEvent = this.keycloakSignal();
 
-      console.log(this.keycloak.authenticated);
+      console.log(this.keycloak.authenticated, keycloakEvent);
 
       if (keycloakEvent.type === KeycloakEventType.Ready) {
         if (this.keycloak.authenticated) {

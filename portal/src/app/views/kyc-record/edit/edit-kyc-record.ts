@@ -10,29 +10,29 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { QuillModule, QuillModules } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
-import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
-import { OwnerDetails } from '@app/models/bw/co/centralkyc/kyc/owner-details';
-import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import { DeclarationDTO } from '@app/models/bw/co/centralkyc/kyc/declaration-dto';
-import { SourceOfFunds } from '@app/models/bw/co/centralkyc/source-of-funds';
-import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
-import { VerificationSummaryEntry } from '@app/models/bw/co/centralkyc/kyc/verification-summary-entry';
-import { EmploymentRecordDTO } from '@app/models/bw/co/centralkyc/individual/employment/employment-record-dto';
-import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
-import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
-import { PepStatus } from '@app/models/bw/co/centralkyc/individual/pep-status';
-import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
-import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
-import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
+import { OwnerDetails } from '@app/models/bw/co/knowvera/kyc/owner-details';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
+import { DeclarationDTO } from '@app/models/bw/co/knowvera/kyc/declaration-dto';
+import { SourceOfFunds } from '@app/models/bw/co/knowvera/source-of-funds';
+import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { VerificationSummaryEntry } from '@app/models/bw/co/knowvera/kyc/verification-summary-entry';
+import { EmploymentRecordDTO } from '@app/models/bw/co/knowvera/individual/employment/employment-record-dto';
+import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
+import { IndividualIdentityType } from '@app/models/bw/co/knowvera/individual/individual-identity-type';
+import { PepStatus } from '@app/models/bw/co/knowvera/individual/pep-status';
+import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
+import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
+import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { ToastrService } from 'ngx-toastr';
-import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
-import Keycloak from 'keycloak-js';
+import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
-import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
-import { KycRecordApi } from '@app/services/bw/co/centralkyc/kyc/kyc-record-api';
-import { Loader } from '@app/@shared/loader/loader';
+import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
+import { KycRecordApi } from '@app/services/bw/co/knowvera/kyc/kyc-record-api';
+import { KycReportSectionDTO } from '@app/models/bw/co/knowvera/kyc/fields/kyc-report-section-dto';
+import { AppEnvStore } from '@app/store/app-env.state';
 
 type QueuedDocumentUpload = {
   file: File;
@@ -62,6 +62,7 @@ class EditKycRecordValue {
   dataVerificationSummaries: VerificationSummaryEntry[] = [];
   employmentRecord: EmploymentRecordDTO | any = new EmploymentRecordDTO();
   recordSummary: string | any = null;
+  kycReportSections: KycReportSectionDTO[] | any = [];
 
   constructor() {
     this.declaration = new DeclarationDTO();
@@ -92,8 +93,7 @@ const SOURCE_OPTIONS = [
     MatSelectModule,
     FormsModule,
     QuillModule,
-    TranslateModule,
-    Loader
+    TranslateModule
   ],
   templateUrl: './edit-kyc-record.html',
   styleUrls: ['./edit-kyc-record.scss'],
@@ -101,13 +101,13 @@ const SOURCE_OPTIONS = [
 })
 export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
 
+  appEnvStore = inject(AppEnvStore);
   settingsApiStore = inject(SettingsApiStore);
   kycRecordApi = inject(KycRecordApi);
   kycRecordApiStore = inject(KycRecordApiStore);
   documentApi = inject(DocumentApi);
   individualApiStore = inject(IndividualApiStore);
   organisationApiStore = inject(OrganisationApiStore);
-  private keycloak = inject(Keycloak);
 
   indKycDocuments = linkedSignal(() => this.settingsApiStore.data().indKycDocuments);
   orgKycDocuments = linkedSignal(() => this.settingsApiStore.data().orgKycDocuments);
@@ -180,7 +180,16 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       ref: record.ref,
       target: record.target || TargetEntity.INDIVIDUAL,
       targetId: record.targetId,
-      ownerDetails: record.ownerDetails,
+      ownerDetails: record.ownerDetails || {
+        emailAddress: null,
+        identityNo: null,
+        identityType: null,
+        name: null,
+        phoneNumbers: [],
+        physicalAddress: null,
+        postalAddress: null,
+        id: null,
+      },
       expiryDate: record.expiryDate,
       uploadDate: record.uploadDate,
       kycStatus: record.kycStatus ? record.kycStatus : KycComplianceStatus.INCOMPLETE,
@@ -198,16 +207,14 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       documentsToUpload: [],
       files: [],
       recordSummary: record.recordSummary,
-      recordOwnerFilter: ''
-
+      recordOwnerFilter: '',
+      kycReportSections: record.kycReportSections || [],
     } : new EditKycRecordValue();
   });
 
-
-
   availableDocumentTypes = computed(() => {
     const record = this.formModel();
-    const allTypes = record?.target === 'INDIVIDUAL' ? this.indKycDocuments() : this.orgKycDocuments();
+    const allTypes = (record?.target === 'INDIVIDUAL' ? this.indKycDocuments() : this.orgKycDocuments()) ?? [];
     console.log('All types', allTypes);
     console.log(record?.target)
     const uploadedTypes = record?.documents?.map((d: DocumentDTO) => d.documentTypeId) || [];
@@ -288,9 +295,20 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       if (org && this.selectedTarget === TargetEntity.ORGANISATION) {
         this.formModel.update((record) => ({
           ...record,
-          name: org.name,
-          emailAddress: org.contactEmailAddress,
-          identityNo: org.registrationNo,
+          ownerDetails: {
+            name: org.name,
+            emailAddress: org.contactEmailAddress,
+            identityNo: org.registrationNo,
+            physicalAddress: org.physicalAddress,
+            postalAddress: org.postalAddress,
+            id: org.id,
+            identityType: null,
+            phoneNumbers: org.phoneNumbers,
+          },
+          declaration: {
+            ...record.declaration,
+            pepStatus: PepStatus.NOT_PEP,
+          },
           targetId: org.id,
           target: TargetEntity.ORGANISATION,
         }));
@@ -462,6 +480,12 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
 
   protected submit(): void {
     const formValue = this.formModel();
+    const missingDocumentType = formValue.documentsToUpload.some((doc) => !doc.documentType?.id);
+
+    if (missingDocumentType) {
+      this.toaster.error('Select a document type for each attached file.', 'Validation');
+      return;
+    }
 
     let record: KycRecordDTO = {
       id: formValue.id,
@@ -483,6 +507,7 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       employmentRecord: formValue.employmentRecord,
       dataVerificationSummaries: formValue.dataVerificationSummaries,
       recordSummary: formValue.recordSummary,
+      kycReportSections: formValue.kycReportSections,
     }
 
     let files: File[] = formValue.documentsToUpload.map((doc) => doc.file);
@@ -494,7 +519,7 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       fileName: doc.file.name,
     } as DocumentDTO));
 
-    // record.documents = [...(record.documents || []), ...docs];
+    record.documents = [...(record.documents || []), ...docs];
     console.log(files, docs)
 
     if (!record.id) {
@@ -530,19 +555,6 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
 
   protected navigateBack(): void {
     this.router.navigate(['/dashboard']);
-  }
-
-  private hasRequiredValues(): boolean {
-    const value = this.formModel();
-
-    return [
-      value.ownerDetails.name,
-      value.ownerDetails.identityNo,
-      value.ownerDetails.identityType,
-      value.ownerDetails.emailAddress,
-      value.ownerDetails.physicalAddress,
-      value.ownerDetails.postalAddress,
-    ].every((entry) => String(entry ?? '').trim().length > 0);
   }
 
   documentTypeCompare(type1: DocumentTypeDTO, type2: DocumentTypeDTO): boolean {

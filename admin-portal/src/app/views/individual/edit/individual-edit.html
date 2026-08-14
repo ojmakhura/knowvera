@@ -111,6 +111,20 @@
                 }
               </mat-form-field>
             </div>
+
+            <div class="field-group">
+              <label class="field-label" translate>date.of.birth</label>
+              <mat-form-field class="vault-field">
+                <input matInput [matDatepicker]="dobPicker" [formField]="editIndividualSignalForm.dateOfBirth"/>
+                <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                <mat-datepicker #dobPicker></mat-datepicker>
+                @if (editIndividualSignalForm.dateOfBirth().touched()) {
+                @for (error of editIndividualSignalForm.dateOfBirth().errors(); track $index) {
+                <p class="error-message" translate>{{ error.message }}</p>
+                }
+                }
+              </mat-form-field>
+            </div>
           </div>
         </section>
 
@@ -342,7 +356,7 @@
           <div class="footer-badges">
             <span class="user-badge">KYC</span>
           </div>
-          <span>Central KYC Registry</span>
+          <span>Knowvera KYC Registry</span>
         </div>
         <div class="footer-right">Individual compliance record</div>
       </footer>

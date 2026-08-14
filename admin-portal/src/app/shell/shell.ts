@@ -1,13 +1,5 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { Component, ElementRef, HostListener, inject, signal, ViewChild } from '@angular/core';
-import { MatSidenavModule, MatDrawer } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatListModule } from '@angular/material/list';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 import { Route, Router, RouterModule, RouterOutlet, Routes } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -15,19 +7,53 @@ import { TranslationService } from '@core/services/translation.service';
 import * as nav from './navigation';
 import Keycloak from 'keycloak-js';
 import { AppEnvStore } from '@app/store/app-env.state';
+import { MatIconModule } from '@angular/material/icon';
+
+interface RecordRegistry {
+  clientName: string;
+  clientType: string;
+  identityNo: string;
+  status: 'Verified' | 'Pending' | 'Action Req';
+  uploadDate: string;
+  expiry: string;
+}
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterModule, TranslateModule, MatSidenavModule, MatToolbarModule, MatIconModule, MatButtonModule, MatMenuModule, MatListModule, MatFormFieldModule, MatInputModule],
+  imports: [CommonModule, RouterOutlet, RouterModule, TranslateModule, MatIconModule],
   templateUrl: './shell.html',
-  styleUrl: './shell.scss',
+  styleUrls: ['./shell.scss'],
 })
 export class Shell {
-  @ViewChild('sidenav') sidenav!: MatDrawer;
 
-  protected readonly currentYear = new Date().getFullYear();
+  registryData: RecordRegistry[] = [
+    {
+      clientName: 'Acme Corp Ltd',
+      clientType: 'Corporate',
+      identityNo: 'ORG-88421-A',
+      status: 'Verified',
+      uploadDate: 'Oct 12, 2023',
+      expiry: 'Oct 12, 2024'
+    },
+    {
+      clientName: 'John Doe',
+      clientType: 'Individual (UBO)',
+      identityNo: 'IND-33921-X',
+      status: 'Pending',
+      uploadDate: 'Oct 14, 2023',
+      expiry: '-'
+    },
+    {
+      clientName: 'Global Finance LLC',
+      clientType: 'Institutional',
+      identityNo: 'ORG-11092-B',
+      status: 'Action Req',
+      uploadDate: 'Sep 01, 2022',
+      expiry: 'Sep 01, 2023'
+    }
+  ];
+
   protected readonly accountMenuOpen = signal(false);
-  private breakpoint = inject(BreakpointObserver);
   private elementRef = inject(ElementRef<HTMLElement>);
   private titleService = inject(Title);
   protected router = inject(Router);
@@ -49,23 +75,9 @@ export class Shell {
 
   ngOnInit() {
     this.menus = nav.menuItems;
-
-    // Watch for breakpoint changes and adjust drawer accordingly
-    this.breakpoint.observe([Breakpoints.Small, Breakpoints.XSmall]).subscribe(result => {
-      if (this.sidenav) {
-        if (result.matches) {
-          // Mobile: close drawer
-          this.sidenav.close();
-        } else {
-          // Desktop: open drawer
-          this.sidenav.open();
-        }
-      }
-    });
   }
 
   logout() {
-    console.log('Logout clicked');
     this.accountMenuOpen.set(false);
     this.keycloak.logout();
     this.appEnvState.reset();
@@ -139,10 +151,6 @@ export class Shell {
     } catch (e) {
       console.error('Login failed', e);
     }
-  }
-
-  get isMobile(): boolean {
-    return this.breakpoint.isMatched(Breakpoints.Small) || this.breakpoint.isMatched(Breakpoints.XSmall);
   }
 
   get title(): string {

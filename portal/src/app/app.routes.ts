@@ -65,6 +65,34 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./views/kyc-record/kyc-record').then((m) => m.KycRecord),
   },
+  {
+    path: 'organisation',
+    data: { title: 'My Organisation' },
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./views/organisation/details/organisation-details').then((m) => m.OrganisationDetails),
+  },
+  {
+    path: 'organisation/edit',
+    data: { title: 'Edit Organisation' },
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./views/organisation/edit/edit-organisation').then((m) => m.EditOrganisation),
+  },
+  {
+    path: 'document/:id',
+    data: { title: 'Document Details' },
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./views/document/document-details').then((m) => m.DocumentDetails),
+  },
+  {
+    path: 'individual',
+    data: { title: 'My Profile' },
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./views/individual/individual-routes').then((m) => m.individualRoutes),
+  },
   // Fallback when no prior route is matched
   {
     path: '**', redirectTo: '', pathMatch: 'full'

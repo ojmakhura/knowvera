@@ -28,28 +28,29 @@ import {
   signal,
 } from '@angular/core';
 import { form, required, applyEach, FormField, min, minLength } from '@angular/forms/signals';
-import { DocumentTypeDTO } from '@app/models/bw/co/centralkyc/document/type/document-type-dto';
-import { KeyField } from '@app/models/bw/co/centralkyc/key-field';
-import { DocumentTypeApiStore } from '@app/store/bw/co/centralkyc/document/type/document-type-api.store';
-import Swal from 'sweetalert2';
+import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
+import { KeyField } from '@app/models/bw/co/knowvera/key-field';
+import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
+import { swalFire } from '@app/@shared/swal';
 import { Loader } from '@app/@shared/loader/loader';
 import { TranslateModule } from '@ngx-translate/core';
-import { ExpectedFieldDTO } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-dto';
-import { VerificationDataConfigDTO } from '@app/models/bw/co/centralkyc/document/type/verification/verification-data-config-dto';
+import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
+import { VerificationDataConfigDTO } from '@app/models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
 import { ToastrService } from 'ngx-toastr';
-import { PromptMessage } from '@app/models/bw/co/centralkyc/llm/prompt-message';
-import { ExpectedFieldType } from '@app/models/bw/co/centralkyc/document/type/field/expected-field-type';
-import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
-import { IndividualDTO } from '@app/models/bw/co/centralkyc/individual/individual-dto';
-import { OrganisationDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-dto';
-import { KycInvoiceDTO } from '@app/models/bw/co/centralkyc/invoice/kyc-invoice-dto';
-import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
-import { ContactDTO } from '@app/models/bw/co/centralkyc/contact/contact-dto';
-import { SettingsDTO } from '@app/models/bw/co/centralkyc/settings/settings-dto';
-import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
-import { ExpectedFieldApiStore } from '@app/store/bw/co/centralkyc/document/type/field/expected-field-api.store';
-import { VerificationDataConfigApiStore } from '@app/store/bw/co/centralkyc/document/type/verification/verification-data-config-api.store';
-import { VerificationDataConfigApi } from '@app/services/bw/co/centralkyc/document/type/verification/verification-data-config-api';
+import { PromptMessage } from '@app/models/bw/co/knowvera/llm/prompt-message';
+import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
+import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
+import { OrganisationDTO } from '@app/models/bw/co/knowvera/organisation/organisation-dto';
+import { KycInvoiceDTO } from '@app/models/bw/co/knowvera/invoice/kyc-invoice-dto';
+import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
+import { ContactDTO } from '@app/models/bw/co/knowvera/contact/contact-dto';
+import { SettingsDTO } from '@app/models/bw/co/knowvera/settings/settings-dto';
+import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { ExpectedFieldApiStore } from '@app/store/bw/co/knowvera/document/type/field/expected-field-api.store';
+import { VerificationDataConfigApiStore } from '@app/store/bw/co/knowvera/document/type/verification/verification-data-config-api.store';
+import { VerificationDataConfigApi } from '@app/services/bw/co/knowvera/document/type/verification/verification-data-config-api';
+import { TimePeriod } from '@app/models/bw/co/knowvera/time-period';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -62,6 +63,8 @@ export class EditDocumentTypeVarsForm {
   description: string | any = null;
   expires: boolean | any = false;
   expiryField: KeyField | any = null;
+  expiryPeriod: TimePeriod | any;
+expiresIn: number | any;
   expectedFields: Array<ExpectedFieldDTO> = [];
   validationPrompts: Array<PromptMessage> = [];
   textExtractionPrompts: Array<PromptMessage> = [];
@@ -92,6 +95,7 @@ export class EditDocumentTypeVarsForm {
 export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   @Input() id: string = '';
   protected readonly keyFieldOptions = Object.values(KeyField);
+  protected readonly timePeriodOptions = Object.values(TimePeriod);
   protected readonly promptRoleOptions = ['system', 'user', 'assistant'];
   // protected readonly verificationTagOptions = Object.values(VerificationTag);
   protected readonly expectedFieldIndex = signal(0);
@@ -262,7 +266,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   expectedFieldsRemove(i: number, selected: ExpectedFieldDTO) {
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: `This will remove the field "${selected.field}" from the expected fields list.`,
       icon: 'warning',
@@ -339,7 +343,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   validationPromptsRemove(i: number, selected: PromptMessage) {
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: `This will remove the prompt with role "${selected.role}" from the validation prompts list.`,
       icon: 'warning',
@@ -395,7 +399,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   verificationDataConfigsRemove(i: number, selected: VerificationDataConfigDTO): void {
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: `This will remove the verification data config "${selected.name || 'Untitled'}".`,
       icon: 'warning',
@@ -459,7 +463,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     let fields =
       this.editDocumentTypeSignal().verificationDataConfigs[configIndex]?.expectedFields || [];
 
-    let fieldIds = fields.map((f) => f.id);
+    let fieldIds = fields.map((f: any) => f.id);
 
     return fieldIds.includes(field.id) ?? false;
 
@@ -553,7 +557,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   // }
 
   textExtractionPromptsRemove(i: number, selected: PromptMessage) {
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: `This will remove the prompt with role "${selected.role}" from the text extraction prompts list.`,
       icon: 'warning',
@@ -599,6 +603,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       description: documentType.description,
       expires: documentType.expires,
       expiryField: documentType.expiryField,
+      expiresIn: documentType.expiresIn,
+      expiryPeriod: documentType.expiryPeriod,
       id: documentType.id,
       modifiedAt: documentType.modifiedAt,
       modifiedBy: documentType.modifiedBy,
@@ -619,6 +625,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.description = formData.description;
     docType.expires = formData.expires;
     docType.expiryField = formData.expiryField;
+    docType.expiryPeriod = formData.expiryPeriod;
+    docType.expiresIn = formData.expiresIn;
     docType.id = formData.id;
     docType.modifiedAt = formData.modifiedAt;
     docType.modifiedBy = formData.modifiedBy;
@@ -631,6 +639,10 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     this.documentTypeApiStore.save({
       documentType: docType,
     });
+  }
+
+  expiryFieldCompare(o1: ExpectedFieldDTO | null | undefined, o2: ExpectedFieldDTO | null | undefined): boolean {
+    return o1 && o2 ? o1.id === o2.id : o1 === o2;
   }
 
   trackByIndex(index: number): number {

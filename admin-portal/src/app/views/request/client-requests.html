@@ -2,7 +2,7 @@
 	<header class="page-header">
 		<div class="page-title-group">
 			<h1 class="page-title">Client Requests</h1>
-			<p class="page-subtitle">Central KYC / Audit Environment</p>
+			<p class="page-subtitle">Knowvera KYC / Audit Environment</p>
 		</div>
 
 		<button mat-flat-button type="button" class="new-request-btn" [routerLink]="['/client-request/edit']">
@@ -112,15 +112,15 @@
 					<td mat-cell *matCellDef="let row">
 						<div class="client-cell">
 							<div class="client-name">{{ row.name || 'Unnamed Request' }}</div>
-							<div class="client-reference">{{ requestReference(row) }}</div>
+							<div class="client-reference">{{ row.registration }}</div>
 							<span class="entity-chip">{{ targetLabel(row.target) }}</span>
 						</div>
 					</td>
 				</ng-container>
 
-				<ng-container matColumnDef="email">
-					<th mat-header-cell *matHeaderCellDef>Email Address</th>
-					<td mat-cell *matCellDef="let row" class="email-cell">{{ row.emailAddress || '-' }}</td>
+				<ng-container matColumnDef="ref">
+					<th mat-header-cell *matHeaderCellDef>Reference</th>
+					<td mat-cell *matCellDef="let row" class="email-cell">{{ row.ref || '-' }}</td>
 				</ng-container>
 
 				<ng-container matColumnDef="status">
@@ -139,32 +139,6 @@
 						<div class="organisation-cell">
 							<div class="organisation-name">{{ row.organisation || 'No organisation attached' }}</div>
 							<div class="organisation-reference">{{ organisationSubtitle(row) }}</div>
-						</div>
-					</td>
-				</ng-container>
-
-				<ng-container matColumnDef="documents">
-					<th mat-header-cell *matHeaderCellDef>Documents</th>
-					<td mat-cell *matCellDef="let row">
-						<div class="document-cell">
-							<mat-icon [class.alert]="!row.fileName">{{ row.fileName ? 'description' : 'warning' }}</mat-icon>
-							<div>
-								<div class="document-name">{{ documentName(row) }}</div>
-								<div class="document-type">{{ documentType(row) }}</div>
-							</div>
-						</div>
-					</td>
-				</ng-container>
-
-				<ng-container matColumnDef="target">
-					<th mat-header-cell *matHeaderCellDef>Target &amp; KYC</th>
-					<td mat-cell *matCellDef="let row">
-						<div class="target-cell">
-							<div class="target-name">{{ row.targetId || targetLabel(row.target) }}</div>
-							<div class="kyc-row" [class]="kycClass(row.targetKycStatus)">
-								<mat-icon>{{ statusIcon(row.status) }}</mat-icon>
-								<span>{{ kycLabel(row.targetKycStatus) }}</span>
-							</div>
 						</div>
 					</td>
 				</ng-container>
@@ -211,6 +185,6 @@
 	</mat-card>
 
 	<footer class="security-footer">
-		<p>Central KYC Secure Search Interface • End-to-End Encrypted Data Access</p>
+		<p>Knowvera KYC Secure Search Interface • End-to-End Encrypted Data Access</p>
 	</footer>
 </section>

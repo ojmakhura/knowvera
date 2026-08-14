@@ -1,7 +1,7 @@
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatListModule } from '@angular/material/list';
-import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
+import { PageEvent, MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,28 +14,31 @@ import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TableComponent } from '@app/components/table/table';
-import { BranchDTO } from '@app/models/bw/co/centralkyc/organisation/branch/branch-dto';
-import { ClientRequestDTO } from '@app/models/bw/co/centralkyc/organisation/client/client-request-dto';
-import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
-import { ClientRequestStatus } from '@app/models/bw/co/centralkyc/organisation/client/client-request-status';
-import { KycSubscriptionDTO } from '@app/models/bw/co/centralkyc/subscription/kyc-subscription-dto';
-import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
+import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch-dto';
+import { ClientRequestDTO } from '@app/models/bw/co/knowvera/organisation/client/client-request-dto';
+import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
+import { KycSubsciptionStatus } from '@app/models/bw/co/knowvera/subscription/kyc-subsciption-status';
+import { KycSubscriptionDTO } from '@app/models/bw/co/knowvera/subscription/kyc-subscription-dto';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { Page } from '@app/models/page.model';
-import { BranchApi } from '@app/services/bw/co/centralkyc/organisation/branch/branch-api';
-import { ClientRequestApi } from '@app/services/bw/co/centralkyc/organisation/client/client-request-api';
-import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
-import { KycInvoiceApiStore } from '@app/store/bw/co/centralkyc/invoice/kyc-invoice-api.store';
-import { BranchApiStore } from '@app/store/bw/co/centralkyc/organisation/branch/branch-api.store';
-import { ClientRequestApiStore } from '@app/store/bw/co/centralkyc/organisation/client/client-request-api.store';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
-import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscription/kyc-subscription-api.store';
-import { SettingsApiStore } from '@app/store/bw/co/centralkyc/settings/settings-api.store';
+import { AppEnvStore } from '@app/store/app-env.state';
+import { BranchApi } from '@app/services/bw/co/knowvera/organisation/branch/branch-api';
+import { ClientRequestApi } from '@app/services/bw/co/knowvera/organisation/client/client-request-api';
+import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
+import { KycInvoiceApiStore } from '@app/store/bw/co/knowvera/invoice/kyc-invoice-api.store';
+import { BranchApiStore } from '@app/store/bw/co/knowvera/organisation/branch/branch-api.store';
+import { ClientRequestApiStore } from '@app/store/bw/co/knowvera/organisation/client/client-request-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
+import { KycSubscriptionApiStore } from '@app/store/bw/co/knowvera/subscription/kyc-subscription-api.store';
+import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 import { BranchFormDialogComponent } from './add-branch-dialog';
-import Swal from 'sweetalert2';
+import { swalFire } from '@app/@shared/swal';
 import { Loader } from '@app/@shared/loader/loader';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
-import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-api.store';
+import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
+import { CreateClientRequestDialogComponent } from './create-client-request-dialog';
 
 @Component({
   selector: 'app-organisation-details',
@@ -64,6 +67,7 @@ import { DocumentApiStore } from '@app/store/bw/co/centralkyc/document/document-
 export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() id: string = '';
+  targetEntity = TargetEntity;
   organisationApiStore = inject(OrganisationApiStore);
   settingsApiStore = inject(SettingsApiStore);
   settings = linkedSignal(() => this.settingsApiStore.data());
@@ -82,6 +86,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   router = inject(Router);
   datePipe = inject(DatePipe);
   currencyPipe = inject(CurrencyPipe);
+  appEnvState = inject(AppEnvStore);
 
   error = linkedSignal(() => this.organisationApiStore.error());
   loaderMessage = linkedSignal(() => 'Loading...');
@@ -108,7 +113,9 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   // Subscriptions related properties
   subscriptions = linkedSignal<KycSubscriptionDTO[]>(() => this.kycSubscriptionApiStore.dataList());
+  subscriptionsDataSource = new MatTableDataSource<KycSubscriptionDTO>([]);
   subscriptionsLoading = linkedSignal(() => false);
+  @ViewChild('subscriptionsPaginator') subscriptionsPaginator?: MatPaginator;
 
   clientRequestsTableSignal = linkedSignal<Page<ClientRequestDTO>>(() => this.clientRequestApiStore.dataPage());
   clientRequests = linkedSignal<ClientRequestDTO[]>(() => this.clientRequestsTableSignal().content || []);
@@ -144,8 +151,6 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   toaster: ToastrService = inject(ToastrService);
 
-  // requestsColumns = [...this.clientRequestsTableColumns.map(column => column.id), 'actions'];
-
   constructor() {
     effect(() => {
       const page = this.clientRequestsTableSignal();
@@ -177,12 +182,21 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     });
 
     effect(() => {
+      this.subscriptionsDataSource.data = this.subscriptions();
+    });
+
+    effect(() => {
       let branch = this.branchApiStore.data();
 
       if (branch?.id) {
         this.loadBranches();
       }
-    });  
+    });
+
+    effect(() => {
+
+      this.branches.set(this.organisationApiStore.data()?.branches || []);
+    });
   }
 
   ngOnInit(): void {
@@ -193,11 +207,11 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
         id: this.id
       })
 
-      this.branchApiStore.findByOrganisation({
-        organisationId: this.id
-      });
+      // this.branchApiStore.findByOrganisation({
+      //   organisationId: this.id
+      // });
 
-      this.loadBranches();
+      // this.loadBranches();
       this.loadInvoices();
       this.loadSubscriptions();
       this.loadIndividualClientRequests();
@@ -213,6 +227,10 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     this.kycSubscriptionApiStore.reset();
     this.clientRequestApiStore.reset();
     this.documentApiStore.reset();
+
+    if (this.subscriptionsPaginator) {
+      this.subscriptionsDataSource.paginator = this.subscriptionsPaginator;
+    }
 
   }
 
@@ -241,7 +259,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   deleteBranch(branch: BranchDTO): void {
 
-    Swal.fire({
+    swalFire({
       title: 'Delete Branch',
       text: `Are you sure you want to delete "${branch.name || branch.code}"? This cannot be undone.`,
       icon: 'warning',
@@ -307,7 +325,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.isUploadingDocument.set(true);
-    
+
 
     this.documentApi.upload(TargetEntity.ORGANISATION, org.id, documentTypeId, file)
       .pipe(finalize(() => this.isUploadingDocument.set(false)))
@@ -353,11 +371,11 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private doSearchRequests(pageNumber: number = 0, pageSize: number = 10, target?: TargetEntity): void {
-    let org = this.organisation();
-    if (org?.id) {
+    console.log(this.id)
+    if (this.id) {
       this.clientRequestApiStore.findByTargetPaged({
         target: TargetEntity.ORGANISATION,
-        targetId: org.id,
+        targetId: this.id,
         pageNumber,
         pageSize,
       });
@@ -370,9 +388,8 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   // Branches Management Methods
   loadBranches(): void {
-    const org = this.organisation();
-    if (org?.id) {
-      this.branchApiStore.findByOrganisation({ organisationId: org.id });
+    if (this.id) {
+      this.branchApiStore.findByOrganisation({ organisationId: this.id });
     }
   }
 
@@ -383,8 +400,8 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   // Invoices Management Methods
   loadInvoices(): void {
     const org = this.organisation();
-    if (org?.id) {
-      this.kycInvoiceApiStore.findByOrganisation({ organisationId: org.id });
+    if (this.id) {
+      this.kycInvoiceApiStore.findByOrganisation({ organisationId: this.id });
     }
   }
 
@@ -394,9 +411,8 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   // Subscriptions Management Methods
   loadSubscriptions(): void {
-    const org = this.organisation();
-    if (org?.id) {
-      this.kycSubscriptionApiStore.findByOrganisation({ organisationId: org.id });
+    if (this.id) {
+      this.kycSubscriptionApiStore.findByOrganisation({ organisationId: this.id });
     }
   }
 
@@ -404,13 +420,52 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     this.loadSubscriptions();
   }
 
+  openSubscriptionDetails(subscription: KycSubscriptionDTO): void {
+    if (!subscription?.id) {
+      this.toaster.warning('Subscription details are unavailable for unsaved records.');
+      return;
+    }
+
+    this.router.navigate(['/subscription/details', subscription.id]);
+  }
+
+  subscriptionStatusClass(status: KycSubsciptionStatus | string | null | undefined): string {
+    switch (status) {
+      case KycSubsciptionStatus.ACTIVE:
+        return 'status-active';
+      case KycSubsciptionStatus.INACTIVE:
+        return 'status-inactive';
+      case KycSubsciptionStatus.CANCELLED:
+        return 'status-cancelled';
+      default:
+        return 'status-inactive';
+    }
+  }
+
+  formatSubscriptionAmount(amount: number | string | null | undefined): string {
+    const value = typeof amount === 'string' ? Number(amount) : amount;
+
+    if (value === null || value === undefined || Number.isNaN(value)) {
+      return '-';
+    }
+
+    return this.currencyPipe.transform(value, this.appEnvState.currency() || 'BWP') || '-';
+  }
+
+  formatSubscriptionDate(value: Date | string | null | undefined): string {
+    if (!value) {
+      return '-';
+    }
+
+    return this.datePipe.transform(value, 'dd MMM yyyy') || '-';
+  }
+
   // Client Requests Management Methods
   loadIndividualClientRequests(pageNumber: number = 0, pageSize: number = 10): void {
 
-    const org = this.organisation();
-    if (org?.id) {
+    if (this.id) {
       this.clientRequestApiStore.findIndividualsByOrganisationPaged({
-        organisationId: org.id,
+        organisationId: this.id,
         pageNumber,
         pageSize
       });
@@ -418,13 +473,171 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   loadOrganisationClientRequests(pageNumber: number = 0, pageSize: number = 10): void {
-    const org = this.organisation();
-    if (org?.id) {
+    if (this.id) {
       this.clientRequestApiStore.findOrganisationsByOrganisationPaged({
-        organisationId: org.id,
+        organisationId: this.id,
         pageNumber,
         pageSize
       });
     }
+  }
+
+  onIndividualClientRequestFileSelected(event: Event, fileInput: HTMLInputElement): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files.length > 0 ? input.files[0] : null;
+
+    if (!file) {
+      return;
+    }
+
+    if (!this.isSupportedClientRequestFile(file.name)) {
+      this.toaster.warning('Please select a valid Excel or CSV file (.xlsx, .xls, .csv).');
+      fileInput.value = '';
+      return;
+    }
+
+    this.isUploadingIndividualClientRequestFile.set(true);
+    this.clientRequestApi.uploadRequests(file, this.id, TargetEntity.INDIVIDUAL)
+      .pipe(finalize(() => {
+        this.isUploadingIndividualClientRequestFile.set(false);
+        fileInput.value = '';
+      }))
+      .subscribe({
+        next: () => {
+          this.toaster.success('Individual client requests uploaded successfully.');
+          const page = this.individualClientRequests().page;
+          this.loadIndividualClientRequests(page.number || 0, page.size || 10);
+        },
+        error: (error: any) => {
+          const message = error?.error?.message || 'Failed to upload individual client requests.';
+          this.toaster.error(message);
+        }
+      });
+  }
+
+  onOrganisationClientRequestFileSelected(event: Event, fileInput: HTMLInputElement): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files.length > 0 ? input.files[0] : null;
+
+    if (!file) {
+      return;
+    }
+
+    if (!this.isSupportedClientRequestFile(file.name)) {
+      this.toaster.warning('Please select a valid Excel or CSV file (.xlsx, .xls, .csv).');
+      fileInput.value = '';
+      return;
+    }
+
+    this.isUploadingOrganisationClientRequestFile.set(true);
+    this.clientRequestApi.uploadRequests(file, this.id, TargetEntity.ORGANISATION)
+      .pipe(finalize(() => {
+        this.isUploadingOrganisationClientRequestFile.set(false);
+        fileInput.value = '';
+      }))
+      .subscribe({
+        next: () => {
+          this.toaster.success('Organisation client requests uploaded successfully.');
+          const page = this.organisationClientRequests().page;
+          this.loadOrganisationClientRequests(page.number || 0, page.size || 10);
+        },
+        error: (error: any) => {
+          const message = error?.error?.message || 'Failed to upload organisation client requests.';
+          this.toaster.error(message);
+        }
+      });
+  }
+
+  private isSupportedClientRequestFile(fileName: string): boolean {
+    return /\.(xlsx|xls|csv)$/i.test(fileName || '');
+  }
+
+  openCreateClientRequestDialog(defaultTarget: TargetEntity): void {
+    const organisation = this.organisation();
+
+    if (!this.id) {
+      this.toaster.warning('Organisation must be loaded before creating a client request.');
+      return;
+    }
+
+    const ref = this.dialog.open(CreateClientRequestDialogComponent, {
+      width: '520px',
+      data: { defaultTarget },
+    });
+
+    ref.afterClosed().subscribe((result: any) => {
+      console.log('Dialog result:', result);
+      if (!result) {
+        return;
+      }
+
+      const { target, individual, organisation: targetOrg } = result;
+      // const queryParams: any = {
+      //   organisationId: this.id,
+      //   organisationName: organisation?.name || '',
+      //   organisationRegistrationNo: organisation?.registrationNo || '',
+      //   target,
+      // };
+
+      console.log(target, individual, targetOrg);
+
+      let targetId = null;
+      let name = null;
+      let clientRequest = new ClientRequestDTO();
+      // Add target entity details based on selection
+      if (target === TargetEntity.INDIVIDUAL && individual) {
+
+        targetId = individual.id;
+        name = individual.firstName + ' ' + individual.lastName;
+        clientRequest.identityType = individual.identityType;
+        clientRequest.emailAddress = individual.emailAddress;
+        clientRequest.registration = individual.identityNo;
+
+      } else if (target === TargetEntity.ORGANISATION && targetOrg) {
+
+        targetId = targetOrg.id;
+        name = targetOrg.name;
+        clientRequest.registration = targetOrg.registrationNo;
+        clientRequest.emailAddress = targetOrg.contactEmailAddress;
+      }
+
+      clientRequest.organisationId = this.id;
+      clientRequest.organisation = organisation?.name;
+      clientRequest.organisationCode = organisation?.code;
+      clientRequest.organisationRegistrationNo = organisation?.registrationNo;
+      clientRequest.target = target;
+      clientRequest.targetId = targetId;
+      clientRequest.targetKycStatus = organisation?.kycStatus;
+      clientRequest.status = ClientRequestStatus.PENDING;
+      clientRequest.name = name;
+
+      this.clientRequestApi.save(clientRequest).subscribe({
+        next: (savedRequest) => {
+          this.toaster.success('Client request created successfully.');
+          this.doSearchRequests(this.clientRequestsCurrentPage(), this.clientRequestsPageSize());
+
+          if (target === TargetEntity.INDIVIDUAL && individual) {
+
+            this.clientRequestApiStore.findIndividualsByOrganisationPaged({
+              organisationId: organisation?.id,
+              pageNumber: this.individualClientRequests().page?.number || 0,
+              pageSize: this.individualClientRequests().page?.size || 10
+            });
+
+          } else if (target === TargetEntity.ORGANISATION && targetOrg) {
+            this.clientRequestApiStore.findOrganisationsByOrganisationPaged({
+              organisationId: organisation?.id,
+              pageNumber: this.organisationClientRequests().page?.number || 0,
+              pageSize: this.organisationClientRequests().page?.size || 10
+            });
+          }
+        },
+        error: (error: any) => {
+          const message = error?.error?.message || 'Failed to create client request.';
+          this.toaster.error(message);
+        }
+      });
+
+    });
   }
 }

@@ -1,0 +1,349 @@
+<div class="edit-individual-page">
+	<main class="page-container">
+		<header class="page-header">
+			<div class="page-header__title-group">
+				<button type="button" class="mobile-back" aria-label="Go back" (click)="cancel()">
+					<mat-icon>arrow_back</mat-icon>
+				</button>
+				<div class="page-header__title">
+					<p class="page-kicker">Individual Registry</p>
+					<h1>Edit Individual</h1>
+					<p class="page-meta">
+						<span>ID {{ auditIdentifier() }}</span>
+						<span class="page-meta__dot"></span>
+						<span>Primary Registry</span>
+					</p>
+				</div>
+			</div>
+
+			<div class="page-actions">
+				<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+				<button type="button" class="btn btn-primary" [disabled]="loading()" (click)="saveIndividual()">
+					<mat-icon>save</mat-icon>
+					Save Changes
+				</button>
+			</div>
+		</header>
+
+		@let editForm = editIndividualSignalForm;
+		@let formValue = editIndividualSignal();
+
+		<div class="page-grid">
+			<div class="main-column">
+				<div class="card">
+					<div class="card-header card-header--split">
+						<div class="card-heading">
+							<mat-icon class="card-icon">person</mat-icon>
+							<div>
+								<h2>Core Identity</h2>
+								<p>Maintain the verified identity details exactly as they appear on record.</p>
+							</div>
+						</div>
+
+						<div class="toggle-box">
+							<div>
+								<p class="toggle-label">System User</p>
+								<p class="toggle-desc">Provision portal access</p>
+							</div>
+							<mat-slide-toggle
+								[checked]="!!formValue.hasUser"
+								(change)="toggleHasUser($event.checked)"
+								aria-label="System user toggle">
+							</mat-slide-toggle>
+						</div>
+					</div>
+
+					<div class="form-grid form-grid--3">
+						<div class="form-group">
+							<mat-form-field appearance="outline" class="form-field">
+								<mat-label>First Name</mat-label>
+								<input matInput type="text" [formField]="editForm.firstName" />
+							</mat-form-field>
+						</div>
+
+						<div class="form-group">
+							<mat-form-field appearance="outline" class="form-field">
+								<mat-label>Middle Name</mat-label>
+								<input matInput type="text" [formField]="editForm.middleName" />
+							</mat-form-field>
+						</div>
+
+						<div class="form-group">
+							<mat-form-field appearance="outline" class="form-field">
+								<mat-label>Surname</mat-label>
+								<input matInput type="text" [formField]="editForm.surname" />
+							</mat-form-field>
+						</div>
+
+						<div class="form-group">
+							<mat-form-field appearance="outline" class="form-field">
+								<mat-label>Sex</mat-label>
+								<mat-select [formField]="editForm.sex">
+									@for (sex of SexOptions; track sex) {
+										<mat-option [value]="sex">{{ sex }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<div class="form-group">
+							<mat-form-field appearance="outline" class="form-field">
+								<mat-label>Nationality</mat-label>
+								<mat-select [formField]="editForm.nationality">
+									@for (country of countries; track country) {
+										<mat-option [value]="country">{{ country }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<div class="form-group">
+							<mat-form-field appearance="outline" class="form-field">
+								<mat-label>Marital Status</mat-label>
+								<mat-select [formField]="editForm.maritalStatus">
+									@for (status of MaritalStatusOptions; track status) {
+										<mat-option [value]="status">{{ status }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<div class="form-group">
+							<mat-form-field appearance="outline" class="form-field">
+								<mat-label>Date of Birth</mat-label>
+								<input matInput type="date" [formField]="editForm.dateOfBirth" />
+							</mat-form-field>
+						</div>
+					</div>
+				</div>
+
+				<div class="card-grid">
+					<div class="card">
+						<div class="card-header">
+							<mat-icon class="card-icon">badge</mat-icon>
+							<div>
+								<h2>Identification</h2>
+								<p>Primary government-issued identity on file.</p>
+							</div>
+						</div>
+
+						<div class="form-grid form-grid--2">
+							<div class="form-group">
+								<mat-form-field appearance="outline" class="form-field">
+									<mat-label>Identity Type</mat-label>
+									<mat-select [formField]="editForm.identityType">
+										@for (identityType of IndividualIdentityTypeOptions; track identityType) {
+											<mat-option [value]="identityType">{{ identityType }}</mat-option>
+										}
+									</mat-select>
+								</mat-form-field>
+							</div>
+
+							<div class="form-group">
+								<mat-form-field appearance="outline" class="form-field">
+									<mat-label>Identity Number</mat-label>
+									<input matInput type="text" [formField]="editForm.identityNo" />
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+
+					<div class="card">
+						<div class="card-header">
+							<mat-icon class="card-icon">shield</mat-icon>
+							<div>
+								<h2>Compliance & Employment</h2>
+								<p>Current standing for onboarding and monitoring.</p>
+							</div>
+						</div>
+
+						<div class="form-grid form-grid--2">
+							<div class="form-group">
+								<mat-form-field appearance="outline" class="form-field">
+									<mat-label>KYC Status</mat-label>
+									<mat-select [formField]="editForm.kycStatus">
+										@for (status of KycComplianceStatusOptions; track status) {
+											<mat-option [value]="status">{{ status }}</mat-option>
+										}
+									</mat-select>
+								</mat-form-field>
+							</div>
+
+							<div class="form-group">
+								<mat-form-field appearance="outline" class="form-field">
+									<mat-label>Employment Status</mat-label>
+									<mat-select [formField]="editForm.employmentStatus">
+										@for (status of EmploymentStatusOptions; track status) {
+											<mat-option [value]="status">{{ status }}</mat-option>
+										}
+									</mat-select>
+								</mat-form-field>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="card-header card-header--split">
+						<div class="card-heading">
+							<mat-icon class="card-icon">contact_mail</mat-icon>
+							<div>
+								<h2>Contact Information</h2>
+								<p>Addresses and communication details used for operational notices.</p>
+							</div>
+						</div>
+						<button type="button" class="btn btn-sm btn-link" (click)="addPhoneNumber()">
+							<mat-icon>add</mat-icon>
+							Add Number
+						</button>
+					</div>
+
+					<div class="form-grid form-grid--2">
+						<div class="form-group">
+							<mat-form-field appearance="outline" class="form-field">
+								<mat-label>Physical Address</mat-label>
+								<textarea matInput rows="3" [formField]="editForm.physicalAddress"></textarea>
+							</mat-form-field>
+						</div>
+
+						<div class="form-group">
+							<mat-form-field appearance="outline" class="form-field">
+								<mat-label>Postal Address</mat-label>
+								<textarea matInput rows="3" [formField]="editForm.postalAddress"></textarea>
+							</mat-form-field>
+						</div>
+
+						<div class="form-group form-group--full">
+							<mat-form-field appearance="outline" class="form-field">
+								<mat-label>Email Address</mat-label>
+								<input matInput type="email" [formField]="editForm.emailAddress" />
+							</mat-form-field>
+						</div>
+					</div>
+
+					<div class="phone-section">
+						<div class="phone-header">
+							<h3>Phone Numbers</h3>
+							<p>Capture all active contact channels for this record.</p>
+						</div>
+
+						@if (!formValue.phoneNumbers.length) {
+							<p class="empty-state">No phone numbers added yet.</p>
+						}
+
+						<div class="phone-list">
+							@for (phoneForm of editForm.phoneNumbers; track $index) {
+								@let phone = phoneForm().value();
+								<div class="phone-item">
+									<div class="form-group form-group--sm">
+										<mat-form-field appearance="outline" class="form-field form-field--compact">
+											<mat-label>Type</mat-label>
+											<mat-select [value]="phone.type" (selectionChange)="onPhoneTypeSelectionChange($index, $event.value)">
+												@for (type of PhoneTypeOptions; track type) {
+													<mat-option [value]="type">{{ type }}</mat-option>
+												}
+											</mat-select>
+										</mat-form-field>
+									</div>
+
+									<div class="form-group form-group--grow">
+										<mat-form-field appearance="outline" class="form-field">
+											<mat-label>Number</mat-label>
+											<input
+												matInput
+												type="text"
+												[value]="phone.phoneNumber || ''"
+												(input)="updatePhoneNumber($index, $any($event.target).value)" />
+										</mat-form-field>
+									</div>
+
+									<button
+										type="button"
+										class="btn-icon"
+										(click)="removePhoneNumber($index)"
+										aria-label="Remove phone number">
+										<mat-icon>delete</mat-icon>
+									</button>
+								</div>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<aside class="side-column">
+				<div class="card">
+					<div class="card-header">
+						<mat-icon class="card-icon">apartment</mat-icon>
+						<div>
+							<h2>Organizational Context</h2>
+							<p>Link this person to the correct organisation and operating branch.</p>
+						</div>
+					</div>
+
+					<div class="form-stack">
+						<div class="form-group">
+							<mat-form-field appearance="outline" class="form-field">
+								<mat-label>Organisation</mat-label>
+								<mat-select [value]="selectedOrganisationId()" (selectionChange)="onOrganisationSelectionChange($event.value)">
+									<mat-option value="">Select Organisation</mat-option>
+									@for (organisation of filteredOrganisationList(); track organisation.id) {
+										<mat-option [value]="organisation.id">{{ organisation.name }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+
+						<div class="form-group">
+							<mat-form-field appearance="outline" class="form-field">
+								<mat-label>Branch</mat-label>
+								<mat-select [value]="selectedBranchId()" (selectionChange)="onBranchSelectionChange($event.value)">
+									<mat-option value="">Select Branch</mat-option>
+									@for (branch of filteredBranchList(); track branch.id) {
+										<mat-option [value]="branch.id">{{ branch.name }}</mat-option>
+									}
+								</mat-select>
+							</mat-form-field>
+						</div>
+					</div>
+				</div>
+
+				<div class="audit-panel">
+					<div class="audit-header">
+						<mat-icon>security</mat-icon>
+						<p>Compliance Protocol Active</p>
+					</div>
+
+					<p class="audit-body">
+						Every modification to this record is subject to a mandatory audit trail and monitored against registry policy.
+					</p>
+
+					<dl class="audit-list">
+						<div>
+							<dt>Created</dt>
+							<dd>{{ formatAuditDate(formValue.createdAt) }}</dd>
+						</div>
+						<div>
+							<dt>Last Modified</dt>
+							<dd>{{ formatAuditDate(formValue.modifiedAt) }}</dd>
+						</div>
+						<div>
+							<dt>Status</dt>
+							<dd>{{ formValue.kycStatus || 'Pending review' }}</dd>
+						</div>
+					</dl>
+				</div>
+			</aside>
+		</div>
+	</main>
+
+	<footer class="mobile-footer">
+		<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+		<button type="button" class="btn btn-primary" [disabled]="loading()" (click)="saveIndividual()">
+			<mat-icon>save</mat-icon>
+			Save Changes
+		</button>
+	</footer>
+
+	<app-loader [isLoading]="loading()" [message]="loaderMessage()"></app-loader>
+</div>

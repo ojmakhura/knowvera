@@ -7,7 +7,7 @@ import { MaterialModule } from '@app/material.module';
 import { Loader } from "@shared/loader/loader";
 import { applyEach, form, FormField, required } from '@angular/forms/signals';
 import { RouterModule } from "@angular/router";
-import { OrganisationDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-dto';
+import { OrganisationDTO } from '@app/models/bw/co/knowvera/organisation/organisation-dto';
 
 @Component({
   selector: 'app-edit-organisation',
@@ -53,7 +53,7 @@ export class EditOrganisationImplComponent extends EditOrganisationComponent {
     'Unknown', 'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
     'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
     'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia',
-    'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
+    'Cameroon', 'Canada', 'Knowvera African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
     'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt',
     'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon',
     'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',

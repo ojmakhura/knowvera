@@ -1,291 +1,556 @@
+// system-settings.component.scss
+// Aligned with Corporate Precision UI spec (code.html)
+
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
 :host {
   display: block;
+
+  // --- Design Tokens from code.html Tailwind Config ---
+  --ss-primary: #0a1f44;
+  --ss-on-primary: #ffffff;
+  --ss-secondary: #00b67a;
+  --ss-surface: #f7f9fb;
+  --ss-surface-low: #f2f4f6;
+  --ss-surface-container: #eceef0;
+  --ss-surface-high: #e6e8ea;
+  --ss-surface-lowest: #ffffff;
+  --ss-on-surface: #191c1e;
+  --ss-on-surface-variant: #44464e;
+  --ss-outline: #d0d5dd;
+  --ss-outline-variant: #e6e8ef;
+  --ss-label-muted: rgba(68, 70, 78, 0.6);
+
+  font-family: 'Inter', sans-serif;
+  color: var(--ss-on-surface);
+  background-color: var(--ss-surface);
 }
 
-.settings-page {
-  min-height: 100%;
-  padding: 1.5rem 2rem 3rem;
-  background: var(--vault-surface, #f7f9fb);
-  color: var(--vault-on-surface, #191c1e);
-  display: grid;
-  gap: 1.5rem;
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+  line-height: 1;
 }
 
-.settings-header,
-.header-brand,
-.header-actions,
-.metric-label-row,
-.financial-head,
-.audit-footer,
-.audit-copy,
-.requirement-head,
-.requirement-add-row,
-.requirement-item,
-.section-tools {
+.custom-scrollbar {
+  &::-webkit-scrollbar { width: 6px; height: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: var(--ss-outline); border-radius: 10px; }
+}
+
+// -----------------------------------------------------------------------
+// Layout shell
+// -----------------------------------------------------------------------
+.system-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  max-width: 80rem; // 7xl
+  margin: 0 auto;
+  padding: 1.5rem;
+
+  @media (min-width: 768px) {
+    padding: 2rem;
+  }
+}
+
+h2, h3, h4 {
+  font-family: 'Poppins', sans-serif;
+  color: var(--ss-primary);
+  margin: 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.mono {
+  font-family: monospace;
+}
+
+// -----------------------------------------------------------------------
+// Toolbar
+// -----------------------------------------------------------------------
+.system-settings__toolbar {
   display: flex;
   align-items: center;
-}
-
-.settings-header,
-.financial-head,
-.audit-footer,
-.requirement-item,
-.requirement-add-row,
-.metric-label-row {
   justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.settings-header {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  padding: 1rem 1.25rem;
-  border-radius: 0.9rem;
-  background: rgb(247 249 251 / 88%);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 4px 24px rgb(25 28 30 / 6%);
-}
-
-.header-brand,
-.header-actions,
-.audit-copy {
-  gap: 0.9rem;
-}
-
-.brand-mark,
-.audit-icon {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 0.8rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(
-    135deg,
-    var(--vault-primary, #001735),
-    var(--vault-primary-container, #0e2c52)
-  );
-  color: #fff;
-}
-
-.settings-header h1,
-.audit-footer h2,
-.requirement-card h3,
-.mapping-block h3,
-.financial-head h3,
-.request-settings h3 {
-  margin: 0;
-}
-
-.settings-header h1 {
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--vault-primary, #001735);
-}
-
-.settings-header p,
-.audit-footer p,
-.empty-copy,
-.mapping-block h3,
-.financial-head h3,
-.request-settings h3 {
-  color: var(--vault-on-surface-variant, #43474f);
-}
-
-.settings-header p {
-  margin: 0.2rem 0 0;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+.system-settings__title {
+  font-size: 1.5rem;
   font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
-.overview-grid,
-.bottom-grid,
-.requirements-grid,
-.field-grid,
-.access-grid {
-  display: grid;
-  gap: 1rem;
-}
-
-.overview-grid {
-  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
-}
-
-.bottom-grid {
-  grid-template-columns: 1fr;
-}
-
-.requirements-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.field-grid.two-column,
-.access-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.vault-card {
-  border-radius: 1rem;
-  border: 0;
-  box-shadow: 0 4px 20px rgb(25 28 30 / 4%);
-  background: var(--vault-surface-container-lowest, #fff);
-}
-
-.metrics-card {
-  background: var(--vault-surface-container-low, #f2f4f6);
-}
-
-.metrics-stack,
-.mapping-stack,
-.requirement-list,
-.request-settings {
-  display: grid;
-  gap: 1rem;
-}
-
-.mapping-block,
-.requirement-card {
-  background: var(--vault-surface-container-low, #f2f4f6);
-  border-radius: 0.9rem;
-  padding: 1rem;
-}
-
-.requirement-card h3,
-.mapping-block h3,
-.financial-head h3,
-.request-settings h3 {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 800;
-}
-
-.requirement-add-row {
-  gap: 0.5rem;
-  margin: 0.9rem 0;
-}
-
-.requirement-item {
-  gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  border-radius: 0.65rem;
-  background: var(--vault-surface-container-lowest, #fff);
-}
-
-.requirement-item.highlighted {
-  border-left: 3px solid var(--vault-primary, #001735);
-}
-
-.requirement-item span {
-  font-size: 0.82rem;
-  font-weight: 600;
-}
-
-.empty-copy {
-  margin: 0;
-  font-size: 0.82rem;
-}
-
-.compact-field,
-.filter-field {
-  flex: 1 1 auto;
-}
-
-.section-tools {
-  justify-content: flex-end;
-  margin-bottom: 1rem;
-}
-
-.metric-block {
-  display: grid;
-  gap: 0.4rem;
-}
-
-.metric-label-row span,
-.financial-head h3,
-.request-settings h3 {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 800;
-}
-
-.metric-label-row strong {
-  color: var(--vault-primary, #001735);
-  font-size: 1rem;
-}
-
-.metric-slider {
-  width: 100%;
-}
-
-.summary-chip-row {
-  margin-top: 0.2rem;
-}
-
-.salary-table {
-  width: 100%;
-  margin-top: 1rem;
-  background: transparent;
-}
-
-.range-table-input {
-  width: 100%;
-}
-
-.actions-cell {
-  text-align: right;
-}
-
-.salary-range-item {
-  margin-top: 0.75rem;
-}
-
-.salary-range-row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
-  gap: 0.75rem;
+.system-settings__toolbar-actions {
+  display: flex;
   align-items: center;
+  gap: 1rem;
+
+  button[mat-stroked-button] {
+    background-color: var(--ss-surface-low);
+    color: var(--ss-primary);
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+
+    &:hover {
+      background-color: var(--ss-surface-high);
+    }
+  }
+
+  button[mat-flat-button] {
+    background-color: var(--ss-secondary);
+    color: var(--ss-on-primary);
+    border-radius: 0.5rem;
+    font-weight: 700;
+    padding: 0.5rem 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 182, 122, 0.2);
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
 }
 
-.salary-range-field {
-  margin: 0;
-}
-
-.salary-range-remove {
-  align-self: center;
-}
-
-.request-settings {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgb(196 198 208 / 20%);
-}
-
-.audit-footer {
+// -----------------------------------------------------------------------
+// Shared Card Styles (matching code.html border-vault-outline)
+// -----------------------------------------------------------------------
+mat-card.settings-panel,
+mat-card.doc-requirements,
+mat-card.template-mappings,
+mat-card.kyc-groups,
+mat-card.tool-selectors,
+mat-card.financial-settings {
+  background-color: var(--ss-surface-lowest);
+  border: 1px solid var(--ss-outline);
+  border-radius: 0.75rem; // rounded-xl
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   padding: 1.5rem;
-  border-radius: 1rem;
-  background: linear-gradient(
-    135deg,
-    var(--vault-primary-container, #0e2c52),
-    var(--vault-primary, #001735)
-  );
-  color: #fff;
 }
 
-.audit-footer h2 {
+// -----------------------------------------------------------------------
+// Grid Layouts
+// -----------------------------------------------------------------------
+.settings-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+
+  &--halves {
+    @media (min-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+.settings-panel {
+  mat-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding: 0;
+
+    mat-card-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ss-primary);
+      margin: 0;
+    }
+
+    .settings-panel__icon {
+      color: var(--ss-primary);
+    }
+  }
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0;
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+
+  &--triple {
+    grid-template-columns: 1fr;
+    @media (min-width: 640px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+}
+
+// Angular Material Form Overrides to match code.html Tailwind Inputs
+mat-form-field {
+  .mdc-text-field--outlined {
+    --mdc-outlined-text-field-container-shape: 0.25rem;
+    --mdc-outlined-text-field-outline-color: var(--ss-outline);
+    background-color: var(--ss-surface-low);
+  }
+
+  mat-label {
+    font-size: 0.6875rem; // 11px
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--ss-label-muted);
+  }
+}
+
+// -----------------------------------------------------------------------
+// Document Requirements
+// -----------------------------------------------------------------------
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  h3 { font-size: 1rem; font-weight: 700; }
+  .section-subtitle { font-size: 0.75rem; color: var(--ss-on-surface-variant); margin-top: 0.25rem; }
+}
+
+.scroll-controls {
+  display: flex;
+  gap: 0.5rem;
+
+  button {
+    border: 1px solid var(--ss-outline);
+    border-radius: 0.5rem;
+    color: var(--ss-on-surface-variant);
+
+    &:hover { background-color: var(--ss-surface-container); }
+  }
+}
+
+.doc-requirements__scroller {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+mat-card.doc-category {
+  min-width: 17.5rem; // 280px
+  padding: 1rem;
+  background-color: var(--ss-surface);
+  border: 1px solid var(--ss-outline-variant);
+  border-radius: 0.5rem;
+  box-shadow: none;
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+
+    mat-icon { color: var(--ss-primary); }
+    h4 { font-size: 0.875rem; font-weight: 700; color: var(--ss-primary); }
+  }
+
+  .doc-category__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .doc-category__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    padding: 0.5rem;
+    background-color: var(--ss-surface-lowest);
+    border: 1px solid var(--ss-outline-variant);
+    border-radius: 0.25rem;
+  }
+
+  .doc-category__empty {
+    font-size: 0.75rem;
+    color: var(--ss-on-surface-variant);
+    text-align: center;
+    padding: 0.5rem;
+  }
+
+  .doc-category__add {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+// -----------------------------------------------------------------------
+// Template Mappings
+// -----------------------------------------------------------------------
+.template-mappings > mat-card-content > h3 {
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
 }
 
-.audit-footer p {
-  margin: 0.2rem 0 0;
-  color: rgb(255 255 255 / 75%);
-  font-size: 0.8rem;
+.template-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
+
+.template-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--ss-outline);
+  border-radius: 0.75rem;
+
+  &__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    h4 { font-size: 0.875rem; font-weight: 700; }
+    p { font-size: 0.75rem; color: var(--ss-on-surface-variant); margin: 0; }
+  }
+
+  &__icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    background-color: var(--ss-surface-high);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ss-primary);
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+
+    button[mat-flat-button] {
+      flex: 1;
+      background-color: var(--ss-primary);
+      color: var(--ss-on-primary);
+    }
+
+    button[mat-stroked-button] {
+      flex: 1;
+      border-color: var(--ss-outline);
+      color: var(--ss-primary);
+    }
+  }
+}
+
+.client-request-file {
+  margin-top: 1.5rem;
+}
+
+// -----------------------------------------------------------------------
+// KYC Field Groups
+// -----------------------------------------------------------------------
+.kyc-groups__quick-add {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+mat-button-toggle-group {
+  background-color: var(--ss-surface-container);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+
+  mat-button-toggle {
+    border: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ss-on-surface-variant);
+
+    &.mat-button-toggle-checked {
+      background-color: var(--ss-surface-lowest);
+      color: var(--ss-primary);
+      border-radius: 0.375rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+  }
+}
+
+.kyc-groups__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @media (min-width: 768px) { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
+}
+
+.kyc-group {
+  border: 1px solid var(--ss-outline) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: none !important;
+
+  mat-expansion-panel-header {
+    background-color: var(--ss-surface-low);
+    border-bottom: 1px solid var(--ss-outline);
+
+    mat-panel-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--ss-primary);
+      text-transform: uppercase;
+    }
+
+    mat-panel-description {
+      font-size: 0.75rem;
+      color: var(--ss-on-surface-variant);
+    }
+  }
+
+  &__preview {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--ss-on-surface-variant);
+    margin: 0.75rem 0;
+  }
+
+  &__fields {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      padding: 0.25rem 0;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------
+// Tool Selectors
+// -----------------------------------------------------------------------
+mat-card.tool-selectors {
+  padding: 0;
+  overflow: hidden;
+
+  .tool-selectors__header {
+    padding: 1.5rem;
+    background-color: var(--ss-primary);
+    color: var(--ss-on-primary);
+
+    h3 { color: var(--ss-on-primary); font-size: 1rem; font-weight: 700; }
+    p { font-size: 0.75rem; opacity: 0.7; margin: 0; }
+  }
+
+  .tool-tab {
+    padding: 1rem 1.5rem;
+
+    &__actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+  }
+
+  .tool-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .tool-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--ss-outline-variant);
+
+    &:hover {
+      background-color: var(--ss-surface-low);
+    }
+
+    &__actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+  }
+
+  .tool-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    &__icon {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.25rem;
+      background-color: rgba(10, 31, 68, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ss-primary);
+    }
+
+    &__name {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--ss-primary);
+      margin: 0;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------
+// Financial Settings
+// -----------------------------------------------------------------------
+.financial-settings {
+  margin-bottom: 2.5rem;
+
+  .salary-table {
+    width: 100%;
+    background: transparent;
+
+    th {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--ss-label-muted);
+    }
+
+    td {
+      padding: 0.5rem 0.25rem;
+    }
+  }
+}
+
 
 :host ::ng-deep .vault-field {
   width: 100%;
@@ -307,159 +572,3 @@
 :host ::ng-deep .vault-field.mat-focused .mdc-notched-outline__trailing {
   border-color: var(--vault-primary, #001735) !important;
 }
-
-:host ::ng-deep .mat-mdc-card-header {
-  align-items: center;
-}
-
-:host ::ng-deep .salary-table .mat-mdc-header-cell {
-  color: var(--vault-on-surface-variant, #43474f);
-  font-size: 0.66rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 800;
-}
-
-:host ::ng-deep .salary-table .mat-mdc-cell,
-:host ::ng-deep .salary-table .mat-mdc-header-cell {
-  border-bottom-color: rgb(196 198 208 / 15%);
-}
-
-:host ::ng-deep .salary-table .mat-mdc-row:hover .mat-mdc-cell {
-  background: var(--vault-surface-container-low, #f2f4f6);
-}
-
-@media (max-width: 1200px) {
-  .requirements-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 960px) {
-  .settings-page {
-    padding: 1rem;
-  }
-
-  .settings-header,
-  .header-actions,
-  .audit-footer {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .overview-grid,
-  .bottom-grid,
-  .field-grid.two-column,
-  .access-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .requirements-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .salary-range-row {
-    grid-template-columns: 1fr;
-  }
-
-  .salary-range-remove {
-    justify-self: flex-start;
-  }
-
-  .requirement-add-row,
-  .requirement-item,
-  .financial-head,
-  .audit-footer {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .header-actions button,
-  .audit-footer button {
-    width: 100%;
-  }
-}
-
-// .form-section {
-//   border-radius: 12px;
-//   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-//   border: 1px solid rgba(0, 0, 0, 0.04);
-//   transition: box-shadow 0.3s ease;
-
-//   &:hover {
-//     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-//   }
-
-//   mat-card-header {
-//     padding: 1.5rem 1.5rem 0.5rem;
-
-//     mat-card-title {
-//       display: flex;
-//       align-items: center;
-//       gap: 0.75rem;
-//       font-size: 1.25rem;
-//       font-weight: 600;
-//       color: #2c3e50;
-
-//       mat-icon {
-//         color: #667eea;
-//       }
-//     }
-
-//     mat-card-subtitle {
-//       margin-top: 0.5rem;
-//       color: #6c757d;
-//       font-size: 0.875rem;
-//     }
-//   }
-
-//   mat-card-content {
-//     padding: 1rem 1.5rem 1.5rem;
-
-//     .field-row {
-//       display: flex;
-//       gap: 1rem;
-//       margin-bottom: 1rem;
-//       align-items: flex-start;
-
-//       &:last-child {
-//         margin-bottom: 0;
-//       }
-
-//       .field-full-width {
-//         flex: 1;
-//       }
-
-//       .field-half {
-//         flex: 0 0 calc(50% - 0.5rem);
-//       }
-
-//       mat-form-field {
-//         .mat-mdc-form-field-subscript-wrapper {
-//           margin-top: 0.5rem;
-//         }
-
-//         mat-icon[matSuffix] {
-//           color: #6c757d;
-//           transition: color 0.3s ease;
-//         }
-
-//         &.mat-focused mat-icon[matSuffix] {
-//           color: #667eea;
-//         }
-
-//         .mat-mdc-input-element,
-//         .mat-mdc-select-trigger {
-//           font-size: 0.95rem;
-//         }
-
-//         .mat-mdc-form-field-hint {
-//           font-size: 0.8rem;
-//           color: #6c757d;
-//         }
-//       }
-//     }
-//   }
-// }

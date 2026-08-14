@@ -44,6 +44,35 @@
     margin-bottom: 0.5rem;
     display: block;
   }
+
+  .status-actions {
+    margin-top: 0.75rem;
+
+    .status-button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.375rem;
+      justify-content: flex-end;
+      margin-top: 0.375rem;
+
+      button[mat-stroked-button] {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 0 0.75rem;
+        height: 2rem;
+        line-height: 2rem;
+        border-radius: 9999px;
+
+        &.active {
+          background-color: #e8def8;
+          color: #1d192b;
+          border-color: #c4c6d0;
+        }
+      }
+    }
+  }
 }
 
 .status-badge {

@@ -412,6 +412,53 @@
 	padding-top: 1.4rem;
 }
 
+.subscriptions-table {
+	width: 100%;
+
+	.mat-mdc-header-cell,
+	.mat-mdc-cell {
+		padding: 0.85rem 1rem;
+	}
+}
+
+.subscription-status-pill {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 6.5rem;
+	padding: 0.25rem 0.65rem;
+	border-radius: 999px;
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	background: #eceef0;
+	color: #43474f;
+}
+
+.status-active {
+	background: #dcefe3;
+	color: #1f6a3a;
+}
+
+.status-inactive {
+	background: #eceef0;
+	color: #5c6775;
+}
+
+.status-cancelled {
+	background: #f8ddda;
+	color: #a12d26;
+}
+
+.mono-cell {
+	font-variant-numeric: tabular-nums;
+}
+
+.align-end {
+	text-align: right;
+}
+
 .client-ops-head {
 	display: flex;
 	gap: 0.7rem;

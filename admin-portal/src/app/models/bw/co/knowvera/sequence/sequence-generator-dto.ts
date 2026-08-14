@@ -1,0 +1,20 @@
+
+import {SequencePartDTO} from '@models/bw/co/knowvera/sequence/sequence-part-dto';
+import {TargetEntity} from '@models/bw/co/knowvera/target-entity';
+
+export class SequenceGeneratorDTO {
+    id: string | any;
+    
+    name: string | any;
+    
+    targetEntity: TargetEntity | any;
+    
+    sequenceParts: Array<SequencePartDTO> | any;
+    
+    constructor() {
+        this.id = null;
+        this.name = null;
+        this.targetEntity = null;
+        this.sequenceParts = [];
+    }
+}

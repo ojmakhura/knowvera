@@ -1,71 +1,59 @@
-import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
-import { MaterialModule } from '@app/material.module';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { TranslateModule } from '@ngx-translate/core';
 import { Loader } from './loader';
 
 describe('Loader', () => {
   let component: Loader;
   let fixture: ComponentFixture<Loader>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      imports: [
-        BrowserAnimationsModule,
-        MaterialModule
-      ],
-      declarations: [Loader]
-    })
-    .compileComponents();
-  }));
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [Loader, NoopAnimationsModule, TranslateModule.forRoot()],
+    }).compileComponents();
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(Loader);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
-  it('should not be visible by default', () => {
-    // Arrange
-    const element = fixture.nativeElement;
-    const div = element.querySelectorAll('div')[0];
-
-    // Assert
-    expect(div.getAttribute('hidden')).not.toBeNull();
+  it('should create', () => {
+    fixture.detectChanges();
+    expect(component).toBeTruthy();
   });
 
-  it('should be visible when app is loading', () => {
-    // Arrange
-    const element = fixture.nativeElement;
-    const div = element.querySelectorAll('div')[0];
+  it('should not render overlay when not loading', () => {
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
 
-    // Act
-    fixture.componentInstance.isLoading = true;
+    expect(element.querySelector('.loader-overlay')).toBeNull();
+  });
+
+  it('should render overlay when loading', () => {
+    component.isLoading = true;
     fixture.detectChanges();
 
-    // Assert
-    expect(div.getAttribute('hidden')).toBeNull();
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('.loader-overlay')).toBeTruthy();
   });
 
   it('should not display a message by default', () => {
-    // Arrange
-    const element = fixture.nativeElement;
-    const span = element.querySelectorAll('span')[0];
+    component.isLoading = true;
+    fixture.detectChanges();
 
-    // Assert
-    expect(span.textContent).toBe('');
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('.loader-message')).toBeNull();
   });
 
   it('should display specified message', () => {
-    // Arrange
-    const element = fixture.nativeElement;
-    const span = element.querySelectorAll('span')[0];
-
-    // Act
-    fixture.componentInstance.message = 'testing';
+    component.isLoading = true;
+    component.message = 'testing';
     fixture.detectChanges();
 
-    // Assert
-    expect(span.textContent).toBe('testing');
+    const element = fixture.nativeElement as HTMLElement;
+    const message = element.querySelector('.loader-message');
+
+    expect(message?.textContent?.trim()).toBe('testing');
   });
 });

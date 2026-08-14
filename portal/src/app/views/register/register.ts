@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewChecked, AfterViewInit, Component, computed, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { Loader } from '@app/@shared/loader/loader';
 import { form, FormField, minLength, required } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
@@ -12,14 +12,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { ToastrService } from 'ngx-toastr';
 import { MatRadioModule } from '@angular/material/radio';
-import Swal from 'sweetalert2';
-import { IndividualDTO } from '@app/models/bw/co/centralkyc/individual/individual-dto';
-import { OrganisationDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-dto';
-import { ClientRequestStatus } from '@app/models/bw/co/centralkyc/organisation/client/client-request-status';
-import { IndividualApiStore } from '@app/store/bw/co/centralkyc/individual/individual-api.store';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
-import { ClientRequestApiStore } from '@app/store/bw/co/centralkyc/organisation/client/client-request-api.store';
-import { ClientRequestApi } from '@app/services/bw/co/centralkyc/organisation/client/client-request-api';
+import { swalFire } from '@app/@shared/swal-loader';
+import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
+import { OrganisationDTO } from '@app/models/bw/co/knowvera/organisation/organisation-dto';
+import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
+import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
+import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
+import { ClientRequestApiStore } from '@app/store/bw/co/knowvera/organisation/client/client-request-api.store';
+import { ClientRequestApi } from '@app/services/bw/co/knowvera/organisation/client/client-request-api';
 
 class RegisterParams {
   // identificationType: string = '';
@@ -200,7 +200,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
   submitRegistration() {
 
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: `You have selected to ${this.registerSignal().registrationStatus == ClientRequestStatus.ACCEPTED ? 'accept' : 'reject'}. This action cannot be undone.`,
       icon: 'warning',
@@ -215,11 +215,11 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
           this.registerSignal().registrationStatus == ClientRequestStatus.ACCEPTED,
           this.registrationToken()
         ).subscribe({
-          next: (res) => {
+          next: () => {
             this.toastr.success('Registration status confirmed successfully', 'Success');
             this.router.navigate(['/']);
           },
-          error: (err) => {
+          error: () => {
             this.toastr.error('An error occurred while confirming registration status', 'Error');
           }
         });

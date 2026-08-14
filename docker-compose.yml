@@ -1,0 +1,164 @@
+services:
+  # ---------------------------------------------------------------------------
+  # knowvera Web Service - the application (built from ./Dockerfile)
+  # ---------------------------------------------------------------------------
+  knowvera-webservice:
+    image: knowvera-webservice:latest
+    ports:
+      - "${PORT:-8085}:8085"
+    environment:
+      # --- Server / logging ---
+      PORT: ${PORT:-8085}
+      SPRING_LOG_LEVEL: ${SPRING_LOG_LEVEL:-INFO}
+      HIBERNATE_LOG_LEVEL: ${HIBERNATE_LOG_LEVEL:-INFO}
+      KYC_LOG_LEVEL: ${KYC_LOG_LEVEL:-INFO}
+      SHOW_SQL: ${SHOW_SQL:-false}
+
+      # --- Datasource (core-application.properties) ---
+      DATABASE_URL: ${DATABASE_URL:-jdbc:postgresql://postgres:5432/knowvera}
+      DB_USERNAME: ${DB_USERNAME:-knowvera}
+      DB_PASSWORD: ${DB_PASSWORD:-knowvera}
+      HIKARI_CONNECTION_TIMEOUT: ${HIKARI_CONNECTION_TIMEOUT:-3000}
+      HIKARI_MAX_LIFETIME: ${HIKARI_MAX_LIFETIME:-1200000}
+      HIKARI_MIN_IDLE: ${HIKARI_MIN_IDLE:-5}
+      HIKARI_MAX_POOL_SIZE: ${HIKARI_MAX_POOL_SIZE:-20}
+
+      # --- RabbitMQ ---
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+
+      # --- Security / OAuth2 (Keycloak) ---
+      AUTH_URL: ${AUTH_URL:-http://keycloak:8970}
+      REALM: ${REALM:-knowvera}
+
+      # --- Redis ---
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+
+      # --- Observability ---
+      OTLP_URL: ${OTLP_URL:-http://localhost:4318}
+
+      # --- Rate limiting ---
+      RATE_LIMIT: ${RATE_LIMIT:-2000}
+
+      # --- MinIO ---
+      MINIO_URL: ${MINIO_URL:-http://minio:9000}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minio}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minio123}
+      MINIO_BUCKET: ${MINIO_BUCKET:-knowvera}
+
+      # --- Application roles ---
+      REALM_USER_ROLE: ${REALM_USER_ROLE:-KYC_USER}
+      ADMIN_PORTAL_ROLE: ${ADMIN_PORTAL_ROLE:-ADMIN_PORTAL_USER}
+      USER_PORTAL_ROLE: ${USER_PORTAL_ROLE:-PORTAL_USER}
+      API_USER_ROLE: ${API_USER_ROLE:-KYC_USER}
+      ORGANISATION_MANAGER_ROLE: ${ORGANISATION_MANAGER_ROLE:-ORG_MANAGER}
+
+      # --- Audit partition maintenance ---
+      AUDIT_PARTITION_MONTHS_HISTORY: ${AUDIT_PARTITION_MONTHS_HISTORY:-12}
+      AUDIT_PARTITION_MONTHS_FUTURE: ${AUDIT_PARTITION_MONTHS_FUTURE:-12}
+      AUDIT_PARTITION_MAINTENANCE_INITIAL_DELAY_MS: ${AUDIT_PARTITION_MAINTENANCE_INITIAL_DELAY_MS:-30000}
+      AUDIT_PARTITION_MAINTENANCE_FIXED_DELAY_MS: ${AUDIT_PARTITION_MAINTENANCE_FIXED_DELAY_MS:-300000}
+
+      # --- Misc application settings ---
+      REQUEST_TOKEN_LENGTH: ${REQUEST_TOKEN_LENGTH:-32}
+      REGISTRATION_URL: ${REGISTRATION_URL:-http://localhost:4300/register}
+      ADMIN_WEB_URL: ${ADMIN_WEB_URL:-http://localhost:4200}
+      MIN_PASSWORD_LENGTH: ${MIN_PASSWORD_LENGTH:-8}
+
+      # --- Tesseract OCR ---
+      TESSDATA_PREFIX: ${TESSDATA_PREFIX:-/usr/share/tesseract-ocr/4/tessdata}
+      TESSDATA_LANGS: ${TESSDATA_LANGS:-eng}
+
+      # --- Communication service ---
+      COMM_SERVICE_URL: ${COMM_SERVICE_URL:-}
+      SEND_MESSAGE_URL: ${SEND_MESSAGE_URL:-}
+      SOURCE_EMAIL: ${SOURCE_EMAIL:-}
+
+      # --- Registration client ---
+      REGISTRATION_CLIENT: ${REGISTRATION_CLIENT:-knowvera-registration}
+      REGISTRATION_CLIENT_SECRET: ${REGISTRATION_CLIENT_SECRET:-secret}
+
+      # --- LLM / AI providers ---
+      LLM_ID: ${LLM_ID:-ollama}
+      LLM_MODEL: ${LLM_MODEL:-gemma4}
+      LMSTUDIO_BASE_URL: ${LMSTUDIO_BASE_URL:-http://localhost:1234}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://localhost:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-gemma4}
+      GEMINI_BASE_URL: ${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.0-flash}
+      GEMINI_PROJECT_ID: ${GEMINI_PROJECT_ID:-central-kyc}
+      GEMINI_LOCATION: ${GEMINI_LOCATION:-us-central1}
+      GCP_CREDENTIALS_FILE: ${GCP_CREDENTIALS_FILE:-/path/to/credentials.json}
+
+      # --- RabbitMQ exchanges / queues / routing keys ---
+      DOCUMENT_HANDLER_DEAD_LETTER_EXCHANGE: ${DOCUMENT_HANDLER_DEAD_LETTER_EXCHANGE:-x.document-dispatch-failure}
+      DOCUMENT_HANDLER_DEAD_LETTER_QUEUE: ${DOCUMENT_HANDLER_DEAD_LETTER_QUEUE:-q.fall-back-document-dispatch}
+      DOCUMENT_HANDLER_DEAD_LETTER_ROUTING_KEY: ${DOCUMENT_HANDLER_DEAD_LETTER_ROUTING_KEY:-document-fall-back}
+      TEXT_EXTRACTION_QUEUE_EXCHANGE: ${TEXT_EXTRACTION_QUEUE_EXCHANGE:-x.text-extraction-queue}
+      TEXT_EXTRACTION_QUEUE: ${TEXT_EXTRACTION_QUEUE:-q.text-extraction}
+      TEXT_EXTRACTION_QUEUE_ROUTING_KEY: ${TEXT_EXTRACTION_QUEUE_ROUTING_KEY:-text-extraction}
+      GEMINI_TEXT_EXTRACTION_QUEUE_EXCHANGE: ${GEMINI_TEXT_EXTRACTION_QUEUE_EXCHANGE:-x.gemini-text-extraction-queue}
+      GEMINI_TEXT_EXTRACTION_QUEUE: ${GEMINI_TEXT_EXTRACTION_QUEUE:-q.gemini-text-extraction}
+      GEMINI_TEXT_EXTRACTION_QUEUE_ROUTING_KEY: ${GEMINI_TEXT_EXTRACTION_QUEUE_ROUTING_KEY:-gemini-text-extraction}
+      DOCUMENT_CONFIRMATION_QUEUE_EXCHANGE: ${DOCUMENT_CONFIRMATION_QUEUE_EXCHANGE:-x.document-confirmation-queue}
+      DOCUMENT_CONFIRMATION_QUEUE: ${DOCUMENT_CONFIRMATION_QUEUE:-q.document-confirmation}
+      DOCUMENT_CONFIRMATION_QUEUE_ROUTING_KEY: ${DOCUMENT_CONFIRMATION_QUEUE_ROUTING_KEY:-document-confirmation}
+      TEXT_PROCESSING_QUEUE_EXCHANGE: ${TEXT_PROCESSING_QUEUE_EXCHANGE:-x.text-processing-queue}
+      TEXT_PROCESSING_QUEUE: ${TEXT_PROCESSING_QUEUE:-q.text-processing}
+      TEXT_PROCESSING_QUEUE_ROUTING_KEY: ${TEXT_PROCESSING_QUEUE_ROUTING_KEY:-text-processing}
+      INFORMATION_CONFIRMATION_QUEUE_EXCHANGE: ${INFORMATION_CONFIRMATION_QUEUE_EXCHANGE:-x.information-confirmation-queue}
+      INFORMATION_CONFIRMATION_QUEUE: ${INFORMATION_CONFIRMATION_QUEUE:-q.information-confirmation}
+      INFORMATION_CONFIRMATION_QUEUE_ROUTING_KEY: ${INFORMATION_CONFIRMATION_QUEUE_ROUTING_KEY:-information-confirmation}
+      TEXT_CLEANUP_QUEUE_EXCHANGE: ${TEXT_CLEANUP_QUEUE_EXCHANGE:-x.text-cleanup-queue}
+      TEXT_CLEANUP_QUEUE: ${TEXT_CLEANUP_QUEUE:-q.text-cleanup}
+      TEXT_CLEANUP_QUEUE_ROUTING_KEY: ${TEXT_CLEANUP_QUEUE_ROUTING_KEY:-text-cleanup}
+      KYC_VERIFICATION_QUEUE_EXCHANGE: ${KYC_VERIFICATION_QUEUE_EXCHANGE:-x.kyc-verification-queue}
+      KYC_VERIFICATION_QUEUE: ${KYC_VERIFICATION_QUEUE:-q.kyc-verification}
+      KYC_VERIFICATION_QUEUE_ROUTING_KEY: ${KYC_VERIFICATION_QUEUE_ROUTING_KEY:-kyc-verification}
+      ORGANISATION_VERIFICATION_QUEUE_EXCHANGE: ${ORGANISATION_VERIFICATION_QUEUE_EXCHANGE:-x.organisation-verification-queue}
+      ORGANISATION_VERIFICATION_QUEUE: ${ORGANISATION_VERIFICATION_QUEUE:-q.organisation-verification}
+      ORGANISATION_VERIFICATION_QUEUE_ROUTING_KEY: ${ORGANISATION_VERIFICATION_QUEUE_ROUTING_KEY:-organisation-verification}
+      INDIVIDUAL_VERIFICATION_QUEUE_EXCHANGE: ${INDIVIDUAL_VERIFICATION_QUEUE_EXCHANGE:-x.individual-verification-queue}
+      INDIVIDUAL_VERIFICATION_QUEUE: ${INDIVIDUAL_VERIFICATION_QUEUE:-q.individual-verification}
+      INDIVIDUAL_VERIFICATION_QUEUE_ROUTING_KEY: ${INDIVIDUAL_VERIFICATION_QUEUE_ROUTING_KEY:-individual-verification}
+
+      # --- Novu notifications ---
+      NOVU_API_KEY: ${NOVU_API_KEY:-}
+      NOVU_BASE_URL: ${NOVU_BASE_URL:-https://api.novu.co}
+      NOVU_NEW_USER_NOVU_ID: ${NOVU_NEW_USER_NOVU_ID:-novu-new-user}
+      NOVU_NEW_USER_QUEUE_EXCHANGE: ${NOVU_NEW_USER_QUEUE_EXCHANGE:-x.novu-new-user-queue}
+      NOVU_NEW_USER_QUEUE: ${NOVU_NEW_USER_QUEUE:-q.novu-new-user}
+      NOVU_NEW_USER_QUEUE_ROUTING_KEY: ${NOVU_NEW_USER_QUEUE_ROUTING_KEY:-novu-new-user}
+      NOVU_NEW_ORG_USER_NOVU_ID: ${NOVU_NEW_ORG_USER_NOVU_ID:-novu-new-org-user}
+      NOVU_NEW_ORG_USER_QUEUE_EXCHANGE: ${NOVU_NEW_ORG_USER_QUEUE_EXCHANGE:-x.novu-new-org-user-queue}
+      NOVU_NEW_ORG_USER_QUEUE: ${NOVU_NEW_ORG_USER_QUEUE:-q.novu-new-org-user}
+      NOVU_NEW_ORG_USER_QUEUE_ROUTING_KEY: ${NOVU_NEW_ORG_USER_QUEUE_ROUTING_KEY:-novu-new-org-user}
+      NOVU_NEW_ORG_CLIENT_REQUEST_NOVU_ID: ${NOVU_NEW_ORG_CLIENT_REQUEST_NOVU_ID:-novu-new-org-client-request}
+      NOVU_NEW_ORG_CLIENT_REQUEST_QUEUE_EXCHANGE: ${NOVU_NEW_ORG_CLIENT_REQUEST_QUEUE_EXCHANGE:-x.novu-new-org-client-request-queue}
+      NOVU_NEW_ORG_CLIENT_REQUEST_QUEUE: ${NOVU_NEW_ORG_CLIENT_REQUEST_QUEUE:-q.novu-new-org-client-request}
+      NOVU_NEW_ORG_CLIENT_REQUEST_QUEUE_ROUTING_KEY: ${NOVU_NEW_ORG_CLIENT_REQUEST_QUEUE_ROUTING_KEY:-novu-new-org-client-request}
+      NOVU_NEW_KYC_RECORD_NOVU_ID: ${NOVU_NEW_KYC_RECORD_NOVU_ID:-novu-new-kyc-record}
+      NOVU_NEW_KYC_RECORD_QUEUE_EXCHANGE: ${NOVU_NEW_KYC_RECORD_QUEUE_EXCHANGE:-x.novu-new-kyc-record-queue}
+      NOVU_NEW_KYC_RECORD_QUEUE: ${NOVU_NEW_KYC_RECORD_QUEUE:-q.novu-new-kyc-record}
+      NOVU_NEW_KYC_RECORD_QUEUE_ROUTING_KEY: ${NOVU_NEW_KYC_RECORD_QUEUE_ROUTING_KEY:-novu-new-kyc-record}
+    labels:
+      - "traefik.enable=true"
+      # HTTP router
+      - "traefik.http.routers.knowvera.rule=Host(`${WEBSERVICE_HOST:-knowvera.localhost}`)"
+      - "traefik.http.routers.knowvera.entrypoints=web"
+      - "traefik.http.services.knowvera.loadbalancer.server.port=8085"
+      # Health check
+      - "traefik.http.services.knowvera.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.knowvera.loadbalancer.healthcheck.interval=30s"
+    networks:
+      - knowvera
+
+networks:
+  knowvera:
+    driver: bridge
+

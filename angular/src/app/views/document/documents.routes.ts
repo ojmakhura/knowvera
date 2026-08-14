@@ -9,7 +9,7 @@ import { AuthenticationGuard } from '@app/auth/authentication.guard';
 
 import { DocumentDetailsImplComponent } from '@app/views/document/details/document-details-impl';
 import { DocumentControllerImpl } from '@app/controllers/document/document-controller-impl';
-import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
+import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { EditDocumentComponent } from './edit/edit-document';
 
 export const documentsRoutes: Routes = [

@@ -11,15 +11,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterLink } from '@angular/router';
-import { OrganisationListDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-list-dto';
-import { OrganisationSearchCriteria } from '@app/models/bw/co/centralkyc/organisation/organisation-search-criteria';
-import { KycSubsciptionStatus } from '@app/models/bw/co/centralkyc/subscription/kyc-subsciption-status';
-import { KycSubscriptionDTO } from '@app/models/bw/co/centralkyc/subscription/kyc-subscription-dto';
-import { TimePeriod } from '@app/models/bw/co/centralkyc/time-period';
+import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
+import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
+import { KycSubsciptionStatus } from '@app/models/bw/co/knowvera/subscription/kyc-subsciption-status';
+import { KycSubscriptionDTO } from '@app/models/bw/co/knowvera/subscription/kyc-subscription-dto';
+import { TimePeriod } from '@app/models/bw/co/knowvera/time-period';
 import { SearchObject } from '@app/models/search-object';
-import { KycSubscriptionApi } from '@app/services/bw/co/centralkyc/subscription/kyc-subscription-api';
-import { OrganisationApiStore } from '@app/store/bw/co/centralkyc/organisation/organisation-api.store';
-import { KycSubscriptionApiStore } from '@app/store/bw/co/centralkyc/subscription/kyc-subscription-api.store';
+import { KycSubscriptionApi } from '@app/services/bw/co/knowvera/subscription/kyc-subscription-api';
+import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
+import { KycSubscriptionApiStore } from '@app/store/bw/co/knowvera/subscription/kyc-subscription-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
@@ -98,9 +98,7 @@ export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
   constructor() {
 
     this.kycSubscriptionApiStore.reset();
-    if (this.id) {
-      this.kycSubscriptionApiStore.findById({ id: this.id });
-    }
+    
 
     effect(() => {
       const organisations = this.organisationApiStore.dataList();
@@ -140,6 +138,9 @@ export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
 
     this.organisationApiStore.getAll();
+    if (this.id) {
+      this.kycSubscriptionApiStore.findById({ id: this.id });
+    }
   }
 
   ngAfterViewInit(): void {

@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
-import { OrganisationApiStore } from './../../../store/bw/co/centralkyc/organisation/organisation-api.store';
+import { OrganisationApiStore } from './../../../store/bw/co/knowvera/organisation/organisation-api.store';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -24,18 +24,18 @@ import {
 import { applyEach, email, form, FormField, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { Loader } from '@app/@shared/loader/loader';
-import { GeneralStatus } from '@app/models/bw/co/centralkyc/general-status';
-import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import { OrganisationDomain } from '@app/models/bw/co/centralkyc/organisation/organisation-domain';
-import { OrganisationDTO } from '@app/models/bw/co/centralkyc/organisation/organisation-dto';
-import { PhoneNumber } from '@app/models/bw/co/centralkyc/phone-number';
-import { PhoneType } from '@app/models/bw/co/centralkyc/phone-type';
+import { GeneralStatus } from '@app/models/bw/co/knowvera/general-status';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
+import { OrganisationDomain } from '@app/models/bw/co/knowvera/organisation/organisation-domain';
+import { OrganisationDTO } from '@app/models/bw/co/knowvera/organisation/organisation-dto';
+import { PhoneNumber } from '@app/models/bw/co/knowvera/phone-number';
+import { PhoneType } from '@app/models/bw/co/knowvera/phone-type';
 import { TranslateModule } from '@ngx-translate/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { swalFire } from '@app/@shared/swal';
 import { ToastrService } from 'ngx-toastr';
-import Swal from 'sweetalert2';
 
 export class EditOrganisationVarsForm {
   id: string | any = null;
@@ -109,7 +109,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
     'Unknown', 'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
     'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
     'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia',
-    'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
+    'Cameroon', 'Canada', 'Knowvera African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
     'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt',
     'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon',
     'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',
@@ -226,7 +226,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
 
   removePhoneNumber(index: number): void {
 
-    Swal.fire({
+    swalFire({
       title: 'Are you sure?',
       text: 'This action cannot be undone.',
       icon: 'warning',
@@ -244,7 +244,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
             phoneNumbers: clone,
           };
         });
-        Swal.fire('Deleted!', 'The phone number has been deleted.', 'success');
+        swalFire('Deleted!', 'The phone number has been deleted.', 'success');
       }
     });
   }

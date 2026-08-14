@@ -1,22 +1,32 @@
+import { signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { KycRecordApiStore } from '@app/store/bw/co/centralkyc/kyc/kyc-record-api.store';
+import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
+import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 import { ActivatedRoute, Router } from '@angular/router';
-import { KycRecordDTO } from '@app/models/bw/co/centralkyc/kyc/kyc-record-dto';
-import { DocumentDTO } from '@app/models/bw/co/centralkyc/document/document-dto';
-import { DocumentApi } from '@app/services/bw/co/centralkyc/document/document-api';
+import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
+import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { ToastrService } from 'ngx-toastr';
 import { AppEnvStore } from '@app/store/app-env.state';
-import { TargetEntity } from '@app/models/bw/co/centralkyc/target-entity';
-import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
-import { IndividualIdentityType } from '@app/models/bw/co/centralkyc/individual/individual-identity-type';
-import { SourceOfFunds } from '@app/models/bw/co/centralkyc/source-of-funds';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
+import { IndividualIdentityType } from '@app/models/bw/co/knowvera/individual/individual-identity-type';
+import { SourceOfFunds } from '@app/models/bw/co/knowvera/source-of-funds';
+import {
+  IndividualUploadDocumentDialogComponent,
+  UploadDocumentDialogResult,
+} from '@app/views/individual/details/upload-document-dialog';
+import { Loader } from '@app/@shared/loader/loader';
+import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
 
 @Component({
   selector: 'app-record-details',
@@ -32,6 +42,8 @@ import { SourceOfFunds } from '@app/models/bw/co/centralkyc/source-of-funds';
     MatCardModule,
     MatTooltipModule,
     MatTabsModule,
+    MatDialogModule,
+    Loader
   ],
 })
 export class RecordDetails implements OnInit {
@@ -40,6 +52,8 @@ export class RecordDetails implements OnInit {
   readonly toaster = inject(ToastrService);
   readonly documentApi = inject(DocumentApi);
   readonly kycRecordApiStore = inject(KycRecordApiStore);
+  readonly settingsApiStore = inject(SettingsApiStore);
+  readonly dialog = inject(MatDialog);
   protected appEnvState = inject(AppEnvStore);
   datePipe = inject(DatePipe);
 
@@ -51,16 +65,25 @@ export class RecordDetails implements OnInit {
 
   @Input() id: string | null = null;
 
+  readonly ExpectedFieldType = ExpectedFieldType;
   readonly TargetEntity = TargetEntity;
   readonly KycComplianceStatus = KycComplianceStatus;
   readonly IndividualIdentityType = IndividualIdentityType;
   readonly SourceOfFunds = SourceOfFunds;
-  // readonly VerificationStatus = VerificationStatus;
 
-  selectedSectionTabIndex = 0;
-  currentDocumentIndex = 0;
+  selectedSectionTabIndex = signal(0);
+  currentDocumentIndex = signal(0);
+  currentReportSectionIndex = signal(0);
 
   private lastErrorMessage = '';
+
+  reportSectionsList = linkedSignal(() => 
+    this.record()?.kycReportSections || []
+  );
+
+  documentCount = linkedSignal(() => this.record()?.documents?.length || 0);
+
+  canDownloadDocuments = linkedSignal(() => this.documentCount() > 0);
 
   constructor() {
     this.kycRecordApiStore.reset();
@@ -75,25 +98,35 @@ export class RecordDetails implements OnInit {
     });
 
     effect(() => {
-      const record = this.kycRecordApiStore.data();
-      console.log('Record data updated:', record);
-    });
-
-    effect(() => {
       const documents = this.record()?.documents || [];
 
       if (documents.length === 0) {
-        this.currentDocumentIndex = 0;
+        this.currentDocumentIndex.set(0);
         return;
       }
 
-      if (this.currentDocumentIndex >= documents.length) {
-        this.currentDocumentIndex = documents.length - 1;
+      if (this.currentDocumentIndex() >= documents.length) {
+        this.currentDocumentIndex.set(documents.length - 1);
+      }
+    });
+
+    effect(() => {
+      const sections = this.record()?.kycReportSections || [];
+
+      if (sections.length === 0) {
+        this.currentReportSectionIndex.set(0);
+        return;
+      }
+
+      if (this.currentReportSectionIndex() >= sections.length) {
+        this.currentReportSectionIndex.set(sections.length - 1);
       }
     });
   }
 
   ngOnInit(): void {
+    this.settingsApiStore.getAll();
+
     const routeId = this.route.snapshot.paramMap.get('id') || this.route.snapshot.queryParamMap.get('id');
     const recordId = this.id || routeId;
 
@@ -116,6 +149,53 @@ export class RecordDetails implements OnInit {
     }
 
     this.router.navigate(['/records', 'edit', id]);
+  }
+
+  openDocumentUpload(): void {
+    const record = this.record();
+    const id = record?.id || this.id;
+
+    if (!id) {
+      this.toaster.error('Unable to open document upload without a record id.');
+      return;
+    }
+
+    const settings = this.settingsApiStore.data();
+    
+    const target = record?.target;
+    const documentTypes =
+      target === TargetEntity.ORGANISATION
+        ? settings?.orgKycDocuments || []
+        : settings?.indKycDocuments || [];
+
+    const ref = this.dialog.open(IndividualUploadDocumentDialogComponent, {
+      data: { documentTypes },
+      width: '480px',
+    });
+
+    ref.afterClosed().subscribe((result: UploadDocumentDialogResult | undefined) => {
+      if (!result) {
+        return;
+      }
+
+      this.loading.set(true);
+      this.loaderMessage.set('Uploading document...');
+
+      this.documentApi
+        .upload(TargetEntity.KYC_RECORD, id, result.documentTypeId, result.file)
+        .subscribe({
+          next: () => {
+            this.loading.set(false);
+            this.toaster.success('Document uploaded successfully.');
+            this.kycRecordApiStore.findById({ id });
+          },
+          error: (error: any) => {
+            this.loading.set(false);
+            const message = error?.error?.message || 'Failed to upload document.';
+            this.toaster.error(message);
+          },
+        });
+    });
   }
 
   printView(): void {
@@ -286,30 +366,6 @@ export class RecordDetails implements OnInit {
     return sources.map((s: SourceOfFunds) => labels[s] || s).join(', ');
   }
 
-  // verificationStatusLabel(status: VerificationStatus | null | undefined): string {
-  //   switch (status) {
-  //     case VerificationStatus.VERIFIED:
-  //       return 'Verified';
-  //     case VerificationStatus.VERIFICATION_FAILED:
-  //       return 'Failed';
-  //     case VerificationStatus.UNVERIFIED:
-  //     default:
-  //       return 'Unverified';
-  //   }
-  // }
-
-  // verificationStatusClass(status: VerificationStatus | null | undefined): string {
-  //   switch (status) {
-  //     case VerificationStatus.VERIFIED:
-  //       return 'verified';
-  //     case VerificationStatus.VERIFICATION_FAILED:
-  //       return 'failed';
-  //     case VerificationStatus.UNVERIFIED:
-  //     default:
-  //       return 'unverified';
-  //   }
-  // }
-
   verificationByLabel(value: string | null | undefined): string {
     return value || 'Not assigned';
   }
@@ -356,14 +412,6 @@ export class RecordDetails implements OnInit {
     return this.formatDateTime(value);
   }
 
-  documentCount(): number {
-    return this.record()?.documents?.length || 0;
-  }
-
-  canDownloadDocuments(): boolean {
-    return this.documentCount() > 0;
-  }
-
   downloadDocuments(): void {
     const record = this.record();
     if (!record || !record.documents || record.documents.length === 0) {
@@ -377,7 +425,7 @@ export class RecordDetails implements OnInit {
   }
 
   setSectionTab(index: number): void {
-    this.selectedSectionTabIndex = index;
+    this.selectedSectionTabIndex.set(index);
   }
 
   documentsList(): DocumentDTO[] {
@@ -391,15 +439,15 @@ export class RecordDetails implements OnInit {
       return null;
     }
 
-    return documents[this.currentDocumentIndex] || null;
+    return documents[this.currentDocumentIndex()] || null;
   }
 
   hasPreviousDocument(): boolean {
-    return this.currentDocumentIndex > 0;
+    return this.currentDocumentIndex() > 0;
   }
 
   hasNextDocument(): boolean {
-    return this.currentDocumentIndex < this.documentsList().length - 1;
+    return this.currentDocumentIndex() < this.documentsList().length - 1;
   }
 
   showPreviousDocument(): void {
@@ -407,7 +455,7 @@ export class RecordDetails implements OnInit {
       return;
     }
 
-    this.currentDocumentIndex -= 1;
+    this.currentDocumentIndex.update(n => n - 1);
   }
 
   showNextDocument(): void {
@@ -415,7 +463,7 @@ export class RecordDetails implements OnInit {
       return;
     }
 
-    this.currentDocumentIndex += 1;
+    this.currentDocumentIndex.update(n => n + 1);
   }
 
   selectDocument(index: number): void {
@@ -424,7 +472,7 @@ export class RecordDetails implements OnInit {
       return;
     }
 
-    this.currentDocumentIndex = index;
+    this.currentDocumentIndex.set(index);
   }
 
   currentDocumentPositionLabel(): string {
@@ -433,7 +481,53 @@ export class RecordDetails implements OnInit {
       return '0 / 0';
     }
 
-    return `${this.currentDocumentIndex + 1} / ${total}`;
+    return `${this.currentDocumentIndex() + 1} / ${total}`;
+  }
+
+  currentReportSection() {
+    const sections = this.reportSectionsList();
+    if (sections.length === 0) {
+      return null;
+    }
+    return sections[this.currentReportSectionIndex()] || null;
+  }
+
+  hasPreviousReportSection(): boolean {
+    return this.currentReportSectionIndex() > 0;
+  }
+
+  hasNextReportSection(): boolean {
+    return this.currentReportSectionIndex() < this.reportSectionsList().length - 1;
+  }
+
+  showPreviousReportSection(): void {
+    if (!this.hasPreviousReportSection()) {
+      return;
+    }
+    this.currentReportSectionIndex.update(n => n - 1);
+  }
+
+  showNextReportSection(): void {
+    if (!this.hasNextReportSection()) {
+      return;
+    }
+    this.currentReportSectionIndex.update(n => n + 1);
+  }
+
+  selectReportSection(index: number): void {
+    const sections = this.reportSectionsList();
+    if (index < 0 || index >= sections.length) {
+      return;
+    }
+    this.currentReportSectionIndex.set(index);
+  }
+
+  currentReportSectionPositionLabel(): string {
+    const total = this.reportSectionsList().length;
+    if (total === 0) {
+      return '0 / 0';
+    }
+    return `${this.currentReportSectionIndex() + 1} / ${total}`;
   }
 
   documentTypeLabel(document: DocumentDTO | null): string {
@@ -452,18 +546,18 @@ export class RecordDetails implements OnInit {
     return document?.verificationStatus || 'Unverified';
   }
 
-  dataComparisons(document: DocumentDTO | null): Array<{ field: string; expected: string; extracted: string; matches: boolean }> {
-    if (!document?.dataComparisons || !Array.isArray(document.dataComparisons)) {
-      return [];
-    }
+  // dataComparisons(document: DocumentDTO | null): Array<{ field: string; expected: string; extracted: string; matches: boolean }> {
+  //   if (!document?.dataComparisons || !Array.isArray(document.dataComparisons)) {
+  //     return [];
+  //   }
 
-    return document.dataComparisons.map((row: any) => ({
-      field: row?.field || 'Unknown Field',
-      expected: row?.expected || '—',
-      extracted: row?.extracted || '—',
-      matches: !!row?.matches,
-    }));
-  }
+  //   return document.dataComparisons.map((row: any) => ({
+  //     field: row?.field || 'Unknown Field',
+  //     expected: row.expectedField == ExpectedFieldType.DATE ? (this.datePipe.transform(row?.expected, 'dd-MM-yyyy') || '—') : (row?.expected || '—'),
+  //     extracted: row.expectedField == ExpectedFieldType.DATE ? (this.datePipe.transform(row?.extracted, 'dd-MM-yyyy') || '—') : (row?.extracted || '—'),
+  //     matches: !!row?.matches,
+  //   }));
+  // }
 
   openDocumentView(document: DocumentDTO | null): void {
     if (!document) {
@@ -557,5 +651,16 @@ export class RecordDetails implements OnInit {
 
     const date = value instanceof Date ? value : new Date(value);
     return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  generateReport(): void {
+    const recordId = this.record()?.id || this.id;
+
+    if (!recordId) {
+      this.toaster.error('Cannot generate report without a valid record ID.');
+      return;
+    }
+
+    this.kycRecordApiStore.generateKycReport({ id: recordId }); 
   }
 }

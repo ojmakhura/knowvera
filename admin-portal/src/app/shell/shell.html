@@ -1,61 +1,97 @@
-<mat-sidenav-container class="shell-layout">
-  @if(keycloak.authenticated) {
-  <mat-sidenav #sidenav class="shell-sidebar" mode="side" opened aria-label="Primary navigation">
-    <div class="brand">
-      <div class="brand-mark">◍</div>
-      <div>
-        <p class="brand-title">Central KYC</p>
+<div class="app-layout">
+  <!-- Side Navigation Bar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo-placeholder">
+        <mat-icon class="brand-icon">verified_user</mat-icon>
+        <span class="brand-name">Knowvera</span>
       </div>
+      <div class="portal-title">Compliance Portal</div>
+      <div class="tier-subtitle">Enterprise Tier</div>
     </div>
-    <button mat-flat-button color="primary" class="new-btn" type="button">
-      <mat-icon>add</mat-icon> New Verification {{keycloak.authenticated}}
+
+    <button class="btn btn-action-primary w-100 mb-4">
+      <mat-icon class="me-1">add</mat-icon>
+      New Verification
     </button>
 
-    <mat-nav-list class="sidebar-nav">
+    <nav class="nav-menu">
       @for (item of menus; track item.titleKey) {
-      <a mat-list-item class="nav-item" [routerLink]="item.routerLink" routerLinkActive="nav-item-active"
-        [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }">
-        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-        <span matListItemTitle translate>{{ item.titleKey }}</span>
-      </a>
+        <a
+          class="nav-item"
+          [routerLink]="item.routerLink"
+          routerLinkActive="nav-item-active"
+          [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span translate>{{ item.titleKey }}</span>
+        </a>
       }
-    </mat-nav-list>
+    </nav>
 
-    <!-- <div class="sidebar-footer">
-      <div class="avatar">🧑</div>
-      <div>
-        <p class="officer-name">Compliance Officer</p>
-        <p class="officer-mail">admin@vault-tech.io</p>
+    <div class="nav-footer">
+      <a class="nav-item" href="#">
+        <mat-icon>settings</mat-icon>
+        <span>Settings</span>
+      </a>
+      <a class="nav-item" href="#">
+        <mat-icon>contact_support</mat-icon>
+        <span>Support</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content Container -->
+  <div class="main-wrapper">
+    <!-- Top Navbar Header -->
+    <header class="top-header">
+      <div class="mobile-logo d-md-none">Knowvera</div>
+
+      <div class="search-box d-none d-md-flex">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input type="text" class="search-input" placeholder="Search records, entities, alerts..." />
       </div>
-    </div> -->
-  </mat-sidenav>
-  }
 
-  <mat-sidenav-content class="shell-main" aria-label="Application shell">
-    <mat-toolbar class="topbar">
-      <p class="topbar-title">Central KYC Admin Portal</p>
-      <span class="spacer"></span>
-      <mat-form-field appearance="outline" class="topbar-search-field vault-field" subscriptSizing="dynamic">
-        <mat-icon matPrefix>search</mat-icon>
-        <input matInput placeholder="Search verifications or entities..." />
-      </mat-form-field>
-
-      <div class="topbar-actions">
-        <button mat-icon-button type="button" aria-label="Notifications">
+      <div class="header-actions">
+        <button mat-icon-button class="icon-btn">
           <mat-icon>notifications</mat-icon>
         </button>
-        <button mat-icon-button type="button" aria-label="Help">
-          <mat-icon>help_outline</mat-icon>
+        <button mat-icon-button class="icon-btn d-none d-md-inline-flex">
+          <mat-icon>help</mat-icon>
         </button>
-
         @if (keycloak.authenticated) {
-        <button mat-button class="account-btn" [matMenuTriggerFor]="accountMenu">
-          <span class="account-avatar">{{ userInitials }}</span>
-          <span class="account-label">{{ userDisplayName }}</span>
-          <mat-icon>expand_more</mat-icon>
+        <button mat-icon-button class="icon-btn d-none d-md-inline-flex">
+          <mat-icon>settings</mat-icon>
         </button>
-
-        <mat-menu #accountMenu="matMenu" class="account-menu">
+        <button mat-icon-button class="profile-avatar ms-2"
+          (click)="toggleAccountMenu($event)"
+          >
+          <mat-icon>person</mat-icon>
+        </button>
+        @if (accountMenuOpen()) {
+          <div 
+                class="account-menu" 
+                role="menu" 
+                (click)="$event.stopPropagation()"
+              >
+                <div class="account-menu-head">
+                  <span class="menu-avatar">{{ userInitials }}</span>
+                  <div>
+                    <p class="menu-name">{{ userDisplayName }}</p>
+                    <p class="menu-email">{{ userEmail }} </p>
+                  </div>
+                </div>
+                <hr class="menu-divider" />
+                <a class="menu-item" [href]="profileUrl" (click)="closeAccountMenu()">
+                  <mat-icon>account_circle</mat-icon>
+                  <span>Profile</span>
+                </a>
+                <button class="menu-item menu-link-danger" (click)="logout()">
+                  <mat-icon color="warn">logout</mat-icon>
+                  <span class="warn-text">Logout</span>
+                </button>
+              </div>
+        <!-- <div class="account-menu" role="menu" (click)="$event.stopPropagation()">
           <div class="account-menu-head">
             <span class="menu-avatar">{{ userInitials }}</span>
             <div>
@@ -63,21 +99,23 @@
               <p class="menu-email">{{ userEmail }}</p>
             </div>
           </div>
-          <mat-divider></mat-divider>
-          <a mat-menu-item [href]="profileUrl">
+          <hr class="menu-divider" />
+          <a class="menu-item" [href]="profileUrl" (click)="closeAccountMenu()">
             <mat-icon>account_circle</mat-icon>
             <span>Profile</span>
           </a>
-          <button mat-menu-item class="menu-link-danger" (click)="logout()">
+          <button class="menu-item menu-link-danger" (click)="logout()">
             <mat-icon color="warn">logout</mat-icon>
             <span class="warn-text">Logout</span>
           </button>
-        </mat-menu>
+        </div> -->
+        }
         }
       </div>
-    </mat-toolbar>
+    </header>
 
-    <main class="content">
+    <!-- Dashboard Body Content -->
+    <main class="content-body">
       @if (keycloak.authenticated) {
         <router-outlet></router-outlet>
       } @else {
@@ -85,11 +123,13 @@
           <div class="login-card">
             <div class="login-brand">
               <span class="login-brand-mark">◍</span>
-              <span class="login-brand-name">Central KYC</span>
+              <span class="login-brand-name">Knowvera KYC</span>
             </div>
             <h1 class="login-heading">Admin Portal</h1>
-            <p class="login-sub">Sign in with your organisational account to access the compliance dashboard.</p>
-            <button mat-flat-button color="primary" class="login-btn" type="button" (click)="login()">
+            <p class="login-sub">
+              Sign in with your organisational account to access the compliance dashboard.
+            </p>
+            <button class="login-btn" type="button" (click)="login()">
               <mat-icon>lock_open</mat-icon>
               Sign in
             </button>
@@ -97,5 +137,5 @@
         </div>
       }
     </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  </div>
+</div>

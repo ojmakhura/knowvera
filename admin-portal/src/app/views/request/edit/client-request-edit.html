@@ -1,8 +1,13 @@
 <section class="client-request-edit-page">
 	<header class="page-header">
 		<div>
+			<nav class="page-breadcrumb" aria-label="Breadcrumb">
+				<a routerLink="/request">Client Requests</a>
+				<mat-icon>chevron_right</mat-icon>
+				<span class="page-breadcrumb-current">Edit</span>
+			</nav>
 			<h1 class="page-title">Edit Client Request</h1>
-			<p class="page-subtitle">Modification Workflow — Ref: CR-88291-VX</p>
+			<p class="page-subtitle">Ref: {{ editClientRequestSignal().ref || 'New' }}</p>
 		</div>
 
 		<div class="header-actions">
@@ -12,119 +17,143 @@
 	</header>
 
 	<section class="content-stack">
-		<mat-card class="audit-card">
-			<div class="section-heading section-heading-tight">
-				<mat-icon>fingerprint</mat-icon>
-				<h2>Section 1: Audit Metadata</h2>
-			</div>
-
-			<div class="audit-grid">
-				@for (item of auditFields(); track item.label) {
-					<div class="audit-item">
-						<span>{{ item.label }}</span>
-						<p>{{ item.value }}</p>
-					</div>
-				}
-			</div>
-		</mat-card>
-
 		<div class="panel-grid">
 			<mat-card class="panel-card">
 				<div class="section-heading">
-					<mat-icon>hub</mat-icon>
-					<h2>Section 2: Target Entity</h2>
-				</div>
-
-				<div class="panel-stack">
-					<mat-form-field appearance="outline" class="vault-field">
-						<mat-label>Target Type</mat-label>
-						<mat-select [value]="selectedTargetType()" (selectionChange)="setTargetType($event.value)">
-							@for (target of targetOptions; track target) {
-								<mat-option [value]="target">{{ targetTypeLabel(target) }}</mat-option>
-							}
-						</mat-select>
-					</mat-form-field>
-
-					<mat-form-field appearance="outline" class="vault-field">
-						<mat-label>Filter Target Object</mat-label>
-						<mat-icon matPrefix>search</mat-icon>
-						<input
-							matInput
-							[value]="targetFilter()"
-							(input)="updateTargetFilter($any($event.target).value)"
-							placeholder="Search by name or UUID..."
-						/>
-					</mat-form-field>
-
-					<div class="selected-target">
-						<span>Selected Target</span>
-						<p>{{ selectedTarget().name }}</p>
-						<small>{{ selectedTarget().reference }}</small>
-					</div>
-				</div>
-			</mat-card>
-
-			<mat-card class="panel-card">
-				<div class="section-heading">
 					<mat-icon>corporate_fare</mat-icon>
-					<h2>Section 3: Organisation</h2>
+					<h2>Requesting Organisation</h2>
 				</div>
 
 				<div class="panel-stack">
 					<mat-form-field appearance="outline" class="vault-field">
 						<mat-label>Filter Organisation</mat-label>
-						<input
-							matInput
-							[value]="organisationFilter()"
-							(input)="updateOrganisationFilter($any($event.target).value)"
-							placeholder="Start typing org name..."
-						/>
+						<mat-select [formField]="editClientRequestForm.organisation"
+							[compareWith]="organisationCompare">
+							<mat-option>
+								<ngx-mat-select-search [formField]="editClientRequestForm.organisationFilter"
+									(keyup.enter)="filterOrganisation()"
+									[placeholderLabel]="'search.organisation' | translate"
+									[noEntriesFoundLabel]="'no.matching.organisation.found' | translate">
+								</ngx-mat-select-search>
+							</mat-option>
+							@for (org of organisationList(); track org.id) {
+							<mat-option [value]="org">
+								{{ org.name }} ({{ org.registrationNo }})
+							</mat-option>
+							}
+						</mat-select>
 					</mat-form-field>
 
 					<div class="result-list-label">Search Results</div>
 
 					<div class="organisation-results">
-						@for (organisation of organisationResults(); track organisation.id) {
-							<button
-								mat-button
-								type="button"
-								class="organisation-option"
-								[class.selected]="isOrganisationSelected(organisation)"
-								(click)="selectOrganisation(organisation)"
-							>
-								<div>
-									<p>{{ organisation.name }}</p>
-									<small>{{ organisation.registration }}</small>
-								</div>
-								<mat-icon>{{ isOrganisationSelected(organisation) ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
-							</button>
+						@let organisation = editClientRequestSignal().organisation;
+						<button mat-button type="button" class="organisation-option"
+							[class.selected]="organisation?.id" [routerLink]="['/organisation/details']">
+							<div>
+								<p>{{ organisation?.name }}</p>
+								<small>{{ organisation?.registrationNo }}</small>
+							</div>
+							<mat-icon>{{ organisation?.id ? 'check_circle' :
+								'radio_button_unchecked' }}</mat-icon>
+						</button>
+					</div>
+				</div>
+			</mat-card>
+			<mat-card class="panel-card">
+				<div class="section-heading">
+					<mat-icon>hub</mat-icon>
+					<h2>Target Entity</h2>
+				</div>
+
+				<div class="panel-stack">
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Target Type</mat-label>
+						<mat-select [formField]="editClientRequestForm.target" >
+							@for (target of targetOptions; track target) {
+							<mat-option [value]="target">{{ targetTypeLabel(target) }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+
+					@if (selectedTargetType() === 'ORGANISATION') {
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Target Organisation</mat-label>
+						<mat-select [formField]="editClientRequestForm.targetObject"
+							[compareWith]="targetOrganisationCompare">
+							<mat-option>
+								<ngx-mat-select-search [formField]="editClientRequestForm.targetObjectFilter"
+									(keyup.enter)="filterTargetOrganisation()"
+									[placeholderLabel]="'search.organisation' | translate"
+									[noEntriesFoundLabel]="'no.matching.organisation.found' | translate">
+								</ngx-mat-select-search>
+							</mat-option>
+							@for (org of targetOrganisationList(); track org.id) {
+							<mat-option [value]="org">
+								{{ org.name }} ({{ org.registrationNo }})
+							</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+					} @else {
+					<mat-form-field appearance="outline" class="vault-field">
+						<mat-label>Target Individual</mat-label>
+						<mat-select [formField]="editClientRequestForm.targetObject" [compareWith]="individualCompare">
+							<mat-option>
+								<ngx-mat-select-search [formField]="editClientRequestForm.targetObjectFilter"
+									(keyup.enter)="filterTargetIndividual()"
+									[placeholderLabel]="'search.individual' | translate"
+									[noEntriesFoundLabel]="'no.matching.individual.found' | translate">
+								</ngx-mat-select-search>
+							</mat-option>
+							@for (ind of targetIndividualList(); track ind.id) {
+							<mat-option [value]="ind">
+								{{ ind.name }} ({{ ind.identityNo }})
+							</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+					}
+
+					<div class="selected-target">
+						@if (editClientRequestSignal().targetObject) {
+						<span>Selected Target</span>
+						<p>{{ editClientRequestSignal().targetObject?.name }}</p>
+						@if (selectedTargetType() === 'ORGANISATION') {
+						<small>Reg: {{ $any(editClientRequestSignal().targetObject)?.registrationNo }}</small>
+						} @else {
+						<small>ID: {{ $any(editClientRequestSignal().targetObject)?.identityNo }}</small>
+						}
 						}
 					</div>
 				</div>
 			</mat-card>
+
 		</div>
 
+		@if (editClientRequestSignal().documentId || editClientRequestSignal().fileName) {
 		<mat-card class="panel-card document-card">
 			<div class="section-heading">
 				<mat-icon>description</mat-icon>
-				<h2>Section 4: Document Information</h2>
+				<h2>Document Information</h2>
 			</div>
 
 			<div class="document-grid">
 				<mat-form-field appearance="outline" class="vault-field">
 					<mat-label>Document ID</mat-label>
-					<input matInput [value]="documentId()" (input)="updateDocumentId($any($event.target).value)" />
+					<input matInput [formField]="editClientRequestForm.documentId" />
 				</mat-form-field>
 
 				<mat-form-field appearance="outline" class="vault-field">
 					<mat-label>File Name</mat-label>
-					<input matInput [value]="fileName()" (input)="updateFileName($any($event.target).value)" />
+					<input matInput [formField]="editClientRequestForm.fileName" />
 					<button mat-icon-button matSuffix type="button" aria-label="Open file link">
 						<mat-icon>link</mat-icon>
 					</button>
 				</mat-form-field>
 			</div>
 		</mat-card>
+		}
 
 		<mat-card class="status-card">
 			<div class="status-shield">
@@ -133,62 +162,20 @@
 
 			<div class="section-heading section-heading-dark">
 				<mat-icon>security</mat-icon>
-				<h2>Section 5: Compliance &amp; Status</h2>
+				<h2>Status</h2>
 			</div>
 
 			<div class="status-grid">
 				<div class="status-block">
 					<span class="status-label">Client Request Status</span>
-					<div class="request-status-options">
+					<mat-button-toggle-group [formField]="editClientRequestForm.status" class="request-status-toggle">
 						@for (status of requestStatuses; track status) {
-							<button
-								mat-stroked-button
-								type="button"
-								class="request-status-btn"
-								[class.selected]="isCurrentRequestStatus(status)"
-								[class]="requestToneClass(status)"
-								(click)="setRequestStatus(status)"
-							>
-								{{ requestStatusLabel(status) }}
-							</button>
+						<mat-button-toggle [value]="status" [ngClass]="requestToneClass(status)" (change)="setRequestStatus(status)">
+							{{ requestStatusLabel(status) }}
+						</mat-button-toggle>
 						}
-					</div>
-				</div>
-
-				<div class="status-block">
-					<span class="status-label">Target KYC Status</span>
-					<div class="kyc-status-grid">
-						@for (status of kycStatuses; track status) {
-							<button
-								mat-button
-								type="button"
-								class="kyc-option"
-								[class.selected]="isCurrentKycStatus(status)"
-								[class]="kycToneClass(status)"
-								(click)="setKycStatus(status)"
-							>
-								<span class="status-indicator"></span>
-								<span>{{ kycStatusLabel(status) }}</span>
-							</button>
-						}
-					</div>
+					</mat-button-toggle-group>
 				</div>
 			</div>
 		</mat-card>
 	</section>
-
-	<footer class="page-footer">
-		<div class="footer-item">
-			<mat-icon>shield</mat-icon>
-			<span>AES-256 Encrypted</span>
-		</div>
-		<div class="footer-item">
-			<mat-icon>gavel</mat-icon>
-			<span>GDPR Compliant</span>
-		</div>
-		<div class="footer-item">
-			<mat-icon>history_edu</mat-icon>
-			<span>Audit Log Immutable</span>
-		</div>
-	</footer>
-</section>

@@ -41,6 +41,9 @@
           <div class="field-group">
             <label class="field-label" for="subOrg" translate>Assign Organisation</label>
             <mat-form-field appearance="outline" class="vault-field">
+            @if(editInvoiceSignal().id){
+              <input matInput type="text" placeholder="Select Organisation" [value]="editInvoiceSignal().organisation?.name" disabled />
+            } @else {
               <mat-select id="organisation" [compareWith]="organisationCompare"
                 [formField]="editInvoiceSignalForm.organisation">
                 <mat-option>
@@ -61,6 +64,7 @@
                 </mat-option>
                 }
               </mat-select>
+            }
             </mat-form-field>
             @if (editInvoiceSignalForm.organisation().touched()) {
             @for (error of editInvoiceSignalForm.organisation().errors(); track $index) {

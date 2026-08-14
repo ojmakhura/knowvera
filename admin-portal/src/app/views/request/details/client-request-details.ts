@@ -2,10 +2,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, inject, Input, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ClientRequestStatus } from '@app/models/bw/co/centralkyc/organisation/client/client-request-status';
-import { KycComplianceStatus } from '@app/models/bw/co/centralkyc/kyc/kyc-compliance-status';
+import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
+import { ClientRequestApiStore } from '@app/store/bw/co/knowvera/organisation/client/client-request-api.store';
 
 type LabeledValue = {
   label: string;
@@ -32,45 +33,115 @@ type IdentityField = {
     MatTooltipModule
   ]
 })
-export class ClientRequestDetails {
-  readonly requestStatus = signal<ClientRequestStatus>(ClientRequestStatus.CONTACTED);
-  readonly targetKycStatus = signal<KycComplianceStatus>(KycComplianceStatus.ABSENT);
-  readonly verificationPercent = signal(15);
+export class ClientRequestDetails implements OnInit, AfterViewInit, OnDestroy {
+  
+  readonly clientRequestApiStore = inject(ClientRequestApiStore);
+  readonly clientRequest = this.clientRequestApiStore.data;
 
-  readonly coreIdentity = signal<IdentityField[]>([
-    { label: 'Full Legal Name', value: 'Alexander J. Sterling', tone: 'primary' },
-    {
-      label: 'Identity Type',
-      value: 'PASSPORT_INTERNATIONAL',
-      icon: 'badge',
-    },
-    { label: 'Registration No.', value: 'GB-8829-X-442' },
-    {
-      label: 'Email Address',
-      value: 'a.sterling@private-equity.co.uk',
-      tone: 'primary',
-    },
-  ]);
+  readonly requestReference = computed(() => this.displayValue(this.clientRequest().ref) || this.displayValue(this.id));
+  readonly requestStatus = computed<ClientRequestStatus>(
+    () => this.clientRequest().status || ClientRequestStatus.PENDING,
+  );
+  readonly targetKycStatus = computed<KycComplianceStatus>(
+    () => this.clientRequest().targetKycStatus || KycComplianceStatus.ABSENT,
+  );
+  readonly verificationPercent = computed(() => {
+    switch (this.targetKycStatus()) {
+      case KycComplianceStatus.CURRENT:
+        return 100;
+      case KycComplianceStatus.INCOMPLETE:
+        return 60;
+      case KycComplianceStatus.EXPIRED:
+        return 30;
+      case KycComplianceStatus.ABSENT:
+      default:
+        return 0;
+    }
+  });
 
-  readonly organisationContext = signal<LabeledValue[]>([
-    { label: 'Organisation Name', value: 'Sterling Global Assets Ltd' },
-    { label: 'Internal Org ID', value: 'ORG-9920-ALPHA' },
-    { label: 'Org Registration No.', value: 'SC-8812903321' },
-  ]);
+  readonly coreIdentity = computed<IdentityField[]>(() => {
+    const request = this.clientRequest();
 
-  readonly auditFields = signal<LabeledValue[]>([
-    { label: 'Created At', value: '2023-11-14 09:22:11' },
-    { label: 'Created By', value: 'System Gateway Alpha' },
-    { label: 'Last Modified', value: '2024-02-01 14:15:00' },
-    { label: 'Modified By', value: 'Compliance_Officer_32' },
-  ]);
+    return [
+      { label: 'Full Legal Name', value: this.displayValue(request.name), tone: 'primary' },
+      {
+        label: 'Identity Type',
+        value: this.displayValue(request.identityType),
+        icon: 'badge',
+      },
+      { label: 'Registration No.', value: this.displayValue(request.registration) },
+      {
+        label: 'Email Address',
+        value: this.displayValue(request.emailAddress),
+        tone: 'primary',
+      },
+    ];
+  });
+
+  readonly organisationContext = computed<LabeledValue[]>(() => {
+    const request = this.clientRequest();
+
+    return [
+      { label: 'Organisation Name', value: this.displayValue(request.organisation) },
+      { label: 'Internal Org ID', value: this.displayValue(request.organisationCode) },
+      { label: 'Org Registration No.', value: this.displayValue(request.organisationRegistrationNo) },
+    ];
+  });
+
+  readonly auditFields = computed<LabeledValue[]>(() => {
+    const request = this.clientRequest();
+
+    return [
+      { label: 'Created At', value: this.formatDateTime(request.createdAt) },
+      { label: 'Created By', value: this.displayValue(request.createdBy) },
+      { label: 'Last Modified', value: this.formatDateTime(request.modifiedAt) },
+      { label: 'Modified By', value: this.displayValue(request.modifiedBy) },
+    ];
+  });
+
+  readonly artifactTitle = computed(() => this.displayValue(this.clientRequest().documentType));
+  readonly artifactTypeMeta = computed(() => {
+    const request = this.clientRequest();
+    const typeId = this.displayValue(request.documentTypeId);
+    const documentId = this.displayValue(request.documentId);
+
+    if (typeId !== '-') {
+      return `Type ID: ${typeId}`;
+    }
+
+    if (documentId !== '-') {
+      return `Document ID: ${documentId}`;
+    }
+
+    return 'Type ID: -';
+  });
+  readonly artifactFileName = computed(() => this.displayValue(this.clientRequest().fileName));
 
   readonly progressSegments = computed(() => {
     const percent = Math.max(0, Math.min(this.verificationPercent(), 100));
-    const filled = Math.max(1, Math.round(percent / 20));
+    const filled = Math.round(percent / 20);
 
     return Array.from({ length: 5 }, (_, index) => index < filled);
   });
+
+  @Input() id: string | null = null;
+
+  constructor() {
+  }
+
+  ngOnInit(): void {
+    if(this.id) {
+
+      this.clientRequestApiStore.findById({ id: this.id });
+    }
+  }
+
+  ngAfterViewInit(): void {
+
+  }
+
+  ngOnDestroy(): void {
+  }
 
   backToDashboard(): void {}
 
@@ -84,6 +155,28 @@ export class ClientRequestDetails {
 
   downloadFile(): void {}
 
+  private displayValue(value: unknown): string {
+    if (value === null || value === undefined || value === '') {
+      return '-';
+    }
+
+    return String(value);
+  }
+
+  private formatDateTime(value: unknown): string {
+    if (!value) {
+      return '-';
+    }
+
+    const date = value instanceof Date ? value : new Date(String(value));
+
+    if (Number.isNaN(date.getTime())) {
+      return '-';
+    }
+
+    return date.toLocaleString();
+  }
+
   statusLabel(status: ClientRequestStatus): string {
     switch (status) {
       case ClientRequestStatus.CONTACTED:
@@ -94,6 +187,8 @@ export class ClientRequestDetails {
         return 'Accepted';
       case ClientRequestStatus.REJECTED:
         return 'Rejected';
+      default:
+        return 'Pending';
     }
   }
 

@@ -17,18 +17,18 @@ export class TermsOfService implements OnInit {
   protected readonly effectiveDate = 'January 23, 2026';
 
   ngOnInit(): void {
-    this.title.setTitle('Terms of Service - Central KYC Portal');
+    this.title.setTitle('Terms of Service - Knowvera KYC Portal');
     this.meta.updateTag({ 
       name: 'description', 
-      content: 'Terms of Service for Central KYC Portal. Review the terms and conditions governing the use of our KYC verification platform.' 
+      content: 'Terms of Service for Knowvera KYC Portal. Review the terms and conditions governing the use of our KYC verification platform.' 
     });
     this.meta.updateTag({ 
       property: 'og:title', 
-      content: 'Terms of Service - Central KYC Portal' 
+      content: 'Terms of Service - Knowvera KYC Portal' 
     });
     this.meta.updateTag({ 
       property: 'og:description', 
-      content: 'Terms of Service for Central KYC Portal. Review the terms and conditions governing our services.' 
+      content: 'Terms of Service for Knowvera KYC Portal. Review the terms and conditions governing our services.' 
     });
     this.meta.updateTag({ 
       property: 'og:type', 

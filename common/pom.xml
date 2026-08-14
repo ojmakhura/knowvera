@@ -3,17 +3,17 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>bw.co.centralkyc</groupId>
-        <artifactId>centralkyc</artifactId>
+        <groupId>bw.co.knowvera</groupId>
+        <artifactId>knowvera</artifactId>
         <version>0.0.1</version>
     </parent>
-    <artifactId>centralkyc-common</artifactId>
+    <artifactId>knowvera-common</artifactId>
     <packaging>jar</packaging>
-    <name>The Centalised KYC Project Common</name>
+    <name>The Knowvera KYC Project Common</name>
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>centralkyc-mda</artifactId>
+            <artifactId>knowvera-mda</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
             <scope>provided</scope>
@@ -45,10 +45,10 @@
             <version>1.18.34</version>
             <optional>true</optional>
         </dependency>
-        <dependency>
+        <!-- <dependency>
             <groupId>bw.co.roguesystems.comm</groupId>
             <artifactId>roguecomm-common</artifactId>
-        </dependency>
+        </dependency> -->
     </dependencies>
     <build>
         <plugins>

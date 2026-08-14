@@ -1,0 +1,295 @@
+<main class="individual-details-page">
+	<!-- Back Navigation -->
+	<div class="back-nav">
+		<button mat-button type="button" class="back-button" (click)="goBack()">
+			<mat-icon>arrow_back</mat-icon>
+			Back to Search
+		</button>
+	</div>
+
+	@if (loading()) {
+		<mat-card class="loading-card">
+			<mat-card-content>
+				<div class="loading-row">
+					<mat-icon>hourglass_top</mat-icon>
+					<div>
+						<p class="alert-title">{{ loaderMessage() || 'Loading profile' }}</p>
+						<p class="alert-message">Fetching the latest identity, contact, and compliance records.</p>
+					</div>
+				</div>
+			</mat-card-content>
+		</mat-card>
+	}
+
+	<!-- Hero Section -->
+	<div class="hero-section">
+		<div class="hero-avatar" aria-hidden="true">{{ initials() }}</div>
+		<div class="hero-content">
+			<div>
+				<h1 class="hero-title">{{ fullName() }}</h1>
+				<div class="hero-meta">
+					<span class="meta-id">
+						<mat-icon>tag</mat-icon>
+						ID: {{ individual().id || 'Pending' }}
+					</span>
+					<div class="divider"></div>
+					<mat-chip class="status-chip">
+						<mat-icon>check_circle</mat-icon>
+						{{ kycStatusLabel() }} / {{ accountStatusLabel() }}
+					</mat-chip>
+				</div>
+			</div>
+		</div>
+		<div class="hero-actions">
+			<button mat-stroked-button type="button" (click)="openEditProfile()">
+				<mat-icon>edit</mat-icon>
+				Edit Profile
+			</button>
+			<button mat-raised-button type="button" color="accent">
+				<mat-icon>download</mat-icon>
+				Export Report
+			</button>
+		</div>
+	</div>
+
+	@if (error() && messages().length) {
+		<mat-card class="alert-card">
+			<mat-card-content>
+				<div class="alert-row">
+					<mat-icon>error_outline</mat-icon>
+					<div>
+						<p class="alert-title">Profile data could not be refreshed</p>
+						<p class="alert-message">{{ messages()[0] }}</p>
+					</div>
+				</div>
+			</mat-card-content>
+		</mat-card>
+	}
+
+	<!-- Main Content Grid -->
+	<div class="content-grid">
+		<!-- Left Column - Main Content -->
+		<div class="content-main">
+			<!-- Core Identity Card -->
+			<mat-card class="content-card">
+				<mat-card-header>
+					<h2 class="card-title">
+						<mat-icon>person</mat-icon>
+						Core Identity
+					</h2>
+				</mat-card-header>
+				<mat-card-content>
+					<div class="field-grid">
+						<div class="field-group">
+							<label class="field-label">Full Legal Name</label>
+							<p class="field-value">{{ fullName() }}</p>
+						</div>
+						<div class="field-group">
+							<label class="field-label">Date of Birth</label>
+							<p class="field-value">{{ individual().dateOfBirth ? (individual().dateOfBirth | date:'d MMM y') : 'Not provided' }}</p>
+						</div>
+						<div class="field-group">
+							<label class="field-label">Sex</label>
+							<p class="field-value">{{ sexLabel() }}</p>
+						</div>
+						<div class="field-group">
+							<label class="field-label">Marital Status</label>
+							<p class="field-value">{{ maritalStatusLabel() }}</p>
+						</div>
+						<div class="field-group full-width">
+							<label class="field-label">Nationality</label>
+							<div class="nationality-tags">
+								<span class="tag">{{ nationalityLabel() }}</span>
+							</div>
+						</div>
+					</div>
+				</mat-card-content>
+			</mat-card>
+
+			<!-- Identification Card -->
+			<mat-card class="content-card">
+				<mat-card-header>
+					<div class="card-header-top">
+						<h2 class="card-title">
+							<mat-icon>badge</mat-icon>
+							Primary Identification
+						</h2>
+						<mat-chip class="verification-badge">
+							<mat-icon>verified</mat-icon>
+							Verified via API
+						</mat-chip>
+					</div>
+				</mat-card-header>
+				<mat-card-content>
+					<div class="id-card-container">
+						<div class="id-card-icon">
+							<mat-icon>credit_card</mat-icon>
+						</div>
+						<div class="field-grid">
+							<div class="field-group">
+								<label class="field-label">Document Type</label>
+								<p class="field-value font-semibold">{{ identityTypeLabel() }}</p>
+							</div>
+							<div class="field-group">
+								<label class="field-label">Document Number</label>
+								<p class="field-value font-mono">{{ individual().identityNo || 'Not provided' }}</p>
+							</div>
+							<div class="field-group">
+								<label class="field-label">Issue Date</label>
+								<p class="field-value">12 Jun 2020</p>
+							</div>
+							<div class="field-group">
+								<label class="field-label">Expiry Date</label>
+								<p class="field-value">12 Jun 2030</p>
+							</div>
+						</div>
+					</div>
+				</mat-card-content>
+			</mat-card>
+
+			<!-- Employment History Card -->
+			<mat-card class="content-card">
+				<mat-card-header>
+					<h2 class="card-title">
+						<mat-icon>work</mat-icon>
+						Employment History
+					</h2>
+				</mat-card-header>
+				<mat-card-content>
+					<div class="employment-timeline">
+						@for (record of employmentRecords(); track record.identityNo || record.name || $index; let isFirst = $first) {
+							<div class="timeline-item" [class.is-active]="isFirst">
+								<div class="timeline-marker">
+									<mat-icon>domain</mat-icon>
+								</div>
+								<div class="timeline-card">
+									<div class="timeline-header">
+										<h3 class="timeline-title">{{ record.employer?.name || record.name || 'Employment record' }}</h3>
+										@if (isFirst) {
+											<span class="timeline-badge">Current</span>
+										}
+									</div>
+									<p class="timeline-position">{{ record.positions?.[0] || 'Position not recorded' }}</p>
+									<p class="timeline-dates">
+										<mat-icon>calendar_month</mat-icon>
+										{{ record.employmentStart ? (record.employmentStart | date:'MMM y') : 'Unknown start' }}
+										-
+										{{ record.employmentEnd ? (record.employmentEnd | date:'MMM y') : 'Present' }}
+									</p>
+								</div>
+							</div>
+						}
+						@if (!employmentRecords().length) {
+							<p class="empty-state">No employment records available.</p>
+						}
+					</div>
+				</mat-card-content>
+			</mat-card>
+		</div>
+
+		<!-- Right Column - Sidebar -->
+		<aside class="content-side">
+			<!-- Contact Card -->
+			<mat-card class="content-card">
+				<mat-card-header>
+					<h2 class="card-title">
+						<mat-icon>contact_mail</mat-icon>
+						Contact
+					</h2>
+				</mat-card-header>
+				<mat-card-content>
+					<ul class="contact-list">
+						<li class="contact-item">
+							<mat-icon>mail</mat-icon>
+							<div>
+								<p class="contact-value">{{ individual().emailAddress || 'Not provided' }}</p>
+								<span class="contact-label">Primary Email</span>
+							</div>
+						</li>
+						<li class="contact-item">
+							<mat-icon>phone</mat-icon>
+							<div>
+								<p class="contact-value">{{ phoneCount() }} contact{{ phoneCount() === 1 ? '' : 's' }}</p>
+								<span class="contact-label">Mobile</span>
+							</div>
+						</li>
+						<li class="contact-item">
+							<mat-icon>home</mat-icon>
+							<div>
+								<p class="contact-value">{{ individual().physicalAddress || 'Not provided' }}</p>
+								<span class="contact-label">Residential Address</span>
+							</div>
+						</li>
+					</ul>
+				</mat-card-content>
+			</mat-card>
+
+			<!-- Documents Vault Card -->
+			<mat-card class="content-card">
+				<mat-card-header>
+					<div class="card-header-top">
+						<h2 class="card-title">
+							<mat-icon>folder_open</mat-icon>
+							Vault
+						</h2>
+						<button mat-icon-button type="button" class="add-button">
+							<mat-icon>add</mat-icon>
+						</button>
+					</div>
+				</mat-card-header>
+				<mat-card-content>
+					<ul class="document-list">
+						@for (document of documents(); track document.id || document.fileName || $index) {
+							<li class="document-item">
+								<div class="doc-icon">
+									<mat-icon>description</mat-icon>
+								</div>
+								<div class="doc-info">
+									<p class="doc-name">{{ document.fileName || 'Untitled document' }}</p>
+									<span class="doc-meta">2.4 MB • {{ humanize(document.verificationStatus) }}</span>
+								</div>
+								<mat-icon class="doc-action">download</mat-icon>
+							</li>
+						}
+						@if (!documents().length) {
+							<p class="empty-state">No supporting documents have been uploaded.</p>
+						}
+					</ul>
+				</mat-card-content>
+			</mat-card>
+
+			<!-- Snapshot Card -->
+			<mat-card class="content-card snapshot-card">
+				<mat-card-header>
+					<h2 class="card-title">
+						<mat-icon>info</mat-icon>
+						Snapshot
+					</h2>
+				</mat-card-header>
+				<mat-card-content>
+					<div class="snapshot-grid">
+						<div class="snapshot-row">
+							<span class="snapshot-label">Profile Created</span>
+							<span class="snapshot-value">{{ individual().createdAt ? (individual().createdAt | date:'d MMM y') : 'Not provided' }}</span>
+						</div>
+						<div class="snapshot-row">
+							<span class="snapshot-label">Last Updated</span>
+							<span class="snapshot-value">{{ individual().modifiedAt ? (individual().modifiedAt | date:'d MMM y') : 'Not provided' }}</span>
+						</div>
+						<div class="snapshot-row">
+							<span class="snapshot-label">Risk Level</span>
+							<span class="snapshot-value risk-low">
+								<span class="risk-dot"></span>
+								Low
+							</span>
+						</div>
+						<div class="snapshot-row">
+							<span class="snapshot-label">Linked Org</span>
+							<span class="snapshot-value org-link">{{ individual().organisation?.name || 'Not linked' }}</span>
+						</div>
+					</div>
+				</mat-card-content>
+			</mat-card>
+		</aside>
+	</div>
+</main>
