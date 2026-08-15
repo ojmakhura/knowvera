@@ -40,6 +40,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
     @Audit(entity = "EXPECTED_FIELD", eventLabel = "#id", logData = false)
     public ResponseEntity<ExpectedFieldDTO> findById(String id) throws Exception {
 
+        logger.debug("Finding expected field with ID: {}", id);
         return ResponseEntity.ok(expectedFieldService.findById(id));
 
     }
@@ -48,6 +49,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
     @Operation(summary = "Remove Expected Field", description = "Remove the expected field with the given id")
     @Audit(entity = "EXPECTED_FIELD", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
+        logger.debug("Removing expected field with ID: {}", id);
         return ResponseEntity.ok(expectedFieldService.remove(id));
     }
 
@@ -56,6 +58,7 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
     @Audit(entity = "EXPECTED_FIELD", eventLabel = "#expectedField.id", logData = true)
     public ResponseEntity<ExpectedFieldDTO> save(@Valid ExpectedFieldDTO expectedField) throws Exception {
 
+        logger.debug("Saving expected field: {}", expectedField);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuditTracker.auditTrail(expectedField, authentication);
 
@@ -68,6 +71,8 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
      * @return expectedFieldService
      */
     protected ExpectedFieldService getExpectedFieldService() {
+
+        logger.debug("Retrieving ExpectedFieldService instance");
         return this.expectedFieldService;
     }
 
@@ -76,13 +81,8 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
     @Audit(entity = "EXPECTED_FIELD", logData = false)
     public ResponseEntity<List<ExpectedFieldDTO>> findByDocumentType(List<String> documentTypeIds) throws Exception {
 
-        try {
-            return ResponseEntity.ok(expectedFieldService.findByDocumentType(documentTypeIds));
-        } catch (Exception e) {
-
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new ExpectedFieldServiceException(e.getCause().getMessage()) : e;
-        }
+        logger.debug("Finding expected fields for document type IDs: {}", documentTypeIds);
+        return ResponseEntity.ok(expectedFieldService.findByDocumentType(documentTypeIds));
 
     }
 
@@ -92,12 +92,8 @@ public class ExpectedFieldApiImpl implements ExpectedFieldApi {
     public ResponseEntity<Page<ExpectedFieldDTO>> findByDocumentTypePage(List<String> documentTypeIds,
             Integer pageNumber,
             Integer pageSize) throws Exception {
-        try {
-            return ResponseEntity.ok(expectedFieldService.findByDocumentType(documentTypeIds, pageNumber, pageSize));
-        } catch (Exception e) {
-
-            logger.error("An error occurred while processing the request", e);
-            throw e.getCause() != null ? new ExpectedFieldServiceException(e.getCause().getMessage()) : e;
-        }
+                
+        logger.debug("Finding expected fields for document type IDs: {}, page: {}, size: {}", documentTypeIds, pageNumber, pageSize);
+        return ResponseEntity.ok(expectedFieldService.findByDocumentType(documentTypeIds, pageNumber, pageSize));
     }
 }

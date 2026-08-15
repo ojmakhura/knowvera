@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.Set;
 
 import bw.co.knowvera.individual.IndividualServiceException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -31,6 +34,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "Organisations", description = "Operations related to organisations.")
 public class OrganisationApiImpl implements OrganisationApi {
 
+    private final Logger logger = LoggerFactory.getLogger(OrganisationApi.class);
     private final KeycloakOrganisationService orgService;
     private final OrganisationService organisationService;
 
@@ -42,36 +46,39 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Find Organisation by ID", description = "Find an organisation by its ID")
-    @Audit(entity = "ORGANISATION", eventLabel="#id", logData = false)
+    @Audit(entity = "ORGANISATION", eventLabel = "#id", logData = false)
     public ResponseEntity<OrganisationDTO> findById(String id) {
 
-            OrganisationDTO organisation = organisationService.findById(id);
+        logger.debug("Finding organisation with ID: {}", id);
+        OrganisationDTO organisation = organisationService.findById(id);
 
-            if (organisation.getIsClient() != null && organisation.getIsClient()) {
+        if (organisation.getIsClient() != null && organisation.getIsClient()) {
 
-                OrganisationDTO keycloakOrg = orgService.findByRegistrationNo(organisation.getRegistrationNo());
+            OrganisationDTO keycloakOrg = orgService.findByRegistrationNo(organisation.getRegistrationNo());
 
-                organisation.setKeycloakId(keycloakOrg != null ? keycloakOrg.getId() : null);
-            }
+            organisation.setKeycloakId(keycloakOrg != null ? keycloakOrg.getId() : null);
+        }
 
-            return ResponseEntity.ok(organisation);
+        return ResponseEntity.ok(organisation);
     }
 
     @Override
     @Operation(summary = "Get All Organisations", description = "Retrieve all organisations")
     @Audit(entity = "ORGANISATION", logData = false)
     public ResponseEntity<List<OrganisationListDTO>> getAll() {
-        
-            return ResponseEntity.ok(organisationService.getAll());
+
+        logger.debug("Retrieving all organisations");
+        return ResponseEntity.ok(organisationService.getAll());
     }
 
     @Override
     @Operation(summary = "Get All Organisations Paged", description = "Retrieve all organisations with pagination")
-    @Audit(entity = "ORGANISATION", eventLabel="#pageNumber + ' ' + #pageSize", logData = false)
+    @Audit(entity = "ORGANISATION", eventLabel = "#pageNumber + ' ' + #pageSize", logData = false)
     public ResponseEntity<Page<OrganisationListDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) {
-        
-            return ResponseEntity.ok(organisationService.getAll(pageNumber, pageSize));
+
+        logger.debug("Retrieving organisations page: {}, size: {}", pageNumber, pageSize);
+        return ResponseEntity.ok(organisationService.getAll(pageNumber, pageSize));
 
     }
 
@@ -81,19 +88,21 @@ public class OrganisationApiImpl implements OrganisationApi {
     public ResponseEntity<Page<OrganisationListDTO>> pagedSearch(
             SearchObject<OrganisationSearchCriteria> criteria) {
 
-            Page<OrganisationListDTO> results = organisationService.search(criteria);
+        logger.debug("Performing paged search for organisations with criteria: {}", criteria);
+        Page<OrganisationListDTO> results = organisationService.search(criteria);
 
-            // updateOrganisationsDetails(results.getContent());
+        // updateOrganisationsDetails(results.getContent());
 
-            return ResponseEntity.ok(results);
+        return ResponseEntity.ok(results);
     }
 
     @Override
     @Operation(summary = "Remove Organisation", description = "Remove an organisation by its ID")
-    @Audit(entity = "ORGANISATION", eventLabel="#id", logData = false)
+    @Audit(entity = "ORGANISATION", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) {
-        
-            return ResponseEntity.ok(organisationService.remove(id));
+
+        logger.debug("Removing organisation with ID: {}", id);
+        return ResponseEntity.ok(organisationService.remove(id));
     }
 
     private Collection<OrganisationListDTO> updateOrganisationsDetails(Collection<OrganisationListDTO> orgs) {
@@ -103,18 +112,17 @@ public class OrganisationApiImpl implements OrganisationApi {
             OrganisationDTO orgDetails = organisationService.findById(org.id());
             if (orgDetails != null) {
                 OrganisationListDTO updatedOrg = new OrganisationListDTO(
-                    org.id(), 
-                    org.code(), 
-                    org.name(),
-                    orgDetails.getRegistrationNo(), 
-                    org.status(), 
-                    orgDetails.getContactEmailAddress(), 
-                    org.kycStatus(), 
-                    orgDetails.getIsClient(), 
-                    orgDetails.getKeycloakId(),
-                    orgDetails.getPhysicalAddress(),
-                    orgDetails.getPostalAddress()
-                );
+                        org.id(),
+                        org.code(),
+                        org.name(),
+                        orgDetails.getRegistrationNo(),
+                        org.status(),
+                        orgDetails.getContactEmailAddress(),
+                        org.kycStatus(),
+                        orgDetails.getIsClient(),
+                        orgDetails.getKeycloakId(),
+                        orgDetails.getPhysicalAddress(),
+                        orgDetails.getPostalAddress());
 
                 // org.contactEmailAddress = orgDetails.getContactEmailAddress();
                 // org.registrationNo = orgDetails.getRegistrationNo();
@@ -128,37 +136,38 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Save Organisation", description = "Save an organisation")
-    @Audit(entity = "ORGANISATION", eventLabel="#organisation.id", logData = true)
+    @Audit(entity = "ORGANISATION", eventLabel = "#organisation.id", logData = true)
     public ResponseEntity<OrganisationDTO> save(OrganisationDTO organisation) {
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            AuditTracker.auditTrail(organisation, authentication);
+        logger.debug("Saving organisation: {}", organisation);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(organisation, authentication);
 
-            OrganisationDTO keycloakOrg = null;
+        OrganisationDTO keycloakOrg = null;
 
-            if (organisation.getIsClient() != null && organisation.getIsClient()) {
+        if (organisation.getIsClient() != null && organisation.getIsClient()) {
 
-                OrganisationDTO existingOrg = orgService.findByRegistrationNo(organisation.getRegistrationNo());
-                keycloakOrg = new OrganisationDTO();
+            OrganisationDTO existingOrg = orgService.findByRegistrationNo(organisation.getRegistrationNo());
+            keycloakOrg = new OrganisationDTO();
 
-                keycloakOrg.copy(organisation);
+            keycloakOrg.copy(organisation);
 
-                if (existingOrg != null) {
+            if (existingOrg != null) {
 
-                    keycloakOrg.setId(existingOrg.getId());
-                }
-
-                keycloakOrg = orgService.createOrganisation(keycloakOrg);
+                keycloakOrg.setId(existingOrg.getId());
             }
 
-            organisation = organisationService.save(organisation);
+            keycloakOrg = orgService.createOrganisation(keycloakOrg);
+        }
 
-            if (keycloakOrg != null) {
+        organisation = organisationService.save(organisation);
 
-                organisation.setKeycloakId(keycloakOrg.getId());
-            }
+        if (keycloakOrg != null) {
 
-            return ResponseEntity.ok(organisation);
+            organisation.setKeycloakId(keycloakOrg.getId());
+        }
+
+        return ResponseEntity.ok(organisation);
 
     }
 
@@ -168,70 +177,75 @@ public class OrganisationApiImpl implements OrganisationApi {
     public ResponseEntity<List<OrganisationListDTO>> search(
             SearchObject<OrganisationSearchCriteria> criteria) {
 
-            Set<PropertySearchOrder> sortings = new HashSet<>();
+        logger.debug("Searching organisations with criteria: {}", criteria);
+        Set<PropertySearchOrder> sortings = new HashSet<>();
 
-            if (criteria.getSortings() != null) {
-                sortings.addAll(criteria.getSortings());
-            }
+        if (criteria.getSortings() != null) {
+            sortings.addAll(criteria.getSortings());
+        }
 
-            List<OrganisationListDTO> results = organisationService.search(criteria.getCriteria(), sortings);
+        List<OrganisationListDTO> results = organisationService.search(criteria.getCriteria(), sortings);
 
-            return ResponseEntity.ok(results);
+        return ResponseEntity.ok(results);
     }
 
     @Override
     @Operation(summary = "Load Request Organisation", description = "Load an organisation based on request ID, identity confirmation token, and registration number")
-    @Audit(entity = "ORGANISATION", eventLabel="#requestId + ' ' + #identityConfirmationToken + ' ' + #registrationNo", logData = false)
+    @Audit(entity = "ORGANISATION", eventLabel = "#requestId + ' ' + #identityConfirmationToken + ' ' + #registrationNo", logData = false)
     public ResponseEntity<OrganisationDTO> loadRequestOrganisation(String requestId, String identityConfirmationToken,
             String registrationNo) throws Exception {
-        
-            OrganisationDTO organisation = organisationService.loadRequestOrganisation(requestId, identityConfirmationToken,
-                    registrationNo);
-            return ResponseEntity.ok(organisation);
+
+        logger.debug("Loading request organisation with Request ID: {}, Identity Confirmation Token: {}, Registration No: {}", requestId, identityConfirmationToken, registrationNo);
+        OrganisationDTO organisation = organisationService.loadRequestOrganisation(requestId, identityConfirmationToken,
+                registrationNo);
+        return ResponseEntity.ok(organisation);
     }
 
     @Override
     @Operation(summary = "Load My Organisation", description = "Load the organisation associated with the authenticated user")
     @Audit(entity = "ORGANISATION", eventLabel = "'loadMyOrganisation'", logData = false)
     public ResponseEntity<OrganisationDTO> loadMyOrganisation() throws Exception {
-        
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if(!authentication.isAuthenticated()) {
-                throw new IndividualServiceException("Unauthenticated");
-            }
 
-            Jwt jwt = (Jwt) authentication.getPrincipal();
-            Map<String, Object> org = jwt.getClaimAsMap("organization");
-            if(org == null) {
+        logger.debug("Loading organisation for the authenticated user");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!authentication.isAuthenticated()) {
+            throw new IndividualServiceException("Unauthenticated");
+        }
 
-                throw new UnsupportedOperationException("Not implemented yet");
-            }
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        Map<String, Object> org = jwt.getClaimAsMap("organization");
+        if (org == null) {
 
-            String code = org.keySet().iterator().next();
-            return ResponseEntity.ok(organisationService.findByCode(code));
+            throw new UnsupportedOperationException("Not implemented yet");
+        }
+
+        String code = org.keySet().iterator().next();
+        return ResponseEntity.ok(organisationService.findByCode(code));
     }
 
     @Override
     @Operation(summary = "Find Organisation by Registration No", description = "Find an organisation by its registration number")
-    @Audit(entity = "ORGANISATION", eventLabel="#registrationNo", logData = false)
+    @Audit(entity = "ORGANISATION", eventLabel = "#registrationNo", logData = false)
     public ResponseEntity<OrganisationDTO> findByRegistrationNo(String registrationNo) throws Exception {
-        
-            return ResponseEntity.ok(organisationService.findByRegistrationNo(registrationNo));
+
+        logger.debug("Finding organisation with Registration No: {}", registrationNo);
+        return ResponseEntity.ok(organisationService.findByRegistrationNo(registrationNo));
     }
 
     @Override
     @Operation(summary = "Verify Organisation", description = "Verify an organisation by its ID")
-    @Audit(entity = "ORGANISATION", eventLabel="#id", logData = false)
+    @Audit(entity = "ORGANISATION", eventLabel = "#id", logData = false)
     public ResponseEntity<OrganisationDTO> verifyOrganisation(String id) throws Exception {
-        
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (!authentication.isAuthenticated()) {
-                throw new IndividualServiceException("Unauthenticated");
-            }
 
-            Jwt jwt = (Jwt) authentication.getPrincipal();
-            String userId = jwt.getSubject();
+        logger.debug("Verifying organisation with ID: {}", id);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!authentication.isAuthenticated()) {
+            throw new IndividualServiceException("Unauthenticated");
+        }
 
-            return ResponseEntity.ok(organisationService.verifyOrganisation(id, userId));
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        String userId = jwt.getSubject();
+
+        return ResponseEntity.ok(organisationService.verifyOrganisation(id, userId));
     }
 }

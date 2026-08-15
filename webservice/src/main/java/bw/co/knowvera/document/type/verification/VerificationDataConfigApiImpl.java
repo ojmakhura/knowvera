@@ -35,6 +35,8 @@ public class VerificationDataConfigApiImpl implements VerificationDataConfigApi 
     @Operation(summary = "Find Verification Data Config", description = "Get the verification data config with the given id")
     @Audit(entity = "VERIFICATION_DATA_CONFIG", eventLabel = "#id", logData = false)
     public ResponseEntity<VerificationDataConfigDTO> findById(String id) throws Exception {
+
+        logger.debug("Finding verification data config with ID: {}", id);
         return ResponseEntity.ok(verificationDataConfigService.findById(id));
     }
 
@@ -42,6 +44,8 @@ public class VerificationDataConfigApiImpl implements VerificationDataConfigApi 
     @Operation(summary = "Remove Verification Data Config", description = "Remove the verification data config with the given id")
     @Audit(entity = "VERIFICATION_DATA_CONFIG", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
+
+        logger.debug("Removing verification data config with ID: {}", id);
         return ResponseEntity.ok(verificationDataConfigService.remove(id));
 
     }
@@ -51,6 +55,8 @@ public class VerificationDataConfigApiImpl implements VerificationDataConfigApi 
     @Audit(entity = "VERIFICATION_DATA_CONFIG", eventLabel = "#verificationDataConfig.id", logData = true)
     public ResponseEntity<VerificationDataConfigDTO> save(@Valid VerificationDataConfigDTO verificationDataConfig)
             throws Exception {
+
+        logger.debug("Saving verification data config: {}", verificationDataConfig);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuditTracker.auditTrail(verificationDataConfig, authentication);
         throw new UnsupportedOperationException("Not implemented yet");

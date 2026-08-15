@@ -16,12 +16,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
+import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
 
 @RestController
 @Tag(name = "Individual Employment Records", description = "Operations related to individual employment records.")
 public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
+    private static Logger logger = org.slf4j.LoggerFactory.getLogger(EmploymentRecordApi.class);
     private final EmploymentRecordService employmentRecordService;
 
     public EmploymentRecordApiImpl(
@@ -34,6 +36,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     @Operation(summary = "Find Employment Record by ID", description = "Find an employment record by its ID")
     public ResponseEntity<EmploymentRecordDTO> findById(String id) throws Exception {
 
+        logger.debug("Finding employment record with ID: {}", id);
         return ResponseEntity.ok(employmentRecordService.findById(id));
     }
 
@@ -42,6 +45,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     public ResponseEntity<List<EmploymentRecordDTO>> findByIndividual(String individualId)
             throws Exception {
 
+        logger.debug("Finding employment records for individual ID: {}", individualId);
         return ResponseEntity.ok(employmentRecordService.findByIndividual(individualId));
     }
 
@@ -49,6 +53,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     @Operation(summary = "Get All Employment Records", description = "Get all employment records")
     public ResponseEntity<List<EmploymentRecordDTO>> getAll() throws Exception {
 
+        logger.debug("Retrieving all employment records");
         return ResponseEntity.ok(employmentRecordService.getAll());
     }
 
@@ -57,6 +62,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     public ResponseEntity<Page<EmploymentRecordDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) throws Exception {
 
+        logger.debug("Retrieving all employment records with pagination - Page: {}, Size: {}", pageNumber, pageSize);
         return ResponseEntity.ok(employmentRecordService.getAll(pageNumber, pageSize));
     }
 
@@ -65,6 +71,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     public ResponseEntity<Page<EmploymentRecordDTO>> pagedSearch(String criteria,
             Integer pageNumber, Integer pageSize) throws Exception {
 
+        logger.debug("Searching employment records with criteria: {}, page: {}, size: {}", criteria, pageNumber, pageSize);
         return ResponseEntity.ok(employmentRecordService.search(criteria, pageNumber, pageSize));
     }
 
@@ -72,6 +79,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     @Operation(summary = "Remove Employment Record", description = "Remove an employment record by its ID")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
+        logger.debug("Removing employment record with ID: {}", id);
         return ResponseEntity.ok(employmentRecordService.remove(id));
     }
 
@@ -80,6 +88,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     public ResponseEntity<EmploymentRecordDTO> save(EmploymentRecordDTO employmentRecord)
             throws Exception {
 
+        logger.debug("Saving employment record: {}", employmentRecord);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuditTracker.auditTrail(employmentRecord, authentication);
 
@@ -91,6 +100,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     public ResponseEntity<List<EmploymentRecordDTO>> search(String criteria)
             throws Exception {
 
+        logger.debug("Searching employment records with criteria: {}", criteria);
         return ResponseEntity.ok(employmentRecordService.search(criteria));
     }
 }

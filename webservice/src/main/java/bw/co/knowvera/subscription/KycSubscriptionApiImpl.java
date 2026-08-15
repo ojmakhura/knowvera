@@ -42,6 +42,8 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     @Audit(entity = "KYC_SUBSCRIPTION", eventLabel = "#id", logData = false)
     public ResponseEntity<KycSubscriptionDTO> findById(String id) throws Exception {
 
+        logger.debug("Finding KYC subscription with ID: {}", id);
+
         KycSubscriptionDTO subscription = kycSubscriptionService.findById(id);
         return ResponseEntity.ok(subscription);
     }
@@ -50,6 +52,8 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     @Operation(summary = "Get All KYC Subscriptions", description = "Retrieve all KYC subscriptions")
     @Audit(entity = "KYC_SUBSCRIPTION", logData = false)
     public ResponseEntity<List<KycSubscriptionDTO>> getAll() throws Exception {
+
+        logger.debug("Retrieving all KYC subscriptions");
 
         List<KycSubscriptionDTO> subscriptions = kycSubscriptionService.getAll();
         return ResponseEntity.ok(subscriptions);
@@ -60,6 +64,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     @Audit(entity = "KYC_SUBSCRIPTION", logData = false)
     public ResponseEntity<Page<KycSubscriptionDTO>> getAllPaged(Integer pageNumber, Integer pageSize) throws Exception {
 
+        logger.debug("Retrieving KYC subscriptions page: {}, size: {}", pageNumber, pageSize);
         Page<KycSubscriptionDTO> page = kycSubscriptionService.getAll(pageNumber, pageSize);
         return ResponseEntity.ok(page);
     }
@@ -70,6 +75,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     public ResponseEntity<Page<KycSubscriptionDTO>> pagedSearch(SearchObject<SubscriptionSearchCriteria> criteria)
             throws Exception {
 
+        logger.debug("Performing paged search for KYC subscriptions with criteria: {}", criteria);
         Page<KycSubscriptionDTO> page = kycSubscriptionService.search(criteria);
 
         return ResponseEntity.ok(page);
@@ -81,6 +87,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     @Audit(entity = "KYC_SUBSCRIPTION", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
+        logger.debug("Removing KYC subscription with ID: {}", id);
         return ResponseEntity.ok(kycSubscriptionService.remove(id));
     }
 
@@ -89,6 +96,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     @Audit(entity = "KYC_SUBSCRIPTION", eventLabel = "#subscription.id", logData = true)
     public ResponseEntity<KycSubscriptionDTO> save(KycSubscriptionDTO subscription) throws Exception {
 
+        logger.debug("Saving KYC subscription: {}", subscription);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuditTracker.auditTrail(subscription, authentication);
 
@@ -101,6 +109,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     public ResponseEntity<List<KycSubscriptionDTO>> search(SearchObject<SubscriptionSearchCriteria> criteria)
             throws Exception {
 
+        logger.debug("Searching KYC subscriptions with criteria: {}", criteria);
         Set<PropertySearchOrder> sortOrders = new HashSet<>();
         if (criteria.getSortings() != null) {
             sortOrders.addAll(criteria.getSortings());
@@ -115,7 +124,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     @Audit(entity = "KYC_SUBSCRIPTION", eventLabel = "#arg0", logData = false)
     public ResponseEntity<List<KycSubscriptionDTO>> findByOrganisation(String organisationId) throws Exception {
 
-        logger.info("Finding KYC subscriptions for organisation: {}", organisationId);
+        logger.debug("Finding KYC subscriptions for organisation: {}", organisationId);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = "anonymousUser";

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ import jakarta.validation.Valid;
 @Tag(name = "Document Types", description = "Operations related to document types.")
 public class DocumentTypeApiImpl implements DocumentTypeApi {
 
+    private static final Logger logger = LoggerFactory.getLogger(DocumentTypeApi.class);
     private final DocumentTypeService documentTypeService;
 
     public DocumentTypeApiImpl(DocumentTypeService documentTypeService) {
@@ -37,6 +40,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     @Operation(summary = "Find Document Type", description = "Get the document type with the given id")
     public ResponseEntity<DocumentTypeDTO> findById(String id) throws Exception {
 
+        logger.debug("Finding document type with ID: {}", id);
         return ResponseEntity.ok(documentTypeService.findById(id));
 
     }
@@ -45,6 +49,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     @Operation(summary = "Get All Document Types", description = "Get all document types")
     public ResponseEntity<List<DocumentTypeDTO>> getAll() throws Exception {
 
+        logger.debug("Retrieving all document types");
         List<DocumentTypeDTO> results = documentTypeService.getAll();
 
         if (CollectionUtils.isEmpty(results)) {
@@ -61,6 +66,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     public ResponseEntity<Page<DocumentTypeDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) throws Exception {
 
+        logger.debug("Retrieving document types page: {}, size: {}", pageNumber, pageSize);
         Page<DocumentTypeDTO> results = documentTypeService.getAll(pageNumber, pageSize);
 
         if (CollectionUtils.isEmpty(results.getContent())) {
@@ -77,6 +83,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
             Integer pageNumber,
             Integer pageSize) throws Exception {
 
+        logger.debug("Searching document types with criteria: {}, page: {}, size: {}", criteria, pageNumber, pageSize);
         Page<DocumentTypeDTO> results = documentTypeService.search(criteria, pageNumber, pageSize);
 
         if (CollectionUtils.isEmpty(results.getContent())) {
@@ -93,6 +100,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     @Audit(entity = "DOCUMENT_TYPE", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
+        logger.debug("Removing document type with ID: {}", id);
         return ResponseEntity.ok(documentTypeService.remove(id));
     }
 
@@ -101,6 +109,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     @Audit(entity = "DOCUMENT_TYPE", eventLabel = "#documentType.name", logData = false)
     public ResponseEntity<DocumentTypeDTO> save(DocumentTypeDTO documentType) throws Exception {
 
+        logger.debug("Saving document type: {}", documentType);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuditTracker.auditTrail(documentType, authentication);
 
@@ -126,6 +135,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     @Operation(summary = "Search Document Types", description = "Search document types by criteria")
     public ResponseEntity<List<DocumentTypeDTO>> search(String criteria) throws Exception {
 
+        logger.debug("Searching document types with criteria: {}", criteria);
         List<DocumentTypeDTO> results = documentTypeService.search(criteria);
 
         if (CollectionUtils.isEmpty(results)) {
@@ -142,6 +152,7 @@ public class DocumentTypeApiImpl implements DocumentTypeApi {
     public ResponseEntity<DocumentTypeDTO> addExpectedField(String id, @Valid Set<ExpectedFieldDTO> expectedFields)
             throws Exception {
 
+        logger.debug("Adding expected fields to document type with ID: {}", id);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         expectedFields.forEach(field -> AuditTracker.auditTrail(field, authentication));
 
