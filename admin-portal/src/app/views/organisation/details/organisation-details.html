@@ -381,14 +381,14 @@
 							<ng-container matColumnDef="organisation">
 								<th mat-header-cell *matHeaderCellDef>Name / Registration</th>
 								<td mat-cell *matCellDef="let request">
-									<div class="cell-strong">{{ request.organisation || '-' }}</div>
-									<div class="cell-sub">{{ request.id || '-' }}</div>
+									<div class="cell-strong">{{ request.name || '-' }}</div>
+									<!-- <div class="cell-sub">{{ request.id || '-' }}</div> -->
 								</td>
 							</ng-container>
 
 							<ng-container matColumnDef="createdAt">
 								<th mat-header-cell *matHeaderCellDef>Email</th>
-								<td mat-cell *matCellDef="let request">{{ request.createdBy || '-' }}</td>
+								<td mat-cell *matCellDef="let request">{{ request.emailAddress || '-' }}</td>
 							</ng-container>
 
 							<ng-container matColumnDef="status">
@@ -515,4 +515,3 @@
 		</div>
 	</footer>
 </div>
-<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>

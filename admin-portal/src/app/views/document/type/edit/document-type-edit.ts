@@ -87,7 +87,6 @@ expiresIn: number | any;
     MatTooltipModule,
     MatCheckboxModule,
     MatTabsModule,
-    Loader,
     FormField,
     TranslateModule,
   ],

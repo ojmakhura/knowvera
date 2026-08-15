@@ -8,7 +8,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  Input,
+  linkedSignal,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { applyEach, email, form, required, FormField } from '@angular/forms/signals';
 import { GeneralStatus } from '@app/models/bw/co/knowvera/general-status';
 import { EmploymentStatus } from '@app/models/bw/co/knowvera/individual/employment-status';
@@ -32,6 +44,7 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { Loader } from '@app/@shared/loader/loader';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
+import Swal from 'sweetalert2';
 
 export class EditIndividualVarsForm {
   id: string | any = null;
@@ -83,11 +96,10 @@ export class EditIndividualVarsForm {
     FormField,
     NgxMatSelectSearchModule,
     TranslateModule,
-    Loader
-  ]
+    Loader,
+  ],
 })
 export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
-
   @Input() id: string | any;
 
   organisationApiStore = inject(OrganisationApiStore);
@@ -95,7 +107,10 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
   readonly individualApiStore = inject(IndividualApiStore);
   readonly router = inject(Router);
   loading = computed(
-    () => this.individualApiStore.loading() || this.organisationApiStore.loading() || this.branchApiStore.loading(),
+    () =>
+      this.individualApiStore.loading() ||
+      this.organisationApiStore.loading() ||
+      this.branchApiStore.loading(),
   );
   isSaving = signal(false);
 
@@ -115,17 +130,17 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
   editIndividualVarsForm: EditIndividualVarsForm = new EditIndividualVarsForm();
   editIndividualSignal = signal(this.editIndividualVarsForm);
   editIndividualSignalForm = form(this.editIndividualSignal, (path) => {
-    required(path.kycStatus, { message: 'kyc.status.required' })
-    required(path.identityType, { message: 'identity.type.required' })
-    required(path.identityNo, { message: 'identity.no.required' })
-    required(path.sex, { message: 'sex.required' })
-    required(path.firstName, { message: 'first.name.required' })
-    required(path.surname, { message: 'surname.required' })
-    required(path.nationality, { message: 'nationality.required' })
-    required(path.emailAddress, { message: 'email.address.required' })
+    required(path.kycStatus, { message: 'kyc.status.required' });
+    required(path.identityType, { message: 'identity.type.required' });
+    required(path.identityNo, { message: 'identity.no.required' });
+    required(path.sex, { message: 'sex.required' });
+    required(path.firstName, { message: 'first.name.required' });
+    required(path.surname, { message: 'surname.required' });
+    required(path.nationality, { message: 'nationality.required' });
+    required(path.emailAddress, { message: 'email.address.required' });
     email(path.emailAddress, { message: 'email.address.invalid' });
-    required(path.maritalStatus, { message: 'marital.status.required' })
-    required(path.employmentStatus, { message: 'employment.status.required' })
+    required(path.maritalStatus, { message: 'marital.status.required' });
+    required(path.employmentStatus, { message: 'employment.status.required' });
     required(path.hasUser, { message: 'has.user.required' });
     email(path.emailAddress, { message: 'email.address.invalid' });
     applyEach(path.phoneNumbers, (phonePath) => {
@@ -153,37 +168,210 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
   MaritalStatusT: any = MaritalStatus;
   MaritalStatusOptions = Object.keys(this.MaritalStatusT);
 
-
   loaderMessage = signal('');
   selected: any = null;
 
   countries: string[] = [
-    'Unknown', 'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria',
-    'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
-    'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia',
-    'Cameroon', 'Canada', 'Knowvera African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica',
-    'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt',
-    'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France', 'Gabon',
-    'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',
-    'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel',
-    'Italy', 'Jamaica', 'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Korea, North', 'Korea, South', 'Kosovo',
-    'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania',
-    'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius',
-    'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia',
-    'Nauru', 'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Macedonia', 'Norway', 'Oman',
-    'Pakistan', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal',
-    'Qatar', 'Romania', 'Russia', 'Rwanda', 'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe',
-    'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia',
-    'South Africa', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria', 'Taiwan',
-    'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan',
-    'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City',
-    'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+    'Unknown',
+    'Afghanistan',
+    'Albania',
+    'Algeria',
+    'Andorra',
+    'Angola',
+    'Antigua and Barbuda',
+    'Argentina',
+    'Armenia',
+    'Australia',
+    'Austria',
+    'Azerbaijan',
+    'Bahamas',
+    'Bahrain',
+    'Bangladesh',
+    'Barbados',
+    'Belarus',
+    'Belgium',
+    'Belize',
+    'Benin',
+    'Bhutan',
+    'Bolivia',
+    'Bosnia and Herzegovina',
+    'Botswana',
+    'Brazil',
+    'Brunei',
+    'Bulgaria',
+    'Burkina Faso',
+    'Burundi',
+    'Cabo Verde',
+    'Cambodia',
+    'Cameroon',
+    'Canada',
+    'Knowvera African Republic',
+    'Chad',
+    'Chile',
+    'China',
+    'Colombia',
+    'Comoros',
+    'Congo',
+    'Costa Rica',
+    'Croatia',
+    'Cuba',
+    'Cyprus',
+    'Czech Republic',
+    'Denmark',
+    'Djibouti',
+    'Dominica',
+    'Dominican Republic',
+    'Ecuador',
+    'Egypt',
+    'El Salvador',
+    'Equatorial Guinea',
+    'Eritrea',
+    'Estonia',
+    'Eswatini',
+    'Ethiopia',
+    'Fiji',
+    'Finland',
+    'France',
+    'Gabon',
+    'Gambia',
+    'Georgia',
+    'Germany',
+    'Ghana',
+    'Greece',
+    'Grenada',
+    'Guatemala',
+    'Guinea',
+    'Guinea-Bissau',
+    'Guyana',
+    'Haiti',
+    'Honduras',
+    'Hungary',
+    'Iceland',
+    'India',
+    'Indonesia',
+    'Iran',
+    'Iraq',
+    'Ireland',
+    'Israel',
+    'Italy',
+    'Jamaica',
+    'Japan',
+    'Jordan',
+    'Kazakhstan',
+    'Kenya',
+    'Kiribati',
+    'Korea, North',
+    'Korea, South',
+    'Kosovo',
+    'Kuwait',
+    'Kyrgyzstan',
+    'Laos',
+    'Latvia',
+    'Lebanon',
+    'Lesotho',
+    'Liberia',
+    'Libya',
+    'Liechtenstein',
+    'Lithuania',
+    'Luxembourg',
+    'Madagascar',
+    'Malawi',
+    'Malaysia',
+    'Maldives',
+    'Mali',
+    'Malta',
+    'Marshall Islands',
+    'Mauritania',
+    'Mauritius',
+    'Mexico',
+    'Micronesia',
+    'Moldova',
+    'Monaco',
+    'Mongolia',
+    'Montenegro',
+    'Morocco',
+    'Mozambique',
+    'Myanmar',
+    'Namibia',
+    'Nauru',
+    'Nepal',
+    'Netherlands',
+    'New Zealand',
+    'Nicaragua',
+    'Niger',
+    'Nigeria',
+    'North Macedonia',
+    'Norway',
+    'Oman',
+    'Pakistan',
+    'Palau',
+    'Palestine',
+    'Panama',
+    'Papua New Guinea',
+    'Paraguay',
+    'Peru',
+    'Philippines',
+    'Poland',
+    'Portugal',
+    'Qatar',
+    'Romania',
+    'Russia',
+    'Rwanda',
+    'Saint Kitts and Nevis',
+    'Saint Lucia',
+    'Saint Vincent and the Grenadines',
+    'Samoa',
+    'San Marino',
+    'Sao Tome and Principe',
+    'Saudi Arabia',
+    'Senegal',
+    'Serbia',
+    'Seychelles',
+    'Sierra Leone',
+    'Singapore',
+    'Slovakia',
+    'Slovenia',
+    'Solomon Islands',
+    'Somalia',
+    'South Africa',
+    'South Sudan',
+    'Spain',
+    'Sri Lanka',
+    'Sudan',
+    'Suriname',
+    'Sweden',
+    'Switzerland',
+    'Syria',
+    'Taiwan',
+    'Tajikistan',
+    'Tanzania',
+    'Thailand',
+    'Timor-Leste',
+    'Togo',
+    'Tonga',
+    'Trinidad and Tobago',
+    'Tunisia',
+    'Turkey',
+    'Turkmenistan',
+    'Tuvalu',
+    'Uganda',
+    'Ukraine',
+    'United Arab Emirates',
+    'United Kingdom',
+    'United States',
+    'Uruguay',
+    'Uzbekistan',
+    'Vanuatu',
+    'Vatican City',
+    'Venezuela',
+    'Vietnam',
+    'Yemen',
+    'Zambia',
+    'Zimbabwe',
   ];
 
   constructor() {
-
     effect(() => {
-
       const individual = this.individualApiStore.data();
 
       if (individual) {
@@ -210,7 +398,11 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
 
       if (this.success() && !this.loading()) {
         this.isSaving.set(false);
-        this.router.navigate(['/individual', 'details', this.individual().id || this.editIndividualSignal().id]);
+        this.router.navigate([
+          '/individual',
+          'details',
+          this.individual().id || this.editIndividualSignal().id,
+        ]);
       }
 
       if (this.error() && !this.loading()) {
@@ -220,7 +412,6 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
-
     this.individualApiStore.reset();
     this.organisationApiStore.reset();
     this.branchApiStore.reset();
@@ -229,12 +420,11 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
     if (this.id && this.id !== '') {
       this.individualApiStore.findById({ id: this.id });
     }
-
   }
 
-  ngAfterViewInit(): void { }
+  ngAfterViewInit(): void {}
 
-  ngOnDestroy(): void { }
+  ngOnDestroy(): void {}
 
   cancel(): void {
     const targetId = this.editIndividualSignal().id || this.id;
@@ -257,43 +447,24 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
     }));
   }
 
-  updatePhoneType(index: number, type: PhoneType): void {
-    this.editIndividualSignal.update((value) => {
-      const phoneNumbers = [...(value.phoneNumbers ?? [])];
-      phoneNumbers[index] = {
-        ...phoneNumbers[index],
-        type,
-      } as PhoneNumber;
-
-      return {
-        ...value,
-        phoneNumbers,
-      };
-    });
-  }
-
-  updatePhoneNumber(index: number, phoneNumber: string): void {
-    this.editIndividualSignal.update((value) => {
-      const phoneNumbers = [...(value.phoneNumbers ?? [])];
-      phoneNumbers[index] = {
-        ...phoneNumbers[index],
-        phoneNumber,
-      } as PhoneNumber;
-
-      return {
-        ...value,
-        phoneNumbers,
-      };
-    });
-  }
-
   phoneNumbersRemove(i: number) {
-    this.editIndividualSignal.update((value) => {
-      const phoneNumbers = value.phoneNumbers.filter((_: any, index: number) => index !== i);
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You are about to remove this phone number.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, remove it!',
+      cancelButtonText: 'No, keep it',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.editIndividualSignal.update((value) => {
+          const phoneNumbers = value.phoneNumbers.filter((_: any, index: number) => index !== i);
 
-      return {
-        ...value,
-        phoneNumbers: phoneNumbers
+          return {
+            ...value,
+            phoneNumbers: phoneNumbers,
+          };
+        });
       }
     });
   }
@@ -305,7 +476,6 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
   branchCompare(b1: BranchDTO | any, b2: BranchDTO | any) {
     return b1 && b2 && b1.id === b2.id;
   }
-
 
   save(): void {
     this.isSaving.set(true);
@@ -333,9 +503,9 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   organisationSelected() {
-
     console.log(this.editIndividualSignal().organisation);
-    this.branchApiStore.findByOrganisation({ organisationId: this.editIndividualSignal().organisation?.id });
+    this.branchApiStore.findByOrganisation({
+      organisationId: this.editIndividualSignal().organisation?.id,
+    });
   }
-
 }

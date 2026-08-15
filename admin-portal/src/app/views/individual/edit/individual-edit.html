@@ -1,5 +1,4 @@
 <div class="individual-edit-page">
-  <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
 
   <div class="edit-shell">
     <mat-card class="edit-card">
@@ -9,17 +8,27 @@
             <mat-icon>person</mat-icon>
             <h1>Edit Individual</h1>
           </div>
-          <p>Modify compliance records for {{ editIndividualSignal().identityNo || 'new individual profile' }}</p>
+          <p>
+            Modify compliance records for
+            {{ editIndividualSignal().identityNo || 'new individual profile' }}
+          </p>
         </div>
         <div class="header-actions">
           <button mat-button type="button" class="cancel-btn" (click)="cancel()">Cancel</button>
-          <button mat-flat-button color="primary" type="button" class="save-btn" [disabled]="loading()"
-            (click)="save()">Save Changes</button>
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            class="save-btn"
+            [disabled]="loading()"
+            (click)="save()"
+          >
+            Save Changes
+          </button>
         </div>
       </header>
 
       <form class="edit-form" (ngSubmit)="save()">
-
         <!-- Core Identity -->
         <section class="section-block">
           <div class="section-head">
@@ -35,11 +44,16 @@
             <div class="field-group">
               <label class="field-label" for="firstName" translate>first.name</label>
               <mat-form-field class="vault-field">
-                <input matInput id="firstName" [formField]="editIndividualSignalForm.firstName" type="text" />
+                <input
+                  matInput
+                  id="firstName"
+                  [formField]="editIndividualSignalForm.firstName"
+                  type="text"
+                />
                 @if (editIndividualSignalForm.firstName().touched()) {
-                @for (error of editIndividualSignalForm.firstName().errors(); track $index) {
-                <p class="error-message" translate>{{ error.message }}</p>
-                }
+                  @for (error of editIndividualSignalForm.firstName().errors(); track $index) {
+                    <p class="error-message" translate>{{ error.message }}</p>
+                  }
                 }
               </mat-form-field>
             </div>
@@ -56,9 +70,9 @@
               <mat-form-field class="vault-field">
                 <input matInput [formField]="editIndividualSignalForm.surname" type="text" />
                 @if (editIndividualSignalForm.surname().touched()) {
-                @for (error of editIndividualSignalForm.surname().errors(); track $index) {
-                <p class="error-message" translate>{{ error.message }}</p>
-                }
+                  @for (error of editIndividualSignalForm.surname().errors(); track $index) {
+                    <p class="error-message" translate>{{ error.message }}</p>
+                  }
                 }
               </mat-form-field>
             </div>
@@ -68,13 +82,15 @@
               <mat-form-field class="vault-field">
                 <mat-select [formField]="editIndividualSignalForm.sex">
                   @for (option of SexOptions; track option) {
-                  <mat-option [value]="SexT[option]"><span translate>sex.{{ option }}</span></mat-option>
+                    <mat-option [value]="SexT[option]"
+                      ><span translate>sex.{{ option }}</span></mat-option
+                    >
                   }
                 </mat-select>
                 @if (editIndividualSignalForm.sex().touched()) {
-                @for (error of editIndividualSignalForm.sex().errors(); track $index) {
-                <p class="error-message" translate>{{ error.message }}</p>
-                }
+                  @for (error of editIndividualSignalForm.sex().errors(); track $index) {
+                    <p class="error-message" translate>{{ error.message }}</p>
+                  }
                 }
               </mat-form-field>
             </div>
@@ -84,13 +100,13 @@
               <mat-form-field class="vault-field">
                 <mat-select [formField]="editIndividualSignalForm.nationality">
                   @for (country of countries; track country) {
-                  <mat-option [value]="country">{{ country }}</mat-option>
+                    <mat-option [value]="country">{{ country }}</mat-option>
                   }
                 </mat-select>
                 @if (editIndividualSignalForm.nationality().touched()) {
-                @for (error of editIndividualSignalForm.nationality().errors(); track $index) {
-                <p class="error-message" translate>{{ error.message }}</p>
-                }
+                  @for (error of editIndividualSignalForm.nationality().errors(); track $index) {
+                    <p class="error-message" translate>{{ error.message }}</p>
+                  }
                 }
               </mat-form-field>
             </div>
@@ -100,14 +116,15 @@
               <mat-form-field class="vault-field">
                 <mat-select [formField]="editIndividualSignalForm.maritalStatus">
                   @for (option of MaritalStatusOptions; track option) {
-                  <mat-option [value]="MaritalStatusT[option]"><span translate>marital.status.{{ option
-                      }}</span></mat-option>
+                    <mat-option [value]="MaritalStatusT[option]"
+                      ><span translate>marital.status.{{ option }}</span></mat-option
+                    >
                   }
                 </mat-select>
                 @if (editIndividualSignalForm.maritalStatus().touched()) {
-                @for (error of editIndividualSignalForm.maritalStatus().errors(); track $index) {
-                <p class="error-message" translate>{{ error.message }}</p>
-                }
+                  @for (error of editIndividualSignalForm.maritalStatus().errors(); track $index) {
+                    <p class="error-message" translate>{{ error.message }}</p>
+                  }
                 }
               </mat-form-field>
             </div>
@@ -115,13 +132,17 @@
             <div class="field-group">
               <label class="field-label" translate>date.of.birth</label>
               <mat-form-field class="vault-field">
-                <input matInput [matDatepicker]="dobPicker" [formField]="editIndividualSignalForm.dateOfBirth"/>
+                <input
+                  matInput
+                  [matDatepicker]="dobPicker"
+                  [formField]="editIndividualSignalForm.dateOfBirth"
+                />
                 <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
                 <mat-datepicker #dobPicker></mat-datepicker>
                 @if (editIndividualSignalForm.dateOfBirth().touched()) {
-                @for (error of editIndividualSignalForm.dateOfBirth().errors(); track $index) {
-                <p class="error-message" translate>{{ error.message }}</p>
-                }
+                  @for (error of editIndividualSignalForm.dateOfBirth().errors(); track $index) {
+                    <p class="error-message" translate>{{ error.message }}</p>
+                  }
                 }
               </mat-form-field>
             </div>
@@ -144,14 +165,15 @@
                 <mat-form-field class="vault-field">
                   <mat-select [formField]="editIndividualSignalForm.identityType">
                     @for (option of IndividualIdentityTypeOptions; track option) {
-                    <mat-option [value]="IndividualIdentityTypeT[option]"><span translate>individual.identity.type.{{
-                        option }}</span></mat-option>
+                      <mat-option [value]="IndividualIdentityTypeT[option]"
+                        ><span translate>individual.identity.type.{{ option }}</span></mat-option
+                      >
                     }
                   </mat-select>
                   @if (editIndividualSignalForm.identityType().touched()) {
-                  @for (error of editIndividualSignalForm.identityType().errors(); track $index) {
-                  <p class="error-message" translate>{{ error.message }}</p>
-                  }
+                    @for (error of editIndividualSignalForm.identityType().errors(); track $index) {
+                      <p class="error-message" translate>{{ error.message }}</p>
+                    }
                   }
                 </mat-form-field>
               </div>
@@ -161,9 +183,9 @@
                 <mat-form-field class="vault-field">
                   <input matInput [formField]="editIndividualSignalForm.identityNo" type="text" />
                   @if (editIndividualSignalForm.identityNo().touched()) {
-                  @for (error of editIndividualSignalForm.identityNo().errors(); track $index) {
-                  <p class="error-message" translate>{{ error.message }}</p>
-                  }
+                    @for (error of editIndividualSignalForm.identityNo().errors(); track $index) {
+                      <p class="error-message" translate>{{ error.message }}</p>
+                    }
                   }
                 </mat-form-field>
               </div>
@@ -182,14 +204,15 @@
                 <mat-form-field class="vault-field">
                   <mat-select [formField]="editIndividualSignalForm.kycStatus">
                     @for (option of KycComplianceStatusOptions; track option) {
-                    <mat-option [value]="KycComplianceStatusT[option]"><span translate>kyc.compliance.status.{{ option
-                        }}</span></mat-option>
+                      <mat-option [value]="KycComplianceStatusT[option]"
+                        ><span translate>kyc.compliance.status.{{ option }}</span></mat-option
+                      >
                     }
                   </mat-select>
                   @if (editIndividualSignalForm.kycStatus().touched()) {
-                  @for (error of editIndividualSignalForm.kycStatus().errors(); track $index) {
-                  <p class="error-message" translate>{{ error.message }}</p>
-                  }
+                    @for (error of editIndividualSignalForm.kycStatus().errors(); track $index) {
+                      <p class="error-message" translate>{{ error.message }}</p>
+                    }
                   }
                 </mat-form-field>
               </div>
@@ -199,14 +222,18 @@
                 <mat-form-field class="vault-field">
                   <mat-select [formField]="editIndividualSignalForm.employmentStatus">
                     @for (option of EmploymentStatusOptions; track option) {
-                    <mat-option [value]="EmploymentStatusT[option]"><span translate>employment.status.{{ option
-                        }}</span></mat-option>
+                      <mat-option [value]="EmploymentStatusT[option]"
+                        ><span translate>employment.status.{{ option }}</span></mat-option
+                      >
                     }
                   </mat-select>
                   @if (editIndividualSignalForm.employmentStatus().touched()) {
-                  @for (error of editIndividualSignalForm.employmentStatus().errors(); track $index) {
-                  <p class="error-message" translate>{{ error.message }}</p>
-                  }
+                    @for (
+                      error of editIndividualSignalForm.employmentStatus().errors();
+                      track $index
+                    ) {
+                      <p class="error-message" translate>{{ error.message }}</p>
+                    }
                   }
                 </mat-form-field>
               </div>
@@ -227,14 +254,22 @@
             <div class="field-group">
               <label class="field-label">Physical Address</label>
               <mat-form-field class="vault-field">
-                <textarea matInput [formField]="editIndividualSignalForm.physicalAddress" rows="3"></textarea>
+                <textarea
+                  matInput
+                  [formField]="editIndividualSignalForm.physicalAddress"
+                  rows="3"
+                ></textarea>
               </mat-form-field>
             </div>
 
             <div class="field-group">
               <label class="field-label">Postal Address</label>
               <mat-form-field class="vault-field">
-                <textarea matInput [formField]="editIndividualSignalForm.postalAddress" rows="3"></textarea>
+                <textarea
+                  matInput
+                  [formField]="editIndividualSignalForm.postalAddress"
+                  rows="3"
+                ></textarea>
               </mat-form-field>
             </div>
 
@@ -243,9 +278,9 @@
               <mat-form-field class="vault-field">
                 <input matInput [formField]="editIndividualSignalForm.emailAddress" type="email" />
                 @if (editIndividualSignalForm.emailAddress().touched()) {
-                @for (error of editIndividualSignalForm.emailAddress().errors(); track $index) {
-                <p class="error-message" translate>{{ error.message }}</p>
-                }
+                  @for (error of editIndividualSignalForm.emailAddress().errors(); track $index) {
+                    <p class="error-message" translate>{{ error.message }}</p>
+                  }
                 }
               </mat-form-field>
             </div>
@@ -261,33 +296,47 @@
             </div>
 
             <div class="phone-list">
-              @for (phone of editIndividualSignal().phoneNumbers; track phone; let i = $index) {
-              <div class="phone-row">
-                <div class="phone-edit-grid">
-                  <div class="field-group">
-                    <label class="field-label">Type</label>
-                    <mat-form-field class="vault-field compact-field">
-                      <mat-select [value]="$any(phone).type" (selectionChange)="updatePhoneType(i, $event.value)">
-                        @for (option of PhoneTypeOptions; track option) {
-                        <mat-option [value]="PhoneTypeT[option]">{{ option }}</mat-option>
+              @for (phone of editIndividualSignalForm.phoneNumbers; track phone; let i = $index) {
+                <div class="phone-row">
+                  <div class="phone-edit-grid">
+                    <div class="field-group">
+                      <label class="field-label">Type</label>
+                      <mat-form-field class="vault-field compact-field">
+                        <mat-select [formField]="phone.type">
+                          @for (option of PhoneTypeOptions; track option) {
+                            <mat-option [value]="PhoneTypeT[option]">{{ option }}</mat-option>
+                          }
+                        </mat-select>
+                        @if (phone.type().touched()) {
+                          @for (error of phone.type().errors(); track $index) {
+                            <p class="error-message" translate>{{ error.message }}</p>
+                          }
                         }
-                      </mat-select>
-                    </mat-form-field>
+                      </mat-form-field>
+                    </div>
+                    <div class="field-group">
+                      <label class="field-label">Number</label>
+                      <mat-form-field class="vault-field compact-field">
+                        <input matInput [formField]="phone.phoneNumber" type="text" />
+                        @if (phone.phoneNumber().touched()) {
+                          @for (error of phone.phoneNumber().errors(); track $index) {
+                            <p class="error-message" translate>{{ error.message }}</p>
+                          }
+                        }
+                      </mat-form-field>
+                    </div>
                   </div>
-                  <div class="field-group">
-                    <label class="field-label">Number</label>
-                    <mat-form-field class="vault-field compact-field">
-                      <input matInput [value]="$any(phone).phoneNumber || ''"
-                        (input)="updatePhoneNumber(i, $any($event.target).value)" type="text" />
-                    </mat-form-field>
-                  </div>
+                  <button
+                    mat-icon-button
+                    type="button"
+                    class="delete-phone-btn"
+                    (click)="phoneNumbersRemove(i)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
                 </div>
-                <button mat-icon-button type="button" class="delete-phone-btn" (click)="phoneNumbersRemove(i)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
               } @empty {
-              <div class="empty-state">No phone numbers added yet.</div>
+                <div class="empty-state">No phone numbers added yet.</div>
               }
             </div>
           </div>
@@ -306,35 +355,48 @@
             <div class="field-group">
               <label class="field-label">Organisation</label>
               <mat-form-field class="vault-field">
-                <mat-select [formField]="editIndividualSignalForm.organisation" [compareWith]="organisationCompare"
-                  (selectionChange)="organisationSelected()">
+                <mat-select
+                  [formField]="editIndividualSignalForm.organisation"
+                  [compareWith]="organisationCompare"
+                  (selectionChange)="organisationSelected()"
+                >
                   <mat-option>
-                    <ngx-mat-select-search [placeholderLabel]="'search.organisations' | translate"
-                      [formField]="editIndividualSignalForm.organisationFilter" (keyup.enter)="filterOrganisations()"
-                      [noEntriesFoundLabel]="'no.entries.found' | translate"></ngx-mat-select-search>
-                    <button mat-icon-button type="button" aria-label="Search organisations"
-                      (click)="filterOrganisations()">
+                    <ngx-mat-select-search
+                      [placeholderLabel]="'search.organisations' | translate"
+                      [formField]="editIndividualSignalForm.organisationFilter"
+                      (keyup.enter)="filterOrganisations()"
+                      [noEntriesFoundLabel]="'no.entries.found' | translate"
+                    ></ngx-mat-select-search>
+                    <button
+                      mat-icon-button
+                      type="button"
+                      aria-label="Search organisations"
+                      (click)="filterOrganisations()"
+                    >
                       <mat-icon>search</mat-icon>
                     </button>
                   </mat-option>
                   @for (option of filteredOrganisationList(); track option.id) {
-                  <mat-option [value]="option">{{ option.name }}</mat-option>
+                    <mat-option [value]="option">{{ option.name }}</mat-option>
                   }
                 </mat-select>
               </mat-form-field>
             </div>
 
             @if (editIndividualSignal().organisation?.id) {
-            <div class="field-group">
-              <label class="field-label">Branch</label>
-              <mat-form-field class="vault-field">
-                <mat-select [formField]="editIndividualSignalForm.branch" [compareWith]="branchCompare">
-                  @for (option of filteredBranchList(); track option.id) {
-                  <mat-option [value]="option">{{ option.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </div>
+              <div class="field-group">
+                <label class="field-label">Branch</label>
+                <mat-form-field class="vault-field">
+                  <mat-select
+                    [formField]="editIndividualSignalForm.branch"
+                    [compareWith]="branchCompare"
+                  >
+                    @for (option of filteredBranchList(); track option.id) {
+                      <mat-option [value]="option">{{ option.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
             }
           </div>
         </section>
@@ -344,11 +406,12 @@
           <mat-icon>shield</mat-icon>
           <div>
             <h3>Compliance Protocol Active</h3>
-            <p>All changes to this individual record are logged in the immutable audit trail. Ensure all identity
-              references align with current registry data before finalizing the update.</p>
+            <p>
+              All changes to this individual record are logged in the immutable audit trail. Ensure
+              all identity references align with current registry data before finalizing the update.
+            </p>
           </div>
         </section>
-
       </form>
 
       <footer class="edit-footer">

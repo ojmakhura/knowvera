@@ -39,6 +39,7 @@ import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { CreateClientRequestDialogComponent } from './create-client-request-dialog';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 @Component({
   selector: 'app-organisation-details',
@@ -57,7 +58,6 @@ import { CreateClientRequestDialogComponent } from './create-client-request-dial
     MatChipsModule,
     MatTabsModule,
     MatSelectModule,
-    Loader
   ],
   templateUrl: './organisation-details.html',
   styleUrl: './organisation-details.scss',
@@ -71,6 +71,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   organisationApiStore = inject(OrganisationApiStore);
   settingsApiStore = inject(SettingsApiStore);
   settings = linkedSignal(() => this.settingsApiStore.data());
+  loaderState = inject(LoaderState);
 
   organisation = linkedSignal(() => this.organisationApiStore.data());
 
@@ -152,6 +153,10 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   toaster: ToastrService = inject(ToastrService);
 
   constructor() {
+
+    this.loaderState.isLoading = this.loading;
+    this.loaderState.message = this.loaderMessage;
+
     effect(() => {
       const page = this.clientRequestsTableSignal();
 
@@ -197,6 +202,11 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
       this.branches.set(this.organisationApiStore.data()?.branches || []);
     });
+
+    effect(() => {
+      console.log('Loading state changed:', this.loading());
+      // this.loaderState.isLoading.set(this.loading());
+    });
   }
 
   ngOnInit(): void {
@@ -217,6 +227,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       this.loadIndividualClientRequests();
       this.loadOrganisationClientRequests();
       this.doSearchRequests();
+
     }
   }
 

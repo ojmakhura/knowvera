@@ -99,12 +99,6 @@
 			<span class="record-count">Showing {{ totalElements() }} Records</span>
 		</div>
 
-		@if (loading()) {
-			<div class="loader-wrap">
-				<app-loader [isLoading]="true" [overlay]="false" [fullScreen]="false" message="Loading requests"></app-loader>
-			</div>
-		}
-
 		<div class="results-table-wrap search-results-table-wrap">
 			<table mat-table [dataSource]="dataSource" class="requests-table search-results-table">
 				<ng-container matColumnDef="client">

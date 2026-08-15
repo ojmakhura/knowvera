@@ -150,7 +150,7 @@ public class SettingsServiceImpl
         }
 
         Settings settings = settingsRepository.findAll().stream().findFirst()
-                .orElseThrow(() -> new Exception("Settings not found"));
+                .orElseThrow(() -> new SettingsServiceException("Settings not found"));
         Document document = new Document();
         document.setCreatedAt(LocalDateTime.now());
         document.setCreatedBy(user);
@@ -181,26 +181,26 @@ public class SettingsServiceImpl
             throws Exception {
         // TODO Auto-generated method stub
         Settings settings = settingsRepository.findAll().stream().findFirst()
-                .orElseThrow(() -> new Exception("Settings not found"));
+                .orElseThrow(() -> new SettingsServiceException("Settings not found"));
 
         UUID docTypeUUID = UUID.fromString(documentTypeId);
 
         switch (purpose) {
             case ORGANISATION_KYC:
                 settings.getOrgKycDocuments().add(this.documentTypeRepository.findById(docTypeUUID)
-                        .orElseThrow(() -> new Exception("Document Type not found")));
+                        .orElseThrow(() -> new SettingsServiceException("Document Type not found")));
                 break;
             case INDIVIDUAL_KYC:
                 settings.getIndKycDocuments().add(this.documentTypeRepository.findById(docTypeUUID)
-                        .orElseThrow(() -> new Exception("Document Type not found")));
+                        .orElseThrow(() -> new SettingsServiceException("Document Type not found")));
                 break;
             case ORGANISATION:
                 settings.getOrganisationDocuments().add(this.documentTypeRepository.findById(docTypeUUID)
-                        .orElseThrow(() -> new Exception("Document Type not found")));
+                        .orElseThrow(() -> new SettingsServiceException("Document Type not found")));
                 break;
             case INDIVIDUAL:
                 settings.getIndividualDocuments().add(this.documentTypeRepository.findById(docTypeUUID)
-                        .orElseThrow(() -> new Exception("Document Type not found")));
+                        .orElseThrow(() -> new SettingsServiceException("Document Type not found")));
                 break;
         }
 
@@ -214,7 +214,7 @@ public class SettingsServiceImpl
             throws Exception {
 
         Settings settings = settingsRepository.findAll().stream().findFirst()
-                .orElseThrow(() -> new Exception("Settings not found"));
+                .orElseThrow(() -> new SettingsServiceException("Settings not found"));
 
         UUID uuid = UUID.fromString(documentTypeId);
 

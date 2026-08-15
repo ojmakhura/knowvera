@@ -56,7 +56,6 @@ selector: 'app-document-edit',
     MatDividerModule,
     MatProgressBarModule,
     FormField,
-    Loader,
     TranslateModule,
     NgxMatSelectSearchModule
   ]

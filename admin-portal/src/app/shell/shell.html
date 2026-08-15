@@ -1,5 +1,6 @@
 <div class="app-layout">
   <!-- Side Navigation Bar -->
+  @if (keycloak.authenticated) {
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="logo-placeholder">
@@ -40,6 +41,7 @@
       </a>
     </div>
   </aside>
+  }
 
   <!-- Main Content Container -->
   <div class="main-wrapper">
@@ -60,56 +62,32 @@
           <mat-icon>help</mat-icon>
         </button>
         @if (keycloak.authenticated) {
-        <button mat-icon-button class="icon-btn d-none d-md-inline-flex">
-          <mat-icon>settings</mat-icon>
-        </button>
-        <button mat-icon-button class="profile-avatar ms-2"
-          (click)="toggleAccountMenu($event)"
-          >
-          <mat-icon>person</mat-icon>
-        </button>
-        @if (accountMenuOpen()) {
-          <div 
-                class="account-menu" 
-                role="menu" 
-                (click)="$event.stopPropagation()"
-              >
-                <div class="account-menu-head">
-                  <span class="menu-avatar">{{ userInitials }}</span>
-                  <div>
-                    <p class="menu-name">{{ userDisplayName }}</p>
-                    <p class="menu-email">{{ userEmail }} </p>
-                  </div>
-                </div>
-                <hr class="menu-divider" />
-                <a class="menu-item" [href]="profileUrl" (click)="closeAccountMenu()">
-                  <mat-icon>account_circle</mat-icon>
-                  <span>Profile</span>
-                </a>
-                <button class="menu-item menu-link-danger" (click)="logout()">
-                  <mat-icon color="warn">logout</mat-icon>
-                  <span class="warn-text">Logout</span>
-                </button>
-              </div>
-        <!-- <div class="account-menu" role="menu" (click)="$event.stopPropagation()">
-          <div class="account-menu-head">
-            <span class="menu-avatar">{{ userInitials }}</span>
-            <div>
-              <p class="menu-name">{{ userDisplayName }}</p>
-              <p class="menu-email">{{ userEmail }}</p>
-            </div>
-          </div>
-          <hr class="menu-divider" />
-          <a class="menu-item" [href]="profileUrl" (click)="closeAccountMenu()">
-            <mat-icon>account_circle</mat-icon>
-            <span>Profile</span>
-          </a>
-          <button class="menu-item menu-link-danger" (click)="logout()">
-            <mat-icon color="warn">logout</mat-icon>
-            <span class="warn-text">Logout</span>
+          <button mat-icon-button class="icon-btn d-none d-md-inline-flex">
+            <mat-icon>settings</mat-icon>
           </button>
-        </div> -->
-        }
+          <button mat-icon-button class="profile-avatar ms-2" (click)="toggleAccountMenu($event)">
+            <mat-icon>person</mat-icon>
+          </button>
+          @if (accountMenuOpen()) {
+            <div class="account-menu" role="menu" (click)="$event.stopPropagation()">
+              <div class="account-menu-head">
+                <span class="menu-avatar">{{ userInitials }}</span>
+                <div>
+                  <p class="menu-name">{{ userDisplayName }}</p>
+                  <p class="menu-email">{{ userEmail }}</p>
+                </div>
+              </div>
+              <hr class="menu-divider" />
+              <a class="menu-item" [href]="profileUrl" (click)="closeAccountMenu()">
+                <mat-icon>account_circle</mat-icon>
+                <span>Profile</span>
+              </a>
+              <button class="menu-item menu-link-danger" (click)="logout()">
+                <mat-icon color="warn">logout</mat-icon>
+                <span class="warn-text">Logout</span>
+              </button>
+            </div>
+          }
         }
       </div>
     </header>
@@ -139,3 +117,4 @@
     </main>
   </div>
 </div>
+<app-loader></app-loader>

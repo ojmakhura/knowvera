@@ -27,7 +27,6 @@ import { errorHandlerInterceptor } from './@core/http/error-handler.interceptor'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { provideToastr } from 'ngx-toastr';
 import {
   AutoRefreshTokenService,
   createInterceptorCondition,
@@ -42,6 +41,7 @@ import { provideQuillConfig } from 'ngx-quill';
 import { AppEnvStore } from './store/app-env.state';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { App } from './app';
+import { provideToastr } from 'ngx-toastr';
 
 export class CustomTranslateLoader implements TranslateLoader {
   constructor(private http: HttpClient) {}
@@ -155,6 +155,7 @@ export const initialiseApp = async () => {
           includeBearerTokenInterceptor,
         ]),
       ),
+      provideNativeDateAdapter(),
       provideToastr({
         timeOut: 3000,
         positionClass: 'toast-top-right',

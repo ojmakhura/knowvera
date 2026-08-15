@@ -8,6 +8,7 @@ import * as nav from './navigation';
 import Keycloak from 'keycloak-js';
 import { AppEnvStore } from '@app/store/app-env.state';
 import { MatIconModule } from '@angular/material/icon';
+import { Loader } from "@app/@shared/loader/loader";
 
 interface RecordRegistry {
   clientName: string;
@@ -20,7 +21,7 @@ interface RecordRegistry {
 
 @Component({
   selector: 'app-shell',
-  imports: [CommonModule, RouterOutlet, RouterModule, TranslateModule, MatIconModule],
+  imports: [CommonModule, RouterOutlet, RouterModule, TranslateModule, MatIconModule, Loader],
   templateUrl: './shell.html',
   styleUrls: ['./shell.scss'],
 })

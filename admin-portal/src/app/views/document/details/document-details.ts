@@ -36,6 +36,7 @@ import { swalFire } from '@app/@shared/swal';
 import Keycloak from 'keycloak-js';
 import { HasRolesDirective } from 'keycloak-angular';
 import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 @Component({
   selector: 'app-document-details',
@@ -58,7 +59,6 @@ import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/fiel
     MatTabsModule,
     MatSelectModule,
     TranslateModule,
-    Loader,
     FormField,
     HasRolesDirective
   ],
@@ -67,6 +67,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   toaster: ToastrService = inject(ToastrService);
   readonly documentApiStore = inject(DocumentApiStore);
   private readonly keycloak = inject(Keycloak);
+  loaderState = inject(LoaderState);
 
   readonly isDocumentReviewer = computed(() => this.keycloak.hasRealmRole('DOCUMENT_REVIEWER') || this.keycloak.hasResourceRole('DOCUMENT_REVIEWER'));
 
@@ -83,6 +84,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   success = linkedSignal(() => this.documentApiStore.success());
   loading = linkedSignal(() => this.documentApiStore.loading());
   error = linkedSignal(() => this.documentApiStore.error());
+
 
   readonly ExpectedFieldType = ExpectedFieldType;
 
@@ -134,6 +136,10 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
         this.toaster.error(this.messages()[0] || 'An error occurred while processing the document. Please try again.');
       }
     });
+
+    this.loaderState.message = this.loaderMessage;
+    this.loaderState.isLoading = this.loading;
+    
   }
 
   removeVerificationTagResult(index: number): void {
