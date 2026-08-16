@@ -1,0 +1,98 @@
+<!-- template-mappings.html -->
+<section class="settings-page">
+  <header class="settings-page__header">
+    <div>
+      <h2 class="settings-page__title">Template Mappings</h2>
+      <p class="settings-page__subtitle">
+        Configure document structures, map template types, and manage verification thresholds.
+      </p>
+    </div>
+  </header>
+
+  <div class="mapping-grid">
+    @for (config of configs(); track config.key) {
+      <div class="settings-card mapping-card">
+        <div class="mapping-card__header">
+          <h3 class="settings-card__title" style="margin-bottom: 4px;">
+            <mat-icon>{{ config.icon }}</mat-icon>
+            {{ config.title }}
+          </h3>
+          <span class="status-pill" [class.status-pill--draft]="config.status === 'Draft'">
+            <span class="status-pill__dot"></span>
+            {{ config.status }}
+          </span>
+        </div>
+        <p class="mapping-card__desc">{{ config.description }}</p>
+
+        <div class="template-banner" [class.template-banner--muted]="config.status === 'Draft'">
+          <div class="template-banner__icon">
+            <mat-icon>{{ config.status === 'Active' ? 'description' : 'pending_actions' }}</mat-icon>
+          </div>
+          <div class="template-banner__body">
+            <p>Current Template: <strong>{{ config.currentTemplate }}</strong></p>
+            <p class="template-banner__updated">Last updated: {{ config.lastUpdated }}</p>
+          </div>
+          <button class="icon-btn" title="Download">
+            <mat-icon>download</mat-icon>
+          </button>
+        </div>
+
+        <hr />
+
+        <div class="settings-card__grid">
+          <label class="field">
+            <span class="field__label">Document Type</span>
+            <select
+              class="field__input"
+            >
+              @for (opt of config.documentTypeOptions; track opt) {
+                <option [value]="opt">{{ opt }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Map to Template Type</span>
+            <select
+              class="field__input"
+            >
+              @for (opt of config.mappedTypeOptions; track opt) {
+                <option [value]="opt">{{ opt }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Confidence Threshold (%)</span>
+            <input
+              class="field__input"
+              type="number"
+              min="0"
+              max="100"
+            />
+          </label>
+
+          <label class="field">
+            <span class="field__label">Anomaly Tolerance</span>
+            <input
+              class="field__input"
+              type="number"
+              min="0"
+            />
+          </label>
+        </div>
+
+        <div class="dropzone">
+          <mat-icon>upload_file</mat-icon>
+          <p>Drag &amp; drop template file or <span>browse</span></p>
+          <p class="dropzone__hint">Supports {{ config.acceptedFormats }}</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="page-actions">
+    <button class="btn btn-outline">Discard Changes</button>
+    <button class="btn btn-action-primary" (click)="save()">Save Mappings</button>
+  </div>
+</section>

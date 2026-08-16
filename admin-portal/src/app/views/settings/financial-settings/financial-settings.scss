@@ -1,0 +1,155 @@
+// financial-settings.scss
+@use '../settings-shared' as *;
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.financial-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  align-items: start;
+
+  @media (max-width: 991.98px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.salary-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.btn-outline--sm {
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+}
+
+.salary-table-wrap {
+  border: 1px solid var(--outline-variant);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.salary-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    background: var(--surface-low, #f8f9ff);
+    color: var(--text-muted);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--outline-variant);
+  }
+
+  td {
+    padding: 14px 16px;
+    font-size: 0.8125rem;
+    border-bottom: 1px solid rgba(197, 198, 207, 0.3);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  &__label {
+    font-weight: 500;
+  }
+
+  &__row--inactive {
+    background: var(--surface-low, #fafafa);
+    opacity: 0.75;
+  }
+
+  &__actions {
+    text-align: right;
+
+    button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+
+      &:hover {
+        color: var(--primary-container);
+      }
+    }
+  }
+}
+
+.financial-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.field {
+  &--suffixed,
+  &--prefixed {
+    position: relative;
+
+    input {
+      width: 100%;
+    }
+
+    span {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-weight: 500;
+      pointer-events: none;
+    }
+  }
+
+  &--suffixed span {
+    right: 12px;
+  }
+
+  &--prefixed span {
+    left: 12px;
+  }
+
+  &--prefixed input {
+    padding-left: 24px;
+  }
+
+  &__hint {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+  }
+}
+
+.threshold-desc {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: -8px 0 16px 0;
+}
+
+.info-callout {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  background: var(--surface-low, #eef4ff);
+  border: 1px solid rgba(180, 198, 244, 0.3);
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 16px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+
+  mat-icon {
+    color: var(--primary-container);
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}

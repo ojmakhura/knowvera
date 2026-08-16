@@ -1,0 +1,79 @@
+<!-- operational-metrics.html -->
+<section class="settings-page">
+  <header class="settings-page__header">
+    <div>
+      <h2 class="settings-page__title">Operational Metrics</h2>
+      <p class="settings-page__subtitle">Platform performance targets and validation parameters.</p>
+    </div>
+    <button class="btn btn-action-primary" (click)="save()">
+      <mat-icon class="me-1">save</mat-icon>
+      Save Configuration
+    </button>
+  </header>
+
+  <div class="settings-card">
+    <h3 class="settings-card__title">
+      <mat-icon>verified_user</mat-icon>
+      KYC Validity Duration
+    </h3>
+
+    <div class="slider-row">
+      <span>1 Year</span>
+      <span class="slider-row__value">{{ kycValidityLabel() }}</span>
+      <span>5 Years</span>
+    </div>
+    <input
+      type="range"
+      min="1"
+      max="5"
+      class="slider"
+      [ngModel]="kycValidityYears()"
+      (ngModelChange)="kycValidityYears.set($event)"
+    />
+  </div>
+
+  <div class="settings-card">
+    <h3 class="settings-card__title">
+      <mat-icon>timer</mat-icon>
+      Onboarding Targets &amp; Defaults
+    </h3>
+
+    <div class="settings-card__grid">
+      <label class="field">
+        <span class="field__label">Target Time to Account Creation (Hours)</span>
+        <input
+          class="field__input"
+          type="number"
+          [ngModel]="targetCreationHours()"
+          (ngModelChange)="targetCreationHours.set($event)"
+        />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Default Org Admin Role</span>
+        <select
+          class="field__input"
+          [ngModel]="orgAdminRole()"
+          (ngModelChange)="orgAdminRole.set($event)"
+        >
+          <option>Full Access Admin</option>
+          <option>Org Manager</option>
+          <option>Compliance Officer</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="field__label">Default Normal User Role</span>
+        <select
+          class="field__input"
+          [ngModel]="normalUserRole()"
+          (ngModelChange)="normalUserRole.set($event)"
+        >
+          <option>Viewer</option>
+          <option>Standard User</option>
+          <option>Data Entry</option>
+        </select>
+      </label>
+    </div>
+  </div>
+</section>

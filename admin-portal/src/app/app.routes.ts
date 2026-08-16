@@ -13,7 +13,9 @@ export const routes: Routes = [
     path: 'document/type',
     canActivate: [AuthenticationGuard],
     loadChildren: () =>
-      import('./views/document/type/document-type.routes').then((module) => module.documentTypeRoutes),
+      import('./views/document/type/document-type.routes').then(
+        (module) => module.documentTypeRoutes,
+      ),
   },
   {
     path: 'organisation',
@@ -67,9 +69,14 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./views/request/request.routes').then((module) => module.requestRoutes),
   },
+  // {
+  //   path: 'settings',
+  //   canActivate: [AuthenticationGuard],
+  //   component: SystemSettings,
+  // },
   {
     path: 'settings',
     canActivate: [AuthenticationGuard],
-    component: SystemSettings,
+    loadChildren: () => import('./views/settings/settings.routes').then((m) => m.settingsRoutes),
   },
 ];

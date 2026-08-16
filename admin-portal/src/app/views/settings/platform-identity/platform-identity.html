@@ -1,0 +1,40 @@
+<!-- platform-identity.html -->
+<section class="settings-page">
+  <header class="settings-page__header">
+    <div>
+      <h2 class="settings-page__title">Platform Identity</h2>
+      <p class="settings-page__subtitle">Branding, URLs, and support contact for this instance.</p>
+    </div>
+    <button class="btn btn-action-primary" (click)="save()">
+      <mat-icon class="me-1">save</mat-icon>
+      Save Configuration
+    </button>
+  </header>
+
+  <form class="settings-card" [formGroup]="form">
+    <div class="settings-card__grid">
+      <label class="field">
+        <span class="field__label">Platform Name</span>
+        <input class="field__input" type="text" formControlName="platformName" />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Platform URL</span>
+        <input class="field__input" type="url" formControlName="platformUrl" />
+      </label>
+
+      <label class="field">
+        <span class="field__label">KYC Portal Link</span>
+        <input class="field__input" type="url" formControlName="kycPortalLink" />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Support Contact Email</span>
+        <input class="field__input" type="email" formControlName="supportEmail" />
+        @if (form.controls.supportEmail.invalid && form.controls.supportEmail.touched) {
+          <span class="field__error">Enter a valid email address</span>
+        }
+      </label>
+    </div>
+  </form>
+</section>

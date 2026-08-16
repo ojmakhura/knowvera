@@ -1,0 +1,38 @@
+// operational-metrics.scss
+@use '../platform-identity/platform-identity.scss'; // or move shared rules into a settings-shared.scss and @use that from both
+
+.settings-card {
+  background: var(--surface-low, #fff);
+  border: 1px solid var(--outline-variant);
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.125rem;
+    color: var(--primary-container);
+    margin: 0 0 16px 0;
+  }
+}
+
+.slider-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+
+  &__value {
+    font-weight: 700;
+    color: var(--emerald);
+  }
+}
+
+.slider {
+  width: 100%;
+  accent-color: var(--emerald);
+}

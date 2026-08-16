@@ -1,0 +1,136 @@
+// field-groups.scss
+@use '../settings-shared' as *;
+
+.tabs {
+  display: flex;
+  gap: 16px;
+  border-bottom: 1px solid var(--outline-variant);
+  margin-bottom: 20px;
+
+  &__item {
+    background: none;
+    border: none;
+    padding: 10px 4px;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+
+    &--active {
+      color: var(--emerald);
+      border-bottom-color: var(--emerald);
+      font-weight: 700;
+    }
+  }
+}
+
+.group-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+
+  @media (max-width: 991.98px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.group-card {
+  display: flex;
+  flex-direction: column;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  &__fields {
+    flex: 1;
+    margin-top: 8px;
+  }
+
+  &__add {
+    margin-top: 16px;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.badge {
+  background: var(--surface-low, #e0f2f1);
+  color: var(--emerald-dark, #00695c);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+
+  &--draft {
+    background: var(--outline-variant);
+    color: var(--text-muted);
+  }
+}
+
+.field-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(197, 198, 207, 0.3);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &__label {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--primary-container);
+  }
+
+  &__hint {
+    margin: 2px 0 0 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .switch__track {
+      background: var(--emerald);
+    }
+
+    &:checked + .switch__track::before {
+      transform: translateX(16px);
+    }
+  }
+
+  &__track {
+    position: absolute;
+    inset: 0;
+    background: var(--outline-variant);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.15s;
+    }
+  }
+}

@@ -1,23 +1,28 @@
 <div class="app-layout">
-  <!-- Side Navigation Bar -->
   @if (keycloak.authenticated) {
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="logo-placeholder">
         <mat-icon class="brand-icon">verified_user</mat-icon>
-        <span class="brand-name">Knowvera</span>
+        <span class="brand-name">{{ menuService.sidebarTitle() }}</span>
       </div>
-      <div class="portal-title">Compliance Portal</div>
-      <div class="tier-subtitle">Enterprise Tier</div>
+      <div class="portal-title">{{ menuService.sidebarSubtitle() }}</div>
     </div>
 
-    <button class="btn btn-action-primary w-100 mb-4">
-      <mat-icon class="me-1">add</mat-icon>
-      New Verification
-    </button>
+    @if (menuService.mode() === 'normal') {
+      <button class="btn btn-action-primary w-100 mb-4">
+        <mat-icon class="me-1">add</mat-icon>
+        New Verification
+      </button>
+    } @else {
+      <button class="btn btn-action-primary w-100 mb-4" (click)="menuService.exitSettings()">
+        <mat-icon class="me-1">arrow_back</mat-icon>
+        Back to Dashboard
+      </button>
+    }
 
     <nav class="nav-menu">
-      @for (item of menus; track item.titleKey) {
+      @for (item of menuService.items(); track item.routerLink) {
         <a
           class="nav-item"
           [routerLink]="item.routerLink"
@@ -31,10 +36,12 @@
     </nav>
 
     <div class="nav-footer">
-      <a class="nav-item" href="#">
-        <mat-icon>settings</mat-icon>
-        <span>Settings</span>
-      </a>
+      @if (menuService.mode() === 'normal') {
+        <a class="nav-item" routerLink="/settings">
+          <mat-icon>settings</mat-icon>
+          <span>Settings</span>
+        </a>
+      }
       <a class="nav-item" href="#">
         <mat-icon>contact_support</mat-icon>
         <span>Support</span>
@@ -43,11 +50,9 @@
   </aside>
   }
 
-  <!-- Main Content Container -->
   <div class="main-wrapper">
-    <!-- Top Navbar Header -->
     <header class="top-header">
-      <div class="mobile-logo d-md-none">Knowvera</div>
+      <div class="mobile-logo d-md-none">{{ menuService.sidebarTitle() }}</div>
 
       <div class="search-box d-none d-md-flex">
         <mat-icon class="search-icon">search</mat-icon>
@@ -62,9 +67,11 @@
           <mat-icon>help</mat-icon>
         </button>
         @if (keycloak.authenticated) {
-          <button mat-icon-button class="icon-btn d-none d-md-inline-flex">
-            <mat-icon>settings</mat-icon>
-          </button>
+          @if (menuService.mode() === 'normal') {
+            <button mat-icon-button class="icon-btn d-none d-md-inline-flex" routerLink="/settings">
+              <mat-icon>settings</mat-icon>
+            </button>
+          }
           <button mat-icon-button class="profile-avatar ms-2" (click)="toggleAccountMenu($event)">
             <mat-icon>person</mat-icon>
           </button>
@@ -92,7 +99,6 @@
       </div>
     </header>
 
-    <!-- Dashboard Body Content -->
     <main class="content-body">
       @if (keycloak.authenticated) {
         <router-outlet></router-outlet>

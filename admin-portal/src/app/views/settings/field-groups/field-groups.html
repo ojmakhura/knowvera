@@ -1,0 +1,64 @@
+<!-- field-groups.html -->
+<section class="settings-page">
+  <header class="settings-page__header">
+    <div>
+      <h2 class="settings-page__title">KYC Field Groups</h2>
+      <p class="settings-page__subtitle">Manage required data fields and verification requirements.</p>
+    </div>
+    <button class="btn btn-action-primary">
+      <mat-icon class="me-1">add_circle</mat-icon>
+      Create New Group
+    </button>
+  </header>
+
+  <div class="tabs">
+    <button
+      class="tabs__item"
+      [class.tabs__item--active]="activeTab() === 'individual'"
+      (click)="activeTab.set('individual')"
+    >
+      Individual
+    </button>
+    <button
+      class="tabs__item"
+      [class.tabs__item--active]="activeTab() === 'organisation'"
+      (click)="activeTab.set('organisation')"
+    >
+      Organisation
+    </button>
+  </div>
+
+  <div class="group-grid">
+    @for (group of groups(); track group.key) {
+      <div class="settings-card group-card">
+        <div class="group-card__header">
+          <h3 class="settings-card__title">
+            <mat-icon>{{ group.icon }}</mat-icon>
+            {{ group.title }}
+          </h3>
+          <span class="badge" [class.badge--draft]="group.status === 'Draft'">{{ group.status }}</span>
+        </div>
+
+        <div class="group-card__fields">
+          @for (field of group.fields; track field.label) {
+            <div class="field-row">
+              <div>
+                <p class="field-row__label">{{ field.label }}</p>
+                <p class="field-row__hint">{{ field.hint }}</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" [checked]="field.enabled" (change)="toggleField(group.key, field)" />
+                <span class="switch__track"></span>
+              </label>
+            </div>
+          }
+        </div>
+
+        <button class="btn btn-outline group-card__add">
+          <mat-icon class="me-1">add</mat-icon>
+          Add Field to {{ group.title }}
+        </button>
+      </div>
+    }
+  </div>
+</section>

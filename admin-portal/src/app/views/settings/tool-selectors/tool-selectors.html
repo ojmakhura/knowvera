@@ -1,0 +1,87 @@
+<!-- tool-selectors.html -->
+<section class="settings-page">
+  <header class="settings-page__header">
+    <div>
+      <h2 class="settings-page__title">Tool Selectors</h2>
+      <p class="settings-page__subtitle">Configure and prioritize AI/ML processing pipelines.</p>
+    </div>
+    <button class="btn btn-action-primary">
+      <mat-icon class="me-1">add</mat-icon>
+      Add Tool
+    </button>
+  </header>
+
+  <div class="selector-layout">
+    <div class="category-list settings-card">
+      @for (cat of categories; track cat.key) {
+        <button
+          class="category-list__item"
+          [class.category-list__item--active]="activeCategory() === cat.key"
+          (click)="activeCategory.set(cat.key)"
+        >
+          <span class="category-list__item-label">
+            <mat-icon>{{ cat.icon }}</mat-icon>
+            {{ cat.label }}
+          </span>
+          <span class="category-list__count">{{ categoryCount(cat.key) }}</span>
+        </button>
+      }
+    </div>
+
+    <div class="settings-card pipeline">
+      <div class="pipeline__header">
+        <div>
+          <h3 class="settings-card__title" style="margin-bottom: 4px;">Pipeline</h3>
+          <p class="pipeline__hint">Drag to reorder priority. Top active tool acts as primary.</p>
+        </div>
+      </div>
+
+      <div class="pipeline__list" cdkDropList (cdkDropListDropped)="drop($event)">
+        @for (tool of activeTools(); track tool.id; let i = $index) {
+          <div class="pipeline-item" [class.pipeline-item--disabled]="!tool.active" cdkDrag>
+            <mat-icon class="pipeline-item__handle" cdkDragHandle>drag_indicator</mat-icon>
+
+            <div class="pipeline-item__icon">
+              <mat-icon>{{ tool.icon }}</mat-icon>
+            </div>
+
+            <div class="pipeline-item__body">
+              <div class="pipeline-item__name-row">
+                <h4>{{ tool.name }}</h4>
+                <span class="tag">{{ priorityLabel(i) }}</span>
+              </div>
+              <div class="pipeline-item__meta">
+                <span>{{ tool.version }}</span>
+                @if (tool.latency) {
+                  <span class="dot"></span>
+                  <span>Lat: {{ tool.latency }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="pipeline-item__status">
+              <span class="status-dot" [class.status-dot--off]="!tool.active"></span>
+              {{ tool.active ? 'Active' : 'Disabled' }}
+            </div>
+
+            <div class="pipeline-item__actions">
+              <button (click)="toggleActive(tool)" [title]="tool.active ? 'Disable' : 'Enable'">
+                <mat-icon>{{ tool.active ? 'block' : 'play_arrow' }}</mat-icon>
+              </button>
+              <button (click)="removeTool(tool)" class="pipeline-item__danger" title="Remove">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        } @empty {
+          <div class="pipeline__empty">No tools configured for this category yet.</div>
+        }
+
+        <div class="pipeline__dropzone">
+          <mat-icon>add_circle</mat-icon>
+          <span>Drop or click to add a tool to this pipeline</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
