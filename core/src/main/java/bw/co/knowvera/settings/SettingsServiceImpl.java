@@ -13,8 +13,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,13 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.document.Document;
 import bw.co.knowvera.document.DocumentRepository;
+import bw.co.knowvera.document.type.DocumentTypeMapper;
 import bw.co.knowvera.document.type.DocumentTypeRepository;
-import bw.co.knowvera.settings.DocumentTypePurpose;
-import bw.co.knowvera.settings.SalaryRangeRepository;
-import bw.co.knowvera.settings.Settings;
-import bw.co.knowvera.settings.SettingsDTO;
-import bw.co.knowvera.settings.SettingsRepository;
-import bw.co.knowvera.settings.SettingsServiceBase;
+import bw.co.knowvera.settings.kyc.KycFieldGroup;
+import bw.co.knowvera.settings.kyc.KycFieldGroupMapper;
+import jakarta.validation.Valid;
 
 /**
  * @see bw.co.knowvera.settings.SettingsService
@@ -41,16 +39,23 @@ public class SettingsServiceImpl
 
     private final DocumentRepository documentRepository;
     private final DocumentTypeRepository documentTypeRepository;
+    private final DocumentTypeMapper documentTypeMapper;
+    private final KycFieldGroupMapper kycFieldGroupMapper;
+    private final ToolSelectorMapper toolSelectorMapper;
 
     public SettingsServiceImpl(SettingsRepository settingsRepository,
-            SettingsMapper settingsMapper,
+            SettingsMapper settingsMapper, KycFieldGroupMapper kycFieldGroupMapper,
             DocumentRepository documentRepository, DocumentTypeRepository documentTypeRepository,
-            SalaryRangeMapper salaryRangeMapper, SalaryRangeRepository salaryRangeRepository) {
+            SalaryRangeMapper salaryRangeMapper, SalaryRangeRepository salaryRangeRepository,
+            ToolSelectorMapper toolSelectorMapper, DocumentTypeMapper documentTypeMapper) {
         super(settingsRepository, settingsMapper, salaryRangeRepository, salaryRangeMapper);
         // TODO Auto-generated constructor stub
 
         this.documentRepository = documentRepository;
         this.documentTypeRepository = documentTypeRepository;
+        this.kycFieldGroupMapper = kycFieldGroupMapper;
+        this.toolSelectorMapper = toolSelectorMapper;
+        this.documentTypeMapper = documentTypeMapper;
     }
 
     /**
@@ -240,11 +245,323 @@ public class SettingsServiceImpl
 
     @Override
     protected SettingsDTO handleLoadSettings() throws Exception {
-        
+
         Settings settings = settingsRepository.findAll().stream().findFirst()
                 .orElseThrow(() -> new Exception("Settings not found"));
 
         return settingsMapper.toSettingsDTO(settings);
+    }
+
+    @Override
+    protected PlatformIdentity handleGetPlatformIdentity() throws Exception {
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        PlatformIdentity platformIdentity = new PlatformIdentity();
+        // platformIdentity.setUser(settings.getUser());
+        platformIdentity.setPlatformName(settings.getPlatformName());
+        platformIdentity.setKycPortalLink(settings.getKycPortalLink());
+        platformIdentity.setPlatformUrl(settings.getPlatformUrl());
+        platformIdentity.setSupportContact(settings.getSupportContact());
+
+        return platformIdentity;
+    }
+
+    @Override
+    protected OperationalMetrics handleGetOperationalMetrics() throws Exception {
+
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        OperationalMetrics operationalMetrics = new OperationalMetrics();
+
+        operationalMetrics.setDataVerificationThreshold(settings.getDataVerificationThreshold());
+        operationalMetrics.setDocumentDurationLimit(settings.getDocumentDurationLimit());
+        operationalMetrics.setKycDuration(settings.getKycDuration());
+        operationalMetrics.setMaxDataVerificationFailureThreshold(settings.getMaxDataVerificationFailureThreshold());
+        operationalMetrics.setNormalUserRole(settings.getNormalUserRole());
+        operationalMetrics.setOrganisationAdminRole(settings.getOrganisationAdminRole());
+        operationalMetrics.setTimeToAccountCreation(settings.getTimeToAccountCreation());
+
+        return operationalMetrics;
+    }
+
+    @Override
+    protected SettingsFieldGroups handleGetSettingsFieldGroups() throws Exception {
+
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        SettingsFieldGroups settingsFieldGroups = new SettingsFieldGroups();
+
+        if(CollectionUtils.isNotEmpty(settings.getIndividualKycFieldGroups())) {
+            settingsFieldGroups.setIndividualKycFieldGroups(
+                    kycFieldGroupMapper.toKycFieldGroupDTOCollection(settings.getIndividualKycFieldGroups()));
+        }
+
+        if(CollectionUtils.isNotEmpty(settings.getOrganisationKycFieldGroups())) {
+            settingsFieldGroups.setOrganisationKycFieldGroups(
+                    kycFieldGroupMapper.toKycFieldGroupDTOCollection(settings.getOrganisationKycFieldGroups()));
+        }
+
+        return settingsFieldGroups;
+    }
+
+    @Override
+    protected SettingsToolSelectors handleGetSettingsToolSelectors() throws Exception {
+
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        SettingsToolSelectors settingsToolSelectors = new SettingsToolSelectors();
+
+        if(CollectionUtils.isNotEmpty(settings.getDocumentConfirmationTools())) {
+            settingsToolSelectors.setDocumentConfirmationTools(
+                    toolSelectorMapper.toToolSelectorDTOCollection(settings.getDocumentConfirmationTools()));
+        }
+
+        if(CollectionUtils.isNotEmpty(settings.getTextProcessingTools())) {
+            settingsToolSelectors.setTextProcessingTools(
+                    toolSelectorMapper.toToolSelectorDTOCollection(settings.getTextProcessingTools()));
+        }
+
+        if(CollectionUtils.isNotEmpty(settings.getTextCleanupTools())) {
+            settingsToolSelectors.setTextCleanupTools(
+                    toolSelectorMapper.toToolSelectorDTOCollection(settings.getTextCleanupTools()));
+        }
+
+        if(CollectionUtils.isNotEmpty(settings.getTextExtractionTools())) {
+            settingsToolSelectors.setTextExtractionTools(
+                    toolSelectorMapper.toToolSelectorDTOCollection(settings.getTextExtractionTools()));
+        }
+
+        return settingsToolSelectors;
+    }
+
+    @Override
+    protected TemplateMappings handleGetTemplateMappings() throws Exception {
+
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElseThrow(() -> new Exception("Settings not found"));
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'handleGetTemplateMappings'");
+    }
+
+    @Override
+    protected FinancialSettings handleGetFinancialSettings() throws Exception {
+
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        FinancialSettings financialSettings = new FinancialSettings();
+        if(CollectionUtils.isNotEmpty(settings.getSalaryRanges())) {
+            financialSettings.setSalaryRanges(salaryRangeMapper.toSalaryRangeDTOCollection(settings.getSalaryRanges()));
+        }
+
+        financialSettings.setVat(settings.getVat());
+
+        return financialSettings;
+    }
+
+    @Override
+    protected DocumentRequirements handleGetDocumentRequirements() throws Exception {
+
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        DocumentRequirements documentRequirements = new DocumentRequirements();
+
+        if(CollectionUtils.isNotEmpty(settings.getOrganisationDocuments())) {
+            documentRequirements.setOrganisationDocuments(
+                    documentTypeMapper.toDocumentTypeDTOCollection(settings.getOrganisationDocuments()));
+        }
+
+        if(CollectionUtils.isNotEmpty(settings.getIndividualDocuments())) {
+            documentRequirements.setIndividualDocuments(
+                    documentTypeMapper.toDocumentTypeDTOCollection(settings.getIndividualDocuments()));
+        }
+
+        if(CollectionUtils.isNotEmpty(settings.getIndKycDocuments())) {
+            documentRequirements.setIndKycDocuments(
+                    documentTypeMapper.toDocumentTypeDTOCollection(settings.getIndKycDocuments()));
+        }
+
+        if(CollectionUtils.isNotEmpty(settings.getOrgKycDocuments())) {
+            documentRequirements.setOrgKycDocuments(
+                    documentTypeMapper.toDocumentTypeDTOCollection(settings.getOrgKycDocuments()));
+        }
+
+        if(settings.getClientRequestFileType() != null) {
+            documentRequirements.setClientRequestFileType(
+                    documentTypeMapper.toDocumentTypeDTO(settings.getClientRequestFileType()));
+        }
+
+        documentRequirements.setMaxDataVerificationFailureThreshold(settings.getMaxDataVerificationFailureThreshold());
+        documentRequirements.setDataVerificationThreshold(settings.getDataVerificationThreshold());
+        documentRequirements.setDocumentDurationLimit(settings.getDocumentDurationLimit());
+
+        return documentRequirements;
+    }
+
+    @Override
+    protected PlatformIdentity handleSavePlatformIdentity(@Valid PlatformIdentity platformIdentity) throws Exception {
+
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        if(settings.getId() == null) {
+
+            settings.setCreatedAt(LocalDateTime.now());
+            settings.setCreatedBy(platformIdentity.getUser());
+        } else {
+
+            settings.setModifiedAt(LocalDateTime.now());
+            settings.setModifiedBy(platformIdentity.getUser());
+        }
+
+        settings.setPlatformName(platformIdentity.getPlatformName());
+        settings.setKycPortalLink(platformIdentity.getKycPortalLink());
+        settings.setPlatformUrl(platformIdentity.getPlatformUrl());
+        settings.setSupportContact(platformIdentity.getSupportContact());
+
+        settings = settingsRepository.saveAndFlush(settings);
+
+        return getPlatformIdentity();
+    }
+
+    @Override
+    protected OperationalMetrics handleSaveOperationalMetrics(@Valid OperationalMetrics operationalMetrics)
+            throws Exception {
+        
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        if(settings.getId() == null) {
+
+            settings.setCreatedAt(LocalDateTime.now());
+            settings.setCreatedBy(operationalMetrics.getUser());
+        } else {
+
+            settings.setModifiedAt(LocalDateTime.now());
+            settings.setModifiedBy(operationalMetrics.getUser());
+        }
+
+        settings.setKycDuration(operationalMetrics.getKycDuration());
+        settings.setTimeToAccountCreation(operationalMetrics.getTimeToAccountCreation());
+        settings.setNormalUserRole(operationalMetrics.getNormalUserRole());
+        settings.setOrganisationAdminRole(operationalMetrics.getOrganisationAdminRole());
+        settings.setMaxDataVerificationFailureThreshold(operationalMetrics.getMaxDataVerificationFailureThreshold());
+        settings.setDataVerificationThreshold(operationalMetrics.getDataVerificationThreshold());
+        settings.setDocumentDurationLimit(operationalMetrics.getDocumentDurationLimit());
+        
+        settings = settingsRepository.saveAndFlush(settings);
+
+        return getOperationalMetrics();
+    }
+
+    @Override
+    protected SettingsFieldGroups handleSaveSettingsFieldGroups(@Valid SettingsFieldGroups settingsFieldGroups)
+            throws Exception {
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        if(settings.getId() == null) {
+
+            settings.setCreatedAt(LocalDateTime.now());
+            settings.setCreatedBy(settingsFieldGroups.getUser());
+        } else {
+
+            settings.setModifiedAt(LocalDateTime.now());
+            settings.setModifiedBy(settingsFieldGroups.getUser());
+        }
+
+        settings = settingsRepository.saveAndFlush(settings);
+
+        return getSettingsFieldGroups();
+    }
+
+    @Override
+    protected SettingsToolSelectors handleSaveSettingsToolSelectors(@Valid SettingsToolSelectors settingsToolSelectors)
+            throws Exception {
+
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        if(settings.getId() == null) {
+
+            settings.setCreatedAt(LocalDateTime.now());
+            settings.setCreatedBy(settingsToolSelectors.getUser());
+        } else {
+
+            settings.setModifiedAt(LocalDateTime.now());
+            settings.setModifiedBy(settingsToolSelectors.getUser());
+        }
+
+        settings = settingsRepository.saveAndFlush(settings);
+
+        return getSettingsToolSelectors();
+    }
+
+    @Override
+    protected TemplateMappings handleSaveTemplateMappings(@Valid TemplateMappings templateMappings) throws Exception {
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        if(settings.getId() == null) {
+
+            settings.setCreatedAt(LocalDateTime.now());
+            settings.setCreatedBy(templateMappings.getUser());
+        } else {
+
+            settings.setModifiedAt(LocalDateTime.now());
+            settings.setModifiedBy(templateMappings.getUser());
+        }
+
+        settings = settingsRepository.saveAndFlush(settings);
+        return getTemplateMappings();
+    }
+
+    @Override
+    protected FinancialSettings handleSaveFinancialSettings(@Valid FinancialSettings financialSettings)
+            throws Exception {
+        
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        if(settings.getId() == null) {
+
+            settings.setCreatedAt(LocalDateTime.now());
+            settings.setCreatedBy(financialSettings.getUser());
+        } else {
+
+            settings.setModifiedAt(LocalDateTime.now());
+            settings.setModifiedBy(financialSettings.getUser());
+        }
+
+        settings = settingsRepository.saveAndFlush(settings);
+
+        return getFinancialSettings();
+    }
+
+    @Override
+    protected DocumentRequirements handleSaveDocumentRequirements(@Valid DocumentRequirements documentRequirements)
+            throws Exception {
+        
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        if(settings.getId() == null) {
+            settings.setCreatedAt(LocalDateTime.now());
+            settings.setCreatedBy(documentRequirements.getUser());
+        } else {
+
+            settings.setModifiedAt(LocalDateTime.now());
+            settings.setModifiedBy(documentRequirements.getUser());
+        }
+
+        settings = settingsRepository.saveAndFlush(settings);
+
+        return getDocumentRequirements();
     }
 
 }

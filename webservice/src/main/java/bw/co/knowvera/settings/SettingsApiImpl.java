@@ -12,9 +12,11 @@ import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.logging.Audit;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -80,21 +82,20 @@ public class SettingsApiImpl implements SettingsApi {
     @Operation(summary = "Save Settings", description = "Save settings")
     @Audit(entity = "SETTINGS", logData = true)
     public ResponseEntity<SettingsDTO> save(SettingsDTO setttings) {
-        
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            AuditTracker.auditTrail(setttings, authentication);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(setttings, authentication);
 
-            return ResponseEntity.ok(
-                    settingsService.save(setttings));
+        return ResponseEntity.ok(
+                settingsService.save(setttings));
     }
 
     @Override
     @Operation(summary = "Search Settings", description = "Search settings based on criteria")
     @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<List<SettingsDTO>> search(String criteria) {
-        
-            throw new UnsupportedOperationException("Not implemented yet");
+
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
@@ -103,32 +104,32 @@ public class SettingsApiImpl implements SettingsApi {
     public ResponseEntity<SettingsDTO> uploadTemplate(MultipartFile template, TargetEntity target)
             throws Exception {
 
-            if (target != TargetEntity.INVOICE && target != TargetEntity.QUOTATION) {
-                throw new IllegalArgumentException("Invalid target entity for template upload: " + target);
-            }
+        if (target != TargetEntity.INVOICE && target != TargetEntity.QUOTATION) {
+            throw new IllegalArgumentException("Invalid target entity for template upload: " + target);
+        }
 
-            SettingsDTO settings = settingsService.getAll().stream().findFirst()
-                    .orElseThrow(() -> new Exception("Settings not found"));
+        SettingsDTO settings = settingsService.getAll().stream().findFirst()
+                .orElseThrow(() -> new Exception("Settings not found"));
 
-            DocumentDTO doc = documentApi
-                    .upload(
-                            target,
-                            settings.getId(),
-                            target == TargetEntity.INVOICE ? settings.getInvoiceDocumentType().getId()
-                                    : settings.getQuotationDocumentType().getId(),
-                            "settings",
-                            template)
-                    .getBody();
+        DocumentDTO doc = documentApi
+                .upload(
+                        target,
+                        settings.getId(),
+                        target == TargetEntity.INVOICE ? settings.getInvoiceDocumentType().getId()
+                                : settings.getQuotationDocumentType().getId(),
+                        "settings",
+                        template)
+                .getBody();
 
-            if (target == TargetEntity.INVOICE) {
+        if (target == TargetEntity.INVOICE) {
 
-                settings.setInvoiceTemplate(doc);
-            } else if (target == TargetEntity.QUOTATION) {
+            settings.setInvoiceTemplate(doc);
+        } else if (target == TargetEntity.QUOTATION) {
 
-                settings.setQuotationTemplate(doc);
-            }
+            settings.setQuotationTemplate(doc);
+        }
 
-            return this.save(settings);
+        return this.save(settings);
     }
 
     @Override
@@ -153,5 +154,162 @@ public class SettingsApiImpl implements SettingsApi {
     public ResponseEntity<SettingsDTO> loadSettings() throws Exception {
 
         return ResponseEntity.ok(settingsService.loadSettings());
+    }
+
+    @Override
+    public ResponseEntity<DocumentRequirements> getDocumentRequirements() throws Exception {
+
+        return ResponseEntity.ok(settingsService.getDocumentRequirements());
+    }
+
+    @Override
+    public ResponseEntity<FinancialSettings> getFinancialSettings() throws Exception {
+
+        return ResponseEntity.ok(settingsService.getFinancialSettings());
+    }
+
+    @Override
+    public ResponseEntity<OperationalMetrics> getOperationalMetrics() throws Exception {
+
+        return ResponseEntity.ok(settingsService.getOperationalMetrics());
+    }
+
+    @Override
+    public ResponseEntity<PlatformIdentity> getPlatformIdentity() throws Exception {
+
+        return ResponseEntity.ok(settingsService.getPlatformIdentity());
+    }
+
+    @Override
+    public ResponseEntity<SettingsFieldGroups> getSettingsFieldGroups() throws Exception {
+
+        return ResponseEntity.ok(settingsService.getSettingsFieldGroups());
+    }
+
+    @Override
+    public ResponseEntity<SettingsToolSelectors> getSettingsToolSelectors() throws Exception {
+        return ResponseEntity.ok(settingsService.getSettingsToolSelectors());
+    }
+
+    @Override
+    public ResponseEntity<TemplateMappings> getTemplateMappings() throws Exception {
+
+        return ResponseEntity.ok(settingsService.getTemplateMappings());
+    }
+
+    @Override
+    public ResponseEntity<DocumentRequirements> saveDocumentRequirements(
+            @Valid DocumentRequirements documentRequirements) throws Exception {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String username = "anonymousUser";
+        if (authentication != null) {
+
+            username = authentication.getName();
+        }
+
+        documentRequirements.setUser(username);
+
+        return ResponseEntity.ok(settingsService.saveDocumentRequirements(documentRequirements));
+    }
+
+    @Override
+    public ResponseEntity<FinancialSettings> saveFinancialSettings(@Valid FinancialSettings financialSettings)
+            throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String username = "anonymousUser";
+        if (authentication != null) {
+
+            username = authentication.getName();
+        }
+
+        financialSettings.setUser(username);
+
+        return ResponseEntity.ok(settingsService.saveFinancialSettings(financialSettings));
+    }
+
+    @Override
+    public ResponseEntity<OperationalMetrics> saveOperationalMetrics(@Valid OperationalMetrics operationalMetrics)
+            throws Exception {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String username = "anonymousUser";
+        if (authentication != null) {
+
+            username = authentication.getName();
+        }
+
+        operationalMetrics.setUser(username);
+
+        return ResponseEntity.ok(settingsService.saveOperationalMetrics(operationalMetrics));
+    }
+
+    @Override
+    public ResponseEntity<PlatformIdentity> savePlatformIdentity(@Valid PlatformIdentity platformIdentity)
+            throws Exception {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String username = "anonymousUser";
+        if (authentication != null) {
+
+            username = authentication.getName();
+        }
+
+        platformIdentity.setUser(username);
+        
+        return ResponseEntity.ok(settingsService.savePlatformIdentity(platformIdentity));
+    }
+
+    @Override
+    public ResponseEntity<SettingsFieldGroups> saveSettingsFieldGroups(@Valid SettingsFieldGroups settingsFieldGroups)
+            throws Exception {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String username = "anonymousUser";
+        if (authentication != null) {
+
+            username = authentication.getName();
+        }
+
+        settingsFieldGroups.setUser(username);
+        
+        return ResponseEntity.ok(settingsService.saveSettingsFieldGroups(settingsFieldGroups));
+    }
+
+    @Override
+    public ResponseEntity<SettingsToolSelectors> saveSettingsToolSelectors(
+            @Valid SettingsToolSelectors settingsToolSelectors) throws Exception {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String username = "anonymousUser";
+        if (authentication != null) {
+
+            username = authentication.getName();
+        }
+
+        settingsToolSelectors.setUser(username);
+
+        return ResponseEntity.ok(settingsService.saveSettingsToolSelectors(settingsToolSelectors));
+    }
+
+    @Override
+    public ResponseEntity<TemplateMappings> saveTemplateMappings(@Valid TemplateMappings templateMappings)
+            throws Exception {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String username = "anonymousUser";
+        if (authentication != null) {
+            username = authentication.getName();
+        }
+
+        templateMappings.setUser(username);
+
+        return ResponseEntity.ok(settingsService.saveTemplateMappings(templateMappings));
     }
 }

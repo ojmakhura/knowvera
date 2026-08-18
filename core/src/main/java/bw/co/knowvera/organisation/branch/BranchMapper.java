@@ -9,8 +9,6 @@ import bw.co.knowvera.document.DocumentMapper;
 import bw.co.knowvera.individual.IndividualMapper;
 import bw.co.knowvera.organisation.OrganisationMapper;
 import bw.co.knowvera.utils.MappingUtils;
-import bw.co.knowvera.organisation.branch.Branch;
-import bw.co.knowvera.organisation.branch.BranchDTO;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +18,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(
     componentModel = "spring",
