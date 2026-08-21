@@ -24,10 +24,8 @@
     </div>
     <input
       type="range"
-      min="1"
-      max="5"
       class="slider"
-      [formField]="operationalMetricsForm.kycValidityYears"
+      [formField]="operationalMetricsForm.kycDuration"
     />
   </div>
 
@@ -43,7 +41,7 @@
         <input
           class="field__input"
           type="number"
-          [formField]="operationalMetricsForm.targetCreationHours"
+          [formField]="operationalMetricsForm.timeToAccountCreation"
         />
       </label>
 
@@ -51,7 +49,7 @@
         <span class="field__label">Default Org Admin Role</span>
         <select
           class="field__input"
-          [formField]="operationalMetricsForm.orgAdminRole"
+          [formField]="operationalMetricsForm.organisationAdminRole"
         >
           <option>Full Access Admin</option>
           <option>Org Manager</option>
@@ -69,6 +67,42 @@
           <option>Standard User</option>
           <option>Data Entry</option>
         </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="settings-card">
+    <h3 class="settings-card__title">
+      <mat-icon>fact_check</mat-icon>
+      Document &amp; Verification Limits
+    </h3>
+
+    <div class="settings-card__grid">
+      <label class="field">
+        <span class="field__label">Document Duration Limit (Days)</span>
+        <input
+          class="field__input"
+          type="number"
+          [formField]="operationalMetricsForm.documentDurationLimit"
+        />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Data Verification Threshold</span>
+        <input
+          class="field__input"
+          type="number"
+          [formField]="operationalMetricsForm.dataVerificationThreshold"
+        />
+      </label>
+
+      <label class="field">
+        <span class="field__label">Max Data Verification Failure Threshold</span>
+        <input
+          class="field__input"
+          type="number"
+          [formField]="operationalMetricsForm.maxDataVerificationFailureThreshold"
+        />
       </label>
     </div>
   </div>

@@ -5,7 +5,7 @@
       <h2 class="settings-page__title">KYC Field Groups</h2>
       <p class="settings-page__subtitle">Manage required data fields and verification requirements.</p>
     </div>
-    <button class="btn btn-action-primary">
+    <button class="btn btn-action-primary" type="button" (click)="createGroup()">
       <mat-icon class="me-1">add_circle</mat-icon>
       Create New Group
     </button>
@@ -14,6 +14,7 @@
   <div class="tabs">
     <button
       class="tabs__item"
+      type="button"
       [class.tabs__item--active]="activeTab() === 'individual'"
       (click)="activeTab.set('individual')"
     >
@@ -21,6 +22,7 @@
     </button>
     <button
       class="tabs__item"
+      type="button"
       [class.tabs__item--active]="activeTab() === 'organisation'"
       (click)="activeTab.set('organisation')"
     >
@@ -29,36 +31,58 @@
   </div>
 
   <div class="group-grid">
-    @for (group of groups(); track group.key) {
+    @for (group of activeGroups(); track group.id ?? group.label) {
       <div class="settings-card group-card">
         <div class="group-card__header">
           <h3 class="settings-card__title">
-            <mat-icon>{{ group.icon }}</mat-icon>
-            {{ group.title }}
+            <mat-icon>folder_open</mat-icon>
+            {{ group.label }}
           </h3>
-          <span class="badge" [class.badge--draft]="group.status === 'Draft'">{{ group.status }}</span>
+          <div class="group-card__header-actions">
+            <span class="badge">{{ group.groupFields?.length || 0 }} field{{ (group.groupFields?.length || 0) === 1 ? '' : 's' }}</span>
+            <button class="icon-btn" type="button" (click)="editGroup(group)" aria-label="Edit group">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button class="icon-btn icon-btn--danger" type="button" (click)="deleteGroup(group)" aria-label="Delete group">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
         </div>
 
+        @if (group.description) {
+          <p class="group-card__description">{{ group.description }}</p>
+        }
+
         <div class="group-card__fields">
-          @for (field of group.fields; track field.label) {
+          @for (groupField of group.groupFields; track groupField.id ?? groupField.fieldId) {
             <div class="field-row">
               <div>
-                <p class="field-row__label">{{ field.label }}</p>
-                <p class="field-row__hint">{{ field.hint }}</p>
+                <p class="field-row__label">{{ fieldLabel(groupField) }}</p>
+                @if (fieldCode(groupField)) {
+                  <p class="field-row__hint">{{ fieldCode(groupField) }}</p>
+                }
               </div>
-              <label class="switch">
-                <input type="checkbox" [checked]="field.enabled" (change)="toggleField(group.key, field)" />
-                <span class="switch__track"></span>
-              </label>
+              <button
+                class="icon-btn icon-btn--danger"
+                type="button"
+                (click)="removeGroupField(group, groupField)"
+                aria-label="Remove field"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
             </div>
+          } @empty {
+            <p class="group-card__empty">No fields added yet.</p>
           }
         </div>
 
-        <button class="btn btn-outline group-card__add">
+        <button class="btn btn-outline group-card__add" type="button" (click)="editGroup(group)">
           <mat-icon class="me-1">add</mat-icon>
-          Add Field to {{ group.title }}
+          Add Field to {{ group.label }}
         </button>
       </div>
+    } @empty {
+      <p class="group-grid__empty">No {{ activeTab() }} field groups yet. Create one to get started.</p>
     }
   </div>
 </section>

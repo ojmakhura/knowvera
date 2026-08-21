@@ -1,5 +1,5 @@
 // views/settings/platform-identity/platform-identity.ts
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, linkedSignal, OnInit, signal } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
@@ -20,7 +20,17 @@ class PlatformIdentityModel {
 })
 export class PlatformIdentity implements OnInit {
   
-  platformIdentitySignal = signal(new PlatformIdentityModel());
+  platformIdentitySignal = linkedSignal(() => {
+    let storeData = this.settingsApiStore.platformIdentity();
+    let model = new PlatformIdentityModel();
+    model.platformName = storeData?.platformName ?? null;
+    model.platformUrl = storeData?.platformUrl ?? null;
+    model.supportContact = storeData?.supportContact ?? null;
+    model.kycPortalLink = storeData?.kycPortalLink ?? null;
+    // model.user = storeData?.user ?? null;
+
+    return model;
+  });
   platformIdentityForm = form(this.platformIdentitySignal, (path) => {
 
   });
@@ -29,19 +39,6 @@ export class PlatformIdentity implements OnInit {
 
   constructor() {
     
-    effect(() => {
-      const platformIdentity = this.settingsApiStore.platformIdentity();
-      this.platformIdentitySignal.update((current) => {
-        return {
-          ...current,
-          platformName: platformIdentity?.platformName || null,
-          platformUrl: platformIdentity?.platformUrl || null,
-          supportContact: platformIdentity?.supportContact || null,
-          kycPortalLink: platformIdentity?.kycPortalLink || null,
-          user: platformIdentity?.user || null,
-        };
-      });
-    });
   }
 
   ngOnInit(): void {
