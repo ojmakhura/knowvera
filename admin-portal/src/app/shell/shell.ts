@@ -176,12 +176,21 @@ import { TranslationService } from '@core/services/translation.service';
 import Keycloak from 'keycloak-js';
 import { AppEnvStore } from '@app/store/app-env.state';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { Loader } from '@app/@shared/loader/loader';
 import { MenuService } from '@app/services/menu.service';
 
 @Component({
   selector: 'app-shell',
-  imports: [CommonModule, RouterOutlet, RouterModule, TranslateModule, MatIconModule, Loader],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterModule,
+    TranslateModule,
+    MatIconModule,
+    MatButtonModule,
+    Loader,
+  ],
   templateUrl: './shell.html',
   styleUrls: ['./shell.scss'],
 })

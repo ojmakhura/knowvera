@@ -11,29 +11,29 @@
     </button>
   </header>
 
-  <form class="settings-card" [formGroup]="form">
+  <form class="settings-card">
     <div class="settings-card__grid">
       <label class="field">
         <span class="field__label">Platform Name</span>
-        <input class="field__input" type="text" formControlName="platformName" />
+        <input class="field__input" type="text" [formField]="platformIdentityForm.platformName" />
       </label>
 
       <label class="field">
         <span class="field__label">Platform URL</span>
-        <input class="field__input" type="url" formControlName="platformUrl" />
+        <input class="field__input" type="url" [formField]="platformIdentityForm.platformUrl" />
       </label>
 
       <label class="field">
         <span class="field__label">KYC Portal Link</span>
-        <input class="field__input" type="url" formControlName="kycPortalLink" />
+        <input class="field__input" type="url" [formField]="platformIdentityForm.kycPortalLink" />
       </label>
 
       <label class="field">
         <span class="field__label">Support Contact Email</span>
-        <input class="field__input" type="email" formControlName="supportEmail" />
-        @if (form.controls.supportEmail.invalid && form.controls.supportEmail.touched) {
+        <input class="field__input" type="email" [formField]="platformIdentityForm.supportContact" />
+        <!-- @if (form.controls.supportEmail.invalid && form.controls.supportEmail.touched) {
           <span class="field__error">Enter a valid email address</span>
-        }
+        } -->
       </label>
     </div>
   </form>

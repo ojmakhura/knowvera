@@ -10,12 +10,17 @@
     </div>
 
     @if (menuService.mode() === 'normal') {
-      <button class="btn btn-action-primary w-100 mb-4">
+      <button mat-flat-button type="button" class="sidebar-action w-100 mb-4">
         <mat-icon class="me-1">add</mat-icon>
         New Verification
       </button>
     } @else {
-      <button class="btn btn-action-primary w-100 mb-4" (click)="menuService.exitSettings()">
+      <button
+        mat-flat-button
+        type="button"
+        class="sidebar-action w-100 mb-4"
+        (click)="menuService.exitSettings()"
+      >
         <mat-icon class="me-1">arrow_back</mat-icon>
         Back to Dashboard
       </button>

@@ -49,10 +49,10 @@ class SettingsServiceImplTest {
         service = new SettingsServiceImpl(
                 settingsRepository,
                 settingsMapper,
-                documentRepository,
+                null, documentRepository,
                 documentTypeRepository,
                 salaryRangeMapper,
-                salaryRangeRepository);
+                salaryRangeRepository, null, null);
     }
 
     @Test

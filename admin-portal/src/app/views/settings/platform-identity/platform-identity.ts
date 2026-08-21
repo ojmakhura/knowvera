@@ -1,30 +1,55 @@
 // views/settings/platform-identity/platform-identity.ts
-import { Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
+import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
+
+class PlatformIdentityModel {
+  platformName: string | any = null;
+  platformUrl: string | any = null;
+  supportContact: string | any = null;
+  kycPortalLink: string | any = null;
+  user: string | any = null;
+}
 
 @Component({
   selector: 'app-platform-identity',
-  imports: [ReactiveFormsModule, MatIconModule],
+  imports: [ MatIconModule, FormField ],
   templateUrl: './platform-identity.html',
   styleUrls: ['./platform-identity.scss'],
 })
-export class PlatformIdentity {
-  private fb = inject(FormBuilder);
+export class PlatformIdentity implements OnInit {
+  
+  platformIdentitySignal = signal(new PlatformIdentityModel());
+  platformIdentityForm = form(this.platformIdentitySignal, (path) => {
 
-  form = this.fb.group({
-    platformName: ['Knowvera Enterprise', Validators.required],
-    platformUrl: ['https://app.knowvera.com', Validators.required],
-    kycPortalLink: ['https://kyc.knowvera.com/verify'],
-    supportEmail: ['support@knowvera.com', [Validators.required, Validators.email]],
   });
 
+  settingsApiStore = inject(SettingsApiStore);
+
+  constructor() {
+    
+    effect(() => {
+      const platformIdentity = this.settingsApiStore.platformIdentity();
+      this.platformIdentitySignal.update((current) => {
+        return {
+          ...current,
+          platformName: platformIdentity?.platformName || null,
+          platformUrl: platformIdentity?.platformUrl || null,
+          supportContact: platformIdentity?.supportContact || null,
+          kycPortalLink: platformIdentity?.kycPortalLink || null,
+          user: platformIdentity?.user || null,
+        };
+      });
+    });
+  }
+
+  ngOnInit(): void {
+
+    this.settingsApiStore.getPlatformIdentity();
+  }
+
   save(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-    // TODO: wire to a SettingsApi service
-    console.log('Saving platform identity', this.form.value);
+      
   }
 }

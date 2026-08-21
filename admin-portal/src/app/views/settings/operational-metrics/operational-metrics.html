@@ -27,8 +27,7 @@
       min="1"
       max="5"
       class="slider"
-      [ngModel]="kycValidityYears()"
-      (ngModelChange)="kycValidityYears.set($event)"
+      [formField]="operationalMetricsForm.kycValidityYears"
     />
   </div>
 
@@ -44,8 +43,7 @@
         <input
           class="field__input"
           type="number"
-          [ngModel]="targetCreationHours()"
-          (ngModelChange)="targetCreationHours.set($event)"
+          [formField]="operationalMetricsForm.targetCreationHours"
         />
       </label>
 
@@ -53,8 +51,7 @@
         <span class="field__label">Default Org Admin Role</span>
         <select
           class="field__input"
-          [ngModel]="orgAdminRole()"
-          (ngModelChange)="orgAdminRole.set($event)"
+          [formField]="operationalMetricsForm.orgAdminRole"
         >
           <option>Full Access Admin</option>
           <option>Org Manager</option>
@@ -66,8 +63,7 @@
         <span class="field__label">Default Normal User Role</span>
         <select
           class="field__input"
-          [ngModel]="normalUserRole()"
-          (ngModelChange)="normalUserRole.set($event)"
+          [formField]="operationalMetricsForm.normalUserRole"
         >
           <option>Viewer</option>
           <option>Standard User</option>

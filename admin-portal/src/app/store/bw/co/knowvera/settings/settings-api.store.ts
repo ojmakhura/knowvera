@@ -11,13 +11,35 @@ import { SettingsDTO } from '@app/models/bw/co/knowvera/settings/settings-dto';
 import { SettingsApi } from '@app/services/bw/co/knowvera/settings/settings-api';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { DocumentTypePurpose } from '@app/models/bw/co/knowvera/settings/document-type-purpose';
+import { DocumentRequirements } from '@app/models/bw/co/knowvera/settings/document-requirements';
+import { FinancialSettings } from '@app/models/bw/co/knowvera/settings/financial-settings';
+import { OperationalMetrics } from '@app/models/bw/co/knowvera/settings/operational-metrics';
+import { PlatformIdentity } from '@app/models/bw/co/knowvera/settings/platform-identity';
+import { SettingsFieldGroups } from '@app/models/bw/co/knowvera/settings/settings-field-groups';
+import { SettingsToolSelectors } from '@app/models/bw/co/knowvera/settings/settings-tool-selectors';
+import { TemplateMappings } from '@app/models/bw/co/knowvera/settings/template-mappings';
 
-export type SettingsApiState = AppState<SettingsDTO, SettingsDTO> & {};
+export type SettingsApiState = AppState<SettingsDTO, SettingsDTO> & {
+  platformIdentity: PlatformIdentity;
+  documentRequirements: DocumentRequirements;
+  financialSettings: FinancialSettings;
+  operationalMetrics: OperationalMetrics;
+  settingsFieldGroups: SettingsFieldGroups;
+  settingsToolSelectors: SettingsToolSelectors;
+  templateMappings: TemplateMappings;
+};
 
 const initialState: SettingsApiState = {
   data: new SettingsDTO(),
   dataList: [],
   dataPage: new Page<any>(),
+  platformIdentity: new PlatformIdentity(),
+  documentRequirements: new DocumentRequirements(),
+  financialSettings: new FinancialSettings(),
+  operationalMetrics: new OperationalMetrics(),
+  settingsFieldGroups: new SettingsFieldGroups(),
+  settingsToolSelectors: new SettingsToolSelectors(),
+  templateMappings: new TemplateMappings(),
   searchCriteria: new SearchObject<any>(),
   loading: false,
   success: false,
@@ -346,6 +368,486 @@ export const SettingsApiStore = signalStore(
                   error: true,
                   messages: [error?.error?.message || 'An error occurred while detaching document type'],
                 });
+              },
+            }),
+          );
+        }),
+      ),
+      getDocumentRequirements: rxMethod<void>(
+        switchMap(() => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.getDocumentRequirements().pipe(
+            tapResponse({
+              next: (response: DocumentRequirements) => {
+                patchState(
+                  store, 
+                  {
+                    documentRequirements: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      getFinancialSettings: rxMethod<void>(
+        switchMap(() => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.getFinancialSettings().pipe(
+            tapResponse({
+              next: (response: FinancialSettings) => {
+                patchState(
+                  store, 
+                  {
+                    financialSettings: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Financial Settings Loaded Successfully!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      getOperationalMetrics: rxMethod<void>(
+        switchMap(() => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.getOperationalMetrics().pipe(
+            tapResponse({
+              next: (response: OperationalMetrics) => {
+                patchState(
+                  store, 
+                  {
+                    operationalMetrics: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      getPlatformIdentity: rxMethod<void>(
+        switchMap(() => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.getPlatformIdentity().pipe(
+            tapResponse({
+              next: (response: PlatformIdentity) => {
+                patchState(
+                  store, 
+                  {
+                    platformIdentity: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      getSettingsFieldGroups: rxMethod<void>(
+        switchMap(() => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.getSettingsFieldGroups().pipe(
+            tapResponse({
+              next: (response: SettingsFieldGroups) => {
+                patchState(
+                  store, 
+                  {
+                    settingsFieldGroups: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      getSettingsToolSelectors: rxMethod<void>(
+        switchMap(() => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.getSettingsToolSelectors().pipe(
+            tapResponse({
+              next: (response: SettingsToolSelectors) => {
+                patchState(
+                  store, 
+                  {
+                    settingsToolSelectors: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      getTemplateMappings: rxMethod<void>(
+        switchMap(() => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.getTemplateMappings().pipe(
+            tapResponse({
+              next: (response: TemplateMappings) => {
+                patchState(
+                  store, 
+                  {
+                    templateMappings: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Template mapping loaded successfully!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      loadSettings: rxMethod<void>(
+        switchMap(() => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.loadSettings().pipe(
+            tapResponse({
+              next: (response: SettingsDTO) => {
+                patchState(
+                  store, 
+                  {
+                    data: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      saveDocumentRequirements: rxMethod<{documentRequirements: DocumentRequirements}>(
+        switchMap((data: {documentRequirements: DocumentRequirements}) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.saveDocumentRequirements(data.documentRequirements, ).pipe(
+            tapResponse({
+              next: (response: DocumentRequirements) => {
+                patchState(
+                  store, 
+                  {
+                    documentRequirements: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      saveFinancialSettings: rxMethod<{financialSettings: FinancialSettings}>(
+        switchMap((data: {financialSettings: FinancialSettings}) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.saveFinancialSettings(data.financialSettings, ).pipe(
+            tapResponse({
+              next: (response: FinancialSettings) => {
+                patchState(
+                  store, 
+                  {
+                    financialSettings: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Financial Settings Saved Successfully!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      saveOperationalMetrics: rxMethod<{operationalMetrics: OperationalMetrics}>(
+        switchMap((data: {operationalMetrics: OperationalMetrics}) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.saveOperationalMetrics(data.operationalMetrics, ).pipe(
+            tapResponse({
+              next: (response: OperationalMetrics) => {
+                patchState(
+                  store, 
+                  {
+                    operationalMetrics: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      savePlatformIdentity: rxMethod<{platformIdentity: PlatformIdentity}>(
+        switchMap((data: {platformIdentity: PlatformIdentity}) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.savePlatformIdentity(data.platformIdentity, ).pipe(
+            tapResponse({
+              next: (response: PlatformIdentity) => {
+                patchState(
+                  store, 
+                  {
+                    platformIdentity: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      saveSettingsFieldGroups: rxMethod<{settingsFieldGroups: SettingsFieldGroups}>(
+        switchMap((data: {settingsFieldGroups: SettingsFieldGroups}) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.saveSettingsFieldGroups(data.settingsFieldGroups, ).pipe(
+            tapResponse({
+              next: (response: SettingsFieldGroups) => {
+                patchState(
+                  store, 
+                  {
+                    settingsFieldGroups: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      saveSettingsToolSelectors: rxMethod<{settingsToolSelectors: SettingsToolSelectors}>(
+        switchMap((data: {settingsToolSelectors: SettingsToolSelectors}) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.saveSettingsToolSelectors(data.settingsToolSelectors, ).pipe(
+            tapResponse({
+              next: (response: SettingsToolSelectors) => {
+                patchState(
+                  store, 
+                  {
+                    settingsToolSelectors: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Success!!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      saveTemplateMappings: rxMethod<{templateMappings: TemplateMappings}>(
+        switchMap((data: {templateMappings: TemplateMappings}) => {
+          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          return settingsApi.saveTemplateMappings(data.templateMappings, ).pipe(
+            tapResponse({
+              next: (response: TemplateMappings) => {
+                patchState(
+                  store, 
+                  {
+                    templateMappings: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Template mapping saved successfully!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
               },
             }),
           );

@@ -109,7 +109,6 @@ type ToolSelectorTarget =
   standalone: true,
   templateUrl: './system-settings.html',
   styleUrls: ['./system-settings.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

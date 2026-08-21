@@ -6,66 +6,159 @@ import { HttpClient } from '@angular/common/http';
 import { Page } from '@models/page.model';
 import { TargetEntity } from '@models/bw/co/knowvera/target-entity';
 import { DocumentTypePurpose } from '@app/models/bw/co/knowvera/settings/document-type-purpose';
+import { DocumentRequirements } from '@app/models/bw/co/knowvera/settings/document-requirements';
+import { FinancialSettings } from '@app/models/bw/co/knowvera/settings/financial-settings';
+import { OperationalMetrics } from '@app/models/bw/co/knowvera/settings/operational-metrics';
+import { PlatformIdentity } from '@app/models/bw/co/knowvera/settings/platform-identity';
+import { SettingsFieldGroups } from '@app/models/bw/co/knowvera/settings/settings-field-groups';
+import { SettingsToolSelectors } from '@app/models/bw/co/knowvera/settings/settings-tool-selectors';
+import { TemplateMappings } from '@app/models/bw/co/knowvera/settings/template-mappings';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SettingsApi {
-
   protected path = '/settings';
 
   private http = inject(HttpClient);
 
   public findById(id: string | any): Observable<SettingsDTO | any> {
-
     return this.http.get<SettingsDTO | any>(`${this.path}/${id}`);
   }
 
   public getAll(): Observable<SettingsDTO[] | any[]> {
-
     return this.http.get<SettingsDTO[] | any[]>(`${this.path}`);
   }
 
-  public getAllPaged(pageNumber: number | any, pageSize: number | any): Observable<Page<SettingsDTO> | any> {
-
-    return this.http.get<Page<SettingsDTO> | any>(`${this.path}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  public getAllPaged(
+    pageNumber: number | any,
+    pageSize: number | any,
+  ): Observable<Page<SettingsDTO> | any> {
+    return this.http.get<Page<SettingsDTO> | any>(
+      `${this.path}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+    );
   }
 
-  public pagedSearch(criteria: string | any, pageNumber: number | any, pageSize: number | any): Observable<Page<SettingsDTO> | any> {
-
-    return this.http.get<Page<SettingsDTO> | any>(`${this.path}/search/paged?criteria=${criteria}&pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  public pagedSearch(
+    criteria: string | any,
+    pageNumber: number | any,
+    pageSize: number | any,
+  ): Observable<Page<SettingsDTO> | any> {
+    return this.http.get<Page<SettingsDTO> | any>(
+      `${this.path}/search/paged?criteria=${criteria}&pageNumber=${pageNumber}&pageSize=${pageSize}`,
+    );
   }
 
   public remove(id: string | any): Observable<boolean | any> {
-
     return this.http.delete<boolean | any>(`${this.path}/${id}`);
   }
 
   public save(setttings: SettingsDTO | any): Observable<SettingsDTO | any> {
-
     return this.http.post<SettingsDTO | any>(`${this.path}`, setttings);
   }
 
   public search(criteria: string | any): Observable<SettingsDTO[] | any[]> {
-
     return this.http.get<SettingsDTO[] | any[]>(`${this.path}/search?criteria=${criteria}`);
   }
 
   uploadTemplate(template: File, target: TargetEntity): Observable<SettingsDTO> {
-
     const formData: FormData = new FormData();
     formData.append('template', template);
 
     return this.http.post<SettingsDTO>(`${this.path}/upload?target=${target}`, formData);
   }
 
-  public attachDocumentType(documentTypeId: string, purpose: DocumentTypePurpose): Observable<SettingsDTO> {
-
-    return this.http.get<SettingsDTO>(`${this.path}/attach-document-type/${documentTypeId}?purpose=${purpose}`);
+  public attachDocumentType(
+    documentTypeId: string,
+    purpose: DocumentTypePurpose,
+  ): Observable<SettingsDTO> {
+    return this.http.get<SettingsDTO>(
+      `${this.path}/attach-document-type/${documentTypeId}?purpose=${purpose}`,
+    );
   }
 
-  public detachDocumentType(documentTypeId: string, purpose: DocumentTypePurpose): Observable<SettingsDTO> {
+  public detachDocumentType(
+    documentTypeId: string,
+    purpose: DocumentTypePurpose,
+  ): Observable<SettingsDTO> {
+    return this.http.delete<SettingsDTO>(
+      `${this.path}/detach-document-type/${documentTypeId}?purpose=${purpose}`,
+    );
+  }
 
-    return this.http.delete<SettingsDTO>(`${this.path}/detach-document-type/${documentTypeId}?purpose=${purpose}`);
+  public getDocumentRequirements(): Observable<DocumentRequirements> {
+    return this.http.get<DocumentRequirements>(`${this.path}/documents`);
+  }
+
+  public getFinancialSettings(): Observable<FinancialSettings> {
+    return this.http.get<FinancialSettings>(`${this.path}/financials`);
+  }
+
+  public getOperationalMetrics(): Observable<OperationalMetrics> {
+    return this.http.get<OperationalMetrics>(`${this.path}/operational-metrics`);
+  }
+
+  public getPlatformIdentity(): Observable<PlatformIdentity> {
+    return this.http.get<PlatformIdentity>(`${this.path}/platform-identity`);
+  }
+
+  public getSettingsFieldGroups(): Observable<SettingsFieldGroups> {
+    return this.http.get<SettingsFieldGroups>(`${this.path}/field-groups`);
+  }
+
+  public getSettingsToolSelectors(): Observable<SettingsToolSelectors> {
+    return this.http.get<SettingsToolSelectors>(`${this.path}/tool-selectors`);
+  }
+
+  public getTemplateMappings(): Observable<TemplateMappings> {
+    return this.http.get<TemplateMappings>(`${this.path}/template-mappings`);
+  }
+
+  public loadSettings(): Observable<SettingsDTO> {
+    return this.http.get<SettingsDTO>(`${this.path}/one`);
+  }
+
+  public saveDocumentRequirements(
+    documentRequirements: DocumentRequirements,
+  ): Observable<DocumentRequirements> {
+    return this.http.post<DocumentRequirements>(`${this.path}/documents`, documentRequirements);
+  }
+
+  public saveFinancialSettings(
+    financialSettings: FinancialSettings,
+  ): Observable<FinancialSettings> {
+    return this.http.post<FinancialSettings>(`${this.path}/financials`, financialSettings);
+  }
+
+  public saveOperationalMetrics(
+    operationalMetrics: OperationalMetrics,
+  ): Observable<OperationalMetrics> {
+    return this.http.post<OperationalMetrics>(
+      `${this.path}/operational-metrics`,
+      operationalMetrics,
+    );
+  }
+
+  public savePlatformIdentity(platformIdentity: PlatformIdentity): Observable<PlatformIdentity> {
+    return this.http.post<PlatformIdentity>(`${this.path}/platform-identity`, platformIdentity);
+  }
+
+  public saveSettingsFieldGroups(
+    settingsFieldGroups: SettingsFieldGroups,
+  ): Observable<SettingsFieldGroups> {
+    return this.http.post<SettingsFieldGroups>(`${this.path}/field-groups`, settingsFieldGroups);
+  }
+
+  public saveSettingsToolSelectors(
+    settingsToolSelectors: SettingsToolSelectors,
+  ): Observable<SettingsToolSelectors> {
+    return this.http.post<SettingsToolSelectors>(
+      `${this.path}/tool-selectors`,
+      settingsToolSelectors,
+    );
+  }
+
+  public saveTemplateMappings(templateMappings: TemplateMappings): Observable<TemplateMappings> {
+    return this.http.post<TemplateMappings>(`${this.path}/template-mappings`, templateMappings);
   }
 }
