@@ -11,6 +11,26 @@
     </button>
   </header>
 
+  @if (error() && messages().length) {
+    <div class="error-banner" role="alert">
+      <mat-icon>error</mat-icon>
+      <ul>
+        @for (message of messages(); track message) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    </div>
+  } @else if (success() && messages().length) {
+    <div class="success-banner" role="status">
+      <mat-icon>check_circle</mat-icon>
+      <ul>
+        @for (message of messages(); track message) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    </div>
+  }
+
   <div class="settings-card">
     <h3 class="settings-card__title">
       <mat-icon>verified_user</mat-icon>

@@ -13,7 +13,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { EmploymentRecordDTO } from '@app/models/bw/co/knowvera/individual/employment/employment-record-dto';
 import { PhoneNumber } from '@app/models/bw/co/knowvera/phone-number';
@@ -33,6 +33,7 @@ import {
   selector: 'app-individual-details',
   imports: [
     CommonModule,
+    RouterLink,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -273,5 +274,47 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
   recordHash(): string {
     const base = this.individual().id || this.individual().identityNo || 'record';
     return `${String(base).slice(0, 4)}...${String(base).slice(-8)}`;
+  }
+
+  initials(): string {
+    const individual = this.individual();
+    const first = (individual.firstName || '').trim();
+    const last = (individual.surname || '').trim();
+
+    if (!first && !last) {
+      return 'IN';
+    }
+
+    return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase() || first.slice(0, 2).toUpperCase();
+  }
+
+  formatEnum(value: string | null | undefined): string {
+    if (!value) {
+      return 'Not available';
+    }
+
+    return value
+      .toLowerCase()
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  documentStatusClass(status: string | null | undefined): string {
+    switch (status) {
+      case 'VERIFIED':
+        return 'verified';
+      case 'REJECTED':
+        return 'rejected';
+      case 'MANUAL_REVIEW':
+      case 'IN_PROGRESS':
+        return 'review';
+      default:
+        return 'pending';
+    }
+  }
+
+  isEmploymentCurrent(record: EmploymentRecordDTO): boolean {
+    return !record.employmentEnd;
   }
 }

@@ -1,74 +1,168 @@
 // views/settings/template-mappings/template-mappings.ts
-import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, computed, effect, inject, linkedSignal, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { ToastrService } from 'ngx-toastr';
+import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
+import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
+import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
+import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
+import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { TemplateMappings as TemplateMappingsDTO } from '@app/models/bw/co/knowvera/settings/template-mappings';
+import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
-interface TemplateConfig {
-  key: string;
+class TemplateMappingsModel {
+  user: string | any = null;
+  invoiceDocumentType: DocumentTypeDTO | any = null;
+  invoiceTemplateType: DocumentTypeDTO | any = null;
+  invoiceTemplate: DocumentDTO | any = null;
+  quotationDocumentType: DocumentTypeDTO | any = null;
+  quotationTemplateType: DocumentTypeDTO | any = null;
+  quotationTemplate: DocumentDTO | any = null;
+}
+
+interface TemplateCard {
+  key: 'invoice' | 'quotation';
+  target: TargetEntity;
   title: string;
   description: string;
   icon: string;
-  status: 'Active' | 'Draft';
-  currentTemplate: string;
-  lastUpdated: string;
-  documentType: string;
-  documentTypeOptions: string[];
-  mappedType: string;
-  mappedTypeOptions: string[];
-  confidenceThreshold: number;
-  anomalyTolerance: number;
+  documentTypeField: 'invoiceDocumentType' | 'quotationDocumentType';
+  templateTypeField: 'invoiceTemplateType' | 'quotationTemplateType';
+  templateField: 'invoiceTemplate' | 'quotationTemplate';
   acceptedFormats: string;
 }
 
 @Component({
   selector: 'app-template-mappings',
   standalone: true,
-  imports: [MatIconModule],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './template-mappings.html',
   styleUrls: ['./template-mappings.scss'],
 })
-export class TemplateMappings {
-  configs = signal<TemplateConfig[]>([
+export class TemplateMappings implements OnInit {
+  readonly TargetEntity = TargetEntity;
+
+  settingsApiStore = inject(SettingsApiStore);
+  documentTypeApiStore = inject(DocumentTypeApiStore);
+  private readonly documentApi = inject(DocumentApi);
+  private readonly toastr = inject(ToastrService);
+
+  loading = linkedSignal(() => this.documentTypeApiStore.loading() || this.settingsApiStore.loading());
+  loaderMessage = linkedSignal(() => this.documentTypeApiStore.loaderMessage() || this.settingsApiStore.loaderMessage());
+  success = linkedSignal(() => this.documentTypeApiStore.success() || this.settingsApiStore.success());
+  error = linkedSignal(() => this.documentTypeApiStore.error() || this.settingsApiStore.error());
+  messages = linkedSignal(() => this.documentTypeApiStore.messages() || this.settingsApiStore.messages());
+
+  documentTypeOptions = computed<DocumentTypeDTO[]>(() => this.documentTypeApiStore.dataList());
+
+  templateMappingsSignal = linkedSignal(() => {
+    const store = this.settingsApiStore.templateMappings();
+    const model = new TemplateMappingsModel();
+    model.user = store?.user ?? null;
+    model.invoiceDocumentType = store?.invoiceDocumentType ?? null;
+    model.invoiceTemplateType = store?.invoiceTemplateType ?? null;
+    model.invoiceTemplate = store?.invoiceTemplate ?? null;
+    model.quotationDocumentType = store?.quotationDocumentType ?? null;
+    model.quotationTemplateType = store?.quotationTemplateType ?? null;
+    model.quotationTemplate = store?.quotationTemplate ?? null;
+    return model;
+  });
+
+  cards: TemplateCard[] = [
     {
       key: 'invoice',
+      target: TargetEntity.INVOICE,
       title: 'Invoice Configuration',
       description: 'Map and manage invoice document structures.',
       icon: 'receipt_long',
-      status: 'Active',
-      currentTemplate: 'INV-STD-v2.1',
-      lastUpdated: 'Oct 24, 2023 by Admin',
-      documentType: 'Standard Commercial Invoice',
-      documentTypeOptions: ['Standard Commercial Invoice', 'Pro Forma Invoice', 'Tax Invoice'],
-      mappedType: 'JSON Standard (v2)',
-      mappedTypeOptions: ['JSON Standard (v2)', 'XML Legacy (v1.5)'],
-      confidenceThreshold: 95,
-      anomalyTolerance: 2,
-      acceptedFormats: '.json, .xml (Max 5MB)',
+      documentTypeField: 'invoiceDocumentType',
+      templateTypeField: 'invoiceTemplateType',
+      templateField: 'invoiceTemplate',
+      acceptedFormats: '.pdf, .doc, .docx (Max 5MB)',
     },
     {
       key: 'quotation',
+      target: TargetEntity.QUOTATION,
       title: 'Quotation Configuration',
       description: 'Define mapping structures for quote extraction.',
       icon: 'request_quote',
-      status: 'Draft',
-      currentTemplate: 'QT-BETA-v1.0',
-      lastUpdated: 'Oct 10, 2023 by System',
-      documentType: 'Enterprise Quote',
-      documentTypeOptions: ['Enterprise Quote', 'SMB Estimate'],
-      mappedType: 'JSON Standard (v2)',
-      mappedTypeOptions: ['JSON Standard (v2)', 'JSON Strict (v3)'],
-      confidenceThreshold: 88,
-      anomalyTolerance: 5,
-      acceptedFormats: '.json (Max 5MB)',
+      documentTypeField: 'quotationDocumentType',
+      templateTypeField: 'quotationTemplateType',
+      templateField: 'quotationTemplate',
+      acceptedFormats: '.pdf, .doc, .docx (Max 5MB)',
     },
-  ]);
+  ];
 
-  updateField<K extends keyof TemplateConfig>(key: string, field: K, value: TemplateConfig[K]): void {
-    this.configs.update((list) =>
-      list.map((c) => (c.key === key ? { ...c, [field]: value } : c)),
-    );
+  loaderState = inject(LoaderState);
+  constructor() {
+
+    effect(() => {
+      this.loaderState.isLoading.set(this.settingsApiStore.loading());
+    });
+  }
+
+  ngOnInit(): void {
+    this.settingsApiStore.getTemplateMappings();
+    this.documentTypeApiStore.getAll();
+  }
+
+  updateDocumentType(field: 'invoiceDocumentType' | 'quotationDocumentType' | 'invoiceTemplateType' | 'quotationTemplateType', id: string): void {
+    const option = this.documentTypeOptions().find((d) => d.id === id) ?? null;
+    this.templateMappingsSignal.update((value) => ({ ...value, [field]: option }));
+  }
+
+  triggerUpload(card: TemplateCard): void {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept =
+      'application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    input.onchange = (event: any) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        this.settingsApiStore.uploadTemplate({ template: file, target: card.target });
+      }
+    };
+    input.click();
+  }
+
+  downloadTemplate(card: TemplateCard): void {
+    const doc = this.templateMappingsSignal()[card.templateField];
+
+    if (!doc?.id) {
+      this.toastr.error('No template document available for download', 'Download Error');
+      return;
+    }
+
+    this.documentApi.downloadFile(doc.id).subscribe({
+      next: (res: any) => {
+        const url = window.URL.createObjectURL(res);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = doc.fileName || 'template';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err: any) => {
+        this.toastr.error(err?.error?.message || err?.message || 'Failed to download file', 'Download Error');
+      },
+    });
+  }
+
+  discard(): void {
+    this.settingsApiStore.getTemplateMappings();
   }
 
   save(): void {
-    console.log('Saving template mappings', this.configs());
+    const value = this.templateMappingsSignal();
+    const templateMappings = new TemplateMappingsDTO();
+    templateMappings.user = value.user;
+    templateMappings.invoiceDocumentType = value.invoiceDocumentType;
+    templateMappings.invoiceTemplateType = value.invoiceTemplateType;
+    templateMappings.quotationDocumentType = value.quotationDocumentType;
+    templateMappings.quotationTemplateType = value.quotationTemplateType;
+
+    this.settingsApiStore.saveTemplateMappings({ templateMappings });
   }
 }

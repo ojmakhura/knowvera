@@ -1,12 +1,6 @@
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -37,11 +31,10 @@ import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individ
 import { BranchApiStore } from '@app/store/bw/co/knowvera/organisation/branch/branch-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
 import { SearchObject } from '@app/models/search-object';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
-import { Loader } from '@app/@shared/loader/loader';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
 import Swal from 'sweetalert2';
@@ -83,20 +76,14 @@ export class EditIndividualVarsForm {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    MatCardModule,
-    MatButtonModule,
+    RouterLink,
     MatIconModule,
-    MatInputModule,
     MatSelectModule,
     MatSlideToggleModule,
-    MatDividerModule,
-    MatAutocompleteModule,
-    MatFormFieldModule,
     MatDatepickerModule,
     FormField,
     NgxMatSelectSearchModule,
     TranslateModule,
-    Loader,
   ],
 })
 export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
@@ -170,6 +157,7 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
 
   loaderMessage = signal('');
   selected: any = null;
+  readonly breadcrumbLabel = 'Individuals';
 
   countries: string[] = [
     'Unknown',
@@ -445,6 +433,46 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
         { type: PhoneType.MOBILE, phoneNumber: '' } as PhoneNumber,
       ],
     }));
+  }
+
+  updatePhoneType(index: number, type: string): void {
+    this.editIndividualSignal.update((value) => {
+      const clone = [...(value.phoneNumbers ?? [])];
+      (clone[index] as any).type = type;
+      return { ...value, phoneNumbers: clone };
+    });
+  }
+
+  updatePhoneNumber(index: number, phoneNumber: string): void {
+    this.editIndividualSignal.update((value) => {
+      const clone = [...(value.phoneNumbers ?? [])];
+      (clone[index] as any).phoneNumber = phoneNumber;
+      return { ...value, phoneNumbers: clone };
+    });
+  }
+
+  auditIdentifier(): string {
+    const value = this.editIndividualSignal();
+    return value.identityNo || value.id || 'New Individual';
+  }
+
+  formatAuditDate(value: Date | string | null | undefined): string {
+    if (!value) {
+      return 'Not available';
+    }
+
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return String(value);
+    }
+
+    return new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date);
   }
 
   phoneNumbersRemove(i: number) {

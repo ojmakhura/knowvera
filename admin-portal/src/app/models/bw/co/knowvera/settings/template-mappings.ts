@@ -1,19 +1,24 @@
 
-import {ToolSelectorDTO} from '@models/bw/co/knowvera/settings/tool-selector-dto';
+import {DocumentTypeDTO} from '@models/bw/co/knowvera/document/type/document-type-dto';
+import {DocumentDTO} from '@models/bw/co/knowvera/document/document-dto';
 
 export class TemplateMappings {
 
-    textExtractionTools: Array<ToolSelectorDTO> | any;
-    documentConfirmationTools: Array<ToolSelectorDTO> | any;
-    textProcessingTools: Array<ToolSelectorDTO> | any;
-    textCleanupTools: Array<ToolSelectorDTO> | any;
     user: string | any;
+    invoiceDocumentType: DocumentTypeDTO | any;
+    invoiceTemplateType: DocumentTypeDTO | any;
+    invoiceTemplate: DocumentDTO | any;
+    quotationDocumentType: DocumentTypeDTO | any;
+    quotationTemplateType: DocumentTypeDTO | any;
+    quotationTemplate: DocumentDTO | any;
 
     constructor() {
-        this.textExtractionTools = [];
-        this.documentConfirmationTools = [];
-        this.textProcessingTools = [];
-        this.textCleanupTools = [];
         this.user = null;
+        this.invoiceDocumentType = null;
+        this.invoiceTemplateType = null;
+        this.invoiceTemplate = null;
+        this.quotationDocumentType = null;
+        this.quotationTemplateType = null;
+        this.quotationTemplate = null;
     }
 }

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.document.Document;
+import bw.co.knowvera.document.DocumentMapper;
 import bw.co.knowvera.document.DocumentRepository;
 import bw.co.knowvera.document.type.DocumentTypeMapper;
 import bw.co.knowvera.document.type.DocumentTypeRepository;
@@ -40,10 +42,13 @@ public class SettingsServiceImpl
     private final DocumentRepository documentRepository;
     private final DocumentTypeRepository documentTypeRepository;
     private final DocumentTypeMapper documentTypeMapper;
+    private final DocumentMapper documentMapper;
     private final KycFieldGroupMapper kycFieldGroupMapper;
     private final ToolSelectorMapper toolSelectorMapper;
+    private final SalaryRangeMapper salaryRangeMapper;
+    private final SalaryRangeRepository salaryRangeRepository;
 
-    public SettingsServiceImpl(SettingsRepository settingsRepository,
+    public SettingsServiceImpl(SettingsRepository settingsRepository, DocumentMapper documentMapper,
             SettingsMapper settingsMapper, KycFieldGroupMapper kycFieldGroupMapper,
             DocumentRepository documentRepository, DocumentTypeRepository documentTypeRepository,
             SalaryRangeMapper salaryRangeMapper, SalaryRangeRepository salaryRangeRepository,
@@ -56,6 +61,9 @@ public class SettingsServiceImpl
         this.kycFieldGroupMapper = kycFieldGroupMapper;
         this.toolSelectorMapper = toolSelectorMapper;
         this.documentTypeMapper = documentTypeMapper;
+        this.salaryRangeMapper = salaryRangeMapper;
+        this.salaryRangeRepository = salaryRangeRepository;
+        this.documentMapper = documentMapper;
     }
 
     /**
@@ -294,12 +302,12 @@ public class SettingsServiceImpl
 
         SettingsFieldGroups settingsFieldGroups = new SettingsFieldGroups();
 
-        if(CollectionUtils.isNotEmpty(settings.getIndividualKycFieldGroups())) {
+        if (CollectionUtils.isNotEmpty(settings.getIndividualKycFieldGroups())) {
             settingsFieldGroups.setIndividualKycFieldGroups(
                     kycFieldGroupMapper.toKycFieldGroupDTOCollection(settings.getIndividualKycFieldGroups()));
         }
 
-        if(CollectionUtils.isNotEmpty(settings.getOrganisationKycFieldGroups())) {
+        if (CollectionUtils.isNotEmpty(settings.getOrganisationKycFieldGroups())) {
             settingsFieldGroups.setOrganisationKycFieldGroups(
                     kycFieldGroupMapper.toKycFieldGroupDTOCollection(settings.getOrganisationKycFieldGroups()));
         }
@@ -315,22 +323,22 @@ public class SettingsServiceImpl
 
         SettingsToolSelectors settingsToolSelectors = new SettingsToolSelectors();
 
-        if(CollectionUtils.isNotEmpty(settings.getDocumentConfirmationTools())) {
+        if (CollectionUtils.isNotEmpty(settings.getDocumentConfirmationTools())) {
             settingsToolSelectors.setDocumentConfirmationTools(
                     toolSelectorMapper.toToolSelectorDTOCollection(settings.getDocumentConfirmationTools()));
         }
 
-        if(CollectionUtils.isNotEmpty(settings.getTextProcessingTools())) {
+        if (CollectionUtils.isNotEmpty(settings.getTextProcessingTools())) {
             settingsToolSelectors.setTextProcessingTools(
                     toolSelectorMapper.toToolSelectorDTOCollection(settings.getTextProcessingTools()));
         }
 
-        if(CollectionUtils.isNotEmpty(settings.getTextCleanupTools())) {
+        if (CollectionUtils.isNotEmpty(settings.getTextCleanupTools())) {
             settingsToolSelectors.setTextCleanupTools(
                     toolSelectorMapper.toToolSelectorDTOCollection(settings.getTextCleanupTools()));
         }
 
-        if(CollectionUtils.isNotEmpty(settings.getTextExtractionTools())) {
+        if (CollectionUtils.isNotEmpty(settings.getTextExtractionTools())) {
             settingsToolSelectors.setTextExtractionTools(
                     toolSelectorMapper.toToolSelectorDTOCollection(settings.getTextExtractionTools()));
         }
@@ -343,8 +351,39 @@ public class SettingsServiceImpl
 
         Settings settings = settingsRepository.findAll().stream().findFirst()
                 .orElseThrow(() -> new Exception("Settings not found"));
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'handleGetTemplateMappings'");
+
+        TemplateMappings templateMappings = new TemplateMappings();
+        if (settings.getInvoiceTemplateType() != null) {
+            templateMappings.setInvoiceTemplateType(
+                    documentTypeMapper.toDocumentTypeDTO(settings.getInvoiceTemplateType()));
+        }
+
+        if (settings.getInvoiceTemplate() != null) {
+            templateMappings.setInvoiceTemplate(
+                    documentMapper.toDocumentDTO(settings.getInvoiceTemplate()));
+        }
+
+        if (settings.getQuotationTemplateType() != null) {
+            templateMappings.setQuotationTemplateType(
+                    documentTypeMapper.toDocumentTypeDTO(settings.getQuotationTemplateType()));
+        }
+
+        if (settings.getQuotationTemplate() != null) {
+            templateMappings.setQuotationTemplate(
+                    documentMapper.toDocumentDTO(settings.getQuotationTemplate()));
+        }
+
+        if (settings.getInvoiceDocumentType() != null) {
+            templateMappings.setInvoiceDocumentType(
+                    documentTypeMapper.toDocumentTypeDTO(settings.getInvoiceDocumentType()));
+        }
+
+        if (settings.getQuotationDocumentType() != null) {
+            templateMappings.setQuotationDocumentType(
+                    documentTypeMapper.toDocumentTypeDTO(settings.getQuotationDocumentType()));
+        }
+
+        return templateMappings;
     }
 
     @Override
@@ -354,7 +393,7 @@ public class SettingsServiceImpl
                 .orElse(new Settings());
 
         FinancialSettings financialSettings = new FinancialSettings();
-        if(CollectionUtils.isNotEmpty(settings.getSalaryRanges())) {
+        if (CollectionUtils.isNotEmpty(settings.getSalaryRanges())) {
             financialSettings.setSalaryRanges(salaryRangeMapper.toSalaryRangeDTOCollection(settings.getSalaryRanges()));
         }
 
@@ -371,27 +410,27 @@ public class SettingsServiceImpl
 
         DocumentRequirements documentRequirements = new DocumentRequirements();
 
-        if(CollectionUtils.isNotEmpty(settings.getOrganisationDocuments())) {
+        if (CollectionUtils.isNotEmpty(settings.getOrganisationDocuments())) {
             documentRequirements.setOrganisationDocuments(
                     documentTypeMapper.toDocumentTypeDTOCollection(settings.getOrganisationDocuments()));
         }
 
-        if(CollectionUtils.isNotEmpty(settings.getIndividualDocuments())) {
+        if (CollectionUtils.isNotEmpty(settings.getIndividualDocuments())) {
             documentRequirements.setIndividualDocuments(
                     documentTypeMapper.toDocumentTypeDTOCollection(settings.getIndividualDocuments()));
         }
 
-        if(CollectionUtils.isNotEmpty(settings.getIndKycDocuments())) {
+        if (CollectionUtils.isNotEmpty(settings.getIndKycDocuments())) {
             documentRequirements.setIndKycDocuments(
                     documentTypeMapper.toDocumentTypeDTOCollection(settings.getIndKycDocuments()));
         }
 
-        if(CollectionUtils.isNotEmpty(settings.getOrgKycDocuments())) {
+        if (CollectionUtils.isNotEmpty(settings.getOrgKycDocuments())) {
             documentRequirements.setOrgKycDocuments(
                     documentTypeMapper.toDocumentTypeDTOCollection(settings.getOrgKycDocuments()));
         }
 
-        if(settings.getClientRequestFileType() != null) {
+        if (settings.getClientRequestFileType() != null) {
             documentRequirements.setClientRequestFileType(
                     documentTypeMapper.toDocumentTypeDTO(settings.getClientRequestFileType()));
         }
@@ -409,7 +448,7 @@ public class SettingsServiceImpl
         Settings settings = settingsRepository.findAll().stream().findFirst()
                 .orElse(new Settings());
 
-        if(settings.getId() == null) {
+        if (settings.getId() == null) {
 
             settings.setCreatedAt(LocalDateTime.now());
             settings.setCreatedBy(platformIdentity.getUser());
@@ -432,11 +471,11 @@ public class SettingsServiceImpl
     @Override
     protected OperationalMetrics handleSaveOperationalMetrics(@Valid OperationalMetrics operationalMetrics)
             throws Exception {
-        
+
         Settings settings = settingsRepository.findAll().stream().findFirst()
                 .orElse(new Settings());
 
-        if(settings.getId() == null) {
+        if (settings.getId() == null) {
 
             settings.setCreatedAt(LocalDateTime.now());
             settings.setCreatedBy(operationalMetrics.getUser());
@@ -453,7 +492,7 @@ public class SettingsServiceImpl
         settings.setMaxDataVerificationFailureThreshold(operationalMetrics.getMaxDataVerificationFailureThreshold());
         settings.setDataVerificationThreshold(operationalMetrics.getDataVerificationThreshold());
         settings.setDocumentDurationLimit(operationalMetrics.getDocumentDurationLimit());
-        
+
         settings = settingsRepository.saveAndFlush(settings);
 
         return getOperationalMetrics();
@@ -465,7 +504,7 @@ public class SettingsServiceImpl
         Settings settings = settingsRepository.findAll().stream().findFirst()
                 .orElse(new Settings());
 
-        if(settings.getId() == null) {
+        if (settings.getId() == null) {
 
             settings.setCreatedAt(LocalDateTime.now());
             settings.setCreatedBy(settingsFieldGroups.getUser());
@@ -487,7 +526,7 @@ public class SettingsServiceImpl
         Settings settings = settingsRepository.findAll().stream().findFirst()
                 .orElse(new Settings());
 
-        if(settings.getId() == null) {
+        if (settings.getId() == null) {
 
             settings.setCreatedAt(LocalDateTime.now());
             settings.setCreatedBy(settingsToolSelectors.getUser());
@@ -507,7 +546,7 @@ public class SettingsServiceImpl
         Settings settings = settingsRepository.findAll().stream().findFirst()
                 .orElse(new Settings());
 
-        if(settings.getId() == null) {
+        if (settings.getId() == null) {
 
             settings.setCreatedAt(LocalDateTime.now());
             settings.setCreatedBy(templateMappings.getUser());
@@ -517,6 +556,40 @@ public class SettingsServiceImpl
             settings.setModifiedBy(templateMappings.getUser());
         }
 
+        if (templateMappings.getInvoiceTemplateType() != null
+                && StringUtils.isNotBlank(templateMappings.getInvoiceTemplateType().getId())) {
+            settings.setInvoiceTemplateType(
+                    documentTypeMapper.documentTypeDTOToEntity(templateMappings.getInvoiceTemplateType()));
+        }
+
+        if(templateMappings.getInvoiceTemplate() != null && StringUtils.isNotBlank(templateMappings.getInvoiceTemplate().getId())) {
+            settings.setInvoiceTemplate(
+                    documentMapper.documentDTOToEntity(templateMappings.getInvoiceTemplate()));
+        }
+
+        if (templateMappings.getQuotationTemplateType() != null
+                && StringUtils.isNotBlank(templateMappings.getQuotationTemplateType().getId())) {
+            settings.setQuotationTemplateType(
+                    documentTypeMapper.documentTypeDTOToEntity(templateMappings.getQuotationTemplateType()));
+        }
+
+        if (templateMappings.getInvoiceDocumentType() != null
+                && StringUtils.isNotBlank(templateMappings.getInvoiceDocumentType().getId())) {
+            settings.setInvoiceDocumentType(
+                    documentTypeMapper.documentTypeDTOToEntity(templateMappings.getInvoiceDocumentType()));
+        }
+
+        if (templateMappings.getQuotationDocumentType() != null
+                && StringUtils.isNotBlank(templateMappings.getQuotationDocumentType().getId())) {
+            settings.setQuotationDocumentType(
+                    documentTypeMapper.documentTypeDTOToEntity(templateMappings.getQuotationDocumentType()));
+        }
+
+        if( templateMappings.getQuotationTemplate() != null && StringUtils.isNotBlank(templateMappings.getQuotationTemplate().getId())) {
+            settings.setQuotationTemplate(
+                    documentMapper.documentDTOToEntity(templateMappings.getQuotationTemplate()));
+        }
+
         settings = settingsRepository.saveAndFlush(settings);
         return getTemplateMappings();
     }
@@ -524,11 +597,11 @@ public class SettingsServiceImpl
     @Override
     protected FinancialSettings handleSaveFinancialSettings(@Valid FinancialSettings financialSettings)
             throws Exception {
-        
+
         Settings settings = settingsRepository.findAll().stream().findFirst()
                 .orElse(new Settings());
 
-        if(settings.getId() == null) {
+        if (settings.getId() == null) {
 
             settings.setCreatedAt(LocalDateTime.now());
             settings.setCreatedBy(financialSettings.getUser());
@@ -538,6 +611,8 @@ public class SettingsServiceImpl
             settings.setModifiedBy(financialSettings.getUser());
         }
 
+        settings.setVat(financialSettings.getVat());
+
         settings = settingsRepository.saveAndFlush(settings);
 
         return getFinancialSettings();
@@ -546,11 +621,11 @@ public class SettingsServiceImpl
     @Override
     protected DocumentRequirements handleSaveDocumentRequirements(@Valid DocumentRequirements documentRequirements)
             throws Exception {
-        
+
         Settings settings = settingsRepository.findAll().stream().findFirst()
                 .orElse(new Settings());
 
-        if(settings.getId() == null) {
+        if (settings.getId() == null) {
             settings.setCreatedAt(LocalDateTime.now());
             settings.setCreatedBy(documentRequirements.getUser());
         } else {
@@ -562,6 +637,58 @@ public class SettingsServiceImpl
         settings = settingsRepository.saveAndFlush(settings);
 
         return getDocumentRequirements();
+    }
+
+    @Override
+    protected FinancialSettings handleSaveSalaryRange(@Valid SalaryRangeDTO salaryRange, String user) throws Exception {
+
+        boolean isNew = (salaryRange.getId() == null);
+        SalaryRange entity = salaryRangeMapper.salaryRangeDTOToEntity(salaryRange);
+
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElse(new Settings());
+
+        if (settings.getId() == null) {
+            settings.setCreatedAt(LocalDateTime.now());
+            settings.setCreatedBy(user);
+        } else {
+            settings.setModifiedAt(LocalDateTime.now());
+            settings.setModifiedBy(user);
+        }
+
+        if (isNew) {
+
+            entity.setSettings(settings);
+            settings.getSalaryRanges().add(entity);
+
+        } else {
+
+            entity = salaryRangeRepository.saveAndFlush(entity);
+        }
+
+        settingsRepository.saveAndFlush(settings);
+
+        return getFinancialSettings();
+    }
+
+    @Override
+    protected FinancialSettings handleRemoveSalaryRange(Long salaryRangeId, String user) throws Exception {
+
+        salaryRangeRepository.deleteById(salaryRangeId);
+
+        Settings settings = settingsRepository.findAll().stream().findFirst()
+                .orElseThrow(() -> new SettingsServiceException("Settings not found"));
+
+        if (settings.getId() == null) {
+            settings.setCreatedAt(LocalDateTime.now());
+            settings.setCreatedBy(user);
+        } else {
+            settings.setModifiedAt(LocalDateTime.now());
+            settings.setModifiedBy(user);
+        }
+
+        settingsRepository.saveAndFlush(settings);
+        return getFinancialSettings();
     }
 
 }

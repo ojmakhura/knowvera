@@ -8,8 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/novu")
+@Tag(name = "Novu", description = "Endpoints for Novu integration")
 public class NovuAuthController {
     
     private final NovuAuthService novuAuthService;
@@ -19,6 +23,7 @@ public class NovuAuthController {
     }
 
     @GetMapping("/config")
+    @Operation(summary = "Get Novu Configuration", description = "Retrieve the Novu configuration for the authenticated user")
     public Map<String, String> getNovuConfig(@AuthenticationPrincipal Jwt jwt) {
         // Extracting unique keycloak user identifier ('sub' claim)
         String subscriberId = jwt.getClaimAsString("email");

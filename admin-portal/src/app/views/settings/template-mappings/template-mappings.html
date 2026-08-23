@@ -9,44 +9,76 @@
     </div>
   </header>
 
+  @if (error() && messages().length) {
+    <div class="error-banner" role="alert">
+      <mat-icon>error</mat-icon>
+      <ul>
+        @for (message of messages(); track message) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    </div>
+  } @else if (success() && messages().length) {
+    <div class="success-banner" role="status">
+      <mat-icon>check_circle</mat-icon>
+      <ul>
+        @for (message of messages(); track message) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    </div>
+  }
+
   <div class="mapping-grid">
-    @for (config of configs(); track config.key) {
+    @for (card of cards; track card.key) {
+      @let mapping = templateMappingsSignal();
+      @let template = mapping[card.templateField];
+      @let hasTemplate = !!template?.id;
+
       <div class="settings-card mapping-card">
         <div class="mapping-card__header">
           <h3 class="settings-card__title" style="margin-bottom: 4px;">
-            <mat-icon>{{ config.icon }}</mat-icon>
-            {{ config.title }}
+            <mat-icon>{{ card.icon }}</mat-icon>
+            {{ card.title }}
           </h3>
-          <span class="status-pill" [class.status-pill--draft]="config.status === 'Draft'">
+          <span class="status-pill" [class.status-pill--draft]="!hasTemplate">
             <span class="status-pill__dot"></span>
-            {{ config.status }}
+            {{ hasTemplate ? 'Active' : 'Draft' }}
           </span>
         </div>
-        <p class="mapping-card__desc">{{ config.description }}</p>
+        <p class="mapping-card__desc">{{ card.description }}</p>
 
-        <div class="template-banner" [class.template-banner--muted]="config.status === 'Draft'">
+        <div class="template-banner" [class.template-banner--muted]="!hasTemplate">
           <div class="template-banner__icon">
-            <mat-icon>{{ config.status === 'Active' ? 'description' : 'pending_actions' }}</mat-icon>
+            <mat-icon>{{ hasTemplate ? 'description' : 'pending_actions' }}</mat-icon>
           </div>
           <div class="template-banner__body">
-            <p>Current Template: <strong>{{ config.currentTemplate }}</strong></p>
-            <p class="template-banner__updated">Last updated: {{ config.lastUpdated }}</p>
+            <p>Current Template: <strong>{{ template?.fileName || 'No template uploaded yet' }}</strong></p>
+            @if (hasTemplate) {
+              <p class="template-banner__updated">
+                Last updated: {{ (template.modifiedAt || template.createdAt) | date: 'mediumDate' }}
+                by {{ template.modifiedBy || template.createdBy }}
+              </p>
+            }
           </div>
-          <button class="icon-btn" title="Download">
+          <button class="icon-btn" title="Download" [disabled]="!hasTemplate" (click)="downloadTemplate(card)">
             <mat-icon>download</mat-icon>
           </button>
         </div>
 
         <hr />
 
-        <div class="settings-card__grid">
+        <div class="mapping-card__fields">
           <label class="field">
             <span class="field__label">Document Type</span>
             <select
               class="field__input"
+              [value]="mapping[card.documentTypeField]?.id ?? ''"
+              (change)="updateDocumentType(card.documentTypeField, $any($event.target).value)"
             >
-              @for (opt of config.documentTypeOptions; track opt) {
-                <option [value]="opt">{{ opt }}</option>
+              <option value="" disabled>Select a document type</option>
+              @for (opt of documentTypeOptions(); track opt.id) {
+                <option [value]="opt.id">{{ opt.name }}</option>
               }
             </select>
           </label>
@@ -55,44 +87,31 @@
             <span class="field__label">Map to Template Type</span>
             <select
               class="field__input"
+              [value]="mapping[card.templateTypeField]?.id ?? ''"
+              (change)="updateDocumentType(card.templateTypeField, $any($event.target).value)"
             >
-              @for (opt of config.mappedTypeOptions; track opt) {
-                <option [value]="opt">{{ opt }}</option>
+              <option value="" disabled>Select a template type</option>
+              @for (opt of documentTypeOptions(); track opt.id) {
+                <option [value]="opt.id">{{ opt.name }}</option>
               }
             </select>
           </label>
-
-          <label class="field">
-            <span class="field__label">Confidence Threshold (%)</span>
-            <input
-              class="field__input"
-              type="number"
-              min="0"
-              max="100"
-            />
-          </label>
-
-          <label class="field">
-            <span class="field__label">Anomaly Tolerance</span>
-            <input
-              class="field__input"
-              type="number"
-              min="0"
-            />
-          </label>
         </div>
 
-        <div class="dropzone">
+        <!-- Confidence Threshold / Anomaly Tolerance are not part of the TemplateMappings
+             backend model yet, so they are omitted rather than bound to nothing. -->
+
+        <div class="dropzone" (click)="triggerUpload(card)">
           <mat-icon>upload_file</mat-icon>
           <p>Drag &amp; drop template file or <span>browse</span></p>
-          <p class="dropzone__hint">Supports {{ config.acceptedFormats }}</p>
+          <p class="dropzone__hint">Supports {{ card.acceptedFormats }}</p>
         </div>
       </div>
     }
   </div>
 
   <div class="page-actions">
-    <button class="btn btn-outline">Discard Changes</button>
+    <button class="btn btn-outline" (click)="discard()">Discard Changes</button>
     <button class="btn btn-action-primary" (click)="save()">Save Mappings</button>
   </div>
 </section>

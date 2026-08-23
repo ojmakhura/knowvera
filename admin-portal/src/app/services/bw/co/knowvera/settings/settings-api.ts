@@ -13,6 +13,7 @@ import { PlatformIdentity } from '@app/models/bw/co/knowvera/settings/platform-i
 import { SettingsFieldGroups } from '@app/models/bw/co/knowvera/settings/settings-field-groups';
 import { SettingsToolSelectors } from '@app/models/bw/co/knowvera/settings/settings-tool-selectors';
 import { TemplateMappings } from '@app/models/bw/co/knowvera/settings/template-mappings';
+import { SalaryRangeDTO } from '@app/models/bw/co/knowvera/settings/salary-range-dto';
 
 @Injectable({
   providedIn: 'root',
@@ -160,5 +161,13 @@ export class SettingsApi {
 
   public saveTemplateMappings(templateMappings: TemplateMappings): Observable<TemplateMappings> {
     return this.http.post<TemplateMappings>(`${this.path}/template-mappings`, templateMappings);
+  }
+
+  public saveSalaryRange(salaryRange: SalaryRangeDTO): Observable<FinancialSettings> {
+    return this.http.post<FinancialSettings>(`${this.path}/salary-ranges`, salaryRange);
+  }
+
+  public removeSalaryRange(salaryRangeId: number): Observable<FinancialSettings> {
+    return this.http.delete<FinancialSettings>(`${this.path}/salary-ranges/${salaryRangeId}`);
   }
 }

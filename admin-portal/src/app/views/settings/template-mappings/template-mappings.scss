@@ -28,6 +28,12 @@
     color: var(--text-muted);
   }
 
+  &__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
   hr {
     border: none;
     border-top: 1px solid var(--outline-variant);
@@ -108,6 +114,11 @@
   border: none;
   color: var(--emerald);
   padding: 4px;
+
+  &:disabled {
+    color: var(--outline-variant);
+    cursor: not-allowed;
+  }
 }
 
 .dropzone {

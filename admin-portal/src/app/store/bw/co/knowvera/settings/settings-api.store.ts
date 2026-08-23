@@ -18,6 +18,7 @@ import { PlatformIdentity } from '@app/models/bw/co/knowvera/settings/platform-i
 import { SettingsFieldGroups } from '@app/models/bw/co/knowvera/settings/settings-field-groups';
 import { SettingsToolSelectors } from '@app/models/bw/co/knowvera/settings/settings-tool-selectors';
 import { TemplateMappings } from '@app/models/bw/co/knowvera/settings/template-mappings';
+import { SalaryRangeDTO } from '@app/models/bw/co/knowvera/settings/salary-range-dto';
 
 export type SettingsApiState = AppState<SettingsDTO, SettingsDTO> & {
   platformIdentity: PlatformIdentity;
@@ -141,7 +142,7 @@ export const SettingsApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Settings loaded successfully!`],
                     error: false,
                   }
                 );
@@ -173,7 +174,7 @@ export const SettingsApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Settings searched successfully!`],
                     error: false,
                   }
                 );
@@ -205,7 +206,7 @@ export const SettingsApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Settings removed successfully!`],
                     error: false,
                   }
                 );
@@ -269,7 +270,7 @@ export const SettingsApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Settings searched successfully!`],
                     error: false,
                   }
                 );
@@ -301,7 +302,7 @@ export const SettingsApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [`Template uploaded successfully!`],
                     error: false,
                   }
                 );
@@ -385,7 +386,7 @@ export const SettingsApiStore = signalStore(
                     documentRequirements: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Document requirements loaded successfully!'],
                     error: false,
                   }
                 );
@@ -449,7 +450,7 @@ export const SettingsApiStore = signalStore(
                     operationalMetrics: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Operational metrics loaded successfully!'],
                     error: false,
                   }
                 );
@@ -471,7 +472,7 @@ export const SettingsApiStore = signalStore(
       ),
       getPlatformIdentity: rxMethod<void>(
         switchMap(() => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
+          patchState(store, { loading: true, loaderMessage: 'Loading platform identity ...' });
           return settingsApi.getPlatformIdentity().pipe(
             tapResponse({
               next: (response: PlatformIdentity) => {
@@ -481,7 +482,7 @@ export const SettingsApiStore = signalStore(
                     platformIdentity: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Platform identity loaded successfully!'],
                     error: false,
                   }
                 );
@@ -513,7 +514,7 @@ export const SettingsApiStore = signalStore(
                     settingsFieldGroups: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Settings field groups loaded successfully!'],
                     error: false,
                   }
                 );
@@ -545,7 +546,7 @@ export const SettingsApiStore = signalStore(
                     settingsToolSelectors: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Tool selectors loaded successfully!!'],
                     error: false,
                   }
                 );
@@ -609,7 +610,7 @@ export const SettingsApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Settings loaded successfully!!'],
                     error: false,
                   }
                 );
@@ -641,7 +642,7 @@ export const SettingsApiStore = signalStore(
                     documentRequirements: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Document requirements saved successfully!'],
                     error: false,
                   }
                 );
@@ -705,7 +706,7 @@ export const SettingsApiStore = signalStore(
                     operationalMetrics: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Operational metrics saved successfully!'],
                     error: false,
                   }
                 );
@@ -737,7 +738,7 @@ export const SettingsApiStore = signalStore(
                     platformIdentity: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Platform identity saved successfully!'],
                     error: false,
                   }
                 );
@@ -769,7 +770,7 @@ export const SettingsApiStore = signalStore(
                     settingsFieldGroups: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Settings field groups saved successfully!'],
                     error: false,
                   }
                 );
@@ -801,7 +802,7 @@ export const SettingsApiStore = signalStore(
                     settingsToolSelectors: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Tool selectors saved successfully!'],
                     error: false,
                   }
                 );
@@ -834,6 +835,70 @@ export const SettingsApiStore = signalStore(
                     loading: false, 
                     success: true, 
                     messages: ['Template mapping saved successfully!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      saveSalaryRange: rxMethod<{salaryRange: SalaryRangeDTO}>(
+        switchMap((data: {salaryRange: SalaryRangeDTO}) => {
+          patchState(store, { loading: true, loaderMessage: 'Saving salary range ...' });
+          return settingsApi.saveSalaryRange(data.salaryRange).pipe(
+            tapResponse({
+              next: (response: FinancialSettings) => {
+                patchState(
+                  store, 
+                  {
+                    financialSettings: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Salary range saved successfully!'],
+                    error: false,
+                  }
+                );
+              },
+              error: (error: any) => {
+                patchState(
+                  store, { 
+                    status: (error?.status || 0), 
+                    loading: false, 
+                    success: false,
+                    error: true,
+                    messages: [error.error?.message ? error.error.message : (error.message || 'An error occurred')], 
+                  }
+                );
+              },
+            }),
+          );
+        }),
+      ),
+      removeSalaryRange: rxMethod<{salaryRangeId: number}>(
+        switchMap((data: {salaryRangeId: number}) => {
+          patchState(store, { loading: true, loaderMessage: 'Removing salary range ...' });
+          return settingsApi.removeSalaryRange(data.salaryRangeId).pipe(
+            tapResponse({
+              next: (response: FinancialSettings) => {
+                patchState(
+                  store, 
+                  {
+                    financialSettings: response,
+                    loading: false, 
+                    success: true, 
+                    messages: ['Salary range removed successfully!'],
                     error: false,
                   }
                 );

@@ -77,6 +77,7 @@ export const menuItems: ShellMenuItem[] = [
 export const settingsMenuItems: ShellMenuItem[] = [
   { routerLink: '/settings/identity', titleKey: 'settings.platformIdentity.title', icon: 'branding_watermark' },
   { routerLink: '/settings/metrics', titleKey: 'settings.operationalMetrics.title', icon: 'analytics' },
+  { routerLink: '/settings/documents', titleKey: 'settings.documentRequirements.title', icon: 'topic' },
   { routerLink: '/settings/field-groups', titleKey: 'settings.fieldGroups.title', icon: 'account_tree' },
   { routerLink: '/settings/tool-selectors', titleKey: 'settings.toolSelectors.title', icon: 'settings_input_component' },
   { routerLink: '/settings/templates', titleKey: 'settings.templates.title', icon: 'description' },

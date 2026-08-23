@@ -13,11 +13,11 @@ import { ExpectedFieldApi } from '@app/services/bw/co/knowvera/document/type/fie
 import { KycFieldGroupApi } from '@app/services/bw/co/knowvera/settings/kyc/kyc-field-group-api';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 import { AddKycFieldGroupDialog } from '../add-kyc-field-group-dialog/add-kyc-field-group-dialog';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 class FieldGroupsModel {
-
-    organisationKycFieldGroups: KycFieldGroupDTO[] = [];
-    individualKycFieldGroups: KycFieldGroupDTO[] = [];
+  organisationKycFieldGroups: KycFieldGroupDTO[] = [];
+  individualKycFieldGroups: KycFieldGroupDTO[] = [];
 }
 
 type FieldGroupsKey = 'organisationKycFieldGroups' | 'individualKycFieldGroups';
@@ -30,12 +30,17 @@ type FieldGroupsKey = 'organisationKycFieldGroups' | 'individualKycFieldGroups';
   styleUrls: ['./field-groups.scss'],
 })
 export class FieldGroups implements OnInit {
-
   settingsApiStore = inject(SettingsApiStore);
   private dialog = inject(MatDialog);
   private toastr = inject(ToastrService);
   private kycFieldGroupApi = inject(KycFieldGroupApi);
   private expectedFieldApi = inject(ExpectedFieldApi);
+
+  loading = linkedSignal(() => this.settingsApiStore.loading());
+  loaderMessage = linkedSignal(() => this.settingsApiStore.loaderMessage());
+  success = linkedSignal(() => this.settingsApiStore.success());
+  error = linkedSignal(() => this.settingsApiStore.error());
+  messages = linkedSignal(() => this.settingsApiStore.messages());
 
   fieldGroupsSignal = linkedSignal(() => {
     let storeData = this.settingsApiStore.settingsFieldGroups();
@@ -48,9 +53,10 @@ export class FieldGroups implements OnInit {
   activeTab = signal<'individual' | 'organisation'>('individual');
 
   activeGroups = computed<KycFieldGroupDTO[]>(() => {
-    const groups = this.activeTab() === 'organisation'
-      ? this.fieldGroupsSignal().organisationKycFieldGroups
-      : this.fieldGroupsSignal().individualKycFieldGroups;
+    const groups =
+      this.activeTab() === 'organisation'
+        ? this.fieldGroupsSignal().organisationKycFieldGroups
+        : this.fieldGroupsSignal().individualKycFieldGroups;
 
     return [...(groups ?? [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
   });
@@ -74,11 +80,23 @@ export class FieldGroups implements OnInit {
     return map;
   });
 
+  loaderState = inject(LoaderState);
+
   constructor() {
     effect(() => {
       const requirements = this.settingsApiStore.documentRequirements();
-      this.loadExpectedFieldOptions(requirements?.indKycDocuments ?? [], this.individualExpectedFieldOptions);
-      this.loadExpectedFieldOptions(requirements?.orgKycDocuments ?? [], this.organisationExpectedFieldOptions);
+      this.loadExpectedFieldOptions(
+        requirements?.indKycDocuments ?? [],
+        this.individualExpectedFieldOptions,
+      );
+      this.loadExpectedFieldOptions(
+        requirements?.orgKycDocuments ?? [],
+        this.organisationExpectedFieldOptions,
+      );
+    });
+
+    effect(() => {
+      this.loaderState.isLoading.set(this.settingsApiStore.loading());
     });
   }
 
@@ -88,7 +106,9 @@ export class FieldGroups implements OnInit {
   }
 
   fieldLabel(groupField: GroupFieldDTO): string {
-    return this.activeFieldMap()[groupField.fieldId]?.fieldLabel || groupField.field || 'Unknown Field';
+    return (
+      this.activeFieldMap()[groupField.fieldId]?.fieldLabel || groupField.field || 'Unknown Field'
+    );
   }
 
   fieldCode(groupField: GroupFieldDTO): string {
@@ -127,7 +147,9 @@ export class FieldGroups implements OnInit {
           }));
         },
         error: (error) => {
-          this.toastr.error(error?.error?.message || error?.message || 'Unable to remove field group');
+          this.toastr.error(
+            error?.error?.message || error?.message || 'Unable to remove field group',
+          );
         },
       });
     });
@@ -159,51 +181,68 @@ export class FieldGroups implements OnInit {
   }
 
   private currentTargetType(): TargetEntity {
-    return this.activeTab() === 'organisation' ? TargetEntity.ORGANISATION : TargetEntity.INDIVIDUAL;
+    return this.activeTab() === 'organisation'
+      ? TargetEntity.ORGANISATION
+      : TargetEntity.INDIVIDUAL;
   }
 
   private currentKey(): FieldGroupsKey {
-    return this.activeTab() === 'organisation' ? 'organisationKycFieldGroups' : 'individualKycFieldGroups';
+    return this.activeTab() === 'organisation'
+      ? 'organisationKycFieldGroups'
+      : 'individualKycFieldGroups';
   }
 
   private openGroupDialog(targetType: TargetEntity, editingGroup?: KycFieldGroupDTO): void {
     const isOrganisation = targetType === TargetEntity.ORGANISATION;
     const key = this.currentKey();
 
-    this.dialog.open(AddKycFieldGroupDialog, {
-      width: 'min(96vw, 920px)',
-      maxWidth: '100vw',
-      data: {
-        expectedFieldOptions: this.activeExpectedFieldOptions(),
-        existingGroups: this.fieldGroupsSignal()[key] ?? [],
-        editingGroup,
-        groupTypeLabel: isOrganisation ? 'Organisation KYC Field Group' : 'Individual KYC Field Group',
-        suiteLabel: isOrganisation ? 'Org. KYC Suite' : 'Ind. KYC Suite',
-        suiteDescription: isOrganisation ? 'organisation KYC suite documents' : 'individual KYC suite documents',
-        targetType,
-      },
-    }).afterClosed().subscribe((result: KycFieldGroupDTO | null) => {
-      if (!result) {
-        return;
-      }
+    this.dialog
+      .open(AddKycFieldGroupDialog, {
+        width: 'min(96vw, 920px)',
+        maxWidth: '100vw',
+        data: {
+          expectedFieldOptions: this.activeExpectedFieldOptions(),
+          existingGroups: this.fieldGroupsSignal()[key] ?? [],
+          editingGroup,
+          groupTypeLabel: isOrganisation
+            ? 'Organisation KYC Field Group'
+            : 'Individual KYC Field Group',
+          suiteLabel: isOrganisation ? 'Org. KYC Suite' : 'Ind. KYC Suite',
+          suiteDescription: isOrganisation
+            ? 'organisation KYC suite documents'
+            : 'individual KYC suite documents',
+          targetType,
+        },
+      })
+      .afterClosed()
+      .subscribe((result: KycFieldGroupDTO | null) => {
+        if (!result) {
+          return;
+        }
 
-      this.kycFieldGroupApi.save(result).subscribe({
-        next: (savedGroup) => {
-          this.toastr.success(editingGroup ? 'Field group updated successfully' : 'Field group created successfully');
-          if (editingGroup) {
-            this.replaceGroup(editingGroup, savedGroup);
-          } else {
-            this.fieldGroupsSignal.update((value) => ({
-              ...value,
-              [key]: [...(value[key] ?? []), savedGroup],
-            }));
-          }
-        },
-        error: (error) => {
-          this.toastr.error(error?.error?.message || error?.message || 'Unable to save field group');
-        },
+        this.kycFieldGroupApi.save(result).subscribe({
+          next: (savedGroup) => {
+            this.toastr.success(
+              editingGroup
+                ? 'Field group updated successfully'
+                : 'Field group created successfully',
+            );
+            if (editingGroup) {
+              this.replaceGroup(editingGroup, savedGroup);
+            } else {
+              this.fieldGroupsSignal.update((value) => ({
+                ...value,
+                [key]: [...(value[key] ?? []), savedGroup],
+              }));
+            }
+          },
+          error: (error) => {
+            this.toastr.error(
+              error?.error?.message || error?.message || 'Unable to save field group',
+            );
+          },
+        });
       });
-    });
   }
 
   private replaceGroup(original: KycFieldGroupDTO, updated: KycFieldGroupDTO): void {
@@ -232,7 +271,9 @@ export class FieldGroups implements OnInit {
 
     this.expectedFieldApi.findByDocumentType(ids).subscribe({
       next: (fields) => target.set(this.uniqueExpectedFields(fields || [])),
-      error: () => target.set([]),
+      error: (error) => {
+        target.set([]);
+      },
     });
   }
 

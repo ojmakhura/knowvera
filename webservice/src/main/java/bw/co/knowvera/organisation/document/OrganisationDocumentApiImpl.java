@@ -12,6 +12,8 @@ import bw.co.knowvera.organisation.document.OrganisationDocumentDTO;
 import bw.co.knowvera.organisation.document.OrganisationDocumentSearchCriteria;
 import bw.co.knowvera.organisation.document.OrganisationDocumentService;
 import bw.co.knowvera.organisation.document.OrganisationDocumentStatus;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Organisation Document", description = "Endpoints for managing organisation documents")
 public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
 
     private final OrganisationDocumentService organisationDocumentService;
@@ -34,12 +37,14 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
     }
 
     @Override
+    @Operation(summary = "Find Organisation Document by ID", description = "Retrieve an organisation document by its ID")
     public ResponseEntity<OrganisationDocumentDTO> findById(String id) throws Exception {
 
         return ResponseEntity.ok(organisationDocumentService.findById(id));
     }
 
     @Override
+    @Operation(summary = "Find Organisation Documents by Organisation ID", description = "Retrieve all organisation documents associated with a specific organisation ID")
     public ResponseEntity<List<OrganisationDocumentDTO>> findByOrganisation(String organisationId) throws Exception {
 
         return ResponseEntity.ok(organisationDocumentService.findByOrganisation(organisationId));
@@ -47,6 +52,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
     }
 
     @Override
+    @Operation(summary = "Find Organisation Documents by Organisation ID (Paged)", description = "Retrieve paged organisation documents associated with a specific organisation ID")
     public ResponseEntity<Page<OrganisationDocumentDTO>> findByOrganisationPaged(String organisationId,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -54,6 +60,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
     }
 
     @Override
+    @Operation(summary = "Find Organisation Documents by Status", description = "Retrieve all organisation documents with a specific status")
     public ResponseEntity<List<OrganisationDocumentDTO>> findByStatus(OrganisationDocumentStatus status)
             throws Exception {
 
@@ -61,23 +68,27 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
     }
 
     @Override
+    @Operation(summary = "Find Organisation Documents by Status (Paged)", description = "Retrieve paged organisation documents with a specific status")
     public ResponseEntity<Page<OrganisationDocumentDTO>> findByStatusPaged(OrganisationDocumentStatus status,
             Integer pageNumber, Integer pageSize) throws Exception {
         return ResponseEntity.ok(organisationDocumentService.findByStatus(status, pageNumber, pageSize));
     }
 
     @Override
+    @Operation(summary = "Get All Organisation Documents", description = "Retrieve all organisation documents")
     public ResponseEntity<List<OrganisationDocumentDTO>> getAll() throws Exception {
         return ResponseEntity.ok(organisationDocumentService.getAll());
     }
 
     @Override
+    @Operation(summary = "Get All Organisation Documents (Paged)", description = "Retrieve paged organisation documents")
     public ResponseEntity<Page<OrganisationDocumentDTO>> getAllPaged(Integer pageNumber, Integer pageSize)
             throws Exception {
         return ResponseEntity.ok(organisationDocumentService.getAll(pageNumber, pageSize));
     }
 
     @Override
+    @Operation(summary = "Paged Search for Organisation Documents", description = "Perform a paged search for organisation documents based on specified criteria")
     public ResponseEntity<Page<OrganisationDocumentDTO>> pagedSearch(
             SearchObject<OrganisationDocumentSearchCriteria> criteria) throws Exception {
 
@@ -85,12 +96,14 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
     }
 
     @Override
+    @Operation(summary = "Remove Organisation Document", description = "Remove an organisation document by its ID")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
         return ResponseEntity.ok(organisationDocumentService.remove(id));
     }
 
     @Override
+    @Operation(summary = "Save Organisation Document", description = "Save or update an organisation document")
     public ResponseEntity<OrganisationDocumentDTO> save(OrganisationDocumentDTO clientRequest) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -99,6 +112,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
     }
 
     @Override
+    @Operation(summary = "Search Organisation Documents", description = "Search for organisation documents based on specified criteria")
     public ResponseEntity<List<OrganisationDocumentDTO>> search(
             SearchObject<OrganisationDocumentSearchCriteria> criteria) throws Exception {
 

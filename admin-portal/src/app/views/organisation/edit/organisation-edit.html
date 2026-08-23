@@ -1,310 +1,324 @@
-<div class="page-wrapper">
+<div class="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8">
 
-  <header class="page-header">
-    <div>
-      <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a routerLink="/organisation">{{ breadcrumbLabel }}</a>
-        <mat-icon>chevron_right</mat-icon>
-        @if(editOrganisationFormSignal().name) {
-        <span>{{ editOrganisationFormSignal().name || 'Organisation' }}</span>
-        <mat-icon>chevron_right</mat-icon>
-        }
-        <span class="crumb-current" translate>{{ editOrganisationFormSignal().id ? 'edit' : 'create' }}</span>
-      </nav>
-      <h1 class="page-title">Edit Organisation</h1>
-    </div>
+  <!-- Header -->
+  <header class="mb-6">
+    <nav class="flex items-center gap-1 text-xs text-[var(--on-surface-variant)] mb-2" aria-label="Breadcrumb">
+      <a routerLink="/organisation" class="hover:text-[var(--primary)] transition-colors">{{ breadcrumbLabel }}</a>
+      <mat-icon class="!text-base !h-4 !w-4">chevron_right</mat-icon>
+      @if (editOrganisationFormSignal().name) {
+      <span>{{ editOrganisationFormSignal().name }}</span>
+      <mat-icon class="!text-base !h-4 !w-4">chevron_right</mat-icon>
+      }
+      <span class="text-[var(--primary)] font-semibold" translate>{{ editOrganisationFormSignal().id ? 'edit' : 'create' }}</span>
+    </nav>
 
-    <div class="header-btns">
-      <button mat-button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
-      <button mat-flat-button type="button" [disabled]="editOrganisationFormSignalForm().invalid()" class="btn-save"
-        (click)="saveOrganisation()">Save Changes</button>
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <h1 class="heading text-2xl md:text-3xl font-semibold text-[var(--primary)] tracking-tight">Edit Organisation</h1>
+      <div class="flex gap-3">
+        <button type="button" (click)="cancel()"
+          class="px-4 py-2 rounded-lg border border-[var(--outline-variant)] text-[var(--primary)] text-sm font-medium hover:bg-[var(--surface-container-low)] transition-colors">
+          Cancel
+        </button>
+        <button type="button" [disabled]="editOrganisationFormSignalForm().invalid()" (click)="saveOrganisation()"
+          class="px-4 py-2 rounded-lg bg-[#00b67a] text-white text-sm font-medium hover:bg-[#009c69] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+          Save Changes
+        </button>
+      </div>
     </div>
   </header>
-  <div class="content-grid">
-    <div class="main-column">
-      <mat-card class="vault-card">
-        <div class="section-head">
-          <mat-icon class="section-icon">corporate_fare</mat-icon>
-          <h2 class="section-title">Core Identity</h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+
+    <!-- Main column -->
+    <div class="md:col-span-8 flex flex-col gap-6">
+
+      <!-- Core Identity -->
+      <section class="bg-[var(--surface-container-lowest)] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6">
+        <div class="flex items-center gap-3 pb-2 mb-6 border-b border-[var(--outline-variant)]">
+          <mat-icon class="text-[var(--primary)] !text-xl">corporate_fare</mat-icon>
+          <h2 class="heading text-base font-semibold text-[var(--primary)]">Core Identity</h2>
         </div>
 
-        <div class="field-grid single-column">
-          <div class="field-group">
-            <label class="field-label" for="organisationName">Organisation Name</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <input id="organisationName" matInput [formField]="editOrganisationFormSignalForm.name" />
-              @if(editOrganisationFormSignalForm.name().touched()) {
-              @for (error of editOrganisationFormSignalForm.name().errors(); track $index) {
-              <p class="error-message" translate>{{ error.message }}</p>
-              }
-              }
-            </mat-form-field>
-          </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationName">Organisation Name</label>
+          <input id="organisationName" type="text" [formField]="editOrganisationFormSignalForm.name"
+            class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors" />
+          @if(editOrganisationFormSignalForm.name().touched()) {
+          @for (error of editOrganisationFormSignalForm.name().errors(); track $index) {
+          <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+          }
+          }
         </div>
 
-        <div class="field-grid two-column mt-field">
-          <div class="field-group">
-            <label class="field-label" for="organisationCode" translate>abbreviation</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <input id="organisationCode" matInput [formField]="editOrganisationFormSignalForm.code" />
-              @if(editOrganisationFormSignalForm.code().touched()) {
-              @for (error of editOrganisationFormSignalForm.code().errors(); track $index) {
-              <p class="error-message" translate>{{ error.message }}</p>
-              }
-              }
-            </mat-form-field>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationCode" translate>abbreviation</label>
+            <input id="organisationCode" type="text" [formField]="editOrganisationFormSignalForm.code"
+              class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors" />
+            @if(editOrganisationFormSignalForm.code().touched()) {
+            @for (error of editOrganisationFormSignalForm.code().errors(); track $index) {
+            <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+            }
+            }
           </div>
 
-          <div class="field-group">
-            <label class="field-label" for="organisationRegistrationNo">Registration No.</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <input id="organisationRegistrationNo" matInput
-                [formField]="editOrganisationFormSignalForm.registrationNo" />
-              @if(editOrganisationFormSignalForm.registrationNo().touched()) {
-              @for (error of editOrganisationFormSignalForm.registrationNo().errors(); track $index) {
-              <p class="error-message" translate>{{ error.message }}</p>
-              }
-              }
-            </mat-form-field>
-          </div>
-        </div>
-
-        <div class="field-grid two-column align-end mt-field">
-          <div class="field-group">
-            <label class="field-label" for="organisationCountryOfRegistration">Country of Registration</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <mat-select id="organisationCountryOfRegistration"
-                [formField]="editOrganisationFormSignalForm.countryOfRegistration">
-                @for (country of countries; track country) {
-                <mat-option [value]="country">{{ country }}</mat-option>
-                }
-              </mat-select>
-              @if(editOrganisationFormSignalForm.countryOfRegistration().touched()) {
-              @for (error of editOrganisationFormSignalForm.countryOfRegistration().errors(); track $index) {
-              <p class="error-message" translate>{{ error.message }}</p>
-              }
-              }
-            </mat-form-field>
-          </div>
-
-          <div class="client-toggle">
-            <span class="toggle-label">Client Toggle</span>
-            <mat-slide-toggle color="primary" [formField]="editOrganisationFormSignalForm.isClient"></mat-slide-toggle>
-          </div>
-        </div>
-      </mat-card>
-
-      <mat-card class="vault-card">
-        <div class="section-head">
-          <mat-icon class="section-icon">verified_user</mat-icon>
-          <h2 class="section-title">Operational Status</h2>
-        </div>
-
-        <div class="field-grid two-column">
-          <div class="field-group">
-            <label class="field-label" for="organisationStatus">General Status</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <mat-select id="organisationStatus" [formField]="editOrganisationFormSignalForm.status">
-                @for (status of generalStatuses; track status) {
-                <mat-option [value]="status">{{ status }}</mat-option>
-                }
-              </mat-select>
-              @if(editOrganisationFormSignalForm.status().touched()) {
-              @for (error of editOrganisationFormSignalForm.status().errors(); track $index) {
-              <p class="error-message" translate>{{ error.message }}</p>
-              }
-              }
-            </mat-form-field>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label" for="organisationKycStatus">KYC Compliance Status</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <mat-select id="organisationKycStatus" [formField]="editOrganisationFormSignalForm.kycStatus">
-                @for (status of kycComplianceStatuses; track status) {
-                <mat-option [value]="status">{{ status }}</mat-option>
-                }
-              </mat-select>
-              @if(editOrganisationFormSignalForm.kycStatus().touched()) {
-              @for (error of editOrganisationFormSignalForm.kycStatus().errors(); track $index) {
-              <p class="error-message" translate>{{ error.message }}</p>
-              }
-              }
-            </mat-form-field>
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationRegistrationNo">Registration No.</label>
+            <input id="organisationRegistrationNo" type="text" [formField]="editOrganisationFormSignalForm.registrationNo"
+              class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors" />
+            @if(editOrganisationFormSignalForm.registrationNo().touched()) {
+            @for (error of editOrganisationFormSignalForm.registrationNo().errors(); track $index) {
+            <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+            }
+            }
           </div>
         </div>
 
-        <div class="field-group mt-field">
-          <label class="field-label" for="organisationDescription">Description</label>
-          <mat-form-field appearance="outline" class="vault-field vault-textarea">
-            <textarea id="organisationDescription" matInput rows="4"
-              [formField]="editOrganisationFormSignalForm.description"
-              placeholder="Enter organisational details and compliance notes..."></textarea>
-          </mat-form-field>
-        </div>
-      </mat-card>
-
-      <mat-card class="vault-card">
-        <div class="section-head section-head-split">
-          <div class="section-head-inner">
-            <mat-icon class="section-icon">language</mat-icon>
-            <h2 class="section-title">Managed Domains</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 items-end">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationCountryOfRegistration">Country of Registration</label>
+            <select id="organisationCountryOfRegistration" [formField]="editOrganisationFormSignalForm.countryOfRegistration"
+              class="rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors">
+              @for (country of countries; track country) {
+              <option [value]="country">{{ country }}</option>
+              }
+            </select>
+            @if(editOrganisationFormSignalForm.countryOfRegistration().touched()) {
+            @for (error of editOrganisationFormSignalForm.countryOfRegistration().errors(); track $index) {
+            <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+            }
+            }
           </div>
 
-          <button mat-button type="button" class="add-action-btn" (click)="addDomain()">
-            <mat-icon>add_circle</mat-icon>
+          <div class="flex items-center justify-between bg-[var(--surface-container-low)] rounded-lg px-4 py-3">
+            <div>
+              <p class="text-sm font-medium text-[var(--primary)]">Client Status</p>
+              <p class="text-xs text-[var(--on-surface-variant)]">Is this organisation an active client?</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" class="sr-only peer" [formField]="editOrganisationFormSignalForm.isClient" />
+              <div
+                class="w-11 h-6 bg-[var(--outline-variant)] rounded-full peer peer-focus:outline-none peer-checked:bg-[#00b67a] transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white">
+              </div>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Operational Status -->
+      <section class="bg-[var(--surface-container-lowest)] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6">
+        <div class="flex items-center gap-3 pb-2 mb-6 border-b border-[var(--outline-variant)]">
+          <mat-icon class="text-[var(--primary)] !text-xl">verified_user</mat-icon>
+          <h2 class="heading text-base font-semibold text-[var(--primary)]">Operational Status</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationStatus">General Status</label>
+            <select id="organisationStatus" [formField]="editOrganisationFormSignalForm.status"
+              class="rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors">
+              @for (status of generalStatuses; track status) {
+              <option [value]="status">{{ status }}</option>
+              }
+            </select>
+            @if(editOrganisationFormSignalForm.status().touched()) {
+            @for (error of editOrganisationFormSignalForm.status().errors(); track $index) {
+            <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+            }
+            }
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationKycStatus">KYC Compliance Status</label>
+            <select id="organisationKycStatus" [formField]="editOrganisationFormSignalForm.kycStatus"
+              class="rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] px-3 py-2 text-sm font-medium text-[var(--secondary)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors">
+              @for (status of kycComplianceStatuses; track status) {
+              <option [value]="status">{{ status }}</option>
+              }
+            </select>
+            @if(editOrganisationFormSignalForm.kycStatus().touched()) {
+            @for (error of editOrganisationFormSignalForm.kycStatus().errors(); track $index) {
+            <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+            }
+            }
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1 mt-4">
+          <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationDescription">Description / Notes</label>
+          <textarea id="organisationDescription" rows="3" [formField]="editOrganisationFormSignalForm.description"
+            placeholder="Enter organisational details and compliance notes..."
+            class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] resize-none focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors"></textarea>
+          @if(editOrganisationFormSignalForm.description().touched()) {
+          @for (error of editOrganisationFormSignalForm.description().errors(); track $index) {
+          <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+          }
+          }
+        </div>
+      </section>
+
+      <!-- Managed Domains -->
+      <section class="bg-[var(--surface-container-lowest)] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6">
+        <div class="flex items-center justify-between pb-2 mb-6 border-b border-[var(--outline-variant)]">
+          <div class="flex items-center gap-3">
+            <mat-icon class="text-[var(--primary)] !text-xl">language</mat-icon>
+            <h2 class="heading text-base font-semibold text-[var(--primary)]">Managed Domains</h2>
+          </div>
+          <button type="button" (click)="addDomain()"
+            class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[var(--surface-container-low)] text-[var(--primary)] text-xs font-semibold uppercase tracking-wide hover:bg-[var(--surface-container-high)] transition-colors">
+            <mat-icon class="!text-lg">add</mat-icon>
             Add Domain
           </button>
         </div>
 
-        <div class="domains-list">
+        <div class="flex flex-col gap-3">
           @for (domain of editOrganisationFormSignalForm.domains; track domain; let index = $index) {
-          <div class="domain-row">
-            <div class="domain-meta domain-meta-grow">
-              <mat-icon class="domain-icon">link</mat-icon>
-              <mat-form-field appearance="outline" class="vault-field">
-                <input matInput [formField]="domain.name" placeholder="Enter domain" />
+          <div class="flex flex-col sm:flex-row sm:items-center gap-3 p-3 border border-[var(--outline-variant)] rounded-lg bg-[var(--surface)]">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+              <mat-icon class="text-[var(--outline)] !text-xl">link</mat-icon>
+              <div class="flex-1 min-w-0">
+                <input [formField]="domain.name" placeholder="Enter domain"
+                  class="w-full bg-transparent text-sm text-[var(--on-surface)] focus:outline-none" />
                 @if(domain.name().touched()) {
                 @for (error of domain.name().errors(); track $index) {
-                <p class="error-message" translate>{{ error.message }}</p>
+                <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
                 }
                 }
-              </mat-form-field>
+              </div>
             </div>
 
-            <div class="domain-actions">
-              <mat-checkbox class="domain-unverified-toggle" [formField]="domain.verified">Verified</mat-checkbox>
-              <button mat-icon-button type="button" class="domain-delete-btn" (click)="removeDomain(index)">
-                <mat-icon>delete</mat-icon>
+            <div class="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" [formField]="domain.verified"
+                  class="rounded border-[var(--outline-variant)] text-[#00b67a] focus:ring-[#00b67a]" />
+                <span class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]">Verified</span>
+              </label>
+              <button type="button" (click)="removeDomain(index)" class="text-[var(--error)] hover:opacity-70">
+                <mat-icon class="!text-xl">delete</mat-icon>
               </button>
             </div>
           </div>
           } @empty {
-          <p class="empty-state">No managed domains added yet.</p>
+          <p class="text-sm text-[var(--on-surface-variant)]">No managed domains added yet.</p>
           }
         </div>
-      </mat-card>
+      </section>
     </div>
 
-    <div class="side-column">
-      <mat-card class="vault-card vault-card-side">
-        <div class="section-head">
-          <mat-icon class="section-icon">alternate_email</mat-icon>
-          <h2 class="section-title">Contact</h2>
+    <!-- Side column -->
+    <div class="md:col-span-4 flex flex-col gap-6">
+
+      <!-- Contact -->
+      <section class="bg-[var(--surface-container-lowest)] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6">
+        <div class="flex items-center gap-3 pb-2 mb-6 border-b border-[var(--outline-variant)]">
+          <mat-icon class="text-[var(--primary)] !text-xl">alternate_email</mat-icon>
+          <h2 class="heading text-base font-semibold text-[var(--primary)]">Contact</h2>
         </div>
 
-        <div class="field-group">
-          <label class="field-label" for="organisationEmail">Contact Email Address</label>
-          <mat-form-field class="vault-field">
-            <input id="organisationEmail" matInput type="email"
-              [formField]="editOrganisationFormSignalForm.contactEmailAddress" />
-            @if (editOrganisationFormSignalForm.contactEmailAddress().touched()) {
-            @for (error of editOrganisationFormSignalForm.contactEmailAddress().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
-            }
-          </mat-form-field>
+        <div class="flex flex-col gap-1 mb-4">
+          <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationEmail">Contact Email Address</label>
+          <input id="organisationEmail" type="email" [formField]="editOrganisationFormSignalForm.contactEmailAddress"
+            class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors" />
+          @if (editOrganisationFormSignalForm.contactEmailAddress().touched()) {
+          @for (error of editOrganisationFormSignalForm.contactEmailAddress().errors(); track $index) {
+          <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+          }
+          }
         </div>
 
-        <div class="phones-section">
-          <div class="phones-header">
-            <label class="field-label">Phone Numbers</label>
-            <button mat-button type="button" class="add-action-btn" (click)="addPhoneNumber()">Add Phone</button>
+        <div class="flex flex-col gap-2">
+          <div class="flex justify-between items-center">
+            <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]">Phone Numbers</label>
+            <button type="button" (click)="addPhoneNumber()" class="text-[var(--primary)] hover:text-[var(--primary-container)] transition-colors">
+              <mat-icon class="!text-lg">add_circle</mat-icon>
+            </button>
           </div>
 
           @for (phone of editOrganisationFormSignalForm.phoneNumbers; track phone; let index = $index) {
-          <div class="phone-row">
-            <mat-form-field class="vault-field phone-type">
-              <mat-select [formField]="phone.type">
-                @for (type of phoneTypes; track type) {
-                <mat-option [value]="type">{{ type }}</mat-option>
-                }
-              </mat-select>
-              @if(phone.type().touched()) {
-              @for (error of phone.type().errors(); track $index) {
-              <p class="error-message" translate>{{ error.message }}</p>
+          <div class="flex gap-2 items-start">
+            <select [formField]="phone.type"
+              class="w-28 flex-shrink-0 rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] px-2 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors">
+              @for (type of phoneTypes; track type) {
+              <option [value]="type">{{ type }}</option>
               }
-              }
-            </mat-form-field>
+            </select>
 
-            <mat-form-field appearance="outline" class="vault-field phone-number">
-              <input matInput [formField]="phone.phoneNumber" placeholder="Phone number" />
+            <div class="flex-1 min-w-0">
+              <input [formField]="phone.phoneNumber" type="tel" placeholder="Phone number"
+                class="w-full rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors" />
               @if(phone.phoneNumber().touched()) {
               @for (error of phone.phoneNumber().errors(); track $index) {
-              <p class="error-message" translate>{{ error.message }}</p>
+              <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
               }
               }
-            </mat-form-field>
+            </div>
 
-            <button mat-icon-button type="button" class="phone-delete" (click)="removePhoneNumber(index)">
-              <mat-icon>delete</mat-icon>
+            <button type="button" (click)="removePhoneNumber(index)" class="mt-2 text-[var(--error)] hover:opacity-70 flex-shrink-0">
+              <mat-icon class="!text-lg">delete</mat-icon>
             </button>
           </div>
           } @empty {
-          <p class="empty-state" translate>No phone numbers added yet.</p>
+          <p class="text-sm text-[var(--on-surface-variant)]" translate>No phone numbers added yet.</p>
           }
         </div>
-      </mat-card>
+      </section>
 
-      <mat-card class="vault-card vault-card-side">
-        <div class="section-head">
-          <mat-icon class="section-icon">location_on</mat-icon>
-          <h2 class="section-title">Addresses</h2>
+      <!-- Addresses -->
+      <section class="bg-[var(--surface-container-lowest)] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6">
+        <div class="flex items-center gap-3 pb-2 mb-6 border-b border-[var(--outline-variant)]">
+          <mat-icon class="text-[var(--primary)] !text-xl">location_on</mat-icon>
+          <h2 class="heading text-base font-semibold text-[var(--primary)]">Addresses</h2>
         </div>
 
-        <div class="field-group">
-          <label class="field-label" for="organisationPhysicalAddress">Physical Address</label>
-          <mat-form-field appearance="outline" class="vault-field vault-textarea compact-textarea">
-            <textarea id="organisationPhysicalAddress" matInput rows="3"
-              [formField]="editOrganisationFormSignalForm.physicalAddress"></textarea>
-            @if(editOrganisationFormSignalForm.physicalAddress().touched()) {
-            @for (error of editOrganisationFormSignalForm.physicalAddress().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
-            }
-          </mat-form-field>
+        <div class="flex flex-col gap-1 mb-4">
+          <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationPhysicalAddress">Physical Address</label>
+          <textarea id="organisationPhysicalAddress" rows="3" [formField]="editOrganisationFormSignalForm.physicalAddress"
+            class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] resize-none focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors"></textarea>
+          @if(editOrganisationFormSignalForm.physicalAddress().touched()) {
+          @for (error of editOrganisationFormSignalForm.physicalAddress().errors(); track $index) {
+          <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+          }
+          }
         </div>
 
-        <div class="field-group mt-field">
-          <label class="field-label" for="organisationPostalAddress">Postal Address</label>
-          <mat-form-field appearance="outline" class="vault-field vault-textarea compact-textarea">
-            <textarea id="organisationPostalAddress" matInput rows="3"
-              [formField]="editOrganisationFormSignalForm.postalAddress"></textarea>
-            @if(editOrganisationFormSignalForm.postalAddress().touched()) {
-            @for (error of editOrganisationFormSignalForm.postalAddress().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
-            }
-          </mat-form-field>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationPostalAddress">Postal Address</label>
+          <textarea id="organisationPostalAddress" rows="3" [formField]="editOrganisationFormSignalForm.postalAddress"
+            class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] resize-none focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors"></textarea>
+          @if(editOrganisationFormSignalForm.postalAddress().touched()) {
+          @for (error of editOrganisationFormSignalForm.postalAddress().errors(); track $index) {
+          <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+          }
+          }
         </div>
-      </mat-card>
+      </section>
+
+      <!-- Audit Trail -->
+      <section class="bg-[var(--surface-container-lowest)] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6">
+        <div class="flex items-center gap-3 pb-2 mb-6 border-b border-[var(--outline-variant)]">
+          <mat-icon class="text-[var(--primary)] !text-xl">history</mat-icon>
+          <h2 class="heading text-base font-semibold text-[var(--primary)]">Audit Trail</h2>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <div class="flex justify-between text-sm">
+            <span class="text-[var(--on-surface-variant)] font-medium">Created At</span>
+            <span class="text-[var(--on-surface)] font-medium">{{ formatAuditDate(editOrganisationFormSignal().createdAt) }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-[var(--on-surface-variant)] font-medium">Created By</span>
+            <span class="text-[var(--on-surface)] font-medium">{{ editOrganisationFormSignal().createdBy || 'Not available' }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-[var(--on-surface-variant)] font-medium">Modified At</span>
+            <span class="text-[var(--on-surface)] font-medium">{{ formatAuditDate(editOrganisationFormSignal().modifiedAt) }}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-[var(--on-surface-variant)] font-medium">Modified By</span>
+            <span class="text-[var(--on-surface)] font-medium">{{ editOrganisationFormSignal().modifiedBy || 'Not available' }}</span>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
-
-  <footer class="audit-footer">
-    <div class="audit-grid">
-      <div class="audit-item">
-        <label class="field-label">Created At</label>
-        <p class="audit-value">{{ formatAuditDate(editOrganisationFormSignal().createdAt) }}</p>
-      </div>
-
-      <div class="audit-item">
-        <label class="field-label">Created By</label>
-        <p class="audit-value">{{ editOrganisationFormSignal().createdBy || 'Not available' }}</p>
-      </div>
-
-      <div class="audit-item">
-        <label class="field-label">Modified At</label>
-        <p class="audit-value">{{ formatAuditDate(editOrganisationFormSignal().modifiedAt) }}</p>
-      </div>
-
-      <div class="audit-item">
-        <label class="field-label">Modified By</label>
-        <p class="audit-value">{{ editOrganisationFormSignal().modifiedBy || 'Not available' }}</p>
-      </div>
-    </div>
-  </footer>
-
-  <div class="background-orb orb-top"></div>
-  <div class="background-orb orb-bottom"></div>
 </div>

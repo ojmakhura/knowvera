@@ -1,46 +1,143 @@
 // views/settings/financial-settings/financial-settings.ts
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, effect, inject, linkedSignal, OnInit, signal } from '@angular/core';
+import { form, min, FormField } from '@angular/forms/signals';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
+import { FinancialSettings as FinancialSettingsDTO } from '@app/models/bw/co/knowvera/settings/financial-settings';
+import { SalaryRangeDTO } from '@app/models/bw/co/knowvera/settings/salary-range-dto';
+import {
+  SalaryRangeDialog,
+  SalaryRangeDialogData,
+  SalaryRangeDialogResult,
+} from '../salary-range-dialog/salary-range-dialog';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
-interface SalaryRange {
-  label: string;
-  min: number;
-  max: number;
-  active: boolean;
+class FinancialSettingsModel {
+  salaryRanges: Array<SalaryRangeDTO> = [];
+  vat: number | any = null;
+  user: string | any = null;
 }
 
 @Component({
   selector: 'app-financial-settings',
-  imports: [CommonModule, MatIconModule, FormsModule],
+  imports: [CommonModule, MatIconModule, FormField],
   templateUrl: './financial-settings.html',
   styleUrls: ['./financial-settings.scss'],
 })
-export class FinancialSettings {
-  salaryRanges = signal<SalaryRange[]>([
-    { label: 'Entry Level Tier 1', min: 45000, max: 65000, active: true },
-    { label: 'Mid-Level Associate', min: 70000, max: 95000, active: true },
-    { label: 'Senior Specialist', min: 100000, max: 140000, active: true },
-    { label: 'Executive Legacy', min: 150000, max: 250000, active: false },
-  ]);
+export class FinancialSettings implements OnInit {
+  settingsApiStore = inject(SettingsApiStore);
 
-  standardVatRate = signal(20.0);
+  loading = linkedSignal(() => this.settingsApiStore.loading());
+  loaderMessage = linkedSignal(() => this.settingsApiStore.loaderMessage());
+  success = linkedSignal(() => this.settingsApiStore.success());
+  error = linkedSignal(() => this.settingsApiStore.error());
+  messages = linkedSignal(() => this.settingsApiStore.messages());
+
+  private readonly dialog = inject(MatDialog);
+
+  financialSettingsSignal = linkedSignal(() => {
+    let storeData = this.settingsApiStore.financialSettings();
+    let model = new FinancialSettingsModel();
+    model.salaryRanges = storeData?.salaryRanges ?? [];
+    model.vat = storeData?.vat ?? 0;
+    model.user = storeData?.user ?? null;
+
+    return model;
+  });
+
+  financialSettingsForm = form(this.financialSettingsSignal, (path) => {
+    min(path.vat, 0, { message: 'VAT rate cannot be negative' });
+  });
+
+  // Not part of the FinancialSettings backend model yet, so these stay component-local and unsaved.
   reducedVatRate = signal(5.0);
   autoApprovalMax = signal(10000);
 
-  toggleRange(range: SalaryRange): void {
-    this.salaryRanges.update((ranges) =>
-      ranges.map((r) => (r === range ? { ...r, active: !r.active } : r)),
-    );
+  loaderState = inject(LoaderState);
+  constructor() {
+
+    effect(() => {
+      this.loaderState.isLoading.set(this.settingsApiStore.loading());
+    });
+  }
+
+  openAddSalaryRangeDialog(): void {
+    this.dialog
+      .open<SalaryRangeDialog, SalaryRangeDialogData, SalaryRangeDialogResult>(SalaryRangeDialog, {
+        width: 'min(96vw, 420px)',
+        data: {},
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        console.log('Salary range dialog closed with result:', result);
+        if (result && result !== 'removed') {
+          
+          this.settingsApiStore.saveSalaryRange({ salaryRange: result });
+
+        }
+      });
+  }
+
+  openEditSalaryRangeDialog(range: SalaryRangeDTO, index: number): void {
+    this.dialog
+      .open<SalaryRangeDialog, SalaryRangeDialogData, SalaryRangeDialogResult>(SalaryRangeDialog, {
+        width: 'min(96vw, 420px)',
+        data: { range },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result === 'removed') {
+
+          if (range.id) {
+
+            this.settingsApiStore.removeSalaryRange(range.id);
+            
+          } else {
+
+            this.financialSettingsSignal.update((value) => ({
+              ...value,
+              salaryRanges: value.salaryRanges.filter((_, i) => i !== index),
+            }));
+          }
+
+        } else if (result) {
+          
+          this.settingsApiStore.saveSalaryRange({ salaryRange: result });
+
+        }
+      });
+  }
+
+  updateReducedVatRate(raw: string): void {
+    this.reducedVatRate.set(raw === '' ? 0 : Number(raw));
+  }
+
+  updateAutoApprovalMax(raw: string): void {
+    const parsed = Number(raw.replace(/,/g, ''));
+    this.autoApprovalMax.set(Number.isNaN(parsed) ? 0 : parsed);
+  }
+
+  ngOnInit(): void {
+    this.settingsApiStore.getFinancialSettings();
+  }
+
+  discard(): void {
+    this.settingsApiStore.getFinancialSettings();
   }
 
   save(): void {
-    console.log('Saving financial settings', {
-      salaryRanges: this.salaryRanges(),
-      standardVatRate: this.standardVatRate(),
-      reducedVatRate: this.reducedVatRate(),
-      autoApprovalMax: this.autoApprovalMax(),
-    });
+    if (this.financialSettingsForm().invalid()) {
+      return;
+    }
+
+    const value = this.financialSettingsSignal();
+    const financialSettings = new FinancialSettingsDTO();
+    financialSettings.salaryRanges = value.salaryRanges;
+    financialSettings.vat = value.vat;
+    financialSettings.user = value.user;
+
+    this.settingsApiStore.saveFinancialSettings({ financialSettings });
   }
 }

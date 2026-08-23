@@ -1,0 +1,34 @@
+// salary-range-dialog.scss
+@use '../settings-shared' as *;
+
+h2[mat-dialog-title] {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.125rem;
+  color: var(--primary-container);
+  margin: 0 0 4px 0;
+}
+
+mat-dialog-content.salary-range-dialog {
+  display: flex;
+  flex-direction: column;
+  min-width: 320px;
+  padding-top: 8px;
+}
+
+.salary-range-dialog__active {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.salary-range-dialog__remove {
+  margin-right: auto;
+  color: #ba1a1a;
+  border-color: #ba1a1a;
+}
+
+mat-dialog-actions {
+  gap: 8px;
+  padding-top: 8px;
+}

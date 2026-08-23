@@ -1,0 +1,84 @@
+<!-- document-requirements.html -->
+<section class="settings-page">
+  <header class="settings-page__header">
+    <div>
+      <h2 class="settings-page__title">Document Requirements</h2>
+      <p class="settings-page__subtitle">Manage mandatory documentation across entities.</p>
+    </div>
+  </header>
+
+  @if (error() && messages().length) {
+    <div class="error-banner" role="alert">
+      <mat-icon>error</mat-icon>
+      <ul>
+        @for (message of messages(); track message) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    </div>
+  } @else if (success() && messages().length) {
+    <div class="success-banner" role="status">
+      <mat-icon>check_circle</mat-icon>
+      <ul>
+        @for (message of messages(); track message) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    </div>
+  }
+
+  <div class="doc-toolbar">
+    <div class="doc-toolbar__search">
+      <mat-icon>search</mat-icon>
+      <input
+        type="text"
+        placeholder="Search required documents..."
+        [value]="searchTerm()"
+        (input)="searchTerm.set($any($event.target).value)"
+      />
+    </div>
+  </div>
+
+  <div class="doc-grid">
+    @for (category of categories; track category.key) {
+      <div class="settings-card doc-card" [class.doc-card--highlight]="category.highlighted">
+        <div class="doc-card__header">
+          <h3 class="settings-card__title">
+            <mat-icon>{{ category.icon }}</mat-icon>
+            {{ category.label }}
+          </h3>
+          <button class="btn-add" type="button" (click)="addDocument(category)">
+            <mat-icon class="me-1">add</mat-icon>
+            Add Doc
+          </button>
+        </div>
+
+        <ul class="doc-list">
+          @for (doc of categoryDocuments(category); track doc.id) {
+            <li class="doc-list__item" [class.doc-list__item--highlight]="category.highlighted">
+              <div class="doc-list__info">
+                <mat-icon>description</mat-icon>
+                <div>
+                  <p class="doc-list__name">{{ doc.name }}</p>
+                  @if (doc.description) {
+                    <p class="doc-list__hint">{{ doc.description }}</p>
+                  }
+                </div>
+              </div>
+              <button
+                class="icon-btn icon-btn--danger"
+                type="button"
+                (click)="removeDocument(category, doc)"
+                aria-label="Remove document"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </li>
+          } @empty {
+            <p class="doc-list__empty">No documents configured yet.</p>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+</section>

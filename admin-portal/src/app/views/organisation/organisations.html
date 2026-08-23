@@ -1,175 +1,245 @@
 <section class="organisations-page">
   <header class="page-header">
-    <div class="page-title-group">
-      <h2 class="page-title">Organisations</h2>
+    <div class="page-header__copy">
+      <h2 class="page-title">Organisations Registry</h2>
+      <p class="page-subtitle">Manage and monitor verified corporate entities and their KYC standing.</p>
     </div>
 
-    <button mat-flat-button type="button" class="primary-action" (click)="createNewOrganisation()">
-      <mat-icon>add_business</mat-icon>
-      <span>New Organisation</span>
-    </button>
+    <div class="page-header__actions">
+      <button type="button" class="btn btn-outline" (click)="exportOrganisations()">
+        <mat-icon>download</mat-icon>
+        <span>Export</span>
+      </button>
+      <button type="button" class="btn btn-primary" (click)="createNewOrganisation()">
+        <mat-icon>add_business</mat-icon>
+        <span>New Organisation</span>
+      </button>
+    </div>
   </header>
 
-  <div class="page-shell">
-    <mat-card class="vault-card">
-      <mat-card-content>
-        <form class="filter-grid" (submit)="$event.preventDefault(); onSearchSubmit()">
-          <div class="field-group">
-            <label class="field-label">Search Criteria</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <input
-                matInput
-                type="text"
-                placeholder="Enter name, registration number or entity code..."
-                [value]="searchOrganisationsSignal().criteria"
-                (input)="updateCriteria($any($event.target).value)"
-                (keyup.enter)="onSearchSubmit()"
-              />
-            </mat-form-field>
-          </div>
-          <div class="filter-actions">
-            <button mat-stroked-button type="button" class="secondary-action" (click)="resetSearch()">Reset</button>
-            <button mat-flat-button type="submit" class="primary-action">Search</button>
-          </div>
-        </form>
-      </mat-card-content>
+  <div class="vault-card filter-card">
+    <div class="filter-card__accent"></div>
+
+    <form class="filter-grid" (submit)="$event.preventDefault(); onSearchSubmit()">
+      <div class="search-field">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          placeholder="Search by name, registration no., or code..."
+          [value]="searchOrganisationsSignal().criteria"
+          (input)="updateCriteria($any($event.target).value)"
+          (keyup.enter)="onSearchSubmit()"
+        />
+      </div>
+
+      <mat-form-field appearance="outline" class="vault-field vault-select">
+        <mat-icon matPrefix>filter_list</mat-icon>
+        <mat-select [value]="kycStatusFilter()" (selectionChange)="updateKycStatusFilter($event.value)">
+          @for (option of kycStatusOptions; track option.value) {
+            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="vault-field vault-select">
+        <mat-icon matPrefix>category</mat-icon>
+        <mat-select [value]="clientStatusFilter()" (selectionChange)="updateClientStatusFilter($event.value)">
+          @for (option of clientStatusOptions; track option.value) {
+            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </form>
+
+    @if (searchOrganisationsSignal().criteria || kycStatusFilter() || clientStatusFilter()) {
+      <div class="filter-card__reset">
+        <button type="button" class="link-button" (click)="resetSearch()">Clear filters</button>
+      </div>
+    }
+  </div>
+
+  <!-- Desktop / tablet table -->
+  <div class="hidden md:block">
+    <mat-card class="results-card">
+      <div class="results-table-wrap">
+        <table mat-table [dataSource]="dataSource" class="organisations-table">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Organisation Name</th>
+            <td mat-cell *matCellDef="let organisation">
+              <div class="name-cell">
+                <div class="entity-icon" [class.flagged]="kycStatusClass(organisation.kycStatus) === 'kyc-failed'">
+                  <mat-icon>{{ organisationIcon(organisation) }}</mat-icon>
+                </div>
+                <div class="entity-copy">
+                  <button type="button" class="entity-link" (click)="openDetails(organisation.id)">
+                    {{ organisation.name || 'Unnamed Organisation' }}
+                  </button>
+                  <p>{{ organisationSubtitle(organisation) }}</p>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="registrationNo">
+            <th mat-header-cell *matHeaderCellDef>Registration No.</th>
+            <td mat-cell *matCellDef="let organisation" class="mono-cell">{{ organisation.registrationNo || '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="code">
+            <th mat-header-cell *matHeaderCellDef>Internal Code</th>
+            <td mat-cell *matCellDef="let organisation" class="mono-cell mono-cell--muted">{{ organisation.code || '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="kycStatus">
+            <th mat-header-cell *matHeaderCellDef class="align-center">KYC Status</th>
+            <td mat-cell *matCellDef="let organisation" class="align-center">
+              <span class="status-chip" [class]="kycStatusClass(organisation.kycStatus)">
+                <mat-icon>{{ kycStatusIcon(organisation.kycStatus) }}</mat-icon>
+                {{ kycStatusLabel(organisation.kycStatus) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="clientStatus">
+            <th mat-header-cell *matHeaderCellDef class="align-center">Client Status</th>
+            <td mat-cell *matCellDef="let organisation" class="align-center">
+              <span class="client-chip" [class]="clientStatusClass(getClientStatus(organisation))">
+                {{ clientStatusLabel(getClientStatus(organisation)) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="align-end">Actions</th>
+            <td mat-cell *matCellDef="let organisation" class="actions-cell align-end">
+              <button mat-icon-button type="button" matTooltip="View details" (click)="openDetails(organisation.id)">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button mat-icon-button type="button" matTooltip="Edit organisation" (click)="openEdit(organisation.id)">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr class="mat-row empty-row" *matNoDataRow>
+            <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+              <div class="empty-state">
+                <mat-icon>search_off</mat-icon>
+                <p>No organisations matched the current search.</p>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="results-footer">
+        <p class="results-summary">
+          Showing {{ filteredOrganisations().length }} of {{ totalElements() }} organisations
+        </p>
+
+        <mat-paginator
+          [length]="totalElements()"
+          [pageIndex]="currentPage()"
+          [pageSize]="pageSize()"
+          [pageSizeOptions]="[5, 10, 25, 50]"
+          showFirstLastButtons
+          (page)="handlePageEvent($event)"
+        ></mat-paginator>
+      </div>
     </mat-card>
   </div>
 
-  <mat-card class="results-card search-results-card">
-    <div class="results-table-wrap search-results-table-wrap">
-      <table mat-table [dataSource]="dataSource" class="organisations-table search-results-table">
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
-          <td mat-cell *matCellDef="let organisation">
-            <div class="name-cell">
-              <div class="entity-icon" [class.flagged]="organisation.kycStatus === 'FLAGGED' || organisation.status === 'SUSPENDED'">
-                <mat-icon>{{ organisationIcon(organisation) }}</mat-icon>
-              </div>
-              <div class="entity-copy">
-                <button type="button" class="entity-link" (click)="openDetails(organisation.id)">
-                  {{ organisation.name || 'Unnamed Organisation' }}
-                </button>
-                <p>{{ organisationSubtitle(organisation) }}</p>
-              </div>
-            </div>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="registrationNo">
-          <th mat-header-cell *matHeaderCellDef>Registration No.</th>
-          <td mat-cell *matCellDef="let organisation" class="mono-cell">{{ organisation.registrationNo || '-' }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="code">
-          <th mat-header-cell *matHeaderCellDef>Code</th>
-          <td mat-cell *matCellDef="let organisation">
-            <span class="code-chip">{{ organisation.code || '-' }}</span>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="contactEmailAddress">
-          <th mat-header-cell *matHeaderCellDef>KYC Status</th>
-          <td mat-cell *matCellDef="let organisation">
-            <span class="status-chip" [class]="kycStatusClass(organisation.kycStatus)">
-              <span class="status-dot"></span>
-              {{ organisation.kycStatus || 'VERIFIED' }}
-            </span>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="kycStatus">
-          <th mat-header-cell *matHeaderCellDef>Client Status</th>
-          <td mat-cell *matCellDef="let organisation">
-            <span class="status-chip client-chip" [class]="clientStatusClass(getClientStatus(organisation))">
-              {{ getClientStatus(organisation) }}
-            </span>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="clientStatus">
-          <th mat-header-cell *matHeaderCellDef>Email</th>
-          <td mat-cell *matCellDef="let organisation" class="email-cell">{{ organisation.contactEmailAddress || '-' }}</td>
-        </ng-container>
-
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef class="align-end">Actions</th>
-          <td mat-cell *matCellDef="let organisation" class="actions-cell align-end">
-            <button mat-icon-button type="button" matTooltip="View details" (click)="openDetails(organisation.id)">
-              <mat-icon>visibility</mat-icon>
-            </button>
-            <button mat-icon-button type="button" matTooltip="Edit organisation" (click)="openEdit(organisation.id)">
-              <mat-icon>edit</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-        <tr class="mat-row empty-row" *matNoDataRow>
-          <td class="mat-cell" colspan="7">
-            <div class="empty-state">
-              <mat-icon>search_off</mat-icon>
-              <p>No organisations matched the current search.</p>
-            </div>
-          </td>
-        </tr>
-      </table>
+  <!-- Mobile card list -->
+  <section class="mobile-list md:hidden" aria-label="Organisations">
+    <div class="mobile-list__head">
+      <h3>Registry ({{ totalElements() }})</h3>
     </div>
 
-    <div class="results-footer search-results-footer">
-      <p class="results-summary">
-        Showing {{ organisations().length }} of {{ totalElements() }} verified organisations
-      </p>
+    @for (organisation of filteredOrganisations(); track organisation.id) {
+      <button type="button" class="org-card" (click)="openDetails(organisation.id)">
+        <span class="org-card__identity">
+          <span class="org-card__avatar" [class.flagged]="kycStatusClass(organisation.kycStatus) === 'kyc-failed'">
+            <mat-icon>{{ organisationIcon(organisation) }}</mat-icon>
+          </span>
+          <span class="org-card__meta">
+            <span class="org-card__name">{{ organisation.name || 'Unnamed Organisation' }}</span>
+            <span class="org-card__sub">{{ organisation.registrationNo || '-' }} &bull; {{ organisation.code || '-' }}</span>
+          </span>
+        </span>
 
-      <mat-paginator
-        [length]="totalElements()"
-        [pageIndex]="currentPage()"
-        [pageSize]="pageSize()"
-        [pageSizeOptions]="[5, 10, 25, 50]"
-        showFirstLastButtons
-        (page)="handlePageEvent($event)"
-      ></mat-paginator>
+        <span class="org-card__trail">
+          <span class="status-chip" [class]="kycStatusClass(organisation.kycStatus)">
+            {{ kycStatusLabel(organisation.kycStatus) }}
+          </span>
+          <mat-icon>chevron_right</mat-icon>
+        </span>
+      </button>
+    } @empty {
+      <div class="empty-state">
+        <mat-icon>search_off</mat-icon>
+        <p>No organisations matched the current search.</p>
+      </div>
+    }
+
+    <mat-paginator
+      class="mobile-paginator"
+      [length]="totalElements()"
+      [pageIndex]="currentPage()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      (page)="handlePageEvent($event)"
+    ></mat-paginator>
+  </section>
+
+  <div class="bottom-grid">
+    <mat-card class="vault-card overview-card">
+      <h3 class="overview-card__title">
+        <mat-icon>data_usage</mat-icon>
+        Registry Overview
+      </h3>
+
+      <div class="overview-card__rows">
+        <div class="overview-row">
+          <span><mat-icon>visibility</mat-icon>Visible now</span>
+          <strong>{{ filteredOrganisations().length }}</strong>
+        </div>
+        <div class="overview-row">
+          <span><mat-icon>database</mat-icon>Total Organisations</span>
+          <strong>{{ totalElements() }}</strong>
+        </div>
+        <div class="overview-row">
+          <span><mat-icon>group</mat-icon>Active Clients</span>
+          <strong class="overview-row__accent">{{ clientCount() }}</strong>
+        </div>
+      </div>
+    </mat-card>
+
+    <div class="insights-grid">
+      <mat-card class="vault-card insight-card">
+        <div class="insight-card__icon">
+          <mat-icon>security</mat-icon>
+        </div>
+        <h4>Registry Integrity</h4>
+        <p>Verified entities are tracked against KYC compliance status across the registry.</p>
+      </mat-card>
+
+      <mat-card class="vault-card insight-card">
+        <div class="insight-card__icon">
+          <mat-icon>update</mat-icon>
+        </div>
+        <h4>Real-time Updates</h4>
+        <p>KYC status and ownership changes propagate through the registry as they happen.</p>
+      </mat-card>
+
+      <mat-card class="vault-card insight-card">
+        <div class="insight-card__icon">
+          <mat-icon>fact_check</mat-icon>
+        </div>
+        <h4>Compliance Audit</h4>
+        <p>Review organisational exposure from the same registry used for KYC operations.</p>
+      </mat-card>
     </div>
-  </mat-card>
-
-  <section class="metrics-grid" aria-label="Organisation metrics">
-    <mat-card class="metric-card hero-card">
-      <span class="metric-label">Visible now</span>
-      <strong>{{ organisations().length }}</strong>
-      <p>Organisations currently surfaced in the registry view.</p>
-    </mat-card>
-
-    <mat-card class="metric-card">
-      <span class="metric-label">Total</span>
-      <strong>{{ totalElements() }}</strong>
-      <p>All registered organisations in the compliance registry.</p>
-    </mat-card>
-
-    <mat-card class="metric-card">
-      <span class="metric-label">Clients</span>
-      <strong>{{ clientCount() }}</strong>
-      <p>Active client organisations with verified compliance standing.</p>
-    </mat-card>
-  </section>
-
-  <section class="insights-grid" aria-label="Registry insights">
-    <mat-card class="insight-card">
-      <mat-icon>security</mat-icon>
-      <h2>Registry Integrity</h2>
-      <p>Organisation records remain anchored to the compliance ledger for audit visibility.</p>
-    </mat-card>
-
-    <mat-card class="insight-card">
-      <mat-icon>sync</mat-icon>
-      <h2>Real-time Updates</h2>
-      <p>KYC status and ownership changes propagate through the protocol without leaving the vault context.</p>
-    </mat-card>
-
-    <mat-card class="insight-card">
-      <mat-icon>analytics</mat-icon>
-      <h2>Compliance Audit</h2>
-      <p>Review organisational exposure from the same registry used for KYC operations.</p>
-    </mat-card>
-  </section>
+  </div>
 </section>

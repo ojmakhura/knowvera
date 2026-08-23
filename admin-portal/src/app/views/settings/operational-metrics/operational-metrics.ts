@@ -1,9 +1,10 @@
 // views/settings/operational-metrics/operational-metrics.ts
-import { Component, computed, signal, OnInit, inject, linkedSignal } from '@angular/core';
+import { Component, computed, signal, OnInit, inject, linkedSignal, effect } from '@angular/core';
 import Keycloak from 'keycloak-js';
 import { form, FormField, max, min } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 class OperationalMetricsModel {
   kycDuration: number | any = null;
@@ -27,16 +28,22 @@ export class OperationalMetrics implements OnInit {
   private keycloak = inject(Keycloak);
   settingsApiStore = inject(SettingsApiStore);
 
+  loading = linkedSignal(() => this.settingsApiStore.loading());
+  loaderMessage = linkedSignal(() => this.settingsApiStore.loaderMessage());
+  success = linkedSignal(() => this.settingsApiStore.success());
+  error = linkedSignal(() => this.settingsApiStore.error());
+  messages = linkedSignal(() => this.settingsApiStore.messages());
+
   operationalMetricsSignal = linkedSignal(() => {
     let storeData = this.settingsApiStore.operationalMetrics();
     let model = new OperationalMetricsModel();
-    model.kycDuration = storeData?.kycDuration ?? 3;
-    model.timeToAccountCreation = storeData?.timeToAccountCreation ?? 24;
-    model.organisationAdminRole = storeData?.organisationAdminRole ?? 'Org Manager';
-    model.normalUserRole = storeData?.normalUserRole ?? 'Standard User';
-    model.documentDurationLimit = storeData?.documentDurationLimit ?? 30;
-    model.dataVerificationThreshold = storeData?.dataVerificationThreshold ?? 3;
-    model.maxDataVerificationFailureThreshold = storeData?.maxDataVerificationFailureThreshold ?? 5;
+    model.kycDuration = storeData?.kycDuration;
+    model.timeToAccountCreation = storeData?.timeToAccountCreation;
+    model.organisationAdminRole = storeData?.organisationAdminRole;
+    model.normalUserRole = storeData?.normalUserRole;
+    model.documentDurationLimit = storeData?.documentDurationLimit;
+    model.dataVerificationThreshold = storeData?.dataVerificationThreshold;
+    model.maxDataVerificationFailureThreshold = storeData?.maxDataVerificationFailureThreshold;
 
     return model;
   });
@@ -55,7 +62,12 @@ export class OperationalMetrics implements OnInit {
     () => `${this.kycValidityYears()} Year${this.kycValidityYears() === 1 ? '' : 's'}`,
   );
 
+  loaderState = inject(LoaderState);
   constructor() {
+
+    effect(() => {
+      this.loaderState.isLoading.set(this.settingsApiStore.loading());
+    });
   }
 
   ngOnInit(): void {
@@ -66,5 +78,6 @@ export class OperationalMetrics implements OnInit {
 
   save(): void {
     
+    this.settingsApiStore.saveOperationalMetrics({ operationalMetrics: this.operationalMetricsSignal()});
   }
 }

@@ -10,7 +10,7 @@
     </div>
 
     @if (menuService.mode() === 'normal') {
-      <button mat-flat-button type="button" class="sidebar-action w-100 mb-4">
+      <button mat-flat-button type="button" class="sidebar-action w-full mb-6">
         <mat-icon class="me-1">add</mat-icon>
         New Verification
       </button>
@@ -18,7 +18,7 @@
       <button
         mat-flat-button
         type="button"
-        class="sidebar-action w-100 mb-4"
+        class="sidebar-action w-full mb-6"
         (click)="menuService.exitSettings()"
       >
         <mat-icon class="me-1">arrow_back</mat-icon>
@@ -57,9 +57,9 @@
 
   <div class="main-wrapper">
     <header class="top-header">
-      <div class="mobile-logo d-md-none">{{ menuService.sidebarTitle() }}</div>
+      <div class="mobile-logo md:hidden">{{ menuService.sidebarTitle() }}</div>
 
-      <div class="search-box d-none d-md-flex">
+      <div class="search-box hidden md:flex">
         <mat-icon class="search-icon">search</mat-icon>
         <input type="text" class="search-input" placeholder="Search records, entities, alerts..." />
       </div>
@@ -68,12 +68,12 @@
         <button mat-icon-button class="icon-btn">
           <mat-icon>notifications</mat-icon>
         </button>
-        <button mat-icon-button class="icon-btn d-none d-md-inline-flex">
+        <button mat-icon-button class="icon-btn hidden md:inline-flex">
           <mat-icon>help</mat-icon>
         </button>
         @if (keycloak.authenticated) {
           @if (menuService.mode() === 'normal') {
-            <button mat-icon-button class="icon-btn d-none d-md-inline-flex" routerLink="/settings">
+            <button mat-icon-button class="icon-btn hidden md:inline-flex" routerLink="/settings">
               <mat-icon>settings</mat-icon>
             </button>
           }

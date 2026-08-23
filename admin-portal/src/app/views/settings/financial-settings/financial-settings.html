@@ -6,19 +6,39 @@
       <p class="settings-page__subtitle">Manage fiscal parameters, thresholds, and tax rates.</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-outline">Discard Changes</button>
+      <button class="btn btn-outline" (click)="discard()">Discard Changes</button>
       <button class="btn btn-action-primary" (click)="save()">Save Configuration</button>
     </div>
   </header>
 
+  @if (error() && messages().length) {
+    <div class="error-banner" role="alert">
+      <mat-icon>error</mat-icon>
+      <ul>
+        @for (message of messages(); track message) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    </div>
+  } @else if (success() && messages().length) {
+    <div class="success-banner" role="status">
+      <mat-icon>check_circle</mat-icon>
+      <ul>
+        @for (message of messages(); track message) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    </div>
+  }
+
   <div class="financial-layout">
     <div class="settings-card salary-card">
       <div class="salary-card__header">
-        <h3 class="settings-card__title" style="margin-bottom: 0;">
+        <h3 class="settings-card__title" style="margin-bottom: 0">
           <mat-icon>account_balance_wallet</mat-icon>
           Salary Range Management
         </h3>
-        <button class="btn btn-outline btn-outline--sm">
+        <button class="btn btn-outline btn-outline--sm" (click)="openAddSalaryRangeDialog()">
           <mat-icon class="me-1">add</mat-icon>
           Add New Range
         </button>
@@ -28,29 +48,35 @@
         <table class="salary-table">
           <thead>
             <tr>
-              <th>Label</th>
-              <th>Min Value (USD)</th>
-              <th>Max Value (USD)</th>
+              <th>Min Value (BWP)</th>
+              <th>Max Value (BWP)</th>
               <th>Status</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            @for (range of salaryRanges(); track range.label) {
+            @for (
+              range of financialSettingsSignal().salaryRanges;
+              track range.id ?? $index;
+              let i = $index
+            ) {
               <tr [class.salary-table__row--inactive]="!range.active">
-                <td class="salary-table__label">{{ range.label }}</td>
-                <td>{{ range.min | number }}</td>
-                <td>{{ range.max | number }}</td>
+                <td>${{ range.min | number }}</td>
+                <td>${{ range.max | number }}</td>
                 <td>
                   <span class="status-pill" [class.status-pill--draft]="!range.active">
                     {{ range.active ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
                 <td class="salary-table__actions">
-                  <button (click)="toggleRange(range)" title="Toggle status">
+                  <button (click)="openEditSalaryRangeDialog(range, i)" title="Edit range">
                     <mat-icon>more_vert</mat-icon>
                   </button>
                 </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="salary-table__empty">No salary ranges configured.</td>
               </tr>
             }
           </tbody>
@@ -65,37 +91,36 @@
           Tax &amp; VAT Rates
         </h3>
 
-        <label class="field">
+        <div class="field">
           <span class="field__label">Standard Rate (%)</span>
           <div class="field--suffixed">
             <input
               class="field__input"
               type="number"
               step="0.01"
-              [ngModel]="standardVatRate()"
-              (ngModelChange)="standardVatRate.set($event)"
+              [formField]="financialSettingsForm.vat"
             />
             <span>%</span>
           </div>
-        </label>
+        </div>
 
-        <label class="field" style="margin-top: 16px;">
+        <!-- <div class="field" style="margin-top: 16px;">
           <span class="field__label">Reduced Rate (%)</span>
           <div class="field--suffixed">
             <input
               class="field__input"
               type="number"
               step="0.01"
-              [ngModel]="reducedVatRate()"
-              (ngModelChange)="reducedVatRate.set($event)"
+              [value]="reducedVatRate()"
+              (input)="updateReducedVatRate($any($event.target).value)"
             />
             <span>%</span>
           </div>
           <span class="field__hint">Applied to qualifying essential services.</span>
-        </label>
+        </div> -->
       </div>
 
-      <div class="settings-card">
+      <!-- <div class="settings-card financial-sidebar__threshold-card">
         <h3 class="settings-card__title">
           <mat-icon>rule</mat-icon>
           Request Thresholds
@@ -104,18 +129,18 @@
           Set maximum values for automated client request processing before manual review is required.
         </p>
 
-        <label class="field">
+        <div class="field">
           <span class="field__label">Auto-Approval Max Value</span>
           <div class="field--prefixed">
             <span>$</span>
             <input
               class="field__input"
-              type="number"
-              [ngModel]="autoApprovalMax()"
-              (ngModelChange)="autoApprovalMax.set($event)"
+              type="text"
+              [value]="autoApprovalMax() | number: '1.2-2'"
+              (change)="updateAutoApprovalMax($any($event.target).value)"
             />
           </div>
-        </label>
+        </div>
 
         <div class="info-callout">
           <mat-icon>info</mat-icon>
@@ -124,7 +149,7 @@
             for compliance review.
           </span>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </section>

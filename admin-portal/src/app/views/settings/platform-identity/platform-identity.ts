@@ -2,6 +2,7 @@
 import { Component, effect, inject, linkedSignal, OnInit, signal } from '@angular/core';
 import { form, FormField } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 
 class PlatformIdentityModel {
@@ -19,6 +20,8 @@ class PlatformIdentityModel {
   styleUrls: ['./platform-identity.scss'],
 })
 export class PlatformIdentity implements OnInit {
+
+  loaderState = inject(LoaderState);
   
   platformIdentitySignal = linkedSignal(() => {
     let storeData = this.settingsApiStore.platformIdentity();
@@ -37,8 +40,16 @@ export class PlatformIdentity implements OnInit {
 
   settingsApiStore = inject(SettingsApiStore);
 
+  loaderMessage = linkedSignal(() => this.settingsApiStore.loaderMessage());
+  success = linkedSignal(() => this.settingsApiStore.success());
+  error = linkedSignal(() => this.settingsApiStore.error());
+  messages = linkedSignal(() => this.settingsApiStore.messages());
+
   constructor() {
     
+    effect(() => {
+      this.loaderState.isLoading.set(this.settingsApiStore.loading());
+    });
   }
 
   ngOnInit(): void {
@@ -48,5 +59,6 @@ export class PlatformIdentity implements OnInit {
 
   save(): void {
       
+    this.settingsApiStore.savePlatformIdentity({ platformIdentity: this.platformIdentitySignal() });
   }
 }

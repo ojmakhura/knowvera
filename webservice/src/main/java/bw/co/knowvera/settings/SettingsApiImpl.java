@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -151,53 +152,62 @@ public class SettingsApiImpl implements SettingsApi {
     }
 
     @Override
+    @Operation(summary = "Load Settings", description = "Load the current application settings")
     public ResponseEntity<SettingsDTO> loadSettings() throws Exception {
 
         return ResponseEntity.ok(settingsService.loadSettings());
     }
 
     @Override
+    @Operation(summary = "Get Document Requirements", description = "Retrieve document requirements")
     public ResponseEntity<DocumentRequirements> getDocumentRequirements() throws Exception {
 
         return ResponseEntity.ok(settingsService.getDocumentRequirements());
     }
 
     @Override
+    @Operation(summary = "Get Financial Settings", description = "Retrieve financial settings")
     public ResponseEntity<FinancialSettings> getFinancialSettings() throws Exception {
 
         return ResponseEntity.ok(settingsService.getFinancialSettings());
     }
 
     @Override
+    @Operation(summary = "Get Operational Metrics", description = "Retrieve operational metrics")
     public ResponseEntity<OperationalMetrics> getOperationalMetrics() throws Exception {
 
         return ResponseEntity.ok(settingsService.getOperationalMetrics());
     }
 
     @Override
+    @Operation(summary = "Get Platform Identity", description = "Retrieve platform identity settings")
     public ResponseEntity<PlatformIdentity> getPlatformIdentity() throws Exception {
 
         return ResponseEntity.ok(settingsService.getPlatformIdentity());
     }
 
     @Override
+    @Operation(summary = "Get Settings Field Groups", description = "Retrieve settings field groups")
     public ResponseEntity<SettingsFieldGroups> getSettingsFieldGroups() throws Exception {
 
         return ResponseEntity.ok(settingsService.getSettingsFieldGroups());
     }
 
     @Override
+    @Operation(summary = "Get Settings Tool Selectors", description = "Retrieve settings tool selectors")
     public ResponseEntity<SettingsToolSelectors> getSettingsToolSelectors() throws Exception {
         return ResponseEntity.ok(settingsService.getSettingsToolSelectors());
     }
 
     @Override
+    @Operation(summary = "Get Template Mappings", description = "Retrieve template mappings")
     public ResponseEntity<TemplateMappings> getTemplateMappings() throws Exception {
 
         return ResponseEntity.ok(settingsService.getTemplateMappings());
     }
 
     @Override
+    @Operation(summary = "Save Document Requirements", description = "Save document requirements")
     public ResponseEntity<DocumentRequirements> saveDocumentRequirements(
             @Valid DocumentRequirements documentRequirements) throws Exception {
 
@@ -215,6 +225,7 @@ public class SettingsApiImpl implements SettingsApi {
     }
 
     @Override
+    @Operation(summary = "Save Financial Settings", description = "Save financial settings")
     public ResponseEntity<FinancialSettings> saveFinancialSettings(@Valid FinancialSettings financialSettings)
             throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -231,6 +242,7 @@ public class SettingsApiImpl implements SettingsApi {
     }
 
     @Override
+    @Operation(summary = "Save Operational Metrics", description = "Save operational metrics")
     public ResponseEntity<OperationalMetrics> saveOperationalMetrics(@Valid OperationalMetrics operationalMetrics)
             throws Exception {
 
@@ -248,6 +260,7 @@ public class SettingsApiImpl implements SettingsApi {
     }
 
     @Override
+    @Operation(summary = "Save Platform Identity", description = "Save platform identity settings")
     public ResponseEntity<PlatformIdentity> savePlatformIdentity(@Valid PlatformIdentity platformIdentity)
             throws Exception {
 
@@ -265,6 +278,7 @@ public class SettingsApiImpl implements SettingsApi {
     }
 
     @Override
+    @Operation(summary = "Save Settings Field Groups", description = "Save settings field groups")
     public ResponseEntity<SettingsFieldGroups> saveSettingsFieldGroups(@Valid SettingsFieldGroups settingsFieldGroups)
             throws Exception {
 
@@ -282,6 +296,7 @@ public class SettingsApiImpl implements SettingsApi {
     }
 
     @Override
+    @Operation(summary = "Save Settings Tool Selectors", description = "Save settings tool selectors")
     public ResponseEntity<SettingsToolSelectors> saveSettingsToolSelectors(
             @Valid SettingsToolSelectors settingsToolSelectors) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -298,6 +313,7 @@ public class SettingsApiImpl implements SettingsApi {
     }
 
     @Override
+    @Operation(summary = "Save Template Mappings", description = "Save template mappings")
     public ResponseEntity<TemplateMappings> saveTemplateMappings(@Valid TemplateMappings templateMappings)
             throws Exception {
 
@@ -311,5 +327,33 @@ public class SettingsApiImpl implements SettingsApi {
         templateMappings.setUser(username);
 
         return ResponseEntity.ok(settingsService.saveTemplateMappings(templateMappings));
+    }
+
+    @Override
+    @Operation(summary = "Remove Salary Range", description = "Remove a salary range by its ID")
+    public ResponseEntity<FinancialSettings> removeSalaryRange(@Nullable Long salaryRangeId) throws Exception {
+    
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String username = "anonymousUser";
+        if (authentication != null) {
+            username = authentication.getName();
+        }
+
+        return ResponseEntity.ok(settingsService.removeSalaryRange(salaryRangeId, username));
+    }
+
+    @Override
+    @Operation(summary = "Save Salary Range", description = "Save a salary range")
+    public ResponseEntity<FinancialSettings> saveSalaryRange(@Valid SalaryRangeDTO salaryRange) throws Exception {
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String username = "anonymousUser";
+        if (authentication != null) {
+            username = authentication.getName();
+        }
+
+        return ResponseEntity.ok(settingsService.saveSalaryRange(salaryRange, username));
     }
 }

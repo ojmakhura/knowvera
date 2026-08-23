@@ -61,8 +61,8 @@
     border-bottom: none;
   }
 
-  &__label {
-    font-weight: 500;
+  tbody tr:hover {
+    background: var(--surface-low, #f8f9ff);
   }
 
   &__row--inactive {
@@ -83,11 +83,38 @@
       }
     }
   }
+
+  &__empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 24px 16px;
+  }
 }
 
 .financial-sidebar {
   display: flex;
   flex-direction: column;
+
+  &__threshold-card {
+    flex: 1;
+  }
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #e0f2f1;
+  color: #00695c;
+
+  &--draft {
+    background: var(--surface-container-high, #dfe9f9);
+    color: var(--text-muted);
+    border: 1px solid var(--outline-variant);
+  }
 }
 
 .field {

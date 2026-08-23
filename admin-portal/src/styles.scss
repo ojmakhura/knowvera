@@ -1,11 +1,7 @@
 @use '@angular/material' as mat;
 @use 'ngx-toastr/toastr';
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap');
-@import 'bootstrap/scss/bootstrap';
-
-// @tailwind base;
-// @tailwind components;
-// @tailwind utilities;
+@import "tailwindcss";
 
 @import "quill/dist/quill.snow.css";
 
@@ -129,6 +125,22 @@
     --vault-space-4: 0.9rem;
     --vault-space-8: 1.75rem;
     --vault-space-12: 2.75rem;
+
+    /* Corporate Precision design tokens (see DESIGN.md) */
+    --surface: #f8f9ff;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #eef4ff;
+    --surface-container: #e5efff;
+    --surface-container-high: #dfe9f9;
+    --on-surface: #121c28;
+    --on-surface-variant: #44464e;
+    --outline: #75777f;
+    --secondary: #006c47;
+    --on-secondary: #ffffff;
+    --error: #ba1a1a;
+    --on-error: #ffffff;
+    --error-container: #ffdad6;
+    --on-error-container: #93000a;
 }
 
 * {

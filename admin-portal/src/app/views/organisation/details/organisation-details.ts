@@ -17,6 +17,8 @@ import { TableComponent } from '@app/components/table/table';
 import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch-dto';
 import { ClientRequestDTO } from '@app/models/bw/co/knowvera/organisation/client/client-request-dto';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { GeneralStatus } from '@app/models/bw/co/knowvera/general-status';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
 import { KycSubsciptionStatus } from '@app/models/bw/co/knowvera/subscription/kyc-subsciption-status';
 import { KycSubscriptionDTO } from '@app/models/bw/co/knowvera/subscription/kyc-subscription-dto';
@@ -246,6 +248,37 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void { }
+
+  orgInitials(): string {
+    const name = (this.organisation()?.name || '').trim();
+    if (!name) {
+      return 'OR';
+    }
+
+    const parts = name.split(/\s+/).filter(Boolean);
+    return parts.length === 1
+      ? parts[0].substring(0, 2).toUpperCase()
+      : (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+
+  isOrganisationVerified(): boolean {
+    return this.organisation()?.status === GeneralStatus.ACTIVE;
+  }
+
+  kycStatusClass(): string {
+    switch (this.organisation()?.kycStatus) {
+      case KycComplianceStatus.CURRENT:
+        return 'kyc-current';
+      case KycComplianceStatus.INCOMPLETE:
+        return 'kyc-incomplete';
+      case KycComplianceStatus.EXPIRED:
+      case KycComplianceStatus.ABSENT:
+      case KycComplianceStatus.DOCUMENT_VERIFICATION_FAILED:
+        return 'kyc-failed';
+      default:
+        return 'kyc-unknown';
+    }
+  }
 
   private openBranchDialog(data: BranchDTO): void {
     const ref = this.dialog.open(BranchFormDialogComponent, { data, width: '480px' });

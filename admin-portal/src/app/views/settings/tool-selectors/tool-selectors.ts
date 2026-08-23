@@ -1,85 +1,205 @@
 // views/settings/tool-selectors/tool-selectors.ts
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, effect, inject, linkedSignal, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+import { ToastrService } from 'ngx-toastr';
+import { swalFire } from '@app/@shared/swal';
+import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
+import { SettingsToolSelectors } from '@app/models/bw/co/knowvera/settings/settings-tool-selectors';
+import { ToolSelectorDTO } from '@app/models/bw/co/knowvera/settings/tool-selector-dto';
+import { Tool } from '@app/models/bw/co/knowvera/settings/tool';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
-interface PipelineTool {
-  id: string;
-  name: string;
-  icon: string;
-  version: string;
-  latency: string;
-  active: boolean;
+class ToolSelectorsModel {
+  textExtractionTools: ToolSelectorDTO[] = [];
+  documentConfirmationTools: ToolSelectorDTO[] = [];
+  textProcessingTools: ToolSelectorDTO[] = [];
+  textCleanupTools: ToolSelectorDTO[] = [];
+  user: string | any = null;
 }
+
+type CategoryKey =
+  | 'textExtractionTools'
+  | 'documentConfirmationTools'
+  | 'textProcessingTools'
+  | 'textCleanupTools';
 
 interface ToolCategory {
-  key: string;
+  key: CategoryKey;
   label: string;
-  icon: string;
 }
+
+const TOOL_META: Record<string, { name: string; icon: string }> = {
+  [Tool.TESSERACT]: { name: 'Tesseract OCR', icon: 'document_scanner' },
+  [Tool.OLLAMA]: { name: 'Ollama', icon: 'smart_toy' },
+  [Tool.LM_STUDIO]: { name: 'LM Studio', icon: 'memory' },
+  [Tool.GEMINI]: { name: 'Gemini', icon: 'auto_awesome' },
+};
 
 @Component({
   selector: 'app-tool-selectors',
   standalone: true,
-  imports: [MatIconModule, DragDropModule],
+  imports: [MatIconModule],
   templateUrl: './tool-selectors.html',
-  styleUrl: './tool-selectors.scss',
+  styleUrls: ['./tool-selectors.scss'],
 })
-export class ToolSelectors {
+export class ToolSelectors implements OnInit {
+  settingsApiStore = inject(SettingsApiStore);
+  loaderState = inject(LoaderState);
+  private toastr = inject(ToastrService);
+
+  loading = linkedSignal(() => this.settingsApiStore.loading());
+  loaderMessage = linkedSignal(() => this.settingsApiStore.loaderMessage());
+  success = linkedSignal(() => this.settingsApiStore.success());
+  error = linkedSignal(() => this.settingsApiStore.error());
+  messages = linkedSignal(() => this.settingsApiStore.messages());
+
   categories: ToolCategory[] = [
-    { key: 'text-extraction', label: 'Text Extraction', icon: 'document_scanner' },
-    { key: 'doc-confirmation', label: 'Doc Confirmation', icon: 'fact_check' },
-    { key: 'text-processing', label: 'Text Processing', icon: 'smart_toy' },
-    { key: 'text-cleanup', label: 'Text Cleanup', icon: 'cleaning_services' },
+    { key: 'textExtractionTools', label: 'Text Extraction' },
+    { key: 'documentConfirmationTools', label: 'Doc Confirmation' },
+    { key: 'textProcessingTools', label: 'Text Processing' },
+    { key: 'textCleanupTools', label: 'Text Cleanup' },
   ];
 
-  activeCategory = signal('text-extraction');
+  activeCategory = signal<CategoryKey>('textExtractionTools');
 
-  private pipelines = signal<Record<string, PipelineTool[]>>({
-    'text-extraction': [
-      { id: 'azure', name: 'Azure Form Recognizer', icon: 'cloud', version: 'v3.0 API', latency: '~450ms', active: true },
-      { id: 'aws', name: 'AWS Textract', icon: 'cloud_queue', version: 'v2022-11-20', latency: '~520ms', active: true },
-      { id: 'internal', name: 'Internal OCR Engine', icon: 'text_snippet', version: 'v1.4 Legacy', latency: '', active: false },
-    ],
-    'doc-confirmation': [],
-    'text-processing': [],
-    'text-cleanup': [],
+  activeCategoryLabel = computed(
+    () => this.categories.find((cat) => cat.key === this.activeCategory())?.label ?? '',
+  );
+
+  toolSelectorsSignal = linkedSignal(() => {
+    const storeData = this.settingsApiStore.settingsToolSelectors();
+    const model = new ToolSelectorsModel();
+    model.textExtractionTools = storeData?.textExtractionTools ?? [];
+    model.documentConfirmationTools = storeData?.documentConfirmationTools ?? [];
+    model.textProcessingTools = storeData?.textProcessingTools ?? [];
+    model.textCleanupTools = storeData?.textCleanupTools ?? [];
+    model.user = storeData?.user ?? null;
+    return model;
   });
 
-  activeTools = computed(() => this.pipelines()[this.activeCategory()] ?? []);
+  activeTools = computed(() =>
+    [...(this.toolSelectorsSignal()[this.activeCategory()] ?? [])].sort(
+      (a, b) => (a.position ?? 0) - (b.position ?? 0),
+    ),
+  );
 
-  categoryCount(key: string): number {
-    return this.pipelines()[key]?.length ?? 0;
-  }
+  availableTools = computed(() => {
+    const used = new Set(this.activeTools().map((t) => t.tool));
+    return (Object.values(Tool) as Tool[]).filter((tool) => !used.has(tool));
+  });
 
-  priorityLabel(index: number): string {
-    return index === 0 ? 'Primary' : `Fallback ${index}`;
-  }
-
-  drop(event: CdkDragDrop<PipelineTool[]>): void {
-    const category = this.activeCategory();
-    this.pipelines.update((all) => {
-      const list = [...(all[category] ?? [])];
-      moveItemInArray(list, event.previousIndex, event.currentIndex);
-      return { ...all, [category]: list };
+  constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.settingsApiStore.loading());
     });
   }
 
-  toggleActive(tool: PipelineTool): void {
-    const category = this.activeCategory();
-    this.pipelines.update((all) => ({
-      ...all,
-      [category]: (all[category] ?? []).map((t) =>
-        t.id === tool.id ? { ...t, active: !t.active } : t,
-      ),
-    }));
+  ngOnInit(): void {
+    this.settingsApiStore.getSettingsToolSelectors();
   }
 
-  removeTool(tool: PipelineTool): void {
+  categoryCount(key: CategoryKey): number {
+    return this.toolSelectorsSignal()[key]?.length ?? 0;
+  }
+
+  toolName(tool: Tool): string {
+    return TOOL_META[tool]?.name ?? tool;
+  }
+
+  toolIcon(tool: Tool): string {
+    return TOOL_META[tool]?.icon ?? 'extension';
+  }
+
+  moveUp(index: number): void {
+    this.reorder(index, index - 1);
+  }
+
+  moveDown(index: number): void {
+    this.reorder(index, index + 1);
+  }
+
+  async addTool(): Promise<void> {
+    const options = this.availableTools();
+    if (!options.length) {
+      this.toastr.info('All available tools are already configured for this stage');
+      return;
+    }
+
+    const inputOptions: Record<string, string> = {};
+    options.forEach((tool) => (inputOptions[tool] = this.toolName(tool)));
+
+    const result = await swalFire({
+      title: 'Add Tool',
+      input: 'select',
+      inputOptions,
+      inputPlaceholder: 'Select a tool',
+      showCancelButton: true,
+      confirmButtonText: 'Add',
+    });
+
+    if (!result.isConfirmed || !result.value) {
+      return;
+    }
+
     const category = this.activeCategory();
-    this.pipelines.update((all) => ({
-      ...all,
-      [category]: (all[category] ?? []).filter((t) => t.id !== tool.id),
+    const tool = new ToolSelectorDTO();
+    tool.tool = result.value as Tool;
+    tool.position = this.activeTools().length;
+
+    this.toolSelectorsSignal.update((value) => ({
+      ...value,
+      [category]: [...(value[category] ?? []), tool],
     }));
+    this.persist();
+  }
+
+  async removeTool(tool: ToolSelectorDTO): Promise<void> {
+    const result = await swalFire({
+      title: 'Remove tool?',
+      text: `Remove "${this.toolName(tool.tool)}" from this pipeline?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Remove',
+      cancelButtonText: 'Cancel',
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
+    const category = this.activeCategory();
+    const reordered = this.activeTools()
+      .filter((t) => t !== tool)
+      .map((t, i) => ({ ...t, position: i }));
+
+    this.toolSelectorsSignal.update((value) => ({ ...value, [category]: reordered }));
+    this.persist();
+  }
+
+  private reorder(from: number, to: number): void {
+    const list = this.activeTools();
+    if (to < 0 || to >= list.length) {
+      return;
+    }
+
+    const category = this.activeCategory();
+    const reordered = [...list];
+    [reordered[from], reordered[to]] = [reordered[to], reordered[from]];
+    const withPositions = reordered.map((tool, i) => ({ ...tool, position: i }));
+
+    this.toolSelectorsSignal.update((value) => ({ ...value, [category]: withPositions }));
+    this.persist();
+  }
+
+  private persist(): void {
+    const value = this.toolSelectorsSignal();
+    const settingsToolSelectors = new SettingsToolSelectors();
+    settingsToolSelectors.textExtractionTools = value.textExtractionTools;
+    settingsToolSelectors.documentConfirmationTools = value.documentConfirmationTools;
+    settingsToolSelectors.textProcessingTools = value.textProcessingTools;
+    settingsToolSelectors.textCleanupTools = value.textCleanupTools;
+    settingsToolSelectors.user = value.user;
+
+    this.settingsApiStore.saveSettingsToolSelectors({ settingsToolSelectors });
   }
 }
