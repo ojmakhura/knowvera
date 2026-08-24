@@ -6,7 +6,7 @@
     <header class="kyc-hero-card hero-card hero-primary">
       <div class="kyc-hero-content">
         <div class="kyc-hero-copy">
-          <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
+          <div class="flex flex-wrap items-center gap-3 mb-2">
             <h1 class="section-title mb-0 text-start">{{ organisation()?.name || 'Organisation Profile' }}</h1>
             @if (organisation()?.kycStatus) {
               <span class="kyc-status-pill kyc-status-pill--current">
@@ -35,11 +35,11 @@
         </div>
 
         <div class="hero-actions kyc-hero-actions">
-          <button type="button" class="btn btn-outline-light btn-sm fw-bold text-uppercase" (click)="openEditOrganisation()">
+          <button type="button" class="btn btn-outline-light btn-sm font-bold uppercase" (click)="openEditOrganisation()">
             <mat-icon>edit</mat-icon>
             Edit Profile
           </button>
-          <button type="button" class="btn btn-success btn-sm fw-bold text-uppercase shadow-sm" (click)="openEditOrganisation()">
+          <button type="button" class="btn btn-success btn-sm font-bold uppercase shadow-sm" (click)="openEditOrganisation()">
             <mat-icon>cloud_upload</mat-icon>
             Save/Upload
           </button>
@@ -48,9 +48,9 @@
     </header>
 
     @if (organisation()) {
-      <div class="row g-4">
+      <div class="grid grid-cols-12 gap-4">
         <!-- Left Column -->
-        <div class="col-12 col-xl-8 d-flex flex-column gap-4">
+        <div class="col-span-12 xl:col-span-8 flex flex-col gap-4">
           <!-- Core Identity Card -->
           <section class="kyc-card">
             <div class="kyc-card__header">
@@ -63,20 +63,20 @@
               </div>
             </div>
             <div class="kyc-card__body">
-              <div class="row g-4">
-                <div class="col-12 col-md-6">
+              <div class="grid grid-cols-12 gap-4">
+                <div class="col-span-12 md:col-span-6">
                   <label class="kyc-field-label">Registration No</label>
                   <p class="kyc-value">{{ organisation()?.registrationNo || '-' }}</p>
                 </div>
-                <div class="col-12 col-md-6">
+                <div class="col-span-12 md:col-span-6">
                   <label class="kyc-field-label">Jurisdiction</label>
                   <p class="kyc-value">{{ organisation()?.countryOfRegistration || '-' }}</p>
                 </div>
-                <div class="col-12 col-md-6">
+                <div class="col-span-12 md:col-span-6">
                   <label class="kyc-field-label">Incorporation Date</label>
                   <p class="kyc-value">{{ formatSubscriptionDate(organisation()?.registrationDate) || '-' }}</p>
                 </div>
-                <div class="col-12 col-md-6">
+                <div class="col-span-12 md:col-span-6">
                   <label class="kyc-field-label">Status</label>
                   <p class="kyc-value">{{ formatStatus(organisation()?.status) || '-' }}</p>
                 </div>
@@ -222,7 +222,7 @@
                         @for (branch of branches(); track branch.id; let i = $index) {
                           @if (i < 4) {
                             <div class="kyc-summary-item">
-                              <div class="flex-grow-1">
+                              <div class="grow">
                                 <p class="kyc-summary-item__title">{{ branch.name || branch.code }}</p>
                                 <p class="kyc-summary-item__meta">
                                   <mat-icon class="text-sm">location_on</mat-icon>
@@ -318,7 +318,7 @@
         </div>
 
         <!-- Right Column: Contact Info -->
-        <div class="col-12 col-xl-4">
+        <div class="col-span-12 xl:col-span-4">
           <section class="kyc-card">
             <div class="kyc-card__header">
               <div class="kyc-icon-badge">
@@ -332,7 +332,7 @@
             <div class="kyc-card__body">
               <div class="kyc-summary-list">
                 <div class="kyc-summary-item">
-                  <div class="flex-grow-1">
+                  <div class="grow">
                     <label class="kyc-field-label">Email</label>
                     <p class="kyc-value" style="font-size: 0.9rem;">{{ organisation()?.contactEmailAddress || '-' }}</p>
                   </div>
@@ -340,7 +340,7 @@
                 @for (phone of organisation()?.phoneNumbers || []; track phone.id; let i = $index) {
                   @if (i < 2) {
                     <div class="kyc-summary-item">
-                      <div class="flex-grow-1">
+                      <div class="grow">
                         <label class="kyc-field-label">{{ phone.type || 'Phone' }}</label>
                         <p class="kyc-value" style="font-size: 0.9rem;">{{ phone.number || '-' }}</p>
                       </div>
@@ -348,13 +348,13 @@
                   }
                 }
                 <div class="kyc-summary-item">
-                  <div class="flex-grow-1">
+                  <div class="grow">
                     <label class="kyc-field-label">Physical Address</label>
                     <p class="kyc-value" style="font-size: 0.9rem; white-space: pre-wrap;">{{ organisation()?.physicalAddress || '-' }}</p>
                   </div>
                 </div>
                 <div class="kyc-summary-item">
-                  <div class="flex-grow-1">
+                  <div class="grow">
                     <label class="kyc-field-label">Postal Address</label>
                     <p class="kyc-value kyc-value--muted" style="font-size: 0.9rem; white-space: pre-wrap;">{{ organisation()?.postalAddress || 'Same as physical address' }}</p>
                   </div>

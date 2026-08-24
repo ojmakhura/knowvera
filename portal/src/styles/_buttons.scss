@@ -1,0 +1,38 @@
+// ==========================================
+// BUTTON COMPONENT LAYER
+// Tailwind-composed replacements for the Bootstrap .btn family, backed by
+// the app's design tokens (see the @theme block in styles.scss).
+// ==========================================
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-transparent px-4 py-2 text-sm font-medium transition-colors duration-150 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-on-primary hover:opacity-90;
+  }
+
+  .btn-success {
+    @apply bg-success text-on-success hover:opacity-90;
+  }
+
+  .btn-outline-danger {
+    @apply bg-transparent border-critical text-critical hover:bg-critical hover:text-on-critical;
+  }
+
+  .btn-outline-light {
+    @apply bg-transparent border-outline-variant text-on-surface hover:bg-surface-container-low;
+  }
+
+  .btn-outline-secondary {
+    @apply bg-transparent border-outline-variant text-on-surface-variant hover:bg-surface-container-low;
+  }
+
+  .btn-link {
+    @apply border-transparent bg-transparent p-0 text-primary underline-offset-2 hover:underline;
+  }
+}

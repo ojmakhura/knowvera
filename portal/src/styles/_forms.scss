@@ -1,0 +1,19 @@
+// ==========================================
+// FORM & PROGRESS COMPONENT LAYER
+// Tailwind-composed replacements for Bootstrap's .form-control / .form-select
+// and .progress / .progress-bar, backed by the app's design tokens.
+// ==========================================
+@layer components {
+  .form-control,
+  .form-select {
+    @apply w-full rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-2 text-sm text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary;
+  }
+
+  .progress {
+    @apply relative h-2 w-full overflow-hidden rounded-full bg-surface-container;
+  }
+
+  .progress-bar {
+    @apply h-full bg-primary transition-all duration-300;
+  }
+}

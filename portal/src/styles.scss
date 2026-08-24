@@ -5,8 +5,14 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+// Tailwind CSS
+@import 'tailwindcss';
+@source './**/*.{html,ts}';
+
 // Common page styles
 @import 'styles/common';
+@import 'styles/buttons';
+@import 'styles/forms';
 
 // regular style toast
 @import 'ngx-toastr/toastr';
@@ -263,6 +269,81 @@ body {
   --vault-font-body: var(--font-body);
 }
 
+/* Map the design tokens above into Tailwind's theme namespace so utilities
+   like bg-primary, text-on-surface-variant, rounded-xl, shadow-sm resolve
+   straight to the app's single source of truth. */
+@theme {
+  --color-surface: var(--surface);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-surface-variant: var(--surface-variant);
+  --color-background: var(--background);
+
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-on-background: var(--on-background);
+
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
+
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+
+  --color-tertiary: var(--tertiary);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+
+  --color-error: var(--error);
+  --color-on-error: var(--on-error);
+  --color-error-container: var(--error-container);
+  --color-on-error-container: var(--on-error-container);
+
+  --color-success: var(--success);
+  --color-on-success: var(--on-success);
+  --color-success-container: var(--success-container);
+  --color-on-success-container: var(--on-success-container);
+
+  --color-warning: var(--warning);
+  --color-on-warning: var(--on-warning);
+  --color-warning-container: var(--warning-container);
+  --color-on-warning-container: var(--on-warning-container);
+
+  --color-critical: var(--critical);
+  --color-on-critical: var(--on-critical);
+  --color-critical-container: var(--critical-container);
+  --color-on-critical-container: var(--on-critical-container);
+
+  --color-info: var(--info);
+  --color-on-info: var(--on-info);
+  --color-info-container: var(--info-container);
+  --color-on-info-container: var(--on-info-container);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+
+  --tracking-tight: -0.025em;
+}
+
 /* Material Symbols Outlined */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
@@ -283,45 +364,9 @@ body {
 }
 
 /* You can add global styles to this file, and also import other style files */
-@import 'bootstrap/dist/css/bootstrap.min.css';
 
 body {
   background-color: var(--surface);
   color: var(--on-surface);
   font-family: var(--font-body);
-}
-
-.bg-surface {
-  background-color: var(--surface);
-}
-.text-primary {
-  color: var(--primary) !important;
-}
-.text-on-surface-variant {
-  color: var(--on-surface-variant);
-}
-
-/* Custom utility classes to bridge the gap between Tailwind and Bootstrap for this specific UI */
-.bg-surface-container-lowest {
-  background-color: var(--surface-container-lowest);
-}
-.bg-surface-container-low {
-  background-color: var(--surface-container-low);
-}
-.bg-surface-container {
-  background-color: var(--surface-container);
-}
-
-.rounded-xl {
-  border-radius: var(--radius-xl); /* 1.5rem */
-}
-.ring-1 {
-  box-shadow: 0 0 0 1px var(--outline-variant);
-}
-.shadow-sm {
-  box-shadow: var(--shadow-sm);
-}
-
-.tracking-tight {
-  letter-spacing: -0.025em;
 }

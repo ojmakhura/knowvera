@@ -5,7 +5,7 @@
     <header class="kyc-hero-card hero-card hero-primary">
       <div class="kyc-hero-content">
         <div class="kyc-hero-copy">
-          <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
+          <div class="flex flex-wrap items-center gap-3 mb-2">
             <h1 class="section-title mb-0 text-start">KYC Record Details</h1>
             @if (record()) {
               <span
@@ -45,11 +45,11 @@
         </div>
 
         <div class="hero-actions kyc-hero-actions">
-          <button type="button" class="btn btn-outline-light btn-sm fw-bold text-uppercase">
+          <button type="button" class="btn btn-outline-light btn-sm font-bold uppercase">
             <mat-icon>download</mat-icon>
             Download PDF Report
           </button>
-          <button type="button" class="btn btn-success btn-sm fw-bold text-uppercase shadow-sm">
+          <button type="button" class="btn btn-success btn-sm font-bold uppercase shadow-sm">
             <mat-icon>task_alt</mat-icon>
             Approve Record
           </button>
@@ -58,9 +58,9 @@
     </header>
 
     @if (record()) {
-      <div class="row g-4">
-        <div class="col-12 col-xl-4">
-          <div class="d-flex flex-column gap-4">
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-12 xl:col-span-4">
+          <div class="flex flex-col gap-4">
             <section class="kyc-card">
               <div class="kyc-card__header">
                 <div class="kyc-icon-badge">
@@ -72,18 +72,18 @@
                 </div>
               </div>
               <div class="kyc-card__body">
-                <div class="row g-4">
-                  <div class="col-12">
+                <div class="grid grid-cols-12 gap-4">
+                  <div class="col-span-12">
                     <label class="kyc-field-label">
                       {{ record().target === 'INDIVIDUAL' ? 'Full Legal Name' : 'Organisation Name' }}
                     </label>
                     <p class="kyc-value">{{ record().ownerDetails?.name }}</p>
                   </div>
-                  <div class="col-12 col-sm-6">
+                  <div class="col-span-12 sm:col-span-6">
                     <label class="kyc-field-label">Email Address</label>
                     <p class="kyc-value">{{ record().ownerDetails?.emailAddress }}</p>
                   </div>
-                  <div class="col-12 col-sm-6">
+                  <div class="col-span-12 sm:col-span-6">
                     <label class="kyc-field-label">
                       @if (record().ownerDetails?.identityType) {
                         Identity No ({{ record().ownerDetails?.identityType }})
@@ -93,15 +93,15 @@
                     </label>
                     <p class="kyc-value">{{ record().ownerDetails?.identityNo }}</p>
                   </div>
-                  <div class="col-12 col-sm-6">
+                  <div class="col-span-12 sm:col-span-6">
                     <label class="kyc-field-label">Identity Type</label>
                     <p class="kyc-value">{{ record().ownerDetails?.identityType || record().target }}</p>
                   </div>
-                  <div class="col-12 col-sm-6">
+                  <div class="col-span-12 sm:col-span-6">
                     <label class="kyc-field-label">Physical Address</label>
                     <p class="kyc-value">{{ record().ownerDetails?.physicalAddress }}</p>
                   </div>
-                  <div class="col-12">
+                  <div class="col-span-12">
                     <label class="kyc-field-label">Postal Address</label>
                     @if (record().ownerDetails?.postalAddress) {
                       <p class="kyc-value">{{ record().ownerDetails?.postalAddress }}</p>
@@ -176,8 +176,8 @@
                   }
 
                   @if (record().declaration) {
-                    <div class="row g-3">
-                      <div class="col-12 col-md-6">
+                    <div class="grid grid-cols-12 gap-3">
+                      <div class="col-span-12 md:col-span-6">
                         <div class="kyc-soft-panel">
                           <p class="kyc-field-label">PEP Status</p>
                           <p class="kyc-value">{{ record().declaration.pepStatus || 'NO' }}</p>
@@ -186,7 +186,7 @@
                           }
                         </div>
                       </div>
-                      <div class="col-12 col-md-6">
+                      <div class="col-span-12 md:col-span-6">
                         <div class="kyc-soft-panel">
                           <p class="kyc-field-label">Sanctions Match</p>
                           <p class="kyc-value">{{ record().declaration.sanctionsMatch ? 'MATCH' : 'CLEAR' }}</p>
@@ -208,7 +208,7 @@
               <div>
                 <h3>Need assistance?</h3>
                 <p>Our compliance reviewer is available to walk through edge cases and next steps.</p>
-                <button type="button" class="btn btn-link p-0 fw-bold text-primary text-decoration-none d-flex align-items-center gap-1">
+                <button type="button" class="btn btn-link p-0 font-bold text-primary no-underline flex items-center gap-1">
                   Schedule review call
                   <mat-icon>arrow_forward</mat-icon>
                 </button>
@@ -217,11 +217,11 @@
           </div>
         </div>
 
-        <div class="col-12 col-xl-8">
-          <div class="d-flex flex-column gap-4">
+        <div class="col-span-12 xl:col-span-8">
+          <div class="flex flex-col gap-4">
             <section class="kyc-card">
               <div class="kyc-card__header kyc-card__header--split">
-                <div class="d-flex align-items-center gap-2">
+                <div class="flex items-center gap-2">
                   <div class="kyc-icon-badge">
                     <mat-icon>manage_search</mat-icon>
                   </div>
@@ -261,8 +261,8 @@
                             {{ section.label }}
                           </h3>
                           @if (section.fieldValues?.length) {
-                            <div class="table-responsive">
-                              <table class="table align-middle mb-0 kyc-table">
+                            <div class="overflow-x-auto">
+                              <table class="w-full align-middle mb-0 kyc-table">
                                 <thead>
                                   <tr>
                                     <th>Field</th>
@@ -282,7 +282,7 @@
                                         }
                                       </td>
                                       <td>{{ fv.data?.expectedValue }}</td>
-                                      <td [class.text-danger]="!fv.data?.success" [class.text-primary]="fv.data?.success">
+                                      <td [class.text-critical]="!fv.data?.success" [class.text-primary]="fv.data?.success">
                                         {{ fv.data?.extractedValue }}
                                       </td>
                                       <td>
@@ -294,7 +294,7 @@
                                                 [style.width.%]="fv.data.similarity * 100"
                                                 [class.bg-success]="fv.data.similarity >= 0.8"
                                                 [class.bg-warning]="fv.data.similarity >= 0.5 && fv.data.similarity < 0.8"
-                                                [class.bg-danger]="fv.data.similarity < 0.5"
+                                                [class.bg-critical]="fv.data.similarity < 0.5"
                                               ></div>
                                             </div>
                                             <span class="kyc-progress-value">{{ (fv.data.similarity * 100) | number:'1.0-0' }}%</span>
@@ -305,7 +305,7 @@
                                         @if (fv.data?.success) {
                                           <mat-icon class="text-success">check_circle</mat-icon>
                                         } @else {
-                                          <mat-icon class="text-danger">cancel</mat-icon>
+                                          <mat-icon class="text-critical">cancel</mat-icon>
                                         }
                                       </td>
                                     </tr>
@@ -326,7 +326,7 @@
 
                 @if (selectedAnalysisTab() === 'documents') {
                   @if (record().documents?.length) {
-                    <div class="d-flex flex-wrap gap-2 mb-4">
+                    <div class="flex flex-wrap gap-2 mb-4">
                       @for (doc of record().documents; track doc.id; let i = $index) {
                         @if (doc.dataComparisons?.length) {
                           <button
@@ -342,8 +342,8 @@
                     </div>
 
                     @if (record().documents[selectedDocumentIndex()]?.dataComparisons?.length) {
-                      <div class="table-responsive">
-                        <table class="table align-middle mb-0 kyc-table">
+                      <div class="overflow-x-auto">
+                        <table class="w-full align-middle mb-0 kyc-table">
                           <thead>
                             <tr>
                               <th>Field Parameter</th>
@@ -357,7 +357,7 @@
                               <tr>
                                 <td>{{ cmp.field }}</td>
                                 <td>{{ cmp.expected }}</td>
-                                <td [class.text-danger]="!cmp.matches" [class.text-primary]="cmp.matches">
+                                <td [class.text-critical]="!cmp.matches" [class.text-primary]="cmp.matches">
                                   {{ cmp.extracted }}
                                   @if (!cmp.matches) {
                                     <span class="kyc-required">(OCR Mismatch)</span>
@@ -367,7 +367,7 @@
                                   @if (cmp.matches) {
                                     <mat-icon class="text-success">check_circle</mat-icon>
                                   } @else {
-                                    <mat-icon class="text-danger">cancel</mat-icon>
+                                    <mat-icon class="text-critical">cancel</mat-icon>
                                   }
                                 </td>
                               </tr>
@@ -387,7 +387,7 @@
 
             <section class="kyc-card">
               <div class="kyc-card__header kyc-card__header--split">
-                <div class="d-flex align-items-center gap-2">
+                <div class="flex items-center gap-2">
                   <div class="kyc-icon-badge">
                     <mat-icon>folder_open</mat-icon>
                   </div>
@@ -400,9 +400,9 @@
               </div>
               <div class="kyc-card__body">
                 @if (record().documents?.length) {
-                  <div class="row g-3">
+                  <div class="grid grid-cols-12 gap-3">
                     @for (doc of record().documents; track doc.id) {
-                      <div class="col-12 col-md-6 col-xl-4">
+                      <div class="col-span-12 md:col-span-6 xl:col-span-4">
                         <div class="kyc-document-card">
                           <div class="kyc-document-card__top">
                             <span
@@ -430,11 +430,11 @@
                           <p class="kyc-document-card__meta">Uploaded {{ doc.createdAt | date:'mediumDate' }}</p>
 
                           <div class="kyc-document-card__actions">
-                            <button type="button" class="btn btn-outline-secondary btn-sm fw-bold flex-grow-1" (click)="downloadDocument(doc)">
+                            <button type="button" class="btn btn-outline-secondary btn-sm font-bold grow" (click)="downloadDocument(doc)">
                               Download
                             </button>
                             @if (doc.verificationStatus === 'REJECTED') {
-                              <button type="button" class="btn btn-primary btn-sm fw-bold flex-grow-1" (click)="updateDocument(doc)">
+                              <button type="button" class="btn btn-primary btn-sm font-bold grow" (click)="updateDocument(doc)">
                                 Update
                               </button>
                             }
@@ -463,14 +463,14 @@
 
                 @if (showUploadForm()) {
                   <div class="kyc-upload-panel">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="flex justify-between items-center mb-4">
                       <h3>Upload New Document</h3>
                       <button type="button" class="btn btn-link p-0 text-on-surface-variant" aria-label="Close" (click)="showUploadForm.set(false)">
                         <mat-icon>close</mat-icon>
                       </button>
                     </div>
-                    <div class="row g-3">
-                      <div class="col-12 col-md-5">
+                    <div class="grid grid-cols-12 gap-3">
+                      <div class="col-span-12 md:col-span-5">
                         <label class="kyc-field-label" for="documentTypeSelect">Document Type</label>
                         <select id="documentTypeSelect" class="form-select shadow-sm" (change)="onDocumentTypeSelected($event)">
                           <option value="">Select document type...</option>
@@ -479,14 +479,14 @@
                           }
                         </select>
                       </div>
-                      <div class="col-12 col-md-5">
+                      <div class="col-span-12 md:col-span-5">
                         <label class="kyc-field-label" for="fileInput">File</label>
                         <input id="fileInput" class="form-control" type="file" accept=".pdf,.png,.jpg,.jpeg" (change)="onFileSelected($event)" />
                       </div>
-                      <div class="col-12 col-md-2 d-flex align-items-end">
+                      <div class="col-span-12 md:col-span-2 flex items-end">
                         <button
                           type="button"
-                          class="btn btn-primary fw-bold text-uppercase w-100"
+                          class="btn btn-primary font-bold uppercase w-full"
                           [disabled]="!selectedFile || !selectedDocumentType"
                           (click)="uploadDocument()"
                         >Upload</button>
