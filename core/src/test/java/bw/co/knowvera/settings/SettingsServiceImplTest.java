@@ -18,13 +18,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.MessageSource;
 
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.document.Document;
+import bw.co.knowvera.document.DocumentMapper;
 import bw.co.knowvera.document.DocumentRepository;
 import bw.co.knowvera.document.type.DocumentType;
+import bw.co.knowvera.document.type.DocumentTypeMapper;
 import bw.co.knowvera.document.type.DocumentTypeRepository;
+import bw.co.knowvera.settings.kyc.KycFieldGroupMapper;
 
 @ExtendWith(MockitoExtension.class)
 class SettingsServiceImplTest {
@@ -34,9 +36,17 @@ class SettingsServiceImplTest {
     @Mock
     private SettingsMapper settingsMapper;
     @Mock
+    private DocumentMapper documentMapper;
+    @Mock
     private DocumentRepository documentRepository;
     @Mock
     private DocumentTypeRepository documentTypeRepository;
+    @Mock
+    private DocumentTypeMapper documentTypeMapper;
+    @Mock
+    private KycFieldGroupMapper kycFieldGroupMapper;
+    @Mock
+    private ToolSelectorMapper toolSelectorMapper;
     @Mock
     private SalaryRangeMapper salaryRangeMapper;
     @Mock
@@ -48,11 +58,15 @@ class SettingsServiceImplTest {
     void setUp() {
         service = new SettingsServiceImpl(
                 settingsRepository,
+                documentMapper,
                 settingsMapper,
-                null, documentRepository,
+                kycFieldGroupMapper,
+                documentRepository,
                 documentTypeRepository,
                 salaryRangeMapper,
-                salaryRangeRepository, null, null);
+                salaryRangeRepository,
+                toolSelectorMapper,
+                documentTypeMapper);
     }
 
     @Test

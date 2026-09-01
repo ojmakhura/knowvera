@@ -83,7 +83,6 @@ class KycFieldGroupServiceImplTest {
     @Test
     void removeThrowsWhenGroupDoesNotExist() {
         UUID id = UUID.randomUUID();
-        when("Not found").thenReturn("not found");
         when(kycFieldGroupRepository.existsById(id)).thenReturn(false);
 
         assertThrows(KycFieldGroupServiceException.class, () -> service.remove(id.toString()));

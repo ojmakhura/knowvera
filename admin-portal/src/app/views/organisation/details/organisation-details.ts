@@ -11,12 +11,14 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TableComponent } from '@app/components/table/table';
 import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch-dto';
 import { ClientRequestDTO } from '@app/models/bw/co/knowvera/organisation/client/client-request-dto';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
+import { KycReportSectionDTO } from '@app/models/bw/co/knowvera/kyc/fields/kyc-report-section-dto';
 import { GeneralStatus } from '@app/models/bw/co/knowvera/general-status';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
@@ -151,6 +153,16 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   documentTypeIdForUpload = signal('');
   selectedDocumentFile = signal<File | null>(null);
   isUploadingDocument = signal(false);
+
+  // KYC report sections and document requirements
+  individualReportSections = computed<KycReportSectionDTO[]>(() =>
+    [...(this.organisation()?.individualReportSections || [])].sort((a: KycReportSectionDTO, b: KycReportSectionDTO) => (a.position ?? 0) - (b.position ?? 0))
+  );
+  organisationReportSections = computed<KycReportSectionDTO[]>(() =>
+    [...(this.organisation()?.organisationReportSections || [])].sort((a: KycReportSectionDTO, b: KycReportSectionDTO) => (a.position ?? 0) - (b.position ?? 0))
+  );
+  individualKycDocuments = computed<DocumentTypeDTO[]>(() => this.organisation()?.individualKycDocuments || []);
+  organisationKycDocuments = computed<DocumentTypeDTO[]>(() => this.organisation()?.organisationKycDocuments || []);
 
   toaster: ToastrService = inject(ToastrService);
 

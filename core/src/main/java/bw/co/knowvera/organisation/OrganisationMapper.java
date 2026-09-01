@@ -7,15 +7,10 @@ package bw.co.knowvera.organisation;
 
 import bw.co.knowvera.document.DocumentMapper;
 import bw.co.knowvera.document.type.DocumentTypeMapper;
-import bw.co.knowvera.individual.IndividualMapper;
 import bw.co.knowvera.invoice.KycInvoiceMapper;
 import bw.co.knowvera.organisation.branch.BranchMapper;
-import bw.co.knowvera.organisation.client.ClientRequestMapper;
+import bw.co.knowvera.settings.kyc.GroupFieldMapper;
 import bw.co.knowvera.subscription.KycSubscriptionMapper;
-import bw.co.knowvera.utils.MappingUtils;
-import bw.co.knowvera.organisation.Organisation;
-import bw.co.knowvera.organisation.OrganisationDTO;
-import bw.co.knowvera.organisation.OrganisationListDTO;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,7 +20,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(
     componentModel = "spring"
@@ -34,7 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
         DocumentTypeMapper.class,
         BranchMapper.class,
         KycSubscriptionMapper.class,
-        KycInvoiceMapper.class
+        KycInvoiceMapper.class,
+        GroupFieldMapper.class
     }
 )
 public abstract class OrganisationMapper {
@@ -45,10 +40,12 @@ public abstract class OrganisationMapper {
      * @return OrganisationDTO
      */
     @Mapping(source = "documents", target = "documents")
-    @Mapping(source = "clientKycDocuments", target = "clientKycDocuments")
+    @Mapping(source = "individualKycDocuments", target = "individualKycDocuments")
+    @Mapping(source = "organisationKycDocuments", target = "organisationKycDocuments")
     @Mapping(source = "clientRequestsFiles", target = "clientRequestsFiles")
     @Mapping(source = "phoneNumbers", target = "phoneNumbers")
-    @Mapping(source = "branches", target = "branches")
+    // @Mapping(source = "individualFields", target = "individualFields")
+    // @Mapping(source = "organisationFields", target = "organisationFields")
     public abstract OrganisationDTO toOrganisationDTO(Organisation entity);
 
      /**

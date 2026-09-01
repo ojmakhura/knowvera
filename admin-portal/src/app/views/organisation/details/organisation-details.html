@@ -1,542 +1,743 @@
 <div class="org-details">
 	<nav class="breadcrumb" aria-label="Breadcrumb">
-		<a routerLink="/organisation">Organisations</a>
+		<a routerLink="/organisation">Entities</a>
 		<mat-icon>chevron_right</mat-icon>
 		<span class="crumb-current">{{ organisation().name || 'Organisation Details' }}</span>
 	</nav>
 
 	<!-- Hero Header -->
-	<header class="org-hero">
+	<section class="org-hero">
 		<div class="org-hero__decoration"></div>
 
-		<div class="org-hero__identity">
-			<div class="org-hero__avatar">{{ orgInitials() }}</div>
-
-			<div class="org-hero__meta">
-				<div class="org-hero__title-row">
-					<h1 class="org-hero__title">{{ organisation().name || 'Organisation' }}</h1>
-					<span class="status-pill" [class.status-pill--verified]="isOrganisationVerified()">
-						<mat-icon>verified</mat-icon>
-						{{ isOrganisationVerified() ? 'Verified Enterprise' : 'Pending Verification' }}
-					</span>
-					<span class="status-pill" [ngClass]="kycStatusClass()">
-						<mat-icon>verified_user</mat-icon>
-						{{ organisation().kycStatus || 'KYC Compliant' }}
-					</span>
+		<div class="org-hero__row">
+			<div class="org-hero__identity">
+				<div class="org-hero__avatar">
+					<span>{{ orgInitials() }}</span>
+					<span class="org-hero__avatar-badge"><mat-icon class="icon-fill">verified</mat-icon></span>
 				</div>
 
-				<p class="org-hero__description">{{ organisation().description || 'No description available.' }}</p>
+				<div class="org-hero__meta">
+					<div class="org-hero__title-row">
+						<h1 class="org-hero__title">{{ organisation().name || 'Organisation' }}</h1>
+						@if (organisation().code) {
+						<span class="org-hero__code">{{ organisation().code }}</span>
+						}
+					</div>
+
+					<div class="org-hero__badges">
+						<span class="status-pill" [class.status-pill--verified]="isOrganisationVerified()">
+							<mat-icon class="icon-fill">check_circle</mat-icon>
+							{{ isOrganisationVerified() ? 'Current' : 'Pending' }}
+						</span>
+						<span class="status-pill" [ngClass]="kycStatusClass()">
+							<mat-icon>verified_user</mat-icon>
+							{{ organisation().kycStatus || 'KYC Compliant' }}
+						</span>
+						<span class="org-hero__updated">Last updated: {{ (organisation().modifiedAt | date: 'dd MMM yyyy, HH:mm') || 'N/A' }}</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="org-hero__actions">
+				<button mat-stroked-button class="btn-edit" [routerLink]="['/organisation/edit', organisation().id || id]">
+					<mat-icon>edit</mat-icon>
+					Edit Organisation
+				</button>
+				<button mat-flat-button class="btn-audit">
+					<mat-icon>plagiarism</mat-icon>
+					New Audit
+				</button>
+			</div>
+		</div>
+	</section>
+
+	<!-- Core Identity & Infrastructure -->
+	<div class="top-grid">
+		<div class="vault-card identity-card">
+			<div class="section-head">
+				<mat-icon class="section-icon">badge</mat-icon>
+				<h2>Core Identity</h2>
+			</div>
+
+			<div class="core-grid">
+				<div class="meta-item">
+					<label>Registration No.</label>
+					<p class="mono-value">{{ organisation().registrationNo || 'Not available' }}</p>
+				</div>
+
+				<div class="meta-item">
+					<label>Jurisdiction</label>
+					<p>{{ organisation().countryOfRegistration || 'Not available' }}</p>
+				</div>
+
+				<div class="meta-item">
+					<label>Registration Date</label>
+					<p>{{ (organisation().registrationDate | date: 'dd MMM yyyy') || 'Not available' }}</p>
+				</div>
+
+				<div class="meta-item">
+					<label>Keycloak ID</label>
+					<p class="mono-value mono-value--small break-all">{{ organisation().keycloakId || 'Not available' }}</p>
+				</div>
 			</div>
 		</div>
 
-		<div class="org-hero__actions">
-			<button mat-stroked-button class="btn-edit" [routerLink]="['/organisation/edit', organisation().id || id]">
-				<mat-icon>edit</mat-icon>
-				Edit Organisation
-			</button>
-			<button mat-flat-button class="btn-audit">
-				<mat-icon>fact_check</mat-icon>
-				New Audit
-			</button>
-		</div>
-	</header>
+		<div class="vault-card infrastructure-card">
+			<div class="section-head">
+				<mat-icon class="section-icon">language</mat-icon>
+				<h2>Registered Domains</h2>
+			</div>
 
-	<!-- 2-Column Grid Layout -->
-	<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-		<!-- Left/Main Column -->
-		<div class="lg:col-span-8 flex flex-col gap-6">
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<!-- Core Identity Card -->
-				<div class="vault-card">
-					<div class="section-head">
-						<mat-icon class="section-icon">fingerprint</mat-icon>
-						<h2>Core Identity</h2>
+			<div class="domain-grid">
+				@for (domain of organisation().domains || []; track domain) {
+				<div class="domain-row">
+					<div class="domain-row__left">
+						<mat-icon>dns</mat-icon>
+						<span class="mono-value">{{ $any(domain).name || '-' }}</span>
+					</div>
+					@if ($any(domain).verified) {
+					<mat-icon class="domain-row__status domain-row__status--verified icon-fill" title="Verified">verified</mat-icon>
+					} @else {
+					<mat-icon class="domain-row__status domain-row__status--pending icon-fill" title="Pending Verification">pending</mat-icon>
+					}
+				</div>
+				} @empty {
+				<p class="empty-text">No domains configured.</p>
+				}
+			</div>
+		</div>
+	</div>
+
+	<!-- Contact Information -->
+	<div class="vault-card">
+		<div class="section-head">
+			<mat-icon class="section-icon">contact_mail</mat-icon>
+			<h2>Contact Information</h2>
+		</div>
+
+		<div class="contact-grid">
+			<div class="contact-field">
+				<span class="contact-field__label"><mat-icon>mail</mat-icon> Primary Email</span>
+				<a class="contact-field__link" [href]="'mailto:' + (organisation().contactEmailAddress || '')">
+					{{ organisation().contactEmailAddress || 'Not available' }}
+				</a>
+			</div>
+
+			<div class="contact-field">
+				<span class="contact-field__label"><mat-icon>location_on</mat-icon> Physical Address</span>
+				<p class="multiline">{{ organisation().physicalAddress || 'Not available' }}</p>
+			</div>
+
+			<div class="contact-field">
+				<span class="contact-field__label"><mat-icon>mark_as_unread</mat-icon> Postal Address</span>
+				<p class="multiline">{{ organisation().postalAddress || 'Same as physical address.' }}</p>
+			</div>
+
+			<div class="contact-field">
+				<span class="contact-field__label"><mat-icon>call</mat-icon> Phone Numbers</span>
+				<div class="contact-field__phones">
+					@for (phone of organisation().phoneNumbers || []; track phone) {
+					<div class="contact-field__phone-row">
+						<span class="mono-value">{{ $any(phone).phoneNumber }}</span>
+						<span class="contact-field__phone-type">{{ $any(phone).type }}</span>
+					</div>
+					} @empty {
+					<p>Not available</p>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Operations Hub (Tabs) -->
+	<div class="vault-card vault-card--flush ops-hub">
+		<mat-tab-group class="ops-tab-group" animationDuration="150ms">
+			<mat-tab>
+				<ng-template mat-tab-label><mat-icon class="tab-icon">inventory_2</mat-icon><span>Compliance Archive</span></ng-template>
+				<div class="tab-content tab-documents">
+					<div class="table-head">
+						<h3>Uploaded Documents</h3>
 					</div>
 
-					<div class="core-grid">
-						<div class="meta-item">
-							<label>Registration No</label>
-							<p>{{ organisation().registrationNo || 'Not available' }}</p>
-						</div>
+					<div class="document-upload-toolbar">
+						<mat-form-field appearance="outline" class="vault-field upload-type-field">
+							<mat-label>Document Type</mat-label>
+							<mat-select [value]="documentTypeIdForUpload()"
+								(selectionChange)="selectUploadDocumentType($any($event.value))">
+								@for (documentType of settings().organisationDocuments || []; track documentType.id ||
+								documentType.code) {
+								<mat-option [value]="$any(documentType).id">
+									{{ $any(documentType).name || $any(documentType).code || $any(documentType).id }}
+								</mat-option>
+								} @empty {
+								<mat-option disabled>No document types available</mat-option>
+								}
+							</mat-select>
+						</mat-form-field>
 
-						<div class="meta-item">
-							<label>Jurisdiction</label>
-							<p>{{ organisation().countryOfRegistration || 'Not available' }}</p>
-						</div>
+						<input type="file" #documentUploadInput hidden (change)="onDocumentFileSelected($event)" />
 
-						<div class="meta-item">
-							<label>Registration Date</label>
-							<p>{{ (organisation().registrationDate | date: 'dd MMM yyyy') || 'Not available' }}</p>
-						</div>
+						<button mat-stroked-button type="button" (click)="documentUploadInput.click()">
+							<mat-icon>upload_file</mat-icon>
+							Choose File
+						</button>
+
+						<button mat-flat-button type="button" class="btn-upload-document"
+							[disabled]="!selectedDocumentFile() || !documentTypeIdForUpload().trim() || isUploadingDocument()"
+							(click)="uploadOrganisationDocument(documentUploadInput)">
+							<mat-icon>archive</mat-icon>
+							{{ isUploadingDocument() ? 'Uploading...' : 'Upload Archive' }}
+						</button>
+
+						<span class="selected-upload-file">{{ selectedDocumentFile()?.name || 'No file chosen' }}</span>
+					</div>
+
+					<div class="table-responsive">
+						<table class="simple-table">
+							<thead>
+								<tr>
+									<th>File Name</th>
+									<th>Type</th>
+									<th>Status</th>
+									<th class="align-end">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (document of organisation().documents || []; track document.id || document.fileName) {
+								<tr>
+									<td>
+										<div class="file-cell">
+											<mat-icon>picture_as_pdf</mat-icon>
+											{{ $any(document).fileName || '-' }}
+										</div>
+									</td>
+									<td>{{ $any(document).documentType || '-' }}</td>
+									<td>
+										@if ($any(document).verificationStatus === 'VERIFIED') {
+										<span class="verify-ok"><mat-icon class="icon-fill">verified</mat-icon> Verified</span>
+										} @else if ($any(document).verificationStatus === 'REJECTED') {
+										<span class="verify-rejected"><mat-icon>cancel</mat-icon> Rejected</span>
+										} @else {
+										<span class="verify-review"><mat-icon>schedule</mat-icon> Pending Review</span>
+										}
+									</td>
+									<td class="align-end">
+										<div class="doc-actions">
+											<button mat-icon-button title="Document details" (click)="openDocumentDetails($any(document))">
+												<mat-icon>visibility</mat-icon>
+											</button>
+											<button mat-icon-button title="Edit document" (click)="openDocumentEdit($any(document))">
+												<mat-icon>edit</mat-icon>
+											</button>
+										</div>
+									</td>
+								</tr>
+								} @empty {
+								<tr>
+									<td colspan="4" class="simple-table__empty">No documents uploaded.</td>
+								</tr>
+								}
+							</tbody>
+						</table>
 					</div>
 				</div>
+			</mat-tab>
 
-				<!-- Infrastructure Card -->
-				<div class="vault-card vault-card--muted">
-					<div class="section-head">
-						<mat-icon class="section-icon">dns</mat-icon>
-						<h2>Infrastructure</h2>
+			<mat-tab>
+				<ng-template mat-tab-label><mat-icon class="tab-icon">corporate_fare</mat-icon><span>Org KYC Report</span></ng-template>
+				<div class="tab-content tab-kyc-report">
+					<div class="table-head">
+						<h3>Organisation KYC Report Sections</h3>
+						<span class="branches-count">{{ organisationReportSections().length }} Section{{ organisationReportSections().length === 1 ? '' : 's' }}</span>
 					</div>
 
-					<label class="section-label">Registered Domains</label>
-					<div class="domain-list">
-						@for (domain of organisation().domains || []; track domain) {
-						<div class="domain-row">
-							<span>{{ $any(domain).name || '-' }}</span>
-							@if ($any(domain).verified) {
-							<span class="domain-row__badge domain-row__badge--verified">Verified</span>
-							} @else {
-							<span class="domain-row__badge">Pending DNS</span>
+					@for (section of organisationReportSections(); track section.id || section.label) {
+					<div class="vault-card report-section-card">
+						<div class="section-head">
+							<mat-icon class="section-icon">fact_check</mat-icon>
+							<h2>{{ section.label || 'Untitled Section' }}</h2>
+							@if (section.kycRecordRef) {
+							<span class="cell-sub">{{ section.kycRecordRef }}</span>
 							}
 						</div>
+
+						<div class="table-responsive">
+							<table class="simple-table">
+								<thead>
+									<tr>
+										<th>Field</th>
+										<th>Extracted Value</th>
+										<th>Expected Value</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									@for (fieldValue of section.fieldValues; track fieldValue.id || fieldValue.fieldId) {
+									<tr>
+										<td>{{ fieldValue.fieldLabel || fieldValue.field || 'Unknown Field' }}</td>
+										<td>{{ fieldValue.data?.extractedValue || '-' }}</td>
+										<td>{{ fieldValue.data?.expectedValue || '-' }}</td>
+										<td>
+											@if (fieldValue.data?.success) {
+											<span class="verify-ok"><mat-icon class="icon-fill">verified</mat-icon> Match</span>
+											} @else {
+											<span class="verify-rejected"><mat-icon>cancel</mat-icon> Mismatch</span>
+											}
+										</td>
+									</tr>
+									} @empty {
+									<tr>
+										<td colspan="4" class="simple-table__empty">No fields captured for this section.</td>
+									</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+					} @empty {
+					<p class="empty-text">No organisation KYC report sections available.</p>
+					}
+				</div>
+			</mat-tab>
+
+			<mat-tab>
+				<ng-template mat-tab-label><mat-icon class="tab-icon">person</mat-icon><span>Ind KYC Report</span></ng-template>
+				<div class="tab-content tab-kyc-report">
+					<div class="table-head">
+						<h3>Individual KYC Report Sections</h3>
+						<span class="branches-count">{{ individualReportSections().length }} Section{{ individualReportSections().length === 1 ? '' : 's' }}</span>
+					</div>
+
+					@for (section of individualReportSections(); track section.id || section.label) {
+					<div class="vault-card report-section-card">
+						<div class="section-head">
+							<mat-icon class="section-icon">fact_check</mat-icon>
+							<h2>{{ section.label || 'Untitled Section' }}</h2>
+							@if (section.kycRecordRef) {
+							<span class="cell-sub">{{ section.kycRecordRef }}</span>
+							}
+						</div>
+
+						<div class="table-responsive">
+							<table class="simple-table">
+								<thead>
+									<tr>
+										<th>Field</th>
+										<th>Extracted Value</th>
+										<th>Expected Value</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+								<tbody>
+									@for (fieldValue of section.fieldValues; track fieldValue.id || fieldValue.fieldId) {
+									<tr>
+										<td>{{ fieldValue.fieldLabel || fieldValue.field || 'Unknown Field' }}</td>
+										<td>{{ fieldValue.data?.extractedValue || '-' }}</td>
+										<td>{{ fieldValue.data?.expectedValue || '-' }}</td>
+										<td>
+											@if (fieldValue.data?.success) {
+											<span class="verify-ok"><mat-icon class="icon-fill">verified</mat-icon> Match</span>
+											} @else {
+											<span class="verify-rejected"><mat-icon>cancel</mat-icon> Mismatch</span>
+											}
+										</td>
+									</tr>
+									} @empty {
+									<tr>
+										<td colspan="4" class="simple-table__empty">No fields captured for this section.</td>
+									</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+					} @empty {
+					<p class="empty-text">No individual KYC report sections available.</p>
+					}
+				</div>
+			</mat-tab>
+
+			<mat-tab>
+				<ng-template mat-tab-label><mat-icon class="tab-icon">description</mat-icon><span>Org KYC Docs</span></ng-template>
+				<div class="tab-content tab-kyc-documents">
+					<div class="table-head">
+						<h3>Organisation KYC Document Requirements</h3>
+						<span class="branches-count">{{ organisationKycDocuments().length }} Document{{ organisationKycDocuments().length === 1 ? '' : 's' }}</span>
+					</div>
+
+					<div class="table-responsive">
+						<table class="simple-table">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Code</th>
+									<th>Description</th>
+									<th>Expires</th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (documentType of organisationKycDocuments(); track documentType.id || documentType.code) {
+								<tr>
+									<td>
+										<div class="file-cell">
+											<mat-icon>description</mat-icon>
+											{{ documentType.name || '-' }}
+										</div>
+									</td>
+									<td>{{ documentType.code || '-' }}</td>
+									<td>{{ documentType.description || '-' }}</td>
+									<td>{{ documentType.expires ? 'Yes' : 'No' }}</td>
+								</tr>
+								} @empty {
+								<tr>
+									<td colspan="4" class="simple-table__empty">No organisation KYC documents configured.</td>
+								</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</mat-tab>
+
+			<mat-tab>
+				<ng-template mat-tab-label><mat-icon class="tab-icon">description</mat-icon><span>Ind KYC Docs</span></ng-template>
+				<div class="tab-content tab-kyc-documents">
+					<div class="table-head">
+						<h3>Individual KYC Document Requirements</h3>
+						<span class="branches-count">{{ individualKycDocuments().length }} Document{{ individualKycDocuments().length === 1 ? '' : 's' }}</span>
+					</div>
+
+					<div class="table-responsive">
+						<table class="simple-table">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Code</th>
+									<th>Description</th>
+									<th>Expires</th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (documentType of individualKycDocuments(); track documentType.id || documentType.code) {
+								<tr>
+									<td>
+										<div class="file-cell">
+											<mat-icon>description</mat-icon>
+											{{ documentType.name || '-' }}
+										</div>
+									</td>
+									<td>{{ documentType.code || '-' }}</td>
+									<td>{{ documentType.description || '-' }}</td>
+									<td>{{ documentType.expires ? 'Yes' : 'No' }}</td>
+								</tr>
+								} @empty {
+								<tr>
+									<td colspan="4" class="simple-table__empty">No individual KYC documents configured.</td>
+								</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</mat-tab>
+
+			@if(organisation().isClient) {
+			<mat-tab>
+				<ng-template mat-tab-label><mat-icon class="tab-icon">receipt_long</mat-icon><span>Subscriptions</span></ng-template>
+				<div class="tab-content tab-subscriptions">
+					<div class="table-head">
+						<h3>Subscriptions</h3>
+						<div class="table-head-actions">
+							<span class="live-chip">{{ subscriptionsDataSource.data.length }} linked</span>
+						</div>
+					</div>
+
+					<div class="table-responsive">
+						<table mat-table [dataSource]="subscriptionsDataSource" class="vault-table subscriptions-table">
+							<ng-container matColumnDef="ref">
+								<th mat-header-cell *matHeaderCellDef>Ref ID</th>
+								<td mat-cell *matCellDef="let subscription" class="mono-cell">{{ subscription.ref || '-' }}</td>
+							</ng-container>
+
+							<ng-container matColumnDef="period">
+								<th mat-header-cell *matHeaderCellDef>Period</th>
+								<td mat-cell *matCellDef="let subscription">{{ subscription.period || '-' }}</td>
+							</ng-container>
+
+							<ng-container matColumnDef="startDate">
+								<th mat-header-cell *matHeaderCellDef>Start Date</th>
+								<td mat-cell *matCellDef="let subscription">{{ formatSubscriptionDate(subscription.startDate) }}</td>
+							</ng-container>
+
+							<ng-container matColumnDef="endDate">
+								<th mat-header-cell *matHeaderCellDef>End Date</th>
+								<td mat-cell *matCellDef="let subscription">{{ formatSubscriptionDate(subscription.endDate) }}</td>
+							</ng-container>
+
+							<ng-container matColumnDef="amount">
+								<th mat-header-cell *matHeaderCellDef class="align-end">Amount</th>
+								<td mat-cell *matCellDef="let subscription" class="align-end mono-cell">
+									{{ formatSubscriptionAmount(subscription.amount) }}
+								</td>
+							</ng-container>
+
+							<ng-container matColumnDef="status">
+								<th mat-header-cell *matHeaderCellDef>Status</th>
+								<td mat-cell *matCellDef="let subscription">
+									<span class="subscription-status-pill" [ngClass]="subscriptionStatusClass(subscription.status)">
+										{{ subscription.status || 'UNKNOWN' }}
+									</span>
+								</td>
+							</ng-container>
+
+							<ng-container matColumnDef="actions">
+								<th mat-header-cell *matHeaderCellDef class="align-end">Actions</th>
+								<td mat-cell *matCellDef="let subscription" class="align-end">
+									<button mat-icon-button type="button" title="Subscription details"
+										(click)="openSubscriptionDetails(subscription)">
+										<mat-icon>visibility</mat-icon>
+									</button>
+								</td>
+							</ng-container>
+
+							<tr mat-header-row *matHeaderRowDef="['ref', 'period', 'startDate', 'endDate', 'amount', 'status', 'actions']"></tr>
+							<tr mat-row *matRowDef="let row; columns: ['ref', 'period', 'startDate', 'endDate', 'amount', 'status', 'actions']"></tr>
+							<tr class="mat-row empty-row" *matNoDataRow>
+								<td class="mat-cell" colspan="7">
+									<div class="empty-state">
+										<mat-icon>subscriptions</mat-icon>
+										<p>No subscriptions are linked to this organisation yet.</p>
+									</div>
+								</td>
+							</tr>
+						</table>
+					</div>
+
+					<mat-paginator
+						#subscriptionsPaginator
+						[length]="subscriptionsDataSource.data.length"
+						[pageIndex]="0"
+						[pageSize]="5"
+						[pageSizeOptions]="[5, 10, 25]"
+						showFirstLastButtons
+					></mat-paginator>
+				</div>
+			</mat-tab>
+			}
+
+			<mat-tab>
+				<ng-template mat-tab-label><mat-icon class="tab-icon">account_tree</mat-icon><span>Global Branches</span></ng-template>
+				<div class="tab-content tab-branches">
+					<div class="branches-head">
+						<div class="section-head">
+							<mat-icon class="section-icon">account_tree</mat-icon>
+							<h2>Registered Branches</h2>
+						</div>
+						<div class="branches-head-actions">
+							<span class="branches-count">{{ branches().length }} Branches Active</span>
+							<button mat-flat-button class="btn-add-branch" (click)="openAddBranchDialog()">
+								<mat-icon>add_location</mat-icon>
+								Add Branch
+							</button>
+						</div>
+					</div>
+
+					<div class="branches-grid">
+						@for (branch of branches(); track branch.id || branch.code) {
+						<div class="branch-card" [class.branch-card--primary]="$index === 0">
+							<div class="branch-card__head">
+								<h4>{{ branch.name || 'Unnamed Branch' }}</h4>
+								<span class="branch-card__code">{{ branch.code || '-' }}</span>
+							</div>
+							<p class="branch-card__address">
+								<mat-icon>location_on</mat-icon>
+								{{ branch.physicalAddress || 'Address not provided' }}
+							</p>
+							<div class="branch-card__footer">
+								<div class="branch-card__status" [class.branch-card__status--pending]="$index !== 0">
+									<mat-icon>{{ $index === 0 ? 'check_circle' : 'history' }}</mat-icon>
+									{{ $index === 0 ? 'Verified Primary' : 'Pending Validation' }}
+								</div>
+								<div class="branch-card__actions">
+									<button mat-icon-button title="Edit branch" (click)="openEditBranchDialog(branch)">
+										<mat-icon>edit</mat-icon>
+									</button>
+									<button mat-icon-button class="branch-card__delete" title="Delete branch" (click)="deleteBranch(branch)">
+										<mat-icon>delete</mat-icon>
+									</button>
+								</div>
+							</div>
+						</div>
 						} @empty {
-						<p class="empty-text">No domains configured.</p>
+						<p class="empty-text">No branches available.</p>
 						}
 					</div>
 				</div>
-			</div>
+			</mat-tab>
 
-			<!-- Operations Card (Tabs) -->
-			<div class="vault-card vault-card--flush">
-				<mat-tab-group class="ops-tab-group" animationDuration="150ms">
-					<mat-tab label="Compliance Archive">
-						<div class="tab-content tab-documents">
-							<div class="table-head">
-								<h3>Uploaded Documents</h3>
-							</div>
-
-							<div class="document-upload-toolbar">
-								<mat-form-field appearance="outline" class="vault-field upload-type-field">
-									<mat-label>Document Type</mat-label>
-									<mat-select [value]="documentTypeIdForUpload()"
-										(selectionChange)="selectUploadDocumentType($any($event.value))">
-										@for (documentType of settings().organisationDocuments || []; track documentType.id ||
-										documentType.code) {
-										<mat-option [value]="$any(documentType).id">
-											{{ $any(documentType).name || $any(documentType).code || $any(documentType).id }}
-										</mat-option>
-										} @empty {
-										<mat-option disabled>No document types available</mat-option>
-										}
-									</mat-select>
-								</mat-form-field>
-
-								<input type="file" #documentUploadInput hidden (change)="onDocumentFileSelected($event)" />
-
-								<button mat-stroked-button type="button" (click)="documentUploadInput.click()">
-									<mat-icon>attach_file</mat-icon>
-									Choose File
-								</button>
-
-								<button mat-flat-button type="button" class="btn-upload-document"
-									[disabled]="!selectedDocumentFile() || !documentTypeIdForUpload().trim() || isUploadingDocument()"
-									(click)="uploadOrganisationDocument(documentUploadInput)">
-									<mat-icon>upload_file</mat-icon>
-									{{ isUploadingDocument() ? 'Uploading...' : 'Upload' }}
-								</button>
-
-								<span class="selected-upload-file">{{ selectedDocumentFile()?.name || 'No file selected' }}</span>
-							</div>
-
-							<div class="table-responsive">
-								<table class="simple-table">
-									<thead>
-										<tr>
-											<th>File Name</th>
-											<th>Type</th>
-											<th>Verification</th>
-											<th>Actions</th>
-										</tr>
-									</thead>
-									<tbody>
-										@for (document of organisation().documents || []; track document.id || document.fileName) {
-										<tr>
-											<td>
-												<div class="file-cell">
-													<mat-icon>description</mat-icon>
-													{{ $any(document).fileName || '-' }}
-												</div>
-											</td>
-											<td>{{ $any(document).documentType || '-' }}</td>
-											<td>
-												@if ($any(document).verificationStatus === 'VERIFIED') {
-												<span class="verify-ok"><mat-icon>verified</mat-icon> Verified</span>
-												} @else if ($any(document).verificationStatus === 'REJECTED') {
-												<span class="verify-rejected"><mat-icon>cancel</mat-icon> Rejected</span>
-												} @else {
-												<span class="verify-review"><mat-icon>schedule</mat-icon> In Review</span>
-												}
-											</td>
-											<td>
-												<div class="doc-actions">
-													<button mat-icon-button title="Document details" (click)="openDocumentDetails($any(document))">
-														<mat-icon>visibility</mat-icon>
-													</button>
-													<button mat-icon-button title="Edit document" (click)="openDocumentEdit($any(document))">
-														<mat-icon>edit</mat-icon>
-													</button>
-												</div>
-											</td>
-										</tr>
-										} @empty {
-										<tr>
-											<td colspan="4" class="simple-table__empty">No documents uploaded.</td>
-										</tr>
-										}
-									</tbody>
-								</table>
-							</div>
+			<mat-tab>
+				<ng-template mat-tab-label><mat-icon class="tab-icon">person</mat-icon><span>Individual Client KYC</span></ng-template>
+				<div class="tab-content tab-client-requests">
+					@if (organisation().isClient) {
+					<div class="table-head">
+						<h3>Individual Client Requests</h3>
+						<div class="table-head-actions">
+							<span class="live-chip">Live</span>
+							<button
+								mat-flat-button
+								type="button"
+								(click)="openCreateClientRequestDialog(targetEntity.INDIVIDUAL)"
+							>
+								<mat-icon>add</mat-icon>
+								Create Request
+							</button>
+							<input
+								type="file"
+								#individualRequestsUploadInput
+								hidden
+								accept=".xlsx,.xls,.csv"
+								(change)="onIndividualClientRequestFileSelected($event, individualRequestsUploadInput)"
+							/>
+							<button
+								mat-stroked-button
+								type="button"
+								(click)="individualRequestsUploadInput.click()"
+								[disabled]="isUploadingIndividualClientRequestFile()"
+							>
+								<mat-icon>upload_file</mat-icon>
+								{{ isUploadingIndividualClientRequestFile() ? 'Uploading...' : 'Upload Excel' }}
+							</button>
 						</div>
-					</mat-tab>
+					</div>
+					<div class="table-responsive">
+						<table
+							mat-table
+							[dataSource]="$any(individualClientRequests().content) || []"
+							class="vault-table"
+						>
+							<ng-container matColumnDef="organisation">
+								<th mat-header-cell *matHeaderCellDef>Name / Registration</th>
+								<td mat-cell *matCellDef="let request">
+									<div class="cell-strong">{{ request.name || '-' }}</div>
+								</td>
+							</ng-container>
 
-					@if(organisation().isClient) {
-					<mat-tab label="Service Subscriptions">
-						<div class="tab-content tab-subscriptions">
-							<div class="table-head">
-								<h3>Subscriptions</h3>
-								<div class="table-head-actions">
-									<span class="live-chip">{{ subscriptionsDataSource.data.length }} linked</span>
-								</div>
-							</div>
+							<ng-container matColumnDef="createdAt">
+								<th mat-header-cell *matHeaderCellDef>Email</th>
+								<td mat-cell *matCellDef="let request">{{ request.emailAddress || '-' }}</td>
+							</ng-container>
 
-							<div class="table-responsive">
-								<table mat-table [dataSource]="subscriptionsDataSource" class="vault-table subscriptions-table">
-									<ng-container matColumnDef="ref">
-										<th mat-header-cell *matHeaderCellDef>Ref ID</th>
-										<td mat-cell *matCellDef="let subscription" class="mono-cell">{{ subscription.ref || '-' }}</td>
-									</ng-container>
+							<ng-container matColumnDef="status">
+								<th mat-header-cell *matHeaderCellDef>Status</th>
+								<td mat-cell *matCellDef="let request">
+									<span class="table-status" [class.flagged]="request.status === 'FLAGGED'"
+										[class.pending]="request.status !== 'FLAGGED'">
+										{{ request.status || 'Pending' }}
+									</span>
+								</td>
+							</ng-container>
 
-									<ng-container matColumnDef="period">
-										<th mat-header-cell *matHeaderCellDef>Period</th>
-										<td mat-cell *matCellDef="let subscription">{{ subscription.period || '-' }}</td>
-									</ng-container>
+							<tr mat-header-row *matHeaderRowDef="clientRequestsColumns"></tr>
+							<tr mat-row *matRowDef="let row; columns: clientRequestsColumns"></tr>
+						</table>
+					</div>
 
-									<ng-container matColumnDef="startDate">
-										<th mat-header-cell *matHeaderCellDef>Start Date</th>
-										<td mat-cell *matCellDef="let subscription">{{ formatSubscriptionDate(subscription.startDate) }}</td>
-									</ng-container>
-
-									<ng-container matColumnDef="endDate">
-										<th mat-header-cell *matHeaderCellDef>End Date</th>
-										<td mat-cell *matCellDef="let subscription">{{ formatSubscriptionDate(subscription.endDate) }}</td>
-									</ng-container>
-
-									<ng-container matColumnDef="amount">
-										<th mat-header-cell *matHeaderCellDef class="align-end">Amount</th>
-										<td mat-cell *matCellDef="let subscription" class="align-end mono-cell">
-											{{ formatSubscriptionAmount(subscription.amount) }}
-										</td>
-									</ng-container>
-
-									<ng-container matColumnDef="status">
-										<th mat-header-cell *matHeaderCellDef>Status</th>
-										<td mat-cell *matCellDef="let subscription">
-											<span class="subscription-status-pill" [ngClass]="subscriptionStatusClass(subscription.status)">
-												{{ subscription.status || 'UNKNOWN' }}
-											</span>
-										</td>
-									</ng-container>
-
-									<ng-container matColumnDef="actions">
-										<th mat-header-cell *matHeaderCellDef class="align-end">Actions</th>
-										<td mat-cell *matCellDef="let subscription" class="align-end">
-											<button mat-icon-button type="button" title="Subscription details"
-												(click)="openSubscriptionDetails(subscription)">
-												<mat-icon>visibility</mat-icon>
-											</button>
-										</td>
-									</ng-container>
-
-									<tr mat-header-row *matHeaderRowDef="['ref', 'period', 'startDate', 'endDate', 'amount', 'status', 'actions']"></tr>
-									<tr mat-row *matRowDef="let row; columns: ['ref', 'period', 'startDate', 'endDate', 'amount', 'status', 'actions']"></tr>
-									<tr class="mat-row empty-row" *matNoDataRow>
-										<td class="mat-cell" colspan="7">
-											<div class="empty-state">
-												<mat-icon>subscriptions</mat-icon>
-												<p>No subscriptions are linked to this organisation yet.</p>
-											</div>
-										</td>
-									</tr>
-								</table>
-							</div>
-
-							<mat-paginator
-								#subscriptionsPaginator
-								[length]="subscriptionsDataSource.data.length"
-								[pageIndex]="0"
-								[pageSize]="5"
-								[pageSizeOptions]="[5, 10, 25]"
-								showFirstLastButtons
-							></mat-paginator>
-						</div>
-					</mat-tab>
+					<mat-paginator
+						[length]="$any(individualClientRequests().page.totalElements) || $any(individualClientRequests().totalElements) || 0"
+						[pageIndex]="$any(individualClientRequests().page.number) || 0"
+						[pageSize]="$any(individualClientRequests().page.size) || 10"
+						[pageSizeOptions]="[5, 10, 25]"
+						showFirstLastButtons
+						(page)="loadIndividualClientRequests($event.pageIndex, $event.pageSize)"
+					></mat-paginator>
+					} @else {
+					<p class="empty-text">Client requests are available only for client organisations.</p>
 					}
-
-					<mat-tab label="Global Branches">
-						<div class="tab-content tab-branches">
-							<div class="branches-head">
-								<div class="section-head">
-									<mat-icon class="section-icon">account_tree</mat-icon>
-									<h2>Registered Branches</h2>
-								</div>
-								<div class="branches-head-actions">
-									<span class="branches-count">{{ branches().length }} Branches Active</span>
-									<button mat-flat-button class="btn-add-branch" (click)="openAddBranchDialog()">
-										<mat-icon>add</mat-icon>
-										Add Branch
-									</button>
-								</div>
-							</div>
-
-							<div class="branches-grid">
-								@for (branch of branches(); track branch.id || branch.code) {
-								<div class="branch-card" [class.branch-card--primary]="$index === 0">
-									<div class="branch-card__head">
-										<h4>{{ branch.name || 'Unnamed Branch' }}</h4>
-										<span class="branch-card__code">{{ branch.code || '-' }}</span>
-									</div>
-									<p class="branch-card__address">
-										<mat-icon>location_on</mat-icon>
-										{{ branch.physicalAddress || 'Address not provided' }}
-									</p>
-									<div class="branch-card__footer">
-										<div class="branch-card__status" [class.branch-card__status--pending]="$index !== 0">
-											<mat-icon>{{ $index === 0 ? 'check_circle' : 'history' }}</mat-icon>
-											{{ $index === 0 ? 'Verified Primary' : 'Pending Validation' }}
-										</div>
-										<div class="branch-card__actions">
-											<button mat-icon-button title="Edit branch" (click)="openEditBranchDialog(branch)">
-												<mat-icon>edit</mat-icon>
-											</button>
-											<button mat-icon-button class="branch-card__delete" title="Delete branch" (click)="deleteBranch(branch)">
-												<mat-icon>delete</mat-icon>
-											</button>
-										</div>
-									</div>
-								</div>
-								} @empty {
-								<p class="empty-text">No branches available.</p>
-								}
-							</div>
-						</div>
-					</mat-tab>
-
-					<mat-tab label="Individual Client KYC">
-						<div class="tab-content tab-client-requests">
-							@if (organisation().isClient) {
-							<div class="table-head">
-								<h3>Individual Client Requests</h3>
-								<div class="table-head-actions">
-									<span class="live-chip">Live</span>
-									<button
-										mat-flat-button
-										type="button"
-										(click)="openCreateClientRequestDialog(targetEntity.INDIVIDUAL)"
-									>
-										<mat-icon>add</mat-icon>
-										Create Request
-									</button>
-									<input
-										type="file"
-										#individualRequestsUploadInput
-										hidden
-										accept=".xlsx,.xls,.csv"
-										(change)="onIndividualClientRequestFileSelected($event, individualRequestsUploadInput)"
-									/>
-									<button
-										mat-stroked-button
-										type="button"
-										(click)="individualRequestsUploadInput.click()"
-										[disabled]="isUploadingIndividualClientRequestFile()"
-									>
-										<mat-icon>upload_file</mat-icon>
-										{{ isUploadingIndividualClientRequestFile() ? 'Uploading...' : 'Upload Excel' }}
-									</button>
-								</div>
-							</div>
-							<div class="table-responsive">
-								<table
-									mat-table
-									[dataSource]="$any(individualClientRequests().content) || []"
-									class="vault-table"
-								>
-									<ng-container matColumnDef="organisation">
-										<th mat-header-cell *matHeaderCellDef>Name / Registration</th>
-										<td mat-cell *matCellDef="let request">
-											<div class="cell-strong">{{ request.name || '-' }}</div>
-										</td>
-									</ng-container>
-
-									<ng-container matColumnDef="createdAt">
-										<th mat-header-cell *matHeaderCellDef>Email</th>
-										<td mat-cell *matCellDef="let request">{{ request.emailAddress || '-' }}</td>
-									</ng-container>
-
-									<ng-container matColumnDef="status">
-										<th mat-header-cell *matHeaderCellDef>Status</th>
-										<td mat-cell *matCellDef="let request">
-											<span class="table-status" [class.flagged]="request.status === 'FLAGGED'"
-												[class.pending]="request.status !== 'FLAGGED'">
-												{{ request.status || 'Pending' }}
-											</span>
-										</td>
-									</ng-container>
-
-									<tr mat-header-row *matHeaderRowDef="clientRequestsColumns"></tr>
-									<tr mat-row *matRowDef="let row; columns: clientRequestsColumns"></tr>
-								</table>
-							</div>
-
-							<mat-paginator
-								[length]="$any(individualClientRequests().page.totalElements) || $any(individualClientRequests().totalElements) || 0"
-								[pageIndex]="$any(individualClientRequests().page.number) || 0"
-								[pageSize]="$any(individualClientRequests().page.size) || 10"
-								[pageSizeOptions]="[5, 10, 25]"
-								showFirstLastButtons
-								(page)="loadIndividualClientRequests($event.pageIndex, $event.pageSize)"
-							></mat-paginator>
-							} @else {
-							<p class="empty-text">Client requests are available only for client organisations.</p>
-							}
-						</div>
-					</mat-tab>
-
-					<mat-tab label="Corporate Client KYC">
-						<div class="tab-content tab-client-requests">
-							@if (organisation().isClient) {
-							<div class="table-head">
-								<h3>Organisation Client Requests</h3>
-								<div class="table-head-actions">
-									<span class="live-chip">Live</span>
-									<button
-										mat-flat-button
-										type="button"
-										(click)="openCreateClientRequestDialog(targetEntity.ORGANISATION)"
-									>
-										<mat-icon>add</mat-icon>
-										Create Request
-									</button>
-									<input
-										type="file"
-										#organisationRequestsUploadInput
-										hidden
-										accept=".xlsx,.xls,.csv"
-										(change)="onOrganisationClientRequestFileSelected($event, organisationRequestsUploadInput)"
-									/>
-									<button
-										mat-stroked-button
-										type="button"
-										(click)="organisationRequestsUploadInput.click()"
-										[disabled]="isUploadingOrganisationClientRequestFile()"
-									>
-										<mat-icon>upload_file</mat-icon>
-										{{ isUploadingOrganisationClientRequestFile() ? 'Uploading...' : 'Upload Excel' }}
-									</button>
-								</div>
-							</div>
-							<div class="table-responsive">
-								<table
-									mat-table
-									[dataSource]="$any(organisationClientRequests().content) || []"
-									class="vault-table"
-								>
-									<ng-container matColumnDef="organisation">
-										<th mat-header-cell *matHeaderCellDef>Name / Registration</th>
-										<td mat-cell *matCellDef="let request">
-											<div class="cell-strong">{{ request.organisation || '-' }}</div>
-											<div class="cell-sub">{{ request.id || '-' }}</div>
-										</td>
-									</ng-container>
-
-									<ng-container matColumnDef="createdAt">
-										<th mat-header-cell *matHeaderCellDef>Email</th>
-										<td mat-cell *matCellDef="let request">{{ request.createdBy || '-' }}</td>
-									</ng-container>
-
-									<ng-container matColumnDef="status">
-										<th mat-header-cell *matHeaderCellDef>Status</th>
-										<td mat-cell *matCellDef="let request">
-											<span class="table-status" [class.flagged]="request.status === 'FLAGGED'"
-												[class.pending]="request.status !== 'FLAGGED'">
-												{{ request.status || 'Pending' }}
-											</span>
-										</td>
-									</ng-container>
-
-									<tr mat-header-row *matHeaderRowDef="clientRequestsColumns"></tr>
-									<tr mat-row *matRowDef="let row; columns: clientRequestsColumns"></tr>
-								</table>
-							</div>
-
-							<mat-paginator
-								[length]="$any(organisationClientRequests().page.totalElements) || $any(organisationClientRequests().totalElements) || 0"
-								[pageIndex]="$any(organisationClientRequests().page.number) || 0"
-								[pageSize]="$any(organisationClientRequests().page.size) || 10"
-								[pageSizeOptions]="[5, 10, 25]"
-								showFirstLastButtons
-								(page)="loadOrganisationClientRequests($event.pageIndex, $event.pageSize)"
-							></mat-paginator>
-							} @else {
-							<p class="empty-text">Client requests are available only for client organisations.</p>
-							}
-						</div>
-					</mat-tab>
-				</mat-tab-group>
-			</div>
-		</div>
-
-		<!-- Right Column: Contact Info -->
-		<div class="lg:col-span-4">
-			<div class="vault-card">
-				<div class="section-head">
-					<mat-icon class="section-icon">contact_mail</mat-icon>
-					<h2>Contact Information</h2>
 				</div>
+			</mat-tab>
 
-				<ul class="contact-list">
-					<li class="contact-list__item">
-						<mat-icon>mail</mat-icon>
-						<div>
-							<a class="contact-link" [href]="'mailto:' + (organisation().contactEmailAddress || '')">
-								{{ organisation().contactEmailAddress || 'Not available' }}
-							</a>
-							<span class="contact-list__caption">Primary Email</span>
+			<mat-tab>
+				<ng-template mat-tab-label><mat-icon class="tab-icon">corporate_fare</mat-icon><span>Corporate Client KYC</span></ng-template>
+				<div class="tab-content tab-client-requests">
+					@if (organisation().isClient) {
+					<div class="table-head">
+						<h3>Organisation Client Requests</h3>
+						<div class="table-head-actions">
+							<span class="live-chip">Live</span>
+							<button
+								mat-flat-button
+								type="button"
+								(click)="openCreateClientRequestDialog(targetEntity.ORGANISATION)"
+							>
+								<mat-icon>add</mat-icon>
+								Create Request
+							</button>
+							<input
+								type="file"
+								#organisationRequestsUploadInput
+								hidden
+								accept=".xlsx,.xls,.csv"
+								(change)="onOrganisationClientRequestFileSelected($event, organisationRequestsUploadInput)"
+							/>
+							<button
+								mat-stroked-button
+								type="button"
+								(click)="organisationRequestsUploadInput.click()"
+								[disabled]="isUploadingOrganisationClientRequestFile()"
+							>
+								<mat-icon>upload_file</mat-icon>
+								{{ isUploadingOrganisationClientRequestFile() ? 'Uploading...' : 'Upload Excel' }}
+							</button>
 						</div>
-					</li>
+					</div>
+					<div class="table-responsive">
+						<table
+							mat-table
+							[dataSource]="$any(organisationClientRequests().content) || []"
+							class="vault-table"
+						>
+							<ng-container matColumnDef="organisation">
+								<th mat-header-cell *matHeaderCellDef>Name / Registration</th>
+								<td mat-cell *matCellDef="let request">
+									<div class="cell-strong">{{ request.organisation || '-' }}</div>
+									<div class="cell-sub">{{ request.id || '-' }}</div>
+								</td>
+							</ng-container>
 
-					<li class="contact-list__item">
-						<mat-icon>call</mat-icon>
-						<div class="contact-list__phones">
-							@for (phone of organisation().phoneNumbers || []; track phone) {
-							<div class="contact-list__phone-row">
-								<p>{{ $any(phone).phoneNumber }}</p>
-								<span class="contact-list__phone-type">{{ $any(phone).type }}</span>
-							</div>
-							} @empty {
-							<p>Not available</p>
-							}
-							<span class="contact-list__caption">Phone Numbers</span>
-						</div>
-					</li>
+							<ng-container matColumnDef="createdAt">
+								<th mat-header-cell *matHeaderCellDef>Email</th>
+								<td mat-cell *matCellDef="let request">{{ request.createdBy || '-' }}</td>
+							</ng-container>
 
-					<li class="contact-list__item">
-						<mat-icon>apartment</mat-icon>
-						<div>
-							<p class="multiline">{{ organisation().physicalAddress || 'Not available' }}</p>
-							<span class="contact-list__caption">Physical Address</span>
-						</div>
-					</li>
+							<ng-container matColumnDef="status">
+								<th mat-header-cell *matHeaderCellDef>Status</th>
+								<td mat-cell *matCellDef="let request">
+									<span class="table-status" [class.flagged]="request.status === 'FLAGGED'"
+										[class.pending]="request.status !== 'FLAGGED'">
+										{{ request.status || 'Pending' }}
+									</span>
+								</td>
+							</ng-container>
 
-					<li class="contact-list__item">
-						<mat-icon>markunread_mailbox</mat-icon>
-						<div>
-							<p class="multiline contact-list__muted">{{ organisation().postalAddress || 'Same as physical address.' }}</p>
-							<span class="contact-list__caption">Postal Address</span>
-						</div>
-					</li>
-				</ul>
-			</div>
-		</div>
+							<tr mat-header-row *matHeaderRowDef="clientRequestsColumns"></tr>
+							<tr mat-row *matRowDef="let row; columns: clientRequestsColumns"></tr>
+						</table>
+					</div>
+
+					<mat-paginator
+						[length]="$any(organisationClientRequests().page.totalElements) || $any(organisationClientRequests().totalElements) || 0"
+						[pageIndex]="$any(organisationClientRequests().page.number) || 0"
+						[pageSize]="$any(organisationClientRequests().page.size) || 10"
+						[pageSizeOptions]="[5, 10, 25]"
+						showFirstLastButtons
+						(page)="loadOrganisationClientRequests($event.pageIndex, $event.pageSize)"
+					></mat-paginator>
+					} @else {
+					<p class="empty-text">Client requests are available only for client organisations.</p>
+					}
+				</div>
+			</mat-tab>
+		</mat-tab-group>
 	</div>
 
 	<footer class="org-footer">

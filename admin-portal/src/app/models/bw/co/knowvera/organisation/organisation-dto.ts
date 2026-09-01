@@ -8,46 +8,33 @@ import {BranchDTO} from '@models/bw/co/knowvera/organisation/branch/branch-dto';
 import {GeneralStatus} from '@models/bw/co/knowvera/general-status';
 import {PhoneNumber} from '@models/bw/co/knowvera/phone-number';
 import {OrganisationDomain} from '@models/bw/co/knowvera/organisation/organisation-domain';
+import { KycReportSectionDTO } from '../kyc/fields/kyc-report-section-dto';
 
 export class OrganisationDTO extends AuditableDTO {
+
     code: string | any;
-    
     name: string | any;
-    
     description: string | any;
-    
     documents: Array<DocumentListDTO> | any;
-    
     registrationNo: string | any;
-    
     phoneNumbers: Array<PhoneNumber> | any;
-    
     physicalAddress: string | any;
-    
     postalAddress: string | any;
-    
     status: GeneralStatus | any;
-    
     contactEmailAddress: string | any;
-    
-    clientKycDocuments: Array<DocumentTypeDTO> | any;
-    
+    organisationKycDocuments: Array<DocumentTypeDTO> | any;
     isClient: boolean | any = false;
-    
     clientRequestsFiles: Array<DocumentDTO> | any;
-    
     domains: Array<OrganisationDomain> | any;
-    
     kycStatus: KycComplianceStatus | any;
-    
     countryOfRegistration: string | any;
-    
     keycloakId: string | any;
-    
     registrationDate: Date | any;
-    
     branches: Array<BranchDTO> | any;
-    
+    individualKycDocuments: Array<DocumentTypeDTO> | any;
+    individualReportSections: Array<KycReportSectionDTO> | any;
+    organisationReportSections: Array<KycReportSectionDTO> | any;
+
     constructor() {
         super();
         this.code = null;
@@ -60,7 +47,7 @@ export class OrganisationDTO extends AuditableDTO {
         this.postalAddress = null;
         this.status = null;
         this.contactEmailAddress = null;
-        this.clientKycDocuments = [];
+        this.organisationKycDocuments = [];
         this.isClient = false;
         this.clientRequestsFiles = [];
         this.domains = [];
@@ -69,5 +56,8 @@ export class OrganisationDTO extends AuditableDTO {
         this.keycloakId = null;
         this.registrationDate = null;
         this.branches = [];
+        this.individualKycDocuments = [];
+        this.individualReportSections = [];
+        this.organisationReportSections = [];
     }
 }

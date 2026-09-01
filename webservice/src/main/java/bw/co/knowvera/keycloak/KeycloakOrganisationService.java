@@ -91,12 +91,13 @@ public class KeycloakOrganisationService {
                         : List.of());
         if (CollectionUtils.isNotEmpty(organisation.getDocuments()))
             attributes.put("documents", organisation.getDocuments().stream().map(d -> d.id()).toList());
-        if (CollectionUtils.isNotEmpty(organisation.getClientKycDocuments()))
-            attributes.put("clientKycDocuments",
-                    organisation.getClientKycDocuments().stream().map(d -> d.getId()).toList());
-        if (CollectionUtils.isNotEmpty(organisation.getClientRequestsFiles()))
-            attributes.put("clientRequestsFiles",
-                    organisation.getClientRequestsFiles().stream().map(d -> d.getId()).toList());
+        // if (CollectionUtils.isNotEmpty(organisation.getClientKycDocuments()))
+        //     attributes.put("clientKycDocuments",
+        //             organisation.getClientKycDocuments().stream().map(d -> d.getId()).toList());
+
+        // if (CollectionUtils.isNotEmpty(organisation.getClientRequestsFiles()))
+        //     attributes.put("clientRequestsFiles",
+        //             organisation.getClientRequestsFiles().stream().map(d -> d.getId()).toList());
         if (organisation.getIsClient() != null)
             attributes.put("isClient", List.of(organisation.getIsClient().toString()));
         if (CollectionUtils.isNotEmpty(organisation.getPhoneNumbers()))
