@@ -12,7 +12,7 @@ import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/do
 import { ExpectedFieldApiStore } from '@app/store/bw/co/knowvera/document/type/field/expected-field-api.store';
 import { VerificationDataConfigApiStore } from '@app/store/bw/co/knowvera/document/type/verification/verification-data-config-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import {
   DocumentTypeEdit,

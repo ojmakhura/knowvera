@@ -625,7 +625,7 @@ public class KycRecordServiceImpl
     }
 
     @Override
-    protected KycRecordSummary handleFindSummaryById(String id) throws Exception {
+    protected KycRecordSummary handleFindSummaryById(String id, String organisationId) throws Exception {
 
         KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + id));

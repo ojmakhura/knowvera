@@ -25,8 +25,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { Loader } from '@app/@shared/loader/loader';
-import { ToastrService } from 'ngx-toastr';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
@@ -64,7 +62,6 @@ import { LoaderState } from '@app/@shared/loader/loader.state';
   ],
 })
 export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
-  toaster: ToastrService = inject(ToastrService);
   readonly documentApiStore = inject(DocumentApiStore);
   private readonly keycloak = inject(Keycloak);
   loaderState = inject(LoaderState);
@@ -120,11 +117,11 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
-        this.toaster.success(messages[0]);
+        // this.toaster.success(messages[0]);
       }
 
       if (this.error() && !this.loading()) {
-        this.toaster.error(messages[0]);
+        // this.toaster.error(messages[0]);
       }
     });
 
@@ -133,7 +130,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
       const error = this.error();
       console.log('Error state changed:', error);
       if (error) {
-        this.toaster.error(this.messages()[0] || 'An error occurred while processing the document. Please try again.');
+        // this.toaster.error(this.messages()[0] || 'An error occurred while processing the document. Please try again.');
       }
     });
 

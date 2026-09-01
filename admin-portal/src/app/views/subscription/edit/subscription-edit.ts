@@ -21,7 +21,7 @@ import { KycSubscriptionApi } from '@app/services/bw/co/knowvera/subscription/ky
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { KycSubscriptionApiStore } from '@app/store/bw/co/knowvera/subscription/kyc-subscription-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import {provideNativeDateAdapter} from '@angular/material/core';
@@ -70,7 +70,7 @@ export class EditSubscriptionVarsForm {
 export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
 
   organisationApiStore = inject(OrganisationApiStore);
-  toaster: ToastrService = inject(ToastrService);
+  // toaster: ToastrService = inject(ToastrService);
   readonly kycSubscriptionApi = inject(KycSubscriptionApi);
   readonly kycSubscriptionApiStore = inject(KycSubscriptionApiStore);
 

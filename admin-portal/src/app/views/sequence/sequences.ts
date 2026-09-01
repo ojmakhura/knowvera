@@ -13,7 +13,7 @@ import { SequenceGeneratorDTO } from '@app/models/bw/co/knowvera/sequence/sequen
 import { SequencePartDTO } from '@app/models/bw/co/knowvera/sequence/sequence-part-dto';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { SequenceGeneratorApiStore } from '@app/store/bw/co/knowvera/sequence/sequence-generator-api.store';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
 
 export class SearchSequencesVarsForm {
@@ -55,7 +55,7 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
   loadingMessage = linkedSignal(() => this.loading() ? 'Loading sequence generators...' : null);
   success = linkedSignal(() => this.messages()?.length ? this.messages()[0] : null);
 
-  toastr = inject(ToastrService);
+  // toastr = inject(ToastrService);
 
   protected readonly allRows = signal<SequenceGeneratorDTO[]>([]);
   protected readonly rows = signal<SequenceGeneratorDTO[]>([]);
@@ -78,14 +78,14 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       const error = this.error();
       if (error) {
-        this.toastr.error(String(error), 'Error loading sequence generators');
+        // this.toastr.error(String(error), 'Error loading sequence generators');
       }
     });
     
     effect(() => {
       const message = this.success();
       if (message) {
-        this.toastr.success(String(message), 'Success');
+        // this.toastr.success(String(message), 'Success');
       }
     });
   }

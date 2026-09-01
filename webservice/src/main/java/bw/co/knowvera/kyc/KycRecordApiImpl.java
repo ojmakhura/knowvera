@@ -624,11 +624,11 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Find KYC Record Summary by ID", description = "Find a summary of a KYC record by its ID")
     @Audit(entity = "KYC_RECORD", eventLabel = "#id", logData = false)
-    public ResponseEntity<KycRecordSummary> findSummaryById(String id) throws Exception {
+    public ResponseEntity<KycRecordSummary> findSummaryById(String id, @Nullable String organisationId) throws Exception {
 
         logger.debug("Finding KYC record summary by ID: {}", id);
 
-        KycRecordSummary summary = kycRecordService.findSummaryById(id);
+        KycRecordSummary summary = kycRecordService.findSummaryById(id, organisationId);
 
         return ResponseEntity.ok(summary);
     }

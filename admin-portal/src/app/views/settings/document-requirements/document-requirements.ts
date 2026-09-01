@@ -1,7 +1,7 @@
 // views/settings/document-requirements/document-requirements.ts
 import { Component, OnInit, effect, inject, linkedSignal, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { swalFire } from '@app/@shared/swal';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { DocumentTypePurpose } from '@app/models/bw/co/knowvera/settings/document-type-purpose';
@@ -43,7 +43,7 @@ export class DocumentRequirements implements OnInit {
   loaderState = inject(LoaderState);
   private settingsApi = inject(SettingsApi);
   private documentTypeApi = inject(DocumentTypeApi);
-  private toastr = inject(ToastrService);
+  // private // toastr = inject(ToastrService);
 
   loading = linkedSignal(() => this.settingsApiStore.loading());
   loaderMessage = linkedSignal(() => this.settingsApiStore.loaderMessage());
@@ -126,7 +126,7 @@ export class DocumentRequirements implements OnInit {
     const options = this.availableDocumentTypes().filter((doc) => !existingIds.has(doc.id));
 
     if (!options.length) {
-      this.toastr.info('All available document types are already configured here');
+      // this.toastr.info('All available document types are already configured here');
       return;
     }
 
@@ -153,7 +153,7 @@ export class DocumentRequirements implements OnInit {
 
       this.settingsApi.attachDocumentType(result.value as string, category.purpose).subscribe({
         next: () => {
-          this.toastr.success('Document requirement added successfully');
+          // this.toastr.success('Document requirement added successfully');
           if (selectedDoc) {
             this.documentRequirementsSignal.update((value) => ({
               ...value,
@@ -162,9 +162,9 @@ export class DocumentRequirements implements OnInit {
           }
         },
         error: (error) => {
-          this.toastr.error(
-            error?.error?.message || error?.message || 'Unable to add document requirement',
-          );
+          // this.toastr.error(
+          //   error?.error?.message || error?.message || 'Unable to add document requirement',
+          // );
         },
       });
     });
@@ -185,16 +185,16 @@ export class DocumentRequirements implements OnInit {
 
       this.settingsApi.detachDocumentType(doc.id || '', category.purpose).subscribe({
         next: () => {
-          this.toastr.success('Document requirement removed successfully');
+          // this.toastr.success('Document requirement removed successfully');
           this.documentRequirementsSignal.update((value) => ({
             ...value,
             [category.key]: (value[category.key] ?? []).filter((d) => d.id !== doc.id),
           }));
         },
         error: (error) => {
-          this.toastr.error(
-            error?.error?.message || error?.message || 'Unable to remove document requirement',
-          );
+          // this.toastr.error(
+          //   error?.error?.message || error?.message || 'Unable to remove document requirement',
+          // );
         },
       });
     });

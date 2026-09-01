@@ -24,7 +24,7 @@ import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/org
 import { disabled, form, FormField, required } from '@angular/forms/signals';
 import { KycInvoiceDTO } from '@app/models/bw/co/knowvera/invoice/kyc-invoice-dto';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { KycInvoiceApiStore } from '@app/store/bw/co/knowvera/invoice/kyc-invoice-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
@@ -90,7 +90,7 @@ export class InvoiceEdit implements OnInit {
 
   protected route: ActivatedRoute = inject(ActivatedRoute);
   protected router: Router = inject(Router);
-  toaster: ToastrService = inject(ToastrService);
+  // toaster: ToastrService = inject(ToastrService);
   readonly kycInvoiceApiStore = inject(KycInvoiceApiStore);
   protected appEnvState = inject(AppEnvStore);
 
@@ -218,7 +218,7 @@ export class InvoiceEdit implements OnInit {
       }
 
       if (this.kycInvoiceApiStore.error()) {
-        this.toaster.error(this.messages()[0] || 'Failed to save invoice.');
+        // this.toaster.error(this.messages()[0] || 'Failed to save invoice.');
         this.saveRequested.set(false);
         return;
       }
@@ -226,7 +226,7 @@ export class InvoiceEdit implements OnInit {
       const savedInvoice = this.kycInvoiceApiStore.data();
 
       if (savedInvoice?.id) {
-        this.toaster.success(this.messages()[0] || 'Invoice saved successfully.');
+        // this.toaster.success(this.messages()[0] || 'Invoice saved successfully.');
         this.saveRequested.set(false);
 
         if (!this.id && !this.route.snapshot.queryParamMap.get('id')) {
@@ -296,7 +296,7 @@ export class InvoiceEdit implements OnInit {
 
   saveInvoice(): void {
     if (this.editInvoiceSignalForm().invalid()) {
-      this.toaster.error('Complete the required invoice fields before saving.');
+      // this.toaster.error('Complete the required invoice fields before saving.');
       return;
     }
 

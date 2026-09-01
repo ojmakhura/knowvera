@@ -11,6 +11,7 @@ import { OrganisationDTO } from '@app/models/bw/co/knowvera/organisation/organis
 import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
 import { OrganisationApi } from '@app/services/bw/co/knowvera/organisation/organisation-api';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
+import { toast } from 'ngx-sonner';
 
 export type OrganisationApiState = AppState<OrganisationDTO, OrganisationListDTO> & {
   registrationOrganisationLoaded: boolean;
@@ -34,6 +35,7 @@ export const OrganisationApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const organisationApi = inject(OrganisationApi);
+    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -44,25 +46,29 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: OrganisationDTO) => {
+                const message = `Organisation ${response.name} loaded successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Organisation ${response.name} loaded successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred while loading the organisation'],
+                    messages: [message],
                   }
                 );
               },
@@ -76,25 +82,29 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.getAll().pipe(
             tapResponse({
               next: (response: OrganisationListDTO[]) => {
+                const message = `${response.length} organisations loaded successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`${response.length} organisations loaded successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -108,25 +118,29 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<OrganisationListDTO> ) => {
+                const message = `Loaded ${response.page.size} organisations on page ${response.page.number + 1} successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Loaded ${response.page.size} organisations on page ${response.page.number + 1} successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -140,25 +154,29 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.pagedSearch(data.criteria, ).pipe(
             tapResponse({
               next: (response: Page<OrganisationListDTO>) => {
+                const message = `Loaded ${response.page.size} organisations on page ${response.page.number + 1} successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Loaded ${response.page.size} organisations on page ${response.page.number + 1} successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -172,25 +190,29 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean) => {
+                const message = 'Organisation removed successfully!!';
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Organisation removed successfully!!'],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -204,25 +226,29 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.save(data.organisation, ).pipe(
             tapResponse({
               next: (response: OrganisationDTO) => {
+                const message = `Organisation ${response.name} saved successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Organisation ${response.name} saved successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -236,25 +262,29 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: OrganisationListDTO[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -268,26 +298,30 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.loadMyOrganisation().pipe(
             tapResponse({
               next: (response: OrganisationDTO) => {
+                const message = `Loaded my organisation successfully`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Loaded my organisation successfully`],
+                    messages: [message],
                     error: false,
                     registrationOrganisationLoaded: true,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                     registrationOrganisationLoaded: true,
                   }
                 );

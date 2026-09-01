@@ -10,6 +10,7 @@ import { Page } from '@app/models/page.model';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { DocumentTypeApi } from '@app/services/bw/co/knowvera/document/type/document-type-api';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
+import { toast } from 'ngx-sonner';
 
 export type DocumentTypeApiState = AppState<DocumentTypeDTO, DocumentTypeDTO> & {};
 
@@ -30,6 +31,7 @@ export const DocumentTypeApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const documentTypeApi = inject(DocumentTypeApi);
+    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -136,26 +138,29 @@ export const DocumentTypeApiStore = signalStore(
           return documentTypeApi.pagedSearch(data.criteria, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<DocumentTypeDTO>) => {
+                const message = `Page ${response.page.number + 1} of ${response.page.totalPages} document types loaded successfully!!`;
+                toast.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Page ${response.page.number + 1} of ${response.page.totalPages} document types loaded successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
-                console.log('Error in pagedSearch:', error);
+                const message = getErrormessage(error);
+                toast.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },

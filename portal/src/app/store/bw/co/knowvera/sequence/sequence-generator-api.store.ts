@@ -9,6 +9,7 @@ import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { SequenceGeneratorApi } from '@app/services/bw/co/knowvera/sequence/sequence-generator-api';
 import { SequenceGeneratorDTO } from '@app/models/bw/co/knowvera/sequence/sequence-generator-dto';
+import { toast } from 'ngx-sonner';
 
 export type SequenceGeneratorApiState = AppState<SequenceGeneratorDTO, SequenceGeneratorDTO> & {};
 
@@ -29,6 +30,7 @@ export const SequenceGeneratorApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const sequenceGeneratorApi = inject(SequenceGeneratorApi);
+    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -39,25 +41,29 @@ export const SequenceGeneratorApiStore = signalStore(
           return sequenceGeneratorApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: SequenceGeneratorDTO) => {
+                const message = `${response.name} loaded successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`${response.name} loaded successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -71,25 +77,29 @@ export const SequenceGeneratorApiStore = signalStore(
           return sequenceGeneratorApi.findByName(data.name, ).pipe(
             tapResponse({
               next: (response: SequenceGeneratorDTO) => {
+                const message = `${response.name} loaded successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`${response.name} loaded successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -103,25 +113,29 @@ export const SequenceGeneratorApiStore = signalStore(
           return sequenceGeneratorApi.getAll().pipe(
             tapResponse({
               next: (response: SequenceGeneratorDTO[]) => {
+                const message = `${response.length} sequence generators loaded successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`${response.length} sequence generators loaded successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -135,25 +149,29 @@ export const SequenceGeneratorApiStore = signalStore(
           return sequenceGeneratorApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean) => {
+                const message = `Sequence generator removed successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Sequence generator removed successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -167,25 +185,29 @@ export const SequenceGeneratorApiStore = signalStore(
           return sequenceGeneratorApi.save(data.SequenceGeneratorDTO, ).pipe(
             tapResponse({
               next: (response: SequenceGeneratorDTO) => {
+                const message = `Sequence generator "${response.name}" saved successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Sequence generator "${response.name}" saved successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -199,25 +221,29 @@ export const SequenceGeneratorApiStore = signalStore(
           return sequenceGeneratorApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: SequenceGeneratorDTO[]) => {
+                const message = `${response.length} sequence generators loaded successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`${response.length} sequence generators loaded successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },

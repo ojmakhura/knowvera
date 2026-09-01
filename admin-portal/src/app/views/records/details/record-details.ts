@@ -15,7 +15,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { AppEnvStore } from '@app/store/app-env.state';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
@@ -49,7 +49,7 @@ import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/fiel
 export class RecordDetails implements OnInit {
   readonly route = inject(ActivatedRoute);
   readonly router = inject(Router);
-  readonly toaster = inject(ToastrService);
+  // readonly toaster = inject(ToastrService);
   readonly documentApi = inject(DocumentApi);
   readonly kycRecordApiStore = inject(KycRecordApiStore);
   readonly settingsApiStore = inject(SettingsApiStore);
@@ -93,7 +93,7 @@ export class RecordDetails implements OnInit {
 
       if (this.error() && !this.loading() && message && message !== this.lastErrorMessage) {
         this.lastErrorMessage = message;
-        this.toaster.error(message);
+        // this.toaster.error(message);
       }
     });
 
@@ -156,7 +156,7 @@ export class RecordDetails implements OnInit {
     const id = record?.id || this.id;
 
     if (!id) {
-      this.toaster.error('Unable to open document upload without a record id.');
+      // this.toaster.error('Unable to open document upload without a record id.');
       return;
     }
 
@@ -186,13 +186,13 @@ export class RecordDetails implements OnInit {
         .subscribe({
           next: () => {
             this.loading.set(false);
-            this.toaster.success('Document uploaded successfully.');
+            // this.toaster.success('Document uploaded successfully.');
             this.kycRecordApiStore.findById({ id });
           },
           error: (error: any) => {
             this.loading.set(false);
             const message = error?.error?.message || 'Failed to upload document.';
-            this.toaster.error(message);
+            // this.toaster.error(message);
           },
         });
     });
@@ -206,13 +206,13 @@ export class RecordDetails implements OnInit {
     // Download KYC verification statement
     const record = this.record();
     if (!record) {
-      this.toaster.error('No record data available for download.');
+      // this.toaster.error('No record data available for download.');
       return;
     }
 
     // Placeholder for statement download functionality
     const fileName = `KYC_Record_${record.ref || 'report'}.pdf`;
-    this.toaster.info(`Download initiated for ${fileName}`);
+    // this.toaster.info(`Download initiated for ${fileName}`);
   }
 
   recordRef(): string {
@@ -415,7 +415,7 @@ export class RecordDetails implements OnInit {
   downloadDocuments(): void {
     const record = this.record();
     if (!record || !record.documents || record.documents.length === 0) {
-      this.toaster.error('No documents available for download.');
+      // this.toaster.error('No documents available for download.');
       return;
     }
 
@@ -574,12 +574,12 @@ export class RecordDetails implements OnInit {
       return;
     }
 
-    this.toaster.error('No document view is available.');
+    // this.toaster.error('No document view is available.');
   }
 
   openDocumentEdit(document: DocumentDTO | null): void {
     if (!document?.id) {
-      this.toaster.error('This document cannot be edited yet.');
+      // this.toaster.error('This document cannot be edited yet.');
       return;
     }
 
@@ -589,7 +589,7 @@ export class RecordDetails implements OnInit {
   downloadCurrentDocument(): void {
     const document = this.currentDocument();
     if (!document) {
-      this.toaster.error('No document selected to download.');
+      // this.toaster.error('No document selected to download.');
       return;
     }
 
@@ -604,13 +604,15 @@ export class RecordDetails implements OnInit {
         : null;
 
     if (!request) {
-      this.toaster.error('No downloadable file reference was found for this document.');
+      // this.toaster.error('No downloadable file reference was found for this document.');
       return;
     }
 
     request.subscribe({
       next: (blob: Blob) => this.saveBlob(blob, document.fileName || 'document.pdf'),
-      error: () => this.toaster.error('Failed to download document.'),
+      error: () => {
+        // this.toaster.error('Failed to download document.');
+      },
     });
   }
 
@@ -657,7 +659,7 @@ export class RecordDetails implements OnInit {
     const recordId = this.record()?.id || this.id;
 
     if (!recordId) {
-      this.toaster.error('Cannot generate report without a valid record ID.');
+      // this.toaster.error('Cannot generate report without a valid record ID.');
       return;
     }
 

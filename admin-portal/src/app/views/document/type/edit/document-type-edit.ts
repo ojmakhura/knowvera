@@ -36,7 +36,7 @@ import { Loader } from '@app/@shared/loader/loader';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
 import { VerificationDataConfigDTO } from '@app/models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { PromptMessage } from '@app/models/bw/co/knowvera/llm/prompt-message';
 import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
@@ -131,7 +131,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   error = linkedSignal(() => this.documentTypeApiStore.error());
   messages = linkedSignal(() => this.documentTypeApiStore.messages());
 
-  toastr = inject(ToastrService);
+  // toastr = inject(ToastrService);
   dialog = inject(MatDialog);
   expectedFieldApiStore = inject(ExpectedFieldApiStore);
   verificationConfigApiStore = inject(VerificationDataConfigApiStore);
@@ -156,9 +156,9 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
       if (error) {
         console.log('Error messages:', this.messages());
-        this.toastr.error(
-          this.messages()[0] || 'An error occurred while saving the document type.',
-        );
+        // this.toastr.error(
+        //   this.messages()[0] || 'An error occurred while saving the document type.',
+        // );
       }
     });
 
@@ -166,7 +166,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       const success = this.success();
 
       if (success) {
-        this.toastr.success(this.messages()[0] || 'Document type saved successfully.');
+        // this.toastr.success(this.messages()[0] || 'Document type saved successfully.');
       }
     });
   }
@@ -428,13 +428,13 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
           next: (done: boolean) => {
             if (done) {
               this.saveDocumentType();
-              this.toastr.success('Verification data config removed successfully.');
+              // this.toastr.success('Verification data config removed successfully.');
             }
 
             this.loading.set(false);
           },
           error: (error: any) => {
-            this.toastr.error('Failed to remove verification data config.');
+            // this.toastr.error('Failed to remove verification data config.');
             this.loading.set(false);
           },
         });

@@ -6,7 +6,7 @@ import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api'
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { DocumentEdit } from './document-edit';
 

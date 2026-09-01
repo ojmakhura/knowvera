@@ -2,7 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, linkedSignal, OnInit } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
@@ -47,7 +47,7 @@ export class TemplateMappings implements OnInit {
   settingsApiStore = inject(SettingsApiStore);
   documentTypeApiStore = inject(DocumentTypeApiStore);
   private readonly documentApi = inject(DocumentApi);
-  private readonly toastr = inject(ToastrService);
+  // private readonly // toastr = inject(ToastrService);
 
   loading = linkedSignal(() => this.documentTypeApiStore.loading() || this.settingsApiStore.loading());
   loaderMessage = linkedSignal(() => this.documentTypeApiStore.loaderMessage() || this.settingsApiStore.loaderMessage());
@@ -131,7 +131,7 @@ export class TemplateMappings implements OnInit {
     const doc = this.templateMappingsSignal()[card.templateField];
 
     if (!doc?.id) {
-      this.toastr.error('No template document available for download', 'Download Error');
+      // this.toastr.error('No template document available for download', 'Download Error');
       return;
     }
 
@@ -145,7 +145,7 @@ export class TemplateMappings implements OnInit {
         window.URL.revokeObjectURL(url);
       },
       error: (err: any) => {
-        this.toastr.error(err?.error?.message || err?.message || 'Failed to download file', 'Download Error');
+        // this.toastr.error(err?.error?.message || err?.message || 'Failed to download file', 'Download Error');
       },
     });
   }

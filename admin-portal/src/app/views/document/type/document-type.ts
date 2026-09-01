@@ -23,7 +23,8 @@ import { Router } from '@angular/router';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+import { toast } from 'ngx-sonner';
+// import { ToastrService } from 'ngx-toastr';
 
 export class SearchDocumentTypesVarsForm {
   criteria: string | any = null;
@@ -61,7 +62,7 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
   pageSize = signal(10);
   totalElements = signal(0);
   totalPages = signal(0);
-  toaster: ToastrService = inject(ToastrService);
+  protected readonly toast = toast;
 
   protected router: Router = inject(Router);
 
@@ -70,11 +71,11 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
       const messages = this.messages();
 
       if (this.success() && !this.loading() && messages.length) {
-        this.toaster.success(messages[0]);
+        // this.toast.success(messages[0]);
       }
 
       if (this.error() && !this.loading() && messages.length) {
-        this.toaster.error(messages[0]);
+        // this.toaster.error(messages[0]);
       }
     });
 

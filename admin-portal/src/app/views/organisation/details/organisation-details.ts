@@ -39,7 +39,7 @@ import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-ap
 import { BranchFormDialogComponent } from './add-branch-dialog';
 import { swalFire } from '@app/@shared/swal';
 import { Loader } from '@app/@shared/loader/loader';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { CreateClientRequestDialogComponent } from './create-client-request-dialog';
@@ -164,7 +164,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   individualKycDocuments = computed<DocumentTypeDTO[]>(() => this.organisation()?.individualKycDocuments || []);
   organisationKycDocuments = computed<DocumentTypeDTO[]>(() => this.organisation()?.organisationKycDocuments || []);
 
-  toaster: ToastrService = inject(ToastrService);
+  // toaster: ToastrService = inject(ToastrService);
 
   constructor() {
 
@@ -192,11 +192,11 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
-        this.toaster.success(messages[0]);
+        // // this.toaster.success(messages[0]);
       }
 
       if (this.error() && !this.loading()) {
-        this.toaster.error(messages[0]);
+        // // this.toaster.error(messages[0]);
       }
     });
 
@@ -334,7 +334,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   openDocumentDetails(document: DocumentDTO): void {
     if (!document?.id) {
-      this.toaster.warning('Document details are unavailable for unsaved records.');
+      // // this.toaster.warning('Document details are unavailable for unsaved records.');
       return;
     }
 
@@ -343,7 +343,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   openDocumentEdit(document: DocumentDTO): void {
     if (!document?.id) {
-      this.toaster.warning('Cannot edit a document without an id.');
+      // // this.toaster.warning('Cannot edit a document without an id.');
       return;
     }
 
@@ -366,17 +366,17 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     const file = this.selectedDocumentFile();
 
     if (!org?.id) {
-      this.toaster.error('Organisation must be loaded before uploading documents.');
+      // // this.toaster.error('Organisation must be loaded before uploading documents.');
       return;
     }
 
     if (!documentTypeId) {
-      this.toaster.warning('Please provide a document type id.');
+      // // this.toaster.warning('Please provide a document type id.');
       return;
     }
 
     if (!file) {
-      this.toaster.warning('Please choose a file to upload.');
+      // // this.toaster.warning('Please choose a file to upload.');
       return;
     }
 
@@ -387,14 +387,14 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       .pipe(finalize(() => this.isUploadingDocument.set(false)))
       .subscribe({
         next: () => {
-          this.toaster.success('Document uploaded successfully.');
+          // // this.toaster.success('Document uploaded successfully.');
           this.selectedDocumentFile.set(null);
           fileInput.value = '';
           this.organisationApiStore.findById({ id: this.id });
         },
         error: (error: any) => {
-          const message = error?.error?.message || 'Failed to upload document.';
-          this.toaster.error(message);
+          // const message = error?.error?.message || 'Failed to upload document.';
+          // // this.toaster.error(message);
         }
       });
   }
@@ -478,7 +478,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   openSubscriptionDetails(subscription: KycSubscriptionDTO): void {
     if (!subscription?.id) {
-      this.toaster.warning('Subscription details are unavailable for unsaved records.');
+      // this.toaster.warning('Subscription details are unavailable for unsaved records.');
       return;
     }
 
@@ -547,7 +547,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (!this.isSupportedClientRequestFile(file.name)) {
-      this.toaster.warning('Please select a valid Excel or CSV file (.xlsx, .xls, .csv).');
+      // this.toaster.warning('Please select a valid Excel or CSV file (.xlsx, .xls, .csv).');
       fileInput.value = '';
       return;
     }
@@ -560,13 +560,13 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       }))
       .subscribe({
         next: () => {
-          this.toaster.success('Individual client requests uploaded successfully.');
+          // this.toaster.success('Individual client requests uploaded successfully.');
           const page = this.individualClientRequests().page;
           this.loadIndividualClientRequests(page.number || 0, page.size || 10);
         },
         error: (error: any) => {
           const message = error?.error?.message || 'Failed to upload individual client requests.';
-          this.toaster.error(message);
+          // this.toaster.error(message);
         }
       });
   }
@@ -580,7 +580,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (!this.isSupportedClientRequestFile(file.name)) {
-      this.toaster.warning('Please select a valid Excel or CSV file (.xlsx, .xls, .csv).');
+      // this.toaster.warning('Please select a valid Excel or CSV file (.xlsx, .xls, .csv).');
       fileInput.value = '';
       return;
     }
@@ -593,13 +593,13 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       }))
       .subscribe({
         next: () => {
-          this.toaster.success('Organisation client requests uploaded successfully.');
+          // this.toaster.success('Organisation client requests uploaded successfully.');
           const page = this.organisationClientRequests().page;
           this.loadOrganisationClientRequests(page.number || 0, page.size || 10);
         },
         error: (error: any) => {
           const message = error?.error?.message || 'Failed to upload organisation client requests.';
-          this.toaster.error(message);
+          // this.toaster.error(message);
         }
       });
   }
@@ -612,7 +612,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     const organisation = this.organisation();
 
     if (!this.id) {
-      this.toaster.warning('Organisation must be loaded before creating a client request.');
+      // this.toaster.warning('Organisation must be loaded before creating a client request.');
       return;
     }
 
@@ -669,7 +669,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
       this.clientRequestApi.save(clientRequest).subscribe({
         next: (savedRequest) => {
-          this.toaster.success('Client request created successfully.');
+          // this.toaster.success('Client request created successfully.');
           this.doSearchRequests(this.clientRequestsCurrentPage(), this.clientRequestsPageSize());
 
           if (target === TargetEntity.INDIVIDUAL && individual) {
@@ -690,7 +690,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
         },
         error: (error: any) => {
           const message = error?.error?.message || 'Failed to create client request.';
-          this.toaster.error(message);
+          // this.toaster.error(message);
         }
       });
 

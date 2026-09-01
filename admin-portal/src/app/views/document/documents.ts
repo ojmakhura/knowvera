@@ -34,7 +34,7 @@ import { SearchObject } from '@app/models/search-object';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
-import { ToastrService } from 'ngx-toastr';
+import { toast } from 'ngx-sonner';
 import { Loader } from '@app/@shared/loader/loader';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
@@ -82,7 +82,7 @@ export class Documents implements OnInit {
   readonly documentApiStore = inject(DocumentApiStore);
   readonly documentTypeApiStore = inject(DocumentTypeApiStore);
   private readonly documentApi = inject(DocumentApi);
-  private readonly toaster = inject(ToastrService);
+  // protected readonly toast = toast;
   protected readonly rows = signal<DocumentListDTO[]>([]);
   protected readonly dataSource = new MatTableDataSource<DocumentListDTO>([]);
   protected readonly currentPage = signal(0);
@@ -99,7 +99,6 @@ export class Documents implements OnInit {
     this.documentTypeApiStore.dataList(),
   );
 
-  protected readonly toastr = inject(ToastrService);
   protected readonly targetOptions = Object.values(TargetEntity);
   protected readonly statusOptions = Object.values(DocumentVerificationStatus);
 
@@ -126,26 +125,10 @@ export class Documents implements OnInit {
       }));
     });
 
-    effect(() => {
-      let error = this.error();
-
-      if(error) {
-        console.error('Error state changed:', error, this.messages());
-        this.toastr.error(this.messages()[0] || 'An error occurred while fetching documents.');
-      }
-    });
-
-    effect(() => {
-      let success = this.success();
-      
-      if(success) {
-        console.log('Success state changed:', success, this.messages());
-        this.toastr.success(this.messages()[0] || 'Documents fetched successfully.');
-      }
-    });
   }
 
   ngOnInit(): void {
+    // toast.info('Documents view initialized');
     this.documentTypeApiStore.getAll();
     this.doSearch();
   }
@@ -206,13 +189,15 @@ export class Documents implements OnInit {
         : null;
 
     if (!request) {
-      this.toaster.error('No downloadable file reference was found for this document.');
+      // this.toast.error('No downloadable file reference was found for this document.');
       return;
     }
 
     request.subscribe({
       next: (blob: Blob) => this.saveBlob(blob, this.downloadFileNameOf(row)),
-      error: () => this.toaster.error('Failed to download document.'),
+      error: () => {
+        // this.toast.error('Failed to download document.');
+      },
     });
   }
 

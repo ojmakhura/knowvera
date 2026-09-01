@@ -20,7 +20,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { IndividualIdentityType } from '@app/models/bw/co/knowvera/individual/individual-identity-type';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
@@ -69,7 +69,7 @@ export class SearchRecordsVarsForm {
 export class Records implements OnInit {
   private readonly kycRecordApiStore = inject(KycRecordApiStore);
   private readonly router = inject(Router);
-  private readonly toaster = inject(ToastrService);
+  // private readonly // toaster = inject(ToastrService);
 
   readonly searchRecordsSignal = signal(new SearchRecordsVarsForm());
   readonly dataSource = new MatTableDataSource<KycRecordDTO>([]);
@@ -134,13 +134,13 @@ export class Records implements OnInit {
 
       if (this.kycRecordApiStore.error()) {
         this.pendingDeleteId.set(null);
-        this.toaster.error(this.kycRecordApiStore.messages()?.[0] || 'Failed to delete record.');
+        // this.toaster.error(this.kycRecordApiStore.messages()?.[0] || 'Failed to delete record.');
         return;
       }
 
       if (this.kycRecordApiStore.success()) {
         this.pendingDeleteId.set(null);
-        this.toaster.success('Record deleted successfully.');
+        // this.toaster.success('Record deleted successfully.');
         this.doSearch(this.currentPage(), this.pageSize());
       }
     });
@@ -253,7 +253,7 @@ export class Records implements OnInit {
 
   deleteRecord(row: KycRecordDTO): void {
     if (!row?.id) {
-      this.toaster.warning('Cannot delete a record without an id.');
+      // this.toaster.warning('Cannot delete a record without an id.');
       return;
     }
 

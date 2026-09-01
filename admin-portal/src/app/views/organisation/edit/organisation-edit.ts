@@ -24,7 +24,7 @@ import { PhoneType } from '@app/models/bw/co/knowvera/phone-type';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { swalFire } from '@app/@shared/swal';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 
 export class EditOrganisationVarsForm {
   id: string | any = null;
@@ -109,7 +109,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
 
   organisationApiStore = inject(OrganisationApiStore);
   router = inject(Router);
-  toaster = inject(ToastrService);
+  // toaster = inject(ToastrService);
 
   loaderMessage = linkedSignal(() => 'Loading...');
   messages = linkedSignal(() => this.organisationApiStore.messages());
@@ -134,11 +134,11 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
-        this.toaster.success(messages[0]);
+        // this.toaster.success(messages[0]);
       }
 
       if (this.error() && !this.loading()) {
-        this.toaster.error(messages[0]);
+        // this.toaster.error(messages[0]);
       }
     });
   }

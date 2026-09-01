@@ -27,7 +27,7 @@ import { SearchObject } from '@app/models/search-object';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
 
 interface FilterOption {
@@ -64,7 +64,7 @@ export class Organisations implements OnInit, OnDestroy {
   searchOrganisationsSignal = signal(this.searchOrganisationsVarsForm);
   searchOrganisationsSignalForm = form(this.searchOrganisationsSignal, (path) => {});
 
-  toaster: ToastrService = inject(ToastrService);
+  // toaster: ToastrService = inject(ToastrService);
   readonly organisationApiStore = inject(OrganisationApiStore);
   loaderMessage: Signal<string> = signal('');
   messages = linkedSignal(() => this.organisationApiStore.messages());
@@ -133,11 +133,11 @@ export class Organisations implements OnInit, OnDestroy {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
-        this.toaster.success(messages[0]);
+        // this.toaster.success(messages[0]);
       }
 
       if (this.error() && !this.loading()) {
-        this.toaster.error(messages[0]);
+        // this.toaster.error(messages[0]);
       }
     });
 
@@ -300,7 +300,7 @@ export class Organisations implements OnInit, OnDestroy {
     const rows = this.filteredOrganisations();
 
     if (!rows.length) {
-      this.toaster.info('There are no organisations to export.');
+      // this.toaster.info('There are no organisations to export.');
       return;
     }
 

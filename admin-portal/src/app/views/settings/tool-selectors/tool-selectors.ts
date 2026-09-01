@@ -1,7 +1,7 @@
 // views/settings/tool-selectors/tool-selectors.ts
 import { Component, computed, effect, inject, linkedSignal, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { swalFire } from '@app/@shared/swal';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 import { SettingsToolSelectors } from '@app/models/bw/co/knowvera/settings/settings-tool-selectors';
@@ -45,7 +45,7 @@ const TOOL_META: Record<string, { name: string; icon: string }> = {
 export class ToolSelectors implements OnInit {
   settingsApiStore = inject(SettingsApiStore);
   loaderState = inject(LoaderState);
-  private toastr = inject(ToastrService);
+  // private // toastr = inject(ToastrService);
 
   loading = linkedSignal(() => this.settingsApiStore.loading());
   loaderMessage = linkedSignal(() => this.settingsApiStore.loaderMessage());
@@ -121,7 +121,7 @@ export class ToolSelectors implements OnInit {
   async addTool(): Promise<void> {
     const options = this.availableTools();
     if (!options.length) {
-      this.toastr.info('All available tools are already configured for this stage');
+      // this.toastr.info('All available tools are already configured for this stage');
       return;
     }
 

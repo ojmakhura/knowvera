@@ -41,7 +41,7 @@ import { provideQuillConfig } from 'ngx-quill';
 import { AppEnvStore } from './store/app-env.state';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { App } from './app';
-import { provideToastr } from 'ngx-toastr';
+// import { provideToastr } from 'ngx-toastr';
 
 export class CustomTranslateLoader implements TranslateLoader {
   constructor(private http: HttpClient) {}
@@ -156,18 +156,18 @@ export const initialiseApp = async () => {
         ]),
       ),
       provideNativeDateAdapter(),
-      provideToastr({
-        timeOut: 3000,
-        positionClass: 'toast-top-right',
-        preventDuplicates: true,
-        progressBar: true,
-        closeButton: true,
-        newestOnTop: true,
-        enableHtml: true,
-        tapToDismiss: true,
-        maxOpened: 5,
-        autoDismiss: true,
-      }),
+      // provideToastr({
+      //   timeOut: 3000,
+      //   positionClass: 'toast-top-right',
+      //   preventDuplicates: true,
+      //   progressBar: true,
+      //   closeButton: true,
+      //   newestOnTop: true,
+      //   enableHtml: true,
+      //   tapToDismiss: true,
+      //   maxOpened: 5,
+      //   autoDismiss: true,
+      // }),
       importProvidersFrom(
         TranslateModule.forRoot({
           defaultLanguage: 'en',

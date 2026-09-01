@@ -2,7 +2,7 @@
 import { Component, computed, effect, inject, linkedSignal, OnInit, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { swalFire } from '@app/@shared/swal';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
@@ -32,7 +32,7 @@ type FieldGroupsKey = 'organisationKycFieldGroups' | 'individualKycFieldGroups';
 export class FieldGroups implements OnInit {
   settingsApiStore = inject(SettingsApiStore);
   private dialog = inject(MatDialog);
-  private toastr = inject(ToastrService);
+  // private // toastr = inject(ToastrService);
   private kycFieldGroupApi = inject(KycFieldGroupApi);
   private expectedFieldApi = inject(ExpectedFieldApi);
 
@@ -116,43 +116,43 @@ export class FieldGroups implements OnInit {
   }
 
   createGroup(): void {
-    this.openGroupDialog(this.currentTargetType());
+    // this.openGroupDialog(this.currentTargetType());
   }
 
   editGroup(group: KycFieldGroupDTO): void {
-    this.openGroupDialog(this.currentTargetType(), group);
+    // this.openGroupDialog(this.currentTargetType(), group);
   }
 
   deleteGroup(group: KycFieldGroupDTO): void {
-    const key = this.currentKey();
+    // const key = this.currentKey();
 
-    swalFire({
-      title: 'Delete field group?',
-      text: `This will remove the field group "${group.label || 'Field Group'}" and all its fields.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      cancelButtonText: 'Cancel',
-    }).then((result) => {
-      if (!result.isConfirmed) {
-        return;
-      }
+    // swalFire({
+    //   title: 'Delete field group?',
+    //   text: `This will remove the field group "${group.label || 'Field Group'}" and all its fields.`,
+    //   icon: 'warning',
+    //   showCancelButton: true,
+    //   confirmButtonText: 'Delete',
+    //   cancelButtonText: 'Cancel',
+    // }).then((result) => {
+    //   if (!result.isConfirmed) {
+    //     return;
+    //   }
 
-      this.kycFieldGroupApi.remove(group.id || '').subscribe({
-        next: () => {
-          this.toastr.success('Field group removed successfully');
-          this.fieldGroupsSignal.update((value) => ({
-            ...value,
-            [key]: (value[key] ?? []).filter((g) => g.id !== group.id),
-          }));
-        },
-        error: (error) => {
-          this.toastr.error(
-            error?.error?.message || error?.message || 'Unable to remove field group',
-          );
-        },
-      });
-    });
+    //   this.kycFieldGroupApi.remove(group.id || '').subscribe({
+    //     next: () => {
+    //       // this.toastr.success('Field group removed successfully');
+    //       this.fieldGroupsSignal.update((value) => ({
+    //         ...value,
+    //         [key]: (value[key] ?? []).filter((g) => g.id !== group.id),
+    //       }));
+    //     },
+    //     error: (error) => {
+    //       // this.toastr.error(
+    //         error?.error?.message || error?.message || 'Unable to remove field group',
+    //       );
+    //     },
+    //   });
+    // });
   }
 
   removeGroupField(group: KycFieldGroupDTO, groupField: GroupFieldDTO): void {
@@ -170,11 +170,11 @@ export class FieldGroups implements OnInit {
 
       this.kycFieldGroupApi.removeField(group.id || '', groupField.id || '').subscribe({
         next: (updated) => {
-          this.toastr.success('Field removed successfully');
+          // this.toastr.success('Field removed successfully');
           this.replaceGroup(group, updated);
         },
         error: (error) => {
-          this.toastr.error(error?.error?.message || error?.message || 'Unable to remove field');
+          // this.toastr.error(error?.error?.message || error?.message || 'Unable to remove field');
         },
       });
     });
@@ -222,11 +222,11 @@ export class FieldGroups implements OnInit {
 
         this.kycFieldGroupApi.save(result).subscribe({
           next: (savedGroup) => {
-            this.toastr.success(
-              editingGroup
-                ? 'Field group updated successfully'
-                : 'Field group created successfully',
-            );
+            // this.toastr.success(
+            //   editingGroup
+            //     ? 'Field group updated successfully'
+            //     : 'Field group created successfully',
+            // );
             if (editingGroup) {
               this.replaceGroup(editingGroup, savedGroup);
             } else {
@@ -237,9 +237,9 @@ export class FieldGroups implements OnInit {
             }
           },
           error: (error) => {
-            this.toastr.error(
-              error?.error?.message || error?.message || 'Unable to save field group',
-            );
+            // this.toastr.error(
+            //   error?.error?.message || error?.message || 'Unable to save field group',
+            // );
           },
         });
       });

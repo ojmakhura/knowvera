@@ -6,7 +6,6 @@ import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api'
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { Documents, SearchDocumentsVarsForm } from './documents';
 
@@ -71,7 +70,6 @@ describe('Documents', () => {
         { provide: DocumentTypeApiStore, useValue: documentTypeApiStoreMock },
         { provide: DocumentApi, useValue: documentApiMock },
         { provide: Router, useValue: routerMock },
-        { provide: ToastrService, useValue: toastrMock },
       ],
     }).compileComponents();
 

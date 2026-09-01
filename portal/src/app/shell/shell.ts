@@ -4,8 +4,10 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import Keycloak from 'keycloak-js';
+import { toast, NgxSonnerToaster } from 'ngx-sonner';
 
 import { AppEnvStore } from '@app/store/app-env.state';
+import { Loader } from '@app/@shared/loader/loader';
 
 interface NavigationItem {
   label: string;
@@ -16,16 +18,16 @@ interface NavigationItem {
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, MatMenuModule, MatDividerModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, MatMenuModule, MatDividerModule, NgxSonnerToaster, Loader],
   templateUrl: './shell.html',
   styleUrls: ['./shell.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Shell {
   protected readonly appEnvState = inject(AppEnvStore);
   protected readonly profile = this.appEnvState.profile;
 
   private readonly keycloak = inject(Keycloak);
+  protected readonly toast = toast;
 
   protected readonly isLoggedIn = computed(() => this.appEnvState.isLoggedIn());
   protected readonly displayName = computed(() => {

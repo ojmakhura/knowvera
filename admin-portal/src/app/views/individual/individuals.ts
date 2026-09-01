@@ -13,6 +13,7 @@ import { IndividualListDTO } from '@app/models/bw/co/knowvera/individual/individ
 import { IndividualSearchCriteria } from '@app/models/bw/co/knowvera/individual/individual-search-criteria';
 import { SearchObject } from '@app/models/search-object';
 import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
+import { toast } from 'ngx-sonner';
 
 export class SearchIndividualsVarsForm {
   identityNo: string = '';
@@ -50,6 +51,8 @@ export class Individuals implements OnInit {
   success = linkedSignal(() => this.individualApiStore.success());
   loading = linkedSignal(() => this.individualApiStore.loading());
   error = linkedSignal(() => this.individualApiStore.error());
+    protected readonly toast = toast;
+  
 
   displayedColumns: string[] = ['name', 'identityNo', 'email', 'status', 'actions'];
   protected readonly kycStatusOptions = [

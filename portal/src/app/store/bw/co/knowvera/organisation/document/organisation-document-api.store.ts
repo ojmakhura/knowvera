@@ -11,6 +11,7 @@ import { OrganisationDocumentDTO } from '@models/bw/co/knowvera/organisation/doc
 import { OrganisationDocumentApi } from '@services/bw/co/knowvera/organisation/document/organisation-document-api';
 import { OrganisationDocumentStatus } from '@app/models/bw/co/knowvera/organisation/document/organisation-document-status';
 import { OrganisationDocumentSearchCriteria } from '@app/models/bw/co/knowvera/organisation/document/organisation-document-search-criteria';
+import { toast } from 'ngx-sonner';
 
 export type OrganisationDocumentApiState = AppState<any, any> & {};
 
@@ -31,6 +32,7 @@ export const OrganisationDocumentApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const organisationDocumentApi = inject(OrganisationDocumentApi);
+    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -41,25 +43,29 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: OrganisationDocumentDTO | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store, 
                   {
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -73,25 +79,29 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.findByOrganisation(data.organisationId, ).pipe(
             tapResponse({
               next: (response: OrganisationDocumentDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -105,25 +115,29 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.findByOrganisationPaged(data.organisationId, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<OrganisationDocumentDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataPage: response,
                     loading: false, 
                     success: true, 
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -137,25 +151,29 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.findByStatus(data.status, ).pipe(
             tapResponse({
               next: (response: OrganisationDocumentDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -169,25 +187,29 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.findByStatusPaged(data.status, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<OrganisationDocumentDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataPage: response,
                     loading: false, 
                     success: true, 
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -201,25 +223,29 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.getAll().pipe(
             tapResponse({
               next: (response: OrganisationDocumentDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -233,25 +259,29 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<OrganisationDocumentDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataPage: response,
                     loading: false, 
                     success: true, 
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -265,25 +295,29 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.pagedSearch(data.criteria, ).pipe(
             tapResponse({
               next: (response: Page<OrganisationDocumentDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataPage: response,
                     loading: false, 
                     success: true, 
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -297,25 +331,29 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store, 
                   {
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -329,25 +367,29 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.save(data.clientRequest, ).pipe(
             tapResponse({
               next: (response: OrganisationDocumentDTO | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store, 
                   {
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -361,25 +403,29 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: OrganisationDocumentDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
                     loading: false, 
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },

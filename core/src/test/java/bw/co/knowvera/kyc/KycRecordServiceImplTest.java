@@ -584,7 +584,7 @@ class KycRecordServiceImplTest {
         when(kycRecordMapper.toKycRecordSummary(record)).thenReturn(summary);
         when(individualRepository.findById(ownerId)).thenReturn(Optional.of(individual));
 
-        KycRecordSummary result = service.findSummaryById(recordId.toString());
+        KycRecordSummary result = service.findSummaryById(recordId.toString(), null);
 
         assertSame(summary, result);
         verify(summary).setIdentityNo("ID-SUM");
@@ -644,7 +644,7 @@ class KycRecordServiceImplTest {
         assertThrows(IllegalArgumentException.class, () -> service.removeRecordFile(UUID.randomUUID().toString(), " "));
         assertThrows(IllegalArgumentException.class, () -> service.updateRecordFiles(null, List.of()));
         assertThrows(IllegalArgumentException.class, () -> service.updateRecordFiles(UUID.randomUUID().toString(), null));
-        assertThrows(IllegalArgumentException.class, () -> service.findSummaryById(null));
+        assertThrows(IllegalArgumentException.class, () -> service.findSummaryById(null, null));
         assertThrows(IllegalArgumentException.class, () -> service.runVerification(null, "checker"));
         assertThrows(IllegalArgumentException.class, () -> service.runVerification(UUID.randomUUID().toString(), " "));
         assertThrows(IllegalArgumentException.class, () -> service.generateKycReport(null, "reporter"));

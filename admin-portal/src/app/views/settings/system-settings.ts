@@ -16,7 +16,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { forkJoin } from 'rxjs';
-import { ToastrService } from 'ngx-toastr';
 import { swalFire } from '@app/@shared/swal';
 
 import { Loader } from '@app/@shared/loader/loader';
@@ -44,6 +43,7 @@ import { Tool } from '@app/models/bw/co/knowvera/settings/tool';
 import { AddToolSelectorDialog } from './add-tool-selector-dialog/add-tool-selector-dialog';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { MatButtonToggleGroup, MatButtonToggleModule } from '@angular/material/button-toggle';
+import { toast } from 'ngx-sonner';
 
 export class EditSettingsVarsForm {
   id: string | any = null;
@@ -135,7 +135,6 @@ type ToolSelectorTarget =
 })
 export class SystemSettings {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly toastr = inject(ToastrService);
   private readonly settingsApiStore = inject(SettingsApiStore);
   private readonly documentTypeApi = inject(DocumentTypeApi);
   private readonly documentApi = inject(DocumentApi);
@@ -149,6 +148,7 @@ export class SystemSettings {
   readonly documentTypePurpose = DocumentTypePurpose;
   readonly targetEntity = TargetEntity;
   readonly toolOptions = Object.values(Tool);
+  protected readonly toast = toast;
 
   readonly salaryRangeColumns = ['label', 'min', 'max', 'active', 'actions'];
   documentFilter = '';
@@ -219,20 +219,6 @@ export class SystemSettings {
       );
     });
 
-    effect(() => {
-      const error = this.error();
-
-      if (error) {
-        this.toastr.error(this.messages()[0], 'Error');
-      }
-    });
-
-    effect(() => {
-      const success = this.success();
-      if (success) {
-        this.toastr.success(this.messages()[0], 'Success');
-      }
-    });
   }
 
   ngOnInit(): void {
@@ -253,7 +239,7 @@ export class SystemSettings {
 
   saveSettings(): void {
     if (this.editSettingsSignalForm().invalid()) {
-      this.toastr.error('Complete the required settings fields before saving.');
+      toast.error('Complete the required settings fields before saving.');
       return;
     }
 
@@ -354,7 +340,7 @@ export class SystemSettings {
         },
         error: () => {
           this.resourceLoading.set(false);
-          this.toastr.error('Unable to load settings reference data.');
+          toast.error('Unable to load settings reference data.');
         },
       });
   }
@@ -545,10 +531,10 @@ export class SystemSettings {
               }
               return { ...value, individualKycFieldGroups: groups };
             });
-            this.toastr.success('Field group updated successfully');
+            toast.success('Field group updated successfully');
           },
           error: (error) => {
-            this.toastr.error(error?.error?.message || error?.message || 'Unable to remove field from group');
+            toast.error(error?.error?.message || error?.message || 'Unable to remove field from group');
           }
         });
       }
@@ -663,7 +649,7 @@ export class SystemSettings {
         setOptions(this.uniqueExpectedFields(fields || []));
       },
       error: (error) => {
-        this.toastr.error(error?.error?.message || error?.message || 'Unable to load expected fields');
+        toast.error(error?.error?.message || error?.message || 'Unable to load expected fields');
         setOptions([]);
       },
     });
@@ -927,7 +913,7 @@ export class SystemSettings {
         this.loading.set(false);
       },
       (error) => {
-        this.toastr.error(error.error?.message ? error.error.message : error.message);
+        toast.error(error.error?.message ? error.error.message : error.message);
         this.loading.set(false);
       }
     );
@@ -943,7 +929,7 @@ export class SystemSettings {
         this.loading.set(false);
       },
       (error) => {
-        this.toastr.error(error.error?.message ? error.error.message : error.message);
+        toast.error(error.error?.message ? error.error.message : error.message);
         this.loading.set(false);
       }
     );
@@ -959,7 +945,7 @@ export class SystemSettings {
         this.loading.set(false);
       },
       (error) => {
-        this.toastr.error(error.error?.message ? error.error.message : error.message);
+        toast.error(error.error?.message ? error.error.message : error.message);
         this.loading.set(false);
       }
     );
@@ -975,7 +961,7 @@ export class SystemSettings {
         this.loading.set(false);
       },
       (error) => {
-        this.toastr.error(error.error?.message ? error.error.message : error.message);
+        toast.error(error.error?.message ? error.error.message : error.message);
         this.loading.set(false);
       }
     );
@@ -991,7 +977,7 @@ export class SystemSettings {
         this.loading.set(false);
       },
       (error) => {
-        this.toastr.error(error.error?.message ? error.error.message : error.message);
+        toast.error(error.error?.message ? error.error.message : error.message);
         this.loading.set(false);
       }
     );
@@ -1007,7 +993,7 @@ export class SystemSettings {
         this.loading.set(false);
       },
       (error) => {
-        this.toastr.error(error.error?.message ? error.error.message : error.message);
+        toast.error(error.error?.message ? error.error.message : error.message);
         this.loading.set(false);
       }
     );
@@ -1023,7 +1009,7 @@ export class SystemSettings {
         this.loading.set(false);
       },
       (error) => {
-        this.toastr.error(error.error?.message ? error.error.message : error.message);
+        toast.error(error.error?.message ? error.error.message : error.message);
         this.loading.set(false);
       }
     );
@@ -1039,7 +1025,7 @@ export class SystemSettings {
         this.loading.set(false);
       },
       (error) => {
-        this.toastr.error(error.error?.message ? error.error.message : error.message);
+        toast.error(error.error?.message ? error.error.message : error.message);
         this.loading.set(false);
       }
     );
@@ -1055,7 +1041,7 @@ export class SystemSettings {
         this.loading.set(false);
       },
       (error) => {
-        this.toastr.error(error.error?.message ? error.error.message : error.message);
+        toast.error(error.error?.message ? error.error.message : error.message);
         this.loading.set(false);
       }
     );
@@ -1110,7 +1096,7 @@ export class SystemSettings {
         : this.editSettingsSignal().quotationTemplate?.id;
 
     if (!docId) {
-      this.toastr.error('No template document available for download', 'Download Error');
+      toast.error('No template document available for download');
       return;
     }
 
@@ -1132,7 +1118,7 @@ export class SystemSettings {
         window.URL.revokeObjectURL(url); // clean up
       },
       error: (err: any) => {
-        this.toastr.error(err.message || 'Failed to download file', 'Download Error');
+        toast.error(err.message || 'Failed to download file');
       },
       complete: () => {
         // this.isDownloading.set('');
@@ -1163,10 +1149,10 @@ export class SystemSettings {
               ...value,
               individualKycFieldGroups: [...(value.individualKycFieldGroups || []), savedGroup]
             }));
-            this.toastr.success('Field group created successfully');
+            toast.success('Field group created successfully');
           },
           error: (error) => {
-            this.toastr.error(error?.error?.message || error?.message || 'Failed to create field group');
+            toast.error(error?.error?.message || error?.message || 'Failed to create field group');
           }
         });
       }
@@ -1199,10 +1185,10 @@ export class SystemSettings {
               }
               return { ...value, individualKycFieldGroups: groups };
             });
-            this.toastr.success('Field group updated successfully');
+            toast.success('Field group updated successfully');
           },
           error: (error) => {
-            this.toastr.error(error?.error?.message || error?.message || 'Failed to update field group');
+            toast.error(error?.error?.message || error?.message || 'Failed to update field group');
           }
         });
 
@@ -1228,7 +1214,7 @@ export class SystemSettings {
 
         this.kycFieldGroupApi.remove(group.id || '').subscribe({
           next: () => {
-            this.toastr.success('Field group removed successfully');
+            toast.success('Field group removed successfully');
 
             if (!isOrg) {
               this.editSettingsSignal.update((value) => ({
@@ -1243,7 +1229,7 @@ export class SystemSettings {
             }
           },
           error: (error) => {
-            this.toastr.error(error?.error?.message || error?.message || 'Failed to remove field group');
+            toast.error(error?.error?.message || error?.message || 'Failed to remove field group');
           }
         });
       }
@@ -1272,10 +1258,10 @@ export class SystemSettings {
               ...value,
               organisationKycFieldGroups: [...(value.organisationKycFieldGroups || []), savedGroup]
             }));
-            this.toastr.success('Field group created successfully');
+            toast.success('Field group created successfully');
           },
           error: (error) => {
-            this.toastr.error(error?.error?.message || error?.message || 'Failed to create field group');
+            toast.error(error?.error?.message || error?.message || 'Failed to create field group');
           }
         });
       }
@@ -1307,10 +1293,10 @@ export class SystemSettings {
               }
               return { ...value, organisationKycFieldGroups: groups };
             });
-            this.toastr.success('Field group updated successfully');
+            // this.toastr.success('Field group updated successfully');
           },
           error: (error) => {
-            this.toastr.error(error?.error?.message || error?.message || 'Failed to update field group');
+            // this.toastr.error(error?.error?.message || error?.message || 'Failed to update field group');
           }
         });
       }

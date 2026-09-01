@@ -17,7 +17,7 @@ import { SequencePartType } from '@app/models/bw/co/knowvera/sequence/sequence-p
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { SequenceGeneratorApiStore } from '@app/store/bw/co/knowvera/sequence/sequence-generator-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
 
 
@@ -85,7 +85,7 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
 
   saving = false;
 
-  toastr = inject(ToastrService);
+  // toastr = inject(ToastrService);
 
   constructor() {
 
@@ -110,14 +110,14 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       const error = this.error();
       if (error) {
-        this.toastr.error(this.messages()[0], 'Error ');
+        // this.toastr.error(this.messages()[0], 'Error ');
       }
     });
 
     effect(() => {
       const success = this.success();
       if (success) {
-        this.toastr.success(this.messages()[0], 'Success');
+        // this.toastr.success(this.messages()[0], 'Success');
       }
     });
   }

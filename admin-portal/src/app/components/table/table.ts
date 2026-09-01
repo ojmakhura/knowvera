@@ -55,7 +55,7 @@ export class TableComponent<T> implements OnInit, OnDestroy, AfterViewInit {
   @Input() selectionFilter: any;
 
   dataSource = new MatTableDataSource<T>([]);
-  @ViewChild('tablePaginator', { static: true }) tablePaginator: MatPaginator = new MatPaginator(null!, null!);
+  @ViewChild('tablePaginator', { static: true }) tablePaginator: MatPaginator = new MatPaginator();
   @ViewChild('tableSort', { static: true }) tableSort: MatSort = new MatSort();
   @ViewChild('dataTable') dataTable?: MatTable<T>;
   totalElements = 0;

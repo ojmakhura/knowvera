@@ -98,4 +98,11 @@ public class KycReportSectionServiceImpl
         return kycReportSectionMapper.toKycReportSectionDTO(section);
     }
 
+    @Override
+    protected KycReportSectionDTO handleRemoveFieldValue(String id, String fieldValueId) throws Exception {
+
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'handleRemoveFieldValue'");
+    }
+
 }

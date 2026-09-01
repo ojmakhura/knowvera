@@ -21,7 +21,7 @@ import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individ
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { IndividualIdentityType } from '@app/models/bw/co/knowvera/individual/individual-identity-type';
 import { ClientRequestDTO } from '@app/models/bw/co/knowvera/organisation/client/client-request-dto';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { SearchObject } from '@app/models/search-object';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
 import { IndividualSearchCriteria } from '@app/models/bw/co/knowvera/individual/individual-search-criteria';
@@ -131,7 +131,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
   IndividualIdentityTypeT: any = IndividualIdentityType;
   IndividualIdentityTypeOptions = Object.keys(this.IndividualIdentityTypeT);
 
-  toastr = inject(ToastrService);
+  // toastr = inject(ToastrService);
 
   constructor() {
     effect(() => {
@@ -144,11 +144,11 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
-        this.toastr.success(messages[0]);
+        // this.toastr.success(messages[0]);
       }
 
       if (this.error() && !this.loading()) {
-        this.toastr.error(messages[0]);
+        // this.toastr.error(messages[0]);
       }
     })
 

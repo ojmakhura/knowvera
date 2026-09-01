@@ -22,7 +22,7 @@ import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individ
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { swalFire } from '@app/@shared/swal';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
 import {
   IndividualUploadDocumentDialogComponent,
@@ -49,7 +49,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
   readonly documentApi = inject(DocumentApi);
   readonly dialog = inject(MatDialog);
   readonly router = inject(Router);
-  readonly toaster = inject(ToastrService);
+  // readonly toaster = inject(ToastrService);
 
   settings = linkedSignal(() => this.settingsApiStore.data());
 
@@ -170,7 +170,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
 
   openDocumentDetails(document: DocumentDTO): void {
     if (!document?.id) {
-      this.toaster.warning('Document details are unavailable for unsaved records.');
+      // this.toaster.warning('Document details are unavailable for unsaved records.');
       return;
     }
 
@@ -179,7 +179,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
 
   openDocumentEdit(document: DocumentDTO): void {
     if (!document?.id) {
-      this.toaster.warning('Cannot edit a document without an id.');
+      // this.toaster.warning('Cannot edit a document without an id.');
       return;
     }
 
@@ -188,7 +188,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
 
   deleteDocument(document: DocumentDTO): void {
     if (!document?.id) {
-      this.toaster.warning('Cannot delete a document without an id.');
+      // this.toaster.warning('Cannot delete a document without an id.');
       return;
     }
 
@@ -207,7 +207,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
 
       this.documentApi.remove(document.id).subscribe({
         next: () => {
-          this.toaster.success('Document deleted successfully.');
+          // this.toaster.success('Document deleted successfully.');
 
           this.individual.update((current) => {
             const nextDocuments = (current.latestKyc?.documents || []).filter((doc: DocumentDTO) => doc.id !== document.id);
@@ -221,7 +221,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
         },
         error: (error: any) => {
           const message = error?.error?.message || 'Failed to delete document.';
-          this.toaster.error(message);
+          // this.toaster.error(message);
         },
       });
     });
@@ -232,7 +232,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
     const targetId = individual.id || this.id;
 
     if (!targetId) {
-      this.toaster.warning('Cannot add a document until the individual record has been loaded.');
+      // this.toaster.warning('Cannot add a document until the individual record has been loaded.');
       return;
     }
 
@@ -255,12 +255,12 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
         .subscribe({
           next: () => {
             this.loading.set(false);
-            this.toaster.success('Document uploaded successfully.');
+            // this.toaster.success('Document uploaded successfully.');
             this.individualApiStore.findById({ id: targetId });
           },
           error: (error: any) => {
             const message = error?.error?.message || 'Failed to upload document.';
-            this.toaster.error(message);
+            // this.toaster.error(message);
           },
         });
     });
