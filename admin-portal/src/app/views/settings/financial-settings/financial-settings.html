@@ -6,12 +6,12 @@
       <p class="settings-page__subtitle">Manage fiscal parameters, thresholds, and tax rates.</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-outline" (click)="discard()">Discard Changes</button>
-      <button class="btn btn-action-primary" (click)="save()">Save Configuration</button>
+      <button type="button" class="btn btn-outline" (click)="discard()">Discard Changes</button>
+      <button type="button" class="btn btn-action-primary" (click)="save()">Save Configuration</button>
     </div>
   </header>
 
-  @if (error() && messages().length) {
+  <!-- @if (error() && messages().length) {
     <div class="error-banner" role="alert">
       <mat-icon>error</mat-icon>
       <ul>
@@ -28,8 +28,8 @@
           <li>{{ message }}</li>
         }
       </ul>
-    </div>
-  }
+    </div> -->
+  <!-- } -->
 
   <div class="financial-layout">
     <div class="settings-card salary-card">
@@ -38,7 +38,7 @@
           <mat-icon>account_balance_wallet</mat-icon>
           Salary Range Management
         </h3>
-        <button class="btn btn-outline btn-outline--sm" (click)="openAddSalaryRangeDialog()">
+        <button type="button" class="btn btn-outline btn-outline--sm" (click)="openAddSalaryRangeDialog()">
           <mat-icon class="me-1">add</mat-icon>
           Add New Range
         </button>
@@ -69,7 +69,12 @@
                   </span>
                 </td>
                 <td class="salary-table__actions">
-                  <button (click)="openEditSalaryRangeDialog(range, i)" title="Edit range">
+                  <button
+                    type="button"
+                    (click)="openEditSalaryRangeDialog(range, i)"
+                    title="Edit range"
+                    aria-label="Edit salary range"
+                  >
                     <mat-icon>more_vert</mat-icon>
                   </button>
                 </td>
@@ -92,9 +97,10 @@
         </h3>
 
         <div class="field">
-          <span class="field__label">Standard Rate (%)</span>
+          <label class="field__label" for="standard-vat-rate">Standard Rate (%)</label>
           <div class="field--suffixed">
             <input
+              id="standard-vat-rate"
               class="field__input"
               type="number"
               step="0.01"
@@ -104,10 +110,11 @@
           </div>
         </div>
 
-        <!-- <div class="field" style="margin-top: 16px;">
-          <span class="field__label">Reduced Rate (%)</span>
+        <div class="field" style="margin-top: 16px;">
+          <label class="field__label" for="reduced-vat-rate">Reduced Rate (%)</label>
           <div class="field--suffixed">
             <input
+              id="reduced-vat-rate"
               class="field__input"
               type="number"
               step="0.01"
@@ -117,10 +124,10 @@
             <span>%</span>
           </div>
           <span class="field__hint">Applied to qualifying essential services.</span>
-        </div> -->
+        </div>
       </div>
 
-      <!-- <div class="settings-card financial-sidebar__threshold-card">
+      <div class="settings-card financial-sidebar__threshold-card">
         <h3 class="settings-card__title">
           <mat-icon>rule</mat-icon>
           Request Thresholds
@@ -130,10 +137,11 @@
         </p>
 
         <div class="field">
-          <span class="field__label">Auto-Approval Max Value</span>
+          <label class="field__label" for="auto-approval-max">Auto-Approval Max Value</label>
           <div class="field--prefixed">
             <span>$</span>
             <input
+              id="auto-approval-max"
               class="field__input"
               type="text"
               [value]="autoApprovalMax() | number: '1.2-2'"
@@ -149,7 +157,7 @@
             for compliance review.
           </span>
         </div>
-      </div> -->
+      </div>
     </div>
   </div>
 </section>

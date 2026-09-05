@@ -2,7 +2,7 @@
 <section class="settings-page">
   <header class="settings-page__header">
     <div>
-      <h2 class="settings-page__title">Tool Selectors</h2>
+      <h2 class="settings-page__title">Pipeline Text Controls</h2>
       <p class="settings-page__subtitle">Manage and sequence text processing tools across the KYC document pipeline.</p>
     </div>
   </header>
@@ -36,7 +36,6 @@
         (click)="activeCategory.set(cat.key)"
       >
         {{ cat.label }}
-        <span class="tabs__count">{{ categoryCount(cat.key) }}</span>
       </button>
     }
   </div>
@@ -44,10 +43,9 @@
   <div class="settings-card pipeline-card">
     <div class="pipeline-card__header">
       <div>
-        <h3 class="settings-card__title" style="margin-bottom: 4px;">
+        <h3 class="settings-card__title">
           {{ activeCategoryLabel() }} Tools Sequence
         </h3>
-        <p class="pipeline-card__hint">Reorder with the arrows below. The tool in position 1 runs first.</p>
       </div>
       <button class="btn btn-action-primary" type="button" (click)="addTool()">
         <mat-icon class="me-1">add</mat-icon>
@@ -78,7 +76,7 @@
               </td>
               <td class="pipeline-table__actions">
                 <div class="row-actions">
-                  <button type="button" [disabled]="i === 0" (click)="moveUp(i)" title="Move up">
+                  <button type="button" [disabled]="i === 0" (click)="moveUp(i)" title="Move up" aria-label="Move up">
                     <mat-icon>arrow_upward</mat-icon>
                   </button>
                   <button
@@ -86,6 +84,7 @@
                     [disabled]="i === activeTools().length - 1"
                     (click)="moveDown(i)"
                     title="Move down"
+                    aria-label="Move down"
                   >
                     <mat-icon>arrow_downward</mat-icon>
                   </button>
@@ -94,6 +93,7 @@
                     class="row-actions__danger"
                     (click)="removeTool(tool)"
                     title="Remove"
+                    aria-label="Remove tool"
                   >
                     <mat-icon>delete</mat-icon>
                   </button>

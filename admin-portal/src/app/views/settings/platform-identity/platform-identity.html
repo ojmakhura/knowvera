@@ -5,33 +5,14 @@
       <h2 class="settings-page__title">Platform Identity</h2>
       <p class="settings-page__subtitle">Branding, URLs, and support contact for this instance.</p>
     </div>
-    <button class="btn btn-action-primary" (click)="save()">
-      <mat-icon class="me-1">save</mat-icon>
-      Save Configuration
-    </button>
   </header>
 
-  @if (error() && messages().length) {
-    <div class="error-banner" role="alert">
-      <mat-icon>error</mat-icon>
-      <ul>
-        @for (message of messages(); track message) {
-          <li>{{ message }}</li>
-        }
-      </ul>
-    </div>
-  } @else if (success() && messages().length) {
-    <div class="success-banner" role="status">
-      <mat-icon>check_circle</mat-icon>
-      <ul>
-        @for (message of messages(); track message) {
-          <li>{{ message }}</li>
-        }
-      </ul>
-    </div>
-  }
-
   <form class="settings-card">
+    <div class="settings-card__header">
+      <mat-icon>branding_watermark</mat-icon>
+      <h3 class="settings-card__title">Platform Identity</h3>
+    </div>
+
     <div class="settings-card__grid">
       <label class="field">
         <span class="field__label">Platform Name</span>
@@ -55,6 +36,13 @@
           <span class="field__error">Enter a valid email address</span>
         } -->
       </label>
+    </div>
+
+    <div class="settings-card__actions">
+      <button type="button" class="btn btn-action-primary" (click)="save()">
+        <mat-icon class="me-1">save</mat-icon>
+        Save Configuration
+      </button>
     </div>
   </form>
 </section>

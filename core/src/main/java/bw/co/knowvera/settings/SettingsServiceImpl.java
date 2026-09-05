@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -536,6 +537,42 @@ public class SettingsServiceImpl
             settings.setModifiedBy(settingsToolSelectors.getUser());
         }
 
+        if (CollectionUtils.isNotEmpty(settingsToolSelectors.getTextExtractionTools())) {
+            List<ToolSelector> textTools = settingsToolSelectors.getTextExtractionTools()
+                    .stream()
+                    .map(toolSelectorMapper::toolSelectorDTOToEntity)
+                    .collect(Collectors.toList());
+
+            settings.setTextExtractionTools(textTools);
+        }
+
+        if (CollectionUtils.isNotEmpty(settingsToolSelectors.getDocumentConfirmationTools())) {
+            List<ToolSelector> confirmationTools = settingsToolSelectors.getDocumentConfirmationTools()
+                    .stream()
+                    .map(toolSelectorMapper::toolSelectorDTOToEntity)
+                    .collect(Collectors.toList());
+
+            settings.setDocumentConfirmationTools(confirmationTools);
+        }
+
+        if (CollectionUtils.isNotEmpty(settingsToolSelectors.getTextCleanupTools())) {
+            List<ToolSelector> cleanupTools = settingsToolSelectors.getTextCleanupTools()
+                    .stream()
+                    .map(toolSelectorMapper::toolSelectorDTOToEntity)
+                    .collect(Collectors.toList());
+
+            settings.setTextCleanupTools(cleanupTools);
+        }
+
+        if (CollectionUtils.isNotEmpty(settingsToolSelectors.getTextProcessingTools())) {
+            List<ToolSelector> processingTools = settingsToolSelectors.getTextProcessingTools()
+                    .stream()
+                    .map(toolSelectorMapper::toolSelectorDTOToEntity)
+                    .collect(Collectors.toList());
+
+            settings.setTextProcessingTools(processingTools);
+        }
+
         settings = settingsRepository.saveAndFlush(settings);
 
         return getSettingsToolSelectors();
@@ -562,7 +599,8 @@ public class SettingsServiceImpl
                     documentTypeMapper.documentTypeDTOToEntity(templateMappings.getInvoiceTemplateType()));
         }
 
-        if(templateMappings.getInvoiceTemplate() != null && StringUtils.isNotBlank(templateMappings.getInvoiceTemplate().getId())) {
+        if (templateMappings.getInvoiceTemplate() != null
+                && StringUtils.isNotBlank(templateMappings.getInvoiceTemplate().getId())) {
             settings.setInvoiceTemplate(
                     documentMapper.documentDTOToEntity(templateMappings.getInvoiceTemplate()));
         }
@@ -585,7 +623,8 @@ public class SettingsServiceImpl
                     documentTypeMapper.documentTypeDTOToEntity(templateMappings.getQuotationDocumentType()));
         }
 
-        if( templateMappings.getQuotationTemplate() != null && StringUtils.isNotBlank(templateMappings.getQuotationTemplate().getId())) {
+        if (templateMappings.getQuotationTemplate() != null
+                && StringUtils.isNotBlank(templateMappings.getQuotationTemplate().getId())) {
             settings.setQuotationTemplate(
                     documentMapper.documentDTOToEntity(templateMappings.getQuotationTemplate()));
         }

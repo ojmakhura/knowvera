@@ -13,6 +13,7 @@ import {
   withInterceptors,
   withInterceptorsFromDi,
   HttpClient,
+  withXhr,
 } from '@angular/common/http';
 import {
   MAT_DATE_FORMATS,
@@ -147,7 +148,8 @@ export const initialiseApp = async () => {
       provideKeycloakAndInterceptor(env),
       provideRouter(routes, withComponentInputBinding()),
       provideHttpClient(
-        withFetch(),
+        // withFetch(),
+        withXhr(),
         withInterceptorsFromDi(),
         withInterceptors([
           apiPrefixInterceptor,
@@ -156,18 +158,6 @@ export const initialiseApp = async () => {
         ]),
       ),
       provideNativeDateAdapter(),
-      // provideToastr({
-      //   timeOut: 3000,
-      //   positionClass: 'toast-top-right',
-      //   preventDuplicates: true,
-      //   progressBar: true,
-      //   closeButton: true,
-      //   newestOnTop: true,
-      //   enableHtml: true,
-      //   tapToDismiss: true,
-      //   maxOpened: 5,
-      //   autoDismiss: true,
-      // }),
       importProvidersFrom(
         TranslateModule.forRoot({
           defaultLanguage: 'en',
