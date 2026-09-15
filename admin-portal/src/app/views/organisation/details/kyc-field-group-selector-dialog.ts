@@ -47,97 +47,8 @@ interface KycFieldGroupSelectionState {
     MatListModule,
     MatIconModule,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <h2 mat-dialog-title>Select Field Group</h2>
-
-    <mat-dialog-content>
-      <div class="dialog-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Field Group</mat-label>
-          <mat-select
-            [formField]="selectionForm.group"
-          >
-            @for (group of data.groups || []; track group.id) {
-              <mat-option [value]="group.id">{{ group.label || 'Untitled Group' }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        @if (selectedGroupData(); as group) {
-          <div class="fields-section">
-            <div class="fields-head">
-              <span>Fields</span>
-              <button mat-button type="button" (click)="toggleSelectAll()">
-                {{ allFieldsSelected() ? 'Deselect All' : 'Select All' }}
-              </button>
-            </div>
-
-            <mat-selection-list [multiple]="true">
-              @for (field of group.groupFields || []; track field.id || field.fieldId) {
-                <mat-list-option
-                  [selected]="isFieldSelected(field)"
-                  (click)="toggleField(field)"
-                >
-                  {{ field.field || field.fieldId || 'Unknown Field' }}
-                </mat-list-option>
-              } @empty {
-                <p class="empty-text">This group has no fields.</p>
-              }
-            </mat-selection-list>
-          </div>
-        } @else {
-          <p class="empty-text">Select a field group to choose its fields.</p>
-        }
-      </div>
-    </mat-dialog-content>
-
-    <mat-dialog-actions align="end">
-      <button mat-stroked-button type="button" (click)="onCancel()">Cancel</button>
-      <button
-        mat-flat-button
-        color="primary"
-        type="button"
-        [disabled]="!selectedGroup() || !selectedFields().length"
-        (click)="onApply()"
-      >
-        Apply
-      </button>
-    </mat-dialog-actions>
-  `,
-  styles: [
-    `
-      mat-dialog-content {
-        min-width: 420px;
-      }
-      .dialog-form {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        padding-top: 8px;
-      }
-      .full-width {
-        width: 100%;
-      }
-      mat-form-field {
-        width: 100%;
-      }
-      .fields-section {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-      .fields-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .empty-text {
-        color: rgba(0, 0, 0, 0.6);
-        font-size: 0.9rem;
-      }
-    `,
-  ],
+  templateUrl: './kyc-field-group-selector-dialog.html',
+  styleUrls: ['./kyc-field-group-selector-dialog.scss'],
 })
 export class KycFieldGroupSelectorDialogComponent {
   private dialogRef = inject(
@@ -153,22 +64,25 @@ export class KycFieldGroupSelectorDialogComponent {
   });
   selectionForm = form(this.selectionModel);
 
-  selectedGroup = computed(() => this.selectionModel().groupId);
-  selectedFields = computed(() => this.selectionModel().fieldIds);
+  selectedGroup = computed(() => this.selectionModel().group);
+  selectedFields = computed(() => this.selectionModel().fields);
 
   selectedGroupData = computed<KycFieldGroupDTO | undefined>(() =>
-    (this.data.groups || []).find((group) => group.id === this.selectedGroup())
+    (this.data.groups || []).find((group) => group.id === this.selectedGroup()?.id)
   );
 
   allFieldsSelected = computed<boolean>(() => {
     const group = this.selectedGroupData();
-    const fieldIds = (group?.groupFields || []).map((field: any) => field.id || field.fieldId);
+    const fields = (group?.groupFields || []);
 
-    return fieldIds.length > 0 && fieldIds.every((id: string) => this.selectedFields().includes(id));
+    return fields.length > 0 && fields.every((field: any) => this.selectedFields().includes(field.id || field.fieldId));
   });
 
   onGroupChange(groupId: string): void {
-    this.selectionModel.update((selection) => ({ ...selection, groupId, fieldIds: [] }));
+    this.selectionModel.update((selection) => {
+      const group = this.data?.groups?.find((g) => g.id === groupId) || null;
+      return { ...selection, groupId, group, fieldIds: [] };
+    });
   }
 
   isFieldSelected(field: any): boolean {
@@ -177,12 +91,16 @@ export class KycFieldGroupSelectorDialogComponent {
 
   toggleField(field: any): void {
     const fieldId = field.id || field.fieldId;
+    console.log(field);
 
     this.selectionModel.update((selection) => ({
       ...selection,
       fieldIds: selection.fieldIds.includes(fieldId)
         ? selection.fieldIds.filter((id) => id !== fieldId)
         : [...selection.fieldIds, fieldId],
+      fields: selection.fields.includes(fieldId)
+        ? selection.fields.filter((f) => (f.id || f.fieldId) !== fieldId)
+        : [...selection.fields, field],
     }));
   }
 
@@ -193,6 +111,7 @@ export class KycFieldGroupSelectorDialogComponent {
     this.selectionModel.update((selection) => ({
       ...selection,
       fieldIds: this.allFieldsSelected() ? [] : fieldIds,
+      fields: this.allFieldsSelected() ? [] : (this.selectedGroupData()?.groupFields || []),
     }));
   }
 
@@ -201,10 +120,10 @@ export class KycFieldGroupSelectorDialogComponent {
   }
 
   onApply(): void {
-    const groupId = this.selectedGroup();
+    const group = this.selectedGroup();
 
-    if (!groupId || !this.selectedFields().length) return;
+    if (!group || !this.selectedFields().length) return;
 
-    this.dialogRef.close({ groupId, fieldIds: this.selectedFields() });
+    this.dialogRef.close({ ...group, groupFields: this.selectedFields() });
   }
 }

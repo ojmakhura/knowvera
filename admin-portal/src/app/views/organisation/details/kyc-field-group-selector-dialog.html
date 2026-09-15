@@ -1,0 +1,50 @@
+<h2 mat-dialog-title>Select Field Group</h2>
+
+<mat-dialog-content>
+  <div class="dialog-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Field Group</mat-label>
+      <mat-select [formField]="selectionForm.group">
+        @for (group of data.groups || []; track group.id) {
+          <mat-option [value]="group">{{ group.label || 'Untitled Group' }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (selectedGroupData(); as group) {
+      <div class="fields-section">
+        <div class="fields-head">
+          <span>Fields</span>
+          <button mat-button type="button" (click)="toggleSelectAll()">
+            {{ allFieldsSelected() ? 'Deselect All' : 'Select All' }}
+          </button>
+        </div>
+
+        <mat-selection-list [multiple]="true">
+          @for (field of group.groupFields || []; track field.id || field.fieldId) {
+            <mat-list-option [selected]="isFieldSelected(field)" (click)="toggleField(field)">
+              {{ field.field || field.fieldId || 'Unknown Field' }}
+            </mat-list-option>
+          } @empty {
+            <p class="empty-text">This group has no fields.</p>
+          }
+        </mat-selection-list>
+      </div>
+    } @else {
+      <p class="empty-text">Select a field group to choose its fields.</p>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="onCancel()">Cancel</button>
+  <button
+    mat-flat-button
+    color="primary"
+    type="button"
+    [disabled]="!selectedGroup() || !selectedFields().length"
+    (click)="onApply()"
+  >
+    Apply
+  </button>
+</mat-dialog-actions>

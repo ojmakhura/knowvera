@@ -167,10 +167,10 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     [...(this.organisation()?.organisationReportSections || [])].sort((a: KycReportSectionDTO, b: KycReportSectionDTO) => (a.position ?? 0) - (b.position ?? 0))
   );
   selectedOrganisationReportSections = computed<KycReportSectionDTO[]>(() => {
-    const selectedGroupIds = this.selectedOrganisationKycGroupIds();
+    const selectedGroup = this.selectedOrganisationKycGroup();
     const selectedFieldIds = this.selectedOrganisationKycFieldIds();
 
-    if (!selectedGroupIds.length && !selectedFieldIds.length) {
+    if (!selectedGroup.length && !selectedFieldIds.length) {
       return this.organisationReportSections();
     }
 
@@ -178,8 +178,8 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       .map((section) => ({
         ...section,
         fieldValues: (section.fieldValues || []).filter((fieldValue: any) => {
-          const matchesGroup = selectedGroupIds.length
-            ? selectedGroupIds.includes(fieldValue.fieldGroupId)
+          const matchesGroup = selectedGroup.length
+            ? selectedGroup.includes(fieldValue.fieldGroupId)
             : true;
           const matchesField = selectedFieldIds.length
             ? selectedFieldIds.includes(fieldValue.fieldId)
@@ -193,7 +193,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   individualKycDocuments = computed<DocumentTypeDTO[]>(() => this.organisation()?.individualKycDocuments || []);
   organisationKycDocuments = computed<DocumentTypeDTO[]>(() => this.organisation()?.organisationKycDocuments || []);
   organisationKycGroupSelectorOpen = signal(false);
-  selectedOrganisationKycGroupIds = signal<string[]>([]);
+  selectedOrganisationKycGroup = signal<KycFieldGroupDTO[]>([]);
   selectedOrganisationKycFieldIds = signal<string[]>([]);
 
   toggleOrganisationKycGroupSelector(): void {
@@ -201,33 +201,31 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   isOrganisationKycGroupSelected(groupId: string): boolean {
-    return this.selectedOrganisationKycGroupIds().includes(groupId);
+    return this.selectedOrganisationKycGroup().some((group) => group.id === groupId);
   }
 
   toggleOrganisationKycGroup(groupId: string): void {
-    this.selectedOrganisationKycGroupIds.update((selectedIds) =>
-      selectedIds.includes(groupId)
-        ? selectedIds.filter((id) => id !== groupId)
-        : [...selectedIds, groupId]
+    this.selectedOrganisationKycGroup.update((selectedGroups) =>
+      selectedGroups.some((group) => group.id === groupId)
+        ? selectedGroups.filter((group) => group.id !== groupId)
+        : [...selectedGroups, { id: groupId } as KycFieldGroupDTO]
     );
   }
 
   selectAllOrganisationKycGroups(): void {
-    this.selectedOrganisationKycGroupIds.set(
-      (this.settings()?.organisationKycFieldGroups || [])
-        .map((group: any) => group.id)
-        .filter((id: string | null | undefined): id is string => !!id)
+    this.selectedOrganisationKycGroup.set(
+      (this.settings()?.organisationKycFieldGroups || []).map((group: any) => group)
     );
   }
 
   clearOrganisationKycFieldGroupFilter(): void {
-    this.selectedOrganisationKycGroupIds.set([]);
+    this.selectedOrganisationKycGroup.set([]);
     this.selectedOrganisationKycFieldIds.set([]);
   }
 
   openOrganisationKycFieldGroupDialog(): void {
     const groups = this.settings()?.organisationKycFieldGroups || [];
-    const selectedGroupIds = this.selectedOrganisationKycGroupIds();
+    const selectedGroupIds = this.selectedOrganisationKycGroup();
 
     const ref = this.dialog.open(KycFieldGroupSelectorDialogComponent, {
       data: {
@@ -242,8 +240,8 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       if (!result) return;
       
       console.log(result);
-      // this.selectedOrganisationKycGroupIds.set([result.groupId]);
-      // this.selectedOrganisationKycFieldIds.set(result.fieldIds);
+      this.selectedOrganisationKycGroup.set([result.group]);
+      this.selectedOrganisationKycFieldIds.set(result.fieldIds);
     });
   }
 
