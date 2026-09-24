@@ -6,12 +6,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   linkedSignal,
@@ -19,7 +19,7 @@ import {
   signal,
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { InvoiceSearchCriteria } from '@app/models/bw/co/knowvera/invoice/invoice-search-criteria';
 import { KycInvoiceDTO } from '@app/models/bw/co/knowvera/invoice/kyc-invoice-dto';
 import { SearchObject } from '@app/models/search-object';
@@ -31,6 +31,7 @@ import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/org
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TranslateModule } from '@ngx-translate/core';
 import { AppEnvStore } from '@app/store/app-env.state';
+import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
 
 export class SearchInvoicesVarsForm {
   ref: string | any = null;
@@ -46,12 +47,12 @@ export class SearchInvoicesVarsForm {
   styleUrls: ['./invoices.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     CommonModule,
     FormsModule,
     MatIconModule,
     MatCardModule,
     MatTableModule,
-    MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -117,8 +118,19 @@ export class Invoices implements OnInit {
     this.doSearch();
   }
 
-  handlePageEvent(e: PageEvent) {
-    this.doSearch(e.pageIndex, e.pageSize);
+  readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+  readonly pageNumbers = computed(() => pageWindow(this.currentPage(), this.totalPages()));
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= Math.max(this.totalPages(), 1) || page === this.currentPage()) {
+      return;
+    }
+    this.doSearch(page, this.pageSize());
+  }
+
+  changePageSize(size: string | number): void {
+    this.pageSize.set(Number(size));
+    this.doSearch(0, Number(size));
   }
 
   resetSearch(): void {
@@ -207,20 +219,11 @@ export class Invoices implements OnInit {
   }
 
   showingLabel(): string {
-    return `Showing ${this.totalElements()} results`;
+    return showingRecordsLabel(this.currentPage(), this.pageSize(), this.rows().length, this.totalElements());
   }
 
   pageReport(): string {
-    const total = this.totalElements();
-
-    if (!total) {
-      return 'No invoice records available';
-    }
-
-    const start = this.currentPage() * this.pageSize() + 1;
-    const end = Math.min(total, start + this.rows().length - 1);
-
-    return `Displaying ${start}-${end} of ${total} records`;
+    return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
   }
 
   trackByInvoice(_: number, row: KycInvoiceDTO): string {

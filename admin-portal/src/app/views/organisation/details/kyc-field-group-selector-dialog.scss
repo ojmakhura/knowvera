@@ -1,3 +1,4 @@
+@use 'shared/standard';
 mat-dialog-content {
   min-width: 420px;
 }
@@ -27,3 +28,5 @@ mat-form-field {
   color: rgba(0, 0, 0, 0.6);
   font-size: 0.9rem;
 }
+
+@include standard.vocabulary((fields,));

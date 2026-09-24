@@ -1,3 +1,5 @@
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -42,6 +44,8 @@ import { LoaderState } from '@app/@shared/loader/loader.state';
   styleUrls: ['./document-details.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    MatProgressBarModule,
+    RouterLink,
     CommonModule,
     FormsModule,
     MatCardModule,
@@ -184,6 +188,21 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
         return 'pending_actions';
       default:
         return 'radio_button_unchecked';
+    }
+  }
+
+  /** Shared details-page tone (dp-pill is-*) for a verification status. */
+  statusTone(status: string | null | undefined): string {
+    switch (status) {
+      case 'VERIFIED':
+        return 'is-success';
+      case 'REJECTED':
+        return 'is-danger';
+      case 'MANUAL_REVIEW':
+      case 'IN_PROGRESS':
+        return 'is-warning';
+      default:
+        return '';
     }
   }
 

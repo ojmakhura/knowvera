@@ -1,464 +1,418 @@
-<section class="record-edit-page">
-  <header class="page-header">
-    <div class="page-title-group">
-      <div class="title-mark">
-        <mat-icon>edit_document</mat-icon>
-        <span>Knowvera KYC</span>
-      </div>
-      <h1>{{ editRecordSignal().id ? 'Update KYC Record' : 'Create KYC Record' }}</h1>
-    </div>
+<div class="kv-page">
 
-    <div class="header-actions">
-      <button mat-stroked-button type="button" class="secondary-action" (click)="cancel()">
-        <mat-icon>close</mat-icon>
-        <span translate>reset</span>
-      </button>
-      <button mat-flat-button type="button" class="primary-action"
-         (click)="saveRecord()">
-        <mat-icon>save</mat-icon>
-        <span translate>save</span>
-      </button>
+  <!-- Header -->
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/records">KYC Records</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">{{ editRecordSignal().id ? 'Edit' : 'Create' }}</span>
+    </nav>
+
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">{{ editRecordSignal().id ? 'Edit KYC Record' : 'New KYC Record' }}</h1>
+        <p class="kv-subtitle">Ref {{ editRecordSignal().ref || 'New record' }}</p>
+      </div>
+      <div class="kv-actions">
+        <button type="button" class="kv-btn-secondary" (click)="cancel()">Cancel</button>
+        <button type="button" class="kv-btn-primary" (click)="saveRecord()">
+          <mat-icon>save</mat-icon>
+          Save Changes
+        </button>
+      </div>
     </div>
   </header>
 
-  <div class="page-shell">
-    <mat-card class="vault-card">
-      <mat-card-content>
-        <div class="section-heading">
-          <mat-icon>fingerprint</mat-icon>
-          <h2 translate>Record Information</h2>
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+
+    <!-- Main column -->
+    <div class="md:col-span-8 flex flex-col gap-6">
+
+      <!-- Record Information -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">fingerprint</mat-icon>
+          <h2 class="kv-card-title">Record Information</h2>
         </div>
 
-        <!-- Entity Type Selector -->
-        @if(!editRecordSignal().id) {
-        <div class="field-group margin-bottom">
-          <label class="field-label">Entity Type</label>
-          <div class="entity-toggle">
-            <button (click)="setTarget(TargetEntity.INDIVIDUAL)" type="button"
-              [class.is-active]="editRecordSignal().target === TargetEntity.INDIVIDUAL" class="entity-button">
-              <mat-icon>person</mat-icon>
-              Individual
-            </button>
-            <button (click)="setTarget(TargetEntity.ORGANISATION)" type="button"
-              [class.is-active]="editRecordSignal().target === TargetEntity.ORGANISATION" class="entity-button">
-              <mat-icon>business</mat-icon>
-              Organisation
-            </button>
+        @if (!editRecordSignal().id) {
+          <div class="kv-field mb-4">
+            <span class="kv-label">Entity Type</span>
+            <div class="grid grid-cols-2 gap-3">
+              <button type="button" class="kv-choice" [class.is-active]="editRecordSignal().target === TargetEntity.INDIVIDUAL"
+                (click)="setTarget(TargetEntity.INDIVIDUAL)">
+                <mat-icon>person</mat-icon>
+                Individual
+              </button>
+              <button type="button" class="kv-choice" [class.is-active]="editRecordSignal().target === TargetEntity.ORGANISATION"
+                (click)="setTarget(TargetEntity.ORGANISATION)">
+                <mat-icon>business</mat-icon>
+                Organisation
+              </button>
+            </div>
           </div>
-        </div>
         }
 
-        <div class="field-grid two-column">
-          <div class="field-group">
-            <label class="field-label">Record Reference</label>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="kv-field">
+            <label class="kv-label" for="recordRef">Record Reference</label>
             <mat-form-field appearance="outline" class="vault-field">
-              <mat-icon matPrefix>tag</mat-icon>
-              <input matInput type="text" placeholder="e.g. KYC-2024-001" [formField]="editRecordSignalForm.ref" />
+              <input id="recordRef" matInput type="text" placeholder="e.g. KYC-2024-001" [formField]="editRecordSignalForm.ref" />
             </mat-form-field>
           </div>
 
-          <!-- @if(editRecordSignal().target === TargetEntity.ORGANISATION) { -->
-          <div class="field-block">
-            <label class="field-label">{{ editRecordSignal().target === TargetEntity.ORGANISATION ? 'Organisation' : 'Individual' }}</label>
-            <mat-form-field class="vault-field">
-              @if(!editRecordSignal().id) {
-              <mat-select [formField]="editRecordSignalForm.ownerDetails" [compareWith]="recordOwnerCompare">
-                <mat-option>
-                  <ngx-mat-select-search [placeholderLabel]="'search.organisations' | translate"
-                    [formField]="editRecordSignalForm.recordOwnerFilter" (keyup.enter)="filterOwners()"
-                    [noEntriesFoundLabel]="'no.entries.found' | translate">
-                  </ngx-mat-select-search>
-                  <button mat-icon-button type="button" aria-label="Search organisations" (click)="filterOwners()">
-                    <mat-icon>search</mat-icon>
-                  </button>
-                </mat-option>
-                @for (option of ownerOptions(); track option.id) {
-                <mat-option [value]="option">{{ option.identityNo }} - {{ option.name }}</mat-option>
-                }
-              </mat-select>
+          <div class="kv-field">
+            <label class="kv-label" for="recordOwner">{{ editRecordSignal().target === TargetEntity.ORGANISATION ? 'Organisation' : 'Individual' }}</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              @if (!editRecordSignal().id) {
+                <mat-select id="recordOwner" placeholder="Select owner" [formField]="editRecordSignalForm.ownerDetails" [compareWith]="recordOwnerCompare">
+                  <mat-option>
+                    <ngx-mat-select-search [placeholderLabel]="'search.organisations' | translate"
+                      [formField]="editRecordSignalForm.recordOwnerFilter" (keyup.enter)="filterOwners()"
+                      [noEntriesFoundLabel]="'no.entries.found' | translate">
+                    </ngx-mat-select-search>
+                    <button mat-icon-button type="button" aria-label="Search owners" (click)="filterOwners()">
+                      <mat-icon>search</mat-icon>
+                    </button>
+                  </mat-option>
+                  @for (option of ownerOptions(); track option.id) {
+                    <mat-option [value]="option">{{ option.identityNo }} - {{ option.name }}</mat-option>
+                  }
+                </mat-select>
               } @else {
-              <input matInput type="text" [value]="editRecordSignal().ownerDetails.name" readonly />
+                <input id="recordOwner" matInput type="text" [value]="editRecordSignal().ownerDetails.name" readonly />
               }
             </mat-form-field>
-            @if(editRecordSignalForm.ownerDetails().invalid()) {
-            @if(editRecordSignal().target === TargetEntity.ORGANISATION) {
-            <p class="error-message" translate>organisation.required</p>
-            } @else {
-            <p class="error-message" translate>individual.required</p>
-            }
+            @if (editRecordSignalForm.ownerDetails().invalid()) {
+              <p class="kv-error" translate>
+                {{ editRecordSignal().target === TargetEntity.ORGANISATION ? 'organisation.required' : 'individual.required' }}
+              </p>
             }
           </div>
 
-          <!-- Individual-Specific Fields -->
-
-          <div class="field-group">
-            <label class="field-label">Identity Number (SSN/ID)</label>
+          <div class="kv-field">
+            <label class="kv-label" for="recordIdentityNo">Identity Number</label>
             <mat-form-field appearance="outline" class="vault-field">
-              <mat-icon matPrefix>badge</mat-icon>
-              <input matInput type="text" placeholder="Identity number" [value]="editRecordSignal().ownerDetails.identityNo" readonly/>
+              <input id="recordIdentityNo" matInput type="text" placeholder="From the selected owner"
+                [value]="editRecordSignal().ownerDetails.identityNo" readonly />
             </mat-form-field>
             @if (editRecordSignalForm.ownerDetails.identityNo().touched()) {
-            @for (error of editRecordSignalForm.ownerDetails.identityNo().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
+              @for (error of editRecordSignalForm.ownerDetails.identityNo().errors(); track $index) {
+                <p class="kv-error" translate>{{ error.message }}</p>
+              }
             }
           </div>
+
           @if (editRecordSignal().target === TargetEntity.INDIVIDUAL) {
-          <div class="field-group">
-            <label class="field-label">Identity Type</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <input matInput [value]="editRecordSignal().ownerDetails.identityType" readonly>
-            </mat-form-field>
-            @if (editRecordSignalForm.ownerDetails.identityType().touched()) {
-            @for (error of editRecordSignalForm.ownerDetails.identityType().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
-            }
-          </div>
+            <div class="kv-field">
+              <label class="kv-label" for="recordIdentityType">Identity Type</label>
+              <mat-form-field appearance="outline" class="vault-field">
+                <input id="recordIdentityType" matInput [value]="editRecordSignal().ownerDetails.identityType" readonly />
+              </mat-form-field>
+              @if (editRecordSignalForm.ownerDetails.identityType().touched()) {
+                @for (error of editRecordSignalForm.ownerDetails.identityType().errors(); track $index) {
+                  <p class="kv-error" translate>{{ error.message }}</p>
+                }
+              }
+            </div>
           }
 
-          <div class="field-group">
-            <label class="field-label">Email Address</label>
+          <div class="kv-field md:col-span-2">
+            <label class="kv-label" for="recordEmail">Email Address</label>
             <mat-form-field appearance="outline" class="vault-field">
-              <mat-icon matPrefix>email</mat-icon>
-              <input matInput type="email" placeholder="Email address"
-                [formField]="editRecordSignalForm.ownerDetails.emailAddress" />
+              <input id="recordEmail" matInput type="email" placeholder="Email address" [formField]="editRecordSignalForm.ownerDetails.emailAddress" />
             </mat-form-field>
             @if (editRecordSignalForm.ownerDetails.emailAddress().touched()) {
-            @for (error of editRecordSignalForm.ownerDetails.emailAddress().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
+              @for (error of editRecordSignalForm.ownerDetails.emailAddress().errors(); track $index) {
+                <p class="kv-error" translate>{{ error.message }}</p>
+              }
             }
           </div>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </section>
 
-    <mat-card class="vault-card">
-      <mat-card-content>
-        <div class="section-heading">
-          <mat-icon>location_on</mat-icon>
-          <h2>Address Details</h2>
+      <!-- Addresses -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">location_on</mat-icon>
+          <h2 class="kv-card-title">Addresses</h2>
         </div>
 
-        <div class="field-grid two-column">
-          <div class="field-group">
-            <label class="field-label">Physical Address</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <textarea matInput placeholder="Physical address"
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="kv-field">
+            <label class="kv-label" for="recordPhysicalAddress">Physical Address</label>
+            <mat-form-field appearance="outline" class="vault-field vault-textarea">
+              <textarea id="recordPhysicalAddress" matInput placeholder="Physical address"
                 [formField]="editRecordSignalForm.ownerDetails.physicalAddress"></textarea>
             </mat-form-field>
           </div>
-
-          <div class="field-group">
-            <label class="field-label">Postal Address</label>
-            <mat-form-field appearance="outline" class="vault-field">
-              <textarea matInput placeholder="Postal address"
+          <div class="kv-field">
+            <label class="kv-label" for="recordPostalAddress">Postal Address</label>
+            <mat-form-field appearance="outline" class="vault-field vault-textarea">
+              <textarea id="recordPostalAddress" matInput placeholder="Postal address"
                 [formField]="editRecordSignalForm.ownerDetails.postalAddress"></textarea>
             </mat-form-field>
           </div>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </section>
 
-    <mat-card class="vault-card">
-      <mat-card-content>
-        <div class="section-heading">
-          <mat-icon>policy</mat-icon>
-          <h2>Declaration & Compliance</h2>
+      <!-- Declaration & Compliance -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">policy</mat-icon>
+          <h2 class="kv-card-title">Declaration &amp; Compliance</h2>
         </div>
 
-        <div class="split-grid">
-          <mat-card class="vault-card compact-card nested-card">
-            <mat-card-content>
-              <div class="section-heading">
-                <h3>PEP Status</h3>
-              </div>
-
-              <div class="field-group">
-                <label class="field-label">Political Exposure Status</label>
-                <mat-form-field appearance="outline" class="vault-field">
-                  <mat-select [formField]="editRecordSignalForm.declaration.pepStatus">
-                    <mat-option [value]="null">Not Specified</mat-option>
-                    @for(item of pepStatusOptions; track item) {
-                    <mat-option [value]="item" translate>
-                      <span translate>pep.status.{{ item }} </span>
-                    </mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-                @if(editRecordSignalForm.declaration.pepStatus().touched()) {
-                @for (error of editRecordSignalForm.declaration.pepStatus().errors(); track $index) {
-                <p class="error-message" translate>{{ error.message }}</p>
-                }
-                }
-              </div>
-
-              <div class="field-group">
-                <label class="field-label">PEP Details / Position</label>
-                <quill-editor [style]="{ height: '200px' }"
-                  (onEditorCreated)="onQuillEditorCreated('pepDetails', $event)"
-                  (onContentChanged)="onQuillContentChanged('pepDetails', $event)"
-                  theme="snow"></quill-editor>
-                <!-- <mat-form-field appearance="outline" class="vault-field">
-                  <textarea matInput placeholder="PEP specific details..."
-                    (valueChange)="updateDeclarationField('pepDetails', $event)"
-                    [value]="editRecordSignal().declaration?.pepDetails || ''"></textarea>
-                </mat-form-field> -->
-              </div>
-            </mat-card-content>
-          </mat-card>
-
-          <mat-card class="vault-card compact-card nested-card">
-            <mat-card-content>
-              <div class="section-heading">
-                <h3>Sanctions Match</h3>
-              </div>
-
-              <div class="payment-header">
-                <label class="field-label">Screening Result</label>
-                <mat-slide-toggle color="primary" [formField]="editRecordSignalForm.declaration.sanctionsMatch">
-                  Matched
-                </mat-slide-toggle>
-              </div>
-
-              <div class="field-group">
-                <label class="field-label">Sanctions Details</label>
-                <!-- <mat-form-field appearance="outline" class="vault-field"> -->
-                  <quill-editor [style]="{ height: '200px' }"
-                    (onEditorCreated)="onQuillEditorCreated('sanctionsDetails', $event)"
-                    (onContentChanged)="onQuillContentChanged('sanctionsDetails', $event)"
-                    theme="snow"></quill-editor>
-                  <!-- <textarea matInput placeholder="Sanctions details..."
-                    (valueChange)="updateDeclarationField('sanctionsDetails', $event)"
-                    [value]="editRecordSignal().declaration?.sanctionsDetails || ''"></textarea> -->
-                <!-- </mat-form-field> -->
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="vault-card">
-      <mat-card-content>
-        <div class="section-heading">
-          <mat-icon>trending_up</mat-icon>
-          <h2>Source of Funds</h2>
-        </div>
-
-        <div class="field-group margin-bottom">
-          <label class="field-label">Fund Origins</label>
-          <div class="toggle-group">
-            @for(fund of sourceOfFundsOptions; track fund) {
-            <button (click)="toggleSourceOfFunds(fund)" [class.is-active]="hasSourceOfFunds(fund)" type="button"
-              class="toggle-chip" translate>
-              source.of.funds.{{ fund }}
-            </button>
-            }
-          </div>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">Additional Details</label>
-          <!-- <mat-form-field appearance="outline" class="vault-field"> -->
-            <quill-editor [style]="{ height: '200px' }"
-              (onEditorCreated)="onQuillEditorCreated('sourceOfFundsDetails', $event)"
-              (onContentChanged)="onQuillContentChanged('sourceOfFundsDetails', $event)"
-              theme="snow"></quill-editor>
-            <!-- <textarea matInput placeholder="Explain the sources of funds..."
-              [formField]="editRecordSignalForm.sourceOfFundsDetails"></textarea> -->
-          <!-- </mat-form-field> -->
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="vault-card">
-      <mat-card-content>
-        <div class="section-heading">
-          <mat-icon>verified</mat-icon>
-          <h2>Compliance Status</h2>
-        </div>
-
-        <p class="support-copy context-copy">
-          Compliance status reflects the current verification state of this record.
-        </p>
-
-        <div class="compliance-grid top-gap">
-          <div class="context-item">
-            <p class="field-label">KYC Status</p>
-            <p class="context-value">{{ editRecordSignal().kycStatus ? kycStatusLabel(editRecordSignal().kycStatus) :
-              'Not Set' }}</p>
-          </div>
-
-          <div class="context-item">
-            <p class="field-label">Upload Date</p>
-            <p class="context-value">{{ editRecordSignal().uploadDate | date: 'dd-MM-yyyy' }}</p>
-          </div>
-
-          <div class="context-item">
-            <p class="field-label">Reference ID</p>
-            <p class="context-value">{{ editRecordSignal().ref || 'Not available' }}</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    @if(editRecordSignal().id) {
-    <mat-card class="vault-card">
-      <mat-card-content>
-        <div class="section-heading">
-          <mat-icon>attach_file</mat-icon>
-          <h2>Supporting Documents</h2>
-        </div>
-
-        <!-- Drop Zone -->
-        <input #fileInput type="file" (change)="onDocumentSelected($event)" multiple hidden />
-        <div class="upload-dropzone" (click)="fileInput.click()" role="button" tabindex="0"
-          (keydown.enter)="fileInput.click()" (keydown.space)="fileInput.click()">
-          <div class="upload-dropzone-icon">
-            <mat-icon>cloud_upload</mat-icon>
-          </div>
-          <p class="upload-dropzone-title">Drop files here or <span class="upload-link">click to browse</span></p>
-          <p class="upload-dropzone-sub">Multiple files allowed &mdash; one document type per file</p>
-          @if (allowedDocumentTypes().length > 0) {
-          <div class="upload-type-chips">
-            @for (dt of allowedDocumentTypes(); track dt.id) {
-            <span class="upload-type-chip">{{ dt.name }}</span>
-            }
-          </div>
-          }
-        </div>
-
-        <!-- Queued Documents -->
-        @if (editRecordSignal().documentsToUpload.length > 0) {
-        <div class="doc-queue">
-          <div class="doc-queue-header">
-            <mat-icon>schedule</mat-icon>
-            <span>Pending upload ({{ editRecordSignal().documentsToUpload.length }})</span>
-          </div>
-          <div class="doc-queue-tools">
-            <mat-form-field appearance="outline" class="vault-field doc-queue-quick-select">
-              <mat-label>Apply document type to all files</mat-label>
-              <mat-select [value]="bulkDocumentType()" [compareWith]="documentTypeCompare"
-                (valueChange)="setBulkDocumentType($event)">
-                <mat-option [value]="null">Select a type</mat-option>
-                @for (docType of allowedDocumentTypes(); track docType.id) {
-                <mat-option [value]="docType">{{ docType.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-            <button mat-stroked-button type="button" class="doc-apply-all-btn"
-              [disabled]="!bulkDocumentType()"
-              (click)="applyDocumentTypeToAll()">
-              <mat-icon>done_all</mat-icon>
-              <span>Apply to all</span>
-            </button>
-          </div>
-          <div class="doc-queue-list">
-            @for (entry of editRecordSignalForm.documentsToUpload; track $index) {
-            <div class="doc-queue-item">
-              <div class="doc-queue-icon">
-                <mat-icon>insert_drive_file</mat-icon>
-              </div>
-              <div class="doc-queue-meta">
-                <p class="doc-queue-name">{{ entry().value().file.name }}</p>
-                <p class="doc-queue-size">{{ (entry().value().file.size / 1024).toFixed(2) }} KB</p>
-              </div>
-              <mat-form-field appearance="outline" class="vault-field doc-type-select">
-                <mat-label>Document type</mat-label>
-                <mat-select [formField]="entry.documentType" [compareWith]="documentTypeCompare">
-                  <mat-option [value]="null">Select a type</mat-option>
-                  @for (docType of allowedDocumentTypes(); track docType.id) {
-                  <mat-option [value]="docType">{{ docType.name }}</mat-option>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="kv-panel flex flex-col gap-4">
+            <h3 class="text-sm font-medium text-primary">PEP Status</h3>
+            <div class="kv-field">
+              <label class="kv-label" for="recordPepStatus">Political Exposure Status</label>
+              <mat-form-field appearance="outline" class="vault-field">
+                <mat-select id="recordPepStatus" [formField]="editRecordSignalForm.declaration.pepStatus">
+                  <mat-option [value]="null">Not Specified</mat-option>
+                  @for (item of pepStatusOptions; track item) {
+                    <mat-option [value]="item"><span translate>pep.status.{{ item }}</span></mat-option>
                   }
                 </mat-select>
               </mat-form-field>
-              <button mat-icon-button type="button" (click)="removeDocument($index)" class="doc-remove-btn" aria-label="Remove file">
-                <mat-icon>delete_outline</mat-icon>
-              </button>
+              @if (editRecordSignalForm.declaration.pepStatus().touched()) {
+                @for (error of editRecordSignalForm.declaration.pepStatus().errors(); track $index) {
+                  <p class="kv-error" translate>{{ error.message }}</p>
+                }
+              }
             </div>
+            <div class="kv-field">
+              <span class="kv-label">PEP Details / Position</span>
+              <quill-editor [style]="{ height: '200px' }"
+                (onEditorCreated)="onQuillEditorCreated('pepDetails', $event)"
+                (onContentChanged)="onQuillContentChanged('pepDetails', $event)"
+                theme="snow"></quill-editor>
+            </div>
+          </div>
+
+          <div class="kv-panel flex flex-col gap-4">
+            <div class="flex items-center justify-between gap-3">
+              <h3 class="text-sm font-medium text-primary">Sanctions Match</h3>
+              <mat-slide-toggle color="primary" [formField]="editRecordSignalForm.declaration.sanctionsMatch">
+                <span class="text-sm">Matched</span>
+              </mat-slide-toggle>
+            </div>
+            <div class="kv-field">
+              <span class="kv-label">Sanctions Details</span>
+              <quill-editor [style]="{ height: '200px' }"
+                (onEditorCreated)="onQuillEditorCreated('sanctionsDetails', $event)"
+                (onContentChanged)="onQuillContentChanged('sanctionsDetails', $event)"
+                theme="snow"></quill-editor>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Source of Funds -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">trending_up</mat-icon>
+          <h2 class="kv-card-title">Source of Funds</h2>
+        </div>
+
+        <div class="kv-field mb-4">
+          <span class="kv-label">Fund Origins</span>
+          <div class="flex flex-wrap gap-2">
+            @for (fund of sourceOfFundsOptions; track fund) {
+              <button type="button" class="kv-choice" [class.is-active]="hasSourceOfFunds(fund)" (click)="toggleSourceOfFunds(fund)" translate>
+                source.of.funds.{{ fund }}
+              </button>
             }
           </div>
-          <div class="doc-queue-actions">
-            <button mat-flat-button type="button" class="primary-action"
-              [disabled]="hasDocumentsWithoutType()"
-              (click)="uploadDocuments()">
+        </div>
+
+        <div class="kv-field">
+          <span class="kv-label">Additional Details</span>
+          <quill-editor [style]="{ height: '200px' }"
+            (onEditorCreated)="onQuillEditorCreated('sourceOfFundsDetails', $event)"
+            (onContentChanged)="onQuillContentChanged('sourceOfFundsDetails', $event)"
+            theme="snow"></quill-editor>
+        </div>
+      </section>
+    </div>
+
+    <!-- Side column -->
+    <aside class="md:col-span-4 flex flex-col gap-6">
+
+      <!-- Compliance Status -->
+      <section class="kv-card border-t-4 border-emerald">
+        <div class="flex items-center gap-2 mb-4 text-primary">
+          <mat-icon class="text-emerald">verified</mat-icon>
+          <p class="kv-card-title font-medium">Compliance Status</p>
+        </div>
+        <p class="text-sm text-on-surface-variant mb-6">Reflects the current verification state of this record.</p>
+        <dl class="flex flex-col gap-3">
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">KYC Status</dt>
+            <dd><span class="kv-tag">{{ editRecordSignal().kycStatus ? kycStatusLabel(editRecordSignal().kycStatus) : 'Not set' }}</span></dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Upload Date</dt>
+            <dd class="kv-meta-value">{{ (editRecordSignal().uploadDate | date: 'dd MMM yyyy') || 'Not available' }}</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Reference ID</dt>
+            <dd class="kv-meta-value">{{ editRecordSignal().ref || 'Not available' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Audit Trail -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">history</mat-icon>
+          <h2 class="kv-card-title">Audit Trail</h2>
+        </div>
+        <dl class="flex flex-col gap-3">
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Created At</dt>
+            <dd class="kv-meta-value">{{ (editRecordSignal().createdAt | date: 'dd MMM yyyy, HH:mm') || 'Not available' }}</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Created By</dt>
+            <dd class="kv-meta-value">{{ editRecordSignal().createdBy || 'Not available' }}</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Modified At</dt>
+            <dd class="kv-meta-value">{{ (editRecordSignal().modifiedAt | date: 'dd MMM yyyy, HH:mm') || 'Not available' }}</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Modified By</dt>
+            <dd class="kv-meta-value">{{ editRecordSignal().modifiedBy || 'Not available' }}</dd>
+          </div>
+        </dl>
+      </section>
+    </aside>
+  </div>
+
+  <!-- Supporting Documents (available once the record is saved) -->
+  @if (editRecordSignal().id) {
+    <section class="kv-card mt-6">
+      <div class="kv-card-header">
+        <mat-icon class="kv-card-icon">attach_file</mat-icon>
+        <h2 class="kv-card-title">Supporting Documents</h2>
+      </div>
+
+      <!-- Drop zone -->
+      <input #fileInput type="file" (change)="onDocumentSelected($event)" multiple hidden />
+      <div class="flex flex-col items-center gap-2 p-8 text-center cursor-pointer rounded-lg border-2 border-dashed border-outline-variant bg-surface-container-low/50 hover:border-emerald transition-colors"
+        role="button" tabindex="0" (click)="fileInput.click()" (keydown.enter)="fileInput.click()" (keydown.space)="fileInput.click()">
+        <span class="grid place-items-center w-12 h-12 rounded-full kv-tone-success">
+          <mat-icon>cloud_upload</mat-icon>
+        </span>
+        <p class="text-sm font-medium text-on-surface">Drop files here or <span class="text-emerald-dark underline">click to browse</span></p>
+        <p class="text-xs text-on-surface-variant">Multiple files allowed — one document type per file</p>
+        @if (allowedDocumentTypes().length > 0) {
+          <div class="flex flex-wrap justify-center gap-2 mt-2">
+            @for (dt of allowedDocumentTypes(); track dt.id) {
+              <span class="kv-tag">{{ dt.name }}</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Queued documents -->
+      @if (editRecordSignal().documentsToUpload.length > 0) {
+        <div class="mt-6 flex flex-col gap-3">
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <h3 class="text-sm font-medium text-primary flex items-center gap-2">
+              <mat-icon class="kv-card-icon">schedule</mat-icon>
+              Pending upload ({{ editRecordSignal().documentsToUpload.length }})
+            </h3>
+            <div class="flex items-end gap-3">
+              <div class="kv-field w-64">
+                <label class="kv-label" for="bulkDocumentType">Apply type to all files</label>
+                <mat-form-field appearance="outline" class="vault-field">
+                  <mat-select id="bulkDocumentType" [value]="bulkDocumentType()" [compareWith]="documentTypeCompare"
+                    (valueChange)="setBulkDocumentType($event)">
+                    <mat-option [value]="null">Select a type</mat-option>
+                    @for (docType of allowedDocumentTypes(); track docType.id) {
+                      <mat-option [value]="docType">{{ docType.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <button type="button" class="kv-btn-secondary" [disabled]="!bulkDocumentType()" (click)="applyDocumentTypeToAll()">
+                <mat-icon>done_all</mat-icon>
+                Apply to all
+              </button>
+            </div>
+          </div>
+
+          @for (entry of editRecordSignalForm.documentsToUpload; track $index) {
+            <div class="kv-panel flex flex-col sm:flex-row sm:items-center gap-3 p-3!">
+              <mat-icon class="kv-card-icon">insert_drive_file</mat-icon>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-on-surface truncate">{{ entry().value().file.name }}</p>
+                <p class="text-xs text-on-surface-variant">{{ (entry().value().file.size / 1024).toFixed(2) }} KB</p>
+              </div>
+              <mat-form-field appearance="outline" class="vault-field sm:w-64!">
+                <mat-select placeholder="Document type" aria-label="Document type" [formField]="entry.documentType" [compareWith]="documentTypeCompare">
+                  <mat-option [value]="null">Select a type</mat-option>
+                  @for (docType of allowedDocumentTypes(); track docType.id) {
+                    <mat-option [value]="docType">{{ docType.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <button type="button" class="kv-icon-btn-danger self-end sm:self-auto" aria-label="Remove file" (click)="removeDocument($index)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+
+          <div class="flex justify-end">
+            <button type="button" class="kv-btn-primary" [disabled]="hasDocumentsWithoutType()" (click)="uploadDocuments()">
               <mat-icon>cloud_upload</mat-icon>
-              <span>Upload</span>
+              Upload
             </button>
           </div>
         </div>
-        }
+      }
 
-        <!-- Uploaded Document Library -->
-        @if (editRecordSignal().documents.length > 0) {
-        <div class="doc-library">
-          <div class="doc-library-header">
-            <mat-icon>task_alt</mat-icon>
-            <span>Uploaded ({{ editRecordSignal().documents.length }})</span>
-          </div>
-          <div class="doc-library-grid">
+      <!-- Uploaded library -->
+      @if (editRecordSignal().documents.length > 0) {
+        <div class="mt-6 flex flex-col gap-3">
+          <h3 class="text-sm font-medium text-primary flex items-center gap-2">
+            <mat-icon class="kv-card-icon text-emerald!">task_alt</mat-icon>
+            Uploaded ({{ editRecordSignal().documents.length }})
+          </h3>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
             @for (doc of editRecordSignal().documents; track doc.id) {
-            <div class="doc-library-card">
-              <div class="doc-library-icon">
-                <mat-icon>description</mat-icon>
+              <div class="kv-panel flex flex-col gap-3">
+                <div class="flex items-start gap-3">
+                  <mat-icon class="kv-card-icon">description</mat-icon>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-on-surface truncate">{{ doc.fileName }}</p>
+                    <p class="text-xs text-on-surface-variant">{{ getDocumentTypeName(doc.documentTypeId) }}</p>
+                    <p class="text-xs text-on-surface-variant">Analytics: {{ analyticsStatusLabel(doc.analyticsStatus) }}</p>
+                  </div>
+                  <mat-icon class="kv-card-icon text-emerald!">check_circle</mat-icon>
+                </div>
+                <div class="flex flex-wrap gap-1 justify-end">
+                  <button type="button" class="kv-icon-btn" matTooltip="View" aria-label="View document" [routerLink]="['/', 'documents', 'details', doc.id]">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button type="button" class="kv-icon-btn" matTooltip="Download" aria-label="Download document" (click)="downloadDocument(doc)">
+                    <mat-icon>download</mat-icon>
+                  </button>
+                  <button type="button" class="kv-icon-btn" matTooltip="Edit" aria-label="Edit document" [routerLink]="['/', 'documents', 'edit', doc.id]">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button type="button" class="kv-icon-btn-danger" matTooltip="Delete" aria-label="Delete document" (click)="deleteDocument(doc.id)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
               </div>
-              <div class="doc-library-meta">
-                <p class="doc-library-name">{{ doc.fileName }}</p>
-                <p class="doc-library-type">{{ getDocumentTypeName(doc.documentTypeId) }}</p>
-                <p class="doc-library-analytics">Analytics: {{ analyticsStatusLabel(doc.analyticsStatus) }}</p>
-              </div>
-              <div class="doc-library-badge">
-                <mat-icon>check_circle</mat-icon>
-              </div>
-              <div class="doc-library-actions">
-                <button mat-stroked-button type="button" class="doc-action-btn" [routerLink]="['/', 'documents', 'details', doc.id]">
-                  <mat-icon>visibility</mat-icon>
-                  <span>View</span>
-                </button>
-                <button mat-stroked-button type="button" class="doc-action-btn" (click)="downloadDocument(doc)">
-                  <mat-icon>download</mat-icon>
-                  <span>Download</span>
-                </button>
-                <button mat-stroked-button type="button" class="doc-action-btn" [routerLink]="['/', 'documents', 'edit', doc.id]">
-                  <mat-icon>edit</mat-icon>
-                  <span>Edit</span>
-                </button>
-                <button mat-stroked-button type="button" class="doc-action-btn doc-action-btn-danger" (click)="deleteDocument(doc.id)">
-                  <mat-icon>delete_outline</mat-icon>
-                  <span>Delete</span>
-                </button>
-              </div>
-            </div>
             }
           </div>
         </div>
-        }
-      </mat-card-content>
-    </mat-card>
-    }
-
-    <footer class="audit-grid">
-      <div class="audit-item">
-        <p class="audit-label">Created At</p>
-        <p class="audit-value">{{ (editRecordSignal().createdAt | date: 'dd-MM-yyyy HH:mm:ss' ) || 'Not available' }}</p>
-      </div>
-
-      <div class="audit-item">
-        <p class="audit-label">Created By</p>
-        <p class="audit-value">{{ editRecordSignal().createdBy || 'Not available' }}</p>
-      </div>
-
-      <div class="audit-item">
-        <p class="audit-label">Modified At</p>
-        <p class="audit-value">{{ (editRecordSignal().modifiedAt | date: 'dd-MM-yyyy HH:mm:ss' ) || 'Not available' }}</p>
-      </div>
-
-      <div class="audit-item">
-        <p class="audit-label">Modified By</p>
-        <p class="audit-value">{{ editRecordSignal().modifiedBy || 'Not available' }}</p>
-      </div>
-    </footer>
-  </div>
-</section>
+      }
+    </section>
+  }
+</div>

@@ -10,7 +10,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { SequenceGeneratorDTO } from '@app/models/bw/co/knowvera/sequence/sequence-generator-dto';
 import { SequencePartDTO } from '@app/models/bw/co/knowvera/sequence/sequence-part-dto';
 import { SequencePartType } from '@app/models/bw/co/knowvera/sequence/sequence-part-type';
@@ -35,6 +35,7 @@ export class EditSequenceVarsForm {
   styleUrl: './sequence-edit.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     CommonModule,
     TranslateModule,
     MatCardModule,
@@ -46,7 +47,6 @@ export class EditSequenceVarsForm {
     MatCheckboxModule,
     MatSlideToggleModule,
     MatDividerModule,
-    Loader
   ]
 })
 export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {

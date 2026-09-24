@@ -1,144 +1,173 @@
-<section class="client-request-details-page">
-	<header class="page-header">
-		<div>
-			<button mat-button type="button" class="back-link" (click)="backToDashboard()">
-				<mat-icon>arrow_back</mat-icon>
-				<span>Back to Dashboard</span>
-			</button>
+<div class="kv-page">
+  <!-- Header -->
+  <header class="dp-header">
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/client-request">Client Requests</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">{{ requestReference() || 'Details' }}</span>
+    </nav>
 
-			<h1 class="page-title">Client Request Details</h1>
-			<p class="page-subtitle">Request Reference: {{ requestReference() }}</p>
-		</div>
+    <div class="kv-page-header">
+      <div class="min-w-0 flex flex-col gap-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <h1 class="kv-title">{{ coreIdentity()[0].value || 'Client Request' }}</h1>
+          @if (requestReference()) {
+            <span class="dp-code">{{ requestReference() }}</span>
+          }
+          <span class="dp-entity-pill">
+            <mat-icon>assignment_ind</mat-icon>
+            Client Request
+          </span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="dp-pill" [ngClass]="statusTone(requestStatus())">
+            <mat-icon class="icon-fill">flag</mat-icon>
+            {{ statusLabel(requestStatus()) }}
+          </span>
+          <span class="dp-pill" [ngClass]="targetTone(targetKycStatus())">
+            <mat-icon class="icon-fill">verified</mat-icon>
+            KYC {{ targetStatusLabel(targetKycStatus()) }}
+          </span>
+        </div>
+      </div>
 
-		<div class="header-actions">
-			<span class="status-pill" [class]="statusClass(requestStatus())">
-				<span class="status-dot"></span>
-				{{ statusLabel(requestStatus()) }}
-			</span>
+      <div class="kv-actions">
+        <button type="button" class="kv-btn-secondary" (click)="updateStatus()">
+          <mat-icon>sync_alt</mat-icon>
+          Update Status
+        </button>
+        <button type="button" class="kv-btn-primary" (click)="approveRequest()">
+          <mat-icon>task_alt</mat-icon>
+          Approve Request
+        </button>
+      </div>
+    </div>
+  </header>
 
-			<button mat-flat-button type="button" class="primary-btn" (click)="updateStatus()">Update Status</button>
-		</div>
-	</header>
+  <!-- Bento grid -->
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
 
-	<div class="details-grid">
-		<mat-card class="identity-card panel-card span-7">
-			<div class="section-head">
-				<div class="icon-box dark-box">
-					<mat-icon>person</mat-icon>
-				</div>
-				<div>
-					<span class="section-label">Core Identity</span>
-					<h2>Primary Applicant Data</h2>
-				</div>
-			</div>
+    <!-- Applicant -->
+    <section class="kv-card md:col-span-8">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile"><mat-icon>person</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Primary Applicant Data</h2>
+          <p class="dp-head-sub">Core identity submitted with the request</p>
+        </div>
+        <span class="kv-tag dp-head-aside">{{ statusLabel(requestStatus()) }}</span>
+      </div>
 
-			<div class="identity-grid">
-				@for (item of coreIdentity(); track item.label) {
-					<div class="identity-item">
-						<span class="field-label">{{ item.label }}</span>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        @for (item of coreIdentity(); track item.label) {
+          <div class="kv-field">
+            <dt class="kv-label">{{ item.label }}</dt>
+            <dd class="kv-value" [class.dp-strong]="item.tone === 'primary'" [class.dp-inline-icon]="item.icon">
+              @if (item.icon) {
+                <mat-icon>{{ item.icon }}</mat-icon>
+              }
+              {{ item.value }}
+            </dd>
+          </div>
+        }
+      </dl>
+    </section>
 
-						@if (item.icon) {
-							<div class="icon-value-row">
-								<mat-icon>{{ item.icon }}</mat-icon>
-								<p [class.primary-text]="item.tone === 'primary'">{{ item.value }}</p>
-							</div>
-						} @else {
-							<p [class.primary-text]="item.tone === 'primary'">{{ item.value }}</p>
-						}
-					</div>
-				}
-			</div>
-		</mat-card>
+    <!-- Compliance target -->
+    <section class="kv-card md:col-span-4 flex flex-col">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile" [ngClass]="targetTone(targetKycStatus())"><mat-icon>shield</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Compliance Target</h2>
+          <p class="dp-head-sub">Target KYC status</p>
+        </div>
+      </div>
 
-		<mat-card class="compliance-card panel-card span-5">
-			<span class="section-label">Compliance Target</span>
+      <p class="dp-metric">{{ targetStatusLabel(targetKycStatus()) }}</p>
 
-			<div class="compliance-head">
-				<div class="warning-frame" [class]="targetStatusClass(targetKycStatus())">
-					<mat-icon>warning</mat-icon>
-				</div>
+      <div class="mt-auto pt-6 flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <span class="kv-label">Verification Progress</span>
+          <span class="dp-strong dp-small">{{ verificationPercent() }}%</span>
+        </div>
+        <div class="dp-progress" aria-label="Verification progress">
+          @for (segment of progressSegments(); track $index) {
+            <span [class.filled]="segment"></span>
+          }
+        </div>
+      </div>
+    </section>
 
-				<div>
-					<h2 class="compliance-title">{{ targetStatusLabel(targetKycStatus()) }}</h2>
-					<p class="compliance-subtitle">Target KYC Status</p>
-				</div>
-			</div>
+    <!-- Organisation context -->
+    <section class="kv-card md:col-span-8">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile"><mat-icon>corporate_fare</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Organisation Context</h2>
+          <p class="dp-head-sub">The organisation that raised this request</p>
+        </div>
+      </div>
 
-			<div class="progress-card">
-				<div class="progress-copy-row">
-					<span>Verification Progress</span>
-					<strong>{{ verificationPercent() }}%</strong>
-				</div>
+      <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        @for (item of organisationContext(); track item.label) {
+          <div class="kv-field">
+            <dt class="kv-label">{{ item.label }}</dt>
+            <dd class="kv-value" [class.dp-mono]="!$first" [class.dp-strong]="$first">{{ item.value }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
 
-				<div class="progress-row" aria-label="Verification progress">
-					@for (segment of progressSegments(); track $index) {
-						<span [class.filled]="segment"></span>
-					}
-				</div>
-			</div>
-		</mat-card>
+    <!-- Verification artifact -->
+    <section class="kv-card md:col-span-4 flex flex-col">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile"><mat-icon>description</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Verification Artifact</h2>
+          <p class="dp-head-sub">{{ artifactTypeMeta() }}</p>
+        </div>
+      </div>
 
-		<mat-card class="panel-card organisation-card span-8">
-			<div class="section-head compact-head">
-				<div class="icon-box light-box">
-					<mat-icon>corporate_fare</mat-icon>
-				</div>
-				<h2>Organisation Context</h2>
-			</div>
+      <div class="dp-list-item is-primary">
+        <div class="min-w-0">
+          <p class="dp-strong dp-small truncate">{{ artifactFileName() }}</p>
+          <span class="dp-list-sub">{{ artifactTitle() }}</span>
+        </div>
+        <mat-icon class="dp-ok">picture_as_pdf</mat-icon>
+      </div>
 
-			<div class="organisation-grid">
-				@for (item of organisationContext(); track item.label) {
-					<div class="identity-item">
-						<span class="field-label">{{ item.label }}</span>
-						<p>{{ item.value }}</p>
-					</div>
-				}
-			</div>
-		</mat-card>
+      <button type="button" class="dp-dashed-btn mt-auto" (click)="downloadFile()">
+        <mat-icon>download</mat-icon>
+        Download File
+      </button>
+    </section>
+  </div>
 
-		<mat-card class="artifact-card span-4">
-			<div class="artifact-watermark">
-				<mat-icon>description</mat-icon>
-			</div>
+  <!-- Secondary actions -->
+  <div class="kv-actions justify-end mt-6">
+    <button type="button" class="kv-btn-secondary" (click)="archiveRequest()">
+      <mat-icon>archive</mat-icon>
+      Archive Request
+    </button>
+    <button type="button" class="kv-btn-secondary" (click)="flagForReview()">
+      <mat-icon>outlined_flag</mat-icon>
+      Flag for Review
+    </button>
+  </div>
 
-			<div class="artifact-content">
-				<span class="section-label light-label">Verification Artifact</span>
-				<h2>{{ artifactTitle() }}</h2>
-				<p class="artifact-meta">{{ artifactTypeMeta() }}</p>
-
-				<div class="file-tile">
-					<mat-icon>picture_as_pdf</mat-icon>
-					<div>
-						<p>{{ artifactFileName() }}</p>
-						<small>File attachment</small>
-					</div>
-				</div>
-
-				<button mat-stroked-button type="button" class="download-btn" (click)="downloadFile()">
-					<mat-icon>download</mat-icon>
-					<span>Download File</span>
-				</button>
-			</div>
-		</mat-card>
-
-		<mat-card class="audit-card span-12">
-			<div class="audit-grid">
-				@for (item of auditFields(); track item.label) {
-					<div class="audit-item">
-						<span class="field-label">{{ item.label }}</span>
-						<div class="audit-value">
-							<mat-icon>{{ iconForAudit(item.label) }}</mat-icon>
-							<p>{{ item.value }}</p>
-						</div>
-					</div>
-				}
-			</div>
-		</mat-card>
-	</div>
-
-	<footer class="action-footer">
-		<button mat-button type="button" class="ghost-action" (click)="archiveRequest()">Archive Request</button>
-		<button mat-stroked-button type="button" class="outline-action" (click)="flagForReview()">Flag for Review</button>
-		<button mat-flat-button type="button" class="primary-btn" (click)="approveRequest()">Approve Request</button>
-	</footer>
-</section>
+  <!-- Audit footer -->
+  <footer class="dp-footer">
+    <div class="dp-footer-brand">
+      <mat-icon>shield</mat-icon>
+      <span>Audit Trail</span>
+    </div>
+    <dl class="dp-footer-meta">
+      @for (item of auditFields(); track item.label) {
+        <div>
+          <dt>{{ item.label }}</dt>
+          <dd>{{ item.value }}</dd>
+        </div>
+      }
+    </dl>
+  </footer>
+</div>

@@ -39,16 +39,21 @@ import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-ap
 import { BranchFormDialogComponent } from './add-branch-dialog';
 import {
   KycFieldGroupSelectorDialogComponent,
-  KycFieldGroupSelectorDialogResult,
 } from './kyc-field-group-selector-dialog';
 import { swalFire } from '@app/@shared/swal';
-import { Loader } from '@app/@shared/loader/loader';
-// import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { CreateClientRequestDialogComponent } from './create-client-request-dialog';
 import { LoaderState } from '@app/@shared/loader/loader.state';
 import { KycFieldGroupDTO } from '@app/models/bw/co/knowvera/settings/kyc/kyc-field-group-dto';
+import { GroupFieldDTO } from '@app/models/bw/co/knowvera/settings/kyc/group-field-dto';
+import {
+  AssignFieldGroupsDialogComponent,
+  AssignFieldGroupsDialogData,
+  AssignFieldGroupsDialogResult,
+  FieldGroupFilter,
+  FieldGroupScope,
+} from './assign-field-groups-dialog';
 
 @Component({
   selector: 'app-organisation-details',
@@ -160,41 +165,42 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   isUploadingDocument = signal(false);
 
   // KYC report sections and document requirements
-  individualReportSections = computed<KycReportSectionDTO[]>(() =>
-    [...(this.organisation()?.individualReportSections || [])].sort((a: KycReportSectionDTO, b: KycReportSectionDTO) => (a.position ?? 0) - (b.position ?? 0))
+  individualReportGroups = computed<KycFieldGroupDTO[]>(() =>
+    [...(this.organisation()?.individualReportGroups || [])].sort((a: KycFieldGroupDTO, b: KycFieldGroupDTO) => (a.position ?? 0) - (b.position ?? 0))
   );
-  organisationReportSections = computed<KycReportSectionDTO[]>(() =>
-    [...(this.organisation()?.organisationReportSections || [])].sort((a: KycReportSectionDTO, b: KycReportSectionDTO) => (a.position ?? 0) - (b.position ?? 0))
+  organisationReportGroups = computed<KycFieldGroupDTO[]>(() =>
+    [...(this.organisation()?.organisationReportGroups || [])].sort((a: KycFieldGroupDTO, b: KycFieldGroupDTO) => (a.position ?? 0) - (b.position ?? 0))
   );
-  selectedOrganisationReportSections = computed<KycReportSectionDTO[]>(() => {
+  selectedOrganisationReportGroups = computed<KycFieldGroupDTO[]>(() => {
     const selectedGroup = this.selectedOrganisationKycGroup();
-    const selectedFieldIds = this.selectedOrganisationKycFieldIds();
+    const selectedFields = this.selectedOrganisationKycFields();
 
-    if (!selectedGroup.length && !selectedFieldIds.length) {
-      return this.organisationReportSections();
+    if (!selectedGroup.length && !selectedFields.length) {
+      return this.organisationReportGroups();
     }
 
-    return this.organisationReportSections()
+    return this.organisationReportGroups()
       .map((section) => ({
         ...section,
-        fieldValues: (section.fieldValues || []).filter((fieldValue: any) => {
+        fieldValues: (section.groupFields || []).filter((fieldValue: any) => {
           const matchesGroup = selectedGroup.length
             ? selectedGroup.includes(fieldValue.fieldGroupId)
             : true;
-          const matchesField = selectedFieldIds.length
-            ? selectedFieldIds.includes(fieldValue.fieldId)
+          const matchesField = selectedFields.length
+            ? selectedFields.some((field) => field.id === fieldValue.fieldId)
             : true;
 
           return matchesGroup && matchesField;
         }),
       }))
-      .filter((section) => section.fieldValues.length);
+      .filter((section) => section.groupFields.length);
   });
+  verifiedDomainCount = computed(() => (this.organisation()?.domains || []).filter((domain: any) => domain?.verified).length);
   individualKycDocuments = computed<DocumentTypeDTO[]>(() => this.organisation()?.individualKycDocuments || []);
   organisationKycDocuments = computed<DocumentTypeDTO[]>(() => this.organisation()?.organisationKycDocuments || []);
   organisationKycGroupSelectorOpen = signal(false);
   selectedOrganisationKycGroup = signal<KycFieldGroupDTO[]>([]);
-  selectedOrganisationKycFieldIds = signal<string[]>([]);
+  selectedOrganisationKycFields = signal<GroupFieldDTO[]>([]);
 
   toggleOrganisationKycGroupSelector(): void {
     this.organisationKycGroupSelectorOpen.update((open) => !open);
@@ -220,7 +226,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   clearOrganisationKycFieldGroupFilter(): void {
     this.selectedOrganisationKycGroup.set([]);
-    this.selectedOrganisationKycFieldIds.set([]);
+    this.selectedOrganisationKycFields.set([]);
   }
 
   openOrganisationKycFieldGroupDialog(): void {
@@ -231,22 +237,76 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       data: {
         groups,
         selectedGroupId: selectedGroupIds[0] || null,
-        selectedFieldIds: this.selectedOrganisationKycFieldIds(),
+        selectedFieldIds: this.selectedOrganisationKycFields().map((field) => field.id || field.fieldId),
       },
       width: '480px',
     });
 
-    ref.afterClosed().subscribe((result: KycFieldGroupSelectorDialogResult | undefined) => {
+    ref.afterClosed().subscribe((result: KycFieldGroupDTO | undefined) => {
       if (!result) return;
       
       console.log(result);
-      this.selectedOrganisationKycGroup.set([result.group]);
-      this.selectedOrganisationKycFieldIds.set(result.fieldIds);
+      this.selectedOrganisationKycGroup.set([result]);
+      this.selectedOrganisationKycFields.set(result.groupFields);
     });
   }
 
+  /** Opens the library picker and saves the chosen field groups onto the organisation. */
+  openAssignFieldGroups(filter: FieldGroupFilter = 'ALL', focusGroupId: string | null = null): void {
+    const organisation = this.organisation();
+    const data: AssignFieldGroupsDialogData = {
+      organisationGroups: this.settings()?.organisationKycFieldGroups || [],
+      individualGroups: this.settings()?.individualKycFieldGroups || [],
+      assignedOrganisationGroups: this.organisationReportGroups(),
+      assignedIndividualGroups: this.individualReportGroups(),
+      filter,
+      focusGroupId,
+    };
+
+    this.dialog
+      .open<AssignFieldGroupsDialogComponent, AssignFieldGroupsDialogData, AssignFieldGroupsDialogResult>(
+        AssignFieldGroupsDialogComponent,
+        { data, width: '48rem', maxWidth: '95vw', panelClass: 'dp-dialog' },
+      )
+      .afterClosed()
+      .subscribe((result) => {
+        if (!result || !organisation?.id) {
+          return;
+        }
+
+        this.organisationApiStore.save({
+          organisation: {
+            ...organisation,
+            organisationReportGroups: result.organisationReportGroups,
+            individualReportGroups: result.individualReportGroups,
+          },
+        });
+      });
+  }
+
+  /** Number of fields the library defines for an assigned group (for the "n / m fields active" count). */
+  libraryFieldCount(scope: FieldGroupScope, group: KycFieldGroupDTO): number {
+    const library: KycFieldGroupDTO[] =
+      (scope === 'ORG' ? this.settings()?.organisationKycFieldGroups : this.settings()?.individualKycFieldGroups) || [];
+    const match = library.find((g) => (group.id && g.id === group.id) || g.label === group.label);
+    return (match?.groupFields || group.groupFields || []).length;
+  }
+
+  /** Downloads the organisation record as JSON. */
+  exportRecord(): void {
+    const organisation = this.organisation();
+    const blob = new Blob([JSON.stringify(organisation, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+
+    anchor.href = url;
+    anchor.download = `${organisation?.code || organisation?.name || 'organisation'}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
   organisationFieldValue(group: any, field: any): any {
-    const fieldValues = this.organisationReportSections().flatMap((section) => section.fieldValues || []);
+    const fieldValues = this.organisationReportGroups().flatMap((section) => section.groupFields || []);
 
     return fieldValues.find(
       (fieldValue: any) =>
@@ -323,6 +383,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       this.organisationApiStore.findById({
         id: this.id
       })
+      this.settingsApiStore.getAll();
 
       // this.branchApiStore.findByOrganisation({
       //   organisationId: this.id

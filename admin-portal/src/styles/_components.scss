@@ -1,0 +1,51 @@
+@use 'shared/buttons';
+@use 'shared/edit-form';
+
+// Reusable building blocks: header buttons, save/cancel buttons, cards, headings and grids.
+
+@include buttons.header-buttons;
+
+.error-message {
+    position: absolute;
+    bottom: 0.1rem;
+    left: 0;
+    margin: 0;
+    font-size: 0.7rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+@include edit-form.card-layout;
+
+// Quill editors, framed like the other inputs. The toolbar wraps on narrow cards, so the host's inline
+// height is released and the editing area keeps a sensible minimum instead.
+quill-editor {
+    display: flex !important;
+    flex-direction: column;
+    height: auto !important;
+}
+
+.ql-toolbar.ql-snow {
+    border-color: var(--outline-variant);
+    border-radius: 0.25rem 0.25rem 0 0;
+    background: var(--surface-container-low);
+    font-family: inherit;
+}
+
+.ql-container.ql-snow {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 9rem;
+    border-color: var(--outline-variant);
+    border-radius: 0 0 0.25rem 0.25rem;
+    background: var(--surface-container-lowest);
+    font-family: inherit;
+    font-size: 0.875rem;
+}
+
+.ql-container.ql-snow:focus-within {
+    border-color: var(--emerald);
+}

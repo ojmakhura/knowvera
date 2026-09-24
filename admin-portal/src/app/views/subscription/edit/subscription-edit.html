@@ -1,212 +1,232 @@
-<div class="page-wrapper" aria-label="Edit Subscription">
+<div class="kv-page">
 
-  <div class="background-orb orb-top" aria-hidden="true"></div>
-  <div class="background-orb orb-bottom" aria-hidden="true"></div>
-
-  <header class="page-header">
-    <div>
-      <nav class="breadcrumb" aria-label="Breadcrumb">
-        <a routerLink="/subscription">Subscriptions</a>
+  <!-- Header -->
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/subscription">Subscriptions</a>
+      <mat-icon>chevron_right</mat-icon>
+      @if (editSubscriptionSignal().ref) {
+        <span>{{ editSubscriptionSignal().ref }}</span>
         <mat-icon>chevron_right</mat-icon>
-        <span>{{ editSubscriptionSignal().ref || 'Subscription' }}</span>
-        <mat-icon>chevron_right</mat-icon>
-        <span class="crumb-current">Edit</span>
-      </nav>
+      }
+      <span class="kv-breadcrumb-current">{{ editSubscriptionSignal().id ? 'Edit' : 'Create' }}</span>
+    </nav>
 
-      <h6 class="page-title">Edit Subscription</h6>
-      <p class="page-subtitle">
-        Configure compliance parameters, organisational mapping, and financial terms for the Digital Vault subscription
-        model.
-      </p>
-    </div>
-
-    <div class="header-btns">
-      <button mat-button type="button" class="btn-cancel" [routerLink]="['/subscription']">Cancel</button>
-      <button mat-flat-button type="button" class="btn-save" [disabled]="editSubscriptionSignalForm().invalid()"
-        (click)="subscriptionSave()">
-        Save Changes
-      </button>
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">{{ editSubscriptionSignal().id ? 'Edit Subscription' : 'New Subscription' }}</h1>
+        <p class="kv-subtitle">Configure compliance parameters, organisational mapping, and financial terms.</p>
+      </div>
+      <div class="kv-actions">
+        <button type="button" class="kv-btn-secondary" [routerLink]="['/subscription']">Cancel</button>
+        <button type="button" class="kv-btn-primary" [disabled]="editSubscriptionSignalForm().invalid()"
+          (click)="subscriptionSave()">
+          <mat-icon>save</mat-icon>
+          Save Changes
+        </button>
+      </div>
     </div>
   </header>
 
-  <div class="content-grid">
-    <div class="main-column">
-      <mat-card class="vault-card">
-        <div class="section-head">
-          <mat-icon class="section-icon">verified</mat-icon>
-          <h2 class="section-title">Status &amp; Reference</h2>
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+
+    <!-- Main column -->
+    <div class="md:col-span-8 flex flex-col gap-6">
+
+      <!-- Status & Reference -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">verified</mat-icon>
+          <h2 class="kv-card-title">Status &amp; Reference</h2>
         </div>
 
-        <div class="field-grid two-column">
-          <div class="field-group">
-            <label class="field-label" for="subStatus" translate>tatus</label>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="kv-field">
+            <label class="kv-label" for="subStatus" translate>status</label>
             <mat-form-field appearance="outline" class="vault-field">
-              <mat-select id="subStatus" [formField]="editSubscriptionSignalForm.status">
+              <mat-select id="subStatus" [formField]="editSubscriptionSignalForm.status" placeholder="Select status">
                 <mat-option [value]="null" translate>None</mat-option>
                 @for (s of statuses; track s) {
-                <mat-option [value]="s" translate>{{ s }}</mat-option>
+                  <mat-option [value]="s" translate>{{ s }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
             @if (editSubscriptionSignalForm.status().touched()) {
-            @for (error of editSubscriptionSignalForm.status().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
+              @for (error of editSubscriptionSignalForm.status().errors(); track $index) {
+                <p class="kv-error" translate>{{ error.message }}</p>
+              }
             }
           </div>
 
-          <div class="field-group">
-            <label class="field-label" for="subRef">Subscription Reference</label>
+          <div class="kv-field">
+            <label class="kv-label" for="subRef">Subscription Reference</label>
             <mat-form-field appearance="outline" class="vault-field">
-              <input id="subRef" matInput type="text" [formField]="editSubscriptionSignalForm.ref"
-                placeholder="e.g. SUB-000000" />
-              <mat-icon matSuffix matTooltip="Immutable Ref">lock</mat-icon>
+              <input id="subRef" matInput type="text" [formField]="editSubscriptionSignalForm.ref" placeholder="e.g. SUB-000000" />
+              <mat-icon matSuffix matTooltip="Immutable reference">lock</mat-icon>
             </mat-form-field>
           </div>
         </div>
-      </mat-card>
+      </section>
 
-      <mat-card class="vault-card">
-        <div class="section-head">
-          <mat-icon class="section-icon">calendar_month</mat-icon>
-          <h2 class="section-title">Organisation &amp; Period</h2>
+      <!-- Organisation & Period -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">calendar_month</mat-icon>
+          <h2 class="kv-card-title">Organisation &amp; Period</h2>
         </div>
 
-        <div class="field-group">
-          <label class="field-label" for="subOrg">Assign Organisation</label>
-          <mat-form-field appearance="outline" class="vault-field">
-            <mat-select id="organisation" [compareWith]="organisationCompare"
-              [formField]="editSubscriptionSignalForm.organisation">
-              <mat-option>
-                <ngx-mat-select-search [placeholderLabel]="'search.organisation' | translate"
-                  [formField]="editSubscriptionSignalForm.organisationFilter" (keyup.enter)="filterOrganisation()"
-                  [noEntriesFoundLabel]="'no.entries.found' | translate">
-                </ngx-mat-select-search>
-                <button mat-icon-button type="button" aria-label="Search organisations" (click)="filterOrganisation()">
-                  <mat-icon>search</mat-icon>
-                </button>
-              </mat-option>
-              @for(item of organisationApiStore.dataList(); track item.id) {
-              <mat-option [value]="item">
-                <div class="organisation-option">
-                  <!-- <mat-icon class="option-icon">business</mat-icon> -->
-                  <span class="option-text">{{ item.name }}</span>
-                </div>
-              </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          @if (editSubscriptionSignalForm.organisation().touched()) {
-          @for (error of editSubscriptionSignalForm.organisation().errors(); track $index) {
-          <p class="error-message" translate>{{ error.message }}</p>
-          }
-          }
-          @if (editSubscriptionSignal().organisation) {
-          <p class="helper-text">
-            Linked organisation: {{ editSubscriptionSignal().organisation?.code }} - {{
-            editSubscriptionSignal().organisation?.name }}
-          </p>
-          }
-        </div>
-
-        <div class="field-grid two-column mt-field">
-          <div class="field-group">
-            <label class="field-label" for="subPeriod">Subscription Period</label>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="kv-field md:col-span-2">
+            <label class="kv-label" for="organisation">Organisation</label>
             <mat-form-field appearance="outline" class="vault-field">
-              <mat-select id="subPeriod" [formField]="editSubscriptionSignalForm.period">
+              <mat-select id="organisation" [compareWith]="organisationCompare" [formField]="editSubscriptionSignalForm.organisation"
+                placeholder="Select organisation">
+                <mat-option>
+                  <ngx-mat-select-search [placeholderLabel]="'search.organisation' | translate"
+                    [formField]="editSubscriptionSignalForm.organisationFilter" (keyup.enter)="filterOrganisation()"
+                    [noEntriesFoundLabel]="'no.entries.found' | translate">
+                  </ngx-mat-select-search>
+                  <button mat-icon-button type="button" aria-label="Search organisations" (click)="filterOrganisation()">
+                    <mat-icon>search</mat-icon>
+                  </button>
+                </mat-option>
+                @for (item of organisationApiStore.dataList(); track item.id) {
+                  <mat-option [value]="item">{{ item.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            @if (editSubscriptionSignalForm.organisation().touched()) {
+              @for (error of editSubscriptionSignalForm.organisation().errors(); track $index) {
+                <p class="kv-error" translate>{{ error.message }}</p>
+              }
+            }
+            @if (editSubscriptionSignal().organisation) {
+              <p class="text-xs text-on-surface-variant">
+                Linked organisation: {{ editSubscriptionSignal().organisation?.code }} - {{ editSubscriptionSignal().organisation?.name }}
+              </p>
+            }
+          </div>
+
+          <div class="kv-field">
+            <label class="kv-label" for="subPeriod">Subscription Period</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select id="subPeriod" [formField]="editSubscriptionSignalForm.period" placeholder="Select period">
                 <mat-option [value]="null">None</mat-option>
                 @for (p of periods; track p) {
-                <mat-option [value]="p">{{ p }}</mat-option>
+                  <mat-option [value]="p">{{ p }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
             @if (editSubscriptionSignalForm.period().touched()) {
-            @for (error of editSubscriptionSignalForm.period().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
+              @for (error of editSubscriptionSignalForm.period().errors(); track $index) {
+                <p class="kv-error" translate>{{ error.message }}</p>
+              }
             }
           </div>
 
-          <div class="field-group subscription-summary">
-            <span class="field-label">Lifecycle Snapshot</span>
-            <div class="summary-chip-row">
-              <span class="summary-chip">{{ editSubscriptionSignal().status || 'Draft' }}</span>
-              <span class="summary-chip muted">{{ editSubscriptionSignal().period || 'No Period' }}</span>
+          <div class="kv-field">
+            <span class="kv-label">Lifecycle Snapshot</span>
+            <div class="flex flex-wrap items-center gap-2 bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant/50 min-h-10">
+              <span class="kv-tag uppercase">{{ editSubscriptionSignal().status || 'Draft' }}</span>
+              <span class="kv-tag uppercase">{{ editSubscriptionSignal().period || 'No period' }}</span>
             </div>
           </div>
-        </div>
 
-        <div class="field-grid two-column mt-field">
-          <div class="field-group">
-            <label class="field-label" for="subStart">Start Date</label>
+          <div class="kv-field">
+            <label class="kv-label" for="subStart">Start Date</label>
             <mat-form-field appearance="outline" class="vault-field">
-              <input id="subStart" matInput [matDatepicker]="subStartPicker" [formField]="editSubscriptionSignalForm.startDate" >
-              <mat-hint>DD/MM/YYYY</mat-hint>
+              <input id="subStart" matInput placeholder="DD/MM/YYYY" [matDatepicker]="subStartPicker"
+                [formField]="editSubscriptionSignalForm.startDate" />
               <mat-datepicker-toggle matIconSuffix [for]="subStartPicker"></mat-datepicker-toggle>
               <mat-datepicker #subStartPicker></mat-datepicker>
             </mat-form-field>
             @if (editSubscriptionSignalForm.startDate().touched()) {
-            @for (error of editSubscriptionSignalForm.startDate().errors(); track $index) {
-            <p class="error-message" translate>{{ error.message }}</p>
-            }
+              @for (error of editSubscriptionSignalForm.startDate().errors(); track $index) {
+                <p class="kv-error" translate>{{ error.message }}</p>
+              }
             }
           </div>
 
-          <div class="field-group">
-            <label class="field-label" for="subEnd">End Date</label>
+          <div class="kv-field">
+            <label class="kv-label" for="subEnd">End Date</label>
             <mat-form-field appearance="outline" class="vault-field">
-              <input id="subEnd" matInput [matDatepicker]="subEndPicker" [formField]="editSubscriptionSignalForm.endDate" >
-              <mat-hint>DD/MM/YYYY</mat-hint>
+              <input id="subEnd" matInput placeholder="DD/MM/YYYY" [matDatepicker]="subEndPicker"
+                [formField]="editSubscriptionSignalForm.endDate" />
               <mat-datepicker-toggle matIconSuffix [for]="subEndPicker"></mat-datepicker-toggle>
               <mat-datepicker #subEndPicker></mat-datepicker>
             </mat-form-field>
           </div>
         </div>
-      </mat-card>
+      </section>
     </div>
 
-    <div class="side-column">
-      <mat-card class="vault-card vault-card-side accent-card">
-        <div class="section-head">
-          <mat-icon class="section-icon accent-icon">payments</mat-icon>
-          <h2 class="section-title accent-title">Financial Configuration</h2>
+    <!-- Side column -->
+    <aside class="md:col-span-4 flex flex-col gap-6">
+
+      <!-- Financial Configuration -->
+      <section class="kv-card border-t-4 border-emerald">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">payments</mat-icon>
+          <h2 class="kv-card-title">Financial Configuration</h2>
         </div>
 
-        <div class="field-group">
-          <label class="field-label light-label" for="subAmount">Total Amount (BWP)</label>
-          <mat-form-field appearance="outline" class="vault-field amount-field">
+        <div class="kv-field mb-4">
+          <label class="kv-label" for="subAmount">Total Amount (BWP)</label>
+          <mat-form-field appearance="outline" class="vault-field">
             <span matTextPrefix>P&nbsp;</span>
-            <input id="subAmount" matInput type="number" placeholder="0.00"
-              [formField]="editSubscriptionSignalForm.amount" />
+            <input id="subAmount" matInput type="number" placeholder="0.00" [formField]="editSubscriptionSignalForm.amount" />
           </mat-form-field>
           @if (editSubscriptionSignalForm.amount().touched()) {
-          @for (error of editSubscriptionSignalForm.amount().errors(); track $index) {
-          <p class="error-message error-message-light" translate>{{ error.message }}</p>
-          }
+            @for (error of editSubscriptionSignalForm.amount().errors(); track $index) {
+              <p class="kv-error" translate>{{ error.message }}</p>
+            }
           }
         </div>
 
-        <div class="financial-highlight">
-          <p class="financial-label">Current Total</p>
-          <h3>{{ (editSubscriptionSignal().amount || 0) | currency:'BWP':'symbol':'1.2-2' }}</h3>
+        <dl class="flex flex-col gap-3">
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Base Platform Fee</dt>
+            <dd class="kv-meta-value">Included</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">KYC Processing</dt>
+            <dd class="kv-meta-value">Configured per plan</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Total Due</dt>
+            <dd class="kv-meta-value font-semibold text-primary">
+              {{ (editSubscriptionSignal().amount || 0) | currency: 'BWP' : 'symbol' : '1.2-2' }}
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- Audit Trail -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">history</mat-icon>
+          <h2 class="kv-card-title">Audit Trail</h2>
         </div>
 
-        <div class="fee-breakdown">
-          <div class="value-row">
-            <span>Base Platform Fee</span>
-            <span>Included</span>
+        <dl class="flex flex-col gap-3">
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Created At</dt>
+            <dd class="kv-meta-value">{{ (editSubscriptionSignal().createdAt | date: 'dd MMM yyyy, HH:mm') || 'Not available' }}</dd>
           </div>
-          <div class="value-row">
-            <span>KYC Processing</span>
-            <span>Configured per plan</span>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Created By</dt>
+            <dd class="kv-meta-value">{{ editSubscriptionSignal().createdBy || 'Not available' }}</dd>
           </div>
-          <mat-divider></mat-divider>
-          <div class="value-row value-row-strong">
-            <span>Total Due</span>
-            <span>{{ (editSubscriptionSignal().amount || 0) | currency:'BWP':'symbol':'1.2-2' }}</span>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Modified At</dt>
+            <dd class="kv-meta-value">{{ (editSubscriptionSignal().modifiedAt | date: 'dd MMM yyyy, HH:mm') || 'Not available' }}</dd>
           </div>
-        </div>
-      </mat-card>
-    </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Modified By</dt>
+            <dd class="kv-meta-value">{{ editSubscriptionSignal().modifiedBy || 'Not available' }}</dd>
+          </div>
+        </dl>
+      </section>
+    </aside>
   </div>
 </div>

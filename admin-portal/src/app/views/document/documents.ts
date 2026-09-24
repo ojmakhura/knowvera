@@ -10,7 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 // Material Imports
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +20,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -39,6 +38,7 @@ import { Loader } from '@app/@shared/loader/loader';
 import { form, FormField } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { DocumentListDTO } from '@app/models/bw/co/knowvera/document/document-list-dto';
+import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
 
 export class SearchDocumentsVarsForm {
   fileName: string = '';
@@ -56,6 +56,7 @@ export class SearchDocumentsVarsForm {
   styleUrls: ['./documents.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     CommonModule,
     MatIconModule,
     MatButtonModule,
@@ -64,14 +65,12 @@ export class SearchDocumentsVarsForm {
     MatInputModule,
     MatSelectModule,
     MatTableModule,
-    MatPaginatorModule,
     MatChipsModule,
     MatTooltipModule,
     MatProgressBarModule,
     FormsModule,
     FormField,
     TranslateModule,
-    Loader
   ],
 })
 export class Documents implements OnInit {
@@ -168,9 +167,19 @@ export class Documents implements OnInit {
     });
   }
 
-  onPageChange(event: PageEvent): void {
-    this.pageSize.set(event.pageSize);
-    this.doSearch(event.pageIndex, event.pageSize);
+  protected readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+  protected readonly pageNumbers = computed(() => pageWindow(this.currentPage(), this.totalPages()));
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= Math.max(this.totalPages(), 1) || page === this.currentPage()) {
+      return;
+    }
+    this.doSearch(page, this.pageSize());
+  }
+
+  changePageSize(size: string | number): void {
+    this.pageSize.set(Number(size));
+    this.doSearch(0, Number(size));
   }
 
   openDetails(id: string): void {
@@ -239,6 +248,20 @@ export class Documents implements OnInit {
     }
   }
 
+  /** Shared status-chip tone (kv-tone-*) for a verification status. */
+  statusTone(status: string | null | undefined): string {
+    switch (status) {
+      case DocumentVerificationStatus.VERIFIED:
+        return 'kv-tone-success';
+      case DocumentVerificationStatus.MANUAL_REVIEW:
+        return 'kv-tone-warning';
+      case DocumentVerificationStatus.REJECTED:
+        return 'kv-tone-danger';
+      default:
+        return 'kv-tone-neutral';
+    }
+  }
+
   documentIcon(row: DocumentDTO): string {
     if (row.verificationStatus === DocumentVerificationStatus.REJECTED) {
       return 'report';
@@ -256,15 +279,7 @@ export class Documents implements OnInit {
   }
 
   showingLabel(): string {
-    const total = this.totalElements();
-
-    if (!total) {
-      return 'Showing 0 records';
-    }
-
-    const start = this.currentPage() * this.pageSize() + 1;
-    const end = Math.min(start + this.rows().length - 1, total);
-    return `Showing ${start}-${end} of ${total} records`;
+    return showingRecordsLabel(this.currentPage(), this.pageSize(), this.rows().length, this.totalElements());
   }
 
   pageReport(): string {

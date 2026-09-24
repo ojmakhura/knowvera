@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -77,6 +78,7 @@ expiresIn: number | any;
   styleUrls: ['./document-type-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     CommonModule,
     MatCardModule,
     MatFormFieldModule,

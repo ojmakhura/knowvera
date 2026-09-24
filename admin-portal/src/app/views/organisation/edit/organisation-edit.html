@@ -1,26 +1,26 @@
-<div class="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-8">
+<div class="kv-page">
 
   <!-- Header -->
-  <header class="mb-6">
-    <nav class="flex items-center gap-1 text-xs text-[var(--on-surface-variant)] mb-2" aria-label="Breadcrumb">
-      <a routerLink="/organisation" class="hover:text-[var(--primary)] transition-colors">{{ breadcrumbLabel }}</a>
-      <mat-icon class="!text-base !h-4 !w-4">chevron_right</mat-icon>
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/organisation">{{ breadcrumbLabel }}</a>
+      <mat-icon>chevron_right</mat-icon>
       @if (editOrganisationFormSignal().name) {
       <span>{{ editOrganisationFormSignal().name }}</span>
-      <mat-icon class="!text-base !h-4 !w-4">chevron_right</mat-icon>
+      <mat-icon>chevron_right</mat-icon>
       }
-      <span class="text-[var(--primary)] font-semibold" translate>{{ editOrganisationFormSignal().id ? 'edit' : 'create' }}</span>
+      <span class="kv-breadcrumb-current" translate>{{ editOrganisationFormSignal().id ? 'edit' : 'create' }}</span>
     </nav>
 
-    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-      <h1 class="heading text-2xl md:text-3xl font-semibold text-[var(--primary)] tracking-tight">Edit Organisation</h1>
-      <div class="flex gap-3">
+    <div class="kv-page-header">
+      <h1 class="kv-title">{{ editOrganisationFormSignal().id ? 'Edit Organisation' : 'New Organisation' }}</h1>
+      <div class="kv-actions">
         <button type="button" (click)="cancel()"
-          class="px-4 py-2 rounded-lg border border-[var(--outline-variant)] text-[var(--primary)] text-sm font-medium hover:bg-[var(--surface-container-low)] transition-colors">
+          class="kv-btn-secondary">
           Cancel
         </button>
         <button type="button" [disabled]="editOrganisationFormSignalForm().invalid()" (click)="saveOrganisation()"
-          class="px-4 py-2 rounded-lg bg-[#00b67a] text-white text-sm font-medium hover:bg-[#009c69] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+          class="kv-btn-primary">
           Save Changes
         </button>
       </div>
@@ -33,72 +33,72 @@
     <div class="md:col-span-8 flex flex-col gap-6">
 
       <!-- Core Identity -->
-      <section class="bg-[var(--surface-container-lowest)] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6">
-        <div class="flex items-center gap-3 pb-2 mb-6 border-b border-[var(--outline-variant)]">
-          <mat-icon class="text-[var(--primary)] !text-xl">corporate_fare</mat-icon>
-          <h2 class="heading text-base font-semibold text-[var(--primary)]">Core Identity</h2>
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">corporate_fare</mat-icon>
+          <h2 class="kv-card-title">Core Identity</h2>
         </div>
 
-        <div class="flex flex-col gap-1">
-          <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationName">Organisation Name</label>
+        <div class="kv-field">
+          <label class="kv-label" for="organisationName">Organisation Name</label>
           <input id="organisationName" type="text" [formField]="editOrganisationFormSignalForm.name"
-            class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors" />
+            class="kv-input" />
           @if(editOrganisationFormSignalForm.name().touched()) {
           @for (error of editOrganisationFormSignalForm.name().errors(); track $index) {
-          <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+          <p class="kv-error" translate>{{ error.message }}</p>
           }
           }
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationCode" translate>abbreviation</label>
+          <div class="kv-field">
+            <label class="kv-label" for="organisationCode" translate>abbreviation</label>
             <input id="organisationCode" type="text" [formField]="editOrganisationFormSignalForm.code"
-              class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors" />
+              class="kv-input" />
             @if(editOrganisationFormSignalForm.code().touched()) {
             @for (error of editOrganisationFormSignalForm.code().errors(); track $index) {
-            <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+            <p class="kv-error" translate>{{ error.message }}</p>
             }
             }
           </div>
 
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationRegistrationNo">Registration No.</label>
+          <div class="kv-field">
+            <label class="kv-label" for="organisationRegistrationNo">Registration No.</label>
             <input id="organisationRegistrationNo" type="text" [formField]="editOrganisationFormSignalForm.registrationNo"
-              class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors" />
+              class="kv-input" />
             @if(editOrganisationFormSignalForm.registrationNo().touched()) {
             @for (error of editOrganisationFormSignalForm.registrationNo().errors(); track $index) {
-            <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+            <p class="kv-error" translate>{{ error.message }}</p>
             }
             }
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 items-end">
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationCountryOfRegistration">Country of Registration</label>
+          <div class="kv-field">
+            <label class="kv-label" for="organisationCountryOfRegistration">Country of Registration</label>
             <select id="organisationCountryOfRegistration" [formField]="editOrganisationFormSignalForm.countryOfRegistration"
-              class="rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors">
+              class="kv-input">
               @for (country of countries; track country) {
               <option [value]="country">{{ country }}</option>
               }
             </select>
             @if(editOrganisationFormSignalForm.countryOfRegistration().touched()) {
             @for (error of editOrganisationFormSignalForm.countryOfRegistration().errors(); track $index) {
-            <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+            <p class="kv-error" translate>{{ error.message }}</p>
             }
             }
           </div>
 
-          <div class="flex items-center justify-between bg-[var(--surface-container-low)] rounded-lg px-4 py-3">
+          <div class="flex items-center justify-between bg-surface-container-low rounded-lg px-4 py-3">
             <div>
-              <p class="text-sm font-medium text-[var(--primary)]">Client Status</p>
-              <p class="text-xs text-[var(--on-surface-variant)]">Is this organisation an active client?</p>
+              <p class="text-sm font-medium text-primary">Client Status</p>
+              <p class="text-xs text-on-surface-variant">Is this organisation an active client?</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" class="sr-only peer" [formField]="editOrganisationFormSignalForm.isClient" />
               <div
-                class="w-11 h-6 bg-[var(--outline-variant)] rounded-full peer peer-focus:outline-none peer-checked:bg-[#00b67a] transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white">
+                class="w-11 h-6 bg-outline-variant rounded-full peer peer-focus:outline-none peer-checked:bg-emerald transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white">
               </div>
             </label>
           </div>
@@ -106,100 +106,100 @@
       </section>
 
       <!-- Operational Status -->
-      <section class="bg-[var(--surface-container-lowest)] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6">
-        <div class="flex items-center gap-3 pb-2 mb-6 border-b border-[var(--outline-variant)]">
-          <mat-icon class="text-[var(--primary)] !text-xl">verified_user</mat-icon>
-          <h2 class="heading text-base font-semibold text-[var(--primary)]">Operational Status</h2>
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">verified_user</mat-icon>
+          <h2 class="kv-card-title">Operational Status</h2>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationStatus">General Status</label>
+          <div class="kv-field">
+            <label class="kv-label" for="organisationStatus">General Status</label>
             <select id="organisationStatus" [formField]="editOrganisationFormSignalForm.status"
-              class="rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors">
+              class="kv-input">
               @for (status of generalStatuses; track status) {
               <option [value]="status">{{ status }}</option>
               }
             </select>
             @if(editOrganisationFormSignalForm.status().touched()) {
             @for (error of editOrganisationFormSignalForm.status().errors(); track $index) {
-            <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+            <p class="kv-error" translate>{{ error.message }}</p>
             }
             }
           </div>
 
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationKycStatus">KYC Compliance Status</label>
+          <div class="kv-field">
+            <label class="kv-label" for="organisationKycStatus">KYC Compliance Status</label>
             <select id="organisationKycStatus" [formField]="editOrganisationFormSignalForm.kycStatus"
-              class="rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] px-3 py-2 text-sm font-medium text-[var(--secondary)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors">
+              class="kv-input font-medium text-secondary">
               @for (status of kycComplianceStatuses; track status) {
               <option [value]="status">{{ status }}</option>
               }
             </select>
             @if(editOrganisationFormSignalForm.kycStatus().touched()) {
             @for (error of editOrganisationFormSignalForm.kycStatus().errors(); track $index) {
-            <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+            <p class="kv-error" translate>{{ error.message }}</p>
             }
             }
           </div>
         </div>
 
-        <div class="flex flex-col gap-1 mt-4">
-          <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationDescription">Description / Notes</label>
+        <div class="kv-field mt-4">
+          <label class="kv-label" for="organisationDescription">Description / Notes</label>
           <textarea id="organisationDescription" rows="3" [formField]="editOrganisationFormSignalForm.description"
             placeholder="Enter organisational details and compliance notes..."
-            class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] resize-none focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors"></textarea>
+            class="kv-input resize-none"></textarea>
           @if(editOrganisationFormSignalForm.description().touched()) {
           @for (error of editOrganisationFormSignalForm.description().errors(); track $index) {
-          <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+          <p class="kv-error" translate>{{ error.message }}</p>
           }
           }
         </div>
       </section>
 
       <!-- Managed Domains -->
-      <section class="bg-[var(--surface-container-lowest)] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6">
-        <div class="flex items-center justify-between pb-2 mb-6 border-b border-[var(--outline-variant)]">
+      <section class="kv-card">
+        <div class="kv-card-header justify-between">
           <div class="flex items-center gap-3">
-            <mat-icon class="text-[var(--primary)] !text-xl">language</mat-icon>
-            <h2 class="heading text-base font-semibold text-[var(--primary)]">Managed Domains</h2>
+            <mat-icon class="kv-card-icon">language</mat-icon>
+            <h2 class="kv-card-title">Managed Domains</h2>
           </div>
           <button type="button" (click)="addDomain()"
-            class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[var(--surface-container-low)] text-[var(--primary)] text-xs font-semibold uppercase tracking-wide hover:bg-[var(--surface-container-high)] transition-colors">
-            <mat-icon class="!text-lg">add</mat-icon>
+            class="kv-btn-subtle">
+            <mat-icon>add</mat-icon>
             Add Domain
           </button>
         </div>
 
         <div class="flex flex-col gap-3">
           @for (domain of editOrganisationFormSignalForm.domains; track domain; let index = $index) {
-          <div class="flex flex-col sm:flex-row sm:items-center gap-3 p-3 border border-[var(--outline-variant)] rounded-lg bg-[var(--surface)]">
+          <div class="kv-panel flex flex-col sm:flex-row sm:items-center gap-3 p-3">
             <div class="flex items-center gap-3 flex-1 min-w-0">
-              <mat-icon class="text-[var(--outline)] !text-xl">link</mat-icon>
+              <mat-icon class="kv-card-icon text-on-surface-variant!">dns</mat-icon>
               <div class="flex-1 min-w-0">
                 <input [formField]="domain.name" placeholder="Enter domain"
-                  class="w-full bg-transparent text-sm text-[var(--on-surface)] focus:outline-none" />
+                  class="kv-input" />
                 @if(domain.name().touched()) {
                 @for (error of domain.name().errors(); track $index) {
-                <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+                <p class="kv-error" translate>{{ error.message }}</p>
                 }
                 }
               </div>
             </div>
 
-            <div class="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0">
+            <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" [formField]="domain.verified"
-                  class="rounded border-[var(--outline-variant)] text-[#00b67a] focus:ring-[#00b67a]" />
-                <span class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]">Verified</span>
+                  class="rounded border-outline-variant text-emerald focus:ring-emerald" />
+                <span class="kv-label">Verified</span>
               </label>
-              <button type="button" (click)="removeDomain(index)" class="text-[var(--error)] hover:opacity-70">
-                <mat-icon class="!text-xl">delete</mat-icon>
+              <button type="button" (click)="removeDomain(index)" class="kv-icon-btn-danger" aria-label="Remove domain">
+                <mat-icon>delete</mat-icon>
               </button>
             </div>
           </div>
           } @empty {
-          <p class="text-sm text-[var(--on-surface-variant)]">No managed domains added yet.</p>
+          <p class="text-sm text-on-surface-variant">No managed domains added yet.</p>
           }
         </div>
       </section>
@@ -209,35 +209,36 @@
     <div class="md:col-span-4 flex flex-col gap-6">
 
       <!-- Contact -->
-      <section class="bg-[var(--surface-container-lowest)] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6">
-        <div class="flex items-center gap-3 pb-2 mb-6 border-b border-[var(--outline-variant)]">
-          <mat-icon class="text-[var(--primary)] !text-xl">alternate_email</mat-icon>
-          <h2 class="heading text-base font-semibold text-[var(--primary)]">Contact</h2>
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">alternate_email</mat-icon>
+          <h2 class="kv-card-title">Contact</h2>
         </div>
 
-        <div class="flex flex-col gap-1 mb-4">
-          <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationEmail">Contact Email Address</label>
+        <div class="kv-field mb-4">
+          <label class="kv-label" for="organisationEmail">Contact Email Address</label>
           <input id="organisationEmail" type="email" [formField]="editOrganisationFormSignalForm.contactEmailAddress"
-            class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors" />
+            class="kv-input" />
           @if (editOrganisationFormSignalForm.contactEmailAddress().touched()) {
           @for (error of editOrganisationFormSignalForm.contactEmailAddress().errors(); track $index) {
-          <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+          <p class="kv-error" translate>{{ error.message }}</p>
           }
           }
         </div>
 
         <div class="flex flex-col gap-2">
           <div class="flex justify-between items-center">
-            <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]">Phone Numbers</label>
-            <button type="button" (click)="addPhoneNumber()" class="text-[var(--primary)] hover:text-[var(--primary-container)] transition-colors">
-              <mat-icon class="!text-lg">add_circle</mat-icon>
+            <label class="kv-label">Phone Numbers</label>
+            <button type="button" (click)="addPhoneNumber()" class="kv-btn-subtle">
+              <mat-icon>add</mat-icon>
+              Add Number
             </button>
           </div>
 
           @for (phone of editOrganisationFormSignalForm.phoneNumbers; track phone; let index = $index) {
           <div class="flex gap-2 items-start">
             <select [formField]="phone.type"
-              class="w-28 flex-shrink-0 rounded-lg border border-[var(--outline-variant)] bg-[var(--surface-container-lowest)] px-2 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors">
+              class="kv-input w-28 shrink-0 px-2">
               @for (type of phoneTypes; track type) {
               <option [value]="type">{{ type }}</option>
               }
@@ -245,77 +246,77 @@
 
             <div class="flex-1 min-w-0">
               <input [formField]="phone.phoneNumber" type="tel" placeholder="Phone number"
-                class="w-full rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors" />
+                class="kv-input" />
               @if(phone.phoneNumber().touched()) {
               @for (error of phone.phoneNumber().errors(); track $index) {
-              <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+              <p class="kv-error" translate>{{ error.message }}</p>
               }
               }
             </div>
 
-            <button type="button" (click)="removePhoneNumber(index)" class="mt-2 text-[var(--error)] hover:opacity-70 flex-shrink-0">
-              <mat-icon class="!text-lg">delete</mat-icon>
+            <button type="button" (click)="removePhoneNumber(index)" class="kv-icon-btn-danger mt-0.5 shrink-0" aria-label="Remove phone number">
+              <mat-icon>delete</mat-icon>
             </button>
           </div>
           } @empty {
-          <p class="text-sm text-[var(--on-surface-variant)]" translate>No phone numbers added yet.</p>
+          <p class="text-sm text-on-surface-variant" translate>No phone numbers added yet.</p>
           }
         </div>
       </section>
 
       <!-- Addresses -->
-      <section class="bg-[var(--surface-container-lowest)] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6">
-        <div class="flex items-center gap-3 pb-2 mb-6 border-b border-[var(--outline-variant)]">
-          <mat-icon class="text-[var(--primary)] !text-xl">location_on</mat-icon>
-          <h2 class="heading text-base font-semibold text-[var(--primary)]">Addresses</h2>
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">location_on</mat-icon>
+          <h2 class="kv-card-title">Addresses</h2>
         </div>
 
-        <div class="flex flex-col gap-1 mb-4">
-          <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationPhysicalAddress">Physical Address</label>
+        <div class="kv-field mb-4">
+          <label class="kv-label" for="organisationPhysicalAddress">Physical Address</label>
           <textarea id="organisationPhysicalAddress" rows="3" [formField]="editOrganisationFormSignalForm.physicalAddress"
-            class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] resize-none focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors"></textarea>
+            class="kv-input resize-none"></textarea>
           @if(editOrganisationFormSignalForm.physicalAddress().touched()) {
           @for (error of editOrganisationFormSignalForm.physicalAddress().errors(); track $index) {
-          <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+          <p class="kv-error" translate>{{ error.message }}</p>
           }
           }
         </div>
 
-        <div class="flex flex-col gap-1">
-          <label class="text-xs font-semibold uppercase tracking-wide text-[var(--on-surface-variant)]" for="organisationPostalAddress">Postal Address</label>
+        <div class="kv-field">
+          <label class="kv-label" for="organisationPostalAddress">Postal Address</label>
           <textarea id="organisationPostalAddress" rows="3" [formField]="editOrganisationFormSignalForm.postalAddress"
-            class="rounded-lg border border-[var(--outline-variant)] px-3 py-2 text-sm text-[var(--on-surface)] resize-none focus:outline-none focus:border-[#00b67a] focus:ring-2 focus:ring-[#00b67a]/20 transition-colors"></textarea>
+            class="kv-input resize-none"></textarea>
           @if(editOrganisationFormSignalForm.postalAddress().touched()) {
           @for (error of editOrganisationFormSignalForm.postalAddress().errors(); track $index) {
-          <p class="text-xs text-[var(--error)]" translate>{{ error.message }}</p>
+          <p class="kv-error" translate>{{ error.message }}</p>
           }
           }
         </div>
       </section>
 
       <!-- Audit Trail -->
-      <section class="bg-[var(--surface-container-lowest)] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-6">
-        <div class="flex items-center gap-3 pb-2 mb-6 border-b border-[var(--outline-variant)]">
-          <mat-icon class="text-[var(--primary)] !text-xl">history</mat-icon>
-          <h2 class="heading text-base font-semibold text-[var(--primary)]">Audit Trail</h2>
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">history</mat-icon>
+          <h2 class="kv-card-title">Audit Trail</h2>
         </div>
 
         <div class="flex flex-col gap-3">
-          <div class="flex justify-between text-sm">
-            <span class="text-[var(--on-surface-variant)] font-medium">Created At</span>
-            <span class="text-[var(--on-surface)] font-medium">{{ formatAuditDate(editOrganisationFormSignal().createdAt) }}</span>
+          <div class="kv-meta-row">
+            <span class="kv-meta-label">Created At</span>
+            <span class="kv-meta-value">{{ formatAuditDate(editOrganisationFormSignal().createdAt) }}</span>
           </div>
-          <div class="flex justify-between text-sm">
-            <span class="text-[var(--on-surface-variant)] font-medium">Created By</span>
-            <span class="text-[var(--on-surface)] font-medium">{{ editOrganisationFormSignal().createdBy || 'Not available' }}</span>
+          <div class="kv-meta-row">
+            <span class="kv-meta-label">Created By</span>
+            <span class="kv-meta-value">{{ editOrganisationFormSignal().createdBy || 'Not available' }}</span>
           </div>
-          <div class="flex justify-between text-sm">
-            <span class="text-[var(--on-surface-variant)] font-medium">Modified At</span>
-            <span class="text-[var(--on-surface)] font-medium">{{ formatAuditDate(editOrganisationFormSignal().modifiedAt) }}</span>
+          <div class="kv-meta-row">
+            <span class="kv-meta-label">Modified At</span>
+            <span class="kv-meta-value">{{ formatAuditDate(editOrganisationFormSignal().modifiedAt) }}</span>
           </div>
-          <div class="flex justify-between text-sm">
-            <span class="text-[var(--on-surface-variant)] font-medium">Modified By</span>
-            <span class="text-[var(--on-surface)] font-medium">{{ editOrganisationFormSignal().modifiedBy || 'Not available' }}</span>
+          <div class="kv-meta-row">
+            <span class="kv-meta-label">Modified By</span>
+            <span class="kv-meta-value">{{ editOrganisationFormSignal().modifiedBy || 'Not available' }}</span>
           </div>
         </div>
       </section>

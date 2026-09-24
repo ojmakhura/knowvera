@@ -1,245 +1,215 @@
-<section class="organisations-page">
-  <header class="page-header">
-    <div class="page-header__copy">
-      <h2 class="page-title">Organisations Registry</h2>
-      <p class="page-subtitle">Manage and monitor verified corporate entities and their KYC standing.</p>
-    </div>
+<div class="kv-page">
 
-    <div class="page-header__actions">
-      <button type="button" class="btn btn-outline" (click)="exportOrganisations()">
-        <mat-icon>download</mat-icon>
-        <span>Export</span>
-      </button>
-      <button type="button" class="btn btn-primary" (click)="createNewOrganisation()">
-        <mat-icon>add_business</mat-icon>
-        <span>New Organisation</span>
-      </button>
+  <!-- Header -->
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/organisation">{{ breadcrumbLabel }}</a>
+    </nav>
+
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">Organisation Search</h1>
+      </div>
+      <div class="kv-actions">
+        <button type="button" class="kv-btn-secondary" (click)="exportOrganisations()">
+          <mat-icon>download</mat-icon>
+          Export
+        </button>
+        <button type="button" class="kv-btn-primary" (click)="createNewOrganisation()">
+          <mat-icon>add_business</mat-icon>
+          New Organisation
+        </button>
+      </div>
     </div>
   </header>
 
-  <div class="vault-card filter-card">
-    <div class="filter-card__accent"></div>
+  <!-- Search criteria -->
+  <form class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-6" (submit)="$event.preventDefault(); onSearchSubmit()">
 
-    <form class="filter-grid" (submit)="$event.preventDefault(); onSearchSubmit()">
-      <div class="search-field">
-        <mat-icon>search</mat-icon>
-        <input
-          type="text"
-          placeholder="Search by name, registration no., or code..."
-          [value]="searchOrganisationsSignal().criteria"
-          (input)="updateCriteria($any($event.target).value)"
-          (keyup.enter)="onSearchSubmit()"
-        />
+    <!-- Main column -->
+    <section class="kv-card md:col-span-8">
+      <div class="kv-card-header">
+        <mat-icon class="kv-card-icon">manage_search</mat-icon>
+        <h2 class="kv-card-title">Search Criteria</h2>
       </div>
 
-      <mat-form-field appearance="outline" class="vault-field vault-select">
-        <mat-icon matPrefix>filter_list</mat-icon>
-        <mat-select [value]="kycStatusFilter()" (selectionChange)="updateKycStatusFilter($event.value)">
-          @for (option of kycStatusOptions; track option.value) {
-            <mat-option [value]="option.value">{{ option.label }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="vault-field vault-select">
-        <mat-icon matPrefix>category</mat-icon>
-        <mat-select [value]="clientStatusFilter()" (selectionChange)="updateClientStatusFilter($event.value)">
-          @for (option of clientStatusOptions; track option.value) {
-            <mat-option [value]="option.value">{{ option.label }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-    </form>
-
-    @if (searchOrganisationsSignal().criteria || kycStatusFilter() || clientStatusFilter()) {
-      <div class="filter-card__reset">
-        <button type="button" class="link-button" (click)="resetSearch()">Clear filters</button>
+      <div class="kv-field">
+        <label class="kv-label" for="criteria">Name, Registration No. or Code</label>
+        <mat-form-field appearance="outline" class="vault-field">
+          <mat-icon matPrefix>search</mat-icon>
+          <input id="criteria" type="search" matInput placeholder="Enter name, registration number or entity code..."
+            [value]="searchOrganisationsSignal().criteria || ''"
+            (input)="updateCriteria($any($event.target).value)" />
+        </mat-form-field>
       </div>
+    </section>
+
+    <!-- Side column -->
+    <section class="kv-card border-t-4 border-emerald md:col-span-4 flex flex-col gap-4">
+      <div class="kv-card-header">
+        <mat-icon class="kv-card-icon">filter_alt</mat-icon>
+        <h2 class="kv-card-title">Filters</h2>
+      </div>
+
+      <div class="kv-field">
+        <label class="kv-label" for="orgKycStatus">KYC Status</label>
+        <mat-form-field appearance="outline" class="vault-field">
+          <mat-select id="orgKycStatus" [value]="kycStatusFilter()" (selectionChange)="updateKycStatusFilter($event.value)">
+            @for (option of kycStatusOptions; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="kv-field">
+        <label class="kv-label" for="orgClientStatus">Client Status</label>
+        <mat-form-field appearance="outline" class="vault-field">
+          <mat-select id="orgClientStatus" [value]="clientStatusFilter()" (selectionChange)="updateClientStatusFilter($event.value)">
+            @for (option of clientStatusOptions; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="kv-actions mt-auto pt-2">
+        <button type="button" class="kv-btn-secondary flex-1 justify-center" (click)="resetSearch()">Reset</button>
+        <button type="submit" class="kv-btn-primary flex-1 justify-center" [disabled]="loading()">
+          <mat-icon>manage_search</mat-icon>
+          {{ loading() ? 'Searching...' : 'Search' }}
+        </button>
+      </div>
+    </section>
+  </form>
+
+  <!-- Results -->
+  <section class="vs-results">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     }
-  </div>
+    <div class="vs-results-head">
+      <h2 class="vs-results-title">Search Results</h2>
+      <span class="vs-count">{{ showingLabel() }}</span>
+    </div>
 
-  <!-- Desktop / tablet table -->
-  <div class="hidden md:block">
-    <mat-card class="results-card">
-      <div class="results-table-wrap">
-        <table mat-table [dataSource]="dataSource" class="organisations-table">
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>Organisation Name</th>
-            <td mat-cell *matCellDef="let organisation">
-              <div class="name-cell">
-                <div class="entity-icon" [class.flagged]="kycStatusClass(organisation.kycStatus) === 'kyc-failed'">
-                  <mat-icon>{{ organisationIcon(organisation) }}</mat-icon>
+    <div class="vs-table-wrap">
+      <table class="vs-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Registration No.</th>
+            <th class="align-center">Code</th>
+            <th>KYC Status</th>
+            <th>Client Status</th>
+            <th class="align-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (organisation of filteredOrganisations(); track organisation.id) {
+            <tr>
+              <td>
+                <div class="vs-file">
+                  <mat-icon class="vs-file-icon" [class.is-danger]="kycStatusClass(organisation.kycStatus) === 'kyc-failed'">
+                    {{ organisationIcon(organisation) }}
+                  </mat-icon>
+                  <div class="vs-file-copy">
+                    <button type="button" class="vs-file-name" (click)="openDetails(organisation.id)">
+                      {{ organisation.name || 'Unnamed Organisation' }}
+                    </button>
+                    <p class="vs-file-meta">{{ organisationSubtitle(organisation) }}</p>
+                  </div>
                 </div>
-                <div class="entity-copy">
-                  <button type="button" class="entity-link" (click)="openDetails(organisation.id)">
-                    {{ organisation.name || 'Unnamed Organisation' }}
+              </td>
+              <td class="vs-mono">{{ organisation.registrationNo || '—' }}</td>
+              <td class="align-center"><span class="kv-tag">{{ organisation.code || '—' }}</span></td>
+              <td>
+                <span class="vs-status" [class]="kycTone(organisation.kycStatus)">{{ kycStatusLabel(organisation.kycStatus) }}</span>
+              </td>
+              <td>
+                <span class="vs-status" [class]="clientTone(getClientStatus(organisation))">
+                  {{ clientStatusLabel(getClientStatus(organisation)) }}
+                </span>
+              </td>
+              <td>
+                <div class="vs-row-actions">
+                  <button type="button" class="vs-action" matTooltip="View details" aria-label="View details"
+                    (click)="openDetails(organisation.id)">
+                    <mat-icon>visibility</mat-icon>
                   </button>
-                  <p>{{ organisationSubtitle(organisation) }}</p>
+                  <button type="button" class="vs-action" matTooltip="Edit organisation" aria-label="Edit organisation"
+                    (click)="openEdit(organisation.id)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
                 </div>
-              </div>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="registrationNo">
-            <th mat-header-cell *matHeaderCellDef>Registration No.</th>
-            <td mat-cell *matCellDef="let organisation" class="mono-cell">{{ organisation.registrationNo || '-' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="code">
-            <th mat-header-cell *matHeaderCellDef>Internal Code</th>
-            <td mat-cell *matCellDef="let organisation" class="mono-cell mono-cell--muted">{{ organisation.code || '-' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="kycStatus">
-            <th mat-header-cell *matHeaderCellDef class="align-center">KYC Status</th>
-            <td mat-cell *matCellDef="let organisation" class="align-center">
-              <span class="status-chip" [class]="kycStatusClass(organisation.kycStatus)">
-                <mat-icon>{{ kycStatusIcon(organisation.kycStatus) }}</mat-icon>
-                {{ kycStatusLabel(organisation.kycStatus) }}
-              </span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="clientStatus">
-            <th mat-header-cell *matHeaderCellDef class="align-center">Client Status</th>
-            <td mat-cell *matCellDef="let organisation" class="align-center">
-              <span class="client-chip" [class]="clientStatusClass(getClientStatus(organisation))">
-                {{ clientStatusLabel(getClientStatus(organisation)) }}
-              </span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="align-end">Actions</th>
-            <td mat-cell *matCellDef="let organisation" class="actions-cell align-end">
-              <button mat-icon-button type="button" matTooltip="View details" (click)="openDetails(organisation.id)">
-                <mat-icon>visibility</mat-icon>
-              </button>
-              <button mat-icon-button type="button" matTooltip="Edit organisation" (click)="openEdit(organisation.id)">
-                <mat-icon>edit</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-          <tr class="mat-row empty-row" *matNoDataRow>
-            <td class="mat-cell" [attr.colspan]="displayedColumns.length">
-              <div class="empty-state">
+              </td>
+            </tr>
+          } @empty {
+            <tr class="vs-empty">
+              <td colspan="6">
                 <mat-icon>search_off</mat-icon>
                 <p>No organisations matched the current search.</p>
-              </div>
-            </td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="results-footer">
-        <p class="results-summary">
-          Showing {{ filteredOrganisations().length }} of {{ totalElements() }} organisations
-        </p>
-
-        <mat-paginator
-          [length]="totalElements()"
-          [pageIndex]="currentPage()"
-          [pageSize]="pageSize()"
-          [pageSizeOptions]="[5, 10, 25, 50]"
-          showFirstLastButtons
-          (page)="handlePageEvent($event)"
-        ></mat-paginator>
-      </div>
-    </mat-card>
-  </div>
-
-  <!-- Mobile card list -->
-  <section class="mobile-list md:hidden" aria-label="Organisations">
-    <div class="mobile-list__head">
-      <h3>Registry ({{ totalElements() }})</h3>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
 
-    @for (organisation of filteredOrganisations(); track organisation.id) {
-      <button type="button" class="org-card" (click)="openDetails(organisation.id)">
-        <span class="org-card__identity">
-          <span class="org-card__avatar" [class.flagged]="kycStatusClass(organisation.kycStatus) === 'kyc-failed'">
-            <mat-icon>{{ organisationIcon(organisation) }}</mat-icon>
-          </span>
-          <span class="org-card__meta">
-            <span class="org-card__name">{{ organisation.name || 'Unnamed Organisation' }}</span>
-            <span class="org-card__sub">{{ organisation.registrationNo || '-' }} &bull; {{ organisation.code || '-' }}</span>
-          </span>
-        </span>
-
-        <span class="org-card__trail">
-          <span class="status-chip" [class]="kycStatusClass(organisation.kycStatus)">
-            {{ kycStatusLabel(organisation.kycStatus) }}
-          </span>
-          <mat-icon>chevron_right</mat-icon>
-        </span>
-      </button>
-    } @empty {
-      <div class="empty-state">
-        <mat-icon>search_off</mat-icon>
-        <p>No organisations matched the current search.</p>
+    <!-- Pagination -->
+    <div class="vs-results-foot">
+      <div class="vs-page-report">
+        {{ pageReport() }}
+        <label class="vs-page-size">
+          Rows
+          <select [value]="pageSize()" (change)="changePageSize($any($event.target).value)">
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+        </label>
       </div>
-    }
-
-    <mat-paginator
-      class="mobile-paginator"
-      [length]="totalElements()"
-      [pageIndex]="currentPage()"
-      [pageSize]="pageSize()"
-      [pageSizeOptions]="[5, 10, 25, 50]"
-      (page)="handlePageEvent($event)"
-    ></mat-paginator>
+      <nav class="vs-pager" aria-label="Pagination">
+        <button type="button" class="vs-page-arrow" aria-label="Previous page" [disabled]="currentPage() === 0"
+          (click)="goToPage(currentPage() - 1)">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        @for (page of pageNumbers(); track page) {
+          <button type="button" class="vs-page-btn" [class.is-active]="page === currentPage()"
+            [attr.aria-current]="page === currentPage() ? 'page' : null" (click)="goToPage(page)">
+            {{ page + 1 }}
+          </button>
+        }
+        <button type="button" class="vs-page-arrow" aria-label="Next page"
+          [disabled]="currentPage() >= totalPages() - 1" (click)="goToPage(currentPage() + 1)">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </nav>
+    </div>
   </section>
 
-  <div class="bottom-grid">
-    <mat-card class="vault-card overview-card">
-      <h3 class="overview-card__title">
-        <mat-icon>data_usage</mat-icon>
-        Registry Overview
-      </h3>
-
-      <div class="overview-card__rows">
-        <div class="overview-row">
-          <span><mat-icon>visibility</mat-icon>Visible now</span>
-          <strong>{{ filteredOrganisations().length }}</strong>
-        </div>
-        <div class="overview-row">
-          <span><mat-icon>database</mat-icon>Total Organisations</span>
-          <strong>{{ totalElements() }}</strong>
-        </div>
-        <div class="overview-row">
-          <span><mat-icon>group</mat-icon>Active Clients</span>
-          <strong class="overview-row__accent">{{ clientCount() }}</strong>
-        </div>
+  <!-- Assurances (visual vault) -->
+  <section class="vs-vault" aria-label="Registry assurances">
+    <div class="vs-vault-card vs-vault-storage">
+      <mat-icon class="vs-vault-art">security</mat-icon>
+      <div class="vs-vault-copy">
+        <h3>Registry Integrity</h3>
+        <p>Entities tracked against KYC compliance status</p>
       </div>
-    </mat-card>
-
-    <div class="insights-grid">
-      <mat-card class="vault-card insight-card">
-        <div class="insight-card__icon">
-          <mat-icon>security</mat-icon>
-        </div>
-        <h4>Registry Integrity</h4>
-        <p>Verified entities are tracked against KYC compliance status across the registry.</p>
-      </mat-card>
-
-      <mat-card class="vault-card insight-card">
-        <div class="insight-card__icon">
-          <mat-icon>update</mat-icon>
-        </div>
-        <h4>Real-time Updates</h4>
-        <p>KYC status and ownership changes propagate through the registry as they happen.</p>
-      </mat-card>
-
-      <mat-card class="vault-card insight-card">
-        <div class="insight-card__icon">
-          <mat-icon>fact_check</mat-icon>
-        </div>
-        <h4>Compliance Audit</h4>
-        <p>Review organisational exposure from the same registry used for KYC operations.</p>
-      </mat-card>
     </div>
-  </div>
-</section>
+    <div class="vs-vault-card vs-vault-logs">
+      <mat-icon class="vs-vault-art">update</mat-icon>
+      <div class="vs-vault-copy">
+        <h3>Real-time Updates</h3>
+        <p>Status and ownership changes propagate instantly</p>
+      </div>
+    </div>
+    <div class="vs-vault-card vs-vault-identity">
+      <mat-icon class="vs-vault-art">groups</mat-icon>
+      <div class="vs-vault-copy">
+        <h3>Active Clients</h3>
+        <p>{{ clientCount() }} of {{ totalElements() }} organisations are active clients</p>
+      </div>
+    </div>
+  </section>
+</div>

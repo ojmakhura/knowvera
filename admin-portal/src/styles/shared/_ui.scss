@@ -1,0 +1,440 @@
+// Knowvera UI primitives: the look and feel of the individual/organisation edit screens, as mixins.
+// Global `.kv-*` classes are generated from these in ../_ui.scss; component stylesheets can
+// @include them directly to give their own class names the same appearance:
+//
+//   @use 'shared/ui';
+//   .page-title { @include ui.page-title; }
+
+$font-heading: 'Poppins', 'Inter', sans-serif;
+$font-body: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+$radius-sm: 0.125rem;
+$radius: 0.25rem;
+$radius-card: 0.5rem;
+
+$shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+$shadow-button: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+$focus-ring: 0 0 0 2px rgb(0 182 122 / 0.2);
+$emerald-hover: #009c69;
+
+/// Material icon at a given size (Material's own .mat-icon rule is unlayered, so apply this with
+/// at least two classes of specificity, e.g. `.mat-icon.kv-card-icon`).
+@mixin icon-size($size) {
+	width: $size;
+	height: $size;
+	font-size: $size;
+	line-height: $size;
+}
+
+// ---------------------------------------------------------------- page chrome
+
+/// Centered page column with responsive gutters.
+@mixin page {
+	width: 100%;
+	max-width: 80rem;
+	margin-inline: auto;
+	padding: 1.5rem 1rem;
+
+	@media (min-width: 768px) {
+		padding: 2rem;
+	}
+}
+
+/// Title row: title block on the left, actions on the right (stacked on mobile).
+@mixin page-header {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	margin-bottom: 1.5rem;
+
+	@media (min-width: 768px) {
+		flex-direction: row;
+		align-items: flex-end;
+		justify-content: space-between;
+	}
+}
+
+@mixin breadcrumb {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	margin-bottom: 0.5rem;
+	font-size: 0.75rem;
+	line-height: 1rem;
+	color: var(--on-surface-variant);
+
+	a {
+		color: inherit;
+		text-decoration: none;
+		transition: color 150ms ease;
+
+		&:hover {
+			color: var(--primary);
+		}
+	}
+
+	.mat-icon {
+		width: 1rem;
+		height: 1rem;
+		font-size: 1rem;
+		line-height: 1rem;
+	}
+}
+
+@mixin breadcrumb-current {
+	color: var(--primary);
+	font-weight: 600;
+}
+
+@mixin page-title {
+	margin: 0;
+	font-family: $font-heading;
+	font-size: 1.5rem;
+	line-height: 2rem;
+	font-weight: 600;
+	letter-spacing: -0.025em;
+	text-transform: none;
+	color: var(--primary);
+
+	@media (min-width: 768px) {
+		font-size: 1.875rem;
+		line-height: 2.25rem;
+	}
+}
+
+@mixin page-subtitle {
+	margin: 0.25rem 0 0;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	font-weight: 400;
+	letter-spacing: normal;
+	text-transform: none;
+	color: var(--on-surface-variant);
+}
+
+@mixin actions-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+// ---------------------------------------------------------------- cards
+
+@mixin card {
+	border: 0;
+	border-radius: $radius-card;
+	background: var(--surface-container-lowest);
+	box-shadow: $shadow-card;
+	padding: 1.5rem;
+}
+
+/// Icon + title row with a hairline underneath. Add `justify-content: space-between` for a trailing action.
+@mixin card-header {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	padding-bottom: 0.5rem;
+	margin-bottom: 1.5rem;
+	border-bottom: 1px solid var(--outline-variant);
+}
+
+@mixin card-title {
+	margin: 0;
+	font-family: $font-heading;
+	font-size: 1rem;
+	line-height: 1.5rem;
+	font-weight: 600;
+	letter-spacing: normal;
+	text-transform: none;
+	color: var(--primary);
+}
+
+@mixin card-icon {
+	width: 1.25rem;
+	height: 1.25rem;
+	font-size: 1.25rem;
+	line-height: 1.25rem;
+	color: var(--primary);
+}
+
+/// Inset area inside a card (phone numbers, audit rows, ...).
+@mixin panel {
+	border: 1px solid color-mix(in oklab, var(--outline-variant) 50%, transparent);
+	border-radius: $radius;
+	background: var(--surface-container-low);
+	padding: 1rem;
+}
+
+/// Label/value row used in audit and summary lists.
+@mixin meta-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.5rem;
+	border: 1px solid color-mix(in oklab, var(--outline-variant) 30%, transparent);
+	border-radius: $radius-sm;
+	background: var(--surface-container-low);
+}
+
+@mixin meta-label {
+	font-size: 0.75rem;
+	line-height: 1rem;
+	font-weight: 500;
+	color: var(--on-surface-variant);
+}
+
+@mixin meta-value {
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	color: var(--on-surface);
+}
+
+// ---------------------------------------------------------------- form fields
+
+@mixin label {
+	display: block;
+	font-size: 0.75rem;
+	line-height: 1rem;
+	font-weight: 600;
+	letter-spacing: 0.025em;
+	text-transform: uppercase;
+	color: var(--on-surface-variant);
+}
+
+@mixin field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+/// Native input/select/textarea.
+@mixin input {
+	width: 100%;
+	border: 1px solid var(--outline-variant);
+	border-radius: $radius;
+	// background-color, not the shorthand: the forms plugin draws the <select> arrow as a background image.
+	background-color: var(--surface-container-lowest);
+	padding: 0.5rem 0.75rem;
+	font-family: inherit;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	color: var(--on-surface);
+	transition: border-color 150ms ease, box-shadow 150ms ease;
+
+	&:focus,
+	&:focus-visible {
+		outline: none;
+		border-color: var(--emerald);
+		box-shadow: $focus-ring;
+	}
+
+	&:disabled {
+		background: var(--surface-container-low);
+		color: var(--on-surface-variant);
+		cursor: not-allowed;
+	}
+}
+
+/// Read-only value shown under a `label` on detail screens (the display counterpart of `input`).
+@mixin value {
+	margin: 0;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	font-weight: 500;
+	color: var(--on-surface);
+	overflow-wrap: anywhere;
+	white-space: pre-line;
+}
+
+@mixin field-error {
+	margin: 0;
+	font-size: 0.75rem;
+	line-height: 1rem;
+	color: var(--error);
+}
+
+// ---------------------------------------------------------------- buttons
+
+@mixin button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	border: 1px solid transparent;
+	border-radius: $radius;
+	font-family: inherit;
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	font-weight: 500;
+	letter-spacing: normal;
+	text-transform: none;
+	cursor: pointer;
+	transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.mat-icon {
+		width: 1.125rem;
+		height: 1.125rem;
+		font-size: 1.125rem;
+		line-height: 1.125rem;
+	}
+}
+
+@mixin button-primary {
+	@include button;
+	background: var(--emerald);
+	color: #fff;
+	box-shadow: $shadow-button;
+
+	&:hover:not(:disabled) {
+		background: $emerald-hover;
+	}
+}
+
+@mixin button-secondary {
+	@include button;
+	border-color: var(--outline-variant);
+	background: transparent;
+	color: var(--primary);
+
+	&:hover:not(:disabled) {
+		background: var(--surface-container-low);
+	}
+}
+
+/// Small uppercase tinted button ("Add number").
+@mixin button-subtle {
+	@include button;
+	gap: 0.25rem;
+	padding: 0.375rem 0.75rem;
+	background: var(--surface-container-low);
+	color: var(--primary);
+	font-size: 0.75rem;
+	line-height: 1rem;
+	font-weight: 600;
+	letter-spacing: 0.025em;
+	text-transform: uppercase;
+
+	&:hover:not(:disabled) {
+		background: var(--surface-container-high);
+	}
+}
+
+@mixin icon-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.375rem;
+	border: 0;
+	border-radius: $radius-sm;
+	background: transparent;
+	color: var(--on-surface-variant);
+	cursor: pointer;
+	transition: background-color 150ms ease, color 150ms ease;
+
+	&:hover:not(:disabled) {
+		background: var(--surface-container-low);
+		color: var(--primary);
+	}
+}
+
+@mixin icon-button-danger {
+	@include icon-button;
+
+	&:hover:not(:disabled) {
+		background: var(--error-container);
+		color: var(--error);
+	}
+}
+
+// ---------------------------------------------------------------- misc
+
+/// Small bordered tag (status values, counts).
+@mixin tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	border: 1px solid color-mix(in oklab, var(--outline-variant) 50%, transparent);
+	border-radius: $radius;
+	background: var(--surface-container);
+	color: var(--primary);
+	font-size: 0.75rem;
+	line-height: 1rem;
+	font-weight: 500;
+}
+
+// ---------------------------------------------------------------- status tones
+// Semantic colours for status pills/chips; map a component's status classes onto these.
+
+@mixin tone-success {
+	background: color-mix(in oklab, var(--emerald) 14%, transparent);
+	color: var(--emerald-dark);
+}
+
+@mixin tone-warning {
+	background: rgba(255, 179, 0, 0.15);
+	color: #8a5a00;
+}
+
+@mixin tone-danger {
+	background: var(--error-container);
+	color: var(--on-error-container);
+}
+
+@mixin tone-info {
+	background: var(--primary-fixed);
+	color: var(--on-primary-fixed-variant);
+}
+
+@mixin tone-neutral {
+	background: var(--surface-container);
+	color: var(--on-surface-variant);
+}
+
+// ---------------------------------------------------------------- choices
+// Segmented / chip-style selectors (entity type, toggle chips, mat-button-toggle).
+
+@mixin choice {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	border: 1px solid var(--outline-variant);
+	border-radius: $radius;
+	background: var(--surface-container-lowest);
+	color: var(--on-surface-variant);
+	font-size: 0.875rem;
+	line-height: 1.25rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+
+	&:hover {
+		background: var(--surface-container-low);
+	}
+
+	.mat-icon {
+		@include icon-size(1.125rem);
+	}
+}
+
+@mixin choice-active {
+	border-color: var(--emerald);
+	background: color-mix(in oklab, var(--emerald) 10%, var(--surface-container-lowest));
+	color: var(--emerald-dark);
+	font-weight: 600;
+
+	.mat-icon {
+		color: var(--emerald);
+	}
+}

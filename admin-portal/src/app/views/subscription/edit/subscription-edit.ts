@@ -62,7 +62,6 @@ export class EditSubscriptionVarsForm {
     MatSelectModule,
     FormsModule,
     ReactiveFormsModule,
-    Loader,
     NgxMatSelectSearchModule,
     MatDatepickerModule
   ]

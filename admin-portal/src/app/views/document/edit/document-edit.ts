@@ -15,7 +15,7 @@ import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/docume
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
 import { form, FormField, readonly } from '@angular/forms/signals';
 import { Loader } from '@app/@shared/loader/loader';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 // import { ToastrService } from 'ngx-toastr';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
@@ -45,6 +45,7 @@ selector: 'app-document-edit',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    RouterLink,
     CommonModule,
     MatCardModule,
     MatFormFieldModule,

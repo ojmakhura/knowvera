@@ -1,0 +1,24 @@
+@use 'ui';
+
+// Header save/cancel buttons for mat-button based edit screens, in the shared button look.
+// Emitted globally from _components.scss.
+//
+//   @use 'shared/buttons';
+//   @include buttons.header-buttons;
+
+@mixin header-buttons {
+	.header-btns {
+		@include ui.actions-row;
+		flex-shrink: 0;
+	}
+
+	.btn-cancel.mdc-button {
+		@include ui.button-secondary;
+		height: 38px;
+	}
+
+	.btn-save.mdc-button {
+		@include ui.button-primary;
+		height: 38px;
+	}
+}

@@ -1,168 +1,162 @@
-<div class="document-edit-page">
+<div class="kv-page">
 
-	<div class="edit-shell">
-		<mat-card class="edit-card">
-			@if (loading()) {
-			<mat-progress-bar mode="indeterminate"></mat-progress-bar>
-			}
+  <!-- Header -->
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/documents">Documents</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">{{ editDocumentSignal().id ? 'Edit' : 'Create' }}</span>
+    </nav>
 
-			<header class="edit-header">
-				<div class="header-copy">
-					<div class="heading-row">
-						<mat-icon>description</mat-icon>
-						<h1>Edit Document Asset</h1>
-					</div>
-					<p>Internal Reference: {{ internalReference() }}</p>
-				</div>
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">{{ editDocumentSignal().id ? 'Edit Document' : 'New Document' }}</h1>
+        <p class="kv-subtitle">Internal reference: {{ internalReference() }}</p>
+      </div>
+      <div class="kv-actions">
+        <button type="button" class="kv-btn-secondary" (click)="cancelEdit()">Cancel</button>
+        <button type="button" class="kv-btn-primary" [disabled]="loading()" (click)="editDocumentSave()">
+          <mat-icon>save</mat-icon>
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </header>
 
-				<div class="header-actions">
-					<button mat-button type="button" class="cancel-btn" (click)="cancelEdit()">Cancel</button>
-					<button mat-flat-button color="primary" type="button" class="save-btn" [disabled]="loading()"
-						(click)="editDocumentSave()">
-						Save Changes
-					</button>
-				</div>
-			</header>
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" class="mb-6"></mat-progress-bar>
+  }
 
-			<form class="edit-form">
-				<section class="section-block">
-					<div class="section-head">
-						<div class="section-mark"></div>
-						<h2>Identity &amp; Context</h2>
-					</div>
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
 
-					<div class="field-grid two-column">
-						<div class="field-group">
-							<label class="field-label">Document ID</label>
-							<mat-form-field class="vault-field">
-								<mat-icon matPrefix>lock</mat-icon>
-								<input matInput [value]="editDocumentSignal().id || ''" readonly />
-							</mat-form-field>
-							<!-- <p class="field-note">This unique identifier is immutable.</p> -->
-						</div>
+    <!-- Main column -->
+    <form class="md:col-span-8 flex flex-col gap-6" (submit)="$event.preventDefault()">
 
-						<div class="field-group">
-							<label class="field-label">Target Entity</label>
-							<mat-form-field class="vault-field">
-								@if(!editDocumentSignal().id) {
-								<mat-select [formField]="editDocumentSignalForm.target">
-									@for (option of TargetEntityOptions; track option) {
-									<mat-option [value]="option">{{ targetEntityLabel(option) }}</mat-option>
-									}
-								</mat-select>
-								}
-								<input matInput [formField]="editDocumentSignalForm.target" placeholder="Select target entity" />	
-							</mat-form-field>
-						</div>
+      <!-- Identity & Context -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">fingerprint</mat-icon>
+          <h2 class="kv-card-title">Identity &amp; Context</h2>
+        </div>
 
-						<div class="field-group">
-							<label class="field-label">Target ID</label>
-							<mat-form-field class="vault-field">
-								<input matInput [formField]="editDocumentSignalForm.targetId"
-									placeholder="Enter entity reference" />
-							</mat-form-field>
-						</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="kv-field">
+            <label class="kv-label" for="documentId">Document ID</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <input id="documentId" matInput [value]="editDocumentSignal().id || ''" placeholder="Assigned on save" readonly />
+              <mat-icon matSuffix>lock</mat-icon>
+            </mat-form-field>
+          </div>
 
-						<div class="field-group">
-							<label class="field-label">Document Type</label>
-							<mat-form-field class="vault-field">
-								<mat-select [formField]="editDocumentSignalForm.documentType"
-									[compareWith]="documentTypeCompare">
-									<mat-option>
-										<ngx-mat-select-search [placeholderLabel]="'search.document.type' | translate"
-											[formField]="editDocumentSignalForm.documentTypeFilter"
-											(keyup.enter)="filterDocumentType()"
-											[noEntriesFoundLabel]="'no.entries.found' | translate">
-										</ngx-mat-select-search>
-									</mat-option>
-									@for (option of documentTypeOptions(); track option.id) {
-									<mat-option [value]="option">{{ option.name || option.code }}</mat-option>
-									}
-								</mat-select>
-							</mat-form-field>
-						</div>
-					</div>
-				</section>
+          <div class="kv-field">
+            <label class="kv-label" for="documentTarget">Target Entity</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              @if (!editDocumentSignal().id) {
+                <mat-select id="documentTarget" placeholder="Select target entity" [formField]="editDocumentSignalForm.target">
+                  @for (option of TargetEntityOptions; track option) {
+                    <mat-option [value]="option">{{ targetEntityLabel(option) }}</mat-option>
+                  }
+                </mat-select>
+              } @else {
+                <input id="documentTarget" matInput [value]="targetEntityLabel($any(editDocumentSignal().target))" readonly />
+              }
+            </mat-form-field>
+          </div>
 
-				<mat-divider></mat-divider>
+          <div class="kv-field">
+            <label class="kv-label" for="documentTargetId">Target ID</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <input id="documentTargetId" matInput [formField]="editDocumentSignalForm.targetId" placeholder="Enter entity reference" />
+            </mat-form-field>
+          </div>
 
-				<section class="section-block section-block-compact">
-					<div class="section-head">
-						<div class="section-mark"></div>
-						<h2>Asset Details</h2>
-					</div>
+          <div class="kv-field">
+            <label class="kv-label" for="documentType">Document Type</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select id="documentType" placeholder="Select document type" [formField]="editDocumentSignalForm.documentType"
+                [compareWith]="documentTypeCompare">
+                <mat-option>
+                  <ngx-mat-select-search [placeholderLabel]="'search.document.type' | translate"
+                    [formField]="editDocumentSignalForm.documentTypeFilter" (keyup.enter)="filterDocumentType()"
+                    [noEntriesFoundLabel]="'no.entries.found' | translate">
+                  </ngx-mat-select-search>
+                </mat-option>
+                @for (option of documentTypeOptions(); track option.id) {
+                  <mat-option [value]="option">{{ option.name || option.code }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </section>
 
-					<div class="field-grid two-column">
-						<div class="field-group">
-							<label class="field-label">File Name</label>
-							<mat-form-field class="vault-field icon-suffix-field">
-								<input matInput [formField]="editDocumentSignalForm.fileName" />
-								<mat-icon matSuffix>edit</mat-icon>
-							</mat-form-field>
-						</div>
+      <!-- Asset Details -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">description</mat-icon>
+          <h2 class="kv-card-title">Asset Details</h2>
+        </div>
 
-						<div class="field-group">
-							<label class="field-label">Verification Status</label>
-							<mat-form-field class="vault-field">
-								<mat-select [formField]="editDocumentSignalForm.verificationStatus">
-									@for (status of DocumentVerificationStatusOptions; track status) {
-									<mat-option [value]="status">{{ verificationStatusLabel(status) }}</mat-option>
-									}
-								</mat-select>
-							</mat-form-field>
-						</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="kv-field">
+            <label class="kv-label" for="documentFileName">File Name</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <input id="documentFileName" matInput [formField]="editDocumentSignalForm.fileName" />
+            </mat-form-field>
+          </div>
 
-						<div class="field-group field-span-2">
-							<label class="field-label">Document URL</label>
-							<div class="url-row">
-								<mat-form-field class="vault-field url-field">
-									<input matInput [formField]="editDocumentSignalForm.url" />
-								</mat-form-field>
+          <div class="kv-field">
+            <label class="kv-label" for="documentStatus">Verification Status</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select id="documentStatus" [formField]="editDocumentSignalForm.verificationStatus">
+                @for (status of DocumentVerificationStatusOptions; track status) {
+                  <mat-option [value]="status">{{ verificationStatusLabel(status) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-								<button mat-stroked-button type="button" class="view-btn"
-									[disabled]="!canViewDocument()" (click)="viewDocument()"
-									matTooltip="Open document preview">
-									<mat-icon>visibility</mat-icon>
-									View Document
-								</button>
-							</div>
-						</div>
-					</div>
-				</section>
+          <div class="kv-field md:col-span-2">
+            <label class="kv-label" for="documentUrl">Document URL</label>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <mat-form-field appearance="outline" class="vault-field flex-1">
+                <input id="documentUrl" matInput [formField]="editDocumentSignalForm.url" />
+              </mat-form-field>
+              <button type="button" class="kv-btn-secondary shrink-0" [disabled]="!canViewDocument()" (click)="viewDocument()"
+                matTooltip="Open document preview">
+                <mat-icon>visibility</mat-icon>
+                View Document
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </form>
 
-				<section class="compliance-panel">
-					<mat-icon>shield</mat-icon>
-					<div>
-						<h3>Compliance Protocol Active</h3>
-						<p>
-							All changes to this document form are logged in the immutable audit trail. Ensure all
-							entity references align with current registry data before finalizing the update.
-						</p>
-					</div>
-				</section>
-			</form>
+    <!-- Side column -->
+    <aside class="md:col-span-4 flex flex-col gap-6">
 
-			<footer class="edit-footer">
-				<div class="footer-left">
-					<div class="footer-badges">
-						<span class="user-badge">AI</span>
-					</div>
-					<span>Auto-scanned by Veritas Engine 2.4</span>
-				</div>
-
-				<div class="footer-right">{{ lastUpdatedLabel() }}</div>
-			</footer>
-		</mat-card>
-
-		<div class="trust-footer">
-			<div>
-				<mat-icon>verified_user</mat-icon>
-				<span>Veritas Secure</span>
-			</div>
-			<div>
-				<mat-icon>history_edu</mat-icon>
-				<span>Audit Ready</span>
-			</div>
-		</div>
-	</div>
+      <!-- Compliance Protocol -->
+      <section class="kv-card border-t-4 border-emerald">
+        <div class="flex items-center gap-2 mb-4 text-primary">
+          <mat-icon class="text-emerald">policy</mat-icon>
+          <p class="kv-card-title font-medium">Compliance Protocol</p>
+        </div>
+        <p class="text-sm text-on-surface-variant mb-6">
+          All changes to this document are logged in the audit trail. Ensure entity references align with current
+          registry data before saving.
+        </p>
+        <dl class="flex flex-col gap-3">
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Last Updated</dt>
+            <dd class="kv-meta-value">{{ lastUpdatedLabel() }}</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Scanning</dt>
+            <dd><span class="kv-tag">AI · Veritas Engine 2.4</span></dd>
+          </div>
+        </dl>
+      </section>
+    </aside>
+  </div>
 </div>

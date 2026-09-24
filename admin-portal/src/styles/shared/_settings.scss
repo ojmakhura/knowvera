@@ -1,0 +1,160 @@
+@use 'ui';
+
+// Styles shared by the System Settings screens. Emits CSS, so @use it once per component stylesheet:
+//   @use 'shared/settings' as *;
+
+@mixin banner($background, $border, $color, $icon-color) {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: $background;
+  border: 1px solid $border;
+  border-radius: 0.25rem;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  color: $color;
+
+  mat-icon {
+    color: $icon-color;
+    flex-shrink: 0;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 0.8125rem;
+  }
+
+  li + li {
+    margin-top: 2px;
+  }
+}
+
+.settings-page {
+  &__header {
+    @include ui.page-header;
+  }
+
+  &__title {
+    @include ui.page-title;
+  }
+
+  &__subtitle {
+    @include ui.page-subtitle;
+  }
+}
+
+.settings-card {
+  @include ui.card;
+  margin-bottom: 1.5rem;
+
+  // Icon + title row; when the title sits inside a __header, the header carries the rule instead.
+  &__header {
+    @include ui.card-header;
+
+    mat-icon {
+      @include ui.card-icon;
+    }
+  }
+
+  &__header &__title {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  &__title {
+    @include ui.card-title;
+    @include ui.card-header;
+
+    mat-icon {
+      @include ui.card-icon;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+
+    @media (max-width: 767.98px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.field {
+  @include ui.field;
+
+  &__label {
+    @include ui.label;
+  }
+
+  &__input {
+    @include ui.input;
+  }
+
+  &__error {
+    @include ui.field-error;
+  }
+
+  // Input with a unit/currency affix drawn inside it.
+  &--suffixed,
+  &--prefixed {
+    position: relative;
+
+    input {
+      width: 100%;
+    }
+
+    span {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--on-surface-variant);
+      font-size: 0.875rem;
+      font-weight: 500;
+      pointer-events: none;
+    }
+  }
+
+  &--suffixed span {
+    right: 0.75rem;
+  }
+
+  &--prefixed span {
+    left: 0.75rem;
+  }
+
+  &--prefixed input {
+    padding-left: 1.75rem;
+  }
+}
+
+// Settings templates use `.btn` + variant; both map onto the shared buttons.
+.btn {
+  @include ui.button;
+}
+
+.btn-action-primary {
+  @include ui.button-primary;
+}
+
+.btn-outline {
+  @include ui.button-secondary;
+}
+
+.error-banner {
+  @include banner(#ffdad6, rgba(186, 26, 26, 0.3), #93000a, #ba1a1a);
+}
+
+.success-banner {
+  @include banner(#d9f2e6, rgba(0, 182, 122, 0.3), var(--emerald-dark, #006c47), var(--emerald));
+}

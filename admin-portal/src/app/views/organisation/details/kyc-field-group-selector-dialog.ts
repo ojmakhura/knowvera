@@ -19,12 +19,6 @@ export interface KycFieldGroupSelectorDialogData {
   selectedFields?: GroupFieldDTO[];
 }
 
-export interface KycFieldGroupSelectorDialogResult {
-  groupId: string;
-  group: KycFieldGroupDTO;
-  fieldIds: string[];
-  fields: GroupFieldDTO[];
-}
 
 interface KycFieldGroupSelectionState {
   groupId: string;
@@ -52,7 +46,7 @@ interface KycFieldGroupSelectionState {
 })
 export class KycFieldGroupSelectorDialogComponent {
   private dialogRef = inject(
-    MatDialogRef<KycFieldGroupSelectorDialogComponent, KycFieldGroupSelectorDialogResult>
+    MatDialogRef<KycFieldGroupSelectorDialogComponent, KycFieldGroupDTO>
   );
   data: KycFieldGroupSelectorDialogData = inject(MAT_DIALOG_DATA);
 

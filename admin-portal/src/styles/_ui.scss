@@ -1,0 +1,71 @@
+@use 'shared/ui';
+
+// Global `.kv-*` classes for templates. They sit in Tailwind's components layer, so a utility
+// class on the same element (e.g. `kv-card p-4`) still wins.
+
+@layer components {
+	.kv-page { @include ui.page; }
+	.kv-page-header { @include ui.page-header; }
+	.kv-breadcrumb { @include ui.breadcrumb; }
+	.kv-breadcrumb-current { @include ui.breadcrumb-current; }
+	.kv-title { @include ui.page-title; }
+	.kv-subtitle { @include ui.page-subtitle; }
+	.kv-actions { @include ui.actions-row; }
+
+	.kv-card { @include ui.card; }
+	.kv-card-header { @include ui.card-header; }
+	.kv-card-title { @include ui.card-title; }
+	.kv-card-icon { @include ui.card-icon; }
+	.kv-panel { @include ui.panel; }
+	.kv-meta-row { @include ui.meta-row; }
+	.kv-meta-label { @include ui.meta-label; }
+	.kv-meta-value { @include ui.meta-value; }
+
+	.kv-field { @include ui.field; }
+	.kv-label { @include ui.label; }
+	.kv-input { @include ui.input; }
+	.kv-value { @include ui.value; }
+	.kv-error { @include ui.field-error; }
+
+	.kv-btn { @include ui.button; }
+	.kv-btn-primary { @include ui.button-primary; }
+	.kv-btn-secondary { @include ui.button-secondary; }
+	.kv-btn-subtle { @include ui.button-subtle; }
+	.kv-icon-btn { @include ui.icon-button; }
+	.kv-icon-btn-danger { @include ui.icon-button-danger; }
+	.kv-tag { @include ui.tag; }
+
+	// Selectable chip/segment: add `is-active` for the selected state.
+	.kv-choice { @include ui.choice; }
+	.kv-choice.is-active { @include ui.choice-active; }
+
+	// Status chip: `kv-chip kv-tone-success` etc.
+	.kv-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		padding: 0.125rem 0.5rem;
+		border-radius: 999px;
+		font-size: 0.75rem;
+		line-height: 1.25rem;
+		font-weight: 600;
+		white-space: nowrap;
+	}
+	.kv-tone-success { @include ui.tone-success; }
+	.kv-tone-warning { @include ui.tone-warning; }
+	.kv-tone-danger { @include ui.tone-danger; }
+	.kv-tone-info { @include ui.tone-info; }
+	.kv-tone-neutral { @include ui.tone-neutral; }
+}
+
+// Icon sizing has to beat Material's unlayered `.mat-icon` rule, so it lives outside the layer.
+.kv-breadcrumb .mat-icon { @include ui.icon-size(1rem); }
+.mat-icon.kv-card-icon { @include ui.icon-size(1.25rem); }
+.kv-btn .mat-icon,
+.kv-btn-primary .mat-icon,
+.kv-btn-secondary .mat-icon,
+.kv-icon-btn .mat-icon,
+.kv-icon-btn-danger .mat-icon { @include ui.icon-size(1.125rem); }
+.kv-btn-subtle .mat-icon { @include ui.icon-size(1rem); }
+.kv-chip .mat-icon { @include ui.icon-size(0.875rem); }
+.kv-choice .mat-icon { @include ui.icon-size(1.125rem); }

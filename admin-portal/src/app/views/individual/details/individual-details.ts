@@ -1,3 +1,4 @@
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -32,6 +33,7 @@ import {
 @Component({
   selector: 'app-individual-details',
   imports: [
+    MatProgressBarModule,
     CommonModule,
     RouterLink,
     MatCardModule,
@@ -311,6 +313,33 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
         return 'review';
       default:
         return 'pending';
+    }
+  }
+
+  /** Shared details-page pill tone (dp-pill is-*) for a KYC status. */
+  kycTone(status: string | null | undefined): string {
+    switch (status) {
+      case 'CURRENT':
+        return 'is-success';
+      case 'INCOMPLETE':
+        return 'is-warning';
+      default:
+        return 'is-danger';
+    }
+  }
+
+  /** Shared details-page pill tone (dp-pill is-*) for a document verification status. */
+  documentTone(status: string | null | undefined): string {
+    switch (status) {
+      case 'VERIFIED':
+        return 'is-success';
+      case 'REJECTED':
+        return 'is-danger';
+      case 'MANUAL_REVIEW':
+      case 'IN_PROGRESS':
+        return 'is-info';
+      default:
+        return 'is-warning';
     }
   }
 

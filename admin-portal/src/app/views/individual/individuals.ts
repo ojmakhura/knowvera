@@ -2,18 +2,30 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, linkedSignal, OnInit, Signal, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  linkedSignal,
+  OnInit,
+  Signal,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { IndividualListDTO } from '@app/models/bw/co/knowvera/individual/individual-list-dto';
 import { IndividualSearchCriteria } from '@app/models/bw/co/knowvera/individual/individual-search-criteria';
 import { SearchObject } from '@app/models/search-object';
 import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
 import { toast } from 'ngx-sonner';
+import { form, FormField } from '@angular/forms/signals';
+import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
 
 export class SearchIndividualsVarsForm {
   identityNo: string = '';
@@ -30,11 +42,24 @@ export class SearchIndividualsVarsForm {
   templateUrl: './individuals.html',
   styleUrls: ['./individuals.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule, MatButtonModule, MatCardModule, MatTableModule, MatPaginatorModule, MatInputModule, MatSelectModule, MatTooltipModule, MatFormFieldModule],
+  imports: [
+    RouterLink,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule,
+    MatTableModule,
+    MatProgressBarModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTooltipModule,
+    MatFormFieldModule,
+    FormField,
+  ],
 })
 export class Individuals implements OnInit {
   searchIndividualsVarsForm = new SearchIndividualsVarsForm();
   searchIndividualsSignal = signal(this.searchIndividualsVarsForm);
+  searchIndividualsForm = form(this.searchIndividualsSignal);
 
   readonly individualApiStore = inject(IndividualApiStore);
   protected readonly rows = signal<IndividualListDTO[]>([]);
@@ -43,16 +68,20 @@ export class Individuals implements OnInit {
   protected readonly pageSize = signal(10);
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
-  protected readonly verifiedCount = computed(() => this.rows().filter(r => r.kycStatus === 'CURRENT').length);
-  protected readonly flaggedCount = computed(() => this.rows().filter(r => r.kycStatus !== 'CURRENT' && r.kycStatus !== 'INCOMPLETE').length);
+  protected readonly verifiedCount = computed(
+    () => this.rows().filter((r) => r.kycStatus === 'CURRENT').length,
+  );
+  protected readonly flaggedCount = computed(
+    () =>
+      this.rows().filter((r) => r.kycStatus !== 'CURRENT' && r.kycStatus !== 'INCOMPLETE').length,
+  );
   protected readonly router = inject(Router);
   loaderMessage: Signal<string> = signal('');
   messages = linkedSignal(() => this.individualApiStore.messages());
   success = linkedSignal(() => this.individualApiStore.success());
   loading = linkedSignal(() => this.individualApiStore.loading());
   error = linkedSignal(() => this.individualApiStore.error());
-    protected readonly toast = toast;
-  
+  protected readonly toast = toast;
 
   displayedColumns: string[] = ['name', 'identityNo', 'email', 'status', 'actions'];
   protected readonly kycStatusOptions = [
@@ -89,13 +118,10 @@ export class Individuals implements OnInit {
     this.doSearch();
   }
 
-  ngAfterViewInit(): void {
-    
-  }
+  ngAfterViewInit(): void {}
 
-  pageNumbers(): number[] {
-    return Array.from({ length: this.totalPages() }, (_, index) => index + 1);
-  }
+  protected readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+  protected readonly pageNumbers = computed(() => pageWindow(this.currentPage(), this.totalPages()));
 
   previousPage(): void {
     if (this.currentPage() <= 0) {
@@ -121,21 +147,30 @@ export class Individuals implements OnInit {
     this.doSearch(page, this.pageSize());
   }
 
-  handlePageEvent(e: PageEvent) {
-    this.doSearch(e.pageIndex, e.pageSize);
+  changePageSize(size: string | number): void {
+    this.pageSize.set(Number(size));
+    this.doSearch(0, Number(size));
   }
 
-  updateField(field: keyof SearchIndividualsVarsForm, value: string): void {
-    this.searchIndividualsSignal.update((state) => ({
-      ...state,
-      [field]: value,
-    }));
+  showingLabel(): string {
+    return showingRecordsLabel(this.currentPage(), this.pageSize(), this.rows().length, this.totalElements());
   }
 
-  resetSearch(): void {
-    this.searchIndividualsSignal.set(new SearchIndividualsVarsForm());
-    this.doSearch();
+  pageReport(): string {
+    return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
   }
+
+  // updateField(field: keyof SearchIndividualsVarsForm, value: string): void {
+  //   this.searchIndividualsSignal.update((state) => ({
+  //     ...state,
+  //     [field]: value,
+  //   }));
+  // }
+
+  // resetSearch(): void {
+  //   this.searchIndividualsSignal.set(new SearchIndividualsVarsForm());
+  //   this.doSearch();
+  // }
 
   createNewIndividual(): void {
     this.router.navigate(['/individual', 'edit']);
@@ -211,7 +246,9 @@ export class Individuals implements OnInit {
     return parts.map((part) => part[0]?.toUpperCase() || '').join('') || 'NA';
   }
 
-  statusClass(status: string | null | undefined): 'status-verified' | 'status-pending' | 'status-flagged' {
+  statusClass(
+    status: string | null | undefined,
+  ): 'status-verified' | 'status-pending' | 'status-flagged' {
     switch (status) {
       case 'CURRENT':
         return 'status-verified';
@@ -221,4 +258,11 @@ export class Individuals implements OnInit {
         return 'status-flagged';
     }
   }
+
+  resetSearch(): void {
+    this.searchIndividualsSignal.set(new SearchIndividualsVarsForm());
+    this.doSearch(0, this.pageSize());
+  }
+
+  exportIndividuals() {}
 }

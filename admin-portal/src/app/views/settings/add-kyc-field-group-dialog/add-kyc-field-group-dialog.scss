@@ -1,3 +1,4 @@
+@use 'shared/standard';
 // ── Design tokens ────────────────────────────────────────────────────────────
 $primary:                  #001735;
 $primary-container:        #0e2c52;
@@ -48,14 +49,6 @@ $ghost-border: 1px solid rgba(196, 198, 208, 0.2);
   gap: 0.25rem;
 }
 
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  color: $on-surface-variant;
-  font-size: 0.7rem;
-}
-
 .breadcrumb-item {
   cursor: pointer;
   transition: color 0.15s;
@@ -80,12 +73,6 @@ $ghost-border: 1px solid rgba(196, 198, 208, 0.2);
   letter-spacing: -0.02em;
   color: $primary;
   margin: 0;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
 }
 
 // ── Buttons ───────────────────────────────────────────────────────────────────
@@ -263,14 +250,6 @@ $ghost-border: 1px solid rgba(196, 198, 208, 0.2);
   gap: 0.375rem;
 }
 
-.field-label {
-  font-size: 0.625rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: $on-surface-variant;
-}
-
 .field-input {
   width: 100%;
   box-sizing: border-box;
@@ -406,7 +385,6 @@ $ghost-border: 1px solid rgba(196, 198, 208, 0.2);
 }
 
 .field-name {
-  font-size: 0.8125rem;
   font-weight: 700;
   color: $on-surface;
   margin: 0 0 0.125rem;
@@ -613,7 +591,6 @@ $ghost-border: 1px solid rgba(196, 198, 208, 0.2);
   text-transform: uppercase;
 }
 
-
 .fields-section {
   margin-top: 16px;
   border: 1px solid #e0e0e0;
@@ -630,8 +607,6 @@ $ghost-border: 1px solid rgba(196, 198, 208, 0.2);
 
 .helper-text {
   margin: 0 0 12px 0;
-  color: #666;
-  font-size: 12px;
 }
 
 .fields-list {
@@ -694,3 +669,5 @@ $ghost-border: 1px solid rgba(196, 198, 208, 0.2);
   border-radius: 4px;
   font-size: 12px;
 }
+
+@include standard.vocabulary((chrome, fields));

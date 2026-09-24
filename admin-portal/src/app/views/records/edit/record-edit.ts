@@ -1,3 +1,4 @@
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -92,6 +93,7 @@ export class EditRecordVarsForm {
   styleUrls: ['./record-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    MatTooltipModule,
     CommonModule,
     MatCardModule,
     MatButtonModule,
@@ -102,7 +104,6 @@ export class EditRecordVarsForm {
     MatSlideToggleModule,
     MatButtonToggleModule,
     TranslateModule,
-    Loader,
     FormField,
     MatDatepickerModule,
     MatListModule,

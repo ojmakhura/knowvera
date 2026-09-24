@@ -1,9 +1,9 @@
-import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   AfterViewInit,
@@ -20,7 +20,7 @@ import {
 } from '@angular/core';
 import { form } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
 import { SearchObject } from '@app/models/search-object';
@@ -29,6 +29,7 @@ import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/org
 import { TranslateModule } from '@ngx-translate/core';
 // import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
+import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
 
 interface FilterOption {
   label: string;
@@ -43,16 +44,15 @@ export class SearchOrganisationsVarsForm {
 @Component({
   selector: 'app-organisations',
   imports: [
+    RouterLink,
     TranslateModule,
     MatIconModule,
-    MatCardModule,
     MatButtonModule,
-    MatTableModule,
-    MatPaginatorModule,
     MatFormFieldModule,
+    MatInputModule,
     MatSelectModule,
+    MatProgressBarModule,
     MatTooltipModule,
-    Loader
   ],
   templateUrl: './organisations.html',
   styleUrls: ['./organisations.scss'],
@@ -63,6 +63,7 @@ export class Organisations implements OnInit, OnDestroy {
   searchOrganisationsVarsForm: SearchOrganisationsVarsForm = new SearchOrganisationsVarsForm();
   searchOrganisationsSignal = signal(this.searchOrganisationsVarsForm);
   searchOrganisationsSignalForm = form(this.searchOrganisationsSignal, (path) => {});
+  readonly breadcrumbLabel = 'Organisations';
 
   // toaster: ToastrService = inject(ToastrService);
   readonly organisationApiStore = inject(OrganisationApiStore);
@@ -124,8 +125,32 @@ export class Organisations implements OnInit, OnDestroy {
     this.clientStatusFilter.set(value);
   }
 
-  handlePageEvent(event: PageEvent): void {
-    this.doSearch(event.pageIndex, event.pageSize);
+  readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+  readonly pageNumbers = computed(() => pageWindow(this.currentPage(), this.totalPages()));
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= Math.max(this.totalPages(), 1) || page === this.currentPage()) {
+      return;
+    }
+    this.doSearch(page, this.pageSize());
+  }
+
+  changePageSize(size: string | number): void {
+    this.pageSize.set(Number(size));
+    this.doSearch(0, Number(size));
+  }
+
+  showingLabel(): string {
+    return showingRecordsLabel(
+      this.currentPage(),
+      this.pageSize(),
+      this.filteredOrganisations().length,
+      this.totalElements(),
+    );
+  }
+
+  pageReport(): string {
+    return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
   }
 
   constructor() {
@@ -285,6 +310,30 @@ export class Organisations implements OnInit, OnDestroy {
     }
 
     return 'active';
+  }
+
+  /** Shared status-chip tone (kv-tone-*) for a KYC status. */
+  kycTone(status: string | null | undefined): string {
+    switch (this.kycStatusClass(status)) {
+      case 'kyc-current':
+        return 'kv-tone-success';
+      case 'kyc-failed':
+        return 'kv-tone-danger';
+      default:
+        return 'kv-tone-warning';
+    }
+  }
+
+  /** Shared status-chip tone (kv-tone-*) for a client status. */
+  clientTone(status: string | null | undefined): string {
+    switch (this.clientStatusClass(status)) {
+      case 'active':
+        return 'kv-tone-success';
+      case 'dormant':
+        return 'kv-tone-neutral';
+      default:
+        return 'kv-tone-info';
+    }
   }
 
   clientCount = computed(() => this.organisations().filter(o => o.isClient).length);

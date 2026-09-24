@@ -1,342 +1,325 @@
-<div class="individual-details">
-	@if (loading()) {
-	<div class="loading-overlay">
-		<div class="loading-panel">{{ loaderMessage() || 'Loading...' }}</div>
-	</div>
-	}
+<div class="kv-page">
+  <!-- Header -->
+  <header class="dp-header">
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/individual">Individuals</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">{{ fullName() }}</span>
+    </nav>
 
-	<nav class="breadcrumb" aria-label="Breadcrumb">
-		<a routerLink="/individual">Individuals</a>
-		<mat-icon>chevron_right</mat-icon>
-		<span class="crumb-current">{{ fullName() }}</span>
-	</nav>
+    <div class="kv-page-header">
+      <div class="min-w-0 flex flex-col gap-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <h1 class="kv-title">{{ fullName() }}</h1>
+          @if (individual().identityNo) {
+            <span class="dp-code">{{ individual().identityNo }}</span>
+          }
+          <span class="dp-entity-pill">
+            <mat-icon>person</mat-icon>
+            Natural Person
+          </span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="dp-pill" [ngClass]="kycTone(individual().kycStatus)">
+            <mat-icon class="icon-fill">verified</mat-icon>
+            {{ statusLabel(individual().kycStatus) }}
+          </span>
+          @if (individual().organisation?.name) {
+            <span class="dp-pill is-info">
+              <mat-icon>corporate_fare</mat-icon>
+              {{ individual().organisation?.name }}
+            </span>
+          }
+          <span class="dp-mono-meta">
+            <mat-icon>fingerprint</mat-icon>
+            {{ recordHash() }}
+          </span>
+        </div>
+      </div>
 
-	<!-- Hero Header -->
-	<header class="ind-hero">
-		<div class="ind-hero__decoration"></div>
+      <div class="kv-actions">
+        <button type="button" class="kv-btn-secondary" (click)="openEdit()">
+          <mat-icon>edit</mat-icon>
+          Edit Profile
+        </button>
+        <button type="button" class="kv-btn-primary">
+          <mat-icon>download</mat-icon>
+          Export Report
+        </button>
+      </div>
+    </div>
+  </header>
 
-		<div class="ind-hero__identity">
-			<div class="ind-hero__avatar">{{ initials() }}</div>
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" class="mb-4"></mat-progress-bar>
+  }
 
-			<div class="ind-hero__meta">
-				<div class="ind-hero__title-row">
-					<h1 class="ind-hero__title">{{ fullName() }}</h1>
-					<span class="status-pill" [ngClass]="statusClass(individual().kycStatus)">
-						<mat-icon>verified</mat-icon>
-						{{ statusLabel(individual().kycStatus) }}
-					</span>
-				</div>
+  <!-- Bento grid -->
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
 
-				<p class="ind-hero__subtitle">
-					<mat-icon>tag</mat-icon>
-					ID: {{ individual().identityNo || 'Not available' }}
-					<span class="ind-hero__dot"></span>
-					<span class="ind-hero__synced"><span class="dot"></span> Synced</span>
-				</p>
-			</div>
-		</div>
+    <!-- Core identity -->
+    <section class="kv-card md:col-span-8">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile"><mat-icon>person</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Core Identity</h2>
+          <p class="dp-head-sub">Personal particulars held in the identity registry</p>
+        </div>
+        <span class="kv-tag dp-head-aside">PEP: {{ formatEnum(individual().pepStatus) }}</span>
+      </div>
 
-		<div class="ind-hero__actions">
-			<button mat-stroked-button class="btn-edit" (click)="openEdit()">
-				<mat-icon>edit</mat-icon>
-				Edit Profile
-			</button>
-			<button mat-flat-button class="btn-export">
-				<mat-icon>download</mat-icon>
-				Export Report
-			</button>
-		</div>
-	</header>
+      <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="kv-field">
+          <dt class="kv-label">Full Legal Name</dt>
+          <dd class="kv-value dp-strong">{{ fullName() }}</dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">Date of Birth</dt>
+          <dd class="kv-value">{{ formatDate(individual().dateOfBirth) }}</dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">Nationality</dt>
+          <dd class="kv-value dp-inline-icon">
+            <mat-icon>public</mat-icon>
+            {{ individual().nationality || 'Not available' }}
+          </dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">Sex</dt>
+          <dd class="kv-value">{{ formatEnum(individual().sex) }}</dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">Marital Status</dt>
+          <dd class="kv-value">{{ formatEnum(individual().maritalStatus) }}</dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">Employment Status</dt>
+          <dd class="kv-value">{{ formatEnum(individual().employmentStatus) }}</dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">PEP Status</dt>
+          <dd class="kv-value">{{ formatEnum(individual().pepStatus) }}</dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">Linked Organisation</dt>
+          <dd class="kv-value">{{ individual().organisation?.name || 'Unassigned' }}</dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">Profile Created</dt>
+          <dd class="kv-value">{{ formatDate(individual().createdAt) }}</dd>
+        </div>
+      </dl>
+    </section>
 
-	<!-- 2-Column Grid Layout -->
-	<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-		<!-- Left/Main Column -->
-		<div class="lg:col-span-8 flex flex-col gap-6">
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<!-- Core Identity Card -->
-				<div class="vault-card">
-					<div class="section-head">
-						<mat-icon class="section-icon">person</mat-icon>
-						<h2>Core Identity</h2>
-					</div>
+    <!-- Primary identification -->
+    <section class="kv-card md:col-span-4 flex flex-col">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile"><mat-icon>badge</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Primary Identification</h2>
+          <p class="dp-head-sub">{{ formatEnum(individual().identityType) }}</p>
+        </div>
+      </div>
 
-					<div class="core-grid">
-						<div class="meta-item">
-							<label>Full Legal Name</label>
-							<p>{{ fullName() }}</p>
-						</div>
+      <div class="dp-list-item is-primary mb-4">
+        <div class="min-w-0">
+          <span class="dp-list-sub">Document Number</span>
+          <p class="dp-strong dp-mono truncate">{{ individual().identityNo || 'Not available' }}</p>
+        </div>
+        <span class="dp-pill" [ngClass]="kycTone(individual().kycStatus)">{{ statusLabel(individual().kycStatus) }}</span>
+      </div>
 
-						<div class="meta-item">
-							<label>Date of Birth</label>
-							<p>{{ formatDate(individual().dateOfBirth) }}</p>
-						</div>
+      <dl class="grid grid-cols-2 gap-4">
+        <div class="kv-field">
+          <dt class="kv-label">Verified On</dt>
+          <dd class="kv-value">{{ formatDate(individual().latestKyc?.uploadDate) }}</dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">Expiry Date</dt>
+          <dd class="kv-value">{{ formatDate(individual().latestKyc?.expiryDate) }}</dd>
+        </div>
+      </dl>
+    </section>
 
-						<div class="core-grid__split">
-							<div class="meta-item">
-								<label>Sex</label>
-								<p>{{ formatEnum(individual().sex) }}</p>
-							</div>
+    <!-- Contact -->
+    <section class="kv-card md:col-span-12">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile"><mat-icon>contact_mail</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Contact Information &amp; Addresses</h2>
+          <p class="dp-head-sub">Communication channels and residential presence</p>
+        </div>
+      </div>
 
-							<div class="meta-item">
-								<label>Marital Status</label>
-								<p>{{ formatEnum(individual().maritalStatus) }}</p>
-							</div>
-						</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <dl class="flex flex-col gap-4">
+          <div class="kv-field">
+            <dt class="kv-label">Primary Email</dt>
+            <dd class="kv-value">
+              @if (individual().emailAddress) {
+                <a class="dp-inline-icon dp-strong" [href]="'mailto:' + individual().emailAddress">
+                  <mat-icon>mail</mat-icon>
+                  {{ individual().emailAddress }}
+                </a>
+              } @else {
+                Not available
+              }
+            </dd>
+          </div>
+          <div class="kv-field">
+            <dt class="kv-label">Phone Numbers</dt>
+            <dd class="flex flex-col gap-2">
+              @for (phone of phoneNumbers(); track $index) {
+                <div class="kv-meta-row">
+                  <span class="kv-meta-value">{{ phone.phoneNumber }}</span>
+                  <span class="kv-meta-label uppercase">{{ phone.type }}</span>
+                </div>
+              } @empty {
+                <span class="kv-value">Not available</span>
+              }
+            </dd>
+          </div>
+        </dl>
 
-						<div class="meta-item">
-							<label>Nationality</label>
-							<div class="chip-row">
-								<span class="chip">{{ individual().nationality || 'Not available' }}</span>
-							</div>
-						</div>
-					</div>
-				</div>
+        <div class="kv-field">
+          <span class="kv-label dp-inline-icon"><mat-icon>home</mat-icon> Residential Address</span>
+          <div class="kv-panel dp-address">{{ individual().physicalAddress || 'Not available' }}</div>
+        </div>
 
-				<!-- Identification Card -->
-				<div class="vault-card identification-card">
-					<div class="pattern-layer"></div>
+        <div class="kv-field">
+          <span class="kv-label dp-inline-icon"><mat-icon>markunread_mailbox</mat-icon> Postal Address</span>
+          <div class="kv-panel dp-address">
+            {{ postalAddressSameAsPhysical() ? 'Same as residential address.' : individual().postalAddress }}
+          </div>
+        </div>
+      </div>
+    </section>
 
-					<div class="section-head section-head--on-dark">
-						<mat-icon class="section-icon">badge</mat-icon>
-						<h2>Primary Identification</h2>
-					</div>
+    <!-- Employment history -->
+    <section class="kv-card md:col-span-12">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile"><mat-icon>work_history</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Employment History</h2>
+          <p class="dp-head-sub">Current and previous employers</p>
+        </div>
+        <span class="kv-tag dp-head-aside">{{ (individual().employmentRecords || []).length }} Records</span>
+      </div>
 
-					<div class="identification-tile">
-						<div>
-							<label>Document Type</label>
-							<p>{{ formatEnum(individual().identityType) }}</p>
-						</div>
-						<span class="status-pill" [ngClass]="statusClass(individual().kycStatus)">
-							{{ statusLabel(individual().kycStatus) }}
-						</span>
-					</div>
+      <div class="dp-table-wrap">
+        <table class="dp-table">
+          <thead>
+            <tr>
+              <th>Company / Position</th>
+              <th>Period</th>
+              <th class="align-end">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (record of individual().employmentRecords || []; track record.id) {
+              <tr>
+                <td>
+                  <p class="dp-strong">{{ record.employer?.name || record.name || 'Unknown Employer' }}</p>
+                  <p class="dp-list-sub">{{ (record.positions || []).join(', ') || 'Not specified' }}</p>
+                </td>
+                <td class="dp-muted">
+                  {{ formatDate(record.employmentStart) }} - {{ record.employmentEnd ? formatDate(record.employmentEnd) : 'Present' }}
+                </td>
+                <td class="align-end">
+                  <span class="dp-pill" [class.is-success]="isEmploymentCurrent(record)">
+                    {{ isEmploymentCurrent(record) ? 'Current' : 'Previous' }}
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="dp-table-empty">No employment records available.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-					<div class="core-grid__split">
-						<div class="meta-item meta-item--on-dark">
-							<label>Document Number</label>
-							<p class="mono">{{ individual().identityNo || 'Not available' }}</p>
-						</div>
+    <!-- Compliance archive -->
+    <section class="kv-card md:col-span-12">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile"><mat-icon>inventory_2</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Compliance Archive</h2>
+          <p class="dp-head-sub">Documents held in the vault for this individual</p>
+        </div>
+        <button type="button" class="kv-btn-secondary dp-head-aside" (click)="openDocumentAdd()">
+          <mat-icon>upload_file</mat-icon>
+          Add Document
+        </button>
+      </div>
 
-						<div class="meta-item meta-item--on-dark">
-							<label>Employment Status</label>
-							<p>{{ formatEnum(individual().employmentStatus) }}</p>
-						</div>
+      <div class="dp-table-wrap">
+        <table class="dp-table">
+          <thead>
+            <tr>
+              <th>Document Type</th>
+              <th>File Name</th>
+              <th>Status</th>
+              <th class="align-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (document of documents(); track document.id || document.fileName) {
+              <tr>
+                <td>
+                  <span class="dp-inline-icon dp-strong">
+                    <mat-icon>description</mat-icon>
+                    {{ document.documentType || 'Unclassified' }}
+                  </span>
+                </td>
+                <td class="dp-muted dp-mono">{{ document.fileName || '-' }}</td>
+                <td>
+                  <span class="dp-pill" [ngClass]="documentTone(document.verificationStatus)">
+                    {{ formatEnum(document.verificationStatus) }}
+                  </span>
+                </td>
+                <td class="align-end">
+                  <div class="inline-flex gap-1">
+                    <button type="button" class="kv-icon-btn" title="View document" (click)="openDocumentDetails(document)">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button type="button" class="kv-icon-btn" title="Edit document" (click)="openDocumentEdit(document)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button type="button" class="kv-icon-btn-danger" title="Delete document" (click)="deleteDocument(document)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="dp-table-empty">No documents uploaded.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
 
-						<div class="meta-item meta-item--on-dark">
-							<label>Verified On</label>
-							<p>{{ formatDate(individual().latestKyc?.uploadDate) }}</p>
-						</div>
-
-						<div class="meta-item meta-item--on-dark">
-							<label>Expiry Date</label>
-							<p>{{ formatDate(individual().latestKyc?.expiryDate) }}</p>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Operations Card -->
-			<div class="vault-card vault-card--flush">
-				<div class="tab-content">
-					<!-- Employment History -->
-					<div class="ops-section">
-						<h3>Employment History</h3>
-
-						<div class="table-responsive">
-							<table class="simple-table">
-								<thead>
-									<tr>
-										<th>Company / Position</th>
-										<th>Period</th>
-										<th class="align-end">Status</th>
-									</tr>
-								</thead>
-								<tbody>
-									@for (record of individual().employmentRecords || []; track record.id) {
-									<tr>
-										<td>
-											<div class="cell-strong">{{ record.employer?.name || record.name || 'Unknown Employer' }}</div>
-											<div class="cell-sub">{{ (record.positions || []).join(', ') || 'Not specified' }}</div>
-										</td>
-										<td class="cell-sub">
-											{{ formatDate(record.employmentStart) }} - {{ record.employmentEnd ? formatDate(record.employmentEnd) : 'Present' }}
-										</td>
-										<td class="align-end">
-											@if (isEmploymentCurrent(record)) {
-											<span class="table-status current">Current</span>
-											} @else {
-											<span class="table-status previous">Previous</span>
-											}
-										</td>
-									</tr>
-									} @empty {
-									<tr>
-										<td colspan="3" class="simple-table__empty">No employment records available.</td>
-									</tr>
-									}
-								</tbody>
-							</table>
-						</div>
-					</div>
-
-					<!-- Vault / Documents -->
-					<div class="ops-section">
-						<div class="table-head">
-							<h3>Compliance Archive / Vault</h3>
-							<button mat-icon-button type="button" title="Add document" (click)="openDocumentAdd()">
-								<mat-icon>add</mat-icon>
-							</button>
-						</div>
-
-						<div class="table-responsive">
-							<table class="simple-table">
-								<thead>
-									<tr>
-										<th>Document Type</th>
-										<th>File Name</th>
-										<th>Status</th>
-										<th class="align-end">Actions</th>
-									</tr>
-								</thead>
-								<tbody>
-									@for (document of documents(); track document.id || document.fileName) {
-									<tr>
-										<td>
-											<div class="file-cell">
-												<mat-icon>description</mat-icon>
-												{{ document.documentType || 'Unclassified' }}
-											</div>
-										</td>
-										<td class="cell-sub">{{ document.fileName || '-' }}</td>
-										<td>
-											<span class="table-status" [ngClass]="documentStatusClass(document.verificationStatus)">
-												{{ formatEnum(document.verificationStatus) }}
-											</span>
-										</td>
-										<td class="align-end">
-											<div class="doc-actions">
-												<button mat-icon-button title="View document" (click)="openDocumentDetails(document)">
-													<mat-icon>visibility</mat-icon>
-												</button>
-												<button mat-icon-button title="Edit document" (click)="openDocumentEdit(document)">
-													<mat-icon>edit</mat-icon>
-												</button>
-												<button mat-icon-button class="doc-actions__delete" title="Delete document" (click)="deleteDocument(document)">
-													<mat-icon>delete</mat-icon>
-												</button>
-											</div>
-										</td>
-									</tr>
-									} @empty {
-									<tr>
-										<td colspan="4" class="simple-table__empty">No documents uploaded.</td>
-									</tr>
-									}
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Right Column: Contact Info & Snapshot -->
-		<div class="lg:col-span-4 flex flex-col gap-6">
-			<!-- Contact Information -->
-			<div class="vault-card">
-				<div class="section-head">
-					<mat-icon class="section-icon">contact_mail</mat-icon>
-					<h2>Contact Information</h2>
-				</div>
-
-				<ul class="contact-list">
-					<li class="contact-list__item">
-						<mat-icon>mail</mat-icon>
-						<div>
-							<a class="contact-link" [href]="'mailto:' + (individual().emailAddress || '')">
-								{{ individual().emailAddress || 'Not available' }}
-							</a>
-							<span class="contact-list__caption">Primary Email</span>
-						</div>
-					</li>
-
-					<li class="contact-list__item">
-						<mat-icon>call</mat-icon>
-						<div class="contact-list__phones">
-							@for (phone of phoneNumbers(); track phone.phoneNumber) {
-							<div class="contact-list__phone-row">
-								<p>{{ phone.phoneNumber }}</p>
-								<span class="contact-list__phone-type">{{ phone.type }}</span>
-							</div>
-							} @empty {
-							<p>Not available</p>
-							}
-							<span class="contact-list__caption">Phone Numbers</span>
-						</div>
-					</li>
-
-					<li class="contact-list__item">
-						<mat-icon>home</mat-icon>
-						<div>
-							<p class="multiline">{{ individual().physicalAddress || 'Not available' }}</p>
-							<span class="contact-list__caption">Residential Address</span>
-						</div>
-					</li>
-
-					<li class="contact-list__item">
-						<mat-icon>markunread_mailbox</mat-icon>
-						<div>
-							@if (postalAddressSameAsPhysical()) {
-							<p class="multiline contact-list__muted">Same as residential address.</p>
-							} @else {
-							<p class="multiline">{{ individual().postalAddress }}</p>
-							}
-							<span class="contact-list__caption">Postal Address</span>
-						</div>
-					</li>
-				</ul>
-			</div>
-
-			<!-- Snapshot -->
-			<div class="vault-card">
-				<div class="section-head">
-					<mat-icon class="section-icon">info</mat-icon>
-					<h2>Snapshot</h2>
-				</div>
-
-				<div class="snapshot-list">
-					<div class="snapshot-row">
-						<span class="snapshot-label">Profile Created</span>
-						<span class="snapshot-value">{{ formatDate(individual().createdAt) }}</span>
-					</div>
-
-					<div class="snapshot-row">
-						<span class="snapshot-label">Last Updated</span>
-						<span class="snapshot-value">{{ formatDateTime(individual().modifiedAt) }}</span>
-					</div>
-
-					<div class="snapshot-row">
-						<span class="snapshot-label">PEP Status</span>
-						<span class="snapshot-value">{{ formatEnum(individual().pepStatus) }}</span>
-					</div>
-
-					<div class="snapshot-row snapshot-row--last">
-						<span class="snapshot-label">Linked Org</span>
-						<span class="snapshot-value snapshot-value--link">{{ individual().organisation?.name || 'Unassigned' }}</span>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<footer class="ind-footer">
-		<div class="ind-footer__brand">
-			<mat-icon>shield</mat-icon>
-			<span>Knowvera KYC Engine</span>
-		</div>
-		<div class="ind-footer__meta">
-			<span class="record-hash">{{ recordHash() }}</span>
-			<span class="ind-footer__updated">Last updated: {{ formatDateTime(individual().modifiedAt) }}</span>
-		</div>
-	</footer>
+  <!-- Audit footer -->
+  <footer class="dp-footer">
+    <div class="dp-footer-brand">
+      <mat-icon>shield</mat-icon>
+      <span>Knowvera KYC Engine</span>
+    </div>
+    <dl class="dp-footer-meta">
+      <div>
+        <dt>Created</dt>
+        <dd>{{ formatDateTime(individual().createdAt) }} &middot; {{ individual().createdBy || 'System' }}</dd>
+      </div>
+      <div>
+        <dt>Last updated</dt>
+        <dd>{{ formatDateTime(individual().modifiedAt) }} &middot; {{ individual().modifiedBy || 'System' }}</dd>
+      </div>
+    </dl>
+  </footer>
 </div>

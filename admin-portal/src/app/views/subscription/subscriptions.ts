@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { KycSubsciptionStatus } from '@app/models/bw/co/knowvera/subscription/kyc-subsciption-status';
 import { KycSubscriptionDTO } from '@app/models/bw/co/knowvera/subscription/kyc-subscription-dto';
 import { KycSubscriptionApiStore } from '@app/store/bw/co/knowvera/subscription/kyc-subscription-api.store';
@@ -24,6 +24,7 @@ import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/org
 import { SubscriptionSearchCriteria } from '@app/models/bw/co/knowvera/subscription/subscription-search-criteria';
 import { TranslateModule } from '@ngx-translate/core';
 import { AppEnvStore } from '@app/store/app-env.state';
+import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
 
 export class SearchSubscriptionsVarsForm {
   ref: string | any = null;
@@ -43,6 +44,7 @@ export class SearchSubscriptionsVarsForm {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {},
   imports: [
+    RouterLink,
     CommonModule,
     MatIconModule,
     MatButtonModule,
@@ -51,7 +53,7 @@ export class SearchSubscriptionsVarsForm {
     MatInputModule,
     MatSelectModule,
     MatTableModule,
-    MatPaginatorModule,
+    MatProgressBarModule,
     MatChipsModule,
     MatTooltipModule,
     FormField,
@@ -74,6 +76,7 @@ export class Subscriptions implements OnInit {
   protected readonly pageSize = signal(10);
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
+  protected readonly loading = computed(() => this.kycSubscriptionApiStore.loading());
   protected readonly router = inject(Router);
   protected readonly subscriptionStatus = KycSubsciptionStatus;
   protected readonly statusOptions = Object.values(KycSubsciptionStatus);
@@ -164,9 +167,27 @@ export class Subscriptions implements OnInit {
     } as any);
   }
 
-  onPageChange(event: PageEvent): void {
-    this.pageSize.set(event.pageSize);
-    this.doSearch(event.pageIndex, event.pageSize);
+  readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+  readonly pageNumbers = computed(() => pageWindow(this.currentPage(), this.totalPages()));
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= Math.max(this.totalPages(), 1) || page === this.currentPage()) {
+      return;
+    }
+    this.doSearch(page, this.pageSize());
+  }
+
+  changePageSize(size: string | number): void {
+    this.pageSize.set(Number(size));
+    this.doSearch(0, Number(size));
+  }
+
+  showingLabel(): string {
+    return showingRecordsLabel(this.currentPage(), this.pageSize(), this.rows().length, this.totalElements());
+  }
+
+  pageReport(): string {
+    return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
   }
 
   openCreate(): void {

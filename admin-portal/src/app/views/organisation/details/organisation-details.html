@@ -1,178 +1,390 @@
-<div class="org-details">
-  <nav class="breadcrumb" aria-label="Breadcrumb">
-    <a routerLink="/organisation">Entities</a>
-    <mat-icon>chevron_right</mat-icon>
-    <span class="crumb-current">{{ organisation().name || 'Organisation Details' }}</span>
-  </nav>
+<div class="org-details kv-page">
+  <!-- Header -->
+  <header class="org-header">
+    <div class="flex flex-col gap-3 min-w-0">
+      <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+        <a routerLink="/organisation">Organisations</a>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="kv-breadcrumb-current">{{ organisation().code || organisation().name || 'Details' }}</span>
+      </nav>
 
-  <!-- Hero Header -->
-  <section class="org-hero">
-    <div class="org-hero__decoration"></div>
-
-    <div class="org-hero__row">
-      <div class="org-hero__identity">
-        <div class="org-hero__avatar">
-          <span>{{ orgInitials() }}</span>
-          <span class="org-hero__avatar-badge"
-            ><mat-icon class="icon-fill">verified</mat-icon></span
-          >
-        </div>
-
-        <div class="org-hero__meta">
-          <div class="org-hero__title-row">
-            <h1 class="org-hero__title">{{ organisation().name || 'Organisation' }}</h1>
-            @if (organisation().code) {
-              <span class="org-hero__code">{{ organisation().code }}</span>
-            }
-          </div>
-
-          <div class="org-hero__badges">
-            <span class="status-pill" [class.status-pill--verified]="isOrganisationVerified()">
-              <mat-icon class="icon-fill">check_circle</mat-icon>
-              {{ isOrganisationVerified() ? 'Current' : 'Pending' }}
-            </span>
-            <span class="status-pill" [ngClass]="kycStatusClass()">
-              <mat-icon>verified_user</mat-icon>
-              {{ organisation().kycStatus || 'KYC Compliant' }}
-            </span>
-            <span class="org-hero__updated"
-              >Last updated:
-              {{ (organisation().modifiedAt | date: 'dd MMM yyyy, HH:mm') || 'N/A' }}</span
-            >
-          </div>
-        </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <h1 class="org-title">{{ organisation().name || 'Organisation' }}</h1>
+        @if (organisation().code) {
+          <span class="dp-code">{{ organisation().code }}</span>
+        }
+        <span class="dp-entity-pill">
+          <mat-icon>domain</mat-icon>
+          {{ organisation().isClient ? 'Client Entity' : 'Registry Entity' }}
+        </span>
       </div>
 
-      <div class="org-hero__actions">
-        <button
-          mat-stroked-button
-          class="btn-edit"
-          [routerLink]="['/organisation/edit', organisation().id || id]"
-        >
-          <mat-icon>edit</mat-icon>
-          Edit Organisation
-        </button>
-        <button mat-flat-button class="btn-audit">
-          <mat-icon>plagiarism</mat-icon>
-          New Audit
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Core Identity & Infrastructure -->
-  <div class="top-grid">
-    <div class="vault-card identity-card">
-      <div class="section-head">
-        <mat-icon class="section-icon">badge</mat-icon>
-        <h2>Core Identity</h2>
-      </div>
-
-      <div class="core-grid">
-        <div class="meta-item">
-          <label>Registration No.</label>
-          <p class="mono-value">{{ organisation().registrationNo || 'Not available' }}</p>
-        </div>
-
-        <div class="meta-item">
-          <label>Jurisdiction</label>
-          <p>{{ organisation().countryOfRegistration || 'Not available' }}</p>
-        </div>
-
-        <div class="meta-item">
-          <label>Registration Date</label>
-          <p>{{ (organisation().registrationDate | date: 'dd MMM yyyy') || 'Not available' }}</p>
-        </div>
-
-        
-      </div>
-    </div>
-
-    <div class="vault-card infrastructure-card">
-      <div class="section-head">
-        <mat-icon class="section-icon">language</mat-icon>
-        <h2>Registered Domains</h2>
-      </div>
-
-      <div class="domain-grid">
-        @for (domain of organisation().domains || []; track domain) {
-          <div class="domain-row">
-            <div class="domain-row__left">
-              <mat-icon>dns</mat-icon>
-              <span class="mono-value">{{ $any(domain).name || '-' }}</span>
-            </div>
-            @if ($any(domain).verified) {
-              <mat-icon
-                class="domain-row__status domain-row__status--verified icon-fill"
-                title="Verified"
-                >verified</mat-icon
-              >
-            } @else {
-              <mat-icon
-                class="domain-row__status domain-row__status--pending icon-fill"
-                title="Pending Verification"
-                >pending</mat-icon
-              >
-            }
-          </div>
-        } @empty {
-          <p class="empty-text">No domains configured.</p>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="org-pill" [class.is-active]="isOrganisationVerified()">
+          <mat-icon class="icon-fill">{{ isOrganisationVerified() ? 'check_circle' : 'pending' }}</mat-icon>
+          {{ organisation().status || 'Pending' }}
+        </span>
+        <span class="org-pill" [ngClass]="kycStatusClass()">
+          <mat-icon class="icon-fill">verified</mat-icon>
+          KYC {{ organisation().kycStatus || 'Unknown' }}
+        </span>
+        @if (organisation().keycloakId) {
+          <span class="dp-mono-meta">
+            <mat-icon>vpn_key</mat-icon>
+            {{ organisation().keycloakId }}
+          </span>
         }
       </div>
     </div>
-  </div>
 
-  <!-- Contact Information -->
-  <div class="vault-card">
-    <div class="section-head">
-      <mat-icon class="section-icon">contact_mail</mat-icon>
-      <h2>Contact Information</h2>
+    <div class="flex flex-wrap items-center gap-3">
+      <button type="button" class="dp-btn-outline" (click)="exportRecord()">
+        <mat-icon>file_download</mat-icon>
+        Export Record
+      </button>
+      <button type="button" class="dp-btn-outline is-primary-text" [routerLink]="['/organisation/edit', organisation().id || id]">
+        <mat-icon>edit</mat-icon>
+        Edit Organisation
+      </button>
+      <button type="button" class="dp-btn-navy">
+        <mat-icon>fact_check</mat-icon>
+        New Audit
+      </button>
     </div>
+  </header>
 
-    <div class="contact-grid">
-      <div class="contact-field">
-        <span class="contact-field__label"><mat-icon>mail</mat-icon> Primary Email</span>
-        <a
-          class="contact-field__link"
-          [href]="'mailto:' + (organisation().contactEmailAddress || '')"
-        >
-          {{ organisation().contactEmailAddress || 'Not available' }}
-        </a>
+  <!-- Bento grid -->
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
+
+    <!-- Core Identity & Legal Registration -->
+    <section class="org-card md:col-span-8">
+      <div class="org-card-head">
+        <span class="dp-icon-tile"><mat-icon>badge</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="org-card-title">Core Identity &amp; Legal Registration</h2>
+          <p class="dp-head-sub">Verified corporate charter information and regulatory classification</p>
+        </div>
+        <span class="org-status-tag">Status: {{ organisation().status || 'N/A' }}</span>
       </div>
 
-      <div class="contact-field">
-        <span class="contact-field__label"><mat-icon>location_on</mat-icon> Physical Address</span>
-        <p class="multiline">{{ organisation().physicalAddress || 'Not available' }}</p>
-      </div>
+      <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div>
+          <dt class="org-label">Registration Number</dt>
+          <dd class="org-value dp-mono is-primary">{{ organisation().registrationNo || 'Not available' }}</dd>
+        </div>
+        <div>
+          <dt class="org-label">Registration Date</dt>
+          <dd class="org-value">{{ (organisation().registrationDate | date: 'dd MMMM yyyy') || 'Not available' }}</dd>
+        </div>
+        <div>
+          <dt class="org-label">Country of Registration</dt>
+          <dd class="org-value dp-inline-icon">
+            <mat-icon>public</mat-icon>
+            {{ organisation().countryOfRegistration || 'Not available' }}
+          </dd>
+        </div>
+        <div>
+          <dt class="org-label">Entity Code</dt>
+          <dd class="org-value dp-mono">{{ organisation().code || 'Not available' }}</dd>
+        </div>
+        <div class="min-w-0">
+          <dt class="org-label">Keycloak Auth ID</dt>
+          <dd class="dp-mono dp-small dp-muted truncate" [title]="organisation().keycloakId || ''">
+            {{ organisation().keycloakId || 'Not linked' }}
+          </dd>
+        </div>
+        <div>
+          <dt class="org-label">Client Classification</dt>
+          <dd><span class="org-flag">isClient: {{ organisation().isClient ? 'true' : 'false' }}</span></dd>
+        </div>
+        <div class="sm:col-span-3 pt-2 org-divider">
+          <dt class="org-label">Description</dt>
+          <dd class="dp-small dp-muted leading-relaxed">{{ organisation().description || 'No description provided.' }}</dd>
+        </div>
+      </dl>
+    </section>
 
-      <div class="contact-field">
-        <span class="contact-field__label"><mat-icon>mark_as_unread</mat-icon> Postal Address</span>
-        <p class="multiline">{{ organisation().postalAddress || 'Same as physical address.' }}</p>
-      </div>
+    <!-- Domains -->
+    <section class="org-card md:col-span-4 flex flex-col justify-between">
+      <div>
+        <div class="org-card-head">
+          <span class="dp-icon-tile"><mat-icon>language</mat-icon></span>
+          <div class="dp-head-copy">
+            <h2 class="org-card-title">Domains</h2>
+            <p class="dp-head-sub">
+              {{ (organisation().domains || []).length }} Registered &amp; {{ verifiedDomainCount() }} Validated
+            </p>
+          </div>
+        </div>
 
-      <div class="contact-field">
-        <span class="contact-field__label"><mat-icon>call</mat-icon> Phone Numbers</span>
-        <div class="contact-field__phones">
-          @for (phone of organisation().phoneNumbers || []; track phone) {
-            <div class="contact-field__phone-row">
-              <span class="mono-value">{{ $any(phone).phoneNumber }}</span>
-              <span class="contact-field__phone-type">{{ $any(phone).type }}</span>
-            </div>
+        <ul class="flex flex-col gap-2.5">
+          @for (domain of organisation().domains || []; track $index) {
+            <li class="org-row" [class.is-primary]="$first">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span class="dp-mono org-row-title" [class.is-primary]="$first">{{ $any(domain).name || '-' }}</span>
+                  @if ($first) {
+                    <span class="dp-mini-badge">Primary</span>
+                  }
+                </div>
+                <span class="dp-list-sub">{{ $any(domain).verified ? 'Ownership validated' : 'Pending validation' }}</span>
+              </div>
+              @if ($any(domain).verified) {
+                <mat-icon class="icon-fill org-ok">check_circle</mat-icon>
+              } @else {
+                <mat-icon class="dp-pending">schedule</mat-icon>
+              }
+            </li>
           } @empty {
-            <p>Not available</p>
+            <li class="empty-text">No managed domains configured.</li>
           }
+        </ul>
+      </div>
+
+      <button type="button" class="dp-dashed-btn" [routerLink]="['/organisation/edit', organisation().id || id]">
+        <mat-icon>add</mat-icon>
+        Add Domain
+      </button>
+    </section>
+
+    <!-- Contact & Registered Offices -->
+    <section class="org-card md:col-span-12">
+      <div class="org-card-head">
+        <span class="dp-icon-tile"><mat-icon>contact_mail</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="org-card-title">Contact Information &amp; Registered Offices</h2>
+          <p class="dp-head-sub">Official communication channels and verified physical presences</p>
         </div>
       </div>
-    </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="flex flex-col gap-4">
+          <div>
+            <span class="org-label">Contact Email Address</span>
+            @if (organisation().contactEmailAddress) {
+              <a class="org-link dp-inline-icon org-value" [href]="'mailto:' + organisation().contactEmailAddress">
+                <mat-icon>mail</mat-icon>
+                {{ organisation().contactEmailAddress }}
+              </a>
+            } @else {
+              <p class="org-value">Not available</p>
+            }
+          </div>
+          <div>
+            <span class="org-label mb-2">Phone Numbers</span>
+            <ul class="flex flex-col gap-2">
+              @for (phone of organisation().phoneNumbers || []; track $index) {
+                <li class="org-phone">
+                  <span>{{ $any(phone).phoneNumber }}</span>
+                  <span class="org-phone-type">{{ $any(phone).type }}</span>
+                </li>
+              } @empty {
+                <li class="org-value">Not available</li>
+              }
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <span class="org-label dp-inline-icon mb-2"><mat-icon>apartment</mat-icon> Physical Address</span>
+          <div class="org-address">{{ organisation().physicalAddress || 'Not available' }}</div>
+        </div>
+
+        <div>
+          <span class="org-label dp-inline-icon mb-2"><mat-icon>markunread_mailbox</mat-icon> Postal Address</span>
+          <div class="org-address">{{ organisation().postalAddress || 'Same as physical address.' }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Branches Registry -->
+    <section class="md:col-span-12 flex flex-col gap-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="dp-icon-tile"><mat-icon>account_tree</mat-icon></span>
+          <div>
+            <h2 class="org-card-title">Branches Registry</h2>
+            <p class="dp-head-sub">Active regional operating subsidiaries and branch licenses</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="org-count-pill">{{ branches().length }} Branch{{ branches().length === 1 ? '' : 'es' }} Active</span>
+          <button type="button" class="dp-btn-outline is-primary-text is-sm" (click)="openAddBranchDialog()">
+            <mat-icon>add_location</mat-icon>
+            Add Branch
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        @for (branch of branches(); track branch.id || branch.code) {
+          <div class="org-branch" [class.is-primary]="$first">
+            <div class="flex justify-between items-start gap-2 mb-2">
+              <div class="min-w-0">
+                <h3 class="org-branch-name" [class.is-primary]="$first">{{ branch.name || 'Unnamed Branch' }}</h3>
+                @if (branch.description) {
+                  <span class="dp-list-sub">{{ branch.description }}</span>
+                }
+              </div>
+              <span class="dp-code dp-code--sm">{{ branch.code || '-' }}</span>
+            </div>
+            <p class="dp-small dp-muted mb-4 flex-1">{{ branch.physicalAddress || 'Address not provided' }}</p>
+            <div class="org-branch-foot">
+              <span class="dp-inline-icon org-branch-status" [class.is-pending]="!$first">
+                <mat-icon [class.icon-fill]="$first">{{ $first ? 'check_circle' : 'history' }}</mat-icon>
+                {{ $first ? 'Verified Primary' : 'Pending Validation' }}
+              </span>
+              <div class="flex items-center gap-1">
+                <span class="dp-mono org-branch-docs">DOCS: {{ (branch.documents || []).length }}</span>
+                <button type="button" class="kv-icon-btn" title="Edit branch" (click)="openEditBranchDialog(branch)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button type="button" class="kv-icon-btn-danger" title="Delete branch" (click)="deleteBranch(branch)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <p class="empty-text md:col-span-3">No branches registered.</p>
+        }
+      </div>
+    </section>
+
+    <!-- KYC Document Requirements -->
+    <section class="org-card md:col-span-12">
+      <div class="org-card-head">
+        <span class="dp-icon-tile"><mat-icon>rule_folder</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="org-card-title">KYC Document Requirements (Target Rules)</h2>
+          <p class="dp-head-sub">Mandatory document types defined for organisation entities and individual members</p>
+        </div>
+        <button type="button" class="dp-btn-soft" routerLink="/settings">
+          <mat-icon>tune</mat-icon>
+          Manage Requirements
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @for (req of [
+          { title: 'Organisation KYC Documents', icon: 'domain', docs: organisationKycDocuments(), soft: false, empty: 'No organisation KYC documents configured.' },
+          { title: 'Individual (UBO / Director) Documents', icon: 'person', docs: individualKycDocuments(), soft: true, empty: 'No individual KYC documents configured.' }
+        ]; track req.title) {
+          <div class="dp-group">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="dp-group-title"><mat-icon>{{ req.icon }}</mat-icon> {{ req.title }}</h3>
+              <span class="org-req-count" [class.is-secondary]="req.soft">{{ req.docs.length }} Required</span>
+            </div>
+            <div class="flex flex-col gap-2">
+              @for (documentType of req.docs; track documentType.id || documentType.code) {
+                <div class="org-doc" [class.is-optional]="documentType.expires">
+                  <mat-icon>{{ documentType.expires ? 'event_repeat' : 'description' }}</mat-icon>
+                  <div class="min-w-0 flex-1">
+                    <p class="org-doc-name">{{ documentType.name || '-' }}</p>
+                    <span class="dp-list-sub">DocType: {{ documentType.code || '-' }}</span>
+                  </div>
+                  <span class="org-doc-tag">{{ documentType.expires ? 'Renewal Required' : 'Mandatory' }}</span>
+                </div>
+              } @empty {
+                <p class="empty-text">{{ req.empty }}</p>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- KYC Field Groups & Schema Mapping -->
+    <section class="org-card md:col-span-12">
+      <div class="org-card-head org-card-head--wrap">
+        <span class="dp-icon-tile"><mat-icon>schema</mat-icon></span>
+        <div class="dp-head-copy">
+          <div class="flex flex-wrap items-center gap-2">
+            <h2 class="org-card-title">KYC Field Groups &amp; Schema Mapping</h2>
+            <span class="dp-mini-badge dp-mini-badge--soft">
+              {{ organisationReportGroups().length + individualReportGroups().length }} Groups
+            </span>
+          </div>
+          <p class="dp-head-sub">Configured report schema groups and active fields for organisation and individual entity evaluation</p>
+        </div>
+        <button type="button" class="dp-btn-navy is-sm" (click)="openAssignFieldGroups('ALL')">
+          <mat-icon>library_add</mat-icon>
+          Assign Group from Library
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @for (set of [
+          { scope: 'ORG', title: 'Organisation Report Groups', icon: 'corporate_fare', groups: organisationReportGroups(), assign: 'Select & Assign Organisation Field Group' },
+          { scope: 'IND', title: 'Individual Report Groups', icon: 'supervised_user_circle', groups: individualReportGroups(), assign: 'Select & Assign Individual Field Group' }
+        ]; track set.scope) {
+          <div class="dp-group dp-group--outlined justify-between">
+            <div class="flex flex-col gap-3">
+              <div class="dp-group-head">
+                <h3 class="dp-group-title"><mat-icon>{{ set.icon }}</mat-icon> {{ set.title }}</h3>
+                <div class="flex items-center gap-2">
+                  <span class="org-assigned">{{ set.groups.length }} Group{{ set.groups.length === 1 ? '' : 's' }} Assigned</span>
+                  <button type="button" class="dp-btn-link" (click)="openAssignFieldGroups($any(set.scope))">
+                    <mat-icon>add_circle</mat-icon>
+                    Add Group
+                  </button>
+                </div>
+              </div>
+
+              @for (group of set.groups; track group.id || group.label) {
+                <div class="dp-field-group">
+                  <div class="flex justify-between items-start gap-2">
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="org-group-name">{{ group.label || 'Untitled group' }}</span>
+                        <span class="org-pos" [class.is-first]="$first">Pos: {{ group.position ?? $index + 1 }}</span>
+                      </div>
+                      @if (group.description) {
+                        <span class="dp-list-sub dp-mono">{{ group.description }}</span>
+                      }
+                    </div>
+                    <button type="button" class="dp-btn-mini" (click)="openAssignFieldGroups($any(set.scope), group.id)">
+                      <mat-icon>tune</mat-icon>
+                      Manage Fields
+                    </button>
+                  </div>
+
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="dp-muted font-medium">Assigned Fields:</span>
+                    <span class="dp-field-count m-0">
+                      {{ (group.groupFields || []).length }} / {{ libraryFieldCount($any(set.scope), group) }} fields active
+                    </span>
+                  </div>
+                  <div class="flex flex-wrap gap-1.5">
+                    @for (field of group.groupFields || []; track field.id || field.fieldId) {
+                      <span class="dp-field-pill org-field-pill"><mat-icon>check</mat-icon> {{ field.field || 'Unnamed field' }}</span>
+                    } @empty {
+                      <span class="dp-list-sub">No fields assigned.</span>
+                    }
+                  </div>
+                </div>
+              } @empty {
+                <p class="empty-text">No field groups assigned.</p>
+              }
+            </div>
+
+            <button type="button" class="dp-dashed-btn mt-3" (click)="openAssignFieldGroups($any(set.scope))">
+              <mat-icon>add</mat-icon>
+              {{ set.assign }}
+            </button>
+          </div>
+        }
+      </div>
+    </section>
   </div>
 
   <!-- Operations Hub (Tabs) -->
-  <div class="vault-card vault-card--flush ops-hub">
+  <section class="kv-card ops-hub">
     <mat-tab-group class="ops-tab-group" animationDuration="150ms">
       <mat-tab>
         <ng-template mat-tab-label>
           <mat-icon class="tab-icon">verified</mat-icon>
-          <span>Compliance & KYC</span>
+          <span>Compliance &amp; Reports</span>
         </ng-template>
 
         <div class="ops-subtab-wrap">
@@ -327,14 +539,14 @@
                       Select Field Group
                     </button>
                     <span class="branches-count"
-                      >{{ selectedOrganisationReportSections().length }} Section{{
-                        selectedOrganisationReportSections().length === 1 ? '' : 's'
+                      >{{ selectedOrganisationReportGroups().length }} Section{{
+                        selectedOrganisationReportGroups().length === 1 ? '' : 's'
                       }}</span
                     >
                   </div>
                 </div>
 
-                <!-- @for (
+                @for (
                   section of selectedOrganisationKycGroup();
                   track section.id || section.label
                 ) {
@@ -391,7 +603,7 @@
                   </div>
                 } @empty {
                   <p class="empty-text">No organisation KYC report sections available.</p>
-                } -->
+                }
               </div>
             </mat-tab>
 
@@ -403,14 +615,14 @@
                 <div class="table-head">
                   <h3>Individual KYC Report Sections</h3>
                   <span class="branches-count"
-                    >{{ individualReportSections().length }} Section{{
-                      individualReportSections().length === 1 ? '' : 's'
+                    >{{ individualReportGroups().length }} Section{{
+                      individualReportGroups().length === 1 ? '' : 's'
                     }}</span
                   >
                 </div>
 
-                @for (section of individualReportSections(); track section.id || section.label) {
-                  <div class="vault-card report-section-card">
+                @for (section of individualReportGroups(); track section.id || section.label) {
+                  <!-- <div class="vault-card report-section-card">
                     <div class="section-head">
                       <mat-icon class="section-icon">fact_check</mat-icon>
                       <h2>{{ section.label || 'Untitled Section' }}</h2>
@@ -460,326 +672,144 @@
                         </tbody>
                       </table>
                     </div>
-                  </div>
+                  </div> -->
                 } @empty {
                   <p class="empty-text">No individual KYC report sections available.</p>
                 }
               </div>
             </mat-tab>
-
-            <mat-tab>
-              <ng-template mat-tab-label
-                ><mat-icon class="tab-icon">description</mat-icon><span>Org KYC Docs</span></ng-template
-              >
-              <div class="tab-content tab-kyc-documents">
-                <div class="table-head">
-                  <h3>Organisation KYC Document Requirements</h3>
-                  <span class="branches-count"
-                    >{{ organisationKycDocuments().length }} Document{{
-                      organisationKycDocuments().length === 1 ? '' : 's'
-                    }}</span
-                  >
-                </div>
-
-                <div class="table-responsive">
-                  <table class="simple-table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Code</th>
-                        <th>Description</th>
-                        <th>Expires</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (
-                        documentType of organisationKycDocuments();
-                        track documentType.id || documentType.code
-                      ) {
-                        <tr>
-                          <td>
-                            <div class="file-cell">
-                              <mat-icon>description</mat-icon>
-                              {{ documentType.name || '-' }}
-                            </div>
-                          </td>
-                          <td>{{ documentType.code || '-' }}</td>
-                          <td>{{ documentType.description || '-' }}</td>
-                          <td>{{ documentType.expires ? 'Yes' : 'No' }}</td>
-                        </tr>
-                      } @empty {
-                        <tr>
-                          <td colspan="4" class="simple-table__empty">
-                            No organisation KYC documents configured.
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </mat-tab>
-
-            <mat-tab>
-              <ng-template mat-tab-label
-                ><mat-icon class="tab-icon">description</mat-icon><span>Ind KYC Docs</span></ng-template
-              >
-              <div class="tab-content tab-kyc-documents">
-                <div class="table-head">
-                  <h3>Individual KYC Document Requirements</h3>
-                  <span class="branches-count"
-                    >{{ individualKycDocuments().length }} Document{{
-                      individualKycDocuments().length === 1 ? '' : 's'
-                    }}</span
-                  >
-                </div>
-
-                <div class="table-responsive">
-                  <table class="simple-table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Code</th>
-                        <th>Description</th>
-                        <th>Expires</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (
-                        documentType of individualKycDocuments();
-                        track documentType.id || documentType.code
-                      ) {
-                        <tr>
-                          <td>
-                            <div class="file-cell">
-                              <mat-icon>description</mat-icon>
-                              {{ documentType.name || '-' }}
-                            </div>
-                          </td>
-                          <td>{{ documentType.code || '-' }}</td>
-                          <td>{{ documentType.description || '-' }}</td>
-                          <td>{{ documentType.expires ? 'Yes' : 'No' }}</td>
-                        </tr>
-                      } @empty {
-                        <tr>
-                          <td colspan="4" class="simple-table__empty">
-                            No individual KYC documents configured.
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </mat-tab>
           </mat-tab-group>
         </div>
       </mat-tab>
 
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <mat-icon class="tab-icon">hub</mat-icon>
-          <span>Operations</span>
-        </ng-template>
+      @if (organisation().isClient) {
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">receipt_long</mat-icon>
+            <span>Subscriptions</span>
+          </ng-template>
+      <div class="tab-content tab-subscriptions">
+        <div class="table-head">
+          <h3>Subscriptions</h3>
+          <div class="table-head-actions">
+            <span class="live-chip">{{ subscriptionsDataSource.data.length }} linked</span>
+          </div>
+        </div>
 
-        <div class="ops-subtab-wrap">
-          <mat-tab-group class="ops-subtab-group" animationDuration="150ms">
-            @if (organisation().isClient) {
-              <mat-tab>
-                <ng-template mat-tab-label
-                  ><mat-icon class="tab-icon">receipt_long</mat-icon
-                  ><span>Subscriptions</span></ng-template
+        <div class="table-responsive">
+          <table
+            mat-table
+            [dataSource]="subscriptionsDataSource"
+            class="vault-table subscriptions-table"
+          >
+            <ng-container matColumnDef="ref">
+              <th mat-header-cell *matHeaderCellDef>Ref ID</th>
+              <td mat-cell *matCellDef="let subscription" class="mono-cell">
+                {{ subscription.ref || '-' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="period">
+              <th mat-header-cell *matHeaderCellDef>Period</th>
+              <td mat-cell *matCellDef="let subscription">{{ subscription.period || '-' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="startDate">
+              <th mat-header-cell *matHeaderCellDef>Start Date</th>
+              <td mat-cell *matCellDef="let subscription">
+                {{ formatSubscriptionDate(subscription.startDate) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="endDate">
+              <th mat-header-cell *matHeaderCellDef>End Date</th>
+              <td mat-cell *matCellDef="let subscription">
+                {{ formatSubscriptionDate(subscription.endDate) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="amount">
+              <th mat-header-cell *matHeaderCellDef class="align-end">Amount</th>
+              <td mat-cell *matCellDef="let subscription" class="align-end mono-cell">
+                {{ formatSubscriptionAmount(subscription.amount) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let subscription">
+                <span
+                  class="subscription-status-pill"
+                  [ngClass]="subscriptionStatusClass(subscription.status)"
                 >
-                <div class="tab-content tab-subscriptions">
-                  <div class="table-head">
-                    <h3>Subscriptions</h3>
-                    <div class="table-head-actions">
-                      <span class="live-chip">{{ subscriptionsDataSource.data.length }} linked</span>
-                    </div>
-                  </div>
+                  {{ subscription.status || 'UNKNOWN' }}
+                </span>
+              </td>
+            </ng-container>
 
-                  <div class="table-responsive">
-                    <table
-                      mat-table
-                      [dataSource]="subscriptionsDataSource"
-                      class="vault-table subscriptions-table"
-                    >
-                      <ng-container matColumnDef="ref">
-                        <th mat-header-cell *matHeaderCellDef>Ref ID</th>
-                        <td mat-cell *matCellDef="let subscription" class="mono-cell">
-                          {{ subscription.ref || '-' }}
-                        </td>
-                      </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="align-end">Actions</th>
+              <td mat-cell *matCellDef="let subscription" class="align-end">
+                <button
+                  mat-icon-button
+                  type="button"
+                  title="Subscription details"
+                  (click)="openSubscriptionDetails(subscription)"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </button>
+              </td>
+            </ng-container>
 
-                      <ng-container matColumnDef="period">
-                        <th mat-header-cell *matHeaderCellDef>Period</th>
-                        <td mat-cell *matCellDef="let subscription">{{ subscription.period || '-' }}</td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="startDate">
-                        <th mat-header-cell *matHeaderCellDef>Start Date</th>
-                        <td mat-cell *matCellDef="let subscription">
-                          {{ formatSubscriptionDate(subscription.startDate) }}
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="endDate">
-                        <th mat-header-cell *matHeaderCellDef>End Date</th>
-                        <td mat-cell *matCellDef="let subscription">
-                          {{ formatSubscriptionDate(subscription.endDate) }}
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="amount">
-                        <th mat-header-cell *matHeaderCellDef class="align-end">Amount</th>
-                        <td mat-cell *matCellDef="let subscription" class="align-end mono-cell">
-                          {{ formatSubscriptionAmount(subscription.amount) }}
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="status">
-                        <th mat-header-cell *matHeaderCellDef>Status</th>
-                        <td mat-cell *matCellDef="let subscription">
-                          <span
-                            class="subscription-status-pill"
-                            [ngClass]="subscriptionStatusClass(subscription.status)"
-                          >
-                            {{ subscription.status || 'UNKNOWN' }}
-                          </span>
-                        </td>
-                      </ng-container>
-
-                      <ng-container matColumnDef="actions">
-                        <th mat-header-cell *matHeaderCellDef class="align-end">Actions</th>
-                        <td mat-cell *matCellDef="let subscription" class="align-end">
-                          <button
-                            mat-icon-button
-                            type="button"
-                            title="Subscription details"
-                            (click)="openSubscriptionDetails(subscription)"
-                          >
-                            <mat-icon>visibility</mat-icon>
-                          </button>
-                        </td>
-                      </ng-container>
-
-                      <tr
-                        mat-header-row
-                        *matHeaderRowDef="[
-                          'ref',
-                          'period',
-                          'startDate',
-                          'endDate',
-                          'amount',
-                          'status',
-                          'actions',
-                        ]"
-                      ></tr>
-                      <tr
-                        mat-row
-                        *matRowDef="
-                          let row;
-                          columns: [
-                            'ref',
-                            'period',
-                            'startDate',
-                            'endDate',
-                            'amount',
-                            'status',
-                            'actions',
-                          ]
-                        "
-                      ></tr>
-                      <tr class="mat-row empty-row" *matNoDataRow>
-                        <td class="mat-cell" colspan="7">
-                          <div class="empty-state">
-                            <mat-icon>subscriptions</mat-icon>
-                            <p>No subscriptions are linked to this organisation yet.</p>
-                          </div>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-
-                  <mat-paginator
-                    #subscriptionsPaginator
-                    [length]="subscriptionsDataSource.data.length"
-                    [pageIndex]="0"
-                    [pageSize]="5"
-                    [pageSizeOptions]="[5, 10, 25]"
-                    showFirstLastButtons
-                  ></mat-paginator>
+            <tr
+              mat-header-row
+              *matHeaderRowDef="[
+                'ref',
+                'period',
+                'startDate',
+                'endDate',
+                'amount',
+                'status',
+                'actions',
+              ]"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="
+                let row;
+                columns: [
+                  'ref',
+                  'period',
+                  'startDate',
+                  'endDate',
+                  'amount',
+                  'status',
+                  'actions',
+                ]
+              "
+            ></tr>
+            <tr class="mat-row empty-row" *matNoDataRow>
+              <td class="mat-cell" colspan="7">
+                <div class="empty-state">
+                  <mat-icon>subscriptions</mat-icon>
+                  <p>No subscriptions are linked to this organisation yet.</p>
                 </div>
-              </mat-tab>
-            }
-
-            <mat-tab>
-              <ng-template mat-tab-label
-                ><mat-icon class="tab-icon">account_tree</mat-icon
-                ><span>Global Branches</span></ng-template
-              >
-              <div class="tab-content tab-branches">
-                <div class="branches-head">
-                  <div class="section-head">
-                    <mat-icon class="section-icon">account_tree</mat-icon>
-                    <h2>Registered Branches</h2>
-                  </div>
-                  <div class="branches-head-actions">
-                    <span class="branches-count">{{ branches().length }} Branches Active</span>
-                    <button mat-flat-button class="btn-add-branch" (click)="openAddBranchDialog()">
-                      <mat-icon>add_location</mat-icon>
-                      Add Branch
-                    </button>
-                  </div>
-                </div>
-
-                <div class="branches-grid">
-                  @for (branch of branches(); track branch.id || branch.code) {
-                    <div class="branch-card" [class.branch-card--primary]="$index === 0">
-                      <div class="branch-card__head">
-                        <h4>{{ branch.name || 'Unnamed Branch' }}</h4>
-                        <span class="branch-card__code">{{ branch.code || '-' }}</span>
-                      </div>
-                      <p class="branch-card__address">
-                        <mat-icon>location_on</mat-icon>
-                        {{ branch.physicalAddress || 'Address not provided' }}
-                      </p>
-                      <div class="branch-card__footer">
-                        <div
-                          class="branch-card__status"
-                          [class.branch-card__status--pending]="$index !== 0"
-                        >
-                          <mat-icon>{{ $index === 0 ? 'check_circle' : 'history' }}</mat-icon>
-                          {{ $index === 0 ? 'Verified Primary' : 'Pending Validation' }}
-                        </div>
-                        <div class="branch-card__actions">
-                          <button
-                            mat-icon-button
-                            title="Edit branch"
-                            (click)="openEditBranchDialog(branch)"
-                          >
-                            <mat-icon>edit</mat-icon>
-                          </button>
-                          <button
-                            mat-icon-button
-                            class="branch-card__delete"
-                            title="Delete branch"
-                            (click)="deleteBranch(branch)"
-                          >
-                            <mat-icon>delete</mat-icon>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  } @empty {
-                    <p class="empty-text">No branches available.</p>
-                  }
-                </div>
-              </div>
-            </mat-tab>
-          </mat-tab-group>
+              </td>
+            </tr>
+          </table>
         </div>
-      </mat-tab>
+
+        <mat-paginator
+          #subscriptionsPaginator
+          [length]="subscriptionsDataSource.data.length"
+          [pageIndex]="0"
+          [pageSize]="5"
+          [pageSizeOptions]="[5, 10, 25]"
+          showFirstLastButtons
+        ></mat-paginator>
+      </div>
+        </mat-tab>
+      }
 
       @if (organisation().isClient) {
         <mat-tab>
@@ -973,15 +1003,18 @@
         </mat-tab>
       }
     </mat-tab-group>
-  </div>
+  </section>
 
-  <footer class="org-footer">
-    <div class="org-footer__brand">
+  <!-- Footer -->
+  <footer class="dp-footer">
+    <div class="dp-footer-brand">
       <mat-icon>shield</mat-icon>
       <span>Knowvera KYC Engine</span>
     </div>
-    <div class="org-footer__updated">
-      Last updated: {{ (organisation().modifiedAt | date: 'yyyy-MM-dd HH:mm') || 'N/A' }} UTC
+    <div class="org-footer-meta">
+      Created {{ (organisation().createdAt | date: 'yyyy-MM-dd HH:mm') || 'N/A' }} by {{ organisation().createdBy || 'System' }}
+      &middot;
+      Last updated: {{ (organisation().modifiedAt | date: 'yyyy-MM-dd HH:mm') || 'N/A' }} by {{ organisation().modifiedBy || 'System' }}
     </div>
   </footer>
 </div>

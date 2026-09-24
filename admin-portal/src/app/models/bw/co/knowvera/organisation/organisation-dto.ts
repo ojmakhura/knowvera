@@ -9,6 +9,7 @@ import {GeneralStatus} from '@models/bw/co/knowvera/general-status';
 import {PhoneNumber} from '@models/bw/co/knowvera/phone-number';
 import {OrganisationDomain} from '@models/bw/co/knowvera/organisation/organisation-domain';
 import { KycReportSectionDTO } from '../kyc/fields/kyc-report-section-dto';
+import { KycFieldGroupDTO } from '../settings/kyc/kyc-field-group-dto';
 
 export class OrganisationDTO extends AuditableDTO {
 
@@ -32,8 +33,8 @@ export class OrganisationDTO extends AuditableDTO {
     registrationDate: Date | any;
     branches: Array<BranchDTO> | any;
     individualKycDocuments: Array<DocumentTypeDTO> | any;
-    individualReportSections: Array<KycReportSectionDTO> | any;
-    organisationReportSections: Array<KycReportSectionDTO> | any;
+    individualReportGroups: Array<KycFieldGroupDTO> | any;
+    organisationReportGroups: Array<KycFieldGroupDTO> | any;
 
     constructor() {
         super();
@@ -57,7 +58,7 @@ export class OrganisationDTO extends AuditableDTO {
         this.registrationDate = null;
         this.branches = [];
         this.individualKycDocuments = [];
-        this.individualReportSections = [];
-        this.organisationReportSections = [];
+        this.individualReportGroups = [];
+        this.organisationReportGroups = [];
     }
 }

@@ -112,7 +112,6 @@ type ToolSelectorTarget =
   imports: [
     CommonModule,
     FormsModule,
-    Loader,
     MatButtonModule,
     MatButtonToggleModule,
     MatCardModule,

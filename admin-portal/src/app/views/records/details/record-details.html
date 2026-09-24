@@ -1,464 +1,397 @@
-<section class="record-details-page">
-	<header class="page-head">
-		<div class="title-wrap">
-			<button mat-icon-button type="button" class="back-btn" matTooltip="Back to records" (click)="backToRecords()">
-				<mat-icon>arrow_back</mat-icon>
-			</button>
+<div class="kv-page">
+  <!-- Header -->
+  <header class="dp-header">
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/records">KYC Records</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">{{ record()?.ref || 'Details' }}</span>
+    </nav>
 
-			<div>
-				<span class="eyebrow">Digital Vault / KYC Records</span>
-				<h1>{{ recordTitle() }}</h1>
-				<p>{{ createdSummary() }}</p>
-			</div>
-		</div>
+    <div class="kv-page-header">
+      <div class="min-w-0 flex flex-col gap-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <h1 class="kv-title">{{ recordTitle() }}</h1>
+          @if (record()?.ref) {
+            <span class="dp-code">{{ record()?.ref }}</span>
+          }
+          <span class="dp-entity-pill">
+            <mat-icon>{{ record()?.target === TargetEntity.INDIVIDUAL ? 'person' : 'domain' }}</mat-icon>
+            {{ targetTypeDisplay() }}
+          </span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="dp-pill" [ngClass]="kycTone()">
+            <mat-icon class="icon-fill">verified</mat-icon>
+            KYC {{ kycStatusDisplay() }}
+          </span>
+          <span class="dp-mono-meta">{{ createdSummary() }}</span>
+        </div>
+      </div>
 
-		<div class="head-actions">
-			<button mat-stroked-button type="button" class="ghost-btn" (click)="printView()">
-				<mat-icon>print</mat-icon>
-				Print
-			</button>
+      <div class="kv-actions">
+        <button type="button" class="kv-btn-secondary" (click)="printView()">
+          <mat-icon>print</mat-icon>
+          Print
+        </button>
+        <button type="button" class="kv-btn-secondary" (click)="openEdit()">
+          <mat-icon>edit</mat-icon>
+          Edit Record
+        </button>
+        <button type="button" class="kv-btn-primary" (click)="downloadStatement()">
+          <mat-icon>download</mat-icon>
+          Download Statement
+        </button>
+      </div>
+    </div>
+  </header>
 
-			<button mat-flat-button type="button" class="primary-btn" (click)="downloadStatement()">
-				<mat-icon>download</mat-icon>
-				Download Statement
-			</button>
-		</div>
-	</header>
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" class="mb-4"></mat-progress-bar>
+  }
 
-	<section class="details-grid">
-		<div class="main-column">
-			<section class="top-panels-grid">
-				<!-- KYC Compliance Status Panel -->
-				<mat-card class="panel status-summary-panel">
-					<div>
-						<span class="section-label">KYC Status</span>
-						<h2 [class]="'status-' + kycStatusClass()">{{ kycStatusDisplay() }}</h2>
-						<p>Compliance Level</p>
-					</div>
+  <!-- Bento grid -->
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
 
-					<div class="summary-side">
-						<div class="compliance-meter">
-							<div class="meter-bar">
-								<div class="meter-fill" [style.width.%]="kycCompliancePercentage()"></div>
-							</div>
-							<span class="meter-value">{{ kycCompliancePercentage() }}%</span>
-						</div>
-					</div>
-				</mat-card>
+    <!-- Entity details -->
+    <section class="kv-card md:col-span-8">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile"><mat-icon>badge</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Entity Details</h2>
+          <p class="dp-head-sub">{{ targetTypeDisplay() }} account the record is held for</p>
+        </div>
+        <span class="kv-tag dp-head-aside">KYC: {{ kycStatusDisplay() }}</span>
+      </div>
 
-				<!-- Entity Context Panel -->
-				<mat-card class="panel context-panel">
-					<div class="panel-head">
-						<div class="section-head">
-							<div class="entity-avatar">{{ targetAvatar() }}</div>
-							<div>
-								<h2>Entity Details</h2>
-								<p>{{ targetTypeDisplay() }} Account</p>
-							</div>
-						</div>
-					</div>
+      <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="kv-field">
+          <dt class="kv-label">Reference Number</dt>
+          <dd class="kv-value dp-mono dp-strong">{{ record()?.ref || 'Not available' }}</dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">Owner</dt>
+          <dd class="kv-value dp-strong">{{ record()?.ownerDetails?.name || 'Not available' }}</dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">Email Address</dt>
+          <dd class="kv-value">{{ record()?.ownerDetails?.emailAddress || 'Not available' }}</dd>
+        </div>
+        @if (record()?.target === TargetEntity.INDIVIDUAL) {
+          <div class="kv-field">
+            <dt class="kv-label">Identity Type</dt>
+            <dd class="kv-value">{{ identityTypeLabel() }}</dd>
+          </div>
+          <div class="kv-field">
+            <dt class="kv-label">Identity Number</dt>
+            <dd class="kv-value dp-mono">{{ record()?.ownerDetails?.identityNo || 'Not available' }}</dd>
+          </div>
+        }
+        <div class="kv-field">
+          <dt class="kv-label">Documents</dt>
+          <dd class="kv-value">{{ documentCount() }}</dd>
+        </div>
+      </dl>
+    </section>
 
-					<div class="context-grid">
-						<div class="kv">
-							<span class="section-label">Reference Number</span>
-							<p>{{ record()?.ref || 'Not available' }}</p>
-						</div>
+    <!-- Verification status -->
+    <section class="kv-card md:col-span-4 flex flex-col">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile" [ngClass]="kycTone()"><mat-icon>verified</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Verification Status</h2>
+          <p class="dp-head-sub">
+            @if (record()?.kycStatus === KycComplianceStatus.CURRENT) {
+              KYC verified and current
+            } @else if (record()?.kycStatus === KycComplianceStatus.EXPIRED) {
+              KYC expired - renewal required
+            } @else if (record()?.kycStatus === KycComplianceStatus.INCOMPLETE) {
+              KYC incomplete - additional documents needed
+            } @else {
+              KYC status unknown
+            }
+          </p>
+        </div>
+      </div>
 
-						<div class="kv">
-							<span class="section-label">Owner</span>
-							<p>{{ record()?.ownerDetails?.name || 'Not available' }}</p>
-						</div>
+      <div class="flex items-center justify-between mb-2">
+        <span class="kv-label">Compliance Level</span>
+        <span class="dp-strong dp-small">{{ kycCompliancePercentage() }}%</span>
+      </div>
+      <div class="dp-progress">
+        <span class="filled" [style.flex-grow]="kycCompliancePercentage()"></span>
+        <span [style.flex-grow]="100 - kycCompliancePercentage()"></span>
+      </div>
 
-						@if (record()?.target === TargetEntity.INDIVIDUAL) {
-						<div class="kv">
-							<span class="section-label">Identity Type</span>
-							<p>{{ identityTypeLabel() }}</p>
-						</div>
+      <dl class="grid grid-cols-2 gap-4 mt-6">
+        <div class="kv-field">
+          <dt class="kv-label">Verified</dt>
+          <dd class="kv-value">{{ complianceDateLabel() }}</dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">Expires</dt>
+          <dd class="kv-value">{{ expiryDateLabel() }}</dd>
+        </div>
+      </dl>
 
-						<div class="kv">
-							<span class="section-label">Identity Number</span>
-							<p>{{ record()?.ownerDetails?.identityNo || 'Not available' }}</p>
-						</div>
-						}
+      @if (canDownloadDocuments()) {
+        <button type="button" class="dp-dashed-btn mt-auto" (click)="downloadDocuments()">
+          <mat-icon>download</mat-icon>
+          Download Documents ({{ documentCount() }})
+        </button>
+      }
+    </section>
 
-						<div class="kv">
-							<span class="section-label">Email Address</span>
-							<p>{{ record()?.ownerDetails?.emailAddress || 'Not available' }}</p>
-						</div>
+    <!-- Addresses -->
+    <section class="kv-card md:col-span-6">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile"><mat-icon>location_on</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Addresses</h2>
+          <p class="dp-head-sub">Declared physical and postal addresses</p>
+        </div>
+      </div>
 
-						<!-- <div class="kv" *ngIf="record()?.target !== TargetEntity.INDIVIDUAL">
-							<span class="section-label">Legal Entity Name</span>
-							<p>{{ record()?.ownerDetails }}</p>
-						</div> -->
-					</div>
-				</mat-card>
-			</section>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="kv-field">
+          <span class="kv-label dp-inline-icon"><mat-icon>apartment</mat-icon> Physical Address</span>
+          <div class="kv-panel dp-address">{{ record()?.ownerDetails?.physicalAddress || 'Not provided' }}</div>
+        </div>
+        <div class="kv-field">
+          <span class="kv-label dp-inline-icon"><mat-icon>markunread_mailbox</mat-icon> Postal Address</span>
+          <div class="kv-panel dp-address">{{ record()?.ownerDetails?.postalAddress || 'Not provided' }}</div>
+        </div>
+      </div>
+    </section>
 
-			<mat-card class="panel record-tabs-card">
-				<mat-tab-group [selectedIndex]="selectedSectionTabIndex()" (selectedIndexChange)="setSectionTab($event)">
-					<mat-tab label="KYC Verification">
-						<section class="tab-pane">
-							<!-- Address & Compliance Declaration -->
-							<section class="declaration-grid">
-								<mat-card class="panel address-panel">
-									<h3 class="section-label">Physical Address</h3>
-									<p class="address-text">{{ record()?.ownerDetails?.physicalAddress || 'Not provided' }}</p>
+    <!-- Declarations -->
+    <section class="kv-card md:col-span-6">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile"><mat-icon>gavel</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Declarations</h2>
+          <p class="dp-head-sub">Screening results and source of funds</p>
+        </div>
+      </div>
 
-									<h3 class="section-label" style="margin-top: 1.5rem;">Postal Address</h3>
-									<p class="address-text">{{ record()?.ownerDetails?.postalAddress || 'Not provided' }}</p>
-								</mat-card>
+      <ul class="flex flex-col gap-2.5">
+        <li class="dp-list-item" [class.is-primary]="!pepStatusLabel()" [class.is-warning]="pepStatusLabel()">
+          <div class="min-w-0">
+            <p class="dp-strong dp-small">PEP Status</p>
+            <span class="dp-list-sub">{{ pepStatusLabel() ? 'Person of public exposure flagged' : 'No PEP association detected' }}</span>
+          </div>
+          <mat-icon class="icon-fill" [class.dp-ok]="!pepStatusLabel()" [class.dp-bad]="pepStatusLabel()">
+            {{ pepStatusLabel() ? 'cancel' : 'check_circle' }}
+          </mat-icon>
+        </li>
+        <li class="dp-list-item" [class.is-primary]="!sanctionsMatchLabel()" [class.is-warning]="sanctionsMatchLabel()">
+          <div class="min-w-0">
+            <p class="dp-strong dp-small">Sanctions Match</p>
+            <span class="dp-list-sub">{{ sanctionsMatchLabel() ? 'Sanctions list match detected' : 'No sanctions list matches found' }}</span>
+          </div>
+          <mat-icon class="icon-fill" [class.dp-ok]="!sanctionsMatchLabel()" [class.dp-bad]="sanctionsMatchLabel()">
+            {{ sanctionsMatchLabel() ? 'cancel' : 'check_circle' }}
+          </mat-icon>
+        </li>
+        <li class="dp-list-item">
+          <div class="min-w-0">
+            <p class="dp-strong dp-small">Source of Funds: {{ sourceOfFundsDisplay() }}</p>
+            @if (record()?.sourceOfFundsDetails) {
+              <span class="dp-list-sub">{{ record()?.sourceOfFundsDetails }}</span>
+            }
+          </div>
+          <mat-icon class="dp-pending">account_balance_wallet</mat-icon>
+        </li>
+      </ul>
+    </section>
 
-								<mat-card class="panel declaration-panel">
-									<h3 class="section-label mb-1">Declaration Status</h3>
+    <!-- Documents & report -->
+    <section class="kv-card dp-tabs md:col-span-12">
+      <mat-tab-group [selectedIndex]="selectedSectionTabIndex()" (selectedIndexChange)="setSectionTab($event)" animationDuration="150ms">
+        <mat-tab label="Documents">
+          <div class="dp-tab-pane">
+            <div class="dp-toolbar">
+              @if (currentDocument(); as currentDoc) {
+                <div class="min-w-0">
+                  <span class="kv-label">Document {{ currentDocumentPositionLabel() }}</span>
+                  <h3 class="kv-card-title truncate">{{ currentDoc.fileName || 'Untitled Document' }}</h3>
+                </div>
+              } @else {
+                <span></span>
+              }
+              <div class="kv-actions">
+                @if (currentDocument()) {
+                  <button type="button" class="kv-icon-btn" aria-label="Previous document" (click)="showPreviousDocument()" [disabled]="!hasPreviousDocument()">
+                    <mat-icon>chevron_left</mat-icon>
+                  </button>
+                  <button type="button" class="kv-icon-btn" aria-label="Next document" (click)="showNextDocument()" [disabled]="!hasNextDocument()">
+                    <mat-icon>chevron_right</mat-icon>
+                  </button>
+                }
+                <button type="button" class="kv-btn-primary" (click)="openDocumentUpload()">
+                  <mat-icon>cloud_upload</mat-icon>
+                  Upload More
+                </button>
+              </div>
+            </div>
 
-									<div class="declaration-item">
-										<div class="declaration-check">
-											<mat-icon>
-												@if (pepStatusLabel()) {
-													cancel
-												} @else {
-													check_circle
-												}
-											</mat-icon>
-										</div>
-										<div>
-											<span class="declaration-label">PEP Status</span>
-											<p>{{ pepStatusLabel() ? 'Person of Public Exposure Flagged' : 'No PEP association detected' }}</p>
-										</div>
-									</div>
+            @if (currentDocument(); as currentDoc) {
+              <div class="flex flex-wrap gap-2">
+                @for (doc of documentsList(); track doc.id || $index) {
+                  <button type="button" class="rec-chip" [class.is-active]="$index === currentDocumentIndex()" (click)="selectDocument($index)">
+                    {{ $index + 1 }}. {{ doc.documentType || doc.documentTypeId || 'Document' }}
+                  </button>
+                }
+              </div>
 
-									<div class="declaration-item">
-										<div class="declaration-check">
-											<mat-icon>
-												@if (sanctionsMatchLabel()) {
-													cancel
-												} @else {
-													check_circle
-												}
-											</mat-icon>
-										</div>
-										<div>
-											<span class="declaration-label">Sanctions Match</span>
-											<p>{{ sanctionsMatchLabel() ? 'Sanctions list match detected' : 'No sanctions list matches found' }}</p>
-										</div>
-									</div>
-								</mat-card>
-							</section>
+              <div class="dp-group">
+                <dl class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                  <div class="kv-field">
+                    <dt class="kv-label">File Name</dt>
+                    <dd class="kv-value dp-mono truncate">{{ currentDoc.fileName || 'Not available' }}</dd>
+                  </div>
+                  <div class="kv-field">
+                    <dt class="kv-label">Document Type</dt>
+                    <dd class="kv-value">{{ documentTypeLabel(currentDoc) }}</dd>
+                  </div>
+                  <div class="kv-field">
+                    <dt class="kv-label">Verification Status</dt>
+                    <dd class="kv-value">{{ documentStatusLabel(currentDoc) }}</dd>
+                  </div>
+                  <div class="kv-field">
+                    <dt class="kv-label">Created On</dt>
+                    <dd class="kv-value">{{ documentCreatedAtLabel(currentDoc) }}</dd>
+                  </div>
+                </dl>
+                <div class="kv-actions justify-end">
+                  <button type="button" class="kv-btn-secondary" (click)="openDocumentView(currentDoc)">
+                    <mat-icon>visibility</mat-icon>
+                    View
+                  </button>
+                  <button type="button" class="kv-btn-secondary" (click)="openDocumentEdit(currentDoc)">
+                    <mat-icon>edit</mat-icon>
+                    Edit
+                  </button>
+                  <button type="button" class="kv-btn-secondary" (click)="downloadCurrentDocument()">
+                    <mat-icon>download</mat-icon>
+                    Download
+                  </button>
+                </div>
+              </div>
 
-							<mat-card class="panel source-of-funds-panel">
-								<h3 class="section-label">Source of Funds</h3>
-								<p class="source-display">{{ sourceOfFundsDisplay() }}</p>
-								@if (record()?.sourceOfFundsDetails) {
-								<p class="details-text">{{ record()?.sourceOfFundsDetails }}</p>
-								}
-							</mat-card>
+              <div class="dp-table-wrap">
+                <table class="dp-table">
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Expected</th>
+                      <th>Extracted</th>
+                      <th>Result</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of currentDoc.dataComparisons || []; track row.field + '-' + $index) {
+                      <tr>
+                        <td class="dp-strong">{{ row.field }}</td>
+                        <td [class.text-error]="!row.matches">{{ row.fieldType === ExpectedFieldType.DATE ? (row.expected | date: 'dd-MM-yyyy') : row.expected }}</td>
+                        <td [class.text-error]="!row.matches">{{ row.fieldType === ExpectedFieldType.DATE ? (row.extracted | date: 'dd-MM-yyyy') : row.extracted }}</td>
+                        <td>
+                          <span class="dp-pill" [class.is-success]="row.matches" [class.is-danger]="!row.matches">
+                            {{ row.matches ? 'Match' : 'Mismatch' }}
+                          </span>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="4" class="dp-table-empty">No comparison data available for this document.</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <p class="dp-empty-text">No documents available. Upload documents for this KYC record to view details and data comparisons.</p>
+            }
+          </div>
+        </mat-tab>
 
-							<section class="meta-grid">
-								<mat-card class="panel meta-panel">
-									<span class="section-label">Original Entry</span>
-									<div class="meta-stack">
-										<div class="meta-row">
-											<span>Timestamp</span>
-											<strong>{{ auditTimestamp('created') }}</strong>
-										</div>
-										<div class="meta-row">
-											<span>Created By</span>
-											<strong>{{ auditUser('created') }}</strong>
-										</div>
-									</div>
-								</mat-card>
+        <mat-tab label="Report">
+          <div class="dp-tab-pane">
+            <div class="dp-toolbar">
+              @if (currentReportSection(); as section) {
+                <div class="min-w-0">
+                  <span class="kv-label">Section {{ currentReportSectionPositionLabel() }}</span>
+                  <h3 class="kv-card-title truncate">{{ section.label || 'Untitled Section' }}</h3>
+                </div>
+              } @else {
+                <span></span>
+              }
+              <div class="kv-actions">
+                @if (reportSectionsList().length > 0) {
+                  <button type="button" class="kv-icon-btn" aria-label="Previous section" (click)="showPreviousReportSection()" [disabled]="!hasPreviousReportSection()">
+                    <mat-icon>chevron_left</mat-icon>
+                  </button>
+                  <button type="button" class="kv-icon-btn" aria-label="Next section" (click)="showNextReportSection()" [disabled]="!hasNextReportSection()">
+                    <mat-icon>chevron_right</mat-icon>
+                  </button>
+                }
+                <button type="button" class="kv-btn-primary" (click)="generateReport()">
+                  <mat-icon>description</mat-icon>
+                  Generate Report
+                </button>
+              </div>
+            </div>
 
-								<mat-card class="panel meta-panel">
-									<span class="section-label">Last Modification</span>
-									<div class="meta-stack">
-										<div class="meta-row">
-											<span>Timestamp</span>
-											<strong>{{ auditTimestamp('modified') }}</strong>
-										</div>
-										<div class="meta-row">
-											<span>Modified By</span>
-											<strong>{{ auditUser('modified') }}</strong>
-										</div>
-									</div>
-								</mat-card>
-							</section>
-						</section>
-					</mat-tab>
+            @if (reportSectionsList().length > 0) {
+              <div class="flex flex-wrap gap-2">
+                @for (section of reportSectionsList(); track section.id || $index) {
+                  <button type="button" class="rec-chip" [class.is-active]="$index === currentReportSectionIndex()" (click)="selectReportSection($index)">
+                    {{ $index + 1 }}. {{ section.label || 'Section ' + ($index + 1) }}
+                  </button>
+                }
+              </div>
 
-					<mat-tab label="Documents">
-						<section class="tab-pane documents-tab-pane">
-							<!-- Upload Action (always visible) -->
-							<section class="document-actions-row" style="margin-bottom: 1.5rem;">
-								<button mat-flat-button type="button" class="primary-btn" (click)="openDocumentUpload()">
-									<mat-icon>cloud_upload</mat-icon>
-									Upload More
-								</button>
-							</section>
+              @if (currentReportSection(); as section) {
+                <div class="dp-group">
+                  <div class="dp-group-head">
+                    <h4 class="dp-group-title"><mat-icon>fact_check</mat-icon> {{ section.label || 'Untitled Section' }}</h4>
+                    <span class="dp-field-count">{{ section.fieldValues?.length || 0 }} fields</span>
+                  </div>
+                  <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    @for (fieldValue of section.fieldValues || []; track fieldValue.id || $index) {
+                      <div class="kv-field">
+                        <dt class="kv-label">{{ fieldValue.fieldLabel || fieldValue.field || fieldValue.fieldId || 'Field' }}</dt>
+                        <dd class="kv-value">{{ fieldValue.data?.expectedValue ? fieldValue.data?.expectedValue : fieldValue.data?.extractedValue }}</dd>
+                      </div>
+                    } @empty {
+                      <p class="dp-empty-text">No field values recorded for this section.</p>
+                    }
+                  </dl>
+                </div>
+              }
+            } @else {
+              <p class="dp-empty-text">No report sections available. They will appear here once they are added to this KYC record.</p>
+            }
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </section>
+  </div>
 
-							@if (currentDocument(); as currentDoc) {
-							<section class="document-nav-row">
-								<div class="document-nav-title">
-									<span class="section-label">Document Navigation</span>
-									<h3>{{ currentDoc.fileName || 'Untitled Document' }}</h3>
-								</div>
-								<div class="document-nav-actions">
-									<button mat-stroked-button type="button" (click)="showPreviousDocument()" [disabled]="!hasPreviousDocument()">
-										<mat-icon>arrow_back</mat-icon>
-										Previous
-									</button>
-									<span class="doc-position">{{ currentDocumentPositionLabel() }}</span>
-									<button mat-stroked-button type="button" (click)="showNextDocument()" [disabled]="!hasNextDocument()">
-										Next
-										<mat-icon>arrow_forward</mat-icon>
-									</button>
-								</div>
-							</section>
-
-							<section class="document-index-row">
-								@for (doc of documentsList(); track doc.id || $index) {
-								<button
-									type="button"
-									class="doc-chip"
-									[class.active]="$index === currentDocumentIndex()"
-									(click)="selectDocument($index)">
-									{{ $index + 1 }}. {{ doc.documentType || doc.documentTypeId || 'Document' }}
-								</button>
-								}
-							</section>
-
-							<mat-card class="panel document-info-panel">
-								<h3 class="section-label">Basic Information</h3>
-								<div class="document-info-grid">
-									<div class="kv">
-										<span class="section-label">File Name</span>
-										<p>{{ currentDoc.fileName || 'Not available' }}</p>
-									</div>
-									<div class="kv">
-										<span class="section-label">Document Type</span>
-										<p>{{ documentTypeLabel(currentDoc) }}</p>
-									</div>
-									<div class="kv">
-										<span class="section-label">Verification Status</span>
-										<p>{{ documentStatusLabel(currentDoc) }}</p>
-									</div>
-									<div class="kv">
-										<span class="section-label">Created On</span>
-										<p>{{ documentCreatedAtLabel(currentDoc) }}</p>
-									</div>
-								</div>
-
-								<div class="document-action-row">
-									<button mat-flat-button type="button" class="primary-btn" (click)="openDocumentView(currentDoc)">
-										<mat-icon>visibility</mat-icon>
-										View
-									</button>
-									<button mat-stroked-button type="button" class="ghost-btn" (click)="openDocumentEdit(currentDoc)">
-										<mat-icon>edit</mat-icon>
-										Edit
-									</button>
-									<button mat-stroked-button type="button" class="dark-btn" (click)="downloadCurrentDocument()">
-										<mat-icon>download</mat-icon>
-										Download
-									</button>
-								</div>
-							</mat-card>
-
-							<mat-card class="panel comparison-panel">
-								<div class="comparison-head">
-									<h3 class="section-label">Data Comparisons</h3>
-									<span class="document-count">{{ (currentDoc.dataComparisons || []).length }}</span>
-								</div>
-								<div class="comparison-table-wrap">
-									<table class="comparison-table">
-										<thead>
-											<tr>
-												<th>Field</th>
-												<th>Expected</th>
-												<th>Extracted</th>
-												<th>Result</th>
-											</tr>
-										</thead>
-										<tbody>
-											@if ((currentDoc.dataComparisons || []).length > 0) {
-											@for (row of (currentDoc.dataComparisons || []); track row.field + '-' + $index) {
-											<tr>
-												<td>{{ row.field }}</td>
-												<td [class.text-error]="!row.matches">{{ row.fieldType === ExpectedFieldType.DATE ? (row.expected | date: 'dd-MM-yyyy') : row.expected }}</td>
-												<td [class.text-error]="!row.matches">{{ row.fieldType === ExpectedFieldType.DATE ? (row.extracted | date: 'dd-MM-yyyy') : row.extracted }}</td>
-												<td>
-													<span [class]="row.matches ? 'badge-valid' : 'badge-expired'">
-														{{ row.matches ? 'Match' : 'Mismatch' }}
-													</span>
-												</td>
-											</tr>
-											}
-											} @else {
-											<tr>
-												<td colspan="4" class="no-comparison-data">No comparison data available for this document.</td>
-											</tr>
-											}
-										</tbody>
-									</table>
-								</div>
-							</mat-card>
-							} @else {
-							<mat-card class="panel empty-documents-panel">
-								<mat-icon>description</mat-icon>
-								<h3>No documents available</h3>
-								<p>Upload documents for this KYC record to view details and data comparisons.</p>
-							</mat-card>
-							}
-						</section>
-					</mat-tab>
-
-					<mat-tab label="Report">
-						<section class="tab-pane report-sections-tab-pane">
-							<!-- Generate Report Action -->
-							<section class="report-actions-row" style="margin-bottom: 1.5rem;">
-								<button mat-flat-button type="button" class="primary-btn" (click)="generateReport()">
-									<mat-icon>description</mat-icon>
-									Generate Report
-								</button>
-							</section>
-
-							@if (reportSectionsList().length > 0) {
-							<!-- Nav row -->
-							<section class="report-section-nav-row">
-								<div class="report-section-nav-title">
-									<span class="section-label">Report Sections</span>
-									<h3>{{ currentReportSection()?.label || 'Section ' + (currentReportSectionIndex() + 1) }}</h3>
-								</div>
-								<div class="report-section-nav-actions">
-									<button mat-stroked-button type="button" (click)="showPreviousReportSection()" [disabled]="!hasPreviousReportSection()">
-										<mat-icon>arrow_back</mat-icon>
-										Previous
-									</button>
-									<span class="section-position">{{ currentReportSectionPositionLabel() }}</span>
-									<button mat-stroked-button type="button" (click)="showNextReportSection()" [disabled]="!hasNextReportSection()">
-										Next
-										<mat-icon>arrow_forward</mat-icon>
-									</button>
-								</div>
-							</section>
-
-							<!-- Section index chips -->
-							<section class="report-section-index-row">
-								@for (section of reportSectionsList(); track section.id || $index) {
-								<button
-									type="button"
-									class="section-chip"
-									[class.active]="$index === currentReportSectionIndex()"
-									(click)="selectReportSection($index)">
-									{{ $index + 1 }}. {{ section.label || 'Section ' + ($index + 1) }}
-								</button>
-								}
-							</section>
-
-							<!-- Active section fields -->
-							@if (currentReportSection(); as section) {
-							<mat-card class="panel report-section-content-panel">
-								<div class="report-section-content-head">
-									<div>
-										<span class="section-label">Section {{ currentReportSectionIndex() + 1 }}</span>
-										<h3>{{ section.label || 'Untitled Section' }}</h3>
-									</div>
-									<span class="document-count">{{ section.fieldValues?.length || 0 }} fields</span>
-								</div>
-
-								@if (section.fieldValues?.length > 0) {
-								<div class="report-section-fields-grid">
-									@for (fieldValue of section.fieldValues; track fieldValue.id || $index) {
-									<div class="report-field-kv">
-										<span class="section-label">{{ fieldValue.fieldLabel || fieldValue.field || fieldValue.fieldId || 'Field' }}</span>
-										<p>{{ fieldValue.data?.expectedValue ? fieldValue.data?.expectedValue : fieldValue.data?.extractedValue }}</p>
-									</div>
-									}
-								</div>
-								} @else {
-								<p class="no-data-text">No field values recorded for this section.</p>
-								}
-							</mat-card>
-							}
-							} @else {
-							<mat-card class="panel empty-sections-panel">
-								<mat-icon>article</mat-icon>
-								<h3>No report sections available</h3>
-								<p>Report sections will appear here once they are added to this KYC record.</p>
-							</mat-card>
-							}
-						</section>
-					</mat-tab>
-				</mat-tab-group>
-			</mat-card>
-		</div>
-
-		<!-- Sidebar -->
-		<aside class="side-column">
-			<!-- Compliance Status Panel -->
-			<mat-card class="panel status-panel">
-				<h2>Verification Status</h2>
-				<div class="status-copy">
-					<mat-icon>verified</mat-icon>
-					<span>
-						@if (record()?.kycStatus === KycComplianceStatus.CURRENT) {
-							KYC verified and current
-						} @else if (record()?.kycStatus === KycComplianceStatus.EXPIRED) {
-							KYC expired - renewal required
-						} @else if (record()?.kycStatus === KycComplianceStatus.INCOMPLETE) {
-							KYC incomplete - additional documents needed
-						} @else {
-							KYC status unknown
-						}
-					</span>
-				</div>
-
-				<div class="status-dates">
-					<div class="date-info">
-						<span class="date-label">Verified</span>
-						<p class="date-value">{{ complianceDateLabel() }}</p>
-					</div>
-					<div class="date-info">
-						<span class="date-label">Expires</span>
-						<p class="date-value">{{ expiryDateLabel() }}</p>
-					</div>
-				</div>
-
-				<div class="status-actions">
-					<button mat-flat-button type="button" class="light-btn" (click)="openEdit()">
-						<mat-icon>edit</mat-icon>
-						Edit Record
-					</button>
-
-					@if (canDownloadDocuments()) {
-					<button mat-stroked-button type="button" class="dark-btn" (click)="downloadDocuments()">
-						<mat-icon>download</mat-icon>
-						Documents ({{ documentCount() }})
-					</button>
-					}
-				</div>
-			</mat-card>
-
-			<!-- Support Panel -->
-			<mat-card class="panel support-panel">
-				<div class="support-icon">
-					<mat-icon>help_outline</mat-icon>
-				</div>
-				<div>
-					<h3>Documentation Support</h3>
-					<p>View KYC requirements</p>
-				</div>
-			</mat-card>
-
-		</aside>
-	</section>
-
-	@if (loading()) {
-		<mat-card class="panel loading-panel">
-			<mat-icon>hourglass_top</mat-icon>
-			<div>
-				<strong>Loading record details</strong>
-				<p>{{ loaderMessage() || 'Fetching the latest KYC record...' }}</p>
-			</div>
-		</mat-card>
-	}
-</section>
+  <!-- Audit footer -->
+  <footer class="dp-footer">
+    <div class="dp-footer-brand">
+      <mat-icon>shield</mat-icon>
+      <span>Audit Trail</span>
+    </div>
+    <dl class="dp-footer-meta">
+      <div>
+        <dt>Created</dt>
+        <dd>{{ auditTimestamp('created') }} &middot; {{ auditUser('created') }}</dd>
+      </div>
+      <div>
+        <dt>Last updated</dt>
+        <dd>{{ auditTimestamp('modified') }} &middot; {{ auditUser('modified') }}</dd>
+      </div>
+    </dl>
+  </footer>
+</div>

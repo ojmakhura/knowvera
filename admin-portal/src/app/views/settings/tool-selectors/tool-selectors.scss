@@ -1,17 +1,5 @@
 // tool-selectors.scss
-@use '../settings-shared' as *;
-
-.settings-page__title {
-  font-size: 2rem;
-  line-height: 2.5rem;
-}
-
-.settings-card__title {
-  font-size: 1.5rem;
-  line-height: 2rem;
-  font-weight: 500;
-  color: var(--on-surface, #121c28);
-}
+@use 'shared/settings' as *;
 
 .pipeline-card {
   background: var(--surface-container-lowest, #ffffff);
@@ -185,3 +173,4 @@
     min-width: 560px;
   }
 }
+

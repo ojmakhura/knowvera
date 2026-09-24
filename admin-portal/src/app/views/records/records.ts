@@ -14,8 +14,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -29,6 +29,7 @@ import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { SearchObject } from '@app/models/search-object';
 import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
 import { swalFire } from '@app/@shared/swal';
+import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
 
 export class SearchRecordsVarsForm {
   firstName = '';
@@ -57,7 +58,7 @@ export class SearchRecordsVarsForm {
     MatButtonModule,
     MatCardModule,
     MatTableModule,
-    MatPaginatorModule,
+    MatProgressBarModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -77,6 +78,7 @@ export class Records implements OnInit {
   readonly currentPage = signal(0);
   readonly pageSize = signal(10);
   readonly totalElements = signal(0);
+  readonly totalPages = signal(0);
   readonly pendingDeleteId = signal<string | null>(null);
 
   readonly loading = linkedSignal(() => this.kycRecordApiStore.loading());
@@ -123,6 +125,7 @@ export class Records implements OnInit {
       this.currentPage.set(page.page?.number || 0);
       this.pageSize.set(page.page?.size || 10);
       this.totalElements.set(page.page?.totalElements || 0);
+      this.totalPages.set(page.page?.totalPages || 0);
     });
 
     effect(() => {
@@ -150,8 +153,27 @@ export class Records implements OnInit {
     this.doSearch();
   }
 
-  handlePageEvent(event: PageEvent): void {
-    this.doSearch(event.pageIndex, event.pageSize);
+  readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+  readonly pageNumbers = computed(() => pageWindow(this.currentPage(), this.totalPages()));
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= Math.max(this.totalPages(), 1) || page === this.currentPage()) {
+      return;
+    }
+    this.doSearch(page, this.pageSize());
+  }
+
+  changePageSize(size: string | number): void {
+    this.pageSize.set(Number(size));
+    this.doSearch(0, Number(size));
+  }
+
+  showingLabel(): string {
+    return showingRecordsLabel(this.currentPage(), this.pageSize(), this.rows().length, this.totalElements());
+  }
+
+  pageReport(): string {
+    return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
   }
 
   updateField(field: keyof SearchRecordsVarsForm, value: string | IndividualIdentityType | ''): void {

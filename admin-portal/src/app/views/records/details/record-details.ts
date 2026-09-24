@@ -1,3 +1,4 @@
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +12,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
@@ -35,6 +36,8 @@ import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/fiel
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [DatePipe],
   imports: [
+    MatProgressBarModule,
+    RouterLink,
     CommonModule,
     MatIconModule,
     MatButtonModule,
@@ -43,7 +46,6 @@ import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/fiel
     MatTooltipModule,
     MatTabsModule,
     MatDialogModule,
-    Loader
   ],
 })
 export class RecordDetails implements OnInit {
@@ -289,6 +291,21 @@ export class RecordDetails implements OnInit {
         return 'incomplete';
       default:
         return 'unknown';
+    }
+  }
+
+  /** Shared details-page tone (dp-pill is-*) for the record's KYC status. */
+  kycTone(): string {
+    switch (this.record()?.kycStatus) {
+      case KycComplianceStatus.CURRENT:
+        return 'is-success';
+      case KycComplianceStatus.INCOMPLETE:
+        return 'is-warning';
+      case KycComplianceStatus.EXPIRED:
+      case KycComplianceStatus.ABSENT:
+        return 'is-danger';
+      default:
+        return '';
     }
   }
 

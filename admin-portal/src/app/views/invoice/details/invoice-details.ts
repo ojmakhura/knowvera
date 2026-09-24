@@ -1,3 +1,4 @@
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,7 +7,7 @@ import { ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { KycInvoiceApiStore } from '@app/store/bw/co/knowvera/invoice/kyc-invoice-api.store';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { KycInvoiceDTO } from '@app/models/bw/co/knowvera/invoice/kyc-invoice-dto';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
@@ -27,6 +28,8 @@ type RepositoryFile = {
   styleUrls: ['./invoice-details.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    MatProgressBarModule,
+    RouterLink,
     CommonModule,
     MatIconModule,
     MatButtonModule,

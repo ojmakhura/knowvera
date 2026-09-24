@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatInputModule } from '@angular/material/input';
-import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -20,6 +20,7 @@ import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { SearchObject } from '@app/models/search-object';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { ClientRequestApiStore } from '@app/store/bw/co/knowvera/organisation/client/client-request-api.store';
+import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
 
 type ClientRequestSearchForm = {
   name: string;
@@ -46,14 +47,13 @@ const INITIAL_FILTERS: ClientRequestSearchForm = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    Loader,
     MatIconModule,
     MatButtonModule,
     MatCardModule,
     MatInputModule,
     MatSelectModule,
     MatTableModule,
-    MatPaginatorModule,
+    MatProgressBarModule,
     MatFormFieldModule,
     MatTooltipModule,
     RouterLink
@@ -133,8 +133,27 @@ export class ClientRequests implements OnInit {
     this.search(0, this.pageSize());
   }
 
-  handlePageEvent(event: PageEvent): void {
-    this.search(event.pageIndex, event.pageSize);
+  readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+  readonly pageNumbers = computed(() => pageWindow(this.currentPage(), this.totalPages()));
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= Math.max(this.totalPages(), 1) || page === this.currentPage()) {
+      return;
+    }
+    this.search(page, this.pageSize());
+  }
+
+  changePageSize(size: string | number): void {
+    this.pageSize.set(Number(size));
+    this.search(0, Number(size));
+  }
+
+  showingLabel(): string {
+    return showingRecordsLabel(this.currentPage(), this.pageSize(), this.rows().length, this.totalElements());
+  }
+
+  pageReport(): string {
+    return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
   }
 
   createRequest(): void {

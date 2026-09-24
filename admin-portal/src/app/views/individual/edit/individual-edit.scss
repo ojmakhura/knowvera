@@ -1,19 +1,22 @@
+@use 'shared/ui';
+
 :host {
 	display: block;
-	background-color: var(--surface);
 }
 
-.heading {
-	font-family: 'Poppins', 'Inter', sans-serif;
-}
-
+// mat-select outside a mat-form-field, styled like the native .kv-input next to it.
 .field-select {
 	display: block;
 	width: 100%;
 	border: 1px solid var(--outline-variant);
-	border-radius: 0.5rem;
+	border-radius: ui.$radius;
 	background: var(--surface-container-lowest);
 	font-size: 0.875rem;
+
+	&.mat-focused {
+		border-color: var(--emerald);
+		box-shadow: ui.$focus-ring;
+	}
 
 	::ng-deep .mat-mdc-select-trigger {
 		padding: 0.5rem 0.75rem;

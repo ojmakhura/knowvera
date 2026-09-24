@@ -1,258 +1,239 @@
-<div class="sequence-edit-page">
-	<header class="page-header">
-		<div>
-			<nav class="page-breadcrumb" aria-label="Breadcrumb">
-				<span>Registry</span>
-				<mat-icon>chevron_right</mat-icon>
-				<span class="page-breadcrumb-current">Sequence Editor</span>
-			</nav>
+<div class="kv-page">
 
-			<h3>Edit Sequence Generator</h3>
-			<!-- <p>Define the structural logic for unique identifier generation across the protocol.</p> -->
-		</div>
+  <!-- Header -->
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/sequence">Sequences</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">{{ isDraft() ? 'Create' : 'Edit' }}</span>
+    </nav>
 
-		<div class="draft-badge">{{ isDraft() ? 'Draft State' : 'Published' }}</div>
-	</header>
+    <div class="kv-page-header">
+      <div>
+        <div class="flex flex-wrap items-center gap-3">
+          <h1 class="kv-title">{{ isDraft() ? 'New Sequence Generator' : 'Edit Sequence Generator' }}</h1>
+          <span class="kv-tag uppercase">{{ isDraft() ? 'Draft' : 'Published' }}</span>
+        </div>
+        <p class="kv-subtitle">Define the structural logic for unique identifier generation.</p>
+      </div>
+      <div class="kv-actions">
+        <button type="button" class="kv-btn-secondary" (click)="cancel()">Cancel</button>
+        <button type="button" class="kv-btn-primary" [disabled]="loading()" (click)="saveSequence()">
+          <mat-icon>save</mat-icon>
+          Save Sequence
+        </button>
+      </div>
+    </div>
+  </header>
 
-	<div class="page-grid">
-		<main class="main-content">
-			<mat-card class="vault-card">
-				<mat-card-content>
-					<h2 class="section-label">
-						<mat-icon>info</mat-icon>
-						Core Identity
-					</h2>
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
 
-					<div class="identity-grid">
-						<div>
-							<label class="field-label">Sequence Name</label>
-							<mat-form-field appearance="outline" class="vault-field">
-								<input matInput [value]="editSequenceSignal().name || ''" (input)="editSequenceSignal.update((value) => ({ ...value, name: $any($event.target).value }))" placeholder="e.g. USER_GEN_01" />
-							</mat-form-field>
-						</div>
+    <!-- Main column -->
+    <div class="md:col-span-8 flex flex-col gap-6 min-w-0">
 
-						<div>
-							<label class="field-label">Target Entity</label>
-							<mat-form-field appearance="outline" class="vault-field">
-								<mat-select [value]="editSequenceSignal().targetEntity" (selectionChange)="editSequenceSignal.update((value) => ({ ...value, targetEntity: $event.value }))">
-									@for (option of TargetEntityOptions; track option) {
-										<mat-option [value]="option">{{ targetEntityLabel(option) }}</mat-option>
-									}
-								</mat-select>
-							</mat-form-field>
-						</div>
-					</div>
-				</mat-card-content>
-			</mat-card>
+      <!-- Core Identity -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">tag</mat-icon>
+          <h2 class="kv-card-title">Core Identity</h2>
+        </div>
 
-			<mat-card class="vault-card structure-card">
-				<div class="structure-head">
-					<h2 class="section-label section-label-no-margin">
-						<mat-icon>reorder</mat-icon>
-						Sequence Structure
-					</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="kv-field">
+            <label class="kv-label" for="sequenceName">Sequence Name</label>
+            <input id="sequenceName" class="kv-input" placeholder="e.g. USER_GEN_01"
+              [value]="editSequenceSignal().name || ''"
+              (input)="editSequenceSignal.update((value) => ({ ...value, name: $any($event.target).value }))" />
+          </div>
 
-					<button mat-button type="button" class="add-part-button" (click)="openAddPartDialog()">
-						<mat-icon>add_circle</mat-icon>
-						Add Component
-					</button>
-				</div>
+          <div class="kv-field">
+            <label class="kv-label" for="targetEntity">Target Entity</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select id="targetEntity" placeholder="Select target entity" [value]="editSequenceSignal().targetEntity"
+                (selectionChange)="editSequenceSignal.update((value) => ({ ...value, targetEntity: $event.value }))">
+                @for (option of TargetEntityOptions; track option) {
+                  <mat-option [value]="option">{{ targetEntityLabel(option) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </section>
 
-				<div class="parts-table">
-					<div class="parts-header">
-						<div>Pos</div>
-						<div>Name & Type</div>
-						<div>Initial</div>
-						<div>Range (Min/Max)</div>
-						<div>Random</div>
-						<div class="text-right">Actions</div>
-					</div>
+      <!-- Sequence Structure -->
+      <section class="kv-card">
+        <div class="kv-card-header justify-between">
+          <div class="flex items-center gap-3">
+            <mat-icon class="kv-card-icon">reorder</mat-icon>
+            <h2 class="kv-card-title">Sequence Structure</h2>
+          </div>
+          <button type="button" class="kv-btn-subtle" (click)="openAddPartDialog()">
+            <mat-icon>add</mat-icon>
+            Add Component
+          </button>
+        </div>
 
-					<div class="parts-list">
-						@for (part of editSequenceSignal().sequenceParts; track part.id ?? part.position ?? $index) {
-							<div class="part-row">
-								<div class="part-position">
-									<mat-icon>drag_indicator</mat-icon>
-									<span>{{ part.position || ($index + 1) | number: '2.0-0' }}</span>
-								</div>
+        <div class="overflow-x-auto -mx-6">
+          <table class="w-full min-w-[36rem] text-sm text-left">
+            <thead>
+              <tr class="bg-surface-container-low">
+                <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Pos</th>
+                <th class="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Name &amp; Type</th>
+                <th class="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Initial</th>
+                <th class="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Range (Min/Max)</th>
+                <th class="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Random</th>
+                <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wide text-on-surface-variant text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (part of editSequenceSignal().sequenceParts; track part.id ?? part.position ?? $index) {
+                <tr class="border-t border-outline-variant/50">
+                  <td class="px-6 py-3 font-mono text-on-surface-variant">{{ part.position || ($index + 1) | number: '2.0-0' }}</td>
+                  <td class="px-3 py-3">
+                    <p class="font-medium text-on-surface">{{ part.name || 'Untitled Part' }}</p>
+                    <p class="text-xs text-on-surface-variant">{{ partTypeLabel(part.type) }}</p>
+                  </td>
+                  <td class="px-3 py-3"><span class="kv-tag font-mono">{{ initialLabel(part) }}</span></td>
+                  <td class="px-3 py-3 text-on-surface-variant">{{ rangeLabel(part) }}</td>
+                  <td class="px-3 py-3"><mat-slide-toggle [checked]="!!part.randomised" disabled></mat-slide-toggle></td>
+                  <td class="px-6 py-3 text-right">
+                    <button type="button" class="kv-icon-btn-danger" aria-label="Remove component" (click)="removeSequencePart($index)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="px-6 py-6 text-sm text-on-surface-variant italic">No sequence components configured yet.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
 
-								<div>
-									<div class="part-name">{{ part.name || 'Untitled Part' }}</div>
-									<div class="part-type">{{ partTypeLabel(part.type) }}</div>
-								</div>
+    <!-- Side column -->
+    <aside class="md:col-span-4 flex flex-col gap-6">
 
-								<div>
-									<span class="token-pill">{{ initialLabel(part) }}</span>
-								</div>
+      <!-- Preview -->
+      <section class="kv-card border-t-4 border-emerald">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">qr_code_2</mat-icon>
+          <h2 class="kv-card-title">Generated Preview</h2>
+        </div>
+        <p class="kv-panel font-mono text-lg font-semibold text-primary break-all">{{ generatedPreview() }}</p>
+        <p class="text-sm text-on-surface-variant mt-3">
+          An example of how the next identifier will appear based on the current settings.
+        </p>
+      </section>
 
-								<div class="range-copy">{{ rangeLabel(part) }}</div>
+      <!-- Tips -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">lightbulb</mat-icon>
+          <h2 class="kv-card-title">Sequence Logic Tips</h2>
+        </div>
+        <ul class="flex flex-col gap-3 text-sm text-on-surface-variant">
+          <li class="flex gap-2">
+            <mat-icon class="kv-card-icon text-emerald!">check_circle</mat-icon>
+            <span>Use ISO dates for chronological sorting efficiency in high-load databases.</span>
+          </li>
+          <li class="flex gap-2">
+            <mat-icon class="kv-card-icon text-emerald!">check_circle</mat-icon>
+            <span>Randomisation prevents predictable identifier enumeration.</span>
+          </li>
+          <li class="flex gap-2">
+            <mat-icon class="kv-card-icon text-emerald!">lock</mat-icon>
+            <span>Initial values cannot be lower than the current database cursor.</span>
+          </li>
+        </ul>
+      </section>
 
-								<div class="toggle-cell">
-									<mat-slide-toggle [checked]="!!part.randomised" disabled></mat-slide-toggle>
-								</div>
+      <!-- Audit Trail -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">history</mat-icon>
+          <h2 class="kv-card-title">Audit Trail</h2>
+        </div>
+        <dl class="flex flex-col gap-3">
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Created At</dt>
+            <dd class="kv-meta-value">{{ isDraft() ? 'Not saved yet' : 'Stored in registry' }}</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Last Modified</dt>
+            <dd class="kv-meta-value">{{ loading() ? 'Saving changes...' : 'Latest local state' }}</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Modified By</dt>
+            <dd class="kv-meta-value">Current operator session</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Version</dt>
+            <dd class="kv-meta-value">{{ auditVersion() }}</dd>
+          </div>
+        </dl>
+      </section>
+    </aside>
+  </div>
 
-								<div class="actions-cell">
-									<button mat-icon-button type="button" (click)="removeSequencePart($index)">
-										<mat-icon>delete</mat-icon>
-									</button>
-								</div>
-							</div>
-						} @empty {
-							<div class="empty-state">No sequence parts configured yet.</div>
-						}
-					</div>
-				</div>
-			</mat-card>
+  <!-- Add component dialog -->
+  @if (dialogOpen()) {
+    <div class="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" (click)="closeAddPartDialog()">
+      <section class="kv-card w-full max-w-lg" role="dialog" aria-labelledby="addPartTitle" (click)="$event.stopPropagation()">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">add_circle</mat-icon>
+          <h2 id="addPartTitle" class="kv-card-title">Add Sequence Component</h2>
+        </div>
 
-			<mat-card class="vault-card audit-card">
-				<mat-card-content>
-					<h2 class="section-label">
-						<mat-icon>history</mat-icon>
-						Audit Trail
-					</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="kv-field sm:col-span-3">
+            <label class="kv-label" for="partName">Name</label>
+            <input id="partName" class="kv-input" [value]="newPart().name" (input)="updateNewPart('name', $any($event.target).value)" />
+          </div>
 
-					<div class="audit-grid">
-						<div>
-							<div class="audit-label">Created At</div>
-							<div class="audit-value">{{ isDraft() ? 'Not saved yet' : 'Stored in registry' }}</div>
-						</div>
+          <div class="kv-field sm:col-span-3">
+            <label class="kv-label" for="partType">Type</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select id="partType" placeholder="Select type" [value]="newPart().type" (selectionChange)="updateNewPart('type', $event.value)">
+                @for (partType of SequencePartTypeOptions; track partType) {
+                  <mat-option [value]="partType">{{ partTypeLabel(partType) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-						<div>
-							<div class="audit-label">Last Modified</div>
-							<div class="audit-value">{{ loading() ? 'Saving changes...' : 'Latest local state' }}</div>
-						</div>
+          <div class="kv-field">
+            <label class="kv-label" for="partInitial">Initial</label>
+            <input id="partInitial" class="kv-input" [value]="newPart().initialValue" (input)="updateNewPart('initialValue', $any($event.target).value)" />
+          </div>
+          <div class="kv-field">
+            <label class="kv-label" for="partMin">Min</label>
+            <input id="partMin" class="kv-input" [value]="newPart().min" (input)="updateNewPart('min', $any($event.target).value)" />
+          </div>
+          <div class="kv-field">
+            <label class="kv-label" for="partMax">Max</label>
+            <input id="partMax" class="kv-input" [value]="newPart().max" (input)="updateNewPart('max', $any($event.target).value)" />
+          </div>
 
-						<div>
-							<div class="audit-label">Modified By</div>
-							<div class="audit-value">Current operator session</div>
-						</div>
+          <div class="sm:col-span-3 flex items-center justify-between bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant/50">
+            <div>
+              <p class="text-sm font-medium text-on-surface">Randomisation</p>
+              <p class="text-xs text-on-surface-variant">Enable randomised generation</p>
+            </div>
+            <mat-checkbox [checked]="newPart().randomised" (change)="updateNewPart('randomised', $event.checked)" aria-label="Randomisation"></mat-checkbox>
+          </div>
+        </div>
 
-						<div>
-							<div class="audit-label">Version</div>
-							<div class="audit-value">{{ auditVersion() }}</div>
-						</div>
-					</div>
-				</mat-card-content>
-			</mat-card>
-		</main>
-
-		<aside class="side-content">
-			<mat-card class="preview-card">
-				<mat-card-content>
-					<div class="preview-label">Generated Result Preview</div>
-					<div class="preview-value">{{ generatedPreview() }}</div>
-					<p>
-						This is an example of how the next identifier will appear in the system based on your
-						current settings.
-					</p>
-				</mat-card-content>
-				<div class="preview-accent" aria-hidden="true">
-					<mat-icon>qr_code_2</mat-icon>
-				</div>
-			</mat-card>
-
-			<mat-card class="tips-card">
-				<mat-card-content>
-					<h3>Sequence Logic Tips</h3>
-
-					<ul>
-						<li>
-							<mat-icon>check_circle</mat-icon>
-							<span>Use ISO dates for chronological sorting efficiency in high-load databases.</span>
-						</li>
-						<li>
-							<mat-icon>check_circle</mat-icon>
-							<span>Enabled randomisation prevents predictable user ID enumeration.</span>
-						</li>
-						<li>
-							<mat-icon>lock</mat-icon>
-							<span>Initial values cannot be lower than the current database cursor.</span>
-						</li>
-					</ul>
-				</mat-card-content>
-			</mat-card>
-		</aside>
-	</div>
-
-	<div class="sticky-footer">
-		<div class="sticky-meta">
-			<mat-icon>cloud_done</mat-icon>
-			<span>All changes autosaved to local cache</span>
-		</div>
-
-		<div class="sticky-actions">
-			<button mat-button type="button" (click)="cancel()">Discard Changes</button>
-			<button mat-flat-button color="primary" type="button" [disabled]="loading()" (click)="saveSequence()">
-				Save Sequence
-				<mat-icon>arrow_forward</mat-icon>
-			</button>
-		</div>
-	</div>
-
-	@if (dialogOpen()) {
-		<div class="dialog-backdrop" (click)="closeAddPartDialog()">
-			<mat-card class="dialog-card" (click)="$event.stopPropagation()">
-				<mat-card-header>
-					<mat-card-title>Add Sequence Component</mat-card-title>
-				</mat-card-header>
-
-				<mat-card-content>
-					<div class="dialog-grid">
-						<div class="dialog-full">
-							<label class="field-label">Name</label>
-							<mat-form-field appearance="outline" class="vault-field">
-								<input matInput [value]="newPart().name" (input)="updateNewPart('name', $any($event.target).value)" />
-							</mat-form-field>
-						</div>
-
-						<div class="dialog-full">
-							<label class="field-label">Type</label>
-							<mat-form-field appearance="outline" class="vault-field">
-								<mat-select [value]="newPart().type" (selectionChange)="updateNewPart('type', $event.value)">
-									@for (partType of SequencePartTypeOptions; track partType) {
-										<mat-option [value]="partType">{{ partTypeLabel(partType) }}</mat-option>
-									}
-								</mat-select>
-							</mat-form-field>
-						</div>
-
-						<div>
-							<label class="field-label">Initial</label>
-							<mat-form-field appearance="outline" class="vault-field">
-								<input matInput [value]="newPart().initialValue" (input)="updateNewPart('initialValue', $any($event.target).value)" />
-							</mat-form-field>
-						</div>
-
-						<div>
-							<label class="field-label">Min</label>
-							<mat-form-field appearance="outline" class="vault-field">
-								<input matInput [value]="newPart().min" (input)="updateNewPart('min', $any($event.target).value)" />
-							</mat-form-field>
-						</div>
-
-						<div>
-							<label class="field-label">Max</label>
-							<mat-form-field appearance="outline" class="vault-field">
-								<input matInput [value]="newPart().max" (input)="updateNewPart('max', $any($event.target).value)" />
-							</mat-form-field>
-						</div>
-
-						<div class="toggle-editor">
-							<label class="field-label">Randomisation</label>
-							<mat-checkbox [checked]="newPart().randomised" (change)="updateNewPart('randomised', $event.checked)">
-								Enable randomised generation
-							</mat-checkbox>
-						</div>
-					</div>
-				</mat-card-content>
-
-				<mat-divider></mat-divider>
-
-				<mat-card-actions align="end">
-					<button mat-button type="button" (click)="closeAddPartDialog()">Cancel</button>
-					<button mat-flat-button color="primary" type="button" (click)="addSequencePart()">Add Component</button>
-				</mat-card-actions>
-			</mat-card>
-		</div>
-	}
+        <div class="kv-actions justify-end mt-6">
+          <button type="button" class="kv-btn-secondary" (click)="closeAddPartDialog()">Cancel</button>
+          <button type="button" class="kv-btn-primary" (click)="addSequencePart()">
+            <mat-icon>add</mat-icon>
+            Add Component
+          </button>
+        </div>
+      </section>
+    </div>
+  }
 </div>

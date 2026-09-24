@@ -1,71 +1,10 @@
-@use '../settings-shared' as *;
+@use 'shared/standard';
+@use 'shared/settings' as *;
 
 :host {
   display: block;
   color: var(--on-surface, #121c28);
   font-family: 'Inter', sans-serif;
-}
-
-.settings-page {
-  max-width: 1152px;
-  margin: 0 auto;
-}
-
-.settings-page__header {
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--outline-variant, #c5c6cf);
-}
-
-.settings-page__title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 2rem;
-  line-height: 2.5rem;
-  font-weight: 600;
-  color: var(--on-surface, #121c28);
-}
-
-.settings-page__subtitle {
-  font-size: 1rem;
-  line-height: 1.5rem;
-  color: var(--on-surface-variant, #44464e);
-}
-
-.header-actions {
-  display: flex;
-  gap: 16px;
-}
-
-.btn {
-  min-height: 40px;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 500;
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease,
-    opacity 160ms ease;
-}
-
-.btn-outline {
-  background: var(--surface-container-lowest, #fff);
-  color: var(--on-surface, #121c28);
-  border-color: var(--outline-variant, #c5c6cf);
-
-  &:hover {
-    background: var(--surface-container-low, #eef4ff);
-  }
-}
-
-.btn-action-primary {
-  background: var(--emerald, #00b67a);
-  color: var(--on-primary, #fff);
-
-  &:hover {
-    background: var(--secondary, #006c47);
-  }
 }
 
 .financial-layout {
@@ -75,30 +14,12 @@
   align-items: start;
 }
 
-.settings-card {
-  background: var(--surface-container-lowest, #fff);
-  border: 1px solid var(--outline-variant, #c5c6cf);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(18, 28, 40, 0.08);
-}
-
 .salary-card__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
   margin-bottom: 16px;
-}
-
-.settings-card__title {
-  color: var(--on-surface, #121c28);
-  font-size: 1.5rem;
-  line-height: 2rem;
-  font-weight: 500;
-
-  mat-icon {
-    color: #014f44;
-  }
 }
 
 .btn-outline--sm {
@@ -224,58 +145,6 @@
   }
 }
 
-.field {
-  &__label {
-    color: #374151;
-  }
-
-  &__input {
-    background: var(--surface, #f8f9ff);
-    border-radius: 8px;
-
-    &:focus {
-      border-color: #014f44;
-      box-shadow: 0 0 0 1px #014f44;
-    }
-  }
-
-  &--suffixed,
-  &--prefixed {
-    position: relative;
-
-    input {
-      width: 100%;
-    }
-
-    span {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--on-surface-variant, #44464e);
-      font-weight: 500;
-      pointer-events: none;
-    }
-  }
-
-  &--suffixed span {
-    right: 16px;
-  }
-
-  &--prefixed span {
-    left: 16px;
-  }
-
-  &--prefixed input {
-    padding-left: 28px;
-  }
-
-  &__hint {
-    color: var(--on-surface-variant, #44464e);
-    font-size: 0.75rem;
-    line-height: 1rem;
-  }
-}
-
 .threshold-desc {
   margin: -8px 0 16px;
   color: var(--on-surface-variant, #44464e);
@@ -325,3 +194,5 @@
     }
   }
 }
+
+@include standard.vocabulary((chrome,));

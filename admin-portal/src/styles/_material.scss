@@ -1,0 +1,272 @@
+@use 'shared/ui';
+
+// Angular Material, restyled to the Knowvera UI primitives (see shared/_ui.scss).
+// Tokens use the Angular Material 22 names; the prebuilt theme declares them on `html`
+// and on `.mat-primary`, so both are overridden here.
+
+// ---------------------------------------------------------------- form fields
+// Every outlined mat-form-field matches the native `.kv-input`: 40px high, 4px radius,
+// hairline outline, white fill, emerald focus ring.
+
+html {
+    --mat-form-field-container-height: 40px;
+    --mat-form-field-container-vertical-padding: 8px;
+    --mat-form-field-container-text-font: #{ui.$font-body};
+    --mat-form-field-container-text-size: 0.875rem;
+    --mat-form-field-container-text-line-height: 1.25rem;
+    --mat-form-field-container-text-weight: 400;
+    --mat-form-field-outlined-label-text-font: #{ui.$font-body};
+    --mat-form-field-outlined-label-text-size: 0.875rem;
+    --mat-form-field-outlined-container-shape: #{ui.$radius};
+    --mat-form-field-outlined-outline-color: var(--outline-variant);
+    --mat-form-field-outlined-hover-outline-color: var(--outline);
+    --mat-form-field-outlined-focus-outline-color: var(--emerald);
+    --mat-form-field-outlined-focus-outline-width: 1px;
+    --mat-form-field-outlined-caret-color: var(--emerald);
+    --mat-form-field-outlined-input-text-color: var(--on-surface);
+    --mat-form-field-outlined-input-text-placeholder-color: var(--outline);
+    --mat-form-field-outlined-label-text-color: var(--on-surface-variant);
+    --mat-form-field-outlined-hover-label-text-color: var(--on-surface-variant);
+    --mat-form-field-outlined-focus-label-text-color: var(--emerald-dark);
+    --mat-form-field-outlined-error-outline-color: var(--error);
+    --mat-form-field-outlined-error-hover-outline-color: var(--error);
+    --mat-form-field-outlined-error-focus-outline-color: var(--error);
+    --mat-form-field-outlined-error-caret-color: var(--error);
+    --mat-form-field-outlined-error-label-text-color: var(--error);
+    --mat-form-field-outlined-error-focus-label-text-color: var(--error);
+    --mat-form-field-outlined-error-hover-label-text-color: var(--error);
+    --mat-form-field-error-text-color: var(--error);
+    --mat-form-field-enabled-select-arrow-color: var(--on-surface-variant);
+    --mat-form-field-focus-select-arrow-color: var(--emerald);
+    --mat-form-field-focus-state-layer-opacity: 0;
+    --mat-form-field-hover-state-layer-opacity: 0;
+    --mat-select-trigger-text-font: #{ui.$font-body};
+    --mat-select-trigger-text-size: 0.875rem;
+    --mat-select-trigger-text-line: 1.25rem;
+    --mat-select-trigger-text-weight: 400;
+    --mat-select-trigger-text-tracking: normal;
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-focus-overlay {
+    opacity: 0 !important;
+}
+
+.mat-mdc-form-field .mat-mdc-text-field-wrapper {
+    background: var(--surface-container-lowest);
+    border-radius: ui.$radius;
+    transition: box-shadow 150ms ease;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-text-field-wrapper {
+    box-shadow: ui.$focus-ring;
+}
+
+.mat-mdc-form-field.mat-form-field-invalid.mat-focused .mat-mdc-text-field-wrapper {
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--error) 20%, transparent);
+}
+
+.mat-mdc-form-field.mat-form-field-disabled .mat-mdc-text-field-wrapper {
+    background: var(--surface-container-low);
+}
+
+.mat-mdc-form-field input.mat-mdc-input-element:focus,
+.mat-mdc-form-field input.mat-mdc-input-element:focus-visible,
+.mat-mdc-form-field textarea.mat-mdc-input-element:focus,
+.mat-mdc-form-field textarea.mat-mdc-input-element:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+// Tailwind forms plugin styles native inputs; keep them off the ones Material hosts.
+.mat-mdc-form-field input.mat-mdc-input-element,
+.mat-mdc-form-field textarea.mat-mdc-input-element {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+.vault-field {
+    display: block;
+    width: 100%;
+}
+
+.vault-textarea .mat-mdc-form-field-infix {
+    min-height: 100px;
+}
+
+.vault-textarea textarea.mat-mdc-input-element {
+    resize: none;
+}
+
+.mat-mdc-form-field .mat-mdc-form-field-error,
+.error-message {
+    color: var(--error) !important;
+}
+
+.vault-field .mat-mdc-form-field-subscript-wrapper,
+.compact-field .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+}
+
+.emphasis-field .mat-mdc-text-field-wrapper {
+    background: var(--surface-container-low);
+}
+
+// ---------------------------------------------------------------- buttons
+// mat-flat-button = primary (emerald), mat-stroked-button = secondary (outline), mat-button = text.
+
+html,
+.mat-mdc-button.mat-primary,
+.mat-mdc-unelevated-button.mat-primary,
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-outlined-button.mat-primary {
+    --mat-button-filled-container-color: var(--emerald);
+    --mat-button-filled-label-text-color: #fff;
+    --mat-button-filled-state-layer-color: #fff;
+    --mat-button-filled-ripple-color: rgb(255 255 255 / 0.12);
+    --mat-button-protected-container-color: var(--emerald);
+    --mat-button-protected-label-text-color: #fff;
+    --mat-button-outlined-label-text-color: var(--primary);
+    --mat-button-outlined-state-layer-color: var(--primary);
+    --mat-button-text-label-text-color: var(--primary);
+    --mat-button-text-state-layer-color: var(--primary);
+}
+
+html {
+    --mat-button-filled-container-shape: #{ui.$radius};
+    --mat-button-filled-container-height: 38px;
+    --mat-button-filled-horizontal-padding: 1rem;
+    --mat-button-filled-label-text-font: #{ui.$font-body};
+    --mat-button-filled-label-text-size: 0.875rem;
+    --mat-button-filled-label-text-weight: 500;
+    --mat-button-filled-label-text-tracking: normal;
+    --mat-button-protected-container-shape: #{ui.$radius};
+    --mat-button-protected-container-height: 38px;
+    --mat-button-outlined-container-shape: #{ui.$radius};
+    --mat-button-outlined-container-height: 38px;
+    --mat-button-outlined-horizontal-padding: 1rem;
+    --mat-button-outlined-outline-color: var(--outline-variant);
+    --mat-button-outlined-label-text-font: #{ui.$font-body};
+    --mat-button-outlined-label-text-size: 0.875rem;
+    --mat-button-outlined-label-text-weight: 500;
+    --mat-button-outlined-label-text-tracking: normal;
+    --mat-button-text-container-shape: #{ui.$radius};
+    --mat-button-text-container-height: 38px;
+    --mat-button-text-label-text-font: #{ui.$font-body};
+    --mat-button-text-label-text-size: 0.875rem;
+    --mat-button-text-label-text-weight: 500;
+    --mat-button-text-label-text-tracking: normal;
+}
+
+.mat-mdc-unelevated-button:not(:disabled) {
+    box-shadow: ui.$shadow-button;
+}
+
+.mat-mdc-unelevated-button:hover:not(:disabled) {
+    --mat-button-filled-container-color: #{ui.$emerald-hover};
+}
+
+.mat-mdc-outlined-button:hover:not(:disabled),
+.mat-mdc-button:hover:not(:disabled) {
+    background: var(--surface-container-low);
+}
+
+// ---------------------------------------------------------------- cards
+
+html {
+    --mat-card-elevated-container-shape: #{ui.$radius-card};
+    --mat-card-elevated-container-color: var(--surface-container-lowest);
+    --mat-card-elevated-container-elevation: #{ui.$shadow-card};
+    --mat-card-outlined-container-shape: #{ui.$radius-card};
+    --mat-card-outlined-outline-color: var(--outline-variant);
+}
+
+// ---------------------------------------------------------------- selection controls
+// Button toggles read like the `choice` primitive; checkboxes, radios and slide toggles use the emerald accent.
+
+html {
+    --mat-button-toggle-shape: #{ui.$radius};
+    --mat-button-toggle-height: 38px;
+    --mat-button-toggle-label-text-font: #{ui.$font-body};
+    --mat-button-toggle-label-text-size: 0.875rem;
+    --mat-button-toggle-label-text-weight: 500;
+    --mat-button-toggle-text-color: var(--on-surface-variant);
+    --mat-button-toggle-background-color: var(--surface-container-lowest);
+    --mat-button-toggle-divider-color: var(--outline-variant);
+    --mat-button-toggle-selected-state-background-color: color-mix(in oklab, var(--emerald) 10%, var(--surface-container-lowest));
+    --mat-button-toggle-selected-state-text-color: var(--emerald-dark);
+    --mat-button-toggle-state-layer-color: var(--primary);
+}
+
+.mat-button-toggle-group-appearance-standard {
+    border-color: var(--outline-variant);
+}
+
+html,
+.mat-mdc-checkbox.mat-primary,
+html .mat-mdc-slide-toggle {
+    --mat-checkbox-selected-icon-color: var(--emerald);
+    --mat-checkbox-selected-hover-icon-color: var(--emerald);
+    --mat-checkbox-selected-focus-icon-color: var(--emerald);
+    --mat-checkbox-selected-pressed-icon-color: var(--emerald);
+    --mat-checkbox-selected-checkmark-color: #fff;
+    --mat-radio-selected-icon-color: var(--emerald);
+    --mat-radio-selected-hover-icon-color: var(--emerald);
+    --mat-radio-selected-focus-icon-color: var(--emerald);
+    --mat-radio-selected-pressed-icon-color: var(--emerald);
+    --mat-slide-toggle-selected-track-color: var(--emerald);
+    --mat-slide-toggle-selected-hover-track-color: var(--emerald);
+    --mat-slide-toggle-selected-focus-track-color: var(--emerald);
+    --mat-slide-toggle-selected-pressed-track-color: var(--emerald);
+    --mat-slide-toggle-selected-handle-color: #fff;
+    --mat-slide-toggle-selected-hover-handle-color: #fff;
+    --mat-slide-toggle-selected-focus-handle-color: #fff;
+    --mat-slide-toggle-selected-pressed-handle-color: #fff;
+    --mat-slide-toggle-selected-icon-color: var(--emerald);
+}
+
+// ---------------------------------------------------------------- tabs
+
+.mat-mdc-tab-group,
+.mat-mdc-tab-nav-bar {
+    --mat-tab-active-indicator-color: var(--emerald);
+    --mat-tab-active-focus-indicator-color: var(--emerald);
+    --mat-tab-active-hover-indicator-color: var(--emerald);
+    --mat-tab-active-label-text-color: var(--primary);
+    --mat-tab-active-focus-label-text-color: var(--primary);
+    --mat-tab-active-hover-label-text-color: var(--primary);
+    --mat-tab-inactive-label-text-color: var(--on-surface-variant);
+    --mat-tab-inactive-focus-label-text-color: var(--on-surface-variant);
+    --mat-tab-inactive-hover-label-text-color: var(--primary);
+    --mat-tab-active-ripple-color: var(--emerald);
+    --mat-tab-inactive-ripple-color: var(--primary);
+    --mat-tab-pagination-icon-color: var(--on-surface-variant);
+}
+
+.mat-mdc-tab-header {
+    --mat-tab-label-text-font: #{ui.$font-body};
+    --mat-tab-label-text-size: 0.875rem;
+    --mat-tab-label-text-weight: 600;
+    --mat-tab-label-text-tracking: normal;
+}
+
+html {
+    --mat-tab-divider-color: var(--outline-variant);
+    --mat-tab-divider-height: 1px;
+}
+
+// ---------------------------------------------------------------- dialogs
+
+html {
+    --mat-dialog-container-shape: #{ui.$radius-card};
+    --mat-dialog-container-color: var(--surface-container-lowest);
+    --mat-dialog-subhead-font: #{ui.$font-heading};
+    --mat-dialog-subhead-size: 1.125rem;
+    --mat-dialog-subhead-weight: 600;
+    --mat-dialog-subhead-color: var(--primary);
+    --mat-dialog-supporting-text-font: #{ui.$font-body};
+    --mat-dialog-supporting-text-size: 0.875rem;
+    --mat-dialog-supporting-text-color: var(--on-surface-variant);
+}

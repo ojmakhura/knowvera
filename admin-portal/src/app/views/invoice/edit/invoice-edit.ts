@@ -23,7 +23,7 @@ import { TimePeriod } from '@app/models/bw/co/knowvera/time-period';
 import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
 import { disabled, form, FormField, required } from '@angular/forms/signals';
 import { KycInvoiceDTO } from '@app/models/bw/co/knowvera/invoice/kyc-invoice-dto';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 // import { ToastrService } from 'ngx-toastr';
 import { KycInvoiceApiStore } from '@app/store/bw/co/knowvera/invoice/kyc-invoice-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
@@ -60,6 +60,7 @@ export class EditInvoiceVarsForm {
   styleUrls: ['./invoice-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     CommonModule,
     MatCardModule,
     MatButtonModule,
@@ -70,7 +71,6 @@ export class EditInvoiceVarsForm {
     MatSlideToggleModule,
     MatButtonToggleModule,
     TranslateModule,
-    Loader,
     FormField,
     NgxMatSelectSearchModule,
     MatDatepickerModule

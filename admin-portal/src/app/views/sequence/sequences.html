@@ -1,189 +1,203 @@
-<div class="sequences-page" aria-label="Sequence search">
-	<section class="hero-panel">
-		<div class="hero-copy">
-			<nav class="hero-breadcrumb" aria-label="Breadcrumb">
-				<span>Home</span>
-				<mat-icon>chevron_right</mat-icon>
-				<span class="hero-breadcrumb-current">Sequences</span>
-			</nav>
+<div class="kv-page">
 
-			<h2>Sequence Generators</h2>
-		</div>
+  <!-- Header -->
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/sequence">Sequences</a>
+    </nav>
 
-		<button mat-flat-button color="primary" class="create-button" type="button" (click)="openCreate()">
-			<mat-icon>add</mat-icon>
-			New Sequence
-		</button>
-	</section>
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">Sequence Search</h1>
+      </div>
+      <div class="kv-actions">
+        <button type="button" class="kv-btn-primary" (click)="openCreate()">
+          <mat-icon>add</mat-icon>
+          New Sequence
+        </button>
+      </div>
+    </div>
+  </header>
 
-	<section class="search-band">
-		<mat-card class="search-card">
-			<mat-card-content>
-				<div class="search-card-label">Filter By Criteria</div>
+  <!-- Search criteria -->
+  <form class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-6" (submit)="$event.preventDefault(); doSearch()">
 
-				<div class="search-layout">
-					<mat-form-field appearance="outline" class="search-primary vault-field">
-						<mat-label>Search all sequence metadata</mat-label>
-						<mat-icon matPrefix>search</mat-icon>
-						<input
-							matInput
-							[value]="searchSequencesSignal().general"
-							(input)="updateField('general', $any($event.target).value)"
-							(keyup.enter)="doSearch()"
-							placeholder="Search by sequence name, target entity, or pattern string..."
-						/>
-					</mat-form-field>
+    <!-- Main column -->
+    <section class="kv-card md:col-span-8">
+      <div class="kv-card-header">
+        <mat-icon class="kv-card-icon">manage_search</mat-icon>
+        <h2 class="kv-card-title">Search Criteria</h2>
+      </div>
 
-					<mat-form-field appearance="outline" class="vault-field">
-						<mat-label>Sequence Name</mat-label>
-						<input
-							matInput
-							[value]="searchSequencesSignal().name"
-							(input)="updateField('name', $any($event.target).value)"
-							(keyup.enter)="doSearch()"
-							placeholder="KYC-AUTH-MASTER"
-						/>
-					</mat-form-field>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="kv-field md:col-span-2">
+          <label class="kv-label" for="sequenceGeneral">Search All Metadata</label>
+          <mat-form-field appearance="outline" class="vault-field">
+            <mat-icon matPrefix>search</mat-icon>
+            <input id="sequenceGeneral" type="search" matInput placeholder="Sequence name, target entity, or pattern string..."
+              [value]="searchSequencesSignal().general" (input)="updateField('general', $any($event.target).value)" />
+          </mat-form-field>
+        </div>
 
-					<mat-form-field appearance="outline" class="vault-field">
-						<mat-label>Target Entity</mat-label>
-						<mat-select
-							[value]="searchSequencesSignal().targetEntity"
-							(selectionChange)="updateField('targetEntity', $event.value)"
-						>
-							<mat-option value="">All Entities</mat-option>
-							@for (target of targetOptions; track target) {
-								<mat-option [value]="target">{{ targetLabel(target) }}</mat-option>
-							}
-						</mat-select>
-					</mat-form-field>
+        <div class="kv-field">
+          <label class="kv-label" for="sequenceName">Sequence Name</label>
+          <mat-form-field appearance="outline" class="vault-field">
+            <input id="sequenceName" type="text" matInput placeholder="KYC-AUTH-MASTER"
+              [value]="searchSequencesSignal().name" (input)="updateField('name', $any($event.target).value)" />
+          </mat-form-field>
+        </div>
 
-					<mat-form-field appearance="outline" class="vault-field">
-						<mat-label>Pattern</mat-label>
-						<input
-							matInput
-							[value]="searchSequencesSignal().pattern"
-							(input)="updateField('pattern', $any($event.target).value)"
-							(keyup.enter)="doSearch()"
-							placeholder="Prefix, token, or fragment"
-						/>
-					</mat-form-field>
-				</div>
-			</mat-card-content>
+        <div class="kv-field">
+          <label class="kv-label" for="sequencePattern">Pattern</label>
+          <mat-form-field appearance="outline" class="vault-field">
+            <input id="sequencePattern" type="text" matInput placeholder="Prefix, token, or fragment"
+              [value]="searchSequencesSignal().pattern" (input)="updateField('pattern', $any($event.target).value)" />
+          </mat-form-field>
+        </div>
+      </div>
+    </section>
 
-			<mat-card-actions align="end" class="search-actions">
-				<button mat-button type="button" (click)="resetSearch()">
-					<mat-icon>restart_alt</mat-icon>
-					Reset
-				</button>
-				<button mat-flat-button color="primary" type="button" (click)="doSearch()">
-					Search Sequences
-				</button>
-			</mat-card-actions>
-		</mat-card>
+    <!-- Side column -->
+    <section class="kv-card border-t-4 border-emerald md:col-span-4 flex flex-col gap-4">
+      <div class="kv-card-header">
+        <mat-icon class="kv-card-icon">filter_alt</mat-icon>
+        <h2 class="kv-card-title">Filters</h2>
+      </div>
 
-		<mat-card class="stats-card">
-			<mat-card-content>
-				<div class="stats-label">Active Protocols</div>
-				<div class="stats-value">{{ activeProtocols() }}</div>
-				<div class="stats-footnote">
-					<mat-icon>verified_user</mat-icon>
-					Registry fully synchronized
-				</div>
-			</mat-card-content>
-			<div class="stats-accent" aria-hidden="true"></div>
-		</mat-card>
-	</section>
+      <div class="kv-field">
+        <label class="kv-label" for="sequenceTarget">Target Entity</label>
+        <mat-form-field appearance="outline" class="vault-field">
+          <mat-select id="sequenceTarget" placeholder="All entities" [value]="searchSequencesSignal().targetEntity" (selectionChange)="updateField('targetEntity', $event.value)">
+            <mat-option value="">All entities</mat-option>
+            @for (target of targetOptions; track target) {
+              <mat-option [value]="target">{{ targetLabel(target) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
 
-	<mat-card class="results-card search-results-card" aria-label="Sequence results">
-		<div class="table-wrap search-results-table-wrap">
-			<table mat-table [dataSource]="dataSource" class="sequences-table search-results-table">
-				<ng-container matColumnDef="name">
-					<th mat-header-cell *matHeaderCellDef>Sequence Name</th>
-					<td mat-cell *matCellDef="let row">
-						<div class="name-cell">
-							<span class="icon-box">
-								<mat-icon>{{ iconOf(row) }}</mat-icon>
-							</span>
+      <div class="kv-actions mt-auto pt-2">
+        <button type="button" class="kv-btn-secondary flex-1 justify-center" (click)="resetSearch()">Reset</button>
+        <button type="submit" class="kv-btn-primary flex-1 justify-center" [disabled]="loading()">
+          <mat-icon>manage_search</mat-icon>
+          {{ loading() ? 'Searching...' : 'Search' }}
+        </button>
+      </div>
+    </section>
+  </form>
 
-							<div class="name-copy">
-								<div class="name-text">{{ row.name || 'Untitled Sequence' }}</div>
-								<div class="muted">{{ subtitleOf(row) }}</div>
-							</div>
-						</div>
-					</td>
-				</ng-container>
+  <!-- Results -->
+  <section class="vs-results" aria-label="Sequence results">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+    <div class="vs-results-head">
+      <h2 class="vs-results-title">Search Results</h2>
+      <span class="vs-count">{{ showingLabel() }}</span>
+    </div>
 
-				<ng-container matColumnDef="targetEntity">
-					<th mat-header-cell *matHeaderCellDef>Target Entity</th>
-					<td mat-cell *matCellDef="let row">
-						<span class="entity-pill">{{ targetLabel(row.targetEntity) }}</span>
-					</td>
-				</ng-container>
+    <div class="vs-table-wrap">
+      <table class="vs-table">
+        <thead>
+          <tr>
+            <th>Sequence Name</th>
+            <th>Target Entity</th>
+            <th>Pattern Preview</th>
+            <th>Last Modified</th>
+            <th class="align-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of $any(rows()); track row.id) {
+            <tr>
+              <td>
+                <div class="vs-file">
+                  <mat-icon class="vs-file-icon">{{ iconOf(row) }}</mat-icon>
+                  <div class="vs-file-copy">
+                    <button type="button" class="vs-file-name" (click)="openEdit(row.id)">
+                      {{ row.name || 'Untitled Sequence' }}
+                    </button>
+                    <p class="vs-file-meta">{{ subtitleOf(row) }}</p>
+                  </div>
+                </div>
+              </td>
+              <td><span class="kv-tag">{{ targetLabel(row.targetEntity) }}</span></td>
+              <td class="vs-mono">{{ patternOf(row) }}</td>
+              <td class="vs-nowrap">{{ lastModifiedOf(row) }}</td>
+              <td>
+                <div class="vs-row-actions">
+                  <button type="button" class="vs-action" matTooltip="Edit sequence" aria-label="Edit sequence" (click)="openEdit(row.id)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr class="vs-empty">
+              <td colspan="5">
+                <mat-icon>search_off</mat-icon>
+                <p>No sequences found for the current search.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
-				<ng-container matColumnDef="patternPreview">
-					<th mat-header-cell *matHeaderCellDef>Pattern Preview</th>
-					<td mat-cell *matCellDef="let row">
-						<code>{{ patternOf(row) }}</code>
-					</td>
-				</ng-container>
+    <!-- Pagination -->
+    <div class="vs-results-foot">
+      <div class="vs-page-report">
+        {{ pageReport() }}
+        <label class="vs-page-size">
+          Rows
+          <select [value]="pageSize()" (change)="changePageSize($any($event.target).value)">
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      <nav class="vs-pager" aria-label="Pagination">
+        <button type="button" class="vs-page-arrow" aria-label="Previous page" [disabled]="currentPage() === 0"
+          (click)="goToPage(currentPage() - 1)">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        @for (page of pageNumbers(); track page) {
+          <button type="button" class="vs-page-btn" [class.is-active]="page === currentPage()"
+            [attr.aria-current]="page === currentPage() ? 'page' : null" (click)="goToPage(page)">
+            {{ page + 1 }}
+          </button>
+        }
+        <button type="button" class="vs-page-arrow" aria-label="Next page"
+          [disabled]="currentPage() >= totalPages() - 1" (click)="goToPage(currentPage() + 1)">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </nav>
+    </div>
+  </section>
 
-				<ng-container matColumnDef="lastModified">
-					<th mat-header-cell *matHeaderCellDef>Last Modified</th>
-					<td mat-cell *matCellDef="let row">
-						<span class="muted">{{ lastModifiedOf(row) }}</span>
-					</td>
-				</ng-container>
-
-				<ng-container matColumnDef="actions">
-					<th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
-					<td mat-cell *matCellDef="let row" class="actions-cell">
-						<button mat-icon-button type="button" aria-label="Edit sequence" (click)="openEdit(row.id)">
-							<mat-icon>edit</mat-icon>
-						</button>
-					</td>
-				</ng-container>
-
-				<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-				<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-
-				<tr class="mat-row empty-row" *matNoDataRow>
-					<td class="mat-cell" colspan="5">
-						<div class="empty-state">
-							<mat-icon>search_off</mat-icon>
-							<p>No sequences found for the current search.</p>
-						</div>
-					</td>
-				</tr>
-			</table>
-		</div>
-
-		<div class="results-footer search-results-footer">
-			<p class="search-results-summary">Showing {{ showingLabel() }} of {{ totalElements() }} sequences</p>
-
-			<mat-paginator
-				[length]="totalElements()"
-				[pageSize]="pageSize()"
-				[pageIndex]="currentPage()"
-				[pageSizeOptions]="[5, 10, 25, 50]"
-				[hidePageSize]="false"
-				showFirstLastButtons
-				(page)="onPageChange($event)"
-			></mat-paginator>
-		</div>
-	</mat-card>
-
-	<footer class="page-footer">
-		<div class="footer-meta">
-			<span class="footer-dot"></span>
-			<span>System Online</span>
-		</div>
-
-		<div class="footer-meta">
-			<span class="footer-dot footer-dot-secondary"></span>
-			<span>Sequence Registry Live</span>
-		</div>
-
-		<div class="footer-brand">Knowvera KYC Identity Engine</div>
-	</footer>
+  <!-- Assurances (visual vault) -->
+  <section class="vs-vault" aria-label="Sequence registry status">
+    <div class="vs-vault-card vs-vault-storage">
+      <mat-icon class="vs-vault-art">verified_user</mat-icon>
+      <div class="vs-vault-copy">
+        <h3>Active Protocols</h3>
+        <p>{{ activeProtocols() }} generators registered. Registry fully synchronised</p>
+      </div>
+    </div>
+    <div class="vs-vault-card vs-vault-logs">
+      <mat-icon class="vs-vault-art">lock</mat-icon>
+      <div class="vs-vault-copy">
+        <h3>Guarded Cursors</h3>
+        <p>Initial values can never fall below the current database cursor</p>
+      </div>
+    </div>
+    <div class="vs-vault-card vs-vault-identity">
+      <mat-icon class="vs-vault-art">shuffle</mat-icon>
+      <div class="vs-vault-copy">
+        <h3>Randomisation</h3>
+        <p>Randomised parts prevent predictable identifier enumeration</p>
+      </div>
+    </div>
+  </section>
 </div>

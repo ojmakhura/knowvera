@@ -1,181 +1,230 @@
-<section class="client-request-edit-page">
-	<header class="page-header">
-		<div>
-			<nav class="page-breadcrumb" aria-label="Breadcrumb">
-				<a routerLink="/request">Client Requests</a>
-				<mat-icon>chevron_right</mat-icon>
-				<span class="page-breadcrumb-current">Edit</span>
-			</nav>
-			<h1 class="page-title">Edit Client Request</h1>
-			<p class="page-subtitle">Ref: {{ editClientRequestSignal().ref || 'New' }}</p>
-		</div>
+<div class="kv-page">
 
-		<div class="header-actions">
-			<button mat-stroked-button type="button" class="discard-btn" (click)="discardChanges()">Discard</button>
-			<button mat-flat-button type="button" class="save-btn" (click)="saveChanges()">Save Changes</button>
-		</div>
-	</header>
+  <!-- Header -->
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/client-request">Client Requests</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">{{ editClientRequestSignal().id ? 'Edit' : 'Create' }}</span>
+    </nav>
 
-	<section class="content-stack">
-		<div class="panel-grid">
-			<mat-card class="panel-card">
-				<div class="section-heading">
-					<mat-icon>corporate_fare</mat-icon>
-					<h2>Requesting Organisation</h2>
-				</div>
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">{{ editClientRequestSignal().id ? 'Edit Client Request' : 'New Client Request' }}</h1>
+        <p class="kv-subtitle">Ref: {{ editClientRequestSignal().ref || 'New' }}</p>
+      </div>
+      <div class="kv-actions">
+        <button type="button" class="kv-btn-secondary" (click)="discardChanges()">Cancel</button>
+        <button type="button" class="kv-btn-primary" (click)="saveChanges()">
+          <mat-icon>save</mat-icon>
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </header>
 
-				<div class="panel-stack">
-					<mat-form-field appearance="outline" class="vault-field">
-						<mat-label>Filter Organisation</mat-label>
-						<mat-select [formField]="editClientRequestForm.organisation"
-							[compareWith]="organisationCompare">
-							<mat-option>
-								<ngx-mat-select-search [formField]="editClientRequestForm.organisationFilter"
-									(keyup.enter)="filterOrganisation()"
-									[placeholderLabel]="'search.organisation' | translate"
-									[noEntriesFoundLabel]="'no.matching.organisation.found' | translate">
-								</ngx-mat-select-search>
-							</mat-option>
-							@for (org of organisationList(); track org.id) {
-							<mat-option [value]="org">
-								{{ org.name }} ({{ org.registrationNo }})
-							</mat-option>
-							}
-						</mat-select>
-					</mat-form-field>
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
 
-					<div class="result-list-label">Search Results</div>
+    <!-- Main column -->
+    <div class="md:col-span-8 flex flex-col gap-6">
 
-					<div class="organisation-results">
-						@let organisation = editClientRequestSignal().organisation;
-						<button mat-button type="button" class="organisation-option"
-							[class.selected]="organisation?.id" [routerLink]="['/organisation/details']">
-							<div>
-								<p>{{ organisation?.name }}</p>
-								<small>{{ organisation?.registrationNo }}</small>
-							</div>
-							<mat-icon>{{ organisation?.id ? 'check_circle' :
-								'radio_button_unchecked' }}</mat-icon>
-						</button>
-					</div>
-				</div>
-			</mat-card>
-			<mat-card class="panel-card">
-				<div class="section-heading">
-					<mat-icon>hub</mat-icon>
-					<h2>Target Entity</h2>
-				</div>
+      <!-- Requesting Organisation -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">corporate_fare</mat-icon>
+          <h2 class="kv-card-title">Requesting Organisation</h2>
+        </div>
 
-				<div class="panel-stack">
-					<mat-form-field appearance="outline" class="vault-field">
-						<mat-label>Target Type</mat-label>
-						<mat-select [formField]="editClientRequestForm.target" >
-							@for (target of targetOptions; track target) {
-							<mat-option [value]="target">{{ targetTypeLabel(target) }}</mat-option>
-							}
-						</mat-select>
-					</mat-form-field>
+        <div class="flex flex-col gap-4">
+          <div class="kv-field">
+            <label class="kv-label" for="requestOrganisation">Organisation</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select id="requestOrganisation" [formField]="editClientRequestForm.organisation"
+                [compareWith]="organisationCompare" placeholder="Select organisation">
+                <mat-option>
+                  <ngx-mat-select-search [formField]="editClientRequestForm.organisationFilter"
+                    (keyup.enter)="filterOrganisation()"
+                    [placeholderLabel]="'search.organisation' | translate"
+                    [noEntriesFoundLabel]="'no.matching.organisation.found' | translate">
+                  </ngx-mat-select-search>
+                </mat-option>
+                @for (org of organisationList(); track org.id) {
+                  <mat-option [value]="org">{{ org.name }} ({{ org.registrationNo }})</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-					@if (selectedTargetType() === 'ORGANISATION') {
-					<mat-form-field appearance="outline" class="vault-field">
-						<mat-label>Target Organisation</mat-label>
-						<mat-select [formField]="editClientRequestForm.targetObject"
-							[compareWith]="targetOrganisationCompare">
-							<mat-option>
-								<ngx-mat-select-search [formField]="editClientRequestForm.targetObjectFilter"
-									(keyup.enter)="filterTargetOrganisation()"
-									[placeholderLabel]="'search.organisation' | translate"
-									[noEntriesFoundLabel]="'no.matching.organisation.found' | translate">
-								</ngx-mat-select-search>
-							</mat-option>
-							@for (org of targetOrganisationList(); track org.id) {
-							<mat-option [value]="org">
-								{{ org.name }} ({{ org.registrationNo }})
-							</mat-option>
-							}
-						</mat-select>
-					</mat-form-field>
-					} @else {
-					<mat-form-field appearance="outline" class="vault-field">
-						<mat-label>Target Individual</mat-label>
-						<mat-select [formField]="editClientRequestForm.targetObject" [compareWith]="individualCompare">
-							<mat-option>
-								<ngx-mat-select-search [formField]="editClientRequestForm.targetObjectFilter"
-									(keyup.enter)="filterTargetIndividual()"
-									[placeholderLabel]="'search.individual' | translate"
-									[noEntriesFoundLabel]="'no.matching.individual.found' | translate">
-								</ngx-mat-select-search>
-							</mat-option>
-							@for (ind of targetIndividualList(); track ind.id) {
-							<mat-option [value]="ind">
-								{{ ind.name }} ({{ ind.identityNo }})
-							</mat-option>
-							}
-						</mat-select>
-					</mat-form-field>
-					}
+          @let organisation = editClientRequestSignal().organisation;
+          @if (organisation?.id) {
+            <div class="kv-meta-row">
+              <div>
+                <p class="kv-meta-value font-medium">{{ organisation?.name }}</p>
+                <p class="kv-meta-label">{{ organisation?.registrationNo }}</p>
+              </div>
+              <a class="kv-btn-subtle" [routerLink]="['/organisation', organisation?.id]">
+                <mat-icon>open_in_new</mat-icon>
+                View
+              </a>
+            </div>
+          } @else {
+            <p class="text-sm text-on-surface-variant">No organisation selected yet.</p>
+          }
+        </div>
+      </section>
 
-					<div class="selected-target">
-						@if (editClientRequestSignal().targetObject) {
-						<span>Selected Target</span>
-						<p>{{ editClientRequestSignal().targetObject?.name }}</p>
-						@if (selectedTargetType() === 'ORGANISATION') {
-						<small>Reg: {{ $any(editClientRequestSignal().targetObject)?.registrationNo }}</small>
-						} @else {
-						<small>ID: {{ $any(editClientRequestSignal().targetObject)?.identityNo }}</small>
-						}
-						}
-					</div>
-				</div>
-			</mat-card>
+      <!-- Target Entity -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">hub</mat-icon>
+          <h2 class="kv-card-title">Target Entity</h2>
+        </div>
 
-		</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="kv-field">
+            <label class="kv-label" for="targetType">Target Type</label>
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-select id="targetType" [formField]="editClientRequestForm.target" placeholder="Select target type">
+                @for (target of targetOptions; track target) {
+                  <mat-option [value]="target">{{ targetTypeLabel(target) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
 
-		@if (editClientRequestSignal().documentId || editClientRequestSignal().fileName) {
-		<mat-card class="panel-card document-card">
-			<div class="section-heading">
-				<mat-icon>description</mat-icon>
-				<h2>Document Information</h2>
-			</div>
+          @if (selectedTargetType() === 'ORGANISATION') {
+            <div class="kv-field">
+              <label class="kv-label" for="targetOrganisation">Target Organisation</label>
+              <mat-form-field appearance="outline" class="vault-field">
+                <mat-select id="targetOrganisation" [formField]="editClientRequestForm.targetObject"
+                  [compareWith]="targetOrganisationCompare" placeholder="Select organisation">
+                  <mat-option>
+                    <ngx-mat-select-search [formField]="editClientRequestForm.targetObjectFilter"
+                      (keyup.enter)="filterTargetOrganisation()"
+                      [placeholderLabel]="'search.organisation' | translate"
+                      [noEntriesFoundLabel]="'no.matching.organisation.found' | translate">
+                    </ngx-mat-select-search>
+                  </mat-option>
+                  @for (org of targetOrganisationList(); track org.id) {
+                    <mat-option [value]="org">{{ org.name }} ({{ org.registrationNo }})</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          } @else {
+            <div class="kv-field">
+              <label class="kv-label" for="targetIndividual">Target Individual</label>
+              <mat-form-field appearance="outline" class="vault-field">
+                <mat-select id="targetIndividual" [formField]="editClientRequestForm.targetObject"
+                  [compareWith]="individualCompare" placeholder="Select individual">
+                  <mat-option>
+                    <ngx-mat-select-search [formField]="editClientRequestForm.targetObjectFilter"
+                      (keyup.enter)="filterTargetIndividual()"
+                      [placeholderLabel]="'search.individual' | translate"
+                      [noEntriesFoundLabel]="'no.matching.individual.found' | translate">
+                    </ngx-mat-select-search>
+                  </mat-option>
+                  @for (ind of targetIndividualList(); track ind.id) {
+                    <mat-option [value]="ind">{{ ind.name }} ({{ ind.identityNo }})</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          }
+        </div>
 
-			<div class="document-grid">
-				<mat-form-field appearance="outline" class="vault-field">
-					<mat-label>Document ID</mat-label>
-					<input matInput [formField]="editClientRequestForm.documentId" />
-				</mat-form-field>
+        @if (editClientRequestSignal().targetObject) {
+          <div class="kv-panel mt-4">
+            <p class="kv-label mb-1">Selected Target</p>
+            <p class="kv-value">{{ editClientRequestSignal().targetObject?.name }}</p>
+            <p class="text-xs text-on-surface-variant">
+              @if (selectedTargetType() === 'ORGANISATION') {
+                Reg: {{ $any(editClientRequestSignal().targetObject)?.registrationNo }}
+              } @else {
+                ID: {{ $any(editClientRequestSignal().targetObject)?.identityNo }}
+              }
+            </p>
+          </div>
+        }
+      </section>
 
-				<mat-form-field appearance="outline" class="vault-field">
-					<mat-label>File Name</mat-label>
-					<input matInput [formField]="editClientRequestForm.fileName" />
-					<button mat-icon-button matSuffix type="button" aria-label="Open file link">
-						<mat-icon>link</mat-icon>
-					</button>
-				</mat-form-field>
-			</div>
-		</mat-card>
-		}
+      <!-- Document Information -->
+      @if (editClientRequestSignal().documentId || editClientRequestSignal().fileName) {
+        <section class="kv-card">
+          <div class="kv-card-header">
+            <mat-icon class="kv-card-icon">description</mat-icon>
+            <h2 class="kv-card-title">Document Information</h2>
+          </div>
 
-		<mat-card class="status-card">
-			<div class="status-shield">
-				<mat-icon>verified_user</mat-icon>
-			</div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="kv-field">
+              <label class="kv-label" for="documentId">Document ID</label>
+              <mat-form-field appearance="outline" class="vault-field">
+                <input id="documentId" matInput [formField]="editClientRequestForm.documentId" />
+              </mat-form-field>
+            </div>
+            <div class="kv-field">
+              <label class="kv-label" for="fileName">File Name</label>
+              <mat-form-field appearance="outline" class="vault-field">
+                <input id="fileName" matInput [formField]="editClientRequestForm.fileName" />
+                <button mat-icon-button matSuffix type="button" aria-label="Open file link">
+                  <mat-icon>link</mat-icon>
+                </button>
+              </mat-form-field>
+            </div>
+          </div>
+        </section>
+      }
+    </div>
 
-			<div class="section-heading section-heading-dark">
-				<mat-icon>security</mat-icon>
-				<h2>Status</h2>
-			</div>
+    <!-- Side column -->
+    <aside class="md:col-span-4 flex flex-col gap-6">
 
-			<div class="status-grid">
-				<div class="status-block">
-					<span class="status-label">Client Request Status</span>
-					<mat-button-toggle-group [formField]="editClientRequestForm.status" class="request-status-toggle">
-						@for (status of requestStatuses; track status) {
-						<mat-button-toggle [value]="status" [ngClass]="requestToneClass(status)" (change)="setRequestStatus(status)">
-							{{ requestStatusLabel(status) }}
-						</mat-button-toggle>
-						}
-					</mat-button-toggle-group>
-				</div>
-			</div>
-		</mat-card>
-	</section>
+      <!-- Status -->
+      <section class="kv-card border-t-4 border-emerald">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">security</mat-icon>
+          <h2 class="kv-card-title">Request Status</h2>
+        </div>
+
+        <div class="kv-field">
+          <span class="kv-label">Client Request Status</span>
+          <mat-button-toggle-group vertical class="w-full" [formField]="editClientRequestForm.status">
+            @for (status of requestStatuses; track status) {
+              <mat-button-toggle [value]="status" [ngClass]="requestToneClass(status)" (change)="setRequestStatus(status)">
+                {{ requestStatusLabel(status) }}
+              </mat-button-toggle>
+            }
+          </mat-button-toggle-group>
+        </div>
+      </section>
+
+      <!-- Audit Trail -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">history</mat-icon>
+          <h2 class="kv-card-title">Audit Trail</h2>
+        </div>
+
+        <dl class="flex flex-col gap-3">
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Created At</dt>
+            <dd class="kv-meta-value">{{ (editClientRequestSignal().createdAt | date: 'dd MMM yyyy, HH:mm') || 'Not available' }}</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Created By</dt>
+            <dd class="kv-meta-value">{{ editClientRequestSignal().createdBy || 'Not available' }}</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Modified At</dt>
+            <dd class="kv-meta-value">{{ (editClientRequestSignal().modifiedAt | date: 'dd MMM yyyy, HH:mm') || 'Not available' }}</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Modified By</dt>
+            <dd class="kv-meta-value">{{ editClientRequestSignal().modifiedBy || 'Not available' }}</dd>
+          </div>
+        </dl>
+      </section>
+    </aside>
+  </div>
+</div>

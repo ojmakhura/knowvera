@@ -1,41 +1,5 @@
 // field-groups.scss
-@use '../settings-shared' as *;
-
-.settings-page__title {
-  font-size: 2rem;
-  line-height: 40px;
-  color: var(--primary);
-}
-
-.settings-page__subtitle {
-  font-size: 1rem;
-  line-height: 24px;
-  color: var(--on-surface-variant);
-}
-
-.settings-page > .btn-action-primary,
-.settings-page__header .btn-action-primary {
-  background: var(--secondary);
-  border-radius: 4px;
-  padding: 8px 16px;
-  min-height: 36px;
-  font-size: 0.875rem;
-  line-height: 20px;
-  box-shadow: none;
-
-  &:hover {
-    background: var(--on-secondary-container);
-  }
-}
-
-.settings-page {
- max-width: 1120px;
-}
-
-.settings-page__header {
- align-items: center;
- margin-bottom: 28px;
-}
+@use 'shared/settings' as *;
 
 .field-groups-tabs {
  display: flex;
@@ -298,3 +262,4 @@
     flex-direction: column;
   }
 }
+
