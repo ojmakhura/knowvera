@@ -148,7 +148,6 @@ export const initialiseApp = async () => {
       provideKeycloakAndInterceptor(env),
       provideRouter(routes, withComponentInputBinding()),
       provideHttpClient(
-        // withFetch(),
         withXhr(),
         withInterceptorsFromDi(),
         withInterceptors([

@@ -90,9 +90,11 @@ export class FinancialSettings implements OnInit {
       .subscribe((result) => {
         if (result === 'removed') {
 
+          console.log(result, range, index);
+
           if (range.id) {
 
-            this.settingsApiStore.removeSalaryRange(range.id);
+            this.settingsApiStore.removeSalaryRange({ salaryRangeId: range.id});
             
           } else {
 

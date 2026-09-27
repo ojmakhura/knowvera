@@ -9,7 +9,7 @@ import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
 import { ExpectedFieldApi } from '@app/services/bw/co/knowvera/document/type/field/expected-field-api';
-import { toast } from 'ngx-sonner';
+import { toast } from '@app/@shared/toast';
 
 export type ExpectedFieldApiState = AppState<any, any> & {};
 

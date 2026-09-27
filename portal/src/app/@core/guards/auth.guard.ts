@@ -9,7 +9,6 @@ const isAccessAllowed = async (
 ): Promise<boolean | UrlTree> => {
   const { authenticated, grantedRoles } = authData;
 
-  console.log(authData, _.url, grantedRoles);
   const router = inject(Router);
 
   if(_.url.startsWith('/register')) {

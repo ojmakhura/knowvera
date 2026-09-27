@@ -11,7 +11,7 @@ import { IndividualListDTO } from '@app/models/bw/co/knowvera/individual/individ
 import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
 import { IndividualApi } from '@app/services/bw/co/knowvera/individual/individual-api';
 import { IndividualSearchCriteria } from '@app/models/bw/co/knowvera/individual/individual-search-criteria';
-import { toast } from 'ngx-sonner';
+import { toast } from '@app/@shared/toast';
 
 export type IndividualApiState = AppState<IndividualDTO, IndividualListDTO> & {
   registrationIndividualLoaded: boolean;

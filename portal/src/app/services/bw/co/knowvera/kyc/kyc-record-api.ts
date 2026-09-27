@@ -10,6 +10,7 @@ import { KycRecordSearchCriteria } from '@app/models/bw/co/knowvera/kyc/kyc-reco
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { KycRecordListDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-list-dto';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 
 @Injectable({
   providedIn: 'root'
@@ -149,5 +150,9 @@ export class KycRecordApi {
   generateKycReport(id: string): Observable<KycRecordDTO> {
 
     return this.http.get<KycRecordDTO>(`${this.path}/${id}/report`);
+  }
+
+  updateStatus(id: string, status: KycComplianceStatus): Observable<KycRecordDTO> {
+    return this.http.patch<KycRecordDTO>(`${this.path}/${id}/status?status=${status}`, {});
   }
 }

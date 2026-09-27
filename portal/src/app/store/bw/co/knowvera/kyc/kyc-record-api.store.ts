@@ -14,7 +14,7 @@ import { KycRecordSearchCriteria } from '@app/models/bw/co/knowvera/kyc/kyc-reco
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { KycRecordListDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-list-dto';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
-import { toast } from 'ngx-sonner';
+import { toast } from '@app/@shared/toast';
 
 export type KycRecordApiState = AppState<KycRecordDTO, KycRecordDTO> & {
   currentIndividualRecord: KycRecordDTO | null;

@@ -6,7 +6,6 @@ import { AppEnvStore } from '@app/store/app-env.state';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { BranchApiStore } from '@app/store/bw/co/knowvera/organisation/branch/branch-api.store';
 import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
-import { ToastrService } from 'ngx-toastr';
 
 describe('EditIndividual', () => {
   let component: EditIndividual;
@@ -42,10 +41,6 @@ describe('EditIndividual', () => {
     loaderMessage: () => '',
   };
 
-  const toastrMock = {
-    success: () => undefined,
-    error: () => undefined,
-  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -56,7 +51,6 @@ describe('EditIndividual', () => {
         { provide: OrganisationApiStore, useValue: organisationApiStoreMock },
         { provide: BranchApiStore, useValue: branchApiStoreMock },
         { provide: IndividualApiStore, useValue: individualApiStoreMock },
-        { provide: ToastrService, useValue: toastrMock },
       ],
     }).compileComponents();
 

@@ -1,102 +1,82 @@
-<div class="edit-kyc">
-  <!-- Desktop Header -->
-  <header class="edit-kyc__header">
-    <div class="edit-kyc__header-left">
-      <!-- <img alt="Knowvera Logo" class="edit-kyc__logo" src="assets/logo.png" /> -->
+<div class="kv-page">
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <button type="button" class="hover:text-primary" (click)="navigateBack()">KYC Records</button>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">Edit</span>
+    </nav>
+
+    <div class="kv-page-header">
       <div>
-        <h1 class="edit-kyc__title">Edit KYC Record</h1>
+        <h1 class="kv-title">Edit KYC Record</h1>
         @if (recordReference(); as recordReferenceValue) {
-          <p class="edit-kyc__subtitle">{{ recordReferenceValue }} | Last updated: 2 hours ago</p>
+          <p class="kv-subtitle">{{ recordReferenceValue }} | Last updated: 2 hours ago</p>
         }
       </div>
-    </div>
-    <div class="edit-kyc__header-actions">
-      <button type="button" class="btn btn--secondary" (click)="navigateBack()">Cancel</button>
-      <button type="button" class="btn btn--primary" (click)="submit()">
-        <mat-icon>save</mat-icon>
-        Save Changes
-      </button>
+      <div class="kv-actions">
+        <button type="button" class="kv-btn-secondary" (click)="navigateBack()">Cancel</button>
+        <button type="button" class="kv-btn-primary" (click)="submit()">
+          <mat-icon>save</mat-icon>
+          Save Changes
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- Mobile Header -->
-  <header class="edit-kyc__mobile-header">
-    <button type="button" class="edit-kyc__back-btn" (click)="navigateBack()">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <div class="edit-kyc__mobile-header-title">
-      <img alt="Knowvera Logo" class="edit-kyc__mobile-logo" src="assets/logo.png" />
-      <h1>Edit KYC</h1>
-    </div>
-    <button type="button" class="edit-kyc__menu-btn">
-      <mat-icon>more_vert</mat-icon>
-    </button>
-  </header>
-
-  <main class="edit-kyc__canvas">
-    <!-- Owner Details Display Section -->
-    <div class="card edit-kyc__owner-details">
-      <div class="card__header">
-        <div class="card__header-top">
-          <h2 class="card__title">
-            <mat-icon>person</mat-icon>
-            Owner Details
-          </h2>
-          <div class="badge badge--verified">
-            <mat-icon>check_circle</mat-icon>
-            <span>Verified</span>
-          </div>
+  <div class="flex flex-col gap-6">
+    <!-- Owner Details -->
+    <section class="kv-card">
+      <div class="kv-card-header justify-between">
+        <div class="flex items-center gap-3">
+          <mat-icon class="kv-card-icon">person</mat-icon>
+          <h2 class="kv-card-title">Owner Details</h2>
         </div>
+        <span class="kv-chip kv-tone-success">
+          <mat-icon>check_circle</mat-icon>
+          Verified
+        </span>
       </div>
 
-      <div class="card__content">
-        <div class="display-grid">
-          <div class="display-item">
-            <span class="display-label">Full Legal Name</span>
-            <p class="display-value">{{ formModel().ownerDetails?.name || 'N/A' }}</p>
-          </div>
-
-          <div class="display-item">
-            <span class="display-label">Date of Birth</span>
-            <p class="display-value">{{ formModel().ownerDetails?.postalAddress || 'N/A' }}</p>
-          </div>
-
-          <div class="display-item">
-            <span class="display-label">Nationality</span>
-            <p class="display-value">{{ formModel().ownerDetails?.identityType || 'N/A' }}</p>
-          </div>
-
-          <div class="display-item">
-            <span class="display-label">National ID / Passport No.</span>
-            <p class="display-value">{{ formModel().ownerDetails?.identityNo || 'N/A' }}</p>
-          </div>
-
-          <div class="display-item display-item--full">
-            <span class="display-label">Primary Residential Address</span>
-            <p class="display-value">{{ formModel().ownerDetails?.physicalAddress || 'N/A' }}</p>
-          </div>
+      <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="kv-field">
+          <dt class="kv-label">Full Legal Name</dt>
+          <dd class="kv-value">{{ formModel().ownerDetails?.name || 'N/A' }}</dd>
         </div>
-      </div>
-    </div>
+        <div class="kv-field">
+          <dt class="kv-label">Date of Birth</dt>
+          <dd class="kv-value">{{ formModel().ownerDetails?.postalAddress || 'N/A' }}</dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">Nationality</dt>
+          <dd class="kv-value">{{ formModel().ownerDetails?.identityType || 'N/A' }}</dd>
+        </div>
+        <div class="kv-field">
+          <dt class="kv-label">National ID / Passport No.</dt>
+          <dd class="kv-value">{{ formModel().ownerDetails?.identityNo || 'N/A' }}</dd>
+        </div>
+        <div class="kv-field sm:col-span-2 lg:col-span-4">
+          <dt class="kv-label">Primary Residential Address</dt>
+          <dd class="kv-value">{{ formModel().ownerDetails?.physicalAddress || 'N/A' }}</dd>
+        </div>
+      </dl>
+    </section>
 
-    <form class="edit-kyc__form" novalidate>
-      <!-- Compliance & Documents Row (Full Width) -->
-      <div class="edit-kyc__compliance-documents-row">
-        <!-- Compliance Status Section -->
-        <div class="card card--compliance">
-          <div class="card__header">
-            <h2 class="card__title card__title--accent">
-              <mat-icon>policy</mat-icon>
-              Compliance Status
-            </h2>
+    <form class="flex flex-col gap-6" novalidate>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Compliance Status -->
+        <section class="kv-card border-t-4 border-emerald">
+          <div class="kv-card-header">
+            <mat-icon class="kv-card-icon">policy</mat-icon>
+            <h2 class="kv-card-title">Compliance Status</h2>
           </div>
-          <div class="card__content">
-            <div class="status-item">
-              <span class="status-label">Overall Risk</span>
-              <span class="status-badge status-badge--warning">Medium Risk</span>
+
+          <div class="flex flex-col gap-4">
+            <div class="kv-meta-row">
+              <span class="kv-meta-label">Overall Risk</span>
+              <span class="kv-chip kv-tone-warning">Medium Risk</span>
             </div>
 
-            <mat-form-field class="mat-form-field-full">
+            <mat-form-field appearance="outline" class="vault-field">
               <mat-label>PEP Screening</mat-label>
               <mat-select>
                 <mat-option>Cleared - No Match</mat-option>
@@ -105,7 +85,7 @@
               </mat-select>
             </mat-form-field>
 
-            <mat-form-field class="mat-form-field-full">
+            <mat-form-field appearance="outline" class="vault-field">
               <mat-label>Sanctions Check</mat-label>
               <mat-select>
                 <mat-option>Cleared</mat-option>
@@ -113,161 +93,66 @@
               </mat-select>
             </mat-form-field>
           </div>
-        </div>
+        </section>
 
-        <!-- Documents Section -->
-        <div class="card">
-          <div class="card__header">
-            <h2 class="card__title">
-              <mat-icon>folder_open</mat-icon>
-              Documents
-            </h2>
-          </div>
-          <div class="card__content">
-            <label class="upload-zone" for="kyc-document-upload">
-              <input
-                id="kyc-document-upload"
-                class="upload-zone__input"
-                type="file"
-                accept=".pdf,.png,.jpg,.jpeg"
-                (change)="onDocumentSelected($event)" />
-              <mat-icon>cloud_upload</mat-icon>
-              <p class="upload-zone__text">Drag & drop files here</p>
-              <p class="upload-zone__hint">or click to browse</p>
-            </label>
-
-            <div class="document-list">
-              @for (document of formModel().documents; track document.id) {
-                <div class="document-item">
-                  <div class="document-item__info">
-                    <mat-icon class="document-item__icon--success">check_circle</mat-icon>
-                    <span class="document-item__name">{{ document.fileName || 'Unnamed' }}</span>
-                  </div>
-                  <button
-                    type="button"
-                    class="document-item__delete"
-                    aria-label="Delete document"
-                    (click)="removeDocument(document.fileName)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-              }
-              @for (documentForm of editForm.documentsToUpload; track $index) {
-                @let queuedDocument = documentForm().value();
-                <div class="document-item document-item--pending">
-                  <div class="document-item__info document-item__info--pending">
-                    <mat-icon class="document-item__icon">upload_file</mat-icon>
-                    <div class="document-item__details">
-                      <span class="document-item__name">{{ queuedDocument.file.name }}</span>
-                      <span class="document-item__meta">
-                        {{ queuedDocument.documentType?.name || 'Document type pending' }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <mat-form-field class="mat-form-field-full document-item__selector" subscriptSizing="dynamic">
-                    <mat-label>Document Type</mat-label>
-                    <mat-select [formField]="documentForm.documentType" [compareWith]="documentTypeCompare">
-                      @for (documentType of availableDocumentTypes(); track documentType.id) {
-                        <mat-option [value]="documentType">{{ documentType.name }}</mat-option>
-                      }
-                    </mat-select>
-                  </mat-form-field>
-
-                  <button
-                    type="button"
-                    class="document-item__delete"
-                    aria-label="Remove queued document"
-                    (click)="removeQueuedDocument(queuedDocument.file?.name || '')">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Source of Funds Section (Mobile Only) -->
-      <div class="card card--mobile-only">
-        <div class="card__header">
-          <h2 class="card__title">
-            <mat-icon>account_balance</mat-icon>
-            Source of Funds
-          </h2>
-          <button type="button" class="btn-text">Add Source</button>
-        </div>
-        <div class="card__content">
-          <div class="form-group">
-            <label class="form-label">Primary Source Category</label>
-            <select class="form-input form-select">
-              <option>Salary / Employment</option>
-              <option selected>Corporate Dividends</option>
-              <option>Sale of Assets</option>
-              <option>Inheritance</option>
-            </select>
+        <!-- Documents -->
+        <section class="kv-card">
+          <div class="kv-card-header">
+            <mat-icon class="kv-card-icon">folder_open</mat-icon>
+            <h2 class="kv-card-title">Documents</h2>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Description / Notes</label>
-            <textarea
-              class="form-textarea"
-              rows="2"
-              placeholder="Describe the source"></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- Supporting Documents Section (Mobile) -->
-      <div class="card card--mobile-only">
-        <div class="card__header">
-          <h2 class="card__title">
-            <mat-icon>description</mat-icon>
-            Supporting Documents
-          </h2>
-        </div>
-        <div class="card__content">
-          <label class="upload-zone" for="kyc-document-upload-mobile">
+          <label
+            class="flex flex-col items-center justify-center gap-1 p-6 mb-4 rounded-lg border-2 border-dashed border-outline-variant bg-surface-container-low text-center cursor-pointer transition-colors hover:border-emerald hover:bg-surface-container"
+            for="kyc-document-upload">
             <input
-              id="kyc-document-upload-mobile"
-              class="upload-zone__input"
+              id="kyc-document-upload"
+              class="sr-only"
               type="file"
               accept=".pdf,.png,.jpg,.jpeg"
               (change)="onDocumentSelected($event)" />
-            <mat-icon>upload_file</mat-icon>
-            <p class="upload-zone__text">Tap to upload files</p>
-            <p class="upload-zone__hint">PDF, JPG, PNG up to 10MB</p>
+            <mat-icon class="text-primary">cloud_upload</mat-icon>
+            <p class="text-sm font-medium text-primary">Drag &amp; drop files here</p>
+            <p class="text-xs text-on-surface-variant">or click to browse · PDF, JPG, PNG up to 10MB</p>
           </label>
 
-          <div class="document-list">
+          <div class="flex flex-col gap-2">
             @for (document of formModel().documents; track document.id) {
-              <div class="document-item document-item--with-menu">
-                <div class="document-item__info">
-                  <mat-icon class="document-item__icon">description</mat-icon>
-                  <div class="document-item__details">
-                    <p class="document-item__name">{{ document.fileName }}</p>
-                    <p class="document-item__meta">Uploaded Oct 1, 2023 • 2.4 MB</p>
-                  </div>
-                </div>
-                <button type="button" class="document-item__menu">
-                  <mat-icon>more_vert</mat-icon>
+              <div class="dp-list-item is-primary">
+                <span class="dp-inline-icon min-w-0">
+                  <mat-icon class="dp-ok">check_circle</mat-icon>
+                  <span class="truncate font-medium">{{ document.fileName || 'Unnamed' }}</span>
+                </span>
+                <button
+                  type="button"
+                  class="kv-icon-btn-danger"
+                  aria-label="Delete document"
+                  (click)="removeDocument(document.fileName)">
+                  <mat-icon>delete</mat-icon>
                 </button>
               </div>
             }
             @for (documentForm of editForm.documentsToUpload; track $index) {
               @let queuedDocument = documentForm().value();
-              <div class="document-item document-item--pending">
-                <div class="document-item__info document-item__info--pending">
-                  <mat-icon class="document-item__icon">upload_file</mat-icon>
-                  <div class="document-item__details">
-                    <p class="document-item__name">{{ queuedDocument.file.name }}</p>
-                    <p class="document-item__meta">
-                      {{ queuedDocument.documentType?.name || 'Document type pending' }}
-                    </p>
+              <div class="kv-panel flex flex-col gap-3">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <mat-icon class="dp-pending">upload_file</mat-icon>
+                    <div class="min-w-0">
+                      <p class="text-sm font-medium truncate">{{ queuedDocument.file.name }}</p>
+                      <p class="dp-list-sub">{{ queuedDocument.documentType?.name || 'Document type pending' }}</p>
+                    </div>
                   </div>
+                  <button
+                    type="button"
+                    class="kv-icon-btn-danger"
+                    aria-label="Remove queued document"
+                    (click)="removeQueuedDocument(queuedDocument.file?.name || '')">
+                    <mat-icon>close</mat-icon>
+                  </button>
                 </div>
 
-                <mat-form-field class="mat-form-field-full document-item__selector" subscriptSizing="dynamic">
+                <mat-form-field appearance="outline" class="vault-field">
                   <mat-label>Document Type</mat-label>
                   <mat-select [formField]="documentForm.documentType" [compareWith]="documentTypeCompare">
                     @for (documentType of availableDocumentTypes(); track documentType.id) {
@@ -275,42 +160,53 @@
                     }
                   </mat-select>
                 </mat-form-field>
-
-                <button
-                  type="button"
-                  class="document-item__delete"
-                  aria-label="Remove queued document"
-                  (click)="removeQueuedDocument(queuedDocument.file?.name || '')">
-                  <mat-icon>close</mat-icon>
-                </button>
               </div>
             }
           </div>
-        </div>
+        </section>
       </div>
 
-      <!-- Compliance Declaration Section (Mobile) -->
-      <div class="card card--mobile-only">
-        <div class="card__header">
-          <h2 class="card__title">Compliance Declaration</h2>
+      <!-- Source of Funds (mobile) -->
+      <section class="kv-card lg:hidden">
+        <div class="kv-card-header justify-between">
+          <div class="flex items-center gap-3">
+            <mat-icon class="kv-card-icon">account_balance</mat-icon>
+            <h2 class="kv-card-title">Source of Funds</h2>
+          </div>
+          <button type="button" class="kv-btn-subtle">Add Source</button>
         </div>
-        <div class="card__content">
-          <label class="checkbox-label">
-            <input type="checkbox" class="checkbox-input" />
-            <span class="checkbox-text">
-              I attest that the information updated in this record is accurate to the best of my knowledge and complies with internal AML/KYC policies.
-            </span>
-          </label>
+
+        <div class="flex flex-col gap-4">
+          <div class="kv-field">
+            <label class="kv-label" for="primary-source">Primary Source Category</label>
+            <select id="primary-source" class="kv-input">
+              <option>Salary / Employment</option>
+              <option selected>Corporate Dividends</option>
+              <option>Sale of Assets</option>
+              <option>Inheritance</option>
+            </select>
+          </div>
+
+          <div class="kv-field">
+            <label class="kv-label" for="source-notes">Description / Notes</label>
+            <textarea id="source-notes" class="kv-input resize-none" rows="2" placeholder="Describe the source"></textarea>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <!-- Compliance Declaration (mobile) -->
+      <section class="kv-card lg:hidden">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">gavel</mat-icon>
+          <h2 class="kv-card-title">Compliance Declaration</h2>
+        </div>
+        <label class="flex items-start gap-3 text-sm text-on-surface-variant">
+          <input type="checkbox" class="mt-1 rounded text-emerald focus:ring-emerald" />
+          <span>
+            I attest that the information updated in this record is accurate to the best of my knowledge and complies with internal AML/KYC policies.
+          </span>
+        </label>
+      </section>
     </form>
-  </main>
-
-  <!-- Mobile Save Button -->
-  <div class="edit-kyc__mobile-footer">
-    <button type="button" class="btn btn--primary btn--full" (click)="submit()">
-      <mat-icon>save</mat-icon>
-      Save KYC Record
-    </button>
   </div>
 </div>

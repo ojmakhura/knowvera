@@ -1,100 +1,88 @@
-<div class="home">
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="hero__content">
-      <div class="hero__text">
-        <h1 class="hero__title">{{ 'home.hero.title' | translate }}</h1>
-        <p class="hero__subtitle">{{ 'home.hero.subtitle' | translate }}</p>
-        <div class="hero__actions">
-          <button 
-            mat-raised-button 
-            color="primary" 
-            class="hero__cta"
-            (click)="login()">
+<div class="flex flex-col">
+  <!-- Hero -->
+  <section class="bg-linear-to-br from-primary-container to-primary text-on-primary">
+    <div class="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-2 items-center gap-10 px-4 py-16 md:px-8 md:py-24">
+      <div class="flex flex-col gap-6">
+        <h1 class="font-[Poppins] text-3xl md:text-5xl font-semibold leading-tight tracking-tight">{{ 'home.hero.title' | translate }}</h1>
+        <p class="text-base md:text-lg text-primary-fixed-dim max-w-xl">{{ 'home.hero.subtitle' | translate }}</p>
+        <div class="flex flex-wrap gap-3">
+          <button type="button" class="kv-btn-primary px-6! py-3!" (click)="login()">
             <mat-icon>login</mat-icon>
-            <span>{{ 'home.hero.getStarted' | translate }}</span>
+            {{ 'home.hero.getStarted' | translate }}
           </button>
-          <button 
-            mat-stroked-button 
-            class="hero__secondary"
-            (click)="login()">
+          <button type="button" class="kv-btn px-6! py-3! border-white/40! text-white! hover:bg-white/10!" (click)="login()">
             <mat-icon>info_outline</mat-icon>
-            <span>{{ 'home.hero.learnMore' | translate }}</span>
+            {{ 'home.hero.learnMore' | translate }}
           </button>
         </div>
       </div>
-      <div class="hero__image">
-        <mat-icon class="hero__icon">security</mat-icon>
+      <div class="hidden md:grid place-items-center">
+        <span class="grid place-items-center size-64 rounded-full bg-white/5 ring-1 ring-white/10">
+          <mat-icon class="size-32! text-[8rem]! text-secondary-fixed">security</mat-icon>
+        </span>
       </div>
     </div>
   </section>
 
-  <!-- Features Section -->
-  <section class="features">
-    <div class="features__content">
-      <h2 class="features__title">{{ 'home.features.title' | translate }}</h2>
-      <p class="features__subtitle">{{ 'home.features.subtitle' | translate }}</p>
-      
-      <div class="features__grid">
-        @for (feature of features; track feature.icon) {
-          <mat-card class="feature-card">
-            <mat-card-content>
-              <div class="feature-card__icon">
-                <mat-icon>{{ feature.icon }}</mat-icon>
-              </div>
-              <h3 class="feature-card__title">{{ feature.titleKey | translate }}</h3>
-              <p class="feature-card__description">{{ feature.descriptionKey | translate }}</p>
-            </mat-card-content>
-          </mat-card>
-        }
-      </div>
+  <!-- Features -->
+  <section class="kv-page py-16!">
+    <div class="text-center mb-10">
+      <h2 class="kv-title">{{ 'home.features.title' | translate }}</h2>
+      <p class="kv-subtitle">{{ 'home.features.subtitle' | translate }}</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (feature of features; track feature.icon) {
+        <article class="kv-card flex flex-col gap-3">
+          <span class="dp-icon-tile"><mat-icon>{{ feature.icon }}</mat-icon></span>
+          <h3 class="kv-card-title">{{ feature.titleKey | translate }}</h3>
+          <p class="text-sm text-on-surface-variant">{{ feature.descriptionKey | translate }}</p>
+        </article>
+      }
     </div>
   </section>
 
-  <!-- Benefits Section -->
-  <section class="benefits">
-    <div class="benefits__content">
-      <div class="benefits__text">
-        <h2 class="benefits__title" translate>{{ 'home.benefits.title' }}</h2>
-        <ul class="benefits__list">
-          <li class="benefits__item">
-            <mat-icon class="benefits__check">check_circle</mat-icon>
+  <!-- Benefits -->
+  <section class="bg-surface-container-low">
+    <div class="kv-page grid grid-cols-1 md:grid-cols-2 items-center gap-10 py-16!">
+      <div>
+        <h2 class="kv-title mb-6" translate>{{ 'home.benefits.title' }}</h2>
+        <ul class="flex flex-col gap-4">
+          <li class="flex items-start gap-3 text-on-surface">
+            <mat-icon class="text-emerald shrink-0">check_circle</mat-icon>
             <span translate>{{ 'home.benefits.item1' }}</span>
           </li>
-          <li class="benefits__item">
-            <mat-icon class="benefits__check">check_circle</mat-icon>
+          <li class="flex items-start gap-3 text-on-surface">
+            <mat-icon class="text-emerald shrink-0">check_circle</mat-icon>
             <span translate>{{ 'home.benefits.item2' }}</span>
           </li>
-          <li class="benefits__item">
-            <mat-icon class="benefits__check">check_circle</mat-icon>
+          <li class="flex items-start gap-3 text-on-surface">
+            <mat-icon class="text-emerald shrink-0">check_circle</mat-icon>
             <span translate>{{ 'home.benefits.item3' }}</span>
           </li>
-          <li class="benefits__item">
-            <mat-icon class="benefits__check">check_circle</mat-icon>
+          <li class="flex items-start gap-3 text-on-surface">
+            <mat-icon class="text-emerald shrink-0">check_circle</mat-icon>
             <span translate>{{ 'home.benefits.item4' }}</span>
           </li>
         </ul>
       </div>
-      <div class="benefits__image">
-        <mat-icon class="benefits__icon">fact_check</mat-icon>
+      <div class="hidden md:grid place-items-center">
+        <span class="grid place-items-center size-56 rounded-2xl bg-surface-container-lowest shadow-md">
+          <mat-icon class="size-28! text-[7rem]! text-primary">fact_check</mat-icon>
+        </span>
       </div>
     </div>
   </section>
 
-  <!-- CTA Section -->
-  <section class="cta">
-    <div class="cta__content">
-      <h2 class="cta__title">{{ 'home.cta.title' | translate }}</h2>
-      <p class="cta__subtitle">{{ 'home.cta.subtitle' | translate }}</p>
-      <button 
-        mat-raised-button 
-        color="primary" 
-        class="cta__button"
-        (click)="login()">
+  <!-- CTA -->
+  <section class="kv-page py-16! text-center">
+    <div class="kv-card max-w-3xl mx-auto flex flex-col items-center gap-4 py-12!">
+      <h2 class="kv-title">{{ 'home.cta.title' | translate }}</h2>
+      <p class="kv-subtitle max-w-xl">{{ 'home.cta.subtitle' | translate }}</p>
+      <button type="button" class="kv-btn-primary px-6! py-3! mt-2" (click)="login()">
         <mat-icon>login</mat-icon>
-        <span>{{ 'home.cta.button' | translate }}</span>
+        {{ 'home.cta.button' | translate }}
       </button>
     </div>
   </section>
-
 </div>

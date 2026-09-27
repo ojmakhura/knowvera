@@ -14,7 +14,6 @@ import { ClientRequestApi } from '@app/services/bw/co/knowvera/organisation/clie
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { AppEnvStore } from '@app/store/app-env.state';
-import { ToastrService } from 'ngx-toastr';
 
 describe('OrganisationDetails', () => {
   let component: OrganisationDetails;
@@ -67,10 +66,6 @@ describe('OrganisationDetails', () => {
   const appEnvStoreMock = {
     userOrganisation: () => ({ id: null }),
   };
-  const toastrMock = {
-    success: () => undefined,
-    error: () => undefined,
-  };
   const dialogMock = {
     open: () => ({ afterClosed: () => ({ subscribe: () => ({}) }) }),
   };
@@ -92,7 +87,6 @@ describe('OrganisationDetails', () => {
         { provide: DocumentApi, useValue: documentApiMock },
         { provide: DocumentApiStore, useValue: documentApiStoreMock },
         { provide: AppEnvStore, useValue: appEnvStoreMock },
-        { provide: ToastrService, useValue: toastrMock },
       ],
     }).compileComponents();
 

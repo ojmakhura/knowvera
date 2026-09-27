@@ -1,18 +1,19 @@
+import { MatIconModule } from '@angular/material/icon';
 import Keycloak from 'keycloak-js';
 import { JsonPipe, KeyValuePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, OnInit, signal, AfterViewInit, OnDestroy, effect, inject, linkedSignal } from '@angular/core';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
-import { ToastrService } from 'ngx-toastr';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
 import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
 import { swalFire } from '@app/@shared/swal-loader';
+import { toast } from '@app/@shared/toast';
 
 type InsightTab = 'signals' | 'extracted' | 'content' | 'verification';
 type HeroStatus = 'PENDING' | 'VERIFIED' | 'REJECTED';
 
 @Component({
   selector: 'app-document-details',
-  imports: [JsonPipe, KeyValuePipe],
+  imports: [JsonPipe, KeyValuePipe, MatIconModule],
   templateUrl: './document-details.html',
   styleUrl: './document-details.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,7 +21,7 @@ type HeroStatus = 'PENDING' | 'VERIFIED' | 'REJECTED';
 export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
   readonly id = input<string>();
-  toaster: ToastrService = inject(ToastrService);
+  toaster = toast;
   readonly documentApiStore = inject(DocumentApiStore);
   private readonly keycloak = inject(Keycloak);
 

@@ -14,7 +14,7 @@ import { DocumentSearchCriteria } from '@app/models/bw/co/knowvera/document/docu
 import { DocumentListDTO } from '@app/models/bw/co/knowvera/document/document-list-dto';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
-import { toast } from 'ngx-sonner';
+import { toast } from '@app/@shared/toast';
 
 export type DocumentApiState = AppState<DocumentDTO, DocumentListDTO> & {};
 

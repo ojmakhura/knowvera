@@ -1,24 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { MatDividerModule } from '@angular/material/divider';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
 import Keycloak from 'keycloak-js';
-import { toast, NgxSonnerToaster } from 'ngx-sonner';
+import { NgxSonnerToaster } from 'ngx-sonner';
+import { toast } from '@app/@shared/toast';
 
 import { AppEnvStore } from '@app/store/app-env.state';
 import { Loader } from '@app/@shared/loader/loader';
-
-interface NavigationItem {
-  label: string;
-  route: string;
-  icon: string;
-  exact?: boolean;
-}
+import { mobileMenuItems, menuItems } from './navigation';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, MatMenuModule, MatDividerModule, NgxSonnerToaster, Loader],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, NgxSonnerToaster, Loader],
   templateUrl: './shell.html',
   styleUrls: ['./shell.scss'],
 })
@@ -27,40 +21,54 @@ export class Shell {
   protected readonly profile = this.appEnvState.profile;
 
   private readonly keycloak = inject(Keycloak);
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
   protected readonly toast = toast;
 
+  protected readonly menuItems = menuItems;
+  protected readonly mobileMenuItems = mobileMenuItems;
+  protected readonly accountMenuOpen = signal(false);
+
   protected readonly isLoggedIn = computed(() => this.appEnvState.isLoggedIn());
-  protected readonly displayName = computed(() => {
-    const profile = this.profile();
 
-    return profile?.firstName?.trim() || profile?.username || 'Account';
+  protected readonly userDisplayName = computed(() => {
+    const profile = this.profile();
+    const fullName = `${profile?.firstName || ''} ${profile?.lastName || ''}`.trim();
+
+    return fullName || profile?.username || 'Account';
   });
 
-  protected readonly accountUri = computed(() => this.appEnvState.accountUri());
+  protected readonly userEmail = computed(() => this.profile()?.email || this.profile()?.username || '');
 
-  protected readonly desktopNavigationItems = computed<NavigationItem[]>(() => [
-    { label: 'Dashboard', route: '/dashboard', icon: 'dashboard', exact: true },
-    { label: 'Identities', route: '/individual', icon: 'fingerprint' },
-    { label: 'Verifications', route: '/kyc-record', icon: 'verified_user' },
-    { label: 'Risk Alerts', route: '/dashboard', icon: 'warning' },
-    { label: 'Institutions', route: '/organisation', icon: 'business' },
-  ]);
-
-  protected readonly mobileNavigationItems = computed<NavigationItem[]>(() => [
-    { label: 'Dashboard', route: '/dashboard', icon: 'dashboard', exact: true },
-    { label: 'Identities', route: '/individual', icon: 'fingerprint' },
-    { label: 'Cases', route: '/kyc-record', icon: 'folder_special' },
-    { label: 'Settings', route: '/organisation', icon: 'settings' },
-  ]);
-
-  protected readonly accountInitials = computed(() => {
+  protected readonly userInitials = computed(() => {
     const profile = this.profile();
-    const first = profile?.firstName?.trim()?.[0] ?? '';
-    const last = profile?.lastName?.trim()?.[0] ?? '';
-    const username = profile?.username?.trim()?.[0] ?? '';
+    const initials = `${profile?.firstName?.trim()?.[0] ?? ''}${profile?.lastName?.trim()?.[0] ?? ''}`;
 
-    return ((`${first}${last}`.trim() || username || 'K')).toUpperCase();
+    return (initials || profile?.username?.slice(0, 2) || 'K').toUpperCase();
   });
+
+  protected readonly profileUrl = computed(() => this.appEnvState.accountUri());
+
+  protected toggleAccountMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.accountMenuOpen.update((open) => !open);
+  }
+
+  protected closeAccountMenu(): void {
+    this.accountMenuOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as Node | null;
+    if (target && !this.elementRef.nativeElement.contains(target)) {
+      this.accountMenuOpen.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    this.accountMenuOpen.set(false);
+  }
 
   protected async login(): Promise<void> {
     await this.keycloak.login({
@@ -70,6 +78,7 @@ export class Shell {
   }
 
   protected logout(): void {
+    this.accountMenuOpen.set(false);
     this.keycloak.logout();
     this.appEnvState.reset();
   }

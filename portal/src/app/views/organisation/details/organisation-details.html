@@ -1,369 +1,362 @@
 <app-loader [isLoading]="loading()" [message]="loaderMessage()"></app-loader>
 
-<div class="page-container">
-  <main class="kyc-page-shell">
-    <!-- Hero Header -->
-    <header class="kyc-hero-card hero-card hero-primary">
-      <div class="kyc-hero-content">
-        <div class="kyc-hero-copy">
-          <div class="flex flex-wrap items-center gap-3 mb-2">
-            <h1 class="section-title mb-0 text-start">{{ organisation()?.name || 'Organisation Profile' }}</h1>
+<div class="kv-page">
+  <!-- Header -->
+  <header class="dp-header">
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <span>Organisation</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">{{ organisation()?.name || 'Organisation Profile' }}</span>
+    </nav>
+
+    <div class="kv-page-header">
+      <div class="min-w-0 flex flex-col gap-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <h1 class="kv-title">{{ organisation()?.name || 'Organisation Profile' }}</h1>
+          @if (organisation()?.code) {
+            <span class="dp-code">{{ organisation()?.code }}</span>
+          }
+          <span class="dp-entity-pill">
+            <mat-icon>business</mat-icon>
+            Legal Entity
+          </span>
+        </div>
+
+        @if (organisation()) {
+          <p class="kv-subtitle max-w-2xl">
+            {{ organisation()?.description || 'Leading organization specializing in advanced technological infrastructure and global compliance.' }}
+          </p>
+
+          <div class="flex flex-wrap items-center gap-2">
             @if (organisation()?.kycStatus) {
-              <span class="kyc-status-pill kyc-status-pill--current">
+              <span class="dp-pill is-success">
+                <mat-icon>verified</mat-icon>
                 {{ formatStatus(organisation()?.kycStatus) }}
               </span>
             }
+            @if (organisation()?.registrationNo) {
+              <span class="dp-pill">Reg {{ organisation()?.registrationNo }}</span>
+            }
+            @if (organisation()?.registrationDate) {
+              <span class="dp-pill">Est. {{ organisation()?.registrationDate | date:'mediumDate' }}</span>
+            }
+            @if (organisation()?.countryOfRegistration) {
+              <span class="dp-pill is-info">
+                <mat-icon>public</mat-icon>
+                {{ organisation()?.countryOfRegistration }}
+              </span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="kv-actions">
+        <button type="button" class="kv-btn-secondary" (click)="openEditOrganisation()">
+          <mat-icon>edit</mat-icon>
+          Edit Profile
+        </button>
+        <button type="button" class="kv-btn-primary" (click)="openEditOrganisation()">
+          <mat-icon>cloud_upload</mat-icon>
+          Save/Upload
+        </button>
+      </div>
+    </div>
+  </header>
+
+  @if (organisation()) {
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+      <div class="xl:col-span-8 flex flex-col gap-6">
+        <!-- Core Identity -->
+        <section class="kv-card">
+          <div class="kv-card-header dp-head">
+            <span class="dp-icon-tile"><mat-icon>fingerprint</mat-icon></span>
+            <div class="dp-head-copy">
+              <h2 class="kv-card-title">Core Identity</h2>
+              <p class="dp-head-sub">Registration and jurisdiction details</p>
+            </div>
           </div>
 
-          @if (organisation()) {
-            <p class="kyc-hero-subtitle">
-              {{ organisation()?.description || 'Leading organization specializing in advanced technological infrastructure and global compliance.' }}
-            </p>
+          <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="kv-field">
+              <dt class="kv-label">Registration No</dt>
+              <dd class="kv-value dp-mono">{{ organisation()?.registrationNo || '-' }}</dd>
+            </div>
+            <div class="kv-field">
+              <dt class="kv-label">Jurisdiction</dt>
+              <dd class="kv-value">{{ organisation()?.countryOfRegistration || '-' }}</dd>
+            </div>
+            <div class="kv-field">
+              <dt class="kv-label">Incorporation Date</dt>
+              <dd class="kv-value">{{ formatSubscriptionDate(organisation()?.registrationDate) || '-' }}</dd>
+            </div>
+            <div class="kv-field">
+              <dt class="kv-label">Status</dt>
+              <dd class="kv-value">{{ formatStatus(organisation()?.status) || '-' }}</dd>
+            </div>
+          </dl>
+        </section>
 
-            <div class="kyc-meta-row">
-              @if (organisation()?.registrationNo) {
-                <span class="kyc-meta-pill">Reg {{ organisation()?.registrationNo }}</span>
-              }
-              @if (organisation()?.registrationDate) {
-                <span class="kyc-meta-pill">Est. {{ organisation()?.registrationDate | date:'mediumDate' }}</span>
-              }
-              @if (organisation()?.countryOfRegistration) {
-                <span class="kyc-meta-pill">{{ organisation()?.countryOfRegistration }}</span>
+        <!-- Infrastructure -->
+        <section class="kv-card">
+          <div class="kv-card-header dp-head">
+            <span class="dp-icon-tile"><mat-icon>dns</mat-icon></span>
+            <div class="dp-head-copy">
+              <h2 class="kv-card-title">Infrastructure</h2>
+              <p class="dp-head-sub">Registered domains and digital presence</p>
+            </div>
+          </div>
+
+          @if (organisation()?.domains && organisation()?.domains.length > 0) {
+            <div class="flex flex-col gap-2">
+              @for (domain of organisation()?.domains; track domain.id) {
+                <div class="dp-list-item" [class.is-primary]="domain.verified" [class.is-warning]="!domain.verified">
+                  <span class="dp-inline-icon dp-strong text-sm">
+                    <mat-icon>language</mat-icon>
+                    {{ domain.domain }}
+                  </span>
+                  <span class="kv-chip" [class]="domain.verified ? 'kv-tone-success' : 'kv-tone-warning'">
+                    {{ domain.verified ? 'Verified' : 'Pending' }}
+                  </span>
+                </div>
               }
             </div>
+          } @else {
+            <p class="dp-empty-text">No domains registered</p>
           }
-        </div>
+        </section>
 
-        <div class="hero-actions kyc-hero-actions">
-          <button type="button" class="btn btn-outline-light btn-sm font-bold uppercase" (click)="openEditOrganisation()">
-            <mat-icon>edit</mat-icon>
-            Edit Profile
-          </button>
-          <button type="button" class="btn btn-success btn-sm font-bold uppercase shadow-sm" (click)="openEditOrganisation()">
-            <mat-icon>cloud_upload</mat-icon>
-            Save/Upload
-          </button>
-        </div>
-      </div>
-    </header>
+        <!-- Operations -->
+        <section class="kv-card">
+          <div class="kv-card-header dp-head">
+            <span class="dp-icon-tile"><mat-icon>view_list</mat-icon></span>
+            <div class="dp-head-copy">
+              <h2 class="kv-card-title">Operations</h2>
+              <p class="dp-head-sub">Compliance, subscriptions, and organisational records</p>
+            </div>
+          </div>
 
-    @if (organisation()) {
-      <div class="grid grid-cols-12 gap-4">
-        <!-- Left Column -->
-        <div class="col-span-12 xl:col-span-8 flex flex-col gap-4">
-          <!-- Core Identity Card -->
-          <section class="kyc-card">
-            <div class="kyc-card__header">
-              <div class="kyc-icon-badge">
-                <mat-icon>fingerprint</mat-icon>
-              </div>
-              <div>
-                <h2>Core Identity</h2>
-                <p>Registration and jurisdiction details</p>
-              </div>
-            </div>
-            <div class="kyc-card__body">
-              <div class="grid grid-cols-12 gap-4">
-                <div class="col-span-12 md:col-span-6">
-                  <label class="kyc-field-label">Registration No</label>
-                  <p class="kyc-value">{{ organisation()?.registrationNo || '-' }}</p>
-                </div>
-                <div class="col-span-12 md:col-span-6">
-                  <label class="kyc-field-label">Jurisdiction</label>
-                  <p class="kyc-value">{{ organisation()?.countryOfRegistration || '-' }}</p>
-                </div>
-                <div class="col-span-12 md:col-span-6">
-                  <label class="kyc-field-label">Incorporation Date</label>
-                  <p class="kyc-value">{{ formatSubscriptionDate(organisation()?.registrationDate) || '-' }}</p>
-                </div>
-                <div class="col-span-12 md:col-span-6">
-                  <label class="kyc-field-label">Status</label>
-                  <p class="kyc-value">{{ formatStatus(organisation()?.status) || '-' }}</p>
-                </div>
-              </div>
-            </div>
-          </section>
+          <div class="flex flex-wrap gap-2 mb-6" role="tablist">
+            @for (tab of operationsTabs; let i = $index; track i) {
+              <button
+                type="button"
+                role="tab"
+                class="kv-choice"
+                [class.is-active]="activeTab() === i"
+                [attr.aria-selected]="activeTab() === i"
+                (click)="setActiveTab(i)">
+                {{ tab.label }}
+              </button>
+            }
+          </div>
 
-          <!-- Infrastructure Card -->
-          <section class="kyc-card">
-            <div class="kyc-card__header">
-              <div class="kyc-icon-badge">
-                <mat-icon>dns</mat-icon>
+          <!-- Compliance Archive -->
+          @if (activeTab() === 0) {
+            @if (organisationDocuments() && organisationDocuments().length > 0) {
+              <div class="dp-table-wrap">
+                <table class="dp-table">
+                  <thead>
+                    <tr>
+                      <th>Document Type</th>
+                      <th>Upload Date</th>
+                      <th>Reference ID</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (doc of organisationDocuments(); track doc.id; let i = $index) {
+                      @if (i < 5) {
+                        <tr>
+                          <td class="dp-strong">{{ doc.documentType || 'Document' }}</td>
+                          <td>{{ formatSubscriptionDate(doc.createdAt) }}</td>
+                          <td class="dp-mono">{{ doc.id || '-' }}</td>
+                          <td>
+                            <span class="kv-chip" [class]="doc.verificationStatus === 'VERIFIED' ? 'kv-tone-success' : 'kv-tone-warning'">
+                              {{ formatStatus(doc.verificationStatus) }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    }
+                  </tbody>
+                </table>
               </div>
-              <div>
-                <h2>Infrastructure</h2>
-                <p>Registered domains and digital presence</p>
+            } @else {
+              <p class="dp-empty-text">No compliance documents</p>
+            }
+          }
+
+          <!-- Subscriptions -->
+          @if (activeTab() === 1) {
+            @if (subscriptions() && subscriptions().length > 0) {
+              <div class="dp-table-wrap">
+                <table class="dp-table">
+                  <thead>
+                    <tr>
+                      <th>Service</th>
+                      <th>Ref ID</th>
+                      <th>Period</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (sub of subscriptions(); track sub.id; let i = $index) {
+                      @if (i < 5) {
+                        <tr>
+                          <td class="dp-strong">{{ sub.organisationName || 'Service' }}</td>
+                          <td class="dp-mono">{{ sub.ref || '-' }}</td>
+                          <td>{{ sub.period || '-' }}</td>
+                          <td>{{ sub.amount || '-' }}</td>
+                          <td>
+                            <span class="kv-chip" [class]="sub.status?.toUpperCase() === 'ACTIVE' ? 'kv-tone-success' : 'kv-tone-neutral'">
+                              {{ formatStatus(sub.status) }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    }
+                  </tbody>
+                </table>
               </div>
-            </div>
-            <div class="kyc-card__body">
-              @if (organisation()?.domains && organisation()?.domains.length > 0) {
-                <div class="kyc-summary-list">
-                  @for (domain of organisation()?.domains; track domain.id) {
-                    <div class="kyc-summary-item">
-                      <div>
-                        <p class="kyc-summary-item__title">{{ domain.domain }}</p>
+            } @else {
+              <p class="dp-empty-text">No subscriptions</p>
+            }
+          }
+
+          <!-- Branches -->
+          @if (activeTab() === 2) {
+            @if (branches() && branches().length > 0) {
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @for (branch of branches(); track branch.id; let i = $index) {
+                  @if (i < 4) {
+                    <div class="dp-group">
+                      <div class="flex items-center justify-between gap-2">
+                        <p class="dp-tile-title">{{ branch.name || branch.code }}</p>
+                        <span class="dp-code dp-code--sm">{{ branch.code }}</span>
                       </div>
-                      <div class="kyc-summary-pill" [class.kyc-summary-pill--verified]="domain.verified" [class.kyc-summary-pill--warning]="!domain.verified">
-                        {{ domain.verified ? 'Verified' : 'Pending' }}
-                      </div>
+                      <p class="dp-list-sub dp-inline-icon">
+                        <mat-icon>location_on</mat-icon>
+                        {{ branch.physicalAddress || '-' }}
+                      </p>
                     </div>
                   }
+                }
+              </div>
+            } @else {
+              <p class="dp-empty-text">No branches</p>
+            }
+          }
+
+          <!-- Individual KYC -->
+          @if (activeTab() === 3) {
+            <p class="dp-head-sub mb-4">Displaying key personnel and UBOs.</p>
+            @if (individualRequestsList() && individualRequestsList().length > 0) {
+              <div class="dp-table-wrap">
+                <table class="dp-table">
+                  <thead>
+                    <tr>
+                      <th>Name / Role</th>
+                      <th>Reg Date</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (request of individualRequestsList(); track request.id; let i = $index) {
+                      @if (i < 5) {
+                        <tr>
+                          <td>
+                            <p class="dp-strong">{{ request.name || '-' }}</p>
+                            <p class="dp-list-sub">ID Verification</p>
+                          </td>
+                          <td>{{ formatSubscriptionDate(request.createdAt) }}</td>
+                          <td>
+                            <span class="kv-chip" [class]="request.status?.toUpperCase() === 'ACCEPTED' ? 'kv-tone-success' : 'kv-tone-warning'">
+                              {{ formatStatus(request.status) }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <p class="dp-empty-text">No individual KYC records</p>
+            }
+          }
+
+          <!-- Corporate KYC -->
+          @if (activeTab() === 4) {
+            <p class="dp-head-sub mb-4">Displaying subsidiary entities.</p>
+            @if (clientRequests() && clientRequests().length > 0) {
+              <div class="dp-table-wrap">
+                <table class="dp-table">
+                  <thead>
+                    <tr>
+                      <th>Entity Name</th>
+                      <th>Registry</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (request of clientRequests(); track request.id; let i = $index) {
+                      @if (i < 5) {
+                        <tr>
+                          <td class="dp-strong">{{ request.organisation || '-' }}</td>
+                          <td class="dp-mono">{{ request.organisationRegistrationNo || '-' }}</td>
+                          <td>
+                            <span class="kv-chip" [class]="request.status?.toUpperCase() === 'ACCEPTED' ? 'kv-tone-success' : 'kv-tone-warning'">
+                              {{ formatStatus(request.status) }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <p class="dp-empty-text">No corporate KYC records</p>
+            }
+          }
+        </section>
+      </div>
+
+      <!-- Contact Information -->
+      <aside class="xl:col-span-4">
+        <section class="kv-card">
+          <div class="kv-card-header dp-head">
+            <span class="dp-icon-tile"><mat-icon>contact_mail</mat-icon></span>
+            <div class="dp-head-copy">
+              <h2 class="kv-card-title">Contact Information</h2>
+              <p class="dp-head-sub">Communication channels and addresses</p>
+            </div>
+          </div>
+
+          <dl class="flex flex-col gap-4">
+            <div class="kv-field">
+              <dt class="kv-label">Email</dt>
+              <dd class="kv-value">{{ organisation()?.contactEmailAddress || '-' }}</dd>
+            </div>
+            @for (phone of organisation()?.phoneNumbers || []; track phone.id; let i = $index) {
+              @if (i < 2) {
+                <div class="kv-field">
+                  <dt class="kv-label">{{ phone.type || 'Phone' }}</dt>
+                  <dd class="kv-value">{{ phone.number || '-' }}</dd>
                 </div>
-              } @else {
-                <p class="kyc-empty-state">No domains registered</p>
               }
+            }
+            <div class="kv-field dp-divider">
+              <dt class="kv-label">Physical Address</dt>
+              <dd class="kv-value dp-address">{{ organisation()?.physicalAddress || '-' }}</dd>
             </div>
-          </section>
-
-          <!-- Operations Card (Tabs) -->
-          <section class="kyc-card">
-            <div class="kyc-card__header">
-              <div class="kyc-icon-badge">
-                <mat-icon>view_list</mat-icon>
-              </div>
-              <div>
-                <h2>Operations</h2>
-                <p>Compliance, subscriptions, and organisational records</p>
-              </div>
+            <div class="kv-field">
+              <dt class="kv-label">Postal Address</dt>
+              <dd class="kv-value dp-address dp-muted">{{ organisation()?.postalAddress || 'Same as physical address' }}</dd>
             </div>
-            <div class="kyc-card__body">
-              <div class="kyc-tab-group">
-                @for (tab of operationsTabs; let i = $index; track i) {
-                  <button 
-                    type="button"
-                    [class.kyc-tab--active]="activeTab() === i"
-                    class="kyc-tab"
-                    (click)="setActiveTab(i)">
-                    {{ tab.label }}
-                  </button>
-                }
-              </div>
-
-              <div style="margin-top: 1.5rem;">
-                <!-- Compliance Archive Tab -->
-                @if (activeTab() === 0) {
-                  <div>
-                    @if (organisationDocuments() && organisationDocuments().length > 0) {
-                      <table class="kyc-table">
-                        <thead>
-                          <tr>
-                            <th>Document Type</th>
-                            <th>Upload Date</th>
-                            <th>Reference ID</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (doc of organisationDocuments(); track doc.id; let i = $index) {
-                            @if (i < 5) {
-                              <tr>
-                                <td class="kyc-table__field">{{ doc.documentType || 'Document' }}</td>
-                                <td>{{ formatSubscriptionDate(doc.createdAt) }}</td>
-                                <td>{{ doc.id || '-' }}</td>
-                                <td>
-                                  <span class="kyc-summary-pill" [class.kyc-summary-pill--verified]="doc.verificationStatus === 'VERIFIED'" [class.kyc-summary-pill--warning]="doc.verificationStatus !== 'VERIFIED'">
-                                    {{ formatStatus(doc.verificationStatus) }}
-                                  </span>
-                                </td>
-                              </tr>
-                            }
-                          }
-                        </tbody>
-                      </table>
-                    } @else {
-                      <p class="kyc-empty-state">No compliance documents</p>
-                    }
-                  </div>
-                }
-
-                <!-- Subscriptions Tab -->
-                @if (activeTab() === 1) {
-                  <div>
-                    @if (subscriptions() && subscriptions().length > 0) {
-                      <table class="kyc-table">
-                        <thead>
-                          <tr>
-                            <th>Service</th>
-                            <th>Ref ID</th>
-                            <th>Period</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (sub of subscriptions(); track sub.id; let i = $index) {
-                            @if (i < 5) {
-                              <tr>
-                                <td class="kyc-table__field">{{ sub.organisationName || 'Service' }}</td>
-                                <td>{{ sub.ref || '-' }}</td>
-                                <td>{{ sub.period || '-' }}</td>
-                                <td>{{ sub.amount || '-' }}</td>
-                                <td>
-                                  <span class="kyc-summary-pill" [class.kyc-summary-pill--verified]="sub.status?.toUpperCase() === 'ACTIVE'" [class.kyc-summary-pill--neutral]="sub.status?.toUpperCase() !== 'ACTIVE'">
-                                    {{ formatStatus(sub.status) }}
-                                  </span>
-                                </td>
-                              </tr>
-                            }
-                          }
-                        </tbody>
-                      </table>
-                    } @else {
-                      <p class="kyc-empty-state">No subscriptions</p>
-                    }
-                  </div>
-                }
-
-                <!-- Branches Tab -->
-                @if (activeTab() === 2) {
-                  <div>
-                    @if (branches() && branches().length > 0) {
-                      <div class="kyc-summary-list">
-                        @for (branch of branches(); track branch.id; let i = $index) {
-                          @if (i < 4) {
-                            <div class="kyc-summary-item">
-                              <div class="grow">
-                                <p class="kyc-summary-item__title">{{ branch.name || branch.code }}</p>
-                                <p class="kyc-summary-item__meta">
-                                  <mat-icon class="text-sm">location_on</mat-icon>
-                                  {{ branch.physicalAddress || '-' }}
-                                </p>
-                              </div>
-                              <div class="kyc-count-pill">{{ branch.code }}</div>
-                            </div>
-                          }
-                        }
-                      </div>
-                    } @else {
-                      <p class="kyc-empty-state">No branches</p>
-                    }
-                  </div>
-                }
-
-                <!-- Individual KYC Tab -->
-                @if (activeTab() === 3) {
-                  <div>
-                    <p class="kyc-subheading" style="margin-bottom: 1rem;">Displaying key personnel and UBOs.</p>
-                    @if (individualRequestsList() && individualRequestsList().length > 0) {
-                      <table class="kyc-table">
-                        <thead>
-                          <tr>
-                            <th>Name / Role</th>
-                            <th>Reg Date</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (request of individualRequestsList(); track request.id; let i = $index) {
-                            @if (i < 5) {
-                              <tr>
-                                <td>
-                                  <p class="kyc-value mb-0">{{ request.name || '-' }}</p>
-                                  <p class="kyc-summary-item__meta">ID Verification</p>
-                                </td>
-                                <td>{{ formatSubscriptionDate(request.createdAt) }}</td>
-                                <td>
-                                  <span class="kyc-summary-pill" [class.kyc-summary-pill--verified]="request.status?.toUpperCase() === 'ACCEPTED'" [class.kyc-summary-pill--warning]="request.status?.toUpperCase() !== 'ACCEPTED'">
-                                    {{ formatStatus(request.status) }}
-                                  </span>
-                                </td>
-                              </tr>
-                            }
-                          }
-                        </tbody>
-                      </table>
-                    } @else {
-                      <p class="kyc-empty-state">No individual KYC records</p>
-                    }
-                  </div>
-                }
-
-                <!-- Corporate KYC Tab -->
-                @if (activeTab() === 4) {
-                  <div>
-                    <p class="kyc-subheading" style="margin-bottom: 1rem;">Displaying subsidiary entities.</p>
-                    @if (clientRequests() && clientRequests().length > 0) {
-                      <table class="kyc-table">
-                        <thead>
-                          <tr>
-                            <th>Entity Name</th>
-                            <th>Registry</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (request of clientRequests(); track request.id; let i = $index) {
-                            @if (i < 5) {
-                              <tr>
-                                <td class="kyc-table__field">{{ request.organisation || '-' }}</td>
-                                <td>{{ request.organisationRegistrationNo || '-' }}</td>
-                                <td>
-                                  <span class="kyc-summary-pill" [class.kyc-summary-pill--verified]="request.status?.toUpperCase() === 'ACCEPTED'" [class.kyc-summary-pill--warning]="request.status?.toUpperCase() !== 'ACCEPTED'">
-                                    {{ formatStatus(request.status) }}
-                                  </span>
-                                </td>
-                              </tr>
-                            }
-                          }
-                        </tbody>
-                      </table>
-                    } @else {
-                      <p class="kyc-empty-state">No corporate KYC records</p>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-          </section>
-        </div>
-
-        <!-- Right Column: Contact Info -->
-        <div class="col-span-12 xl:col-span-4">
-          <section class="kyc-card">
-            <div class="kyc-card__header">
-              <div class="kyc-icon-badge">
-                <mat-icon>contact_mail</mat-icon>
-              </div>
-              <div>
-                <h2>Contact Information</h2>
-                <p>Communication channels and addresses</p>
-              </div>
-            </div>
-            <div class="kyc-card__body">
-              <div class="kyc-summary-list">
-                <div class="kyc-summary-item">
-                  <div class="grow">
-                    <label class="kyc-field-label">Email</label>
-                    <p class="kyc-value" style="font-size: 0.9rem;">{{ organisation()?.contactEmailAddress || '-' }}</p>
-                  </div>
-                </div>
-                @for (phone of organisation()?.phoneNumbers || []; track phone.id; let i = $index) {
-                  @if (i < 2) {
-                    <div class="kyc-summary-item">
-                      <div class="grow">
-                        <label class="kyc-field-label">{{ phone.type || 'Phone' }}</label>
-                        <p class="kyc-value" style="font-size: 0.9rem;">{{ phone.number || '-' }}</p>
-                      </div>
-                    </div>
-                  }
-                }
-                <div class="kyc-summary-item">
-                  <div class="grow">
-                    <label class="kyc-field-label">Physical Address</label>
-                    <p class="kyc-value" style="font-size: 0.9rem; white-space: pre-wrap;">{{ organisation()?.physicalAddress || '-' }}</p>
-                  </div>
-                </div>
-                <div class="kyc-summary-item">
-                  <div class="grow">
-                    <label class="kyc-field-label">Postal Address</label>
-                    <p class="kyc-value kyc-value--muted" style="font-size: 0.9rem; white-space: pre-wrap;">{{ organisation()?.postalAddress || 'Same as physical address' }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-      </div>
-    }
-  </main>
+          </dl>
+        </section>
+      </aside>
+    </div>
+  }
 </div>

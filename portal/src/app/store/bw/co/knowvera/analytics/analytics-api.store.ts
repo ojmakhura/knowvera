@@ -9,7 +9,7 @@ import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { CountDTO } from '@app/models/bw/co/knowvera/analytics/count-dto';
 import { AnalyticsApi } from '@app/services/bw/co/knowvera/analytics/analytics-api';
-import { toast } from 'ngx-sonner';
+import { toast } from '@app/@shared/toast';
 
 export type AnalyticsApiState = AppState<any, any> & {};
 

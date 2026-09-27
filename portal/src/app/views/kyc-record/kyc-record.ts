@@ -8,11 +8,11 @@ import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-ap
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { Loader } from '@app/@shared/loader/loader';
-import { ToastrService } from 'ngx-toastr';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
+import { toast } from '@app/@shared/toast';
 
 @Component({
   selector: 'app-kyc-record',
@@ -54,7 +54,7 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
   updatingDocument: DocumentDTO | null = null;
 
   private route = inject(ActivatedRoute);
-  toaster: ToastrService = inject(ToastrService);
+  toaster = toast;
 
   loading = linkedSignal(() => this.kycRecordApiStore.loading());
   error = linkedSignal(() => this.kycRecordApiStore.error());
@@ -68,7 +68,7 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
 
       let success = this.success();
       if(success) {
-        this.toaster.success(this.messages()[0], "Success");
+        this.toaster.success(this.messages()[0]);
 
       }
     });
@@ -76,7 +76,7 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
     effect(() => {
       let error = this.error();
       if(error) {
-        this.toaster.error("An error occurred: " + JSON.stringify(error), "Error");
+        this.toaster.error("An error occurred: " + JSON.stringify(error));
 
       }
     });

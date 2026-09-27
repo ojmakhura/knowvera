@@ -11,7 +11,7 @@ import { KycInvoiceDTO } from '@app/models/bw/co/knowvera/invoice/kyc-invoice-dt
 import { KycInvoiceApi } from '@app/services/bw/co/knowvera/invoice/kyc-invoice-api';
 import { InvoiceSearchCriteria } from '@app/models/bw/co/knowvera/invoice/invoice-search-criteria';
 import { UploadPurpose } from '@app/models/bw/co/knowvera/invoice/upload-purpose';
-import { toast } from 'ngx-sonner';
+import { toast } from '@app/@shared/toast';
 
 export type KycInvoiceApiState = AppState<KycInvoiceDTO, KycInvoiceDTO> & {};
 

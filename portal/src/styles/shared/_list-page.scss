@@ -1,0 +1,321 @@
+@use 'ui';
+
+// Building blocks for the search/list routes (individuals, records, subscriptions, documents, document types),
+// expressed with the shared UI primitives so list pages match the edit screens.
+//
+//   @use 'shared/list-page';
+//   @include list-page.page('.records-page');
+
+/// `:host` display plus the centered page column.
+@mixin page($page) {
+	:host {
+		display: block;
+	}
+
+	#{$page} {
+		@include ui.page;
+	}
+}
+
+/// Title row and page title.
+@mixin page-header {
+	.page-header {
+		@include ui.page-header;
+	}
+
+	.page-title {
+		@include ui.page-title;
+	}
+
+	.page-subtitle {
+		@include ui.page-subtitle;
+	}
+}
+
+/// Card surface shared by the filter card, results card and metric/insight tiles.
+@mixin cards {
+	.vault-card,
+	.results-card,
+	.metric-card,
+	.insight-card {
+		@include ui.card;
+		margin-bottom: 1.5rem;
+	}
+
+	// The results card hosts a mat-table that runs edge to edge.
+	.results-card {
+		padding: 0;
+		overflow: hidden;
+	}
+
+	:host ::ng-deep .vault-card > .mat-mdc-card-content {
+		padding: 0;
+	}
+}
+
+/// Three-column filter form with a right-aligned action row.
+@mixin filters {
+	.filter-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+	}
+
+	.field-group {
+		@include ui.field;
+	}
+
+	.field-label {
+		@include ui.label;
+	}
+
+	.filter-actions {
+		grid-column: 1 / -1;
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.75rem;
+	}
+}
+
+/// Rounded status pill with a leading dot; tone classes stay in the component.
+@mixin status-pill {
+	.status-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		padding: 0.25rem 0.625rem;
+		border-radius: 999px;
+		font-size: 0.75rem;
+		line-height: 1rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.025em;
+	}
+
+	.status-dot {
+		width: 0.4rem;
+		height: 0.4rem;
+		border-radius: 999px;
+		background: currentColor;
+	}
+}
+
+/// Name cell with avatar, link-styled entity names, and mono/muted cells.
+@mixin entity-cells {
+	.results-table-wrap {
+		overflow-x: auto;
+	}
+
+	.identity-cell {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-width: 14rem;
+	}
+
+	.avatar {
+		flex-shrink: 0;
+		display: inline-grid;
+		place-items: center;
+		width: 2rem;
+		height: 2rem;
+		border-radius: 999px;
+		font-size: 0.7rem;
+		font-weight: 600;
+		letter-spacing: 0.05em;
+	}
+
+	.tone-primary { @include ui.tone-info; }
+	.tone-secondary { background: var(--primary-container); color: var(--on-primary); }
+	.tone-tertiary { @include ui.tone-danger; }
+
+	.entity-link {
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: var(--primary);
+		font-weight: 600;
+		text-align: left;
+		cursor: pointer;
+
+		&:hover {
+			color: var(--emerald-dark);
+		}
+	}
+
+	.mono-cell {
+		font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+		font-size: 0.8125rem;
+	}
+
+	.muted-cell {
+		color: var(--on-surface-variant);
+	}
+
+	// Icon + name/description stack (documents, document types).
+	.file-cell,
+	.name-cell {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-width: 15rem;
+	}
+
+	.entity-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 2rem;
+		height: 2rem;
+		border-radius: ui.$radius;
+		@include ui.tone-info;
+
+		&.flagged {
+			@include ui.tone-danger;
+		}
+
+		mat-icon {
+			@include ui.icon-size(1rem);
+		}
+	}
+
+	.entity-copy {
+		min-width: 0;
+	}
+
+	.entity-copy p {
+		margin: 0.125rem 0 0;
+		font-size: 0.75rem;
+		line-height: 1rem;
+		color: var(--on-surface-variant);
+	}
+}
+
+/// Right-aligned numeric/action cells and the empty-table message.
+@mixin table-cells {
+	.align-end {
+		text-align: right;
+	}
+
+	.actions-cell {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+	}
+
+	.empty-state {
+		display: grid;
+		place-items: center;
+		gap: 0.5rem;
+		padding: 2rem 1rem;
+		font-size: 0.875rem;
+		color: var(--on-surface-variant);
+	}
+}
+
+/// Footer under the results table: summary text on the left, transparent paginator on the right.
+@mixin results-footer {
+	.results-footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: 0.5rem 1rem;
+		border-top: 1px solid var(--outline-variant);
+	}
+
+	.results-summary {
+		margin: 0;
+		font-size: 0.875rem;
+		color: var(--on-surface-variant);
+	}
+
+	.results-footer .mat-mdc-paginator {
+		background: transparent;
+	}
+}
+
+/// KPI tiles and insight cards shown under the results table.
+@mixin metrics {
+	.metrics-grid,
+	.insights-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1.5rem;
+	}
+
+	.metric-card,
+	.insight-card {
+		margin-bottom: 0;
+	}
+
+	.metrics-grid {
+		margin-bottom: 1.5rem;
+	}
+
+	.metric-label {
+		@include ui.label;
+		margin: 0;
+	}
+
+	.metric-card strong {
+		display: block;
+		margin-top: 0.5rem;
+		font-family: ui.$font-heading;
+		font-size: 1.875rem;
+		line-height: 2.25rem;
+		font-weight: 600;
+		color: var(--primary);
+	}
+
+	.metric-card p,
+	.insight-card p {
+		margin: 0.5rem 0 0;
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+		color: var(--on-surface-variant);
+	}
+
+	// Highlighted tile: same card, emerald accent bar (as on the edit screens' protocol card).
+	.hero-card {
+		border-top: 4px solid var(--emerald);
+	}
+
+	.insight-card mat-icon {
+		@include ui.card-icon;
+		color: var(--emerald);
+	}
+
+	.insight-card h2 {
+		@include ui.card-title;
+		margin-top: 0.5rem;
+	}
+}
+
+/// Tablet/mobile collapse used by the filter + metrics layout.
+@mixin responsive {
+	@media (max-width: 960px) {
+		.filter-grid,
+		.metrics-grid,
+		.insights-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 640px) {
+		.filter-grid,
+		.metrics-grid,
+		.insights-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.filter-actions {
+			flex-direction: column-reverse;
+		}
+
+		.filter-actions > * {
+			width: 100%;
+		}
+	}
+}

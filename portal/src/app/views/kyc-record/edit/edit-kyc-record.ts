@@ -24,7 +24,7 @@ import { PepStatus } from '@app/models/bw/co/knowvera/individual/pep-status';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
-import { ToastrService } from 'ngx-toastr';
+import { toast } from '@app/@shared/toast';
 import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { TranslateModule } from '@ngx-translate/core';
@@ -120,7 +120,7 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
   selectedDocumentType: string = '';
   updatingDocument: DocumentDTO | null = null;
 
-  toaster: ToastrService = inject(ToastrService);
+  toaster = toast;
 
   loading = linkedSignal(() => this.kycRecordApiStore.loading());
   error = linkedSignal(() => this.kycRecordApiStore.error());
@@ -483,7 +483,7 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
     const missingDocumentType = formValue.documentsToUpload.some((doc) => !doc.documentType?.id);
 
     if (missingDocumentType) {
-      this.toaster.error('Select a document type for each attached file.', 'Validation');
+      this.toaster.error('Select a document type for each attached file.');
       return;
     }
 

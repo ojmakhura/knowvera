@@ -11,7 +11,7 @@ import { OrganisationDTO } from '@app/models/bw/co/knowvera/organisation/organis
 import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
 import { OrganisationApi } from '@app/services/bw/co/knowvera/organisation/organisation-api';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
-import { toast } from 'ngx-sonner';
+import { toast } from '@app/@shared/toast';
 
 export type OrganisationApiState = AppState<OrganisationDTO, OrganisationListDTO> & {
   registrationOrganisationLoaded: boolean;

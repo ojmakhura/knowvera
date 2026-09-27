@@ -9,7 +9,7 @@ import { SearchObject } from '@app/models/search-object';
 import { Page } from '@app/models/page.model';
 import { EmploymentRecordDTO } from '@app/models/bw/co/knowvera/individual/employment/employment-record-dto';
 import { EmploymentRecordApi } from '@app/services/bw/co/knowvera/individual/employment/employment-record-api';
-import { toast } from 'ngx-sonner';
+import { toast } from '@app/@shared/toast';
 
 export type EmploymentRecordApiState = AppState<EmploymentRecordDTO, any> & {};
 

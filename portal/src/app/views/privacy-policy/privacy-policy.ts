@@ -1,11 +1,10 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-privacy-policy',
-  imports: [TranslateModule, MatCardModule],
+  imports: [TranslateModule],
   templateUrl: './privacy-policy.html',
   styleUrl: './privacy-policy.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

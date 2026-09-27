@@ -1,116 +1,16 @@
-.register-stepper {
-  &__actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    margin-top: 1rem;
-  }
+@use 'shared/ui';
 
-  &__error {
-    max-width: 600px;
-    margin: 2rem auto;
-  }
+:host {
+  display: block;
 }
 
-.details-section {
-  h3 {
-    margin-bottom: 1.5rem;
-    color: var(--vault-primary);
-    font-weight: 500;
+// Accept/reject options read like the `choice` primitive, emerald when selected.
+.status-option {
+  @include ui.choice;
+  justify-content: flex-start;
+  padding: 0.75rem 1rem;
+
+  &.mat-mdc-radio-checked {
+    @include ui.choice-active;
   }
-
-  .detail-row {
-    display: flex;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid var(--vault-outline-variant);
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    .detail-label {
-      font-weight: 500;
-      min-width: 200px;
-      color: var(--vault-on-surface-variant);
-    }
-
-    .detail-value {
-      flex: 1;
-      color: var(--vault-on-surface);
-    }
-  }
-}
-
-.registration-status-section {
-  padding: 1rem 0;
-
-  .status-radio-group {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .status-radio-option {
-    padding: 1rem;
-    border: 1px solid var(--vault-outline-variant);
-    border-radius: 4px;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background-color: var(--vault-surface-container-low);
-      border-color: var(--vault-outline);
-    }
-
-    &.mat-mdc-radio-checked {
-      border-color: var(--vault-primary);
-      background-color: rgba(0, 27, 68, 0.08);
-    }
-
-    .status-option-content {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      margin-left: 0.5rem;
-
-      .status-option-title {
-        font-weight: 500;
-        font-size: 1rem;
-        color: var(--vault-on-surface);
-      }
-
-      .status-option-description {
-        font-size: 0.875rem;
-        color: var(--vault-on-surface-variant);
-      }
-    }
-  }
-
-  .status-confirmation {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background-color: var(--vault-surface-container-low);
-    border-radius: 4px;
-
-    p {
-      margin: 0;
-      color: var(--vault-on-surface);
-    }
-  }
-}
-
-.full-width {
-  width: 100%;
-}
-
-.loading-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  pointer-events: none;
 }

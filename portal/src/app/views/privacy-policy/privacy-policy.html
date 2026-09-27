@@ -1,22 +1,21 @@
-<div class="privacy-policy">
-  <div class="privacy-policy__container">
-    <header class="privacy-policy__header">
-      <h1 class="privacy-policy__title">{{ 'privacy.title' | translate }}</h1>
-      <p class="privacy-policy__updated">{{ 'privacy.lastUpdated' | translate }}: {{ lastUpdated }}</p>
+<div class="kv-page max-w-4xl!">
+    <header class="mb-6">
+      <h1 class="kv-title">{{ 'privacy.title' | translate }}</h1>
+      <p class="kv-subtitle">{{ 'privacy.lastUpdated' | translate }}: {{ lastUpdated }}</p>
     </header>
 
-    <mat-card class="policy-section">
-      <mat-card-content>
-        <section class="section">
-          <h2 class="section__title">{{ 'privacy.introduction.title' | translate }}</h2>
-          <p class="section__text">{{ 'privacy.introduction.text1' | translate }}</p>
-          <p class="section__text">{{ 'privacy.introduction.text2' | translate }}</p>
+    <article class="kv-card flex flex-col gap-8">
+      
+        <section class="flex flex-col gap-3">
+          <h2 class="kv-card-title">{{ 'privacy.introduction.title' | translate }}</h2>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.introduction.text1' | translate }}</p>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.introduction.text2' | translate }}</p>
         </section>
 
-        <section class="section">
-          <h2 class="section__title">{{ 'privacy.collection.title' | translate }}</h2>
-          <p class="section__text">{{ 'privacy.collection.intro' | translate }}</p>
-          <ul class="section__list">
+        <section class="flex flex-col gap-3">
+          <h2 class="kv-card-title">{{ 'privacy.collection.title' | translate }}</h2>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.collection.intro' | translate }}</p>
+          <ul class="list-disc ps-6 flex flex-col gap-1.5 text-sm leading-relaxed text-on-surface-variant">
             <li>{{ 'privacy.collection.item1' | translate }}</li>
             <li>{{ 'privacy.collection.item2' | translate }}</li>
             <li>{{ 'privacy.collection.item3' | translate }}</li>
@@ -25,10 +24,10 @@
           </ul>
         </section>
 
-        <section class="section">
-          <h2 class="section__title">{{ 'privacy.usage.title' | translate }}</h2>
-          <p class="section__text">{{ 'privacy.usage.intro' | translate }}</p>
-          <ul class="section__list">
+        <section class="flex flex-col gap-3">
+          <h2 class="kv-card-title">{{ 'privacy.usage.title' | translate }}</h2>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.usage.intro' | translate }}</p>
+          <ul class="list-disc ps-6 flex flex-col gap-1.5 text-sm leading-relaxed text-on-surface-variant">
             <li>{{ 'privacy.usage.item1' | translate }}</li>
             <li>{{ 'privacy.usage.item2' | translate }}</li>
             <li>{{ 'privacy.usage.item3' | translate }}</li>
@@ -37,10 +36,10 @@
           </ul>
         </section>
 
-        <section class="section">
-          <h2 class="section__title">{{ 'privacy.sharing.title' | translate }}</h2>
-          <p class="section__text">{{ 'privacy.sharing.intro' | translate }}</p>
-          <ul class="section__list">
+        <section class="flex flex-col gap-3">
+          <h2 class="kv-card-title">{{ 'privacy.sharing.title' | translate }}</h2>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.sharing.intro' | translate }}</p>
+          <ul class="list-disc ps-6 flex flex-col gap-1.5 text-sm leading-relaxed text-on-surface-variant">
             <li>{{ 'privacy.sharing.item1' | translate }}</li>
             <li>{{ 'privacy.sharing.item2' | translate }}</li>
             <li>{{ 'privacy.sharing.item3' | translate }}</li>
@@ -48,21 +47,21 @@
           </ul>
         </section>
 
-        <section class="section">
-          <h2 class="section__title">{{ 'privacy.security.title' | translate }}</h2>
-          <p class="section__text">{{ 'privacy.security.text1' | translate }}</p>
-          <p class="section__text">{{ 'privacy.security.text2' | translate }}</p>
+        <section class="flex flex-col gap-3">
+          <h2 class="kv-card-title">{{ 'privacy.security.title' | translate }}</h2>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.security.text1' | translate }}</p>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.security.text2' | translate }}</p>
         </section>
 
-        <section class="section">
-          <h2 class="section__title">{{ 'privacy.retention.title' | translate }}</h2>
-          <p class="section__text">{{ 'privacy.retention.text' | translate }}</p>
+        <section class="flex flex-col gap-3">
+          <h2 class="kv-card-title">{{ 'privacy.retention.title' | translate }}</h2>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.retention.text' | translate }}</p>
         </section>
 
-        <section class="section">
-          <h2 class="section__title">{{ 'privacy.rights.title' | translate }}</h2>
-          <p class="section__text">{{ 'privacy.rights.intro' | translate }}</p>
-          <ul class="section__list">
+        <section class="flex flex-col gap-3">
+          <h2 class="kv-card-title">{{ 'privacy.rights.title' | translate }}</h2>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.rights.intro' | translate }}</p>
+          <ul class="list-disc ps-6 flex flex-col gap-1.5 text-sm leading-relaxed text-on-surface-variant">
             <li>{{ 'privacy.rights.item1' | translate }}</li>
             <li>{{ 'privacy.rights.item2' | translate }}</li>
             <li>{{ 'privacy.rights.item3' | translate }}</li>
@@ -72,31 +71,30 @@
           </ul>
         </section>
 
-        <section class="section">
-          <h2 class="section__title">{{ 'privacy.cookies.title' | translate }}</h2>
-          <p class="section__text">{{ 'privacy.cookies.text1' | translate }}</p>
-          <p class="section__text">{{ 'privacy.cookies.text2' | translate }}</p>
+        <section class="flex flex-col gap-3">
+          <h2 class="kv-card-title">{{ 'privacy.cookies.title' | translate }}</h2>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.cookies.text1' | translate }}</p>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.cookies.text2' | translate }}</p>
         </section>
 
-        <section class="section">
-          <h2 class="section__title">{{ 'privacy.thirdParty.title' | translate }}</h2>
-          <p class="section__text">{{ 'privacy.thirdParty.text' | translate }}</p>
+        <section class="flex flex-col gap-3">
+          <h2 class="kv-card-title">{{ 'privacy.thirdParty.title' | translate }}</h2>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.thirdParty.text' | translate }}</p>
         </section>
 
-        <section class="section">
-          <h2 class="section__title">{{ 'privacy.changes.title' | translate }}</h2>
-          <p class="section__text">{{ 'privacy.changes.text' | translate }}</p>
+        <section class="flex flex-col gap-3">
+          <h2 class="kv-card-title">{{ 'privacy.changes.title' | translate }}</h2>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.changes.text' | translate }}</p>
         </section>
 
-        <section class="section">
-          <h2 class="section__title">{{ 'privacy.contact.title' | translate }}</h2>
-          <p class="section__text">{{ 'privacy.contact.text' | translate }}</p>
-          <div class="contact-info">
+        <section class="flex flex-col gap-3">
+          <h2 class="kv-card-title">{{ 'privacy.contact.title' | translate }}</h2>
+          <p class="text-sm leading-relaxed text-on-surface-variant">{{ 'privacy.contact.text' | translate }}</p>
+          <div class="kv-panel text-sm leading-relaxed text-on-surface">
             <p><strong>{{ 'privacy.contact.email' | translate }}:</strong> privacy@knowvera.com</p>
             <p><strong>{{ 'privacy.contact.address' | translate }}:</strong> {{ 'privacy.contact.addressValue' | translate }}</p>
           </div>
         </section>
-      </mat-card-content>
-    </mat-card>
+      
+    </article>
   </div>
-</div>

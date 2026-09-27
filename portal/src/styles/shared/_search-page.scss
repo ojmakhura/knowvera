@@ -1,0 +1,380 @@
+@use 'ui';
+
+// Search/list page layout (the Document Search design), shared by every registry screen:
+// header, criteria card + filter panel, results table card, and assurance cards.
+//
+//   @use 'shared/search-page';
+//   @include search-page.styles;
+//
+// Markup outline:
+//   .kv-page
+//     header.search-header > .search-heading(.search-heading-icon + h1.kv-title) + p.kv-subtitle, .kv-actions
+//     form.search-grid > section.criteria-card + section.filter-panel(.filter-actions)
+//     section.results-card > .results-head, .results-table-wrap > table.results-table, .results-foot
+//     section.info-grid > .info-card
+
+@mixin styles {
+	:host {
+		display: block;
+	}
+
+	// ------------------------------------------------------------ header
+	.search-header {
+		@include ui.page-header;
+	}
+
+	.search-heading {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.search-heading-icon {
+		@include ui.icon-size(1.75rem);
+		flex-shrink: 0;
+		color: var(--primary);
+	}
+
+	.search-intro {
+		max-width: 42rem;
+	}
+
+	// ------------------------------------------------------------ search criteria
+	.search-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.5rem;
+		margin-bottom: 1.5rem;
+
+		@media (min-width: 1024px) {
+			grid-template-columns: repeat(12, minmax(0, 1fr));
+		}
+	}
+
+	.criteria-card {
+		@include ui.card;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+
+		@media (min-width: 1024px) {
+			grid-column: span 8 / span 8;
+		}
+	}
+
+	.criteria-card .kv-card-header {
+		margin-bottom: 0.5rem;
+	}
+
+	.criteria-row {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1rem;
+
+		@media (min-width: 768px) {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	.filter-panel {
+		@include ui.card;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		border-top: 4px solid var(--emerald);
+
+		@media (min-width: 1024px) {
+			grid-column: span 4 / span 4;
+		}
+	}
+
+	// Search box with a leading icon.
+	.search-input {
+		position: relative;
+
+		.kv-input {
+			padding-block: 0.75rem;
+			padding-left: 2.5rem;
+		}
+	}
+
+	.search-input-icon {
+		@include ui.icon-size(1.25rem);
+		position: absolute;
+		top: 50%;
+		left: 0.75rem;
+		transform: translateY(-50%);
+		color: var(--outline);
+		pointer-events: none;
+	}
+
+	.filter-actions {
+		display: flex;
+		gap: 0.75rem;
+		margin-top: auto;
+		padding-top: 0.5rem;
+
+		> * {
+			flex: 1 1 0;
+		}
+	}
+
+	// ------------------------------------------------------------ results
+	.results-card {
+		@include ui.card;
+		padding: 0;
+		overflow: hidden;
+	}
+
+	.results-head {
+		@include ui.card-header;
+		justify-content: space-between;
+		margin: 0;
+		padding: 1.5rem 1.5rem 0.5rem;
+	}
+
+	.results-title {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.results-table-wrap {
+		overflow-x: auto;
+	}
+
+	.results-table {
+		width: 100%;
+		min-width: 48rem;
+		border-collapse: collapse;
+		text-align: left;
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+
+		th {
+			padding: 1rem 1.5rem;
+			background: var(--surface-container-low);
+			font-size: 0.75rem;
+			line-height: 1rem;
+			font-weight: 600;
+			letter-spacing: 0.025em;
+			text-transform: uppercase;
+			white-space: nowrap;
+			color: var(--on-surface-variant);
+		}
+
+		td {
+			padding: 1rem 1.5rem;
+			border-top: 1px solid color-mix(in oklab, var(--outline-variant) 50%, transparent);
+			color: var(--on-surface-variant);
+			vertical-align: middle;
+		}
+
+		tbody tr {
+			transition: background-color 150ms ease;
+
+			&:hover {
+				background: var(--surface-container-low);
+			}
+		}
+
+		.align-center {
+			text-align: center;
+		}
+
+		.align-end {
+			text-align: right;
+		}
+	}
+
+	.cell-strong {
+		color: var(--on-surface);
+		font-weight: 500;
+	}
+
+	.cell-mono {
+		font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+		white-space: nowrap;
+	}
+
+	.cell-nowrap {
+		white-space: nowrap;
+	}
+
+	// Icon tile + name/meta stack in the first column.
+	.entity-cell {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-width: 0;
+	}
+
+	.entity-icon {
+		@include ui.tone-info;
+		display: grid;
+		flex-shrink: 0;
+		place-items: center;
+		width: 2.25rem;
+		height: 2.25rem;
+		border-radius: ui.$radius;
+
+		.mat-icon {
+			@include ui.card-icon;
+			color: currentColor;
+		}
+
+		&.is-danger {
+			@include ui.tone-danger;
+		}
+
+		&.is-avatar {
+			border-radius: 999px;
+			font-size: 0.75rem;
+			font-weight: 600;
+		}
+	}
+
+	.entity-copy {
+		min-width: 0;
+	}
+
+	.entity-name {
+		display: block;
+		max-width: 100%;
+		overflow: hidden;
+		padding: 0;
+		border: 0;
+		background: none;
+		text-align: left;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font: inherit;
+		font-weight: 500;
+		color: var(--on-surface);
+		cursor: pointer;
+		transition: color 150ms ease;
+
+		tr:hover & {
+			color: var(--emerald-dark);
+		}
+	}
+
+	.entity-meta {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-size: 0.75rem;
+		line-height: 1rem;
+		color: var(--on-surface-variant);
+	}
+
+	// Status chip with a leading dot; colour comes from kv-tone-*.
+	.status-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		padding: 0.125rem 0.5rem;
+		border-radius: 999px;
+		font-size: 0.75rem;
+		line-height: 1.25rem;
+		font-weight: 600;
+		letter-spacing: 0.025em;
+		text-transform: uppercase;
+		white-space: nowrap;
+
+		&::before {
+			content: '';
+			width: 0.375rem;
+			height: 0.375rem;
+			border-radius: 999px;
+			background: currentColor;
+		}
+
+		&.no-dot::before {
+			display: none;
+		}
+	}
+
+	.row-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.25rem;
+	}
+
+	.empty-row td {
+		padding-block: 3rem;
+		text-align: center;
+
+		.mat-icon {
+			@include ui.card-icon;
+			color: var(--outline);
+		}
+
+		p {
+			margin: 0.5rem 0 0;
+		}
+	}
+
+	.results-foot {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		column-gap: 1rem;
+		padding: 0.5rem 1.5rem;
+		border-top: 1px solid color-mix(in oklab, var(--outline-variant) 50%, transparent);
+		background: color-mix(in oklab, var(--surface-container-low) 40%, transparent);
+
+		p {
+			margin: 0;
+			white-space: nowrap;
+			font-size: 0.75rem;
+			font-weight: 500;
+			color: var(--on-surface-variant);
+		}
+
+		.mat-mdc-paginator {
+			margin-left: auto;
+			background: transparent;
+		}
+	}
+
+	// ------------------------------------------------------------ assurance cards
+	.info-grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.5rem;
+		margin-top: 1.5rem;
+
+		@media (min-width: 768px) {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+
+	.info-card {
+		@include ui.card;
+		border-top: 4px solid var(--emerald);
+
+		p {
+			margin: 0;
+			font-size: 0.875rem;
+			line-height: 1.25rem;
+			color: var(--on-surface-variant);
+		}
+	}
+
+	.info-card-title {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 0.5rem;
+
+		.mat-icon {
+			color: var(--emerald);
+		}
+
+		h3 {
+			@include ui.card-title;
+		}
+	}
+}

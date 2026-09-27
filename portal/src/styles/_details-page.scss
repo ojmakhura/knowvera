@@ -1,0 +1,750 @@
+@use 'shared/ui';
+
+// Details pages (organisation, individual, document, record, invoice, subscription, client request)
+// share one layout: an edit-style header with code tag / entity pill / status pills, a bento grid of
+// kv-cards with icon-tile section heads, and an audit footer. These `dp-*` classes are global so the
+// component stylesheets stay within their size budget.
+//
+//   header.dp-header > nav.kv-breadcrumb + .kv-page-header(h1.kv-title, .dp-code, .dp-entity-pill, .dp-pill …)
+//   section.kv-card > .kv-card-header.dp-head(.dp-icon-tile, .dp-head-copy > h2.kv-card-title + p.dp-head-sub, .dp-head-aside)
+//   footer.dp-footer > .dp-footer-brand + dl.dp-footer-meta
+
+$mono: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+
+// ---------------------------------------------------------------- header
+
+.dp-header {
+	margin-bottom: 0.5rem;
+}
+
+.dp-code {
+	padding: 0.25rem 0.625rem;
+	border: 1px solid color-mix(in oklab, var(--outline-variant) 30%, transparent);
+	border-radius: ui.$radius;
+	background: var(--surface-container-high);
+	font-family: $mono;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--primary);
+
+	&.dp-code--sm {
+		flex-shrink: 0;
+		padding: 0.125rem 0.5rem;
+		font-size: 0.625rem;
+		background: var(--surface-container);
+		color: var(--on-surface-variant);
+	}
+}
+
+.dp-entity-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.625rem;
+	border-radius: 999px;
+	background: var(--primary-fixed);
+	font-size: 0.625rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--on-primary-fixed);
+}
+
+.dp-entity-pill .mat-icon,
+.dp-mono-meta .mat-icon,
+.dp-pill .mat-icon {
+	@include ui.icon-size(0.875rem);
+}
+
+// Status pill; tone via is-success / is-warning / is-danger / is-info (neutral by default).
+.dp-pill {
+	@include ui.tone-neutral;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.625rem;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	white-space: nowrap;
+
+	&.is-success { @include ui.tone-success; }
+	&.is-warning { @include ui.tone-warning; }
+	&.is-danger { @include ui.tone-danger; }
+	&.is-info { @include ui.tone-info; }
+}
+
+.dp-mono-meta {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding-left: 0.5rem;
+	font-family: $mono;
+	font-size: 0.75rem;
+	color: var(--on-surface-variant);
+}
+
+// ---------------------------------------------------------------- section heads
+
+.dp-head {
+	flex-wrap: nowrap;
+
+	&.dp-head--bare {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem;
+	}
+}
+
+.dp-icon-tile {
+	display: grid;
+	flex-shrink: 0;
+	place-items: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: ui.$radius-card;
+	background: color-mix(in oklab, var(--primary) 10%, transparent);
+	color: var(--primary);
+
+	&.is-danger { @include ui.tone-danger; }
+	&.is-warning { @include ui.tone-warning; }
+	&.is-success { @include ui.tone-success; }
+}
+
+.dp-head-copy {
+	min-width: 0;
+	flex: 1 1 auto;
+}
+
+.dp-head-sub {
+	margin: 0;
+	font-size: 0.75rem;
+	line-height: 1rem;
+	color: var(--on-surface-variant);
+}
+
+.dp-head-aside {
+	margin-left: auto;
+	flex-shrink: 0;
+}
+
+// ---------------------------------------------------------------- values
+
+.dp-mono {
+	font-family: $mono;
+}
+
+.dp-strong {
+	margin: 0;
+	font-weight: 600;
+	color: var(--primary);
+}
+
+.dp-small {
+	font-size: 0.75rem;
+	line-height: 1rem;
+}
+
+.dp-muted {
+	color: var(--on-surface-variant);
+}
+
+.dp-inline-icon {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+
+	.mat-icon {
+		@include ui.icon-size(1rem);
+		color: var(--primary);
+	}
+}
+
+.dp-divider {
+	padding-top: 1rem;
+	border-top: 1px solid var(--surface-container);
+}
+
+.dp-address {
+	font-size: 0.8125rem;
+	line-height: 1.5;
+	white-space: pre-line;
+	color: var(--on-surface);
+}
+
+// Large figure (amount, score, status).
+.dp-metric {
+	margin: 0;
+	font-size: 1.875rem;
+	line-height: 2.25rem;
+	font-weight: 800;
+	letter-spacing: -0.025em;
+	color: var(--primary);
+}
+
+.dp-metric-label {
+	margin: 0.25rem 0 0;
+	font-size: 0.75rem;
+	color: var(--on-surface-variant);
+}
+
+// Segmented / continuous progress bar.
+.dp-progress {
+	display: flex;
+	gap: 0.25rem;
+	height: 0.5rem;
+
+	> span {
+		flex: 1;
+		border-radius: 999px;
+		background: var(--surface-container-high);
+
+		&.filled {
+			background: var(--emerald);
+		}
+	}
+}
+
+// ---------------------------------------------------------------- lists
+
+.dp-list-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	padding: 0.75rem;
+	border-left: 4px solid transparent;
+	border-radius: ui.$radius-card;
+	background: var(--surface-container-low);
+	font-size: 0.75rem;
+
+	&.is-primary {
+		border-left-color: var(--emerald);
+	}
+
+	&.is-warning {
+		border-left-color: var(--on-tertiary-container);
+	}
+}
+
+.dp-list-sub {
+	margin: 0;
+	font-size: 0.6875rem;
+	line-height: 1rem;
+	color: var(--on-surface-variant);
+}
+
+.dp-mini-badge {
+	padding: 0.125rem 0.375rem;
+	border-radius: ui.$radius-sm;
+	background: var(--primary);
+	font-size: 0.5625rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--on-primary);
+	white-space: nowrap;
+
+	&.dp-mini-badge--soft {
+		background: color-mix(in oklab, var(--primary) 10%, transparent);
+		font-family: $mono;
+		color: var(--primary);
+	}
+}
+
+.mat-icon.dp-ok {
+	color: var(--emerald);
+}
+
+.mat-icon.dp-pending {
+	color: var(--on-tertiary-container);
+}
+
+.mat-icon.dp-bad {
+	color: var(--error);
+}
+
+.dp-dashed-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.25rem;
+	width: 100%;
+	margin-top: 1rem;
+	padding: 0.5rem;
+	border: 1px dashed color-mix(in oklab, var(--outline-variant) 60%, transparent);
+	border-radius: ui.$radius-card;
+	background: none;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--primary);
+	cursor: pointer;
+	transition: background-color 150ms ease;
+
+	.mat-icon {
+		@include ui.icon-size(1rem);
+	}
+
+	&:hover {
+		background: var(--surface-container-low);
+	}
+}
+
+.dp-empty-text {
+	margin: 0;
+	font-size: 0.8125rem;
+	color: var(--on-surface-variant);
+}
+
+// ---------------------------------------------------------------- tile cards (branches etc.)
+
+.dp-tile {
+	display: flex;
+	flex-direction: column;
+	padding: 1.25rem;
+
+	&.is-primary {
+		border-left: 4px solid var(--emerald);
+	}
+}
+
+.dp-tile-title {
+	margin: 0;
+	font-size: 0.875rem;
+	font-weight: 700;
+	color: var(--primary);
+}
+
+.dp-tile-text {
+	flex: 1;
+	margin: 0 0 1rem;
+	font-size: 0.75rem;
+	color: var(--on-surface-variant);
+}
+
+.dp-tile-foot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-top: 0.5rem;
+	border-top: 1px solid var(--surface-container);
+}
+
+.dp-tile-status {
+	font-size: 0.6875rem;
+	font-weight: 700;
+	color: var(--emerald-dark);
+
+	.mat-icon {
+		color: currentColor;
+	}
+
+	&.is-pending {
+		color: var(--on-tertiary-container);
+	}
+}
+
+// ---------------------------------------------------------------- grouped panels
+
+.dp-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	padding: 1rem;
+	border-radius: ui.$radius-card;
+	background: var(--surface-container-low);
+
+	&.dp-group--outlined {
+		padding: 1.25rem;
+		border: 1px solid var(--surface-container);
+		background: var(--surface-container-lowest);
+	}
+}
+
+.dp-group-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding-bottom: 0.75rem;
+	border-bottom: 1px solid var(--surface-container);
+}
+
+.dp-group-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 0;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--primary);
+
+	.mat-icon {
+		@include ui.icon-size(1rem);
+	}
+}
+
+.dp-doc-row {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.625rem;
+	border-left: 4px solid var(--emerald);
+	border-radius: ui.$radius-card;
+	background: var(--surface-container-lowest);
+
+	> .mat-icon {
+		@include ui.icon-size(1rem);
+		flex-shrink: 0;
+		color: var(--primary);
+	}
+
+	&.is-optional {
+		border-left-color: var(--outline);
+
+		> .mat-icon {
+			color: var(--outline);
+		}
+	}
+}
+
+.dp-doc-tag {
+	flex-shrink: 0;
+	padding: 0.125rem 0.5rem;
+	border-radius: ui.$radius;
+	background: var(--surface-container);
+	font-size: 0.625rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	color: var(--primary);
+
+	.is-optional & {
+		color: var(--on-surface-variant);
+	}
+}
+
+.dp-field-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding: 0.875rem;
+	border: 1px solid var(--surface-container);
+	border-radius: ui.$radius-card;
+	background: var(--surface-container-low);
+}
+
+.dp-field-count {
+	margin-left: auto;
+	padding: 0.125rem 0.375rem;
+	border-radius: ui.$radius;
+	background: color-mix(in oklab, var(--primary) 10%, transparent);
+	font-family: $mono;
+	font-size: 0.625rem;
+	font-weight: 700;
+	color: var(--primary);
+}
+
+.dp-field-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	border: 1px solid var(--surface-container);
+	border-radius: ui.$radius;
+	background: var(--surface-container-lowest);
+	font-size: 0.6875rem;
+	font-weight: 500;
+	color: var(--on-surface);
+
+	.mat-icon {
+		@include ui.icon-size(0.75rem);
+		color: var(--emerald);
+	}
+}
+
+// ---------------------------------------------------------------- tables (plain and mat-table)
+
+.dp-table-wrap {
+	overflow-x: auto;
+}
+
+.dp-table {
+	width: 100%;
+	border-collapse: collapse;
+	text-align: left;
+	font-size: 0.8125rem;
+
+	th,
+	.mat-mdc-header-cell {
+		padding: 0.75rem 1rem;
+		background: var(--surface-container-low);
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		white-space: nowrap;
+		color: var(--on-surface-variant);
+	}
+
+	td,
+	.mat-mdc-cell {
+		padding: 0.875rem 1rem;
+		border-top: 1px solid var(--surface-container);
+		border-bottom: 0;
+		color: var(--on-surface);
+		vertical-align: middle;
+	}
+
+	tbody tr:hover,
+	.mat-mdc-row:hover {
+		background: var(--surface-container-low);
+	}
+
+	.align-end {
+		text-align: right;
+	}
+
+	.dp-table-empty {
+		padding-block: 2rem;
+		text-align: center;
+		color: var(--on-surface-variant);
+	}
+}
+
+.dp-table.mat-mdc-table {
+	background: transparent;
+}
+
+// ---------------------------------------------------------------- tabs card
+
+.dp-tabs {
+	padding: 0;
+	overflow: hidden;
+
+	.mat-mdc-tab-header {
+		padding: 0 1.5rem;
+		border-bottom: 1px solid var(--outline-variant);
+	}
+
+	.mat-mdc-tab .mdc-tab__text-label {
+		font-size: 0.875rem;
+		font-weight: 600;
+		letter-spacing: normal;
+	}
+
+	.mdc-tab-indicator__content--underline {
+		border-color: var(--emerald);
+	}
+}
+
+.dp-tab-pane {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	padding: 1.5rem;
+}
+
+.dp-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+}
+
+// Navy primary action used by the details design (distinct from the emerald kv-btn-primary).
+.dp-btn-navy {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.625rem 1.25rem;
+	border: 0;
+	border-radius: ui.$radius-card;
+	background: var(--primary);
+	box-shadow: ui.$shadow-button;
+	font-size: 0.8125rem;
+	font-weight: 700;
+	color: var(--on-primary);
+	cursor: pointer;
+	transition: background-color 150ms ease, transform 150ms ease;
+
+	.mat-icon {
+		@include ui.icon-size(1rem);
+	}
+
+	&:hover {
+		background: var(--primary-container);
+	}
+
+	&:active {
+		transform: scale(0.97);
+	}
+}
+
+// Secondary button styles used by the details design.
+.dp-btn-outline {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.625rem 1rem;
+	border: 1px solid color-mix(in oklab, var(--outline-variant) 30%, transparent);
+	border-radius: ui.$radius-card;
+	background: var(--surface-container-lowest);
+	box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+	font-size: 0.875rem;
+	font-weight: 700;
+	color: var(--on-surface);
+	cursor: pointer;
+	transition: background-color 150ms ease, transform 150ms ease;
+
+	.mat-icon {
+		@include ui.icon-size(1rem);
+	}
+
+	&:hover {
+		background: var(--surface-container);
+	}
+
+	&:active {
+		transform: scale(0.97);
+	}
+
+	&.is-primary-text {
+		color: var(--primary);
+	}
+
+	&.is-sm {
+		padding: 0.375rem 0.75rem;
+		font-size: 0.75rem;
+	}
+}
+
+.dp-btn-navy.is-sm {
+	padding: 0.5rem 0.875rem;
+	font-size: 0.75rem;
+}
+
+.dp-btn-soft {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.375rem 0.75rem;
+	border: 0;
+	border-radius: ui.$radius-card;
+	background: var(--primary-fixed);
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--primary);
+	cursor: pointer;
+
+	.mat-icon {
+		@include ui.icon-size(1rem);
+	}
+
+	&:hover {
+		background: var(--primary-fixed-dim);
+	}
+}
+
+.dp-btn-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0;
+	border: 0;
+	background: none;
+	font-size: 0.75rem;
+	font-weight: 700;
+	color: var(--primary);
+	cursor: pointer;
+
+	.mat-icon {
+		@include ui.icon-size(1rem);
+	}
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.dp-btn-mini {
+	display: inline-flex;
+	flex-shrink: 0;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.5rem;
+	border: 1px solid color-mix(in oklab, var(--outline-variant) 30%, transparent);
+	border-radius: ui.$radius;
+	background: var(--surface-container-lowest);
+	font-size: 0.6875rem;
+	font-weight: 600;
+	color: var(--primary);
+	cursor: pointer;
+
+	.mat-icon {
+		@include ui.icon-size(0.75rem);
+	}
+
+	&:hover {
+		background: var(--surface-container);
+	}
+}
+
+// ---------------------------------------------------------------- footer
+
+.dp-footer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-top: 2.5rem;
+	padding-top: 1.5rem;
+	border-top: 1px solid color-mix(in oklab, var(--outline-variant) 30%, transparent);
+}
+
+.dp-footer-brand {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	opacity: 0.5;
+	font-size: 0.625rem;
+	font-weight: 800;
+	letter-spacing: 0.2em;
+	text-transform: uppercase;
+	color: var(--primary);
+}
+
+.dp-footer-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+	margin: 0;
+	font-size: 0.625rem;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--on-surface-variant);
+
+	div {
+		display: flex;
+		gap: 0.375rem;
+	}
+
+	dt {
+		font-weight: 700;
+	}
+
+	dd {
+		margin: 0;
+	}
+}
+
+// Details-page dialogs (e.g. the field-group library picker): flush, rounded surface.
+.dp-dialog .mat-mdc-dialog-surface {
+	padding: 0;
+	overflow: hidden;
+	border-radius: 0.75rem;
+}

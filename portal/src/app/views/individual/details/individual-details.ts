@@ -1,11 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, effect, inject, linkedSignal } from "@angular/core";
-import { MatButtonModule } from "@angular/material/button";
-import { MatCardModule } from "@angular/material/card";
-import { MatChipsModule } from "@angular/material/chips";
-import { MatDividerModule } from "@angular/material/divider";
 import { MatIconModule } from "@angular/material/icon";
-import { MatListModule } from "@angular/material/list";
 import { Router } from "@angular/router";
 import { DocumentListDTO } from "@app/models/bw/co/knowvera/document/document-list-dto";
 import { EmploymentRecordDTO } from "@app/models/bw/co/knowvera/individual/employment/employment-record-dto";
@@ -16,7 +11,7 @@ import { SettingsApiStore } from "@app/store/bw/co/knowvera/settings/settings-ap
 
 @Component({
   selector: 'app-individual-details',
-  imports: [CommonModule, MatButtonModule, MatCardModule, MatChipsModule, MatDividerModule, MatIconModule, MatListModule],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './individual-details.html',
   styleUrl: './individual-details.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

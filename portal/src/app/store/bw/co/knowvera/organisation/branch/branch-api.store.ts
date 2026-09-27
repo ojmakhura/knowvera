@@ -9,7 +9,7 @@ import { SearchObject } from '@app/models/search-object';
 import { Page } from '@app/models/page.model';
 import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch-dto';
 import { BranchApi } from '@app/services/bw/co/knowvera/organisation/branch/branch-api';
-import { toast } from 'ngx-sonner';
+import { toast } from '@app/@shared/toast';
 
 export type BranchApiState = AppState<BranchDTO, BranchDTO> & {};
 

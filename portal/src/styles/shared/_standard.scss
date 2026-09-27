@@ -1,0 +1,353 @@
+@use 'sass:list';
+@use 'ui';
+
+// Maps the class vocabulary that recurs across the views (page headers, cards, section headings,
+// labels, save/cancel buttons, audit rows) onto the Knowvera UI primitives, so every page shares the
+// look of the individual edit screen. Include it LAST in a component stylesheet so it wins over the
+// page's older rules at equal specificity:
+//
+//   @use 'shared/standard';
+//   @include standard.vocabulary;
+
+/// Includes the vocabulary groups a page needs (all of them by default). Pages pass only the groups
+/// whose classes they use, which keeps component stylesheets within their size budget:
+///   @include standard.vocabulary((chrome, cards, buttons));
+@mixin vocabulary($groups: (chrome, cards, fields, buttons, panels, meta)) {
+	@if list.index($groups, chrome) {
+		@include chrome;
+	}
+	@if list.index($groups, cards) {
+		@include cards;
+	}
+	@if list.index($groups, fields) {
+		@include fields;
+	}
+	@if list.index($groups, buttons) {
+		@include buttons;
+	}
+	@if list.index($groups, panels) {
+		@include panels;
+	}
+	@if list.index($groups, meta) {
+		@include meta;
+	}
+}
+
+/// Vocabulary group: page chrome.
+@mixin chrome {
+	.page-header,
+	.edit-header,
+	.page-head,
+	.hero-panel {
+		@include ui.page-header;
+		position: static;
+		padding: 0;
+		background: none;
+		box-shadow: none;
+		border: 0;
+	}
+
+	.page-title,
+	.page-title-group h1,
+	.heading-row h1,
+	.header-copy h1,
+	.title-wrap h1,
+	.hero-copy h1,
+	.hero-copy h2 {
+		@include ui.page-title;
+	}
+
+	.page-subtitle,
+	.page-title-group p,
+	.header-copy p,
+	.title-wrap p {
+		@include ui.page-subtitle;
+		max-width: 48rem;
+	}
+
+	// Eyebrows and breadcrumbs above the title all read as a plain breadcrumb.
+	.title-mark,
+	.page-breadcrumb,
+	.hero-breadcrumb,
+	.breadcrumb,
+	.eyebrow {
+		@include ui.breadcrumb;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: none;
+		box-shadow: none;
+		font-weight: 400;
+		letter-spacing: normal;
+		text-transform: none;
+
+		mat-icon {
+			@include ui.icon-size(1rem);
+		}
+	}
+
+	.page-breadcrumb-current,
+	.hero-breadcrumb-current,
+	.crumb-current {
+		@include ui.breadcrumb-current;
+	}
+
+	.header-actions,
+	.header-btns,
+	.head-actions {
+		@include ui.actions-row;
+	}
+}
+
+/// Vocabulary group: cards.
+@mixin cards {
+	.vault-card,
+	.panel-card,
+	.edit-card,
+	.table-card,
+	.tabs-card,
+	.structure-card,
+	.panel {
+		@include ui.card;
+		backdrop-filter: none;
+	}
+
+	// Cards nested in cards become flat bordered panels.
+	.nested-card,
+	.vault-card .vault-card {
+		border: 1px solid var(--outline-variant);
+		box-shadow: none;
+	}
+
+	:host ::ng-deep {
+		.vault-card,
+		.panel-card,
+		.edit-card,
+		.table-card,
+		.structure-card {
+			> .mat-mdc-card-content {
+				padding: 0;
+			}
+		}
+	}
+
+	.section-heading,
+	.section-head,
+	.structure-head {
+		@include ui.card-header;
+	}
+
+	// Header row holding a section heading plus a control (toggle, button): the row carries the rule.
+	.payment-header,
+	.section-head-between {
+		@include ui.card-header;
+		justify-content: space-between;
+
+		.section-heading {
+			margin: 0;
+			padding: 0;
+			border: 0;
+		}
+	}
+
+	.section-heading h2,
+	.section-heading h3,
+	.section-head h2,
+	.section-head h3,
+	.section-title,
+	.structure-head h2 {
+		@include ui.card-title;
+	}
+
+	.section-heading mat-icon,
+	.section-head mat-icon,
+	.section-icon,
+	.section-mark mat-icon {
+		@include ui.card-icon;
+		background: none;
+	}
+}
+
+/// Vocabulary group: fields.
+@mixin fields {
+	// Material fields keep the standard white fill even where a page used to tint them.
+	:host ::ng-deep .mat-mdc-form-field:not(.mat-form-field-disabled) .mat-mdc-text-field-wrapper {
+		border-radius: ui.$radius;
+		background: var(--surface-container-lowest);
+	}
+
+	.field-label,
+	.form-label {
+		@include ui.label;
+		margin: 0;
+	}
+
+	.field-group,
+	.field-block {
+		@include ui.field;
+	}
+
+	.support-copy,
+	.field-note,
+	.helper-text {
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+		color: var(--on-surface-variant);
+	}
+
+	.error-message {
+		@include ui.field-error;
+	}
+}
+
+/// Vocabulary group: buttons.
+@mixin buttons {
+	// Save/confirm buttons are emerald, cancel/discard buttons are outlined. Most are mat-buttons whose
+	// older page styles used !important gradients, hence the !important here.
+	.primary-action,
+	.save-btn,
+	.btn-save,
+	.primary-btn,
+	.dark-btn,
+	.btn-download-archive,
+	.btn-upload-document {
+		min-height: 38px;
+		border-radius: ui.$radius !important;
+		background: var(--emerald) !important;
+		color: #fff !important;
+		box-shadow: ui.$shadow-button !important;
+		font-weight: 500;
+		letter-spacing: normal;
+		text-transform: none;
+
+		&:hover:not(:disabled) {
+			background: ui.$emerald-hover !important;
+		}
+
+		&:disabled {
+			opacity: 0.5;
+		}
+	}
+
+	.secondary-action,
+	.cancel-btn,
+	.discard-btn,
+	.btn-cancel,
+	.btn-secondary,
+	.ghost-btn,
+	.light-btn {
+		min-height: 38px;
+		border: 1px solid var(--outline-variant) !important;
+		border-radius: ui.$radius !important;
+		background: transparent !important;
+		color: var(--primary) !important;
+		box-shadow: none !important;
+		font-weight: 500;
+		letter-spacing: normal;
+		text-transform: none;
+
+		&:hover:not(:disabled) {
+			background: var(--surface-container-low) !important;
+		}
+	}
+}
+
+/// Vocabulary group: highlighted panels.
+@mixin panels {
+	// Formerly navy status/summary panels: a standard card with the emerald accent bar.
+	.status-panel {
+		border-top: 4px solid var(--emerald);
+		background: var(--surface-container-lowest);
+		color: var(--on-surface);
+
+		h2,
+		h3,
+		strong {
+			color: var(--primary);
+		}
+
+		p,
+		span {
+			color: var(--on-surface-variant);
+		}
+	}
+}
+
+/// Vocabulary group: audit / meta rows.
+@mixin meta {
+	.audit-item {
+		@include ui.meta-row;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.25rem;
+		text-align: left;
+	}
+
+	.audit-label {
+		@include ui.meta-label;
+		margin: 0;
+		letter-spacing: normal;
+		text-transform: none;
+	}
+
+	.audit-value {
+		@include ui.meta-value;
+		margin: 0;
+		font-weight: 400;
+	}
+}
+
+
+/// Flattens a navy "hero" banner (BEM block with __decoration/__avatar/__title/__subtitle/__actions
+/// elements) into the standard page header: avatar, title and meta on the left, actions on the right.
+@mixin hero($block) {
+	#{$block} {
+		@include ui.page-header;
+		position: relative;
+		overflow: visible;
+		min-height: 0;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		background: none;
+		box-shadow: none;
+		color: var(--on-surface);
+	}
+
+	#{$block}__decoration {
+		display: none;
+	}
+
+	#{$block}__avatar {
+		@include ui.tone-info;
+		border: 0;
+		border-radius: ui.$radius-card;
+		box-shadow: none;
+		font-family: ui.$font-heading;
+		font-weight: 600;
+	}
+
+	#{$block}__title {
+		@include ui.page-title;
+	}
+
+	#{$block}__subtitle,
+	#{$block}__code,
+	#{$block}__updated {
+		@include ui.page-subtitle;
+		margin: 0;
+	}
+
+	#{$block}__actions {
+		@include ui.actions-row;
+	}
+}
+
+/// Root element of a routed page: the standard centered column on the plain page background.
+@mixin page-root($selector) {
+	#{$selector} {
+		@include ui.page;
+		min-height: 0;
+		background: none;
+	}
+}

@@ -17,6 +17,8 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @Tag(name = "Settings", description = "Operations related to application settings.")
 public class SettingsApiImpl implements SettingsApi {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(SettingsApiImpl.class);
 
     private final DocumentApi documentApi;
     private final SettingsService settingsService;
@@ -331,7 +335,10 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Remove Salary Range", description = "Remove a salary range by its ID")
-    public ResponseEntity<FinancialSettings> removeSalaryRange(@Nullable Long salaryRangeId) throws Exception {
+    public ResponseEntity<FinancialSettings> removeSalaryRange(Long salaryRangeId) throws Exception {
+
+        LOGGER.debug("Removing salary range with ID: {}", salaryRangeId);
+        System.out.println("Removing salary range with ID: " + salaryRangeId);
     
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
