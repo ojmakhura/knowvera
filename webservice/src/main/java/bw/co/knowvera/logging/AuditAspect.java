@@ -10,6 +10,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.data.domain.Page;
+import org.springframework.expression.ExpressionException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.http.ResponseEntity;
@@ -353,11 +354,17 @@ public class AuditAspect {
 
         context.setVariable("result", result);
 
-        Object value = parser.parseExpression(expression)
-                .getValue(context);
+        try {
+            Object value = parser.parseExpression(expression)
+                    .getValue(context);
 
-        return value != null
-                ? value.toString()
-                : null;
+            return value != null
+                    ? value.toString()
+                    : null;
+        } catch (ExpressionException e) {
+            // Not a valid SpEL expression: use the label as plain text rather
+            // than letting the audit failure mask the method's result.
+            return expression;
+        }
     }
 }

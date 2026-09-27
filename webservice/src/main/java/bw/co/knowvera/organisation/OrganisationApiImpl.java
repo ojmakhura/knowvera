@@ -173,7 +173,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Search Organisations", description = "Search organisations based on criteria")
-    @Audit(entity = "ORGANISATION", eventLabel = "List search", logData = false)
+    @Audit(entity = "ORGANISATION", eventLabel = "'List search'", logData = false)
     public ResponseEntity<List<OrganisationListDTO>> search(
             SearchObject<OrganisationSearchCriteria> criteria) {
 
