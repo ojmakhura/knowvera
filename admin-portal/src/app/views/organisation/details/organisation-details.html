@@ -302,7 +302,7 @@
           <div class="flex flex-wrap items-center gap-2">
             <h2 class="org-card-title">KYC Field Groups &amp; Schema Mapping</h2>
             <span class="dp-mini-badge dp-mini-badge--soft">
-              {{ organisationReportGroups().length + individualReportGroups().length }} Groups
+              {{ organisationFieldGroups().length + individualFieldGroups().length }} Groups
             </span>
           </div>
           <p class="dp-head-sub">Configured report schema groups and active fields for organisation and individual entity evaluation</p>
@@ -315,8 +315,8 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         @for (set of [
-          { scope: 'ORG', title: 'Organisation Report Groups', icon: 'corporate_fare', groups: organisationReportGroups(), assign: 'Select & Assign Organisation Field Group' },
-          { scope: 'IND', title: 'Individual Report Groups', icon: 'supervised_user_circle', groups: individualReportGroups(), assign: 'Select & Assign Individual Field Group' }
+          { scope: 'ORG', title: 'Organisation Report Groups', icon: 'corporate_fare', groups: organisationFieldGroups(), assign: 'Select & Assign Organisation Field Group' },
+          { scope: 'IND', title: 'Individual Report Groups', icon: 'supervised_user_circle', groups: individualFieldGroups(), assign: 'Select & Assign Individual Field Group' }
         ]; track set.scope) {
           <div class="dp-group dp-group--outlined justify-between">
             <div class="flex flex-col gap-3">
@@ -615,13 +615,13 @@
                 <div class="table-head">
                   <h3>Individual KYC Report Sections</h3>
                   <span class="branches-count"
-                    >{{ individualReportGroups().length }} Section{{
-                      individualReportGroups().length === 1 ? '' : 's'
+                    >{{ individualFieldGroups().length }} Section{{
+                      individualFieldGroups().length === 1 ? '' : 's'
                     }}</span
                   >
                 </div>
 
-                @for (section of individualReportGroups(); track section.id || section.label) {
+                @for (section of individualFieldGroups(); track section.id || section.label) {
                   <!-- <div class="vault-card report-section-card">
                     <div class="section-head">
                       <mat-icon class="section-icon">fact_check</mat-icon>

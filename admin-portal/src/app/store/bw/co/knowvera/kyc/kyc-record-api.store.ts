@@ -15,10 +15,16 @@ import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { KycRecordListDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-list-dto';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { toast } from 'ngx-sonner';
+import { KycRecordSummary } from '@app/models/bw/co/knowvera/kyc/kyc-record-summary';
 
 export type KycRecordApiState = AppState<KycRecordDTO, KycRecordDTO> & {
   currentIndividualRecord: KycRecordDTO | null;
   currentOrganisationRecord: KycRecordDTO | null;
+  individualSummaries: KycRecordSummary[] | null;
+  organisationSummaries: KycRecordSummary[] | null;
+  individualSummariesPaged: Page<KycRecordSummary> | null;
+  organisationSummariesPaged: Page<KycRecordSummary> | null;
+  summary: KycRecordSummary | null;
 };
 
 const initialState: KycRecordApiState = {
@@ -33,6 +39,11 @@ const initialState: KycRecordApiState = {
   error: false,
   currentIndividualRecord: null,
   currentOrganisationRecord: null,
+  individualSummaries: null,
+  organisationSummaries: null,
+  individualSummariesPaged: null,
+  organisationSummariesPaged: null,
+  summary: null,
 };
 
 export const KycRecordApiStore = signalStore(
@@ -850,6 +861,223 @@ export const KycRecordApiStore = signalStore(
                 toastr.success(message);
                 patchState(store, {
                   data: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      findClientIndividualSummaries: rxMethod<{ organisationId: string }>(
+        switchMap((data: { organisationId: string }) => {
+          patchState(store, { loading: true, loaderMessage: 'Fetching client individual summaries ...' });
+          return kycRecordApi.findClientIndividualSummaries(data.organisationId).pipe(
+            tapResponse({
+              next: (response: KycRecordSummary[]) => {
+                const message = 'Client individual summaries fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  individualSummaries: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      findClientIndividualSummariesPaged: rxMethod<{ organisationId: string; pageNumber: number; pageSize: number }>(
+        switchMap((data: { organisationId: string; pageNumber: number; pageSize: number }) => {
+          patchState(store, { loading: true, loaderMessage: 'Fetching client individual summaries (paged) ...' });
+          return kycRecordApi.findClientIndividualSummariesPaged(data.organisationId, data.pageNumber, data.pageSize).pipe(
+            tapResponse({
+              next: (response: Page<KycRecordSummary>) => {
+                const message = 'Client individual summaries (paged) fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  individualSummariesPaged: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      findClientOrganisationSummaries: rxMethod<{ organisationId: string }>(
+        switchMap((data: { organisationId: string }) => {
+          patchState(store, { loading: true, loaderMessage: 'Fetching client organisation summaries ...' });
+          return kycRecordApi.findClientOrganisationSummaries(data.organisationId).pipe(
+            tapResponse({
+              next: (response: KycRecordSummary[]) => {
+                const message = 'Client organisation summaries fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  organisationSummaries: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      findClientOrganisationSummariesPaged: rxMethod<{ organisationId: string; pageNumber: number; pageSize: number }>(
+        switchMap((data: { organisationId: string; pageNumber: number; pageSize: number }) => {
+          patchState(store, { loading: true, loaderMessage: 'Fetching client organisation summaries (paged) ...' });
+          return kycRecordApi.findClientOrganisationSummariesPaged(data.organisationId, data.pageNumber, data.pageSize).pipe(
+            tapResponse({
+              next: (response: Page<KycRecordSummary>) => {
+                const message = 'Client organisation summaries (paged) fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  organisationSummariesPaged: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      findSummaryById: rxMethod<{ id: string }>(
+        switchMap((data: { id: string }) => {
+          patchState(store, { loading: true, loaderMessage: 'Fetching summary by ID ...' });
+          return kycRecordApi.findSummaryById(data.id).pipe(
+            tapResponse({
+              next: (response: KycRecordSummary) => {
+                const message = 'Summary fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  summary: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      searchSummaries: rxMethod<{ criteria: KycRecordSearchCriteria }>(
+        switchMap((data: { criteria: KycRecordSearchCriteria }) => {
+          patchState(store, { loading: true, loaderMessage: 'Searching summaries ...' });
+          return kycRecordApi.searchSummaries(data.criteria).pipe(
+            tapResponse({
+              next: (response: KycRecordSummary[]) => {
+                const message = 'Summaries fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  summaries: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      pagedSearchSummaries: rxMethod<{ criteria: SearchObject<KycRecordSearchCriteria> }>(
+        switchMap((data: { criteria: SearchObject<KycRecordSearchCriteria> }) => {
+          patchState(store, { loading: true, loaderMessage: 'Searching summaries (paged) ...' });
+          return kycRecordApi.pagedSearchSummaries(data.criteria).pipe(
+            tapResponse({
+              next: (response: Page<KycRecordSummary>) => {
+                const message = 'Paged summaries fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  pagedSummaries: response,
                   loading: false,
                   success: true,
                   messages: [message],

@@ -165,21 +165,21 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   isUploadingDocument = signal(false);
 
   // KYC report sections and document requirements
-  individualReportGroups = computed<KycFieldGroupDTO[]>(() =>
-    [...(this.organisation()?.individualReportGroups || [])].sort((a: KycFieldGroupDTO, b: KycFieldGroupDTO) => (a.position ?? 0) - (b.position ?? 0))
+  individualFieldGroups = computed<KycFieldGroupDTO[]>(() =>
+    [...(this.organisation()?.individualFieldGroups || [])].sort((a: KycFieldGroupDTO, b: KycFieldGroupDTO) => (a.position ?? 0) - (b.position ?? 0))
   );
-  organisationReportGroups = computed<KycFieldGroupDTO[]>(() =>
-    [...(this.organisation()?.organisationReportGroups || [])].sort((a: KycFieldGroupDTO, b: KycFieldGroupDTO) => (a.position ?? 0) - (b.position ?? 0))
+  organisationFieldGroups = computed<KycFieldGroupDTO[]>(() =>
+    [...(this.organisation()?.organisationFieldGroups || [])].sort((a: KycFieldGroupDTO, b: KycFieldGroupDTO) => (a.position ?? 0) - (b.position ?? 0))
   );
   selectedOrganisationReportGroups = computed<KycFieldGroupDTO[]>(() => {
     const selectedGroup = this.selectedOrganisationKycGroup();
     const selectedFields = this.selectedOrganisationKycFields();
 
     if (!selectedGroup.length && !selectedFields.length) {
-      return this.organisationReportGroups();
+      return this.organisationFieldGroups();
     }
 
-    return this.organisationReportGroups()
+    return this.organisationFieldGroups()
       .map((section) => ({
         ...section,
         fieldValues: (section.groupFields || []).filter((fieldValue: any) => {
@@ -257,8 +257,8 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     const data: AssignFieldGroupsDialogData = {
       organisationGroups: this.settings()?.organisationKycFieldGroups || [],
       individualGroups: this.settings()?.individualKycFieldGroups || [],
-      assignedOrganisationGroups: this.organisationReportGroups(),
-      assignedIndividualGroups: this.individualReportGroups(),
+      assignedOrganisationGroups: this.organisationFieldGroups(),
+      assignedIndividualGroups: this.individualFieldGroups(),
       filter,
       focusGroupId,
     };
@@ -277,8 +277,8 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
         this.organisationApiStore.save({
           organisation: {
             ...organisation,
-            organisationReportGroups: result.organisationReportGroups,
-            individualReportGroups: result.individualReportGroups,
+            organisationFieldGroups: result.organisationReportGroups,
+            individualFieldGroups: result.individualReportGroups,
           },
         });
       });
@@ -306,7 +306,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   organisationFieldValue(group: any, field: any): any {
-    const fieldValues = this.organisationReportGroups().flatMap((section) => section.groupFields || []);
+    const fieldValues = this.organisationFieldGroups().flatMap((section) => section.groupFields || []);
 
     return fieldValues.find(
       (fieldValue: any) =>

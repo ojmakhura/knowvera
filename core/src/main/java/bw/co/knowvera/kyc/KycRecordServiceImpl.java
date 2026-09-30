@@ -19,6 +19,7 @@ import org.apache.commons.lang3.Strings;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
@@ -447,11 +448,11 @@ public class KycRecordServiceImpl
 
         String ownerId = individualId;
 
-        if(ownerType == TargetEntity.ORGANISATION) {
+        if (ownerType == TargetEntity.ORGANISATION) {
 
             Individual individual = individualRepository.getReferenceById(UUID.fromString(individualId));
 
-            if(individual.getOrganisation() != null && individual.getOrganisation().getId() != null) {
+            if (individual.getOrganisation() != null && individual.getOrganisation().getId() != null) {
 
                 ownerId = individual.getOrganisation().getId().toString();
             }
@@ -624,11 +625,7 @@ public class KycRecordServiceImpl
         return this.kycRecordMapper.toKycRecordDTO(record);
     }
 
-    @Override
-    protected KycRecordSummary handleFindSummaryById(String id, String organisationId) throws Exception {
-
-        KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + id));
+    private KycRecordSummary generateSummary(KycRecord kycRecord) {
 
         KycRecordSummary summary = kycRecordMapper.toKycRecordSummary(kycRecord);
 
@@ -672,6 +669,16 @@ public class KycRecordServiceImpl
         summary.setEmailAddress(emailAddress);
 
         return summary;
+
+    }
+
+    @Override
+    protected KycRecordSummary handleFindSummaryById(String id, String organisationId) throws Exception {
+
+        KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + id));
+
+        return generateSummary(kycRecord);
     }
 
     @Override
@@ -787,9 +794,12 @@ public class KycRecordServiceImpl
     /**
      * @see bw.co.knowvera.individual.kyc.KycRecordService#generateKycReport(String)
      * 
-     * This method generates a KYC report for the given KYC record ID. It retrieves the KYC record,
-     * checks the verification status of the associated documents, and creates report sections
-     * accordingly. The report sections are then saved along with the updated KYC record status.
+     *      This method generates a KYC report for the given KYC record ID. It
+     *      retrieves the KYC record,
+     *      checks the verification status of the associated documents, and creates
+     *      report sections
+     *      accordingly. The report sections are then saved along with the updated
+     *      KYC record status.
      */
     @Override
     @Transactional
@@ -866,9 +876,11 @@ public class KycRecordServiceImpl
         /**
          * Iterate through the field groups and their fields, for each field we check if
          * there is a corresponding document that has been verified or rejected, if so
-         * we create a GroupFieldValue and populate it with the data from the match result
+         * we create a GroupFieldValue and populate it with the data from the match
+         * result
          * and associate it with the report section. Finally we update the KYC record's
-         * status based on the verification results and save the record along with the generated report sections
+         * status based on the verification results and save the record along with the
+         * generated report sections
          */
         for (KycFieldGroup group : kycFieldGroups) {
 
@@ -907,7 +919,8 @@ public class KycRecordServiceImpl
 
                         fieldValue.setData(data);
 
-                        if(StringUtils.isNotBlank(data.getExpectedValue()) || StringUtils.isNotBlank(data.getExtractedValue())) {
+                        if (StringUtils.isNotBlank(data.getExpectedValue())
+                                || StringUtils.isNotBlank(data.getExtractedValue())) {
                             section.getGroupFieldValues().add(fieldValue);
                         }
                     }
@@ -940,7 +953,7 @@ public class KycRecordServiceImpl
 
     @Override
     protected KycRecordDTO handleUpdateStatus(String id, KycComplianceStatus kycStatus, String user) throws Exception {
-        
+
         KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + id));
 
@@ -953,5 +966,86 @@ public class KycRecordServiceImpl
 
         return this.kycRecordMapper.toKycRecordDTO(kycRecord);
 
+    }
+
+    private Specification<KycRecord> getSummarySpecification(String organisationId, Boolean forIndividual) {
+        Specification<KycRecord> specification = (root, query, cb) -> cb.equal(root.get("targetId"), organisationId);
+
+        if (forIndividual != null) {
+
+            if(forIndividual) {
+                specification = specification.and((root, query, cb) -> cb.equal(root.get("target"), "INDIVIDUAL"));
+            } else {
+                specification = specification.and((root, query, cb) -> cb.equal(root.get("target"), "ORGANISATION"));
+            }
+
+        }
+
+        return specification;
+    }
+
+    @Override
+    protected List<KycRecordSummary> handleFindOrganisationSummaries(String organisationId, Boolean forIndividual)
+            throws Exception {
+
+        Specification<KycRecord> specification = getSummarySpecification(organisationId, forIndividual);
+
+        Collection<KycRecord> kycRecords = this.kycRecordRepository.findAll(specification);
+
+        List<KycRecordSummary> summaries = new ArrayList<>();
+        for (KycRecord kycRecord : kycRecords) {
+            summaries.add(generateSummary(kycRecord));
+        }
+
+        return summaries;
+    }
+
+    @Override
+    protected Page<KycRecordSummary> handleFindOrganisationSummaries(String organisationId, Boolean forIndividual,
+            Integer pageSize, Integer pageNumber) throws Exception {
+        
+        Specification<KycRecord> specification = getSummarySpecification(organisationId, forIndividual);
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<KycRecord> kycRecordsPage = this.kycRecordRepository.findAll(specification, pageable);
+
+        Page<KycRecordSummary> summaries = kycRecordsPage
+                .map(this::generateSummary);
+
+        return summaries;
+    }
+
+    @Override
+    protected Page<KycRecordSummary> handleSearchSummaries(SearchObject<KycRecordSearchCriteria> criteria)
+            throws Exception {
+    
+        Sort sort = Sort.by(Direction.DESC, "createdAt");
+
+        PageRequest pageRequest = PageRequest.of(
+                criteria.getPageNumber(),
+                criteria.getPageSize(),
+                sort);
+
+        Specification<KycRecord> specification = this.createSpecification(criteria.getCriteria());
+
+        Page<KycRecord> kycRecords = specification == null ? this.kycRecordRepository.findAll(pageRequest)
+                : this.kycRecordRepository.findAll(specification, pageRequest);
+                
+        return kycRecords.map(this::generateSummary);
+    }
+
+    @Override
+    protected List<KycRecordSummary> handleSearchSummaries(@Valid KycRecordSearchCriteria criteria,
+            @Valid Set<PropertySearchOrder> orderings) throws Exception {
+
+        Specification<KycRecord> spec = this.createSpecification(criteria);
+
+        Sort sort = Sort.by(Direction.DESC, "createdAt");
+
+        List<KycRecord> kycRecords = spec == null ? this.kycRecordRepository.findAll(sort)
+                : this.kycRecordRepository.findAll(spec, sort);
+
+        return kycRecords.stream().map(this::generateSummary).collect(Collectors.toList());
+        
     }
 }

@@ -28,6 +28,7 @@ import bw.co.knowvera.organisation.OrganisationDTO;
 import bw.co.knowvera.user.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -689,5 +690,45 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         return ResponseEntity.ok(record);
 
+    }
+
+    @Override
+    public @Nullable ResponseEntity<List<KycRecordSummary>> findClientIndividualSummaries(
+            @Nullable String organisationId) throws Exception {
+        
+        return ResponseEntity.ok(kycRecordService.findOrganisationSummaries(organisationId, true));
+    }
+
+    @Override
+    public ResponseEntity<Page<KycRecordSummary>> findClientIndividualSummariesPaged(@Nullable String organisationId,
+            @Nullable Integer pageNumber, @Nullable Integer pageSize) throws Exception {
+        return ResponseEntity.ok(kycRecordService.findOrganisationSummaries(organisationId, true, pageSize, pageNumber));
+    }
+
+    @Override
+    public @Nullable ResponseEntity<List<KycRecordSummary>> findClientOrganisationSummaries(
+            @Nullable String organisationId) throws Exception {
+        return ResponseEntity.ok(kycRecordService.findOrganisationSummaries(organisationId, false));
+    }
+
+    @Override
+    public ResponseEntity<Page<KycRecordSummary>> findClientOrganisationSummariesPage(@Nullable String organisationId,
+            @Nullable Integer pageNumber, @Nullable Integer pageSize) throws Exception {
+        return ResponseEntity.ok(kycRecordService.findOrganisationSummaries(organisationId, false, pageSize, pageNumber));
+    }
+
+    @Override
+    public @Nullable ResponseEntity<Page<KycRecordSummary>> pagedSearchSummaries(
+            @Nullable @Valid SearchObject<KycRecordSearchCriteria> criteria) throws Exception {
+        
+        Page<KycRecordSummary> summaries = kycRecordService.searchSummaries(criteria);
+        return ResponseEntity.ok(summaries);
+    }
+
+    @Override
+    public @Nullable ResponseEntity<List<KycRecordSummary>> searchSummaries(@Nullable KycRecordSearchCriteria criteria)
+            throws Exception {
+        List<KycRecordSummary> summaries = kycRecordService.searchSummaries(criteria, Set.<PropertySearchOrder>of());
+        return ResponseEntity.ok(summaries);
     }
 }
