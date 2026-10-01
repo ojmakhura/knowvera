@@ -10,6 +10,7 @@ import bw.co.knowvera.PropertySearchOrder;
 import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.SortOrder;
 import bw.co.knowvera.TargetEntity;
+import bw.co.knowvera.auth.KycAuthorisationService;
 import bw.co.knowvera.document.DocumentApi;
 import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.individual.IndividualDTO;
@@ -38,6 +39,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,6 +57,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     private final IndividualService individualService;
     private final ClientRequestNotification clientRequestNotification;
     private final OrganisationService organisationService;
+    private final KycAuthorisationService kycAuthorisationService;
 
     public ClientRequestApiImpl(
             ClientRequestService clientRequestService,
@@ -62,7 +66,8 @@ public class ClientRequestApiImpl implements ClientRequestApi {
             KeycloakUserService keycloakUserService,
             IndividualService individualService,
             OrganisationService organisationService,
-            ClientRequestNotification clientRequestNotification) {
+            ClientRequestNotification clientRequestNotification,
+            KycAuthorisationService kycAuthorisationService) {
 
         this.settingsService = settingsService;
         this.documentApi = documentApi;
@@ -71,81 +76,87 @@ public class ClientRequestApiImpl implements ClientRequestApi {
         this.individualService = individualService;
         this.clientRequestNotification = clientRequestNotification;
         this.organisationService = organisationService;
+        this.kycAuthorisationService = kycAuthorisationService;
     }
 
     @Override
     @Operation(summary = "Find Client Request by ID", description = "Find a client request by its ID")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#id", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#id", logData = false)
     public ResponseEntity<ClientRequestDTO> findById(String id) throws Exception {
 
-            ClientRequestDTO request = clientRequestService.findById(id);
+        ClientRequestDTO request = clientRequestService.findById(id);
 
-            return ResponseEntity.ok(request);
+        if(!kycAuthorisationService.isOrganisationUserMatch(request.getOrganisationId())) {
+
+            throw new AccessDeniedException("Organisation user does not match the client request organisation");
+        }
+
+        return ResponseEntity.ok(request);
     }
 
     @Override
     @Operation(summary = "Find Client Requests by Individual", description = "Find client requests by individual ID")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#individualId", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#individualId", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findByIndividual(String individualId) throws Exception {
-        
-            List<ClientRequestDTO> requests = clientRequestService.findByIndividual(individualId);
-            return ResponseEntity.ok(requests);
+
+        List<ClientRequestDTO> requests = clientRequestService.findByIndividual(individualId);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
     @Operation(summary = "Find Client Requests by Individual (Paged)", description = "Find client requests by individual ID with pagination")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#individualId", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#individualId", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> findByIndividualPaged(String individualId, Integer pageNumber,
             Integer pageSize) throws Exception {
-        
-            Page<ClientRequestDTO> requests = clientRequestService.findByIndividual(individualId, pageNumber, pageSize);
-            return ResponseEntity.ok(requests);
+
+        Page<ClientRequestDTO> requests = clientRequestService.findByIndividual(individualId, pageNumber, pageSize);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
     @Operation(summary = "Find Client Requests by Organisation", description = "Find client requests by organisation ID")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#organisationId", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#organisationId", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findByOrganisation(String organisationId, TargetEntity target)
             throws Exception {
 
-            List<ClientRequestDTO> requests = clientRequestService.findByOrganisation(organisationId);
-            return ResponseEntity.ok(requests);
+        List<ClientRequestDTO> requests = clientRequestService.findByOrganisation(organisationId);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
     @Operation(summary = "Find Client Requests by Organisation (Paged)", description = "Find client requests by organisation ID with pagination")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#organisationId", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#organisationId", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber,
             Integer pageSize, TargetEntity target) throws Exception {
-        
-            Page<ClientRequestDTO> requests = clientRequestService.findByOrganisation(organisationId, pageNumber,
-                    pageSize);
 
-            return ResponseEntity.ok(requests);
+        Page<ClientRequestDTO> requests = clientRequestService.findByOrganisation(organisationId, pageNumber,
+                pageSize);
+
+        return ResponseEntity.ok(requests);
     }
 
     @Override
     @Operation(summary = "Find Client Requests by Status", description = "Find client requests by their status")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#status", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#status", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findByStatus(ClientRequestStatus status) throws Exception {
-            List<ClientRequestDTO> requests = clientRequestService.findByStatus(status);
-            return ResponseEntity.ok(requests);
+        List<ClientRequestDTO> requests = clientRequestService.findByStatus(status);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
     @Operation(summary = "Get All Client Requests", description = "Retrieve all client requests")
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> getAll() throws Exception {
-            List<ClientRequestDTO> requests = clientRequestService.getAll();
-            return ResponseEntity.ok(requests);
+        List<ClientRequestDTO> requests = clientRequestService.getAll();
+        return ResponseEntity.ok(requests);
     }
 
     @Override
     @Operation(summary = "Get All Client Requests (Paged)", description = "Retrieve all client requests with pagination")
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> getAllPaged(Integer pageNumber, Integer pageSize) throws Exception {
-            Page<ClientRequestDTO> requests = clientRequestService.getAll(pageNumber, pageSize);
-            return ResponseEntity.ok(requests);
+        Page<ClientRequestDTO> requests = clientRequestService.getAll(pageNumber, pageSize);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
@@ -153,30 +164,40 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> pagedSearch(SearchObject<ClientRequestSearchCriteria> criteria)
             throws Exception {
-        
-            Page<ClientRequestDTO> requests = clientRequestService.search(criteria);
-            return ResponseEntity.ok(requests);
+
+        ClientRequestSearchCriteria requestCriteria = criteria.getCriteria();
+
+        if(StringUtils.isNotBlank(requestCriteria.getOrganisationId())) {
+
+            if(!kycAuthorisationService.isOrganisationUserMatch(requestCriteria.getOrganisationId())) {
+                // Implement the logic for when the organisation user matches
+
+                throw new AuthorizationDeniedException("User not authorised to access organisation resources.");
+            }
+        }
+
+        Page<ClientRequestDTO> requests = clientRequestService.search(criteria);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
     @Operation(summary = "Remove Client Request", description = "Remove a client request by its ID")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#id", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
-        
 
-            return ResponseEntity.ok(clientRequestService.remove(id));
+        return ResponseEntity.ok(clientRequestService.remove(id));
     }
 
     @Override
     @Operation(summary = "Save Client Request", description = "Save a client request")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#clientRequest.id", logData = true)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#clientRequest.id", logData = true)
     public ResponseEntity<ClientRequestDTO> save(ClientRequestDTO clientRequest) throws Exception {
-        
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            AuditTracker.auditTrail(clientRequest, authentication);
 
-            ClientRequestDTO savedRequest = clientRequestService.save(clientRequest);
-            return ResponseEntity.ok(savedRequest);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(clientRequest, authentication);
+
+        ClientRequestDTO savedRequest = clientRequestService.save(clientRequest);
+        return ResponseEntity.ok(savedRequest);
     }
 
     @Override
@@ -184,21 +205,21 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> search(SearchObject<ClientRequestSearchCriteria> criteria)
             throws Exception {
-        
-            Set<PropertySearchOrder> sorting = new HashSet<>();
-            if (criteria.getSortings() != null) {
 
-                sorting.addAll(criteria.getSortings());
-            }
+        Set<PropertySearchOrder> sorting = new HashSet<>();
+        if (criteria.getSortings() != null) {
 
-            List<ClientRequestDTO> requests = clientRequestService.search(criteria.getCriteria(), sorting);
-            return ResponseEntity.ok(requests);
-        
+            sorting.addAll(criteria.getSortings());
+        }
+
+        List<ClientRequestDTO> requests = clientRequestService.search(criteria.getCriteria(), sorting);
+        return ResponseEntity.ok(requests);
+
     }
 
     @Override
     @Operation(summary = "Find Client Requests by Document", description = "Find client requests by document ID")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#documentId", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#documentId", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findByDocument(String documentId) throws Exception {
 
         List<ClientRequestDTO> requests = clientRequestService.findByDocument(documentId);
@@ -207,7 +228,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Document (Paged)", description = "Find client requests by document ID with pagination")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#documentId", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#documentId", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> findByDocumentPaged(String documentId, Integer pageNumber,
             Integer pageSize) throws Exception {
 
@@ -217,7 +238,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Find Client Requests by Status", description = "Find client requests by their status with pagination")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#status", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#status", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> findByStatusPaged(ClientRequestStatus status,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -227,7 +248,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Upload Client Requests", description = "Upload client requests from a file")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#file.getOriginalFilename()", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#file.getOriginalFilename()", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> uploadRequests(MultipartFile file, String organisationId,
             TargetEntity target) throws Exception {
 
@@ -241,7 +262,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
                             TargetEntity.CLIENT_REQUEST,
                             organisationId,
                             settings.getClientRequestFileType().getId(),
-                            "requests" ,
+                            "requests",
                             file)
                     .getBody();
 
@@ -263,45 +284,45 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<InputStreamResource> downloadRequestTemplate() throws Exception {
 
-            // Read the individual template file from resources
-            Resource resource = new ClassPathResource("templates/client-request-template.xlsx");
+        // Read the individual template file from resources
+        Resource resource = new ClassPathResource("templates/client-request-template.xlsx");
 
-            if (!resource.exists()) {
-                // Try CSV template as fallback
-                resource = new ClassPathResource("templates/client-request-template.csv");
+        if (!resource.exists()) {
+            // Try CSV template as fallback
+            resource = new ClassPathResource("templates/client-request-template.csv");
+        }
+
+        if (!resource.exists()) {
+            throw new Exception("Template file not found in resources/templates directory");
+        }
+
+        InputStream inputStream = resource.getInputStream();
+        InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
+
+        // Determine content type based on file extension
+        String filename = resource.getFilename();
+        MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
+        if (filename != null) {
+            if (filename.endsWith(".xlsx")) {
+                mediaType = MediaType
+                        .parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            } else if (filename.endsWith(".xls")) {
+                mediaType = MediaType.parseMediaType("application/vnd.ms-excel");
+            } else if (filename.endsWith(".csv")) {
+                mediaType = MediaType.parseMediaType("text/csv");
             }
+        }
 
-            if (!resource.exists()) {
-                throw new Exception("Template file not found in resources/templates directory");
-            }
+        // Set headers for file download
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(mediaType);
+        headers.setContentDispositionFormData("attachment", filename);
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
 
-            InputStream inputStream = resource.getInputStream();
-            InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
-
-            // Determine content type based on file extension
-            String filename = resource.getFilename();
-            MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
-            if (filename != null) {
-                if (filename.endsWith(".xlsx")) {
-                    mediaType = MediaType
-                            .parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-                } else if (filename.endsWith(".xls")) {
-                    mediaType = MediaType.parseMediaType("application/vnd.ms-excel");
-                } else if (filename.endsWith(".csv")) {
-                    mediaType = MediaType.parseMediaType("text/csv");
-                }
-            }
-
-            // Set headers for file download
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(mediaType);
-            headers.setContentDispositionFormData("attachment", filename);
-            headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
-
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .contentLength(resource.contentLength())
-                    .body(inputStreamResource);
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(resource.contentLength())
+                .body(inputStreamResource);
 
     }
 
@@ -311,8 +332,8 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     public ResponseEntity<List<ClientRequestDTO>> findByTarget(TargetEntity target, String targetId)
             throws Exception {
 
-            List<ClientRequestDTO> requests = clientRequestService.findByTarget(target, targetId);
-            return ResponseEntity.ok(requests);
+        List<ClientRequestDTO> requests = clientRequestService.findByTarget(target, targetId);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
@@ -321,9 +342,9 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     public ResponseEntity<Page<ClientRequestDTO>> findByTargetPaged(TargetEntity target,
             String targetId, Integer pageNumber, Integer pageSize) throws Exception {
 
-            Page<ClientRequestDTO> requests = clientRequestService.findByTarget(target, targetId, pageNumber, pageSize);
+        Page<ClientRequestDTO> requests = clientRequestService.findByTarget(target, targetId, pageNumber, pageSize);
 
-            return ResponseEntity.ok(requests);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
@@ -353,10 +374,10 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findOrganisationsByOrganisation(String organisationId)
             throws Exception {
-        
-            List<ClientRequestDTO> requests = clientRequestService
-                    .findByTargetAndOrganisation(TargetEntity.ORGANISATION, null, organisationId);
-            return ResponseEntity.ok(requests);
+
+        List<ClientRequestDTO> requests = clientRequestService
+                .findByTargetAndOrganisation(TargetEntity.ORGANISATION, null, organisationId);
+        return ResponseEntity.ok(requests);
     }
 
     @Override
@@ -372,41 +393,82 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Update Client Request Status", description = "Update the status of a client request")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#status", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#status", logData = false)
     public ResponseEntity<ClientRequestDTO> updateStatus(String id, ClientRequestStatus status) throws Exception {
 
-            ClientRequestDTO request = clientRequestService.updateStatus(id, status);
+        ClientRequestDTO request = clientRequestService.updateStatus(id, status);
 
-            if (request.getStatus() == ClientRequestStatus.ACCEPTED) {
-                // Additional actions on approval can be handled here
+        if (request.getStatus() == ClientRequestStatus.ACCEPTED) {
+            // Additional actions on approval can be handled here
 
-                switch (request.getTarget()) {
-                    case INDIVIDUAL:
+            switch (request.getTarget()) {
+                case INDIVIDUAL:
 
-                        IndividualDTO individual = individualService.findById(request.getTargetId());
+                    IndividualDTO individual = individualService.findById(request.getTargetId());
 
-                        break;
+                    break;
 
-                    case ORGANISATION:
-                        throw new Exception("Organisation client request approval not yet implemented");
+                case ORGANISATION:
+                    throw new Exception("Organisation client request approval not yet implemented");
 
-                    default:
-                        throw new Exception(
-                                "Unsupported target entity for client request approval: " + request.getTarget());
-                }
-
+                default:
+                    throw new Exception(
+                            "Unsupported target entity for client request approval: " + request.getTarget());
             }
 
-            return ResponseEntity.ok(request);
+        }
+
+        return ResponseEntity.ok(request);
 
     }
 
     @Override
     @Operation(summary = "Confirm Client Request Token", description = "Confirm the token for a client request")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#token", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#token", logData = false)
     public ResponseEntity<String> confirmToken(String requestId, String token) throws Exception {
 
-            ClientRequestDTO request = clientRequestService.findById(requestId);
+        ClientRequestDTO request = clientRequestService.findById(requestId);
+        if (request.getStatus() == ClientRequestStatus.ACCEPTED
+                || request.getStatus() == ClientRequestStatus.REJECTED) {
+
+            throw new ClientRequestServiceException("This client request has already been responded to.");
+        }
+
+        switch (request.getTarget()) {
+            case INDIVIDUAL:
+
+                IndividualDTO individual = individualService.findById(request.getTargetId());
+                UserDTO existing = keycloakUserService.getUserByIdentityNo(individual.getIdentityNo());
+
+                if (existing != null) {
+
+                    throw new ClientRequestServiceException("The individual already has a user.");
+                }
+
+                break;
+            case ORGANISATION:
+                throw new Exception("Organisation client request confirmation not yet implemented");
+            default:
+                throw new Exception(
+                        "Unsupported target entity for client request confirmation: " + request.getTarget());
+        }
+
+        String confirmationToken = clientRequestService.confirmToken(requestId, token);
+        return ResponseEntity.ok(confirmationToken);
+
+    }
+
+    @Override
+    @Operation(summary = "Confirm Client Registration", description = "Confirm the registration for a client request")
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#registrationToken", logData = false)
+    public ResponseEntity<Boolean> confirmRegistration(String id, Boolean confirm, String registrationToken)
+            throws Exception {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (confirm) {
+            ClientRequestDTO request = clientRequestService.findById(id);
+
             if (request.getStatus() == ClientRequestStatus.ACCEPTED
                     || request.getStatus() == ClientRequestStatus.REJECTED) {
 
@@ -417,12 +479,35 @@ public class ClientRequestApiImpl implements ClientRequestApi {
                 case INDIVIDUAL:
 
                     IndividualDTO individual = individualService.findById(request.getTargetId());
+                    AuditTracker.auditTrail(request, authentication);
+                    individual.setHasUser(true);
+
                     UserDTO existing = keycloakUserService.getUserByIdentityNo(individual.getIdentityNo());
+                    individual.setHasUser(true);
 
                     if (existing != null) {
 
+                        individual.setUserCreated(true);
+
+                        individualService.save(individual);
+
                         throw new ClientRequestServiceException("The individual already has a user.");
+                    } else {
+
+                        individual.setUserCreated(false);
                     }
+
+                    // Activate individual account or send welcome email
+                    OrganisationDTO org = organisationService.findById(request.getOrganisationId());
+                    UserDTO user = keycloakUserService.registerUser(individual, org);
+
+                    if (user != null) {
+
+                        individual.setUserCreated(true);
+                        individual.setUserId(user.getUserId());
+                    } else {
+                    }
+                    individual = individualService.save(individual);
 
                     break;
                 case ORGANISATION:
@@ -432,75 +517,11 @@ public class ClientRequestApiImpl implements ClientRequestApi {
                             "Unsupported target entity for client request confirmation: " + request.getTarget());
             }
 
-            String confirmationToken = clientRequestService.confirmToken(requestId, token);
-            return ResponseEntity.ok(confirmationToken);
+        }
 
-    }
+        Boolean result = clientRequestService.confirmRegistration(id, confirm, registrationToken);
 
-    @Override
-    @Operation(summary = "Confirm Client Registration", description = "Confirm the registration for a client request")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel="#registrationToken", logData = false)
-    public ResponseEntity<Boolean> confirmRegistration(String id, Boolean confirm, String registrationToken)
-            throws Exception {
-
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            if (confirm) {
-                ClientRequestDTO request = clientRequestService.findById(id);
-
-                if (request.getStatus() == ClientRequestStatus.ACCEPTED
-                        || request.getStatus() == ClientRequestStatus.REJECTED) {
-
-                    throw new ClientRequestServiceException("This client request has already been responded to.");
-                }
-
-                switch (request.getTarget()) {
-                    case INDIVIDUAL:
-
-                        IndividualDTO individual = individualService.findById(request.getTargetId());
-                        AuditTracker.auditTrail(request, authentication);
-                        individual.setHasUser(true);
-
-                        UserDTO existing = keycloakUserService.getUserByIdentityNo(individual.getIdentityNo());
-                        individual.setHasUser(true);
-
-                        if (existing != null) {
-
-                            individual.setUserCreated(true);
-
-                            individualService.save(individual);
-
-                            throw new ClientRequestServiceException("The individual already has a user.");
-                        } else {
-
-                            individual.setUserCreated(false);
-                        }
-
-                        // Activate individual account or send welcome email
-                        OrganisationDTO org = organisationService.findById(request.getOrganisationId());
-                        UserDTO user = keycloakUserService.registerUser(individual, org);
-
-                        if (user != null) {
-
-                            individual.setUserCreated(true);
-                            individual.setUserId(user.getUserId());
-                        } else {
-                        }
-                        individual = individualService.save(individual);
-
-                        break;
-                    case ORGANISATION:
-                        throw new Exception("Organisation client request confirmation not yet implemented");
-                    default:
-                        throw new Exception(
-                                "Unsupported target entity for client request confirmation: " + request.getTarget());
-                }
-
-            }
-
-            Boolean result = clientRequestService.confirmRegistration(id, confirm, registrationToken);
-
-            return ResponseEntity.ok(result);
+        return ResponseEntity.ok(result);
 
     }
 
@@ -554,7 +575,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
             throw new Exception("No individual associated with user: " + username);
         }
 
-        if(individual.getOrganisation() != null &&StringUtils.isNotBlank(individual.getOrganisation().id())) {
+        if (individual.getOrganisation() != null && StringUtils.isNotBlank(individual.getOrganisation().id())) {
 
             return null;
         }

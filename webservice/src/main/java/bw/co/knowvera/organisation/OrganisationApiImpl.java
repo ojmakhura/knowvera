@@ -158,6 +158,8 @@ public class OrganisationApiImpl implements OrganisationApi {
             }
 
             keycloakOrg = orgService.createOrganisation(keycloakOrg);
+
+            organisation.setKeycloakId(keycloakOrg.getId());
         }
 
         organisation = organisationService.save(organisation);
@@ -247,5 +249,11 @@ public class OrganisationApiImpl implements OrganisationApi {
         String userId = jwt.getSubject();
 
         return ResponseEntity.ok(organisationService.verifyOrganisation(id, userId));
+    }
+
+    @Override
+    public ResponseEntity<OrganisationListDTO> findListOrganisationById(String id) throws Exception {
+        
+        return ResponseEntity.ok(organisationService.findListOrganisationById(id));
     }
 }

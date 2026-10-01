@@ -46,7 +46,7 @@ export class DocumentDTO extends AuditableDTO {
     
     dataVerifications: Array<DataVerification> | any;
     
-    dataComparisons: Array<DataComparisons> | any;
+    dataComparisons: Array<DataComparisons> = [];
     
     verificationDataConfigs: Array<VerificationDataConfigDTO> | any;
     

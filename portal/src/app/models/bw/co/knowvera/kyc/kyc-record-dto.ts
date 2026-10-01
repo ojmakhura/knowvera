@@ -11,21 +11,34 @@ import {DeclarationDTO} from '@models/bw/co/knowvera/kyc/declaration-dto';
 import { KycReportSectionDTO } from './fields/kyc-report-section-dto';
 
 export class KycRecordDTO extends AuditableDTO {
-    
     expiryDate: Date | any;
+    
     uploadDate: Date | any;
+    
     documents: Array<DocumentDTO> | any;
+    
     kycStatus: KycComplianceStatus | any;
+    
     targetId: string | any;
+    
+
     employmentRecord: EmploymentRecordDTO | any;
     target: TargetEntity | any;
+    
+
     declaration: DeclarationDTO | any;
     sourceOfFunds: Array<SourceOfFunds> | any;
+    
     sourceOfFundsDetails: string | any;
+    
     ref: string | any;
+    
+
     ownerDetails: OwnerDetails | any;
     recordSummary: string | any;
+    
     dataVerificationSummaries: Array<VerificationSummaryEntry> | any;
+    
     kycReportSections: Array<KycReportSectionDTO> | any;
     
     constructor() {

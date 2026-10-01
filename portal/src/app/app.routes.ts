@@ -93,6 +93,12 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./views/individual/individual-routes').then((m) => m.individualRoutes),
   },
+  {
+    path: 'client-request',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./views/client-request/request.routes').then((module) => module.requestRoutes),
+  },
   // Fallback when no prior route is matched
   {
     path: '**', redirectTo: '', pathMatch: 'full'

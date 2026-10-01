@@ -10,7 +10,7 @@ import { Page } from '@app/models/page.model';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { DocumentTypeApi } from '@app/services/bw/co/knowvera/document/type/document-type-api';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
-import { toast } from '@app/@shared/toast';
+import { toast } from 'ngx-sonner';
 
 export type DocumentTypeApiState = AppState<DocumentTypeDTO, DocumentTypeDTO> & {};
 

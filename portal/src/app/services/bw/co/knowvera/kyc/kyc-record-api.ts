@@ -11,6 +11,7 @@ import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/docume
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { KycRecordListDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-list-dto';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
+import { KycRecordSummary } from '@app/models/bw/co/knowvera/kyc/kyc-record-summary';
 
 @Injectable({
   providedIn: 'root'
@@ -154,5 +155,38 @@ export class KycRecordApi {
 
   updateStatus(id: string, status: KycComplianceStatus): Observable<KycRecordDTO> {
     return this.http.patch<KycRecordDTO>(`${this.path}/${id}/status?status=${status}`, {});
+  }
+
+  findClientIndividualSummaries(organisationId: string): Observable<KycRecordSummary[]> {
+    return this.http.get<KycRecordSummary[]>(`${this.path}/client-summary-kyc/${organisationId}/individuals`);
+  }
+
+  findClientIndividualSummariesPaged(organisationId: string, pageNumber: number, pageSize: number): Observable<Page<KycRecordSummary>> {
+
+    return this.http.get<Page<KycRecordSummary>>(`${this.path}/client-summary-kyc/${organisationId}/individuals/page?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  }
+
+  findClientOrganisationSummaries(organisationId: string): Observable<KycRecordSummary[]> {
+    return this.http.get<KycRecordSummary[]>(`${this.path}/client-summary-kyc/${organisationId}/organisations`);
+  }
+
+  findClientOrganisationSummariesPaged(organisationId: string, pageNumber: number, pageSize: number): Observable<Page<KycRecordSummary>> {
+
+    return this.http.get<Page<KycRecordSummary>>(`${this.path}/client-summary-kyc/${organisationId}/organisations/page?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  }
+
+  findSummaryById(id: string): Observable<KycRecordSummary> {
+
+    return this.http.get<KycRecordSummary>(`${this.path}/${id}/summary`);
+  }
+
+  searchSummaries(criteria: KycRecordSearchCriteria): Observable<KycRecordSummary[]> {
+
+    return this.http.post<KycRecordSummary[]>(`${this.path}/search/summaries`, criteria);
+  }
+
+  pagedSearchSummaries(criteria: SearchObject<KycRecordSearchCriteria>): Observable<Page<KycRecordSummary>> {
+
+    return this.http.post<Page<KycRecordSummary>>(`${this.path}/search/summaries/page`, criteria);
   }
 }

@@ -11,7 +11,7 @@ import { OrganisationDocumentDTO } from '@models/bw/co/knowvera/organisation/doc
 import { OrganisationDocumentApi } from '@services/bw/co/knowvera/organisation/document/organisation-document-api';
 import { OrganisationDocumentStatus } from '@app/models/bw/co/knowvera/organisation/document/organisation-document-status';
 import { OrganisationDocumentSearchCriteria } from '@app/models/bw/co/knowvera/organisation/document/organisation-document-search-criteria';
-import { toast } from '@app/@shared/toast';
+import { toast } from 'ngx-sonner';
 
 export type OrganisationDocumentApiState = AppState<any, any> & {};
 

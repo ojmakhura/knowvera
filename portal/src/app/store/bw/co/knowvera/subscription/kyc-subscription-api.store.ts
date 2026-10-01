@@ -10,7 +10,7 @@ import { Page } from '@app/models/page.model';
 import { KycSubscriptionDTO } from '@app/models/bw/co/knowvera/subscription/kyc-subscription-dto';
 import { KycSubscriptionApi } from '@app/services/bw/co/knowvera/subscription/kyc-subscription-api';
 import { SubscriptionSearchCriteria } from '@app/models/bw/co/knowvera/subscription/subscription-search-criteria';
-import { toast } from '@app/@shared/toast';
+import { toast } from 'ngx-sonner';
 
 export type KycSubscriptionApiState = AppState<KycSubscriptionDTO, KycSubscriptionDTO> & {};
 

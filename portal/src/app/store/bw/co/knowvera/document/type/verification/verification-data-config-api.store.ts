@@ -9,7 +9,7 @@ import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { VerificationDataConfigDTO } from '@app/models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
 import { VerificationDataConfigApi } from '@app/services/bw/co/knowvera/document/type/verification/verification-data-config-api';
-import { toast } from '@app/@shared/toast';
+import { toast } from 'ngx-sonner';
 
 export type VerificationDataConfigApiState = AppState<any, any> & {};
 

@@ -9,7 +9,7 @@ import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { SequenceGeneratorApi } from '@app/services/bw/co/knowvera/sequence/sequence-generator-api';
 import { SequenceGeneratorDTO } from '@app/models/bw/co/knowvera/sequence/sequence-generator-dto';
-import { toast } from '@app/@shared/toast';
+import { toast } from 'ngx-sonner';
 
 export type SequenceGeneratorApiState = AppState<SequenceGeneratorDTO, SequenceGeneratorDTO> & {};
 

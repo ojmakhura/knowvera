@@ -79,6 +79,11 @@ public class KycAuthorisationService {
 
     public Boolean isIndividualMatch(String individualId) {
 
+        if(StringUtils.isBlank(individualId)) {
+
+            return false;
+        }
+
         UserDTO user = getCurrentUser();
 
         if (user == null || StringUtils.isBlank(user.getUserId())) {
@@ -103,6 +108,10 @@ public class KycAuthorisationService {
 
     public Boolean isOrganisationUserMatch(String organisationId) {
 
+        if(StringUtils.isBlank(organisationId)) {
+            return false;
+        }
+
         UserDTO user = getCurrentUser();
 
         if(user == null || StringUtils.isBlank(user.getUserId()) || StringUtils.isBlank(user.getOrganisationId())) {
@@ -120,6 +129,11 @@ public class KycAuthorisationService {
 
     public Boolean isOrganisationUserMatchByRegistration(String registrationId) {
 
+        if(StringUtils.isBlank(registrationId)) {
+
+            return false;
+        }
+
         UserDTO user = getCurrentUser();
 
         if(user == null || StringUtils.isBlank(user.getUserId()) || StringUtils.isBlank(user.getOrganisationId())) {
@@ -136,7 +150,10 @@ public class KycAuthorisationService {
     }
 
     private Boolean isKycRecordOwnershipMatch(String kycRecordId) {
-        
+
+        if(StringUtils.isBlank(kycRecordId)) {
+            return false;
+        }
         KycRecordDTO kycRecord = kycRecordService.findById(kycRecordId);
         if (kycRecord == null || StringUtils.isBlank(kycRecord.getId())) {
             return false;

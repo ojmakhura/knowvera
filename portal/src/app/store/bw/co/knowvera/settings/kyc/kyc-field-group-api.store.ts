@@ -9,7 +9,7 @@ import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { KycFieldGroupDTO } from '@app/models/bw/co/knowvera/settings/kyc/kyc-field-group-dto';
 import { KycFieldGroupApi } from '@app/services/bw/co/knowvera/settings/kyc/kyc-field-group-api';
-import { toast } from '@app/@shared/toast';
+import { toast } from 'ngx-sonner';
 
 export type KycFieldGroupApiState = AppState<any, any> & {};
 

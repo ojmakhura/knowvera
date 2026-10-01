@@ -12,7 +12,7 @@ import { ClientRequestApi } from '@app/services/bw/co/knowvera/organisation/clie
 import { ClientRequestSearchCriteria } from '@app/models/bw/co/knowvera/organisation/client/client-request-search-criteria';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
-import { toast } from '@app/@shared/toast';
+import { toast } from 'ngx-sonner';
 
 export type ClientRequestApiState = AppState<ClientRequestDTO, ClientRequestDTO> & {
   individualsRequests: ClientRequestDTO[];

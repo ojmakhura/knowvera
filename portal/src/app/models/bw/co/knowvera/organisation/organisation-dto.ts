@@ -1,14 +1,14 @@
 import {AuditableDTO} from '@models/bw/co/knowvera/auditable-dto';
 
-import {DocumentListDTO} from '@models/bw/co/knowvera/document/document-list-dto';
-import {KycComplianceStatus} from '@models/bw/co/knowvera/kyc/kyc-compliance-status';
-import {DocumentDTO} from '@models/bw/co/knowvera/document/document-dto';
 import {DocumentTypeDTO} from '@models/bw/co/knowvera/document/type/document-type-dto';
-import {BranchDTO} from '@models/bw/co/knowvera/organisation/branch/branch-dto';
-import {GeneralStatus} from '@models/bw/co/knowvera/general-status';
-import {PhoneNumber} from '@models/bw/co/knowvera/phone-number';
+import {DocumentListDTO} from '@models/bw/co/knowvera/document/document-list-dto';
+import {DocumentDTO} from '@models/bw/co/knowvera/document/document-dto';
 import {OrganisationDomain} from '@models/bw/co/knowvera/organisation/organisation-domain';
-import { GroupFieldDTO } from '../settings/kyc/group-field-dto';
+import {PhoneNumber} from '@models/bw/co/knowvera/phone-number';
+import {GeneralStatus} from '@models/bw/co/knowvera/general-status';
+import {KycFieldGroupDTO} from '@models/bw/co/knowvera/settings/kyc/kyc-field-group-dto';
+import {BranchDTO} from '@models/bw/co/knowvera/organisation/branch/branch-dto';
+import {KycComplianceStatus} from '@models/bw/co/knowvera/kyc/kyc-compliance-status';
 
 export class OrganisationDTO extends AuditableDTO {
 
@@ -32,8 +32,8 @@ export class OrganisationDTO extends AuditableDTO {
     registrationDate: Date | any;
     branches: Array<BranchDTO> | any;
     individualKycDocuments: Array<DocumentTypeDTO> | any;
-    individualFields: Array<GroupFieldDTO> | any;
-    organisationFields: Array<GroupFieldDTO> | any;
+    individualFieldGroups: Array<KycFieldGroupDTO> | any;
+    organisationFieldGroups: Array<KycFieldGroupDTO> | any;
 
     constructor() {
         super();
@@ -57,7 +57,7 @@ export class OrganisationDTO extends AuditableDTO {
         this.registrationDate = null;
         this.branches = [];
         this.individualKycDocuments = [];
-        this.individualFields = [];
-        this.organisationFields = [];
+        this.individualFieldGroups = [];
+        this.organisationFieldGroups = [];
     }
 }

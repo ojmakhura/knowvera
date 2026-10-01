@@ -19,7 +19,7 @@ import { SettingsFieldGroups } from '@app/models/bw/co/knowvera/settings/setting
 import { SettingsToolSelectors } from '@app/models/bw/co/knowvera/settings/settings-tool-selectors';
 import { TemplateMappings } from '@app/models/bw/co/knowvera/settings/template-mappings';
 import { SalaryRangeDTO } from '@app/models/bw/co/knowvera/settings/salary-range-dto';
-import { toast } from '@app/@shared/toast';
+import { toast } from 'ngx-sonner';
 
 export type SettingsApiState = AppState<SettingsDTO, SettingsDTO> & {
   platformIdentity: PlatformIdentity;

@@ -10,7 +10,7 @@ import { Page } from '@models/page.model';
 import { ContactDTO } from '@app/models/bw/co/knowvera/contact/contact-dto';
 import { ContactApi } from '@app/services/bw/co/knowvera/contact/contact-api';
 import { ContactType } from '@app/models/bw/co/knowvera/contact/contact-type';
-import { toast } from '@app/@shared/toast';
+import { toast } from 'ngx-sonner';
 
 export type ContactApiState = AppState<ContactDTO, ContactDTO> & {};
 

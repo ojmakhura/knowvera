@@ -54,6 +54,7 @@ import {
   FieldGroupFilter,
   FieldGroupScope,
 } from './assign-field-groups-dialog';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-organisation-details',
@@ -72,10 +73,10 @@ import {
     MatChipsModule,
     MatTabsModule,
     MatSelectModule,
+    TranslateModule
   ],
   templateUrl: './organisation-details.html',
-  styleUrl: './organisation-details.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrls: ['./organisation-details.scss'],
   providers: [DatePipe, CurrencyPipe],
 })
 export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {

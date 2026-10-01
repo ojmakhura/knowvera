@@ -9,7 +9,7 @@ import { SearchObject } from '@app/models/search-object';
 import { Page } from '@app/models/page.model';
 import { UserDTO } from '@app/models/bw/co/knowvera/user/user-dto';
 import { UserApi } from '@app/services/bw/co/knowvera/user/user-api';
-import { toast } from '@app/@shared/toast';
+import { toast } from 'ngx-sonner';
 
 export type UserApiState = AppState<any, any> & {};
 
