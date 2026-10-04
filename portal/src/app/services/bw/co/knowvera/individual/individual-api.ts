@@ -13,7 +13,7 @@ import { IndividualSearchCriteria } from '@models/bw/co/knowvera/individual/indi
 })
 export class IndividualApi {
 
-  protected path = '/individual';
+  protected path = '/individuals';
 
   private http = inject(HttpClient);
 
@@ -34,7 +34,7 @@ export class IndividualApi {
 
   public getOrganisationClients(organisationId: string | any): Observable<IndividualListDTO[] | any[]> {
 
-    return this.http.get<IndividualListDTO[] | any[]>(`${this.path}/organisation/{organisationId}/organisationId/${organisationId}`);
+    return this.http.get<IndividualListDTO[] | any[]>(`${this.path}/organisation/${organisationId}/organisationId/${organisationId}`);
   }
 
   public getOrganisationClientsPaged(organisationId: string | any, pageNumber: number | any, pageSize: number | any): Observable<Page<IndividualListDTO> | any> {
@@ -68,5 +68,10 @@ export class IndividualApi {
 
   public loadMe(): Observable<IndividualDTO> {
     return this.http.get<IndividualDTO>(`${this.path}/me`);
+  }
+
+  public verifyIndividual(id: string | any): Observable<IndividualDTO | any> {
+
+    return this.http.get<IndividualDTO | any>(`${this.path}/${id}/verification`);
   }
 }

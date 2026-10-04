@@ -375,11 +375,12 @@ def main():
     print(f"\n{len(changes)} expressions to update, {len(model_annotations)} model operations "
           f"and {len(annotations)} Impl methods to annotate")
 
-    if "--apply" in sys.argv:
+    if "--apply" in sys.argv and (changes or model_annotations):
         for path in MODEL_FILES:
             apply_to_file(path, changes)
             annotate_model(path, model_annotations)
             print(f"Updated {path.relative_to(g.ROOT)}")
+    if "--apply" in sys.argv:
         annotate_impls(annotations)
 
 

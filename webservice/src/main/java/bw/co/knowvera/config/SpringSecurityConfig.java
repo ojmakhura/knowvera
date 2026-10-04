@@ -67,7 +67,7 @@ public class SpringSecurityConfig {
 								"/actuator/**",
 								"/analytics/**",
 								"/client-requests/confirm-token/**",
-								"/individual/request/**",
+								"/individuals/request/**",
 								"/organisations/request/**",
 								"/client-requests/*/confirm")
 						.permitAll()

@@ -1533,18 +1533,18 @@
             ]
           },
           {
-            "name": "employment",
+            "name": "employment-records",
             "displayName": "Employment Record",
-            "type": "urn:knowvera-api:resources:employment",
+            "type": "urn:knowvera-api:resources:employment-records",
             "ownerManagedAccess": false,
             "attributes": {},
             "uris": [
-              "/employment",
-              "/employment/by-individual/{individualId}",
-              "/employment/paged",
-              "/employment/search",
-              "/employment/search/paged",
-              "/employment/{id}"
+              "/employment-records",
+              "/employment-records/by-individual/{individualId}",
+              "/employment-records/paged",
+              "/employment-records/search",
+              "/employment-records/search/paged",
+              "/employment-records/{id}"
             ],
             "scopes": [
               {
@@ -1589,22 +1589,22 @@
             ]
           },
           {
-            "name": "individual",
+            "name": "individuals",
             "displayName": "Individual",
-            "type": "urn:knowvera-api:resources:individual",
+            "type": "urn:knowvera-api:resources:individuals",
             "ownerManagedAccess": false,
             "attributes": {},
             "uris": [
-              "/individual",
-              "/individual/me",
-              "/individual/organisation/{organisationId}/organisationId/{organisationId}",
-              "/individual/organisation/{organisationId}/paged",
-              "/individual/paged",
-              "/individual/request/{requestId}",
-              "/individual/search",
-              "/individual/search/paged",
-              "/individual/{id}",
-              "/individual/{id}/verification"
+              "/individuals",
+              "/individuals/me",
+              "/individuals/organisation/{organisationId}/organisationId/{organisationId}",
+              "/individuals/organisation/{organisationId}/paged",
+              "/individuals/paged",
+              "/individuals/request/{requestId}",
+              "/individuals/search",
+              "/individuals/search/paged",
+              "/individuals/{id}",
+              "/individuals/{id}/verification"
             ],
             "scopes": [
               {
@@ -1628,23 +1628,23 @@
             ]
           },
           {
-            "name": "invoice",
+            "name": "invoices",
             "displayName": "Kyc Invoice",
-            "type": "urn:knowvera-api:resources:invoice",
+            "type": "urn:knowvera-api:resources:invoices",
             "ownerManagedAccess": false,
             "attributes": {},
             "uris": [
-              "/invoice",
-              "/invoice/by-organisation/{organisationId}",
-              "/invoice/by-organisation/{organisationId}/paged",
-              "/invoice/by-subscription/{subscriptionId}",
-              "/invoice/by-subscription/{subscriptionId}/paged",
-              "/invoice/generate/{subscriptionId}",
-              "/invoice/paged",
-              "/invoice/search",
-              "/invoice/search/paged",
-              "/invoice/{id}",
-              "/invoice/{id}/upload"
+              "/invoices",
+              "/invoices/by-organisation/{organisationId}",
+              "/invoices/by-organisation/{organisationId}/paged",
+              "/invoices/by-subscription/{subscriptionId}",
+              "/invoices/by-subscription/{subscriptionId}/paged",
+              "/invoices/generate/{subscriptionId}",
+              "/invoices/paged",
+              "/invoices/search",
+              "/invoices/search/paged",
+              "/invoices/{id}",
+              "/invoices/{id}/upload"
             ],
             "scopes": [
               {
@@ -2569,49 +2569,49 @@
             }
           },
           {
-            "name": "employment-view-permission",
+            "name": "employment-records-view-permission",
             "description": "Read a single record (Employment Record)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"employment\"]",
+              "resources": "[\"employment-records\"]",
               "scopes": "[\"view\"]",
               "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
             }
           },
           {
-            "name": "employment-list-permission",
+            "name": "employment-records-list-permission",
             "description": "List, page or search records (Employment Record)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"employment\"]",
+              "resources": "[\"employment-records\"]",
               "scopes": "[\"list\"]",
               "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
             }
           },
           {
-            "name": "employment-edit-permission",
+            "name": "employment-records-edit-permission",
             "description": "Create or update a record (save is an upsert) (Employment Record)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"employment\"]",
+              "resources": "[\"employment-records\"]",
               "scopes": "[\"edit\"]",
               "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
             }
           },
           {
-            "name": "employment-delete-permission",
+            "name": "employment-records-delete-permission",
             "description": "Remove a record or one of its parts (Employment Record)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"employment\"]",
+              "resources": "[\"employment-records\"]",
               "scopes": "[\"delete\"]",
               "applyPolicies": "[\"platform-admin-policy\", \"applicant-policy\"]"
             }
@@ -2665,133 +2665,133 @@
             }
           },
           {
-            "name": "individual-self-permission",
+            "name": "individuals-self-permission",
             "description": "Read or change the caller's own data (my records, my profile) (Individual)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"individual\"]",
+              "resources": "[\"individuals\"]",
               "scopes": "[\"self\"]",
               "applyPolicies": "[\"authenticated-policy\"]"
             }
           },
           {
-            "name": "individual-view-permission",
+            "name": "individuals-view-permission",
             "description": "Read a single record (Individual)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"individual\"]",
+              "resources": "[\"individuals\"]",
               "scopes": "[\"view\"]",
               "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
             }
           },
           {
-            "name": "individual-list-permission",
+            "name": "individuals-list-permission",
             "description": "List, page or search records (Individual)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"individual\"]",
+              "resources": "[\"individuals\"]",
               "scopes": "[\"list\"]",
               "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
             }
           },
           {
-            "name": "individual-edit-permission",
+            "name": "individuals-edit-permission",
             "description": "Create or update a record (save is an upsert) (Individual)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"individual\"]",
+              "resources": "[\"individuals\"]",
               "scopes": "[\"edit\"]",
               "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
             }
           },
           {
-            "name": "individual-delete-permission",
+            "name": "individuals-delete-permission",
             "description": "Remove a record or one of its parts (Individual)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"individual\"]",
+              "resources": "[\"individuals\"]",
               "scopes": "[\"delete\"]",
               "applyPolicies": "[\"platform-admin-policy\"]"
             }
           },
           {
-            "name": "individual-verify-permission",
+            "name": "individuals-verify-permission",
             "description": "Run automated checks: extraction, analysis, data verification, screening (Individual)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"individual\"]",
+              "resources": "[\"individuals\"]",
               "scopes": "[\"verify\"]",
               "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"screening-analyst-policy\", \"mlro-policy\"]"
             }
           },
           {
-            "name": "invoice-view-permission",
+            "name": "invoices-view-permission",
             "description": "Read a single record (Kyc Invoice)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"invoice\"]",
+              "resources": "[\"invoices\"]",
               "scopes": "[\"view\"]",
               "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"auditor-policy\"]"
             }
           },
           {
-            "name": "invoice-list-permission",
+            "name": "invoices-list-permission",
             "description": "List, page or search records (Kyc Invoice)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"invoice\"]",
+              "resources": "[\"invoices\"]",
               "scopes": "[\"list\"]",
               "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"auditor-policy\"]"
             }
           },
           {
-            "name": "invoice-edit-permission",
+            "name": "invoices-edit-permission",
             "description": "Create or update a record (save is an upsert) (Kyc Invoice)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"invoice\"]",
+              "resources": "[\"invoices\"]",
               "scopes": "[\"edit\"]",
               "applyPolicies": "[\"platform-admin-policy\"]"
             }
           },
           {
-            "name": "invoice-delete-permission",
+            "name": "invoices-delete-permission",
             "description": "Remove a record or one of its parts (Kyc Invoice)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"invoice\"]",
+              "resources": "[\"invoices\"]",
               "scopes": "[\"delete\"]",
               "applyPolicies": "[\"platform-admin-policy\"]"
             }
           },
           {
-            "name": "invoice-submit-permission",
+            "name": "invoices-submit-permission",
             "description": "Start a KYC application or attach evidence to one (Kyc Invoice)",
             "type": "scope",
             "logic": "POSITIVE",
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
-              "resources": "[\"invoice\"]",
+              "resources": "[\"invoices\"]",
               "scopes": "[\"submit\"]",
               "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\"]"
             }

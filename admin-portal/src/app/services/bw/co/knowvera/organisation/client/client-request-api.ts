@@ -14,7 +14,7 @@ import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/cli
 })
 export class ClientRequestApi {
 
-  protected path = '/client-request';
+  protected path = '/client-requests';
 
   private http = inject(HttpClient);
 
@@ -183,5 +183,15 @@ export class ClientRequestApi {
   public findMyOrganisationRequestsPaged(pageNumber: number, pageSize: number): Observable<Page<ClientRequestDTO>> {
 
     return this.http.get<Page<ClientRequestDTO>>(`${this.path}/my-organisation/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  }
+
+  public findUserReadyRequests(): Observable<ClientRequestDTO | any> {
+
+    return this.http.get<ClientRequestDTO | any>(`${this.path}/user-ready`);
+  }
+
+  public findUserReadyRequestsPaged(pageNumber: number | any, pageSize: number | any): Observable<ClientRequestDTO | any> {
+
+    return this.http.get<ClientRequestDTO | any>(`${this.path}/user-ready/paged`);
   }
 }

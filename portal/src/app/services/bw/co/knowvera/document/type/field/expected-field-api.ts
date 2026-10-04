@@ -11,7 +11,7 @@ import { SearchObject } from '@models/search-object';
 })
 export class ExpectedFieldApi {
     
-    protected path = '/document-type-field';
+    protected path = '/expected-fields';
 
     private http = inject(HttpClient);
 

@@ -13,7 +13,7 @@ import { OrganisationSearchCriteria } from '@models/bw/co/knowvera/organisation/
 })
 export class OrganisationApi {
 
-  protected path = '/organisation';
+  protected path = '/organisations';
 
   private http = inject(HttpClient);
 
@@ -54,5 +54,25 @@ export class OrganisationApi {
 
   public loadMyOrganisation(): Observable<OrganisationDTO> {
     return this.http.get<OrganisationDTO>(`${this.path}/mine`);
+  }
+
+  public findByRegistrationNo(registrationNo: string | any): Observable<OrganisationDTO | any> {
+
+    return this.http.get<OrganisationDTO | any>(`${this.path}/registration/${registrationNo}`);
+  }
+
+  public findListOrganisationById(id: string | any): Observable<OrganisationListDTO | any> {
+
+    return this.http.get<OrganisationListDTO | any>(`${this.path}/list/${id}`);
+  }
+
+  public loadRequestOrganisation(requestId: string | any, identityConfirmationToken: string | any, registrationNo: string | any): Observable<OrganisationDTO | any> {
+
+    return this.http.get<OrganisationDTO | any>(`${this.path}/request/${requestId}?identityConfirmationToken=${identityConfirmationToken}&registrationNo=${registrationNo}`);
+  }
+
+  public verifyOrganisation(id: string | any): Observable<OrganisationDTO | any> {
+
+    return this.http.get<OrganisationDTO | any>(`${this.path}/${id}/verification`);
   }
 }

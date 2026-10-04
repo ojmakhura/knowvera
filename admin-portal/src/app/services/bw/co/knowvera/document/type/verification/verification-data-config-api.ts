@@ -11,7 +11,7 @@ import { SearchObject } from '@models/search-object';
 })
 export class VerificationDataConfigApi {
     
-    protected path = '/document-type-verification';
+    protected path = '/verification-data-configs';
 
     private http = inject(HttpClient);
 

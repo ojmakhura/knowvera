@@ -31,6 +31,7 @@ Design:
     permission, so Keycloak denies it.
 """
 
+import difflib
 import json
 import re
 import sys
@@ -57,7 +58,7 @@ PUBLIC_PATHS = [
     "/actuator/*",
     "/analytics/*",
     "/client-requests/confirm-token/*",
-    "/individual/request/*",
+    "/individuals/request/*",
     "/organisations/request/*",
     "/client-requests/{id}/confirm",
 ]
@@ -117,7 +118,7 @@ READ = ("view", "list")
 READ_EXPORT = ("view", "list", "export")
 
 REFERENCE = ["document-types", "expected-fields", "kyc-field-groups", "verification-data-configs"]
-SUBJECTS = ["individual", "organisations", "employment", "contacts"]
+SUBJECTS = ["individuals", "organisations", "employment-records", "contacts"]
 CASES = ["kyc-records", "kyc-report-sections", "documents", "client-requests"]
 
 
@@ -134,11 +135,11 @@ GRANTS = {
         "organisation-document-types": ("view", "list", "edit", "delete"),
         "users": ("view", "list", "edit", "manage"),
         "client-requests": ("view", "list", "edit", "delete", "review", "import", "export"),
-        "individual": READ,
+        "individuals": READ,
         "kyc-records": ("view", "list", "edit", "submit", "export"),
         "documents": ("view", "list", "edit", "delete", "submit", "export"),
         "subscriptions": READ,
-        "invoice": ("view", "list", "submit", "export"),
+        "invoices": ("view", "list", "submit", "export"),
         "contacts": ("view", "list", "edit"),
         "analytics": ("view",),
         "settings": ("view",),
@@ -149,9 +150,9 @@ GRANTS = {
         "kyc-records": ("view", "list", "edit", "submit", "verify", "export"),
         "kyc-report-sections": ("view", "edit"),
         "documents": ("view", "list", "edit", "submit", "verify", "export"),
-        "individual": ("view", "list", "edit", "verify"),
+        "individuals": ("view", "list", "edit", "verify"),
         "organisations": ("view", "list", "verify"),
-        "employment": ("view", "list", "edit"),
+        "employment-records": ("view", "list", "edit"),
         "contacts": ("view", "list", "edit"),
         "client-requests": READ,
         "settings": ("view",),
@@ -162,9 +163,9 @@ GRANTS = {
         "kyc-records": ("view", "list", "verify", "review", "export"),
         "kyc-report-sections": ("view", "edit"),
         "documents": ("view", "list", "verify", "review", "export"),
-        "individual": ("view", "list", "verify"),
+        "individuals": ("view", "list", "verify"),
         "organisations": ("view", "list", "verify"),
-        **grant(["employment", "contacts", "client-requests"], READ),
+        **grant(["employment-records", "contacts", "client-requests"], READ),
         "settings": ("view",),
         **grant(REFERENCE, READ),
     },
@@ -192,9 +193,9 @@ GRANTS = {
         "kyc-records": ("view", "list", "verify"),
         "kyc-report-sections": ("view", "edit"),
         "documents": ("view", "list", "verify"),
-        "individual": ("view", "list", "verify"),
+        "individuals": ("view", "list", "verify"),
         "organisations": ("view", "list", "verify"),
-        **grant(["employment", "contacts"], READ),
+        **grant(["employment-records", "contacts"], READ),
         "settings": ("view",),
         **grant(REFERENCE, READ),
     },
@@ -219,9 +220,9 @@ GRANTS = {
         "kyc-records": ("view", "list", "edit", "submit", "export"),
         "kyc-report-sections": ("view",),
         "documents": ("view", "list", "submit", "export"),
-        "individual": ("view", "list", "edit"),
+        "individuals": ("view", "list", "edit"),
         "organisations": ("view", "list", "edit"),
-        "employment": ("view", "list", "edit"),
+        "employment-records": ("view", "list", "edit"),
         "contacts": ("view", "list", "edit"),
         "organisation-branches": READ,
         "users": READ,
@@ -234,9 +235,9 @@ GRANTS = {
     "APPLICANT": {
         "kyc-records": ("view", "edit", "submit"),
         "documents": ("view", "edit", "delete", "submit", "export"),
-        "individual": ("view", "edit"),
+        "individuals": ("view", "edit"),
         "organisations": ("view", "edit"),
-        "employment": ("view", "list", "edit", "delete"),
+        "employment-records": ("view", "list", "edit", "delete"),
         "contacts": ("view", "edit"),
         "client-requests": ("view",),
         "settings": ("view",),
@@ -249,7 +250,7 @@ GRANTS["MLRO"] = {
     **GRANTS["COMPLIANCE_OFFICER"],
     "kyc-records": ("view", "list", "verify", "review", "export"),
     "documents": ("view", "list", "verify", "review", "export"),
-    "individual": ("view", "list", "verify", "export"),
+    "individuals": ("view", "list", "verify", "export"),
     "organisations": ("view", "list", "verify", "export"),
 }
 
@@ -357,7 +358,9 @@ def resolve_grants(resources, warnings):
             targets = available if res == "*" else {res: available.get(res)}
             for name, scopes_here in targets.items():
                 if scopes_here is None:
-                    warnings.append(f"{role}: unknown resource '{name}'")
+                    close = difflib.get_close_matches(name, available, n=1)
+                    hint = f" (renamed to '{close[0]}'?)" if close else ""
+                    warnings.append(f"{role}: unknown resource '{name}'{hint}")
                     continue
                 for s in scopes:
                     if s in scopes_here:

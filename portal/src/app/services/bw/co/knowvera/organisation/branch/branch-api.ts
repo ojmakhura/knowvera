@@ -11,7 +11,7 @@ import { SearchObject } from '@models/search-object';
 })
 export class BranchApi {
 
-    protected path = '/organisation/branch';
+    protected path = '/organisation-branches';
 
     private http = inject(HttpClient);
 

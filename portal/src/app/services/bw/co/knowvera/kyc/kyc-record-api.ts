@@ -18,7 +18,7 @@ import { KycRecordSummary } from '@app/models/bw/co/knowvera/kyc/kyc-record-summ
 })
 export class KycRecordApi {
 
-  protected path = '/kyc';
+  protected path = '/kyc-records';
 
   private http = inject(HttpClient);
 
@@ -154,7 +154,7 @@ export class KycRecordApi {
   }
 
   updateStatus(id: string, status: KycComplianceStatus): Observable<KycRecordDTO> {
-    return this.http.patch<KycRecordDTO>(`${this.path}/${id}/status?status=${status}`, {});
+    return this.http.get<KycRecordDTO>(`${this.path}/${id}/status?kycStatus=${status}`);
   }
 
   findClientIndividualSummaries(organisationId: string): Observable<KycRecordSummary[]> {
@@ -175,9 +175,10 @@ export class KycRecordApi {
     return this.http.get<Page<KycRecordSummary>>(`${this.path}/client-summary-kyc/${organisationId}/organisations/page?pageNumber=${pageNumber}&pageSize=${pageSize}`);
   }
 
-  findSummaryById(id: string): Observable<KycRecordSummary> {
+  findSummaryById(id: string, organisationId?: string): Observable<KycRecordSummary> {
 
-    return this.http.get<KycRecordSummary>(`${this.path}/${id}/summary`);
+    const options = organisationId ? { params: { organisationId } } : {};
+    return this.http.get<KycRecordSummary>(`${this.path}/${id}/summary`, options);
   }
 
   searchSummaries(criteria: KycRecordSearchCriteria): Observable<KycRecordSummary[]> {
@@ -187,6 +188,6 @@ export class KycRecordApi {
 
   pagedSearchSummaries(criteria: SearchObject<KycRecordSearchCriteria>): Observable<Page<KycRecordSummary>> {
 
-    return this.http.post<Page<KycRecordSummary>>(`${this.path}/search/summaries/page`, criteria);
+    return this.http.post<Page<KycRecordSummary>>(`${this.path}/search/summaries/paged`, criteria);
   }
 }

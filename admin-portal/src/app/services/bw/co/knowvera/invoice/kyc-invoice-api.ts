@@ -12,7 +12,7 @@ import { UploadPurpose } from '@models/bw/co/knowvera/invoice/upload-purpose';
   providedIn: 'root',
 })
 export class KycInvoiceApi {
-  protected path = '/invoice';
+  protected path = '/invoices';
 
   private http = inject(HttpClient);
 
@@ -25,7 +25,7 @@ export class KycInvoiceApi {
   }
 
   public findByOrganisationPaged(organisationId: string, pageNumber: number, pageSize: number): Observable<Page<KycInvoiceDTO>> {
-    return this.http.get<Page<KycInvoiceDTO>>(`${this.path}/by-organisation/${organisationId}?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    return this.http.get<Page<KycInvoiceDTO>>(`${this.path}/by-organisation/${organisationId}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
   }
 
   public findBySubscription(subscriptionId: string | any): Observable<KycInvoiceDTO[] | any[]> {
@@ -33,7 +33,7 @@ export class KycInvoiceApi {
   }
 
   public findBySubscriptionPaged(subscriptionId: string, pageNumber: number, pageSize: number): Observable<Page<KycInvoiceDTO>> {
-    return this.http.get<Page<KycInvoiceDTO>>(`${this.path}/by-subscription/${subscriptionId}?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+    return this.http.get<Page<KycInvoiceDTO>>(`${this.path}/by-subscription/${subscriptionId}/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`);
   }
 
   public generateInvoice(subscriptionId: string | any): Observable<KycInvoiceDTO | any> {

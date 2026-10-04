@@ -49,10 +49,10 @@ Each granted (resource, scope) is available to Spring as the authority `SCOPE_<r
 | `contacts` | **all** | view, list, edit | view, list, edit | view, list | view, list | view, list | view, list | view, list | view, list | view, list, edit | view, list | view, edit |
 | `document-types` | **all** | view, list | view, list | view, list | view, list | view, list | view, list | **all** | **all** | view, list | view, list | view, list |
 | `documents` | **all** | view, list, edit, delete, submit, export | view, list, edit, submit, verify, export | view, list, verify, review, export | view, list, review, export | view, list | view, list, verify | view, list, review, export | view, list, verify, review, export | view, list, submit, export | view, list, export | view, edit, delete, submit, export |
-| `employment` | **all** | – | view, list, edit | view, list | view, list | view, list | view, list | view, list | view, list | view, list, edit | view, list | **all** |
+| `employment-records` | **all** | – | view, list, edit | view, list | view, list | view, list | view, list | view, list | view, list | view, list, edit | view, list | **all** |
 | `expected-fields` | **all** | view, list | view, list | view, list | view, list | view, list | view, list | **all** | **all** | view, list | view, list | view, list |
-| `individual` | **all** | view, list | view, list, edit, verify | view, list, verify | view, list | view, list | view, list, verify | view, list | view, list, verify | view, list, edit | view, list | view, edit |
-| `invoice` | **all** | view, list, submit | – | – | – | – | – | – | – | – | view, list | – |
+| `individuals` | **all** | view, list | view, list, edit, verify | view, list, verify | view, list | view, list | view, list, verify | view, list | view, list, verify | view, list, edit | view, list | view, edit |
+| `invoices` | **all** | view, list, submit | – | – | – | – | – | – | – | – | view, list | – |
 | `kyc-field-groups` | **all** | view, list | view, list | view, list | view, list | view, list | view, list | **all** | **all** | view, list | view, list | view, list |
 | `kyc-records` | **all** | view, list, edit, submit, export | view, list, edit, submit, verify, export | view, list, verify, review, export | view, list, review, export | view, list, export | view, list, verify | view, list, review, export | view, list, verify, review, export | view, list, edit, submit, export | view, list, export | view, edit, submit |
 | `kyc-report-sections` | **all** | – | view, edit | view, edit | view | view, edit | view, edit | view, edit | view, edit | view | view | – |
@@ -173,18 +173,18 @@ Each granted (resource, scope) is available to Spring as the authority `SCOPE_<r
 | `export` | `SCOPE_documents:export` | `GET /documents/download` | `downloadFileByUrl` |
 | `export` | `SCOPE_documents:export` | `GET /documents/{id}/download` | `downloadFile` |
 
-### `employment`
+### `employment-records`
 
 | Scope | Authority | Endpoint | Method |
 |---|---|---|---|
-| `view` | `SCOPE_employment:view` | `GET /employment/{id}` | `findById` |
-| `list` | `SCOPE_employment:list` | `GET /employment` | `getAll` |
-| `list` | `SCOPE_employment:list` | `GET /employment/by-individual/{individualId}` | `findByIndividual` |
-| `list` | `SCOPE_employment:list` | `GET /employment/paged` | `getAllPaged` |
-| `list` | `SCOPE_employment:list` | `GET /employment/search` | `search` |
-| `list` | `SCOPE_employment:list` | `GET /employment/search/paged` | `pagedSearch` |
-| `edit` | `SCOPE_employment:edit` | `POST /employment` | `save` |
-| `delete` | `SCOPE_employment:delete` | `DELETE /employment/{id}` | `remove` |
+| `view` | `SCOPE_employment-records:view` | `GET /employment-records/{id}` | `findById` |
+| `list` | `SCOPE_employment-records:list` | `GET /employment-records` | `getAll` |
+| `list` | `SCOPE_employment-records:list` | `GET /employment-records/by-individual/{individualId}` | `findByIndividual` |
+| `list` | `SCOPE_employment-records:list` | `GET /employment-records/paged` | `getAllPaged` |
+| `list` | `SCOPE_employment-records:list` | `GET /employment-records/search` | `search` |
+| `list` | `SCOPE_employment-records:list` | `GET /employment-records/search/paged` | `pagedSearch` |
+| `edit` | `SCOPE_employment-records:edit` | `POST /employment-records` | `save` |
+| `delete` | `SCOPE_employment-records:delete` | `DELETE /employment-records/{id}` | `remove` |
 
 ### `expected-fields`
 
@@ -196,40 +196,40 @@ Each granted (resource, scope) is available to Spring as the authority `SCOPE_<r
 | `edit` | `SCOPE_expected-fields:edit` | `POST /expected-fields` | `save` |
 | `delete` | `SCOPE_expected-fields:delete` | `DELETE /expected-fields/{id}` | `remove` |
 
-### `individual`
+### `individuals`
 
 | Scope | Authority | Endpoint | Method |
 |---|---|---|---|
-| `self` | – | `GET /individual/me` | `loadMe` |
-| `view` | `SCOPE_individual:view` | `GET /individual/request/{requestId}` (public) | `loadRequestIndividual` |
-| `view` | `SCOPE_individual:view` | `GET /individual/{id}` | `findById` |
-| `list` | `SCOPE_individual:list` | `GET /individual` | `getAll` |
-| `list` | `SCOPE_individual:list` | `GET /individual/organisation/{organisationId}/organisationId/{organisationId}` | `getOrganisationClients` |
-| `list` | `SCOPE_individual:list` | `GET /individual/organisation/{organisationId}/paged` | `getOrganisationClientsPaged` |
-| `list` | `SCOPE_individual:list` | `GET /individual/paged` | `getAllPaged` |
-| `list` | `SCOPE_individual:list` | `POST /individual/search` | `search` |
-| `list` | `SCOPE_individual:list` | `POST /individual/search/paged` | `pagedSearch` |
-| `edit` | `SCOPE_individual:edit` | `POST /individual` | `save` |
-| `delete` | `SCOPE_individual:delete` | `DELETE /individual/{id}` | `remove` |
-| `verify` | `SCOPE_individual:verify` | `GET /individual/{id}/verification` | `verifyIndividual` |
+| `self` | – | `GET /individuals/me` | `loadMe` |
+| `view` | `SCOPE_individuals:view` | `GET /individuals/request/{requestId}` (public) | `loadRequestIndividual` |
+| `view` | `SCOPE_individuals:view` | `GET /individuals/{id}` | `findById` |
+| `list` | `SCOPE_individuals:list` | `GET /individuals` | `getAll` |
+| `list` | `SCOPE_individuals:list` | `GET /individuals/organisation/{organisationId}/organisationId/{organisationId}` | `getOrganisationClients` |
+| `list` | `SCOPE_individuals:list` | `GET /individuals/organisation/{organisationId}/paged` | `getOrganisationClientsPaged` |
+| `list` | `SCOPE_individuals:list` | `GET /individuals/paged` | `getAllPaged` |
+| `list` | `SCOPE_individuals:list` | `POST /individuals/search` | `search` |
+| `list` | `SCOPE_individuals:list` | `POST /individuals/search/paged` | `pagedSearch` |
+| `edit` | `SCOPE_individuals:edit` | `POST /individuals` | `save` |
+| `delete` | `SCOPE_individuals:delete` | `DELETE /individuals/{id}` | `remove` |
+| `verify` | `SCOPE_individuals:verify` | `GET /individuals/{id}/verification` | `verifyIndividual` |
 
-### `invoice`
+### `invoices`
 
 | Scope | Authority | Endpoint | Method |
 |---|---|---|---|
-| `view` | `SCOPE_invoice:view` | `GET /invoice/{id}` | `findById` |
-| `list` | `SCOPE_invoice:list` | `GET /invoice` | `getAll` |
-| `list` | `SCOPE_invoice:list` | `GET /invoice/by-organisation/{organisationId}` | `findByOrganisation` |
-| `list` | `SCOPE_invoice:list` | `GET /invoice/by-organisation/{organisationId}/paged` | `findByOrganisationPaged` |
-| `list` | `SCOPE_invoice:list` | `GET /invoice/by-subscription/{subscriptionId}` | `findBySubscription` |
-| `list` | `SCOPE_invoice:list` | `GET /invoice/by-subscription/{subscriptionId}/paged` | `findBySubscriptionPaged` |
-| `list` | `SCOPE_invoice:list` | `GET /invoice/paged` | `getAllPaged` |
-| `list` | `SCOPE_invoice:list` | `POST /invoice/search` | `search` |
-| `list` | `SCOPE_invoice:list` | `POST /invoice/search/paged` | `pagedSearch` |
-| `edit` | `SCOPE_invoice:edit` | `POST /invoice` | `save` |
-| `edit` | `SCOPE_invoice:edit` | `GET /invoice/generate/{subscriptionId}` | `generateInvoice` |
-| `delete` | `SCOPE_invoice:delete` | `DELETE /invoice/{id}` | `remove` |
-| `submit` | `SCOPE_invoice:submit` | `POST /invoice/{id}/upload` | `upload` |
+| `view` | `SCOPE_invoices:view` | `GET /invoices/{id}` | `findById` |
+| `list` | `SCOPE_invoices:list` | `GET /invoices` | `getAll` |
+| `list` | `SCOPE_invoices:list` | `GET /invoices/by-organisation/{organisationId}` | `findByOrganisation` |
+| `list` | `SCOPE_invoices:list` | `GET /invoices/by-organisation/{organisationId}/paged` | `findByOrganisationPaged` |
+| `list` | `SCOPE_invoices:list` | `GET /invoices/by-subscription/{subscriptionId}` | `findBySubscription` |
+| `list` | `SCOPE_invoices:list` | `GET /invoices/by-subscription/{subscriptionId}/paged` | `findBySubscriptionPaged` |
+| `list` | `SCOPE_invoices:list` | `GET /invoices/paged` | `getAllPaged` |
+| `list` | `SCOPE_invoices:list` | `POST /invoices/search` | `search` |
+| `list` | `SCOPE_invoices:list` | `POST /invoices/search/paged` | `pagedSearch` |
+| `edit` | `SCOPE_invoices:edit` | `POST /invoices` | `save` |
+| `edit` | `SCOPE_invoices:edit` | `GET /invoices/generate/{subscriptionId}` | `generateInvoice` |
+| `delete` | `SCOPE_invoices:delete` | `DELETE /invoices/{id}` | `remove` |
+| `submit` | `SCOPE_invoices:submit` | `POST /invoices/{id}/upload` | `upload` |
 
 ### `kyc-field-groups`
 

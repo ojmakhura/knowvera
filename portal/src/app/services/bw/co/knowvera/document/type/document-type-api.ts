@@ -12,7 +12,7 @@ import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field
 })
 export class DocumentTypeApi {
 
-    protected path = '/document-type';
+    protected path = '/document-types';
 
     private http = inject(HttpClient);
 
@@ -53,6 +53,6 @@ export class DocumentTypeApi {
 
     public addExpectedField(documentTypeId: string | any, expectedFields: ExpectedFieldDTO[] | any): Observable<DocumentTypeDTO | any> {
 
-        return this.http.post<DocumentTypeDTO | any>(`${this.path}/${documentTypeId}/expected-fields`, expectedFields);
+        return this.http.post<DocumentTypeDTO | any>(`${this.path}/${documentTypeId}/expected-field`, expectedFields);
     }
 }

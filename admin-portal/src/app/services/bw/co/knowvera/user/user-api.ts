@@ -11,7 +11,7 @@ import { SearchObject } from '@models/search-object';
 })
 export class UserApi {
 
-    protected path = '/user';
+    protected path = '/users';
 
     private http = inject(HttpClient);
 
@@ -27,7 +27,7 @@ export class UserApi {
 
     public findByBranchId(branchId: string | any ): Observable<UserDTO[] | any[]> {
 
-        return this.http.get<UserDTO[] | any[]>(`${this.path}/branch-id/{branchId}/branchId/${branchId}`);
+        return this.http.get<UserDTO[] | any[]>(`${this.path}/branch-id/${branchId}/branchId/${branchId}`);
     }
 
     public findByBranchName(branch: string | any ): Observable<UserDTO[] | any[]> {
@@ -42,7 +42,7 @@ export class UserApi {
 
     public findByIdentityNo(identityNo: string | any ): Observable<UserDTO | any> {
 
-        return this.http.get<UserDTO | any>(`${this.path}/by-identity/{identityNo}/identityNo/${identityNo}`);
+        return this.http.get<UserDTO | any>(`${this.path}/by-identity/${identityNo}/identityNo/${identityNo}`);
     }
 
     public findByOrganisationId(organisationId: string | any ): Observable<UserDTO[] | any[]> {
@@ -90,4 +90,8 @@ export class UserApi {
         return this.http.patch<boolean | any>(`${this.path}/${userId}?username=${username}`, {userId: userId, username: username});
     }
 
+    public addClientRoles(clientId: string | any, roles: string[] | any, userId: string | any): Observable<UserDTO | any> {
+
+        return this.http.post<UserDTO | any>(`${this.path}/add-client-roles?clientId=${clientId}&roles=${roles}&userId=${userId}`, null);
+    }
 }
