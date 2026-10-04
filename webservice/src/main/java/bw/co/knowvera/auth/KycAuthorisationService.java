@@ -291,4 +291,17 @@ public class KycAuthorisationService {
 
         return isOwner;
     }
+
+    /**
+     * String variant of isTargetRecordOwner for @PreAuthorize expressions: AndroMDA shortens
+     * T(bw.co.knowvera.TargetEntity) to T(TargetEntity), which SpEL cannot resolve.
+     */
+    public Boolean isRecordOwner(String target, String targetId) {
+
+        if(StringUtils.isBlank(target)) {
+            return false;
+        }
+
+        return isTargetRecordOwner(TargetEntity.valueOf(target), targetId);
+    }
 }

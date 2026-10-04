@@ -85,6 +85,12 @@ export SOURCE_EMAIL=
 export REGISTRATION_CLIENT=knowvera-registration
 export REGISTRATION_CLIENT_SECRET=secret
 
+# --- Resource-based authorization (Keycloak policy enforcer) ---
+export AUTHZ_ENABLED=true
+export AUTHZ_PERMISSION_AUTHORITIES=true
+export API_CLIENT=knowvera-api
+export API_CLIENT_SECRET=secret
+
 # --- LLM / AI providers ---
 export LLM_ID=ollama
 export LLM_MODEL=gemma4

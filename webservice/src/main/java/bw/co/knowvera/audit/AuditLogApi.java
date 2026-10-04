@@ -30,40 +30,40 @@ import bw.co.knowvera.audit.AuditLogDTO;
 public interface AuditLogApi {
 
     @GetMapping(value = "/{id}")
-    @PreAuthorize(value = "hasRole('SYSTEM_AUDITOR')")
+    @PreAuthorize(value = "hasAuthority('SCOPE_audit-logs:view')")
     public ResponseEntity<AuditLogDTO> findById(@PathVariable(name = "id", required = true) String id) throws Exception;
 
     @GetMapping(
 
     )
-    @PreAuthorize(value = "hasRole('SYSTEM_AUDITOR')")
+    @PreAuthorize(value = "hasAuthority('SCOPE_audit-logs:list')")
     public @Nullable ResponseEntity<List<AuditLogDTO>> getAll() throws Exception;
 
     @GetMapping(value = "/paged")
-    @PreAuthorize(value = "hasRole('SYSTEM_AUDITOR')")
+    @PreAuthorize(value = "hasAuthority('SCOPE_audit-logs:list')")
     public @Nullable ResponseEntity<Page<AuditLogDTO>> getAllPaged(
             @RequestParam(name = "pageNumber", required = false) @Nullable Integer pageNumber,
             @RequestParam(name = "pageSize", required = false) @Nullable Integer pageSize) throws Exception;
 
     @PostMapping(value = "/search/paged")
-    @PreAuthorize(value = "hasRole('SYSTEM_AUDITOR')")
+    @PreAuthorize(value = "hasAuthority('SCOPE_audit-logs:list')")
     public @Nullable ResponseEntity<Page<AuditLogDTO>> pagedSearch(
             @RequestBody(required = true) @Valid AuditLogCriteria criteria,
             @RequestParam(name = "pageNumber", required = false) @Nullable Integer pageNumber,
             @RequestParam(name = "pageSize", required = false) @Nullable Integer pageSize) throws Exception;
 
     @DeleteMapping(value = "/{id}")
-    @PreAuthorize(value = "hasRole('SYSTEM_AUDIT_ADMIN')")
+    @PreAuthorize(value = "hasAuthority('SCOPE_audit-logs:delete')")
     public ResponseEntity<Boolean> remove(@PathVariable(name = "id", required = true) String id) throws Exception;
 
     @PostMapping(
 
     )
-    @PreAuthorize(value = "hasRole('SYSTEM_AUDIT_ADMIN')")
+    @PreAuthorize(value = "hasAuthority('SCOPE_audit-logs:edit')")
     public ResponseEntity<AuditLogDTO> save(@RequestBody(required = true) @Valid AuditLogDTO auditLog) throws Exception;
 
     @PostMapping(value = "/search")
-    @PreAuthorize(value = "hasRole('SYSTEM_AUDITOR')")
+    @PreAuthorize(value = "hasAuthority('SCOPE_audit-logs:list')")
     public @Nullable ResponseEntity<List<AuditLogDTO>> search(
             @RequestBody(required = true) @Valid AuditLogCriteria criteria) throws Exception;
 }

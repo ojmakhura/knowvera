@@ -213,6 +213,17 @@
                 <artifactId>keycloak-admin-client</artifactId>
                 <version>26.0.8</version>
             </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-policy-enforcer</artifactId>
+                <version>${keycloak-policy-enforcer.version}</version>
+            </dependency>
+            <!-- Shared by keycloak-admin-client and keycloak-policy-enforcer: align on the newer client -->
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-client-common-synced</artifactId>
+                <version>${keycloak-policy-enforcer.version}</version>
+            </dependency>
             <!-- <dependency>
                 <groupId>bw.co.roguesystems.comm</groupId>
                 <artifactId>roguecomm-common</artifactId>
@@ -516,6 +527,7 @@
         <username></username>
         <password></password -->
         <keycloak.version>25.0.3</keycloak.version>
+        <keycloak-policy-enforcer.version>26.0.12</keycloak-policy-enforcer.version>
         <!-- Updated PostgreSQL driver to fix Java 21 compatibility issues -->
         <postgresql.version>42.7.4</postgresql.version>
     </properties>

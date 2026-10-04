@@ -1,0 +1,2162 @@
+{
+  "allowRemoteResourceManagement": true,
+  "policyEnforcementMode": "ENFORCING",
+  "decisionStrategy": "UNANIMOUS",
+  "resources": [
+    {
+      "name": "analytics",
+      "displayName": "Analytics",
+      "type": "urn:knowvera-api:resources:analytics",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/analytics/count",
+        "/analytics/count/by-organisation/{organisationId}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        }
+      ]
+    },
+    {
+      "name": "audit-logs",
+      "displayName": "Audit Log",
+      "type": "urn:knowvera-api:resources:audit-logs",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/audit-logs",
+        "/audit-logs/paged",
+        "/audit-logs/search",
+        "/audit-logs/search/paged",
+        "/audit-logs/{id}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "displayName": "Client Request",
+      "type": "urn:knowvera-api:resources:client-requests",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/client-requests",
+        "/client-requests/by-document/{documentId}",
+        "/client-requests/by-document/{documentId}/paged",
+        "/client-requests/by-individual/{individualId}",
+        "/client-requests/by-individual/{individualId}/paged",
+        "/client-requests/by-org/{organisationId}",
+        "/client-requests/by-org/{organisationId}/individuals",
+        "/client-requests/by-org/{organisationId}/individuals/paged",
+        "/client-requests/by-org/{organisationId}/organisations",
+        "/client-requests/by-org/{organisationId}/organisations/paged",
+        "/client-requests/by-org/{organisationId}/paged",
+        "/client-requests/confirm-token/{requestId}",
+        "/client-requests/download-template",
+        "/client-requests/mine",
+        "/client-requests/my-organisation",
+        "/client-requests/paged",
+        "/client-requests/search",
+        "/client-requests/search/paged",
+        "/client-requests/status",
+        "/client-requests/status/paged",
+        "/client-requests/target/{target}/{targetId}",
+        "/client-requests/target/{target}/{targetId}/paged",
+        "/client-requests/user-ready",
+        "/client-requests/user-ready/paged",
+        "/client-requests/{id}",
+        "/client-requests/{id}/confirm",
+        "/client-requests/{id}/status",
+        "/client-requests/{organisationId}/upload"
+      ],
+      "scopes": [
+        {
+          "name": "self"
+        },
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        },
+        {
+          "name": "review"
+        },
+        {
+          "name": "export"
+        },
+        {
+          "name": "import"
+        }
+      ]
+    },
+    {
+      "name": "contacts",
+      "displayName": "Contact",
+      "type": "urn:knowvera-api:resources:contacts",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/contacts",
+        "/contacts/by-type/{type}",
+        "/contacts/by-type/{type}/paged",
+        "/contacts/paged",
+        "/contacts/search",
+        "/contacts/{id}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        }
+      ]
+    },
+    {
+      "name": "document-types",
+      "displayName": "Document Type",
+      "type": "urn:knowvera-api:resources:document-types",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/document-types",
+        "/document-types/paged",
+        "/document-types/search",
+        "/document-types/search/paged",
+        "/document-types/{id}",
+        "/document-types/{id}/expected-field"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "displayName": "Document",
+      "type": "urn:knowvera-api:resources:documents",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/documents",
+        "/documents/documentTypeId/{documentTypeId}",
+        "/documents/download",
+        "/documents/mine",
+        "/documents/mine/paged",
+        "/documents/paged",
+        "/documents/search",
+        "/documents/search/paged",
+        "/documents/target/{target}/{targetId}",
+        "/documents/upload/{target}/{targetId}/type/{documentTypeId}",
+        "/documents/{id}",
+        "/documents/{id}/analysis",
+        "/documents/{id}/content",
+        "/documents/{id}/data-verification",
+        "/documents/{id}/download",
+        "/documents/{id}/text-extraction",
+        "/documents/{id}/update",
+        "/documents/{id}/verification-status"
+      ],
+      "scopes": [
+        {
+          "name": "self"
+        },
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        },
+        {
+          "name": "submit"
+        },
+        {
+          "name": "verify"
+        },
+        {
+          "name": "review"
+        },
+        {
+          "name": "export"
+        }
+      ]
+    },
+    {
+      "name": "employment",
+      "displayName": "Employment Record",
+      "type": "urn:knowvera-api:resources:employment",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/employment",
+        "/employment/by-individual/{individualId}",
+        "/employment/paged",
+        "/employment/search",
+        "/employment/search/paged",
+        "/employment/{id}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        }
+      ]
+    },
+    {
+      "name": "expected-fields",
+      "displayName": "Expected Field",
+      "type": "urn:knowvera-api:resources:expected-fields",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/expected-fields",
+        "/expected-fields/document-types",
+        "/expected-fields/document-types/page",
+        "/expected-fields/{id}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        }
+      ]
+    },
+    {
+      "name": "individual",
+      "displayName": "Individual",
+      "type": "urn:knowvera-api:resources:individual",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/individual",
+        "/individual/me",
+        "/individual/organisation/{organisationId}/organisationId/{organisationId}",
+        "/individual/organisation/{organisationId}/paged",
+        "/individual/paged",
+        "/individual/request/{requestId}",
+        "/individual/search",
+        "/individual/search/paged",
+        "/individual/{id}",
+        "/individual/{id}/verification"
+      ],
+      "scopes": [
+        {
+          "name": "self"
+        },
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        },
+        {
+          "name": "verify"
+        }
+      ]
+    },
+    {
+      "name": "invoice",
+      "displayName": "Kyc Invoice",
+      "type": "urn:knowvera-api:resources:invoice",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/invoice",
+        "/invoice/by-organisation/{organisationId}",
+        "/invoice/by-organisation/{organisationId}/paged",
+        "/invoice/by-subscription/{subscriptionId}",
+        "/invoice/by-subscription/{subscriptionId}/paged",
+        "/invoice/generate/{subscriptionId}",
+        "/invoice/paged",
+        "/invoice/search",
+        "/invoice/search/paged",
+        "/invoice/{id}",
+        "/invoice/{id}/upload"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        },
+        {
+          "name": "submit"
+        }
+      ]
+    },
+    {
+      "name": "kyc-field-groups",
+      "displayName": "Kyc Field Group",
+      "type": "urn:knowvera-api:resources:kyc-field-groups",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/kyc-field-groups",
+        "/kyc-field-groups/target/{targetType}",
+        "/kyc-field-groups/{id}",
+        "/kyc-field-groups/{id}/field/{fieldId}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "displayName": "Kyc Record",
+      "type": "urn:knowvera-api:resources:kyc-records",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/kyc-records",
+        "/kyc-records/by-identity/{identityNo}",
+        "/kyc-records/by-identity/{identityNo}/paged",
+        "/kyc-records/by-individual/{individualId}",
+        "/kyc-records/by-individual/{individualId}/paged",
+        "/kyc-records/by-organisation-registration/{registrationNo}",
+        "/kyc-records/by-organisation/{organisationId}",
+        "/kyc-records/by-organisation_registration/{registrationNo}/paged",
+        "/kyc-records/client-summary-kyc/{organisationId}/individuals",
+        "/kyc-records/client-summary-kyc/{organisationId}/individuals/page",
+        "/kyc-records/client-summary-kyc/{organisationId}/organisations",
+        "/kyc-records/client-summary-kyc/{organisationId}/organisations/page",
+        "/kyc-records/individual/{individualId}",
+        "/kyc-records/mine",
+        "/kyc-records/mine/paged",
+        "/kyc-records/my_current",
+        "/kyc-records/new",
+        "/kyc-records/organisation/{organisationId}",
+        "/kyc-records/paged",
+        "/kyc-records/search",
+        "/kyc-records/search/paged",
+        "/kyc-records/search/summaries",
+        "/kyc-records/search/summaries/paged",
+        "/kyc-records/{id}",
+        "/kyc-records/{id}/remove-file/{documentId}",
+        "/kyc-records/{id}/report",
+        "/kyc-records/{id}/status",
+        "/kyc-records/{id}/summary",
+        "/kyc-records/{id}/update-files",
+        "/kyc-records/{id}/verification"
+      ],
+      "scopes": [
+        {
+          "name": "self"
+        },
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        },
+        {
+          "name": "submit"
+        },
+        {
+          "name": "verify"
+        },
+        {
+          "name": "review"
+        },
+        {
+          "name": "export"
+        }
+      ]
+    },
+    {
+      "name": "kyc-report-sections",
+      "displayName": "Kyc Report Section",
+      "type": "urn:knowvera-api:resources:kyc-report-sections",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/kyc-report-sections",
+        "/kyc-report-sections/field-value",
+        "/kyc-report-sections/{id}",
+        "/kyc-report-sections/{id}/field-value/{fieldValueId}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        }
+      ]
+    },
+    {
+      "name": "novu",
+      "displayName": "Novu Auth",
+      "type": "urn:knowvera-api:resources:novu",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/novu/config"
+      ],
+      "scopes": [
+        {
+          "name": "self"
+        }
+      ]
+    },
+    {
+      "name": "organisation-branches",
+      "displayName": "Branch",
+      "type": "urn:knowvera-api:resources:organisation-branches",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/organisation-branches",
+        "/organisation-branches/by-org/{organisationId}",
+        "/organisation-branches/by-org/{organisationId}/paged",
+        "/organisation-branches/paged",
+        "/organisation-branches/search",
+        "/organisation-branches/search/paged",
+        "/organisation-branches/{id}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        }
+      ]
+    },
+    {
+      "name": "organisation-document-types",
+      "displayName": "Organisation Document",
+      "type": "urn:knowvera-api:resources:organisation-document-types",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/organisation-document-types",
+        "/organisation-document-types/all",
+        "/organisation-document-types/by-org/{organisationId}",
+        "/organisation-document-types/by-org/{organisationId}/paged",
+        "/organisation-document-types/paged",
+        "/organisation-document-types/search",
+        "/organisation-document-types/search/paged",
+        "/organisation-document-types/status",
+        "/organisation-document-types/status/paged",
+        "/organisation-document-types/{id}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        }
+      ]
+    },
+    {
+      "name": "organisations",
+      "displayName": "Organisation",
+      "type": "urn:knowvera-api:resources:organisations",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/organisations",
+        "/organisations/list/{id}",
+        "/organisations/mine",
+        "/organisations/paged",
+        "/organisations/registration/{registrationNo}",
+        "/organisations/request/{requestId}",
+        "/organisations/search",
+        "/organisations/search/paged",
+        "/organisations/{id}",
+        "/organisations/{id}/verification"
+      ],
+      "scopes": [
+        {
+          "name": "self"
+        },
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        },
+        {
+          "name": "verify"
+        }
+      ]
+    },
+    {
+      "name": "sequences",
+      "displayName": "Sequence Generator",
+      "type": "urn:knowvera-api:resources:sequences",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/sequences",
+        "/sequences/by-name",
+        "/sequences/search",
+        "/sequences/{id}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "displayName": "Settings",
+      "type": "urn:knowvera-api:resources:settings",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/settings",
+        "/settings/attach-document-type/{documentTypeId}",
+        "/settings/detach-document-type/{documentTypeId}",
+        "/settings/documents",
+        "/settings/field-groups",
+        "/settings/financials",
+        "/settings/one",
+        "/settings/operational-metrics",
+        "/settings/paged",
+        "/settings/platform-identity",
+        "/settings/salary-ranges",
+        "/settings/salary-ranges/{salaryRangeId}",
+        "/settings/search",
+        "/settings/search/paged",
+        "/settings/template-mappings",
+        "/settings/tool-selectors",
+        "/settings/upload",
+        "/settings/{id}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        },
+        {
+          "name": "import"
+        }
+      ]
+    },
+    {
+      "name": "subscriptions",
+      "displayName": "Kyc Subscription",
+      "type": "urn:knowvera-api:resources:subscriptions",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/subscriptions",
+        "/subscriptions/by-organisation/{organisationId}",
+        "/subscriptions/paged",
+        "/subscriptions/search",
+        "/subscriptions/search/paged",
+        "/subscriptions/{id}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "displayName": "User",
+      "type": "urn:knowvera-api:resources:users",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/users",
+        "/users/add-client-roles",
+        "/users/branch-id/{branchId}/branchId/{branchId}",
+        "/users/branch-name/{branch}",
+        "/users/by-identity/{identityNo}/identityNo/{identityNo}",
+        "/users/client/roles",
+        "/users/create",
+        "/users/department-name/{organisation}",
+        "/users/load",
+        "/users/organisation-id/{organisationId}",
+        "/users/realm/roles",
+        "/users/role",
+        "/users/search",
+        "/users/updatePassword",
+        "/users/{userId}"
+      ],
+      "scopes": [
+        {
+          "name": "self"
+        },
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "manage"
+        }
+      ]
+    },
+    {
+      "name": "verification-data-configs",
+      "displayName": "Verification Data Config",
+      "type": "urn:knowvera-api:resources:verification-data-configs",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/verification-data-configs",
+        "/verification-data-configs/{id}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "delete"
+        }
+      ]
+    }
+  ],
+  "policies": [
+    {
+      "name": "authenticated-policy",
+      "description": "Any authenticated user of the realm",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "fetchRoles": "false",
+        "roles": "[{\"id\": \"default-roles-knowvera\", \"required\": false}]"
+      }
+    },
+    {
+      "name": "platform-admin-policy",
+      "description": "Operates the platform: configuration, users, billing, everything",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "fetchRoles": "false",
+        "roles": "[{\"id\": \"PLATFORM_ADMIN\", \"required\": false}]"
+      }
+    },
+    {
+      "name": "org-admin-policy",
+      "description": "Administers a client organisation: its users, branches, client requests and billing",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "fetchRoles": "false",
+        "roles": "[{\"id\": \"ORG_ADMIN\", \"required\": false}]"
+      }
+    },
+    {
+      "name": "kyc-analyst-policy",
+      "description": "Collects and captures KYC data and evidence, runs automated checks",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "fetchRoles": "false",
+        "roles": "[{\"id\": \"KYC_ANALYST\", \"required\": false}]"
+      }
+    },
+    {
+      "name": "kyc-reviewer-policy",
+      "description": "Reviews captured KYC cases and documents (first line review)",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "fetchRoles": "false",
+        "roles": "[{\"id\": \"KYC_REVIEWER\", \"required\": false}]"
+      }
+    },
+    {
+      "name": "kyc-approver-policy",
+      "description": "Takes the approve / reject decision on reviewed KYC cases",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "fetchRoles": "false",
+        "roles": "[{\"id\": \"KYC_APPROVER\", \"required\": false}]"
+      }
+    },
+    {
+      "name": "risk-analyst-policy",
+      "description": "Assesses and records customer risk",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "fetchRoles": "false",
+        "roles": "[{\"id\": \"RISK_ANALYST\", \"required\": false}]"
+      }
+    },
+    {
+      "name": "screening-analyst-policy",
+      "description": "Screens subjects against sanctions, PEP and adverse media lists",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "fetchRoles": "false",
+        "roles": "[{\"id\": \"SCREENING_ANALYST\", \"required\": false}]"
+      }
+    },
+    {
+      "name": "compliance-officer-policy",
+      "description": "Oversees KYC compliance and owns the KYC requirements configuration",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "fetchRoles": "false",
+        "roles": "[{\"id\": \"COMPLIANCE_OFFICER\", \"required\": false}]"
+      }
+    },
+    {
+      "name": "mlro-policy",
+      "description": "Money Laundering Reporting Officer: escalations and regulatory reporting",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "fetchRoles": "false",
+        "roles": "[{\"id\": \"MLRO\", \"required\": false}]"
+      }
+    },
+    {
+      "name": "case-manager-policy",
+      "description": "Routes and tracks client requests and KYC cases through the workflow",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "fetchRoles": "false",
+        "roles": "[{\"id\": \"CASE_MANAGER\", \"required\": false}]"
+      }
+    },
+    {
+      "name": "auditor-policy",
+      "description": "Read-only access to everything, including audit logs",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "fetchRoles": "false",
+        "roles": "[{\"id\": \"AUDITOR\", \"required\": false}]"
+      }
+    },
+    {
+      "name": "applicant-policy",
+      "description": "Individual or organisation applying for KYC: self service only",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "fetchRoles": "false",
+        "roles": "[{\"id\": \"APPLICANT\", \"required\": false}]"
+      }
+    },
+    {
+      "name": "analytics-view-permission",
+      "description": "Read a single record (Analytics)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"analytics\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"risk-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "audit-logs-view-permission",
+      "description": "Read a single record (Audit Log)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"audit-logs\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "audit-logs-list-permission",
+      "description": "List, page or search records (Audit Log)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"audit-logs\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "audit-logs-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Audit Log)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"audit-logs\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "audit-logs-delete-permission",
+      "description": "Remove a record or one of its parts (Audit Log)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"audit-logs\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-self-permission",
+      "description": "Read or change the caller's own data (my records, my profile) (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"self\"]",
+        "applyPolicies": "[\"authenticated-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-view-permission",
+      "description": "Read a single record (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-list-permission",
+      "description": "List, page or search records (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-delete-permission",
+      "description": "Remove a record or one of its parts (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-review-permission",
+      "description": "Change the review/decision status of a case, document or request (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"review\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-export-permission",
+      "description": "Download files and generate reports (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"export\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-import-permission",
+      "description": "Bulk upload records or templates (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"import\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "contacts-view-permission",
+      "description": "Read a single record (Contact)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"contacts\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "contacts-list-permission",
+      "description": "List, page or search records (Contact)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"contacts\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "contacts-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Contact)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"contacts\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "contacts-delete-permission",
+      "description": "Remove a record or one of its parts (Contact)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"contacts\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "document-types-view-permission",
+      "description": "Read a single record (Document Type)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"document-types\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "document-types-list-permission",
+      "description": "List, page or search records (Document Type)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"document-types\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "document-types-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Document Type)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"document-types\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "document-types-delete-permission",
+      "description": "Remove a record or one of its parts (Document Type)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"document-types\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "documents-self-permission",
+      "description": "Read or change the caller's own data (my records, my profile) (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"self\"]",
+        "applyPolicies": "[\"authenticated-policy\"]"
+      }
+    },
+    {
+      "name": "documents-view-permission",
+      "description": "Read a single record (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "documents-list-permission",
+      "description": "List, page or search records (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "documents-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "documents-delete-permission",
+      "description": "Remove a record or one of its parts (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "documents-submit-permission",
+      "description": "Start a KYC application or attach evidence to one (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"submit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "documents-verify-permission",
+      "description": "Run automated checks: extraction, analysis, data verification, screening (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"verify\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"screening-analyst-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "documents-review-permission",
+      "description": "Change the review/decision status of a case, document or request (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"review\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "documents-export-permission",
+      "description": "Download files and generate reports (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"export\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "employment-view-permission",
+      "description": "Read a single record (Employment Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"employment\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "employment-list-permission",
+      "description": "List, page or search records (Employment Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"employment\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "employment-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Employment Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"employment\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "employment-delete-permission",
+      "description": "Remove a record or one of its parts (Employment Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"employment\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "expected-fields-view-permission",
+      "description": "Read a single record (Expected Field)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"expected-fields\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "expected-fields-list-permission",
+      "description": "List, page or search records (Expected Field)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"expected-fields\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "expected-fields-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Expected Field)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"expected-fields\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "expected-fields-delete-permission",
+      "description": "Remove a record or one of its parts (Expected Field)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"expected-fields\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "individual-self-permission",
+      "description": "Read or change the caller's own data (my records, my profile) (Individual)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"individual\"]",
+        "scopes": "[\"self\"]",
+        "applyPolicies": "[\"authenticated-policy\"]"
+      }
+    },
+    {
+      "name": "individual-view-permission",
+      "description": "Read a single record (Individual)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"individual\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "individual-list-permission",
+      "description": "List, page or search records (Individual)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"individual\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "individual-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Individual)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"individual\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "individual-delete-permission",
+      "description": "Remove a record or one of its parts (Individual)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"individual\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "individual-verify-permission",
+      "description": "Run automated checks: extraction, analysis, data verification, screening (Individual)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"individual\"]",
+        "scopes": "[\"verify\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"screening-analyst-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "invoice-view-permission",
+      "description": "Read a single record (Kyc Invoice)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"invoice\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "invoice-list-permission",
+      "description": "List, page or search records (Kyc Invoice)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"invoice\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "invoice-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Kyc Invoice)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"invoice\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "invoice-delete-permission",
+      "description": "Remove a record or one of its parts (Kyc Invoice)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"invoice\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "invoice-submit-permission",
+      "description": "Start a KYC application or attach evidence to one (Kyc Invoice)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"invoice\"]",
+        "scopes": "[\"submit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-field-groups-view-permission",
+      "description": "Read a single record (Kyc Field Group)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-field-groups\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-field-groups-list-permission",
+      "description": "List, page or search records (Kyc Field Group)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-field-groups\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-field-groups-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Kyc Field Group)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-field-groups\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-field-groups-delete-permission",
+      "description": "Remove a record or one of its parts (Kyc Field Group)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-field-groups\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-self-permission",
+      "description": "Read or change the caller's own data (my records, my profile) (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"self\"]",
+        "applyPolicies": "[\"authenticated-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-view-permission",
+      "description": "Read a single record (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-list-permission",
+      "description": "List, page or search records (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-delete-permission",
+      "description": "Remove a record or one of its parts (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-submit-permission",
+      "description": "Start a KYC application or attach evidence to one (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"submit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-verify-permission",
+      "description": "Run automated checks: extraction, analysis, data verification, screening (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"verify\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"screening-analyst-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-review-permission",
+      "description": "Change the review/decision status of a case, document or request (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"review\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-export-permission",
+      "description": "Download files and generate reports (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"export\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-report-sections-view-permission",
+      "description": "Read a single record (Kyc Report Section)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-report-sections\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-report-sections-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Kyc Report Section)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-report-sections\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-report-sections-delete-permission",
+      "description": "Remove a record or one of its parts (Kyc Report Section)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-report-sections\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "novu-self-permission",
+      "description": "Read or change the caller's own data (my records, my profile) (Novu Auth)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"novu\"]",
+        "scopes": "[\"self\"]",
+        "applyPolicies": "[\"authenticated-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-branches-view-permission",
+      "description": "Read a single record (Branch)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-branches\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-branches-list-permission",
+      "description": "List, page or search records (Branch)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-branches\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-branches-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Branch)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-branches\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-branches-delete-permission",
+      "description": "Remove a record or one of its parts (Branch)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-branches\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-document-types-view-permission",
+      "description": "Read a single record (Organisation Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-document-types\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-document-types-list-permission",
+      "description": "List, page or search records (Organisation Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-document-types\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-document-types-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Organisation Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-document-types\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-document-types-delete-permission",
+      "description": "Remove a record or one of its parts (Organisation Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-document-types\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\"]"
+      }
+    },
+    {
+      "name": "organisations-self-permission",
+      "description": "Read or change the caller's own data (my records, my profile) (Organisation)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisations\"]",
+        "scopes": "[\"self\"]",
+        "applyPolicies": "[\"authenticated-policy\"]"
+      }
+    },
+    {
+      "name": "organisations-view-permission",
+      "description": "Read a single record (Organisation)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisations\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "organisations-list-permission",
+      "description": "List, page or search records (Organisation)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisations\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "organisations-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Organisation)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisations\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "organisations-delete-permission",
+      "description": "Remove a record or one of its parts (Organisation)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisations\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "organisations-verify-permission",
+      "description": "Run automated checks: extraction, analysis, data verification, screening (Organisation)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisations\"]",
+        "scopes": "[\"verify\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"screening-analyst-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "sequences-view-permission",
+      "description": "Read a single record (Sequence Generator)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"sequences\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "sequences-list-permission",
+      "description": "List, page or search records (Sequence Generator)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"sequences\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "sequences-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Sequence Generator)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"sequences\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "sequences-delete-permission",
+      "description": "Remove a record or one of its parts (Sequence Generator)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"sequences\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "settings-view-permission",
+      "description": "Read a single record (Settings)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"settings\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "settings-list-permission",
+      "description": "List, page or search records (Settings)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"settings\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "settings-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Settings)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"settings\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "settings-delete-permission",
+      "description": "Remove a record or one of its parts (Settings)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"settings\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "settings-import-permission",
+      "description": "Bulk upload records or templates (Settings)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"settings\"]",
+        "scopes": "[\"import\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "subscriptions-view-permission",
+      "description": "Read a single record (Kyc Subscription)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"subscriptions\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "subscriptions-list-permission",
+      "description": "List, page or search records (Kyc Subscription)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"subscriptions\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "subscriptions-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Kyc Subscription)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"subscriptions\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "subscriptions-delete-permission",
+      "description": "Remove a record or one of its parts (Kyc Subscription)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"subscriptions\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "users-self-permission",
+      "description": "Read or change the caller's own data (my records, my profile) (User)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"users\"]",
+        "scopes": "[\"self\"]",
+        "applyPolicies": "[\"authenticated-policy\"]"
+      }
+    },
+    {
+      "name": "users-view-permission",
+      "description": "Read a single record (User)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"users\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "users-list-permission",
+      "description": "List, page or search records (User)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"users\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "users-edit-permission",
+      "description": "Create or update a record (save is an upsert) (User)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"users\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\"]"
+      }
+    },
+    {
+      "name": "users-manage-permission",
+      "description": "Grant or revoke user roles (User)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"users\"]",
+        "scopes": "[\"manage\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\"]"
+      }
+    },
+    {
+      "name": "verification-data-configs-view-permission",
+      "description": "Read a single record (Verification Data Config)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"verification-data-configs\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+      }
+    },
+    {
+      "name": "verification-data-configs-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Verification Data Config)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"verification-data-configs\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "verification-data-configs-delete-permission",
+      "description": "Remove a record or one of its parts (Verification Data Config)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"verification-data-configs\"]",
+        "scopes": "[\"delete\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+      }
+    }
+  ],
+  "scopes": [
+    {
+      "name": "self",
+      "displayName": "Read or change the caller's own data (my records, my profile)"
+    },
+    {
+      "name": "view",
+      "displayName": "Read a single record"
+    },
+    {
+      "name": "list",
+      "displayName": "List, page or search records"
+    },
+    {
+      "name": "edit",
+      "displayName": "Create or update a record (save is an upsert)"
+    },
+    {
+      "name": "delete",
+      "displayName": "Remove a record or one of its parts"
+    },
+    {
+      "name": "submit",
+      "displayName": "Start a KYC application or attach evidence to one"
+    },
+    {
+      "name": "verify",
+      "displayName": "Run automated checks: extraction, analysis, data verification, screening"
+    },
+    {
+      "name": "review",
+      "displayName": "Change the review/decision status of a case, document or request"
+    },
+    {
+      "name": "export",
+      "displayName": "Download files and generate reports"
+    },
+    {
+      "name": "import",
+      "displayName": "Bulk upload records or templates"
+    },
+    {
+      "name": "manage",
+      "displayName": "Grant or revoke user roles"
+    }
+  ]
+}

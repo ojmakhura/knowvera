@@ -1,0 +1,2699 @@
+{
+  "enforcement-mode": "ENFORCING",
+  "paths": [
+    {
+      "path": "/swagger-ui/*",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "path": "/v3/*",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "path": "/actuator/*",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "path": "/analytics/*",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "path": "/client-requests/confirm-token/*",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "path": "/individual/request/*",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "path": "/organisations/request/*",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "path": "/client-requests/{id}/confirm",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "path": "/error",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "name": "audit-logs",
+      "path": "/audit-logs",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "audit-logs",
+      "path": "/audit-logs/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "audit-logs",
+      "path": "/audit-logs/search",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "audit-logs",
+      "path": "/audit-logs/search/paged",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "audit-logs",
+      "path": "/audit-logs/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/by-document/{documentId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/by-document/{documentId}/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/by-individual/{individualId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/by-individual/{individualId}/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/by-org/{organisationId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/by-org/{organisationId}/individuals",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/by-org/{organisationId}/individuals/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/by-org/{organisationId}/organisations",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/by-org/{organisationId}/organisations/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/by-org/{organisationId}/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/download-template",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "export"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/mine",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/my-organisation",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/search",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/search/paged",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/status",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/status/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/target/{target}/{targetId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/target/{target}/{targetId}/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/user-ready",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/user-ready/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/{id}/status",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "review"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "client-requests",
+      "path": "/client-requests/{organisationId}/upload",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "import"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contacts",
+      "path": "/contacts",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contacts",
+      "path": "/contacts/by-type/{type}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contacts",
+      "path": "/contacts/by-type/{type}/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contacts",
+      "path": "/contacts/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contacts",
+      "path": "/contacts/search",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "contacts",
+      "path": "/contacts/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "document-types",
+      "path": "/document-types",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "document-types",
+      "path": "/document-types/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "document-types",
+      "path": "/document-types/search",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "document-types",
+      "path": "/document-types/search/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "document-types",
+      "path": "/document-types/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "document-types",
+      "path": "/document-types/{id}/expected-field",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/documentTypeId/{documentTypeId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/download",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "export"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/mine",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/mine/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/search",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/search/paged",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/target/{target}/{targetId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/upload/{target}/{targetId}/type/{documentTypeId}",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "submit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/{id}/analysis",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "verify"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/{id}/content",
+      "methods": [
+        {
+          "method": "PUT",
+          "scopes": [
+            "submit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/{id}/data-verification",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "verify"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/{id}/download",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "export"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/{id}/text-extraction",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "verify"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/{id}/update",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "documents",
+      "path": "/documents/{id}/verification-status",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "review"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "employment",
+      "path": "/employment",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "employment",
+      "path": "/employment/by-individual/{individualId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "employment",
+      "path": "/employment/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "employment",
+      "path": "/employment/search",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "employment",
+      "path": "/employment/search/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "employment",
+      "path": "/employment/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "expected-fields",
+      "path": "/expected-fields",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "expected-fields",
+      "path": "/expected-fields/document-types",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "expected-fields",
+      "path": "/expected-fields/document-types/page",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "expected-fields",
+      "path": "/expected-fields/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "individual",
+      "path": "/individual",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "individual",
+      "path": "/individual/me",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "individual",
+      "path": "/individual/organisation/{organisationId}/organisationId/{organisationId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "individual",
+      "path": "/individual/organisation/{organisationId}/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "individual",
+      "path": "/individual/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "individual",
+      "path": "/individual/search",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "individual",
+      "path": "/individual/search/paged",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "individual",
+      "path": "/individual/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "individual",
+      "path": "/individual/{id}/verification",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "verify"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invoice",
+      "path": "/invoice",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invoice",
+      "path": "/invoice/by-organisation/{organisationId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invoice",
+      "path": "/invoice/by-organisation/{organisationId}/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invoice",
+      "path": "/invoice/by-subscription/{subscriptionId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invoice",
+      "path": "/invoice/by-subscription/{subscriptionId}/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invoice",
+      "path": "/invoice/generate/{subscriptionId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invoice",
+      "path": "/invoice/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invoice",
+      "path": "/invoice/search",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invoice",
+      "path": "/invoice/search/paged",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invoice",
+      "path": "/invoice/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "invoice",
+      "path": "/invoice/{id}/upload",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "submit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-field-groups",
+      "path": "/kyc-field-groups",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-field-groups",
+      "path": "/kyc-field-groups/target/{targetType}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-field-groups",
+      "path": "/kyc-field-groups/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-field-groups",
+      "path": "/kyc-field-groups/{id}/field/{fieldId}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/by-identity/{identityNo}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/by-identity/{identityNo}/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/by-individual/{individualId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/by-individual/{individualId}/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/by-organisation-registration/{registrationNo}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/by-organisation/{organisationId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/by-organisation_registration/{registrationNo}/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/client-summary-kyc/{organisationId}/individuals",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/client-summary-kyc/{organisationId}/individuals/page",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/client-summary-kyc/{organisationId}/organisations",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/client-summary-kyc/{organisationId}/organisations/page",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/individual/{individualId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "submit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/mine",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/mine/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/my_current",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/new",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "submit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/organisation/{organisationId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "submit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/search",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/search/paged",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/search/summaries",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/search/summaries/paged",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/{id}/remove-file/{documentId}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "submit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/{id}/report",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "export"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/{id}/status",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "review"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/{id}/summary",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/{id}/update-files",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "submit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-records",
+      "path": "/kyc-records/{id}/verification",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "verify"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-report-sections",
+      "path": "/kyc-report-sections",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-report-sections",
+      "path": "/kyc-report-sections/field-value",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-report-sections",
+      "path": "/kyc-report-sections/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "kyc-report-sections",
+      "path": "/kyc-report-sections/{id}/field-value/{fieldValueId}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "novu",
+      "path": "/novu/config",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-branches",
+      "path": "/organisation-branches",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-branches",
+      "path": "/organisation-branches/by-org/{organisationId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-branches",
+      "path": "/organisation-branches/by-org/{organisationId}/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-branches",
+      "path": "/organisation-branches/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-branches",
+      "path": "/organisation-branches/search",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-branches",
+      "path": "/organisation-branches/search/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-branches",
+      "path": "/organisation-branches/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-document-types",
+      "path": "/organisation-document-types",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-document-types",
+      "path": "/organisation-document-types/all",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-document-types",
+      "path": "/organisation-document-types/by-org/{organisationId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-document-types",
+      "path": "/organisation-document-types/by-org/{organisationId}/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-document-types",
+      "path": "/organisation-document-types/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-document-types",
+      "path": "/organisation-document-types/search",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-document-types",
+      "path": "/organisation-document-types/search/paged",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-document-types",
+      "path": "/organisation-document-types/status",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-document-types",
+      "path": "/organisation-document-types/status/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisation-document-types",
+      "path": "/organisation-document-types/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisations",
+      "path": "/organisations",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisations",
+      "path": "/organisations/list/{id}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisations",
+      "path": "/organisations/mine",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisations",
+      "path": "/organisations/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisations",
+      "path": "/organisations/registration/{registrationNo}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisations",
+      "path": "/organisations/search",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisations",
+      "path": "/organisations/search/paged",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisations",
+      "path": "/organisations/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "organisations",
+      "path": "/organisations/{id}/verification",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "verify"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sequences",
+      "path": "/sequences",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sequences",
+      "path": "/sequences/by-name",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sequences",
+      "path": "/sequences/search",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sequences",
+      "path": "/sequences/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/attach-document-type/{documentTypeId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/detach-document-type/{documentTypeId}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/documents",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/field-groups",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/financials",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/one",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/operational-metrics",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/platform-identity",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/salary-ranges",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/salary-ranges/{salaryRangeId}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/search",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/search/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/template-mappings",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/tool-selectors",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/upload",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "import"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settings",
+      "path": "/settings/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "subscriptions",
+      "path": "/subscriptions",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "subscriptions",
+      "path": "/subscriptions/by-organisation/{organisationId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "subscriptions",
+      "path": "/subscriptions/paged",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "subscriptions",
+      "path": "/subscriptions/search",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "subscriptions",
+      "path": "/subscriptions/search/paged",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "subscriptions",
+      "path": "/subscriptions/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/add-client-roles",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "manage"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/branch-id/{branchId}/branchId/{branchId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/branch-name/{branch}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/by-identity/{identityNo}/identityNo/{identityNo}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/client/roles",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/create",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/department-name/{organisation}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/load",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/organisation-id/{organisationId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/realm/roles",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/role",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "manage"
+          ]
+        },
+        {
+          "method": "PUT",
+          "scopes": [
+            "manage"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/search",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/updatePassword",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "path": "/users/{userId}",
+      "methods": [
+        {
+          "method": "PATCH",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "verification-data-configs",
+      "path": "/verification-data-configs",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "verification-data-configs",
+      "path": "/verification-data-configs/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete"
+          ]
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    }
+  ]
+}

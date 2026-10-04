@@ -82,6 +82,12 @@ services:
       REGISTRATION_CLIENT: ${REGISTRATION_CLIENT:-knowvera-registration}
       REGISTRATION_CLIENT_SECRET: ${REGISTRATION_CLIENT_SECRET:-secret}
 
+      # --- Resource-based authorization (Keycloak policy enforcer) ---
+      AUTHZ_ENABLED: ${AUTHZ_ENABLED:-true}
+      AUTHZ_PERMISSION_AUTHORITIES: ${AUTHZ_PERMISSION_AUTHORITIES:-true}
+      API_CLIENT: ${API_CLIENT:-knowvera-api}
+      API_CLIENT_SECRET: ${API_CLIENT_SECRET:-secret}
+
       # --- LLM / AI providers ---
       LLM_ID: ${LLM_ID:-ollama}
       LLM_MODEL: ${LLM_MODEL:-gemma4}
