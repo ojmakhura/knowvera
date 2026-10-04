@@ -5,6 +5,7 @@
 //
 package bw.co.knowvera.kyc.fields;
 
+import bw.co.knowvera.logging.Audit;
 import bw.co.knowvera.kyc.KycRecordDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -27,6 +28,7 @@ public class KycReportSectionApiImpl implements KycReportSectionApi {
 
     @Override
     @Operation(summary = "Add a field value to a KYC report section", description = "Adds a new field value to the specified KYC report section.")
+    @Audit(entity = "KYC_REPORT_SECTION", logData = false)
     public ResponseEntity<KycReportSectionDTO> addFieldValue(@Valid GroupFieldValueDTO fieldValue) throws Exception {
         
         logger.debug("Adding field value: {}", fieldValue);
@@ -35,6 +37,7 @@ public class KycReportSectionApiImpl implements KycReportSectionApi {
 
     @Override
     @Operation(summary = "Find a KYC report section by ID", description = "Retrieves the details of a KYC report section based on its unique identifier.")
+    @Audit(entity = "KYC_REPORT_SECTION", eventLabel = "#id", logData = false)
     public ResponseEntity<KycReportSectionDTO> findById(String id) throws Exception {
 
         logger.debug("Finding KYC report section by ID: {}", id);
@@ -43,18 +46,21 @@ public class KycReportSectionApiImpl implements KycReportSectionApi {
 
     @Override
     @Operation(summary = "Remove a KYC report section by ID", description = "Removes the specified KYC report section based on its unique identifier.")
+    @Audit(entity = "KYC_REPORT_SECTION", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         return ResponseEntity.ok(kycReportSectionService.remove(id));
     }
 
     @Override
     @Operation(summary = "Save a KYC report section", description = "Saves the provided KYC report section details.")
+    @Audit(entity = "KYC_REPORT_SECTION", eventLabel = "#result?.body?.id", logData = false)
     public ResponseEntity<KycReportSectionDTO> save(@Valid KycReportSectionDTO kycReportSection) throws Exception {
         return ResponseEntity.ok(kycReportSectionService.save(kycReportSection));
     }
 
     @Override
     @Operation(summary = "Remove a field value from a KYC report section", description = "Removes the specified field value from the KYC report section based on its unique identifier.")
+    @Audit(entity = "KYC_REPORT_SECTION", eventLabel = "#id + ' ' + #fieldValueId", logData = false)
     public ResponseEntity<KycReportSectionDTO> removeFieldValue(String id, String fieldValueId) throws Exception {
         
         return ResponseEntity.ok(kycReportSectionService.removeFieldValue(id, fieldValueId));

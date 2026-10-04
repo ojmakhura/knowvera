@@ -212,6 +212,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Save Document Requirements", description = "Save document requirements")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<DocumentRequirements> saveDocumentRequirements(
             @Valid DocumentRequirements documentRequirements) throws Exception {
 
@@ -230,6 +231,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Save Financial Settings", description = "Save financial settings")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<FinancialSettings> saveFinancialSettings(@Valid FinancialSettings financialSettings)
             throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -247,6 +249,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Save Operational Metrics", description = "Save operational metrics")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<OperationalMetrics> saveOperationalMetrics(@Valid OperationalMetrics operationalMetrics)
             throws Exception {
 
@@ -265,6 +268,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Save Platform Identity", description = "Save platform identity settings")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<PlatformIdentity> savePlatformIdentity(@Valid PlatformIdentity platformIdentity)
             throws Exception {
 
@@ -283,6 +287,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Save Settings Field Groups", description = "Save settings field groups")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<SettingsFieldGroups> saveSettingsFieldGroups(@Valid SettingsFieldGroups settingsFieldGroups)
             throws Exception {
 
@@ -301,6 +306,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Save Settings Tool Selectors", description = "Save settings tool selectors")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<SettingsToolSelectors> saveSettingsToolSelectors(
             @Valid SettingsToolSelectors settingsToolSelectors) throws Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -318,6 +324,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Save Template Mappings", description = "Save template mappings")
+    @Audit(entity = "SETTINGS", logData = false)
     public ResponseEntity<TemplateMappings> saveTemplateMappings(@Valid TemplateMappings templateMappings)
             throws Exception {
 
@@ -335,6 +342,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Remove Salary Range", description = "Remove a salary range by its ID")
+    @Audit(entity = "SETTINGS", eventLabel = "#salaryRangeId", logData = false)
     public ResponseEntity<FinancialSettings> removeSalaryRange(Long salaryRangeId) throws Exception {
 
         LOGGER.debug("Removing salary range with ID: {}", salaryRangeId);
@@ -352,6 +360,7 @@ public class SettingsApiImpl implements SettingsApi {
 
     @Override
     @Operation(summary = "Save Salary Range", description = "Save a salary range")
+    @Audit(entity = "SETTINGS", eventLabel = "#result?.body?.id", logData = false)
     public ResponseEntity<FinancialSettings> saveSalaryRange(@Valid SalaryRangeDTO salaryRange) throws Exception {
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

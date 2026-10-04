@@ -7,6 +7,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -20,6 +21,34 @@ import java.util.List;
 public class FallbackExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FallbackExceptionHandler.class);
+
+    /**
+     * @PreAuthorize and ownership (@RequiresOwnership) denials. Without this the generic
+     * handler below would turn them into a 500.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ProblemDetail> handleAccessDenied(
+            AccessDeniedException ex, WebRequest request) {
+
+        LOGGER.debug("Access denied for request [{}]: {}",
+                request.getDescription(false), ex.getMessage());
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                "You do not have permission to perform this action."
+        );
+        problemDetail.setType(URI.create("forbidden"));
+        problemDetail.setTitle("FORBIDDEN");
+        problemDetail.setInstance(URI.create(
+                request.getDescription(false).replace("uri=", "")
+        ));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("errors", List.of());
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(problemDetail);
+    }
 
     /**
      * Fallback handler for any other unexpected exception, so clients never

@@ -5,6 +5,7 @@
 //
 package bw.co.knowvera.settings.kyc;
 
+import bw.co.knowvera.logging.Audit;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -47,12 +48,14 @@ public class KycFieldGroupApiImpl implements KycFieldGroupApi {
     }
 
     @Override
+    @Audit(entity = "KYC_FIELD_GROUP", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
         return ResponseEntity.ok(this.kycFieldGroupService.remove(id));
     }
 
     @Override
+    @Audit(entity = "KYC_FIELD_GROUP", logData = false)
     public ResponseEntity<KycFieldGroupDTO> save(@Valid KycFieldGroupDTO fieldGroup) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -85,6 +88,7 @@ public class KycFieldGroupApiImpl implements KycFieldGroupApi {
     }
 
     @Override
+    @Audit(entity = "KYC_FIELD_GROUP", eventLabel = "#id + ' ' + #fieldId", logData = false)
     public ResponseEntity<KycFieldGroupDTO> removeField(String id, String fieldId) throws Exception {
 
         return ResponseEntity.ok(this.kycFieldGroupService.removeField(id, fieldId));

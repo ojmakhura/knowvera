@@ -9,6 +9,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.expression.ExpressionException;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -22,7 +24,6 @@ import bw.co.knowvera.audit.AuditLogService;
 import bw.co.knowvera.contact.ContactDTO;
 import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.document.type.DocumentTypeDTO;
-import bw.co.knowvera.individual.Individual;
 import bw.co.knowvera.individual.IndividualDTO;
 import bw.co.knowvera.invoice.KycInvoiceDTO;
 import bw.co.knowvera.kyc.KycRecordDTO;
@@ -31,12 +32,13 @@ import bw.co.knowvera.organisation.branch.BranchDTO;
 import bw.co.knowvera.settings.SettingsDTO;
 import bw.co.knowvera.settings.kyc.KycFieldGroupDTO;
 import bw.co.knowvera.subscription.KycSubscriptionDTO;
-import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.json.JsonMapper;
 
 @Aspect
 @Component
 public class AuditAspect {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuditAspect.class);
 
     private final JsonMapper jsonMapper;
     private final AuditLogService auditLogService;
@@ -55,6 +57,7 @@ public class AuditAspect {
             Audit audit) throws Throwable {
 
         Object result = null;
+        Throwable failure = null;
 
         try {
 
@@ -62,74 +65,101 @@ public class AuditAspect {
 
             return result;
 
+        } catch (Throwable t) {
+
+            failure = t;
+            throw t;
+
         } finally {
 
-            AuditContext ctx = contextProvider.getContext();
-
-            AuditLogDTO log = new AuditLogDTO();
-
-            log.setTimestamp(Instant.now());
-
-            if(StringUtils.isNotBlank(audit.event())) {
-                log.setEvent(audit.event());
-            } else {
-                MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-                log.setEvent(signature.getMethod().getName());
+            try {
+                writeAuditLog(joinPoint, audit, result, failure);
+            } catch (Exception e) {
+                // Auditing must never replace the method's result or exception
+                LOGGER.error("Failed to write audit log for {}", joinPoint.getSignature().toShortString(), e);
             }
-
-            log.setEntityType(audit.entity());
-
-            String eventLabel = resolveEventLabel(
-                    joinPoint,
-                    audit,
-                    result);
-
-            if(StringUtils.isBlank(eventLabel)) {
-                eventLabel = extractEventLabel(result);
-            }
-
-            log.setEventLabel(eventLabel);
-
-            log.setUsername(
-                    ctx.getUsername());
-
-            log.setUserId(ctx.getUserId());
-
-            log.setIpAddress(
-                    ctx.getIpAddress());
-
-            log.setAgent(
-                    ctx.getUserAgent());
-
-            log.setTraceId(
-                    ctx.getTraceId());
-
-            log.setSpanId(
-                    ctx.getSpanId());
-
-            if(audit.logData()) {
-
-                try {
-                    ResponseEntity res = (ResponseEntity) result;
-                    Map<String, Object> data = jsonMapper.convertValue(res.getBody(), Map.class);
-
-                    log.setLogData(data);
-
-                } catch (Exception e) {
-                    
-                    log.setLogData(Map.of(
-                            "error", "Failed to serialize log data",
-                            "message", e.getMessage()));
-                }
-            }
-
-            auditLogService.save(log);
         }
+    }
+
+    private void writeAuditLog(
+            ProceedingJoinPoint joinPoint,
+            Audit audit,
+            Object result,
+            Throwable failure) {
+
+        AuditContext ctx = contextProvider.getContext();
+
+        AuditLogDTO log = new AuditLogDTO();
+
+        log.setTimestamp(Instant.now());
+
+        if(StringUtils.isNotBlank(audit.event())) {
+            log.setEvent(audit.event());
+        } else {
+            MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+            log.setEvent(signature.getMethod().getName());
+        }
+
+        log.setEntityType(audit.entity());
+
+        String eventLabel = resolveEventLabel(
+                joinPoint,
+                audit,
+                result);
+
+        if(StringUtils.isBlank(eventLabel)) {
+            eventLabel = extractEventLabel(result);
+        }
+
+        log.setEventLabel(eventLabel);
+
+        log.setUsername(
+                ctx.getUsername());
+
+        log.setUserId(ctx.getUserId());
+
+        log.setIpAddress(
+                ctx.getIpAddress());
+
+        log.setAgent(
+                ctx.getUserAgent());
+
+        log.setTraceId(
+                ctx.getTraceId());
+
+        log.setSpanId(
+                ctx.getSpanId());
+
+        if(failure != null) {
+
+            // Failed calls are audited too, without their (partial) data
+            log.setLogData(Map.of(
+                    "outcome", "FAILURE",
+                    "error", failure.getClass().getSimpleName()));
+
+        } else if(audit.logData() && result instanceof ResponseEntity<?> res && res.getBody() != null) {
+
+            try {
+                Map<String, Object> data = jsonMapper.convertValue(res.getBody(), Map.class);
+
+                log.setLogData(data);
+
+            } catch (Exception e) {
+                
+                log.setLogData(Map.of(
+                        "error", "Failed to serialize log data",
+                        "message", e.getMessage()));
+            }
+        }
+
+        auditLogService.save(log);
     }
 
     private String extractEventLabel(Object result) {
 
-        ResponseEntity res = (ResponseEntity) result;
+        if(!(result instanceof ResponseEntity<?> res) || res.getBody() == null) {
+            return null;
+        }
 
         if(res.getBody() instanceof IndividualDTO) {
             

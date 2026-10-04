@@ -5,6 +5,7 @@
 //
 package bw.co.knowvera.organisation.document;
 
+import bw.co.knowvera.logging.Audit;
 import bw.co.knowvera.AuditTracker;
 import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.organisation.document.OrganisationDocumentApi;
@@ -97,6 +98,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
 
     @Override
     @Operation(summary = "Remove Organisation Document", description = "Remove an organisation document by its ID")
+    @Audit(entity = "ORGANISATION_DOCUMENT", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
         return ResponseEntity.ok(organisationDocumentService.remove(id));
@@ -104,6 +106,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
 
     @Override
     @Operation(summary = "Save Organisation Document", description = "Save or update an organisation document")
+    @Audit(entity = "ORGANISATION_DOCUMENT", eventLabel = "#result?.body?.id", logData = false)
     public ResponseEntity<OrganisationDocumentDTO> save(OrganisationDocumentDTO clientRequest) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

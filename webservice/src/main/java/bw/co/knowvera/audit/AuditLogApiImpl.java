@@ -5,6 +5,7 @@
 //
 package bw.co.knowvera.audit;
 
+import bw.co.knowvera.logging.Audit;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -14,11 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-
-import bw.co.knowvera.audit.AuditLogCriteria;
-import bw.co.knowvera.audit.AuditLogDTO;
-import bw.co.knowvera.audit.AuditLogService;
-import bw.co.knowvera.audit.AuditLogServiceException;
 
 @RestController
 @Tag(name = "Audit Log", description = "Managing audit logs.")
@@ -81,6 +77,7 @@ public class AuditLogApiImpl implements AuditLogApi {
 
 
     @Override
+    @Audit(entity = "AUDIT_LOG", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
             return ResponseEntity.ok(auditLogService.remove(id));
@@ -93,6 +90,7 @@ public class AuditLogApiImpl implements AuditLogApi {
 
 
     @Override
+    @Audit(entity = "AUDIT_LOG", eventLabel = "#result?.body?.id", logData = false)
     public ResponseEntity<AuditLogDTO> save(@Valid AuditLogDTO auditLog) throws Exception {
         try {
             return ResponseEntity.ok(auditLogService.save(auditLog));

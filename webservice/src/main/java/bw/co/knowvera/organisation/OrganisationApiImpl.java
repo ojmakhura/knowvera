@@ -5,6 +5,7 @@
 //
 package bw.co.knowvera.organisation;
 
+import bw.co.knowvera.auth.RequiresOwnership;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -47,6 +48,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     @Override
     @Operation(summary = "Find Organisation by ID", description = "Find an organisation by its ID")
     @Audit(entity = "ORGANISATION", eventLabel = "#id", logData = false)
+    @RequiresOwnership(target = "ORGANISATION", id = "#id")
     public ResponseEntity<OrganisationDTO> findById(String id) {
 
         logger.debug("Finding organisation with ID: {}", id);
@@ -193,7 +195,7 @@ public class OrganisationApiImpl implements OrganisationApi {
 
     @Override
     @Operation(summary = "Load Request Organisation", description = "Load an organisation based on request ID, identity confirmation token, and registration number")
-    @Audit(entity = "ORGANISATION", eventLabel = "#requestId + ' ' + #identityConfirmationToken + ' ' + #registrationNo", logData = false)
+    @Audit(entity = "ORGANISATION", eventLabel = "#requestId + ' ' + #registrationNo", logData = false)
     public ResponseEntity<OrganisationDTO> loadRequestOrganisation(String requestId, String identityConfirmationToken,
             String registrationNo) throws Exception {
 
@@ -252,6 +254,8 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
+    @RequiresOwnership(target = "ORGANISATION", id = "#id")
+    @Audit(entity = "ORGANISATION", eventLabel = "#id", logData = false)
     public ResponseEntity<OrganisationListDTO> findListOrganisationById(String id) throws Exception {
         
         return ResponseEntity.ok(organisationService.findListOrganisationById(id));

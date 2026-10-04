@@ -5,6 +5,7 @@
 //
 package bw.co.knowvera.individual.employment;
 
+import bw.co.knowvera.logging.Audit;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +35,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     @Override
     @Operation(summary = "Find Employment Record by ID", description = "Find an employment record by its ID")
+    @Audit(entity = "EMPLOYMENT_RECORD", eventLabel = "#id", logData = false)
     public ResponseEntity<EmploymentRecordDTO> findById(String id) throws Exception {
 
         logger.debug("Finding employment record with ID: {}", id);
@@ -42,6 +44,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     @Override
     @Operation(summary = "Find Employment Records by Individual ID", description = "Find all employment records for a given individual ID")
+    @Audit(entity = "EMPLOYMENT_RECORD", eventLabel = "#individualId", logData = false)
     public ResponseEntity<List<EmploymentRecordDTO>> findByIndividual(String individualId)
             throws Exception {
 
@@ -51,6 +54,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     @Override
     @Operation(summary = "Get All Employment Records", description = "Get all employment records")
+    @Audit(entity = "EMPLOYMENT_RECORD", logData = false)
     public ResponseEntity<List<EmploymentRecordDTO>> getAll() throws Exception {
 
         logger.debug("Retrieving all employment records");
@@ -59,6 +63,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     @Override
     @Operation(summary = "Get All Employment Records Paged", description = "Get all employment records with pagination")
+    @Audit(entity = "EMPLOYMENT_RECORD", logData = false)
     public ResponseEntity<Page<EmploymentRecordDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) throws Exception {
 
@@ -68,6 +73,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     @Override
     @Operation(summary = "Paged Search Employment Records", description = "Search employment records with pagination")
+    @Audit(entity = "EMPLOYMENT_RECORD", logData = false)
     public ResponseEntity<Page<EmploymentRecordDTO>> pagedSearch(String criteria,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -77,6 +83,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     @Override
     @Operation(summary = "Remove Employment Record", description = "Remove an employment record by its ID")
+    @Audit(entity = "EMPLOYMENT_RECORD", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
         logger.debug("Removing employment record with ID: {}", id);
@@ -85,6 +92,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     @Override
     @Operation(summary = "Save Employment Record", description = "Save an employment record. If the ID is not provided, a new record will be created.")
+    @Audit(entity = "EMPLOYMENT_RECORD", eventLabel = "#result?.body?.id", logData = false)
     public ResponseEntity<EmploymentRecordDTO> save(EmploymentRecordDTO employmentRecord)
             throws Exception {
 
@@ -97,6 +105,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     @Override
     @Operation(summary = "Search Employment Records", description = "Search employment records by criteria")
+    @Audit(entity = "EMPLOYMENT_RECORD", logData = false)
     public ResponseEntity<List<EmploymentRecordDTO>> search(String criteria)
             throws Exception {
 

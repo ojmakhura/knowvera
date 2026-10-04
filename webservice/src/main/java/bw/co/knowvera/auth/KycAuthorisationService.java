@@ -1,13 +1,30 @@
 package bw.co.knowvera.auth;
 
+import java.lang.reflect.Method;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.aop.support.AopUtils;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.expression.MethodBasedEvaluationContext;
+import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.core.Ordered;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.method.AuthorizationInterceptorsOrder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.document.DocumentDTO;
@@ -28,8 +45,26 @@ import bw.co.knowvera.subscription.KycSubscriptionService;
 import bw.co.knowvera.user.UserDTO;
 import lombok.RequiredArgsConstructor;
 
-@Service("kycAuthService")
-public class KycAuthorisationService {
+/**
+ * Record ownership checks, applied as an aspect to methods annotated with
+ * {@link RequiresOwnership}. Runs right after @PreAuthorize (Keycloak permission check):
+ * callers holding an owner-scoped role must own the record, staff are not restricted.
+ *
+ * Dependencies are injected lazily so that creating this aspect does not instantiate the
+ * services before the auto-proxy creator can wrap them (e.g. for @Transactional).
+ */
+@Aspect
+@Component("kycAuthService")
+public class KycAuthorisationService implements Ordered {
+
+    /** Directly inside @PreAuthorize, outside @Audit. */
+    public static final int ORDER = AuthorizationInterceptorsOrder.PRE_AUTHORIZE.getOrder() + 1;
+
+    /** Roles limited to their own records. Keep in sync with OWNER_SCOPED in keycloak/update_preauthorize.py */
+    public static final Set<String> OWNER_SCOPED_AUTHORITIES = Set.of("ROLE_APPLICANT", "ROLE_ORG_ADMIN");
+
+    private final SpelExpressionParser parser = new SpelExpressionParser();
+    private final ParameterNameDiscoverer parameterNames = new DefaultParameterNameDiscoverer();
 
     private final KycRecordService kycRecordService;
     private final KeycloakUserService keycloakUserService;
@@ -40,10 +75,10 @@ public class KycAuthorisationService {
     private final KycInvoiceService invoiceService;
     private final KycSubscriptionService subscriptionService;
 
-    public KycAuthorisationService(KycRecordService kycRecordService, KeycloakUserService keycloakUserService,
-            IndividualService individualService, OrganisationService organisationService,
-            DocumentService documentService, ClientRequestService clientRequestService,
-            KycInvoiceService invoiceService, KycSubscriptionService subscriptionService) {
+    public KycAuthorisationService(@Lazy KycRecordService kycRecordService, @Lazy KeycloakUserService keycloakUserService,
+            @Lazy IndividualService individualService, @Lazy OrganisationService organisationService,
+            @Lazy DocumentService documentService, @Lazy ClientRequestService clientRequestService,
+            @Lazy KycInvoiceService invoiceService, @Lazy KycSubscriptionService subscriptionService) {
         this.kycRecordService = kycRecordService;
         this.keycloakUserService = keycloakUserService;
         this.individualService = individualService;
@@ -52,6 +87,59 @@ public class KycAuthorisationService {
         this.clientRequestService = clientRequestService;
         this.invoiceService = invoiceService;
         this.subscriptionService = subscriptionService;
+    }
+
+    @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Around("@annotation(requiresOwnership)")
+    public Object checkOwnership(ProceedingJoinPoint joinPoint, RequiresOwnership requiresOwnership) throws Throwable {
+
+        if (!isOwnerScoped()) {
+            return joinPoint.proceed();
+        }
+
+        Method method = AopUtils.getMostSpecificMethod(
+                ((MethodSignature) joinPoint.getSignature()).getMethod(), joinPoint.getTarget().getClass());
+        EvaluationContext context = new MethodBasedEvaluationContext(
+                joinPoint.getTarget(), method, joinPoint.getArgs(), parameterNames);
+
+        TargetEntity target = resolveTarget(requiresOwnership.target(), context);
+        Object id = parser.parseExpression(requiresOwnership.id()).getValue(context);
+
+        if (target == null || id == null || !isTargetRecordOwner(target, id.toString())) {
+            throw new AuthorizationDeniedException("Access denied: caller does not own the "
+                    + (target != null ? target : "requested") + " record");
+        }
+
+        return joinPoint.proceed();
+    }
+
+    private TargetEntity resolveTarget(String target, EvaluationContext context) {
+
+        if (!target.startsWith("#")) {
+            return TargetEntity.valueOf(target);
+        }
+
+        Object value = parser.parseExpression(target).getValue(context);
+        if (value instanceof TargetEntity entity) {
+            return entity;
+        }
+        return value != null ? TargetEntity.valueOf(value.toString()) : null;
+    }
+
+    private boolean isOwnerScoped() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return false;
+        }
+
+        return auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(OWNER_SCOPED_AUTHORITIES::contains);
     }
 
     public boolean canViewRequest(UUID requestId, Authentication auth) {
@@ -290,18 +378,5 @@ public class KycAuthorisationService {
         };
 
         return isOwner;
-    }
-
-    /**
-     * String variant of isTargetRecordOwner for @PreAuthorize expressions: AndroMDA shortens
-     * T(bw.co.knowvera.TargetEntity) to T(TargetEntity), which SpEL cannot resolve.
-     */
-    public Boolean isRecordOwner(String target, String targetId) {
-
-        if(StringUtils.isBlank(target)) {
-            return false;
-        }
-
-        return isTargetRecordOwner(TargetEntity.valueOf(target), targetId);
     }
 }

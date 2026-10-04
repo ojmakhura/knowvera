@@ -121,7 +121,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
 
     @Override
     @Operation(summary = "Find KYC Subscriptions by Organisation", description = "Find KYC subscriptions by organisation ID")
-    @Audit(entity = "KYC_SUBSCRIPTION", eventLabel = "#arg0", logData = false)
+    @Audit(entity = "KYC_SUBSCRIPTION", eventLabel = "#organisationId", logData = false)
     public ResponseEntity<List<KycSubscriptionDTO>> findByOrganisation(String organisationId) throws Exception {
 
         logger.debug("Finding KYC subscriptions for organisation: {}", organisationId);

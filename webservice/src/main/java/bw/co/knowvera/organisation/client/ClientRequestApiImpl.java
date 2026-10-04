@@ -5,6 +5,7 @@
 //
 package bw.co.knowvera.organisation.client;
 
+import bw.co.knowvera.auth.RequiresOwnership;
 import bw.co.knowvera.AuditTracker;
 import bw.co.knowvera.PropertySearchOrder;
 import bw.co.knowvera.SearchObject;
@@ -82,6 +83,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Find Client Request by ID", description = "Find a client request by its ID")
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#id", logData = false)
+    @RequiresOwnership(target = "CLIENT_REQUEST", id = "#id")
     public ResponseEntity<ClientRequestDTO> findById(String id) throws Exception {
 
         ClientRequestDTO request = clientRequestService.findById(id);
@@ -116,6 +118,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Find Client Requests by Organisation", description = "Find client requests by organisation ID")
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#organisationId", logData = false)
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<List<ClientRequestDTO>> findByOrganisation(String organisationId, TargetEntity target)
             throws Exception {
 
@@ -126,6 +129,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Find Client Requests by Organisation (Paged)", description = "Find client requests by organisation ID with pagination")
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#organisationId", logData = false)
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<Page<ClientRequestDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber,
             Integer pageSize, TargetEntity target) throws Exception {
 
@@ -183,6 +187,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Remove Client Request", description = "Remove a client request by its ID")
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#id", logData = false)
+    @RequiresOwnership(target = "CLIENT_REQUEST", id = "#id")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
         return ResponseEntity.ok(clientRequestService.remove(id));
@@ -191,6 +196,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Save Client Request", description = "Save a client request")
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#clientRequest.id", logData = true)
+    @RequiresOwnership(target = "ORGANISATION", id = "#clientRequest.organisationId")
     public ResponseEntity<ClientRequestDTO> save(ClientRequestDTO clientRequest) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -329,6 +335,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Find Client Requests by Target", description = "Find client requests by their target entity and target ID")
     @Audit(entity = "CLIENT_REQUEST", logData = false)
+    @RequiresOwnership(target = "#target", id = "#targetId")
     public ResponseEntity<List<ClientRequestDTO>> findByTarget(TargetEntity target, String targetId)
             throws Exception {
 
@@ -339,6 +346,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Find Client Requests by Target (Paged)", description = "Find client requests by their target entity and target ID with pagination")
     @Audit(entity = "CLIENT_REQUEST", logData = false)
+    @RequiresOwnership(target = "#target", id = "#targetId")
     public ResponseEntity<Page<ClientRequestDTO>> findByTargetPaged(TargetEntity target,
             String targetId, Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -350,6 +358,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Find Individuals by Organisation", description = "Find individual client requests by organisation ID")
     @Audit(entity = "CLIENT_REQUEST", logData = false)
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<List<ClientRequestDTO>> findIndividualsByOrganisation(String organisationId)
             throws Exception {
 
@@ -361,6 +370,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Find Individuals by Organisation (Paged)", description = "Find individual client requests by organisation ID with pagination")
     @Audit(entity = "CLIENT_REQUEST", logData = false)
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<Page<ClientRequestDTO>> findIndividualsByOrganisationPaged(String organisationId,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -372,6 +382,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Find Organisations by Organisation", description = "Find organisation client requests by organisation ID")
     @Audit(entity = "CLIENT_REQUEST", logData = false)
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<List<ClientRequestDTO>> findOrganisationsByOrganisation(String organisationId)
             throws Exception {
 
@@ -383,6 +394,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Find Organisations by Organisation (Paged)", description = "Find organisation client requests by organisation ID with pagination")
     @Audit(entity = "CLIENT_REQUEST", logData = false)
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<Page<ClientRequestDTO>> findOrganisationsByOrganisationPaged(String organisationId,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -394,6 +406,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Update Client Request Status", description = "Update the status of a client request")
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#status", logData = false)
+    @RequiresOwnership(target = "CLIENT_REQUEST", id = "#id")
     public ResponseEntity<ClientRequestDTO> updateStatus(String id, ClientRequestStatus status) throws Exception {
 
         ClientRequestDTO request = clientRequestService.updateStatus(id, status);
@@ -424,7 +437,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Confirm Client Request Token", description = "Confirm the token for a client request")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#token", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#requestId", logData = false)
     public ResponseEntity<String> confirmToken(String requestId, String token) throws Exception {
 
         ClientRequestDTO request = clientRequestService.findById(requestId);
@@ -460,7 +473,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
     @Override
     @Operation(summary = "Confirm Client Registration", description = "Confirm the registration for a client request")
-    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#registrationToken", logData = false)
+    @Audit(entity = "CLIENT_REQUEST", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> confirmRegistration(String id, Boolean confirm, String registrationToken)
             throws Exception {
 

@@ -5,6 +5,7 @@
 //
 package bw.co.knowvera.individual;
 
+import bw.co.knowvera.auth.RequiresOwnership;
 import bw.co.knowvera.organisation.OrganisationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -118,6 +119,7 @@ public class IndividualApiImpl implements IndividualApi {
     @Override
     @Operation(summary = "Find Individual by ID", description = "Get the individual with the given id")
     @Audit(entity = "INDIVIDUAL", eventLabel = "#id", logData = false)
+    @RequiresOwnership(target = "INDIVIDUAL", id = "#id")
     public ResponseEntity<IndividualDTO> findById(String id) throws Exception {
 
         logger.debug("Finding individual with id: {}", id);
@@ -355,6 +357,7 @@ public class IndividualApiImpl implements IndividualApi {
     @Override
     @Operation(summary = "Get Organisation Clients", description = "Get all clients for a given organisation")
     @Audit(entity = "INDIVIDUAL", logData = false)
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<List<IndividualListDTO>> getOrganisationClients(
             String organisationId) throws Exception {
         logger.debug("Getting organisation clients for organisationId: {}", organisationId);
@@ -365,10 +368,11 @@ public class IndividualApiImpl implements IndividualApi {
     @Override
     @Operation(summary = "Get Organisation Clients Paged", description = "Get all clients for a given organisation with pagination")
     @Audit(entity = "INDIVIDUAL", logData = false)
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<Page<IndividualListDTO>> getOrganisationClientsPaged(
-            String criteria, Integer pageNumber, Integer pageSize) throws Exception {
+            String organisationId, Integer pageNumber, Integer pageSize) throws Exception {
 
-        logger.debug("Getting organisation clients paged for criteria: {}, pageNumber: {}, pageSize: {}", criteria, pageNumber, pageSize);
+        logger.debug("Getting organisation clients paged for organisationId: {}, pageNumber: {}, pageSize: {}", organisationId, pageNumber, pageSize);
         throw new UnsupportedOperationException("Not implemented yet");
     }
 

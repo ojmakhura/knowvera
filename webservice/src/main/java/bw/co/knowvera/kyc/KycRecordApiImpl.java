@@ -5,6 +5,7 @@
 //
 package bw.co.knowvera.kyc;
 
+import bw.co.knowvera.auth.RequiresOwnership;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -96,7 +97,8 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     @Override
     @Operation(summary = "Find KYC Record by ID", description = "Find a KYC record by its ID")
-    // @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#id", logData = false)
+    @RequiresOwnership(target = "KYC_RECORD", id = "#id")
     public ResponseEntity<KycRecordDTO> findById(String id) throws Exception {
 
         logger.debug("Finding KYC record by ID: {}", id);
@@ -134,6 +136,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Find KYC Records by Individual", description = "Find KYC records by their individual ID")
     @Audit(entity = "KYC_RECORD", eventLabel = "#individualId", logData = false)
+    @RequiresOwnership(target = "INDIVIDUAL", id = "#individualId")
     public ResponseEntity<List<KycRecordListDTO>> findByIndividual(String individualId)
             throws Exception {
 
@@ -200,6 +203,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Save KYC Record", description = "Save a KYC record")
     @Audit(entity = "KYC_RECORD", logData = true)
+    @RequiresOwnership(target = "#kycRecord.target", id = "#kycRecord.targetId")
     public ResponseEntity<KycRecordDTO> save(KycRecordDTO kycRecord) throws Exception {
 
         logger.debug("Saving KYC record: {}", kycRecord);
@@ -244,6 +248,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Find KYC Records by Individual Paged", description = "Find KYC records by their individual ID with pagination")
     @Audit(entity = "KYC_RECORD", eventLabel = "#individualId + ' ' + #pageNumber + ' ' + #pageSize", logData = false)
+    @RequiresOwnership(target = "INDIVIDUAL", id = "#individualId")
     public ResponseEntity<Page<KycRecordListDTO>> findByIndividualPaged(String individualId, Integer pageNumber,
             Integer pageSize) throws Exception {
 
@@ -257,6 +262,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Find KYC Records by Organisation", description = "Find KYC records by their organisation ID")
     @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<List<KycRecordListDTO>> findByOrganisation(String organisationId) throws Exception {
 
         logger.debug("Finding KYC records by organisation ID: {}", organisationId);
@@ -311,6 +317,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Create Individual KYC Record", description = "Create a KYC record for an individual")
     @Audit(entity = "KYC_RECORD", eventLabel = "#individualId", logData = false)
+    @RequiresOwnership(target = "INDIVIDUAL", id = "#individualId")
     public ResponseEntity<KycRecordDTO> createIndividualRecord(String individualId) throws Exception {
 
         logger.debug("Creating KYC record for individual ID: {}", individualId);
@@ -331,6 +338,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Create Organisation KYC Record", description = "Create a KYC record for an organisation")
     @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<KycRecordDTO> createOrganisationRecord(String organisationId) throws Exception {
 
         logger.debug("Creating KYC record for organisation ID: {}", organisationId);
@@ -434,6 +442,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Create New KYC Record", description = "Create a new KYC record")
     @Audit(entity = "KYC_RECORD", logData = true)
+    @RequiresOwnership(target = "#record.target", id = "#record.targetId")
     public ResponseEntity<KycRecordDTO> createNew(KycRecordDTO record,
             List<MultipartFile> files) throws Exception {
 
@@ -521,6 +530,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Remove KYC Record File", description = "Remove a file from a KYC record")
     @Audit(entity = "KYC_RECORD", eventLabel = "#id + ' ' + #documentId", logData = false)
+    @RequiresOwnership(target = "KYC_RECORD", id = "#id")
     public ResponseEntity<KycRecordDTO> removeRecordFile(String id, @Nullable String documentId) throws Exception {
 
         logger.debug("Removing file with document ID: {} from KYC record with ID: {}", documentId, id);
@@ -544,6 +554,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Update KYC Record Files", description = "Update the files associated with a KYC record")
     @Audit(entity = "KYC_RECORD", eventLabel = "#id", logData = false)
+    @RequiresOwnership(target = "KYC_RECORD", id = "#id")
     public ResponseEntity<KycRecordDTO> updateRecordFiles(String id, List<DocumentDTO> documents,
             List<MultipartFile> files) throws Exception {
 
@@ -625,6 +636,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Find KYC Record Summary by ID", description = "Find a summary of a KYC record by its ID")
     @Audit(entity = "KYC_RECORD", eventLabel = "#id", logData = false)
+    @RequiresOwnership(target = "KYC_RECORD", id = "#id")
     public ResponseEntity<KycRecordSummary> findSummaryById(String id, @Nullable String organisationId) throws Exception {
 
         logger.debug("Finding KYC record summary by ID: {}", id);
@@ -693,6 +705,8 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
+    @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
     public @Nullable ResponseEntity<List<KycRecordSummary>> findClientIndividualSummaries(
             @Nullable String organisationId) throws Exception {
         
@@ -700,24 +714,31 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
+    @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
     public ResponseEntity<Page<KycRecordSummary>> findClientIndividualSummariesPaged(@Nullable String organisationId,
             @Nullable Integer pageNumber, @Nullable Integer pageSize) throws Exception {
         return ResponseEntity.ok(kycRecordService.findOrganisationSummaries(organisationId, true, pageSize, pageNumber));
     }
 
     @Override
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
+    @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
     public @Nullable ResponseEntity<List<KycRecordSummary>> findClientOrganisationSummaries(
             @Nullable String organisationId) throws Exception {
         return ResponseEntity.ok(kycRecordService.findOrganisationSummaries(organisationId, false));
     }
 
     @Override
+    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
+    @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
     public ResponseEntity<Page<KycRecordSummary>> findClientOrganisationSummariesPage(@Nullable String organisationId,
             @Nullable Integer pageNumber, @Nullable Integer pageSize) throws Exception {
         return ResponseEntity.ok(kycRecordService.findOrganisationSummaries(organisationId, false, pageSize, pageNumber));
     }
 
     @Override
+    @Audit(entity = "KYC_RECORD", logData = false)
     public @Nullable ResponseEntity<Page<KycRecordSummary>> pagedSearchSummaries(
             @Nullable @Valid SearchObject<KycRecordSearchCriteria> criteria) throws Exception {
         
@@ -726,6 +747,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     }
 
     @Override
+    @Audit(entity = "KYC_RECORD", logData = false)
     public @Nullable ResponseEntity<List<KycRecordSummary>> searchSummaries(@Nullable KycRecordSearchCriteria criteria)
             throws Exception {
         List<KycRecordSummary> summaries = kycRecordService.searchSummaries(criteria, Set.<PropertySearchOrder>of());
