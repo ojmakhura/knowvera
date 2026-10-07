@@ -13,11 +13,7 @@
         "/analytics/count",
         "/analytics/count/by-organisation/{organisationId}"
       ],
-      "scopes": [
-        {
-          "name": "view"
-        }
-      ]
+      "scopes": []
     },
     {
       "name": "audit-logs",
@@ -91,22 +87,43 @@
           "name": "view"
         },
         {
+          "name": "view-own"
+        },
+        {
           "name": "list"
+        },
+        {
+          "name": "list-own"
         },
         {
           "name": "edit"
         },
         {
+          "name": "edit-own"
+        },
+        {
           "name": "delete"
+        },
+        {
+          "name": "delete-own"
         },
         {
           "name": "review"
         },
         {
+          "name": "review-own"
+        },
+        {
           "name": "export"
         },
         {
+          "name": "export-own"
+        },
+        {
           "name": "import"
+        },
+        {
+          "name": "import-own"
         }
       ]
     },
@@ -129,10 +146,19 @@
           "name": "view"
         },
         {
+          "name": "view-own"
+        },
+        {
           "name": "list"
         },
         {
+          "name": "list-own"
+        },
+        {
           "name": "edit"
+        },
+        {
+          "name": "edit-own"
         },
         {
           "name": "delete"
@@ -202,16 +228,31 @@
           "name": "view"
         },
         {
+          "name": "view-own"
+        },
+        {
           "name": "list"
+        },
+        {
+          "name": "list-own"
         },
         {
           "name": "edit"
         },
         {
+          "name": "edit-own"
+        },
+        {
           "name": "delete"
         },
         {
+          "name": "delete-own"
+        },
+        {
           "name": "submit"
+        },
+        {
+          "name": "submit-own"
         },
         {
           "name": "verify"
@@ -221,6 +262,9 @@
         },
         {
           "name": "export"
+        },
+        {
+          "name": "export-own"
         }
       ]
     },
@@ -243,13 +287,25 @@
           "name": "view"
         },
         {
+          "name": "view-own"
+        },
+        {
           "name": "list"
+        },
+        {
+          "name": "list-own"
         },
         {
           "name": "edit"
         },
         {
+          "name": "edit-own"
+        },
+        {
           "name": "delete"
+        },
+        {
+          "name": "delete-own"
         }
       ]
     },
@@ -306,10 +362,19 @@
           "name": "view"
         },
         {
+          "name": "view-own"
+        },
+        {
           "name": "list"
         },
         {
+          "name": "list-own"
+        },
+        {
           "name": "edit"
+        },
+        {
+          "name": "edit-own"
         },
         {
           "name": "delete"
@@ -343,7 +408,13 @@
           "name": "view"
         },
         {
+          "name": "view-own"
+        },
+        {
           "name": "list"
+        },
+        {
+          "name": "list-own"
         },
         {
           "name": "edit"
@@ -353,6 +424,9 @@
         },
         {
           "name": "submit"
+        },
+        {
+          "name": "submit-own"
         }
       ]
     },
@@ -429,16 +503,28 @@
           "name": "view"
         },
         {
+          "name": "view-own"
+        },
+        {
           "name": "list"
         },
         {
+          "name": "list-own"
+        },
+        {
           "name": "edit"
+        },
+        {
+          "name": "edit-own"
         },
         {
           "name": "delete"
         },
         {
           "name": "submit"
+        },
+        {
+          "name": "submit-own"
         },
         {
           "name": "verify"
@@ -448,6 +534,9 @@
         },
         {
           "name": "export"
+        },
+        {
+          "name": "export-own"
         }
       ]
     },
@@ -510,13 +599,25 @@
           "name": "view"
         },
         {
+          "name": "view-own"
+        },
+        {
           "name": "list"
+        },
+        {
+          "name": "list-own"
         },
         {
           "name": "edit"
         },
         {
+          "name": "edit-own"
+        },
+        {
           "name": "delete"
+        },
+        {
+          "name": "delete-own"
         }
       ]
     },
@@ -543,13 +644,25 @@
           "name": "view"
         },
         {
+          "name": "view-own"
+        },
+        {
           "name": "list"
+        },
+        {
+          "name": "list-own"
         },
         {
           "name": "edit"
         },
         {
+          "name": "edit-own"
+        },
+        {
           "name": "delete"
+        },
+        {
+          "name": "delete-own"
         }
       ]
     },
@@ -579,10 +692,19 @@
           "name": "view"
         },
         {
+          "name": "view-own"
+        },
+        {
           "name": "list"
         },
         {
+          "name": "list-own"
+        },
+        {
           "name": "edit"
+        },
+        {
+          "name": "edit-own"
         },
         {
           "name": "delete"
@@ -682,7 +804,13 @@
           "name": "view"
         },
         {
+          "name": "view-own"
+        },
+        {
           "name": "list"
+        },
+        {
+          "name": "list-own"
         },
         {
           "name": "edit"
@@ -723,13 +851,25 @@
           "name": "view"
         },
         {
+          "name": "view-own"
+        },
+        {
           "name": "list"
+        },
+        {
+          "name": "list-own"
         },
         {
           "name": "edit"
         },
         {
+          "name": "edit-own"
+        },
+        {
           "name": "manage"
+        },
+        {
+          "name": "manage-own"
         }
       ]
     },
@@ -901,18 +1041,6 @@
       }
     },
     {
-      "name": "analytics-view-permission",
-      "description": "Read a single record (Analytics)",
-      "type": "scope",
-      "logic": "POSITIVE",
-      "decisionStrategy": "AFFIRMATIVE",
-      "config": {
-        "resources": "[\"analytics\"]",
-        "scopes": "[\"view\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"risk-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
-      }
-    },
-    {
       "name": "audit-logs-view-permission",
       "description": "Read a single record (Audit Log)",
       "type": "scope",
@@ -981,7 +1109,19 @@
       "config": {
         "resources": "[\"client-requests\"]",
         "scopes": "[\"view\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-view-own-permission",
+      "description": "Read a single record (own records only) (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"view-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -993,7 +1133,19 @@
       "config": {
         "resources": "[\"client-requests\"]",
         "scopes": "[\"list\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-list-own-permission",
+      "description": "List, page or search records (own records only) (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"list-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1005,7 +1157,19 @@
       "config": {
         "resources": "[\"client-requests\"]",
         "scopes": "[\"edit\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"case-manager-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-edit-own-permission",
+      "description": "Create or update a record (save is an upsert) (own records only) (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"edit-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1017,7 +1181,19 @@
       "config": {
         "resources": "[\"client-requests\"]",
         "scopes": "[\"delete\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"case-manager-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-delete-own-permission",
+      "description": "Remove a record or one of its parts (own records only) (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"delete-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1029,7 +1205,19 @@
       "config": {
         "resources": "[\"client-requests\"]",
         "scopes": "[\"review\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-review-own-permission",
+      "description": "Change the review/decision status of a case, document or request (own records only) (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"review-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1041,7 +1229,19 @@
       "config": {
         "resources": "[\"client-requests\"]",
         "scopes": "[\"export\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-export-own-permission",
+      "description": "Download files and generate reports (own records only) (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"export-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1053,7 +1253,19 @@
       "config": {
         "resources": "[\"client-requests\"]",
         "scopes": "[\"import\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"case-manager-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "client-requests-import-own-permission",
+      "description": "Bulk upload records or templates (own records only) (Client Request)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"client-requests\"]",
+        "scopes": "[\"import-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1065,7 +1277,19 @@
       "config": {
         "resources": "[\"contacts\"]",
         "scopes": "[\"view\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "contacts-view-own-permission",
+      "description": "Read a single record (own records only) (Contact)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"contacts\"]",
+        "scopes": "[\"view-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -1077,7 +1301,19 @@
       "config": {
         "resources": "[\"contacts\"]",
         "scopes": "[\"list\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "contacts-list-own-permission",
+      "description": "List, page or search records (own records only) (Contact)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"contacts\"]",
+        "scopes": "[\"list-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1089,7 +1325,19 @@
       "config": {
         "resources": "[\"contacts\"]",
         "scopes": "[\"edit\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "contacts-edit-own-permission",
+      "description": "Create or update a record (save is an upsert) (own records only) (Contact)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"contacts\"]",
+        "scopes": "[\"edit-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -1173,7 +1421,19 @@
       "config": {
         "resources": "[\"documents\"]",
         "scopes": "[\"view\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "documents-view-own-permission",
+      "description": "Read a single record (own records only) (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"view-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -1185,7 +1445,19 @@
       "config": {
         "resources": "[\"documents\"]",
         "scopes": "[\"list\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "documents-list-own-permission",
+      "description": "List, page or search records (own records only) (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"list-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1197,7 +1469,19 @@
       "config": {
         "resources": "[\"documents\"]",
         "scopes": "[\"edit\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\"]"
+      }
+    },
+    {
+      "name": "documents-edit-own-permission",
+      "description": "Create or update a record (save is an upsert) (own records only) (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"edit-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -1209,7 +1493,19 @@
       "config": {
         "resources": "[\"documents\"]",
         "scopes": "[\"delete\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "documents-delete-own-permission",
+      "description": "Remove a record or one of its parts (own records only) (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"delete-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -1221,7 +1517,19 @@
       "config": {
         "resources": "[\"documents\"]",
         "scopes": "[\"submit\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "documents-submit-own-permission",
+      "description": "Start a KYC application or attach evidence to one (own records only) (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"submit-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -1257,7 +1565,19 @@
       "config": {
         "resources": "[\"documents\"]",
         "scopes": "[\"export\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "documents-export-own-permission",
+      "description": "Download files and generate reports (own records only) (Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"documents\"]",
+        "scopes": "[\"export-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -1269,7 +1589,19 @@
       "config": {
         "resources": "[\"employment-records\"]",
         "scopes": "[\"view\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "employment-records-view-own-permission",
+      "description": "Read a single record (own records only) (Employment Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"employment-records\"]",
+        "scopes": "[\"view-own\"]",
+        "applyPolicies": "[\"applicant-policy\"]"
       }
     },
     {
@@ -1281,7 +1613,19 @@
       "config": {
         "resources": "[\"employment-records\"]",
         "scopes": "[\"list\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "employment-records-list-own-permission",
+      "description": "List, page or search records (own records only) (Employment Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"employment-records\"]",
+        "scopes": "[\"list-own\"]",
+        "applyPolicies": "[\"applicant-policy\"]"
       }
     },
     {
@@ -1293,7 +1637,19 @@
       "config": {
         "resources": "[\"employment-records\"]",
         "scopes": "[\"edit\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "employment-records-edit-own-permission",
+      "description": "Create or update a record (save is an upsert) (own records only) (Employment Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"employment-records\"]",
+        "scopes": "[\"edit-own\"]",
+        "applyPolicies": "[\"applicant-policy\"]"
       }
     },
     {
@@ -1305,7 +1661,19 @@
       "config": {
         "resources": "[\"employment-records\"]",
         "scopes": "[\"delete\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "employment-records-delete-own-permission",
+      "description": "Remove a record or one of its parts (own records only) (Employment Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"employment-records\"]",
+        "scopes": "[\"delete-own\"]",
+        "applyPolicies": "[\"applicant-policy\"]"
       }
     },
     {
@@ -1377,7 +1745,19 @@
       "config": {
         "resources": "[\"individuals\"]",
         "scopes": "[\"view\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "individuals-view-own-permission",
+      "description": "Read a single record (own records only) (Individual)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"individuals\"]",
+        "scopes": "[\"view-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -1389,7 +1769,19 @@
       "config": {
         "resources": "[\"individuals\"]",
         "scopes": "[\"list\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "individuals-list-own-permission",
+      "description": "List, page or search records (own records only) (Individual)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"individuals\"]",
+        "scopes": "[\"list-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1401,7 +1793,19 @@
       "config": {
         "resources": "[\"individuals\"]",
         "scopes": "[\"edit\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "individuals-edit-own-permission",
+      "description": "Create or update a record (save is an upsert) (own records only) (Individual)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"individuals\"]",
+        "scopes": "[\"edit-own\"]",
+        "applyPolicies": "[\"applicant-policy\"]"
       }
     },
     {
@@ -1437,7 +1841,19 @@
       "config": {
         "resources": "[\"invoices\"]",
         "scopes": "[\"view\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "invoices-view-own-permission",
+      "description": "Read a single record (own records only) (Kyc Invoice)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"invoices\"]",
+        "scopes": "[\"view-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1449,7 +1865,19 @@
       "config": {
         "resources": "[\"invoices\"]",
         "scopes": "[\"list\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "invoices-list-own-permission",
+      "description": "List, page or search records (own records only) (Kyc Invoice)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"invoices\"]",
+        "scopes": "[\"list-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1485,7 +1913,19 @@
       "config": {
         "resources": "[\"invoices\"]",
         "scopes": "[\"submit\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "invoices-submit-own-permission",
+      "description": "Start a KYC application or attach evidence to one (own records only) (Kyc Invoice)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"invoices\"]",
+        "scopes": "[\"submit-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1557,7 +1997,19 @@
       "config": {
         "resources": "[\"kyc-records\"]",
         "scopes": "[\"view\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-view-own-permission",
+      "description": "Read a single record (own records only) (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"view-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -1569,7 +2021,19 @@
       "config": {
         "resources": "[\"kyc-records\"]",
         "scopes": "[\"list\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-list-own-permission",
+      "description": "List, page or search records (own records only) (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"list-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1581,7 +2045,19 @@
       "config": {
         "resources": "[\"kyc-records\"]",
         "scopes": "[\"edit\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-edit-own-permission",
+      "description": "Create or update a record (save is an upsert) (own records only) (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"edit-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -1605,7 +2081,19 @@
       "config": {
         "resources": "[\"kyc-records\"]",
         "scopes": "[\"submit\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-submit-own-permission",
+      "description": "Start a KYC application or attach evidence to one (own records only) (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"submit-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -1641,7 +2129,19 @@
       "config": {
         "resources": "[\"kyc-records\"]",
         "scopes": "[\"export\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "kyc-records-export-own-permission",
+      "description": "Download files and generate reports (own records only) (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"export-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1701,7 +2201,19 @@
       "config": {
         "resources": "[\"organisation-branches\"]",
         "scopes": "[\"view\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-branches-view-own-permission",
+      "description": "Read a single record (own records only) (Branch)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-branches\"]",
+        "scopes": "[\"view-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1713,7 +2225,19 @@
       "config": {
         "resources": "[\"organisation-branches\"]",
         "scopes": "[\"list\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-branches-list-own-permission",
+      "description": "List, page or search records (own records only) (Branch)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-branches\"]",
+        "scopes": "[\"list-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1725,7 +2249,19 @@
       "config": {
         "resources": "[\"organisation-branches\"]",
         "scopes": "[\"edit\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-branches-edit-own-permission",
+      "description": "Create or update a record (save is an upsert) (own records only) (Branch)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-branches\"]",
+        "scopes": "[\"edit-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1737,7 +2273,19 @@
       "config": {
         "resources": "[\"organisation-branches\"]",
         "scopes": "[\"delete\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-branches-delete-own-permission",
+      "description": "Remove a record or one of its parts (own records only) (Branch)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-branches\"]",
+        "scopes": "[\"delete-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1749,7 +2297,19 @@
       "config": {
         "resources": "[\"organisation-document-types\"]",
         "scopes": "[\"view\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-document-types-view-own-permission",
+      "description": "Read a single record (own records only) (Organisation Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-document-types\"]",
+        "scopes": "[\"view-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1761,7 +2321,19 @@
       "config": {
         "resources": "[\"organisation-document-types\"]",
         "scopes": "[\"list\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-document-types-list-own-permission",
+      "description": "List, page or search records (own records only) (Organisation Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-document-types\"]",
+        "scopes": "[\"list-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1773,7 +2345,19 @@
       "config": {
         "resources": "[\"organisation-document-types\"]",
         "scopes": "[\"edit\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-document-types-edit-own-permission",
+      "description": "Create or update a record (save is an upsert) (own records only) (Organisation Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-document-types\"]",
+        "scopes": "[\"edit-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1785,7 +2369,19 @@
       "config": {
         "resources": "[\"organisation-document-types\"]",
         "scopes": "[\"delete\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "organisation-document-types-delete-own-permission",
+      "description": "Remove a record or one of its parts (own records only) (Organisation Document)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisation-document-types\"]",
+        "scopes": "[\"delete-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1809,7 +2405,19 @@
       "config": {
         "resources": "[\"organisations\"]",
         "scopes": "[\"view\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "organisations-view-own-permission",
+      "description": "Read a single record (own records only) (Organisation)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisations\"]",
+        "scopes": "[\"view-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -1821,7 +2429,19 @@
       "config": {
         "resources": "[\"organisations\"]",
         "scopes": "[\"list\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "organisations-list-own-permission",
+      "description": "List, page or search records (own records only) (Organisation)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisations\"]",
+        "scopes": "[\"list-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1833,7 +2453,19 @@
       "config": {
         "resources": "[\"organisations\"]",
         "scopes": "[\"edit\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"case-manager-policy\", \"applicant-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"case-manager-policy\"]"
+      }
+    },
+    {
+      "name": "organisations-edit-own-permission",
+      "description": "Create or update a record (save is an upsert) (own records only) (Organisation)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"organisations\"]",
+        "scopes": "[\"edit-own\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
       }
     },
     {
@@ -1977,7 +2609,19 @@
       "config": {
         "resources": "[\"subscriptions\"]",
         "scopes": "[\"view\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "subscriptions-view-own-permission",
+      "description": "Read a single record (own records only) (Kyc Subscription)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"subscriptions\"]",
+        "scopes": "[\"view-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -1989,7 +2633,19 @@
       "config": {
         "resources": "[\"subscriptions\"]",
         "scopes": "[\"list\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "subscriptions-list-own-permission",
+      "description": "List, page or search records (own records only) (Kyc Subscription)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"subscriptions\"]",
+        "scopes": "[\"list-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -2037,7 +2693,19 @@
       "config": {
         "resources": "[\"users\"]",
         "scopes": "[\"view\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "users-view-own-permission",
+      "description": "Read a single record (own records only) (User)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"users\"]",
+        "scopes": "[\"view-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -2049,7 +2717,19 @@
       "config": {
         "resources": "[\"users\"]",
         "scopes": "[\"list\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+      }
+    },
+    {
+      "name": "users-list-own-permission",
+      "description": "List, page or search records (own records only) (User)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"users\"]",
+        "scopes": "[\"list-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -2061,7 +2741,19 @@
       "config": {
         "resources": "[\"users\"]",
         "scopes": "[\"edit\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "users-edit-own-permission",
+      "description": "Create or update a record (save is an upsert) (own records only) (User)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"users\"]",
+        "scopes": "[\"edit-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -2073,7 +2765,19 @@
       "config": {
         "resources": "[\"users\"]",
         "scopes": "[\"manage\"]",
-        "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\"]"
+        "applyPolicies": "[\"platform-admin-policy\"]"
+      }
+    },
+    {
+      "name": "users-manage-own-permission",
+      "description": "Grant or revoke user roles (own records only) (User)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"users\"]",
+        "scopes": "[\"manage-own\"]",
+        "applyPolicies": "[\"org-admin-policy\"]"
       }
     },
     {
@@ -2123,20 +2827,40 @@
       "displayName": "Read a single record"
     },
     {
+      "name": "view-own",
+      "displayName": "Read a single record (own records only)"
+    },
+    {
       "name": "list",
       "displayName": "List, page or search records"
+    },
+    {
+      "name": "list-own",
+      "displayName": "List, page or search records (own records only)"
     },
     {
       "name": "edit",
       "displayName": "Create or update a record (save is an upsert)"
     },
     {
+      "name": "edit-own",
+      "displayName": "Create or update a record (save is an upsert) (own records only)"
+    },
+    {
       "name": "delete",
       "displayName": "Remove a record or one of its parts"
     },
     {
+      "name": "delete-own",
+      "displayName": "Remove a record or one of its parts (own records only)"
+    },
+    {
       "name": "submit",
       "displayName": "Start a KYC application or attach evidence to one"
+    },
+    {
+      "name": "submit-own",
+      "displayName": "Start a KYC application or attach evidence to one (own records only)"
     },
     {
       "name": "verify",
@@ -2147,16 +2871,32 @@
       "displayName": "Change the review/decision status of a case, document or request"
     },
     {
+      "name": "review-own",
+      "displayName": "Change the review/decision status of a case, document or request (own records only)"
+    },
+    {
       "name": "export",
       "displayName": "Download files and generate reports"
+    },
+    {
+      "name": "export-own",
+      "displayName": "Download files and generate reports (own records only)"
     },
     {
       "name": "import",
       "displayName": "Bulk upload records or templates"
     },
     {
+      "name": "import-own",
+      "displayName": "Bulk upload records or templates (own records only)"
+    },
+    {
       "name": "manage",
       "displayName": "Grant or revoke user roles"
+    },
+    {
+      "name": "manage-own",
+      "displayName": "Grant or revoke user roles (own records only)"
     }
   ]
 }

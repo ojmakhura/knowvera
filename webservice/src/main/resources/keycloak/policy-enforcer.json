@@ -14,23 +14,27 @@
       "enforcement-mode": "DISABLED"
     },
     {
-      "path": "/analytics/*",
+      "path": "/analytics/count",
       "enforcement-mode": "DISABLED"
     },
     {
-      "path": "/client-requests/confirm-token/*",
+      "path": "/analytics/count/by-organisation/{organisationId}",
       "enforcement-mode": "DISABLED"
     },
     {
-      "path": "/individuals/request/*",
-      "enforcement-mode": "DISABLED"
-    },
-    {
-      "path": "/organisations/request/*",
+      "path": "/client-requests/confirm-token/{requestId}",
       "enforcement-mode": "DISABLED"
     },
     {
       "path": "/client-requests/{id}/confirm",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "path": "/individuals/request/{requestId}",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "path": "/organisations/request/{requestId}",
       "enforcement-mode": "DISABLED"
     },
     {
@@ -116,14 +120,18 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "POST",
           "scopes": [
-            "edit"
-          ]
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -134,8 +142,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -146,8 +156,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -158,8 +170,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -170,8 +184,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -182,8 +198,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -194,8 +212,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -206,8 +226,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -218,8 +240,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -230,8 +254,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -242,8 +268,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -254,8 +282,10 @@
         {
           "method": "GET",
           "scopes": [
-            "export"
-          ]
+            "export",
+            "export-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -290,8 +320,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -302,8 +334,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -314,8 +348,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -326,8 +362,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -338,8 +376,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -350,8 +390,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -362,8 +404,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -374,8 +418,10 @@
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -386,8 +432,10 @@
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -398,14 +446,18 @@
         {
           "method": "DELETE",
           "scopes": [
-            "delete"
-          ]
+            "delete",
+            "delete-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -416,8 +468,10 @@
         {
           "method": "GET",
           "scopes": [
-            "review"
-          ]
+            "review",
+            "review-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -428,8 +482,10 @@
         {
           "method": "POST",
           "scopes": [
-            "import"
-          ]
+            "import",
+            "import-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -440,14 +496,18 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "POST",
           "scopes": [
-            "edit"
-          ]
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -458,8 +518,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -470,8 +532,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -482,8 +546,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -494,8 +560,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -512,8 +580,10 @@
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -608,14 +678,18 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "POST",
           "scopes": [
-            "edit"
-          ]
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -626,8 +700,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -638,8 +714,10 @@
         {
           "method": "GET",
           "scopes": [
-            "export"
-          ]
+            "export",
+            "export-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -674,8 +752,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -686,8 +766,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -698,8 +780,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -710,8 +794,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -722,8 +808,10 @@
         {
           "method": "POST",
           "scopes": [
-            "submit"
-          ]
+            "submit",
+            "submit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -734,14 +822,18 @@
         {
           "method": "DELETE",
           "scopes": [
-            "delete"
-          ]
+            "delete",
+            "delete-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -764,8 +856,10 @@
         {
           "method": "PUT",
           "scopes": [
-            "submit"
-          ]
+            "submit",
+            "submit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -788,8 +882,10 @@
         {
           "method": "GET",
           "scopes": [
-            "export"
-          ]
+            "export",
+            "export-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -812,8 +908,10 @@
         {
           "method": "POST",
           "scopes": [
-            "edit"
-          ]
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -836,14 +934,18 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "POST",
           "scopes": [
-            "edit"
-          ]
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -854,8 +956,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -866,8 +970,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -878,8 +984,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -890,8 +998,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -902,14 +1012,18 @@
         {
           "method": "DELETE",
           "scopes": [
-            "delete"
-          ]
+            "delete",
+            "delete-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -974,14 +1088,18 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "POST",
           "scopes": [
-            "edit"
-          ]
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1004,8 +1122,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1016,8 +1136,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1028,8 +1150,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1040,8 +1164,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1052,8 +1178,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1070,8 +1198,10 @@
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1094,8 +1224,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "POST",
@@ -1112,8 +1244,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1124,8 +1258,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1136,8 +1272,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1148,8 +1286,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1172,8 +1312,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1184,8 +1326,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1196,8 +1340,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1214,8 +1360,10 @@
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1226,8 +1374,10 @@
         {
           "method": "POST",
           "scopes": [
-            "submit"
-          ]
+            "submit",
+            "submit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1292,14 +1442,18 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "POST",
           "scopes": [
-            "edit"
-          ]
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1310,8 +1464,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1322,8 +1478,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1334,8 +1492,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1346,8 +1506,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1358,8 +1520,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1370,8 +1534,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1382,8 +1548,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1394,8 +1562,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1406,8 +1576,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1418,8 +1590,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1430,8 +1604,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1442,8 +1618,10 @@
         {
           "method": "GET",
           "scopes": [
-            "submit"
-          ]
+            "submit",
+            "submit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1490,8 +1668,10 @@
         {
           "method": "POST",
           "scopes": [
-            "submit"
-          ]
+            "submit",
+            "submit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1502,8 +1682,10 @@
         {
           "method": "GET",
           "scopes": [
-            "submit"
-          ]
+            "submit",
+            "submit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1514,8 +1696,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1526,8 +1710,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1538,8 +1724,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1550,8 +1738,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1562,8 +1752,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1580,8 +1772,10 @@
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1592,8 +1786,10 @@
         {
           "method": "DELETE",
           "scopes": [
-            "submit"
-          ]
+            "submit",
+            "submit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1604,8 +1800,10 @@
         {
           "method": "GET",
           "scopes": [
-            "export"
-          ]
+            "export",
+            "export-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1628,8 +1826,10 @@
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1640,8 +1840,10 @@
         {
           "method": "POST",
           "scopes": [
-            "submit"
-          ]
+            "submit",
+            "submit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1730,14 +1932,18 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "POST",
           "scopes": [
-            "edit"
-          ]
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1748,8 +1954,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1760,8 +1968,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1772,8 +1982,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1784,8 +1996,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1796,8 +2010,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1808,14 +2024,18 @@
         {
           "method": "DELETE",
           "scopes": [
-            "delete"
-          ]
+            "delete",
+            "delete-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1826,8 +2046,10 @@
         {
           "method": "POST",
           "scopes": [
-            "edit"
-          ]
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1838,8 +2060,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1850,8 +2074,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1862,8 +2088,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1874,8 +2102,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1886,8 +2116,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1898,8 +2130,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1910,8 +2144,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1922,8 +2158,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1934,14 +2172,18 @@
         {
           "method": "DELETE",
           "scopes": [
-            "delete"
-          ]
+            "delete",
+            "delete-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1952,14 +2194,18 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "POST",
           "scopes": [
-            "edit"
-          ]
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1970,8 +2216,10 @@
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -1994,8 +2242,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2006,8 +2256,10 @@
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2018,8 +2270,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2030,8 +2284,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2048,8 +2304,10 @@
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2402,8 +2660,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "POST",
@@ -2420,8 +2680,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2432,8 +2694,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2444,8 +2708,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2456,8 +2722,10 @@
         {
           "method": "POST",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2474,8 +2742,10 @@
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2486,8 +2756,10 @@
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2498,8 +2770,10 @@
         {
           "method": "POST",
           "scopes": [
-            "manage"
-          ]
+            "manage",
+            "manage-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2510,8 +2784,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2522,8 +2798,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2534,8 +2812,10 @@
         {
           "method": "GET",
           "scopes": [
-            "view"
-          ]
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2546,8 +2826,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2558,8 +2840,10 @@
         {
           "method": "POST",
           "scopes": [
-            "edit"
-          ]
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2570,8 +2854,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2582,8 +2868,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2594,8 +2882,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2606,8 +2896,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2618,14 +2910,18 @@
         {
           "method": "DELETE",
           "scopes": [
-            "manage"
-          ]
+            "manage",
+            "manage-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "PUT",
           "scopes": [
-            "manage"
-          ]
+            "manage",
+            "manage-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2636,8 +2932,10 @@
         {
           "method": "GET",
           "scopes": [
-            "list"
-          ]
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },
@@ -2660,8 +2958,10 @@
         {
           "method": "PATCH",
           "scopes": [
-            "edit"
-          ]
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },

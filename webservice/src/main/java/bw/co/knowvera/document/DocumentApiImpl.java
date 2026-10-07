@@ -87,7 +87,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Find Document by ID", description = "Get the document with the given id")
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
-    @RequiresOwnership(target = "DOCUMENT", id = "#id")
+    @RequiresOwnership(scope = "documents:view", target = "DOCUMENT", id = "#id")
     public ResponseEntity<DocumentDTO> findById(String id) {
 
         logger.debug("Finding document with id: {}", id);
@@ -97,7 +97,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Find Documents by Target", description = "Get the documents with the given target entity and target id")
     @Audit(entity = "DOCUMENT", eventLabel = "#target + ' ' + #targetId", logData = false)
-    @RequiresOwnership(target = "#target", id = "#targetId")
+    @RequiresOwnership(scope = "documents:list", target = "#target", id = "#targetId")
     public ResponseEntity<List<DocumentListDTO>> findByTarget(
             bw.co.knowvera.TargetEntity target, String targetId) {
 
@@ -126,7 +126,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Remove Document", description = "Remove the document with the given id")
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
-    @RequiresOwnership(target = "DOCUMENT", id = "#id")
+    @RequiresOwnership(scope = "documents:delete", target = "DOCUMENT", id = "#id")
     public ResponseEntity<Boolean> remove(String id) {
 
         logger.debug("Removing document with id: {}", id);
@@ -153,7 +153,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Save Document", description = "Save the document")
     @Audit(entity = "DOCUMENT", eventLabel = "#document.fileName", logData = true)
-    @RequiresOwnership(target = "#document.target", id = "#document.targetId")
+    @RequiresOwnership(scope = "documents:edit", target = "#document.target", id = "#document.targetId")
     public ResponseEntity<DocumentDTO> save(DocumentDTO document) {
 
         logger.debug("Saving document with fileName: {}", document.getFileName());
@@ -203,7 +203,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Upload Document", description = "Upload a document for the given target entity and target id")
     @Audit(entity = "DOCUMENT", eventLabel = "#target + ' ' + #targetId", logData = false)
-    @RequiresOwnership(target = "#target", id = "#targetId")
+    @RequiresOwnership(scope = "documents:submit", target = "#target", id = "#targetId")
     public ResponseEntity<DocumentDTO> upload(TargetEntity target, String targetId,
             String documentTypeId, String purpose, MultipartFile file) {
 
@@ -265,7 +265,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Download Document", description = "Download the document with the given id")
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
-    @RequiresOwnership(target = "DOCUMENT", id = "#id")
+    @RequiresOwnership(scope = "documents:export", target = "DOCUMENT", id = "#id")
     public ResponseEntity<InputStreamResource> downloadFile(String id) {
 
         logger.debug("Downloading document with id: {}", id);
@@ -305,7 +305,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Update Document", description = "Update the document with the given id")
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = true)
-    @RequiresOwnership(target = "DOCUMENT", id = "#id")
+    @RequiresOwnership(scope = "documents:edit", target = "DOCUMENT", id = "#id")
     public ResponseEntity<DocumentDTO> updateDocument(String id, MultipartFile file) throws Exception {
 
         logger.debug("Updating document with id: {}", id);

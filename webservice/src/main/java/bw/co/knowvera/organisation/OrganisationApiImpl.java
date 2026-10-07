@@ -48,7 +48,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     @Override
     @Operation(summary = "Find Organisation by ID", description = "Find an organisation by its ID")
     @Audit(entity = "ORGANISATION", eventLabel = "#id", logData = false)
-    @RequiresOwnership(target = "ORGANISATION", id = "#id")
+    @RequiresOwnership(scope = "organisations:view", target = "ORGANISATION", id = "#id")
     public ResponseEntity<OrganisationDTO> findById(String id) {
 
         logger.debug("Finding organisation with ID: {}", id);
@@ -254,7 +254,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     }
 
     @Override
-    @RequiresOwnership(target = "ORGANISATION", id = "#id")
+    @RequiresOwnership(scope = "organisations:view", target = "ORGANISATION", id = "#id")
     @Audit(entity = "ORGANISATION", eventLabel = "#id", logData = false)
     public ResponseEntity<OrganisationListDTO> findListOrganisationById(String id) throws Exception {
         

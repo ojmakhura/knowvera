@@ -7,19 +7,22 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Callers with an owner-scoped role (APPLICANT, ORG_ADMIN) may only invoke the method on
- * records they own; other callers are not affected. Enforced by {@link KycAuthorisationService}
- * after @PreAuthorize has checked the Keycloak permission.
+ * Callers holding the Keycloak permission {@code <scope>} may invoke the method on any record;
+ * callers holding only {@code <scope>-own} (owner-scoped roles such as APPLICANT and ORG_ADMIN)
+ * must own the record. Enforced by {@link KycAuthorisationService} after @PreAuthorize.
  *
  * <pre>
- * &#64;RequiresOwnership(target = "KYC_RECORD", id = "#id")
- * &#64;RequiresOwnership(target = "#record.target", id = "#record.targetId")
+ * &#64;RequiresOwnership(scope = "kyc-records:view", target = "KYC_RECORD", id = "#id")
+ * &#64;RequiresOwnership(scope = "kyc-records:submit", target = "#record.target", id = "#record.targetId")
  * </pre>
  */
 @Documented
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequiresOwnership {
+
+	/** The Keycloak permission as {@code <resource>:<scope>}, e.g. "kyc-records:view". */
+	String scope();
 
 	/**
 	 * A TargetEntity name, e.g. "KYC_RECORD", or a SpEL expression over the method

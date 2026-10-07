@@ -28,7 +28,7 @@
   "oauth2DeviceCodeLifespan": 600,
   "oauth2DevicePollingInterval": 5,
   "enabled": true,
-  "sslRequired": "external",
+  "sslRequired": "none",
   "registrationAllowed": false,
   "registrationEmailAsUsername": false,
   "rememberMe": true,
@@ -1009,6 +1009,246 @@
       },
       "notBefore": 0,
       "groups": []
+    },
+    {
+      "id": "a5afd4dd-5994-5f51-8d15-ef8d9aee362d",
+      "username": "platform.admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Platform",
+      "lastName": "Admin",
+      "email": "platform.admin@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "PLATFORM_ADMIN"
+      ]
+    },
+    {
+      "id": "21912b9c-4aeb-5df1-94fe-8d6abbd5dcc3",
+      "username": "org.admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Org",
+      "lastName": "Admin",
+      "email": "org.admin@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "ORG_ADMIN"
+      ]
+    },
+    {
+      "id": "22638258-9734-5af3-88ac-44c0bcaaa358",
+      "username": "kyc.analyst",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Kyc",
+      "lastName": "Analyst",
+      "email": "kyc.analyst@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "KYC_ANALYST"
+      ]
+    },
+    {
+      "id": "384ccb07-287a-5c59-bc9f-9eb6c402f676",
+      "username": "kyc.reviewer",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Kyc",
+      "lastName": "Reviewer",
+      "email": "kyc.reviewer@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "KYC_REVIEWER"
+      ]
+    },
+    {
+      "id": "0120eb91-2be4-5bd7-94bd-a1ea65b024f9",
+      "username": "kyc.approver",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Kyc",
+      "lastName": "Approver",
+      "email": "kyc.approver@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "KYC_APPROVER"
+      ]
+    },
+    {
+      "id": "92dd2b11-d0f3-563a-91de-a50b45dcfbac",
+      "username": "risk.analyst",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Risk",
+      "lastName": "Analyst",
+      "email": "risk.analyst@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "RISK_ANALYST"
+      ]
+    },
+    {
+      "id": "6c2fea79-112a-5980-8f58-2ca79e8f19bc",
+      "username": "screening.analyst",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Screening",
+      "lastName": "Analyst",
+      "email": "screening.analyst@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "SCREENING_ANALYST"
+      ]
+    },
+    {
+      "id": "7bb37622-c748-53df-a007-b307c1decb9f",
+      "username": "compliance.officer",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Compliance",
+      "lastName": "Officer",
+      "email": "compliance.officer@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "COMPLIANCE_OFFICER"
+      ]
+    },
+    {
+      "id": "79ec6128-7ab4-5d81-ad77-45afd2f35696",
+      "username": "mlro",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Mlro",
+      "lastName": "User",
+      "email": "mlro@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "MLRO"
+      ]
+    },
+    {
+      "id": "e005e0fc-2808-563a-bb0a-3d07f2469bb5",
+      "username": "case.manager",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Case",
+      "lastName": "Manager",
+      "email": "case.manager@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "CASE_MANAGER"
+      ]
+    },
+    {
+      "id": "0c63d99d-a852-58fe-a7a5-eb68f45c54fa",
+      "username": "auditor",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Auditor",
+      "lastName": "User",
+      "email": "auditor@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "AUDITOR"
+      ]
+    },
+    {
+      "id": "8db6efc5-c034-57ac-91dd-27b0f9f6ba7c",
+      "username": "applicant",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Applicant",
+      "lastName": "User",
+      "email": "applicant@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "APPLICANT"
+      ]
     }
   ],
   "scopeMappings": [
@@ -1192,7 +1432,7 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "http://localhost:4200/*"
+        "*"
       ],
       "webOrigins": [
         "+"
@@ -1202,7 +1442,7 @@
       "consentRequired": false,
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false,
+      "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": false,
       "publicClient": true,
       "frontchannelLogout": true,
@@ -1307,7 +1547,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "${API_CLIENT_SECRET}",
+      "secret": "test-secret",
       "redirectUris": [
         "/*"
       ],
@@ -4272,7 +4512,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "${REGISTRATION_CLIENT_SECRET}",
+      "secret": "test-secret",
       "redirectUris": [
         "/*"
       ],
@@ -4343,7 +4583,7 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "http://localhost:4300/*"
+        "*"
       ],
       "webOrigins": [
         "+"
@@ -4353,7 +4593,7 @@
       "consentRequired": false,
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false,
+      "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": false,
       "publicClient": true,
       "frontchannelLogout": true,

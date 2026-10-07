@@ -14,19 +14,18 @@ Usage:
 
 Rules per operation (endpoint -> resource + scope via generate_authz). Authorities are the
 Keycloak permissions loaded by KeycloakPermissionConverter: SCOPE_<resource>:<scope>.
-  - Public endpoints (generate_authz.PUBLIC_PATHS): no expression.
+  - Public endpoints (generate_authz.PUBLIC_ENDPOINTS): no expression.
   - `self` scope: no expression (any authenticated user, the API scopes to the caller).
   - Everyone else needs hasAuthority('SCOPE_<resource>:<scope>'). Keycloak decides which
     roles hold it (GRANTS in generate_authz.py).
-  - OWNER_SCOPED roles (APPLICANT, ORG_ADMIN) hold authorities but only act on their own data.
-    Ownership is not checked in the expression but by the KycAuthorisationService aspect,
-    driven by @RequiresOwnership on the *ApiImpl method:
-      * reference data (REFERENCE_RESOURCES) or operation in OWNER_BY_ROLE -> the authority
-        is enough (OWNER_BY_ROLE operations are reported as needing an ownership check);
-      * @RequiresOwnership on the Impl method -> hasAuthority(...) only, the aspect checks;
-      * otherwise -> hasAuthority(...) and !hasAnyRole(<owner-scoped>).
+  - Owner-scoped roles (generate_authz.OWNER_SCOPED) hold "<scope>-own" permissions instead
+    of "<scope>" (except on reference data), so no expression names a role:
+      * @RequiresOwnership on the operation -> hasAnyAuthority(<scope>, <scope>-own); the
+        KycAuthorisationService aspect requires "-own" holders to own the record;
+      * operation in OWNER_BY_ROLE -> hasAnyAuthority(...) without an ownership check (reported);
+      * otherwise -> hasAuthority(<scope>), which "-own" holders do not pass.
   - Ownership checks live in the model as an andromda_additionalAnnotations value on the
-    operation: bw.co.knowvera.auth.RequiresOwnership(target = "...", id = "#..."), which the
+    operation: bw.co.knowvera.auth.RequiresOwnership(scope = "<resource>:<scope>", target = "...", id = "#..."), which the
     SpringWSImpl template writes onto the generated Impl method. Impls are only generated
     once, so --apply also adds a missing annotation to the existing Impl method.
   - Migration: a @RequiresOwnership found only on the Impl method, or an
@@ -45,12 +44,9 @@ import generate_authz as g  # noqa: E402
 UML_DIR = g.ROOT / "mda/src/main/uml"
 MODEL_FILES = [UML_DIR / "knowvera.uml", UML_DIR / "knowvera.xml"]
 XMI_ID = "{http://www.omg.org/spec/XMI/20131001}id"
-OWNER_SCOPED = ["APPLICANT", "ORG_ADMIN"]
-# Shared reference data: owner-scoped roles are granted by role, no ownership involved
-REFERENCE_RESOURCES = set(g.REFERENCE) | {"settings"}
-# Operations without an ownership clause that owner-scoped roles may still call, by role.
-# They were unprotected before the role redesign; each needs an ownership check in its
-# service or a @kycAuthService clause in the model, after which it can leave this list.
+# Operations without @RequiresOwnership that holders of the "-own" permission may still call.
+# They were unprotected before the role redesign; each needs an ownership check (add
+# @RequiresOwnership to the operation in the model), after which it can leave this list.
 OWNER_BY_ROLE = {
     "BranchApi.findById",
     "BranchApi.findByOrganisation",
@@ -110,9 +106,18 @@ OWNER_BY_ROLE = {
 
 IMPL_DIR = g.ROOT / "webservice/src/main/java"
 OWNERSHIP_IMPORT = "import bw.co.knowvera.auth.RequiresOwnership;"
-MODEL_OWNERSHIP = re.compile(r'RequiresOwnership\(\s*target\s*=\s*"([^"]*)"\s*,\s*id\s*=\s*"([^"]*)"\s*\)')
-MODEL_ANNOTATION = 'bw.co.knowvera.auth.RequiresOwnership(target = "{0}", id = "{1}")'
-OWNERSHIP_ANNOTATION = re.compile(r'@RequiresOwnership\(\s*target\s*=\s*"([^"]*)"\s*,\s*id\s*=\s*"([^"]*)"\s*\)')
+OWNERSHIP = re.compile(r'RequiresOwnership\(([^)]*)\)')
+MODEL_ANNOTATION = 'bw.co.knowvera.auth.RequiresOwnership(scope = "{0}", target = "{1}", id = "{2}")'
+IMPL_ANNOTATION = '@RequiresOwnership(scope = "{0}", target = "{1}", id = "{2}")'
+
+
+def parse_ownership(text):
+    """RequiresOwnership(scope = "...", target = "...", id = "...") -> (scope or None, target, id)."""
+    m = OWNERSHIP.search(text or "")
+    if not m:
+        return None
+    attrs = dict(re.findall(r'(\w+)\s*=\s*"([^"]*)"', m.group(1)))
+    return attrs.get("scope"), attrs["target"], attrs["id"]
 
 # @kycAuthService.<method> -> TargetEntity it checks (first argument is the id)
 CHECK_TARGETS = {
@@ -134,7 +139,8 @@ def generated_endpoints():
         for m in g.ENDPOINT.finditer(text):
             http, args, _, ret, name = m.groups()
             impl = IMPL_DIR / file.relative_to(g.SOURCE_DIRS[0]).with_name(file.stem + "Impl.java")
-            endpoints[(file.stem, name)] = (g.resource_name(base), g.classify(http.upper(), name, ret),
+            endpoints[(file.stem, name)] = (g.resource_name(base),
+                                            g.classify(f"{file.stem}.{name}", http.upper(), name, ret),
                                             g.join_path(base, g.mapping_path(args)), impl)
     return endpoints
 
@@ -150,9 +156,7 @@ def model_operations(model):
             op = ids[e.get("base_Operation")]
             ownership = None
             for annotation in e.iter("andromda_additionalAnnotations"):
-                found = MODEL_OWNERSHIP.search(annotation.text or "")
-                if found:
-                    ownership = (found.group(1), found.group(2))
+                ownership = parse_ownership(annotation.text) or ownership
             ops.append((e.get("base_Operation"), parent[op].get("name"), op.get("name"),
                         e.get("andromda_REST_pre_authorize"), ownership))
     return ops
@@ -184,17 +188,17 @@ def split_args(args):
 
 
 def clause_to_ownership(clause):
-    """@kycAuthService.<check>(...) -> (target, id) for @RequiresOwnership."""
+    """@kycAuthService.<check>(...) -> (None, target, id) for @RequiresOwnership."""
     m = re.match(r"@kycAuthService\.(\w+)\((.*)\)$", clause)
     method, args = m.group(1), split_args(m.group(2))
     if method in CHECK_TARGETS:
-        return CHECK_TARGETS[method], args[0]
+        return None, CHECK_TARGETS[method], args[0]
     if method in ("isTargetRecordOwner", "isRecordOwner"):
         target = args[0]
         constant = re.fullmatch(r"T\((?:bw\.co\.knowvera\.)?TargetEntity\)\.(\w+)|'(\w+)'", target)
         if constant:
             target = constant.group(1) or constant.group(2)
-        return target, args[1]
+        return None, target, args[1]
     raise SystemExit(f"Cannot convert ownership clause {clause}")
 
 
@@ -212,8 +216,8 @@ class ImplMethod:
         # annotations sit between the previous member and the method signature
         head = text[:self.match.start()]
         previous = max(head.rfind("}"), head.rfind(";"), head.rfind("{"))
-        found = OWNERSHIP_ANNOTATION.search(head[previous + 1:])
-        self.ownership = (found.group(1), found.group(2)) if found else None
+        self.ownership = parse_ownership(re.search(r"@RequiresOwnership\([^)]*\)", head[previous + 1:]).group(0)
+                                         if "@RequiresOwnership(" in head[previous + 1:] else None)
 
     def check_params(self, ownership):
         for expression in ownership:
@@ -227,16 +231,18 @@ def authority(resource, scope):
     return f"hasAuthority('SCOPE_{resource}:{scope}')"
 
 
-OWNER_CHECK = "!" + "hasAnyRole(" + ", ".join(f"'{r}'" for r in OWNER_SCOPED) + ")"
+def either_authority(resource, scope):
+    return f"hasAnyAuthority('SCOPE_{resource}:{scope}', 'SCOPE_{resource}:{scope}{g.OWN}')"
 
 
 def plan():
     warnings = []
-    resources = g.scan()
+    resources = g.scan(warnings)
     granted = g.resolve_grants(resources, warnings)
+    if warnings:
+        raise SystemExit("generate_authz.py rules are incomplete:\n  - " + "\n  - ".join(warnings))
     endpoints = generated_endpoints()
     changes, annotations, model_annotations, notes = [], [], [], defaultdict(list)
-    public = [g.path_regex(p) for p in g.PUBLIC_PATHS]
 
     for op_id, cls, name, current, model_ownership in model_operations(UML_DIR / "knowvera.uml"):
         if (cls, name) not in endpoints:
@@ -245,43 +251,43 @@ def plan():
         resource, scope, path, impl_path = endpoints[(cls, name)]
         label = f"{cls}.{name}"
 
-        if any(rx.match(path) for rx in public):
+        if scope == "public":
             new = None
         elif scope == "self":
             new = None
         else:
-            owners = [r for r in OWNER_SCOPED if r in granted[(resource, scope)]]
-            check = authority(resource, scope)
-
             # The model is the source of truth; Impl annotations and legacy expression
             # clauses are migrated into it. Impls are generated once, so keep them in sync.
             impl = ImplMethod(impl_path, name)
             clause = ownership_clause(current)
-            ownership = model_ownership or impl.ownership or (clause_to_ownership(clause) if clause else None)
-            if ownership:
-                impl.check_params(ownership)
-                if model_ownership is None:
+            existing = model_ownership or impl.ownership or (clause_to_ownership(clause) if clause else None)
+            ownership = None
+            if existing:
+                ownership = (f"{resource}:{scope}", existing[1], existing[2])
+                impl.check_params(ownership[1:])
+                if model_ownership != ownership:
                     model_annotations.append((op_id, label, ownership))
-                if impl.ownership is None:
+                if impl.ownership != ownership:
                     annotations.append((impl_path, name, ownership))
-                elif impl.ownership != ownership:
-                    notes["Impl @RequiresOwnership differs from the model (model wins on regeneration)"].append(
-                        f"{label}: model {ownership}, Impl {impl.ownership}")
+                if impl.ownership and impl.ownership[1:] != existing[1:]:
+                    notes["Impl @RequiresOwnership differed from the model (model wins)"].append(
+                        f"{label}: model {existing[1:]}, Impl {impl.ownership[1:]}")
 
-            if owners and (resource in REFERENCE_RESOURCES or label in OWNER_BY_ROLE):
-                if resource not in REFERENCE_RESOURCES and not ownership:
-                    notes["owner-scoped roles pass on the authority alone (add @RequiresOwnership)"].append(
-                        f"{label} [{resource}:{scope}] {', '.join(owners)}")
+            own_holders = [r for r in g.OWNER_SCOPED if r in granted[(resource, scope + g.OWN)]]
+            check = authority(resource, scope)
+            if own_holders and ownership:
+                new = either_authority(resource, scope)  # KycAuthorisationService checks ownership
+            elif own_holders and label in OWNER_BY_ROLE:
+                notes["-own permission accepted without an ownership check (add @RequiresOwnership)"].append(
+                    f"{label} [{resource}:{scope}{g.OWN}] {', '.join(own_holders)}")
+                new = either_authority(resource, scope)
+            elif own_holders:
+                notes["-own permission granted but refused here (no @RequiresOwnership)"].append(
+                    f"{label} [{resource}:{scope}{g.OWN}] {', '.join(own_holders)}")
                 new = check
-            elif owners and ownership:
-                new = check  # KycAuthorisationService checks ownership
-            elif owners:
-                notes["owner-scoped roles granted in the matrix but blocked here (no @RequiresOwnership)"].append(
-                    f"{label} [{resource}:{scope}] {', '.join(owners)}")
-                new = f"{check} and {OWNER_CHECK}"
             else:
                 if ownership:
-                    notes["@RequiresOwnership present but the matrix grants owner-scoped roles nothing"].append(
+                    notes["@RequiresOwnership present but nobody holds the -own permission"].append(
                         f"{label} [{resource}:{scope}]")
                 new = check
         if new != current:
@@ -297,10 +303,18 @@ def annotate_impls(annotations):
         raw = open(path, newline="").read()
         newline = "\r\n" if "\r\n" in raw else "\n"
         text = raw.replace("\r\n", "\n")
-        for name, (target, id_expr) in items:
+        for name, ownership in items:
             m = re.search(r"^([ \t]*)public\s+[^;{(=]*?\b" + name + r"\s*\(", text, re.M)
-            line = f'{m.group(1)}@RequiresOwnership(target = "{target}", id = "{id_expr}")\n'
-            text = text[:m.start()] + line + text[m.start():]
+            line = f"{m.group(1)}{IMPL_ANNOTATION.format(*ownership)}\n"
+            head_start = max(text.rfind("}", 0, m.start()), text.rfind(";", 0, m.start()),
+                             text.rfind("{", 0, m.start())) + 1
+            head = text[head_start:m.start()]
+            existing = re.search(r"^[ \t]*@RequiresOwnership\([^)]*\)[ \t]*\n", head, re.M)
+            if existing:
+                head = head[:existing.start()] + line + head[existing.end():]
+                text = text[:head_start] + head + text[m.start():]
+            else:
+                text = text[:m.start()] + line + text[m.start():]
         if OWNERSHIP_IMPORT not in text:
             first_import = re.search(r"^import ", text, re.M)
             text = text[:first_import.start()] + OWNERSHIP_IMPORT + "\n" + text[first_import.start():]
@@ -346,6 +360,14 @@ def annotate_model(path, model_annotations):
         child_indent = indent + ("\t" if "\t" in indent else "  ")
         value = MODEL_ANNOTATION.format(*ownership).replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")
         child = f"\n{child_indent}<andromda_additionalAnnotations>{value}</andromda_additionalAnnotations>"
+        if not self_closing:
+            close = text.index(f"</{element}>", m.end())
+            current = re.search(r"<andromda_additionalAnnotations>[^<]*RequiresOwnership[^<]*</andromda_additionalAnnotations>",
+                                text[m.end():close])
+            if current:
+                start, end = m.end() + current.start(), m.end() + current.end()
+                text = text[:start] + f"<andromda_additionalAnnotations>{value}</andromda_additionalAnnotations>" + text[end:]
+                continue
         if self_closing:
             open_tag = re.sub(r"\s*/>$", ">", m.group(0))
             text = text[:m.start()] + open_tag + child + f"\n{indent}</{element}>" + text[m.end():]
@@ -368,8 +390,8 @@ def main():
         print(f"\n{title} ({len(items)}):")
         for item in items:
             print("   ", item)
-    for path, name, (target, id_expr) in annotations:
-        print(f"{path.stem}.{name}: + @RequiresOwnership(target = \"{target}\", id = \"{id_expr}\")")
+    for path, name, ownership in annotations:
+        print(f"{path.stem}.{name}: {IMPL_ANNOTATION.format(*ownership)}")
     for _, label, ownership in model_annotations:
         print(f"{label}: model + {MODEL_ANNOTATION.format(*ownership)}")
     print(f"\n{len(changes)} expressions to update, {len(model_annotations)} model operations "

@@ -2,6 +2,7 @@ package bw.co.knowvera.auth;
 
 import java.lang.reflect.Method;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 import bw.co.knowvera.TargetEntity;
+import bw.co.knowvera.config.KeycloakPermissionConverter;
 import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.document.DocumentService;
 import bw.co.knowvera.individual.IndividualDTO;
@@ -48,7 +50,8 @@ import lombok.RequiredArgsConstructor;
 /**
  * Record ownership checks, applied as an aspect to methods annotated with
  * {@link RequiresOwnership}. Runs right after @PreAuthorize (Keycloak permission check):
- * callers holding an owner-scoped role must own the record, staff are not restricted.
+ * callers holding the type-level permission ({@code SCOPE_<resource>:<scope>}) pass, callers
+ * holding only {@code SCOPE_<resource>:<scope>-own} must own the record.
  *
  * Dependencies are injected lazily so that creating this aspect does not instantiate the
  * services before the auto-proxy creator can wrap them (e.g. for @Transactional).
@@ -60,8 +63,8 @@ public class KycAuthorisationService implements Ordered {
     /** Directly inside @PreAuthorize, outside @Audit. */
     public static final int ORDER = AuthorizationInterceptorsOrder.PRE_AUTHORIZE.getOrder() + 1;
 
-    /** Roles limited to their own records. Keep in sync with OWNER_SCOPED in keycloak/update_preauthorize.py */
-    public static final Set<String> OWNER_SCOPED_AUTHORITIES = Set.of("ROLE_APPLICANT", "ROLE_ORG_ADMIN");
+    /** Suffix of the Keycloak scope that limits a permission to the caller's own records (OWN in generate_authz.py). */
+    public static final String OWN_SUFFIX = "-own";
 
     private final SpelExpressionParser parser = new SpelExpressionParser();
     private final ParameterNameDiscoverer parameterNames = new DefaultParameterNameDiscoverer();
@@ -97,8 +100,16 @@ public class KycAuthorisationService implements Ordered {
     @Around("@annotation(requiresOwnership)")
     public Object checkOwnership(ProceedingJoinPoint joinPoint, RequiresOwnership requiresOwnership) throws Throwable {
 
-        if (!isOwnerScoped()) {
+        String permission = KeycloakPermissionConverter.AUTHORITY_PREFIX + requiresOwnership.scope();
+        Set<String> authorities = currentAuthorities();
+
+        if (authorities.contains(permission)) {
+            // Type-level permission (staff): not limited to own records
             return joinPoint.proceed();
+        }
+
+        if (!authorities.contains(permission + OWN_SUFFIX)) {
+            throw new AuthorizationDeniedException("Access denied: missing permission " + requiresOwnership.scope());
         }
 
         Method method = AopUtils.getMostSpecificMethod(
@@ -130,16 +141,16 @@ public class KycAuthorisationService implements Ordered {
         return value != null ? TargetEntity.valueOf(value.toString()) : null;
     }
 
-    private boolean isOwnerScoped() {
+    private Set<String> currentAuthorities() {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
-            return false;
+            return Set.of();
         }
 
         return auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch(OWNER_SCOPED_AUTHORITIES::contains);
+                .collect(Collectors.toSet());
     }
 
     public boolean canViewRequest(UUID requestId, Authentication auth) {

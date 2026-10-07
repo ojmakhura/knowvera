@@ -119,7 +119,7 @@ public class IndividualApiImpl implements IndividualApi {
     @Override
     @Operation(summary = "Find Individual by ID", description = "Get the individual with the given id")
     @Audit(entity = "INDIVIDUAL", eventLabel = "#id", logData = false)
-    @RequiresOwnership(target = "INDIVIDUAL", id = "#id")
+    @RequiresOwnership(scope = "individuals:view", target = "INDIVIDUAL", id = "#id")
     public ResponseEntity<IndividualDTO> findById(String id) throws Exception {
 
         logger.debug("Finding individual with id: {}", id);
@@ -357,7 +357,7 @@ public class IndividualApiImpl implements IndividualApi {
     @Override
     @Operation(summary = "Get Organisation Clients", description = "Get all clients for a given organisation")
     @Audit(entity = "INDIVIDUAL", logData = false)
-    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
+    @RequiresOwnership(scope = "individuals:list", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<List<IndividualListDTO>> getOrganisationClients(
             String organisationId) throws Exception {
         logger.debug("Getting organisation clients for organisationId: {}", organisationId);
@@ -368,7 +368,7 @@ public class IndividualApiImpl implements IndividualApi {
     @Override
     @Operation(summary = "Get Organisation Clients Paged", description = "Get all clients for a given organisation with pagination")
     @Audit(entity = "INDIVIDUAL", logData = false)
-    @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
+    @RequiresOwnership(scope = "individuals:list", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<Page<IndividualListDTO>> getOrganisationClientsPaged(
             String organisationId, Integer pageNumber, Integer pageSize) throws Exception {
 

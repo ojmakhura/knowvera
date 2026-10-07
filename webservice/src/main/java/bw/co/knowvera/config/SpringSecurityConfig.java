@@ -59,19 +59,13 @@ public class SpringSecurityConfig {
 		http
 				.cors(Customizer.withDefaults())  // Enable CORS with the configured CorsConfigurationSource
 				.csrf(csrf -> csrf.disable())
-				.authorizeHttpRequests((authz) -> authz
-						// Keep in sync with PUBLIC_PATHS in keycloak/generate_authz.py
-						.requestMatchers(
-								"/swagger-ui/**",  // Changed from /* to /** to match all paths
-								"/v3/**",
-								"/actuator/**",
-								"/analytics/**",
-								"/client-requests/confirm-token/**",
-								"/individuals/request/**",
-								"/organisations/request/**",
-								"/client-requests/*/confirm")
-						.permitAll()
-						.anyRequest().authenticated())
+				.authorizeHttpRequests((authz) -> {
+					// Generated from keycloak/generate_authz.py (PUBLIC_ENDPOINTS, PUBLIC_INFRASTRUCTURE)
+					PublicEndpoints.INFRASTRUCTURE.forEach(pattern -> authz.requestMatchers(pattern).permitAll());
+					PublicEndpoints.ENDPOINTS.forEach(endpoint ->
+							authz.requestMatchers(endpoint.method(), endpoint.pattern()).permitAll());
+					authz.anyRequest().authenticated();
+				})
 				.sessionManagement(management -> management
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->

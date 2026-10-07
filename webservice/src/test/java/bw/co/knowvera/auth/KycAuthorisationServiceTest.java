@@ -37,12 +37,12 @@ class KycAuthorisationServiceTest {
 
     static class OrganisationController {
 
-        @RequiresOwnership(target = "ORGANISATION", id = "#organisationId")
+        @RequiresOwnership(scope = "organisations:view", target = "ORGANISATION", id = "#organisationId")
         public String load(String organisationId) {
             return "loaded " + organisationId;
         }
 
-        @RequiresOwnership(target = "#target", id = "#targetId")
+        @RequiresOwnership(scope = "documents:list", target = "#target", id = "#targetId")
         public String loadTarget(TargetEntity target, String targetId) {
             return "loaded " + targetId;
         }
@@ -81,41 +81,50 @@ class KycAuthorisationServiceTest {
         SecurityContextHolder.clearContext();
     }
 
-    private void authenticate(String... roles) {
+    private void authenticate(String... authorities) {
         Jwt jwt = new Jwt("token", Instant.now(), Instant.now().plusSeconds(60),
                 java.util.Map.of("alg", "none"), java.util.Map.of("sub", "user-1"));
-        List<SimpleGrantedAuthority> authorities = java.util.Arrays.stream(roles)
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role)).toList();
-        TestingAuthenticationToken auth = new TestingAuthenticationToken(jwt, null, List.copyOf(authorities));
+        List<SimpleGrantedAuthority> granted = java.util.Arrays.stream(authorities)
+                .map(SimpleGrantedAuthority::new).toList();
+        TestingAuthenticationToken auth = new TestingAuthenticationToken(jwt, null, List.copyOf(granted));
         auth.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @Test
-    void staffAreNotRestricted() {
-        authenticate("KYC_ANALYST");
+    void typeLevelPermissionIsNotRestricted() {
+        authenticate("ROLE_KYC_ANALYST", "SCOPE_organisations:view");
 
         assertEquals("loaded org-2", controller.load("org-2"));
         verify(organisationService, never()).findById(any());
     }
 
     @Test
-    void ownerScopedCallerMayAccessOwnRecord() {
-        authenticate("ORG_ADMIN");
+    void ownPermissionMayAccessOwnRecord() {
+        authenticate("ROLE_ORG_ADMIN", "SCOPE_organisations:view-own");
 
         assertEquals("loaded org-1", controller.load("org-1"));
     }
 
     @Test
-    void ownerScopedCallerIsDeniedOtherRecords() {
-        authenticate("ORG_ADMIN");
+    void ownPermissionIsDeniedOtherRecords() {
+        authenticate("ROLE_ORG_ADMIN", "SCOPE_organisations:view-own");
 
         assertThrows(AuthorizationDeniedException.class, () -> controller.load("org-2"));
     }
 
     @Test
+    void rolesAloneGrantNothing() {
+        // Access comes from Keycloak permissions, not role names
+        authenticate("ROLE_PLATFORM_ADMIN");
+
+        assertThrows(AuthorizationDeniedException.class, () -> controller.load("org-1"));
+        verify(organisationService, never()).findById(any());
+    }
+
+    @Test
     void targetCanComeFromAnExpression() {
-        authenticate("APPLICANT");
+        authenticate("ROLE_APPLICANT", "SCOPE_documents:list-own");
 
         assertEquals("loaded org-1", controller.loadTarget(TargetEntity.ORGANISATION, "org-1"));
         assertThrows(AuthorizationDeniedException.class,
