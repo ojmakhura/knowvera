@@ -267,7 +267,7 @@ def sync_service(cls, api, ts_file, models, report):
         block = re.sub(r"`(\$\{this\.path\}[^`]*)`", fix, block)
 
         sent = set(re.findall(r"[?&](\w+)=", block)) | set(re.findall(r"append\('(\w+)'", block))
-        for options in re.findall(r"params:\s*\{([^}]*)\}", block):  # HttpClient { params: { a, b: x } }
+        for options in re.findall(r"(?:params|fromObject):\s*\{([^}]*)\}", block):  # { params: {...} } / form bodies
             sent |= set(re.findall(r"(\w+)\s*(?:[:,]|$)", options.strip()))
         wanted = {p["name"] for p in java["params"] if p["kind"] == "RequestParam" and "MultipartFile" not in p["type"]}
         missing = sorted(wanted - sent)

@@ -2,7 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { UserDTO } from '@models/bw/co/knowvera/user/user-dto';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Page } from '@models/page.model';
 import { SearchObject } from '@models/search-object';
 
@@ -20,9 +20,11 @@ export class UserApi {
         return this.http.put<boolean | any>(`${this.path}/role?userId=${userId}&role=${role}`, {userId: userId, role: role});
     }
 
+    /** Administrative reset to a temporary password (users:manage). Sent as a form body, never in the URL. */
     public changePassword(userId: string | any , newPassword: string | any ): Observable<string | any> {
 
-        return this.http.get<string | any>(`${this.path}/updatePassword?userId=${userId}&newPassword=${newPassword}`);
+        const body = new HttpParams({ fromObject: { userId, newPassword } });
+        return this.http.post(`${this.path}/updatePassword`, body, { responseType: 'text' });
     }
 
     public findByBranchId(branchId: string | any ): Observable<UserDTO[] | any[]> {

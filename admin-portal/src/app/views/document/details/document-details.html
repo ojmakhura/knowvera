@@ -8,8 +8,8 @@
     </nav>
 
     <div class="kv-page-header">
-      <div class="min-w-0 flex flex-col gap-3">
-        <div class="flex flex-wrap items-center gap-3">
+      <div class="min-w-0 kv-stack-sm">
+        <div class="kv-row">
           <h1 class="kv-title break-all">{{ document().fileName || 'Document' }}</h1>
           @if (document().documentType) {
             <span class="dp-code">{{ document().documentType }}</span>
@@ -21,7 +21,7 @@
             </span>
           }
         </div>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="kv-row-sm">
           <span class="dp-pill" [ngClass]="statusTone(document().verificationStatus)">
             <mat-icon class="icon-fill">{{ statusIcon }}</mat-icon>
             {{ document().verificationStatus || 'UNVERIFIED' }}
@@ -58,10 +58,10 @@
   }
 
   <!-- Bento grid -->
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+  <div class="kv-layout-stretch">
 
     <!-- Target entity -->
-    <section class="kv-card md:col-span-8">
+    <section class="kv-card kv-col-main">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile"><mat-icon>person_search</mat-icon></span>
         <div class="dp-head-copy">
@@ -70,7 +70,7 @@
         </div>
       </div>
 
-      <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <dl class="kv-detail-grid">
         <div class="kv-field">
           <dt class="kv-label">Target</dt>
           <dd class="kv-value dp-strong">{{ document().targetLabel || '—' }}</dd>
@@ -99,7 +99,7 @@
     </section>
 
     <!-- Review status -->
-    <section class="kv-card md:col-span-4 flex flex-col">
+    <section class="kv-card kv-col-side flex flex-col">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile" [ngClass]="statusTone(document().verificationStatus)"><mat-icon>{{ statusIcon }}</mat-icon></span>
         <div class="dp-head-copy">
@@ -110,7 +110,7 @@
 
       <p class="dp-metric">{{ document().verificationStatus || 'UNVERIFIED' }}</p>
 
-      <div class="mt-auto pt-4" *kaHasRoles="['DOCUMENT_REVIEWER']">
+      <div class="mt-auto pt-4" *kaHasRoles="['KYC_REVIEWER']; checkRealm: true">
         <span class="kv-label">Set status</span>
         <div class="doc-status-grid">
           @for (status of verificationStatusOptions; track status) {
@@ -127,7 +127,7 @@
 
     <!-- Metadata editor -->
     @if (metadataEditing()) {
-      <section class="kv-card md:col-span-12">
+      <section class="kv-card kv-col-full">
         <div class="kv-card-header dp-head">
           <span class="dp-icon-tile"><mat-icon>edit_note</mat-icon></span>
           <div class="dp-head-copy">
@@ -139,15 +139,15 @@
           </button>
         </div>
 
-        <div class="flex flex-col gap-3">
+        <form class="kv-stack-sm" id="document-metadata-form" [formRoot]="metadataForm">
           @for (field of metadataFields(); track $index) {
             <div class="doc-metadata-row">
               <mat-form-field appearance="outline" class="vault-field">
-                <input matInput [value]="field.key" (input)="updateMetadataKey($index, $any($event.target).value)"
+                <input matInput [formField]="metadataForm[$index].key"
                   placeholder="Key, e.g. registration" />
               </mat-form-field>
               <mat-form-field appearance="outline" class="vault-field">
-                <input matInput [value]="field.value" (input)="updateMetadataValue($index, $any($event.target).value)"
+                <input matInput [formField]="metadataForm[$index].value"
                   placeholder="Value, e.g. REG-001" />
               </mat-form-field>
               <button type="button" class="kv-icon-btn-danger" matTooltip="Remove field" (click)="removeMetadataField($index)">
@@ -157,14 +157,14 @@
           } @empty {
             <p class="dp-empty-text">No metadata fields. Add one below.</p>
           }
-        </div>
+        </form>
 
         <div class="kv-actions justify-end mt-4">
           <button type="button" class="kv-btn-secondary" (click)="addMetadataField()">
             <mat-icon>add</mat-icon>
             Add Field
           </button>
-          <button type="button" class="kv-btn-primary" [disabled]="loading()" (click)="saveMetadata()">
+          <button type="submit" form="document-metadata-form" class="kv-btn-primary" [disabled]="loading()">
             <mat-icon>save</mat-icon>
             Save Metadata
           </button>
@@ -173,7 +173,7 @@
     }
 
     <!-- AI validation -->
-    <section class="kv-card md:col-span-12">
+    <section class="kv-card kv-col-full">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile"><mat-icon>smart_toy</mat-icon></span>
         <div class="dp-head-copy">
@@ -186,7 +186,7 @@
         </div>
       </div>
 
-      <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <dl class="kv-detail-grid">
         <div class="kv-field">
           <dt class="kv-label">Expected Type</dt>
           <dd class="kv-value">{{ document().validationResults?.expectedType || '—' }}</dd>
@@ -213,7 +213,7 @@
     </section>
 
     <!-- Analysis tabs -->
-    <section class="kv-card dp-tabs md:col-span-12">
+    <section class="kv-card dp-tabs kv-col-full">
       <mat-tab-group animationDuration="150ms">
         <mat-tab label="Integrity Signals">
           <div class="dp-tab-pane">
@@ -277,7 +277,7 @@
         </mat-tab>
 
         <mat-tab label="File Content">
-          <div class="dp-tab-pane">
+          <form class="dp-tab-pane" [formRoot]="documentForm">
             <div class="dp-toolbar">
               <div>
                 <h3 class="kv-card-title">File Content</h3>
@@ -300,13 +300,13 @@
                   <mat-icon>analytics</mat-icon>
                   Analyse Document
                 </button>
-                <button type="button" class="kv-btn-primary" (click)="saveDocument()" [disabled]="loading()">
+                <button type="submit" class="kv-btn-primary" [disabled]="loading()">
                   <mat-icon>save</mat-icon>
                   Update Document
                 </button>
               </div>
             }
-          </div>
+          </form>
         </mat-tab>
 
         <mat-tab label="Data Verification">

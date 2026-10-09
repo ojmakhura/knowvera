@@ -12,6 +12,7 @@ import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.SortOrder;
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.auth.KycAuthorisationService;
+import bw.co.knowvera.document.UploadValidator;
 import bw.co.knowvera.document.DocumentApi;
 import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.individual.IndividualDTO;
@@ -196,11 +197,19 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Save Client Request", description = "Save a client request")
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#clientRequest.id", logData = true)
-    @RequiresOwnership(scope = "client-requests:edit", target = "ORGANISATION", id = "#clientRequest.organisationId")
+    @RequiresOwnership(scope = "client-requests:edit", target = "ORGANISATION", id = "#clientRequest.organisationId", record = "CLIENT_REQUEST", recordId = "#clientRequest.id")
     public ResponseEntity<ClientRequestDTO> save(ClientRequestDTO clientRequest) throws Exception {
 
+        ClientRequestDTO stored = null;
+        if (StringUtils.isNotBlank(clientRequest.getId())) {
+            try {
+                stored = clientRequestService.findById(clientRequest.getId());
+            } catch (Exception e) {
+                stored = null;
+            }
+        }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        AuditTracker.auditTrail(clientRequest, authentication);
+        AuditTracker.auditTrail(clientRequest, stored, authentication);
 
         ClientRequestDTO savedRequest = clientRequestService.save(clientRequest);
         return ResponseEntity.ok(savedRequest);
@@ -257,6 +266,8 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#file.getOriginalFilename()", logData = false)
     public ResponseEntity<Page<ClientRequestDTO>> uploadRequests(MultipartFile file, String organisationId,
             TargetEntity target) throws Exception {
+
+        UploadValidator.validate(file, UploadValidator.SPREADSHEET_TYPES);
 
         try (InputStream inputStream = file.getInputStream()) {
 

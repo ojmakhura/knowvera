@@ -18,7 +18,7 @@ import {
   Signal,
   signal,
 } from '@angular/core';
-import { form } from '@angular/forms/signals';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
@@ -53,6 +53,8 @@ export class SearchOrganisationsVarsForm {
     MatSelectModule,
     MatProgressBarModule,
     MatTooltipModule,
+    FormRoot,
+    FormField,
   ],
   templateUrl: './organisations.html',
   styleUrls: ['./organisations.scss'],
@@ -62,7 +64,7 @@ export class Organisations implements OnInit, OnDestroy {
 
   searchOrganisationsVarsForm: SearchOrganisationsVarsForm = new SearchOrganisationsVarsForm();
   searchOrganisationsSignal = signal(this.searchOrganisationsVarsForm);
-  searchOrganisationsSignalForm = form(this.searchOrganisationsSignal, (path) => {});
+  searchOrganisationsSignalForm = form(this.searchOrganisationsSignal, (path) => {}, { submission: { action: async () => this.onSearchSubmit() } });
   readonly breadcrumbLabel = 'Organisations';
 
   // toaster: ToastrService = inject(ToastrService);
@@ -235,13 +237,6 @@ export class Organisations implements OnInit, OnDestroy {
     this.router.navigate(['organisation', 'edit']);
   }
 
-  updateCriteria(value: string): void {
-    this.searchOrganisationsSignal.update((current) => ({
-      ...current,
-      criteria: value,
-    }));
-  }
-
   onSearchSubmit(): void {
     this.doSearch(0, this.pageSize());
   }
@@ -335,8 +330,6 @@ export class Organisations implements OnInit, OnDestroy {
         return 'kv-tone-info';
     }
   }
-
-  clientCount = computed(() => this.organisations().filter(o => o.isClient).length);
 
   resetSearch(): void {
     this.searchOrganisationsSignal.set(new SearchOrganisationsVarsForm());

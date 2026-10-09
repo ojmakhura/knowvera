@@ -1,6 +1,6 @@
 // views/settings/platform-identity/platform-identity.ts
 import { Component, effect, inject, linkedSignal, OnInit, signal } from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
 import { LoaderState } from '@app/@shared/loader/loader.state';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
@@ -15,7 +15,7 @@ class PlatformIdentityModel {
 
 @Component({
   selector: 'app-platform-identity',
-  imports: [ MatIconModule, FormField ],
+  imports: [ MatIconModule, FormField, FormRoot],
   templateUrl: './platform-identity.html',
   styleUrls: ['./platform-identity.scss'],
 })
@@ -36,7 +36,7 @@ export class PlatformIdentity implements OnInit {
   });
   platformIdentityForm = form(this.platformIdentitySignal, (path) => {
 
-  });
+  }, { submission: { action: async () => this.save() } });
 
   settingsApiStore = inject(SettingsApiStore);
 

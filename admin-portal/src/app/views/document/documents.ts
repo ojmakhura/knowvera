@@ -35,7 +35,7 @@ import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-ap
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
 import { toast } from 'ngx-sonner';
 import { Loader } from '@app/@shared/loader/loader';
-import { form, FormField } from '@angular/forms/signals';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { DocumentListDTO } from '@app/models/bw/co/knowvera/document/document-list-dto';
 import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
@@ -71,12 +71,13 @@ export class SearchDocumentsVarsForm {
     FormsModule,
     FormField,
     TranslateModule,
+    FormRoot,
   ],
 })
 export class Documents implements OnInit {
   searchDocumentsVarsForm = new SearchDocumentsVarsForm();
   searchDocumentsSignal = signal(this.searchDocumentsVarsForm);
-  searchDocumentsForm = form(this.searchDocumentsSignal, (path) => {});
+  searchDocumentsForm = form(this.searchDocumentsSignal, (path) => {}, { submission: { action: async () => this.doSearch() } });
 
   readonly documentApiStore = inject(DocumentApiStore);
   readonly documentTypeApiStore = inject(DocumentTypeApiStore);
@@ -293,12 +294,6 @@ export class Documents implements OnInit {
   private downloadFileNameOf(row: DocumentListDTO): string {
     return row.fileName || 'document-download';
   }
-
-  verifiedCount = computed(
-    () =>
-      this.rows().filter((r) => r.verificationStatus === DocumentVerificationStatus.VERIFIED)
-        .length,
-  );
 
   private saveBlob(blob: Blob, fileName: string): void {
     const url = window.URL.createObjectURL(blob);

@@ -24,10 +24,10 @@
   </header>
 
   <!-- Search criteria -->
-  <form class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-6" (submit)="$event.preventDefault(); onSearchSubmit()">
+  <form class="kv-layout-stretch mb-6" [formRoot]="searchOrganisationsSignalForm">
 
     <!-- Main column -->
-    <section class="kv-card md:col-span-8">
+    <section class="kv-card kv-col-main">
       <div class="kv-card-header">
         <mat-icon class="kv-card-icon">manage_search</mat-icon>
         <h2 class="kv-card-title">Search Criteria</h2>
@@ -38,14 +38,13 @@
         <mat-form-field appearance="outline" class="vault-field">
           <mat-icon matPrefix>search</mat-icon>
           <input id="criteria" type="search" matInput placeholder="Enter name, registration number or entity code..."
-            [value]="searchOrganisationsSignal().criteria || ''"
-            (input)="updateCriteria($any($event.target).value)" />
+            [formField]="searchOrganisationsSignalForm.criteria" />
         </mat-form-field>
       </div>
     </section>
 
     <!-- Side column -->
-    <section class="kv-card border-t-4 border-emerald md:col-span-4 flex flex-col gap-4">
+    <section class="kv-card kv-card-accent kv-col-side kv-stack-md">
       <div class="kv-card-header">
         <mat-icon class="kv-card-icon">filter_alt</mat-icon>
         <h2 class="kv-card-title">Filters</h2>
@@ -185,31 +184,6 @@
           <mat-icon>chevron_right</mat-icon>
         </button>
       </nav>
-    </div>
-  </section>
-
-  <!-- Assurances (visual vault) -->
-  <section class="vs-vault" aria-label="Registry assurances">
-    <div class="vs-vault-card vs-vault-storage">
-      <mat-icon class="vs-vault-art">security</mat-icon>
-      <div class="vs-vault-copy">
-        <h3>Registry Integrity</h3>
-        <p>Entities tracked against KYC compliance status</p>
-      </div>
-    </div>
-    <div class="vs-vault-card vs-vault-logs">
-      <mat-icon class="vs-vault-art">update</mat-icon>
-      <div class="vs-vault-copy">
-        <h3>Real-time Updates</h3>
-        <p>Status and ownership changes propagate instantly</p>
-      </div>
-    </div>
-    <div class="vs-vault-card vs-vault-identity">
-      <mat-icon class="vs-vault-art">groups</mat-icon>
-      <div class="vs-vault-copy">
-        <h3>Active Clients</h3>
-        <p>{{ clientCount() }} of {{ totalElements() }} organisations are active clients</p>
-      </div>
     </div>
   </section>
 </div>

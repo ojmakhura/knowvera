@@ -11,7 +11,8 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, ElementRef, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { TableComponent } from '@app/components/table/table';
 import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch-dto';
@@ -73,7 +74,9 @@ import { TranslateModule } from '@ngx-translate/core';
     MatChipsModule,
     MatTabsModule,
     MatSelectModule,
-    TranslateModule
+    TranslateModule,
+    FormRoot,
+    FormField,
   ],
   templateUrl: './organisation-details.html',
   styleUrls: ['./organisation-details.scss'],
@@ -162,6 +165,14 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   // Uploaded documents actions
   documentTypeIdForUpload = signal('');
+  @ViewChild('documentUploadInput') documentUploadInput?: ElementRef<HTMLInputElement>;
+  documentUploadForm = form(this.documentTypeIdForUpload, {
+    submission: {
+      action: async () => {
+        if (this.documentUploadInput) this.uploadOrganisationDocument(this.documentUploadInput.nativeElement);
+      },
+    },
+  });
   selectedDocumentFile = signal<File | null>(null);
   isUploadingDocument = signal(false);
 
@@ -503,10 +514,6 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.router.navigate(['/document/edit', document.id]);
-  }
-
-  selectUploadDocumentType(documentTypeId: string): void {
-    this.documentTypeIdForUpload.set(documentTypeId || '');
   }
 
   onDocumentFileSelected(event: Event): void {

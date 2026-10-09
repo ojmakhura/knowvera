@@ -1,14 +1,14 @@
 <div class="org-details kv-page">
   <!-- Header -->
   <header class="org-header">
-    <div class="flex flex-col gap-3 min-w-0">
+    <div class="kv-stack-sm min-w-0">
       <nav class="kv-breadcrumb" aria-label="Breadcrumb">
         <a routerLink="/organisation">Organisations</a>
         <mat-icon>chevron_right</mat-icon>
         <span class="kv-breadcrumb-current">{{ organisation().code || organisation().name || 'Details' }}</span>
       </nav>
 
-      <div class="flex flex-wrap items-center gap-3">
+      <div class="kv-row">
         <h1 class="org-title">{{ organisation().name || 'Organisation' }}</h1>
         @if (organisation().code) {
           <span class="dp-code">{{ organisation().code }}</span>
@@ -19,7 +19,7 @@
         </span>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="kv-row-sm">
         <span class="org-pill" [class.is-active]="isOrganisationVerified()">
           <mat-icon class="icon-fill">{{ isOrganisationVerified() ? 'check_circle' : 'pending' }}</mat-icon>
           {{ organisation().status || 'Pending' }}
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-    <div class="flex flex-wrap items-center gap-3">
+    <div class="kv-row">
       <button type="button" class="dp-btn-outline" (click)="exportRecord()">
         <mat-icon>file_download</mat-icon>
         Export Record
@@ -54,10 +54,10 @@
   </header>
 
   <!-- Bento grid -->
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
+  <div class="kv-layout-stretch mb-8">
 
     <!-- Core Identity & Legal Registration -->
-    <section class="org-card md:col-span-8">
+    <section class="org-card kv-col-main">
       <div class="org-card-head">
         <span class="dp-icon-tile"><mat-icon>badge</mat-icon></span>
         <div class="dp-head-copy">
@@ -67,7 +67,7 @@
         <span class="org-status-tag">Status: {{ organisation().status || 'N/A' }}</span>
       </div>
 
-      <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <dl class="kv-detail-grid">
         <div>
           <dt class="org-label">Registration Number</dt>
           <dd class="org-value dp-mono is-primary">{{ organisation().registrationNo || 'Not available' }}</dd>
@@ -105,7 +105,7 @@
     </section>
 
     <!-- Domains -->
-    <section class="org-card md:col-span-4 flex flex-col justify-between">
+    <section class="org-card kv-col-side flex flex-col justify-between">
       <div>
         <div class="org-card-head">
           <span class="dp-icon-tile"><mat-icon>language</mat-icon></span>
@@ -148,7 +148,7 @@
     </section>
 
     <!-- Contact & Registered Offices -->
-    <section class="org-card md:col-span-12">
+    <section class="org-card kv-col-full">
       <div class="org-card-head">
         <span class="dp-icon-tile"><mat-icon>contact_mail</mat-icon></span>
         <div class="dp-head-copy">
@@ -158,7 +158,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="flex flex-col gap-4">
+        <div class="kv-stack-md">
           <div>
             <span class="org-label">Contact Email Address</span>
             @if (organisation().contactEmailAddress) {
@@ -198,8 +198,8 @@
     </section>
 
     <!-- Branches Registry -->
-    <section class="md:col-span-12 flex flex-col gap-4">
-      <div class="flex flex-wrap items-center justify-between gap-3">
+    <section class="kv-col-full kv-stack-md">
+      <div class="kv-row justify-between">
         <div class="flex items-center gap-3">
           <span class="dp-icon-tile"><mat-icon>account_tree</mat-icon></span>
           <div>
@@ -252,7 +252,7 @@
     </section>
 
     <!-- KYC Document Requirements -->
-    <section class="org-card md:col-span-12">
+    <section class="org-card kv-col-full">
       <div class="org-card-head">
         <span class="dp-icon-tile"><mat-icon>rule_folder</mat-icon></span>
         <div class="dp-head-copy">
@@ -295,11 +295,11 @@
     </section>
 
     <!-- KYC Field Groups & Schema Mapping -->
-    <section class="org-card md:col-span-12">
+    <section class="org-card kv-col-full">
       <div class="org-card-head org-card-head--wrap">
         <span class="dp-icon-tile"><mat-icon>schema</mat-icon></span>
         <div class="dp-head-copy">
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="kv-row-sm">
             <h2 class="org-card-title">KYC Field Groups &amp; Schema Mapping</h2>
             <span class="dp-mini-badge dp-mini-badge--soft">
               {{ organisationFieldGroups().length + individualFieldGroups().length }} Groups
@@ -319,7 +319,7 @@
           { scope: 'IND', title: 'Individual Report Groups', icon: 'supervised_user_circle', groups: individualFieldGroups(), assign: 'Select & Assign Individual Field Group' }
         ]; track set.scope) {
           <div class="dp-group dp-group--outlined justify-between">
-            <div class="flex flex-col gap-3">
+            <div class="kv-stack-sm">
               <div class="dp-group-head">
                 <h3 class="dp-group-title"><mat-icon>{{ set.icon }}</mat-icon> {{ set.title }}</h3>
                 <div class="flex items-center gap-2">
@@ -335,7 +335,7 @@
                 <div class="dp-field-group">
                   <div class="flex justify-between items-start gap-2">
                     <div class="min-w-0">
-                      <div class="flex items-center gap-2 flex-wrap">
+                      <div class="kv-row-sm">
                         <span class="org-group-name">{{ group.label || 'Untitled group' }}</span>
                         <span class="org-pos" [class.is-first]="$first">Pos: {{ group.position ?? $index + 1 }}</span>
                       </div>
@@ -399,13 +399,10 @@
                   <h3>Uploaded Documents</h3>
                 </div>
 
-                <div class="document-upload-toolbar">
+                <form class="document-upload-toolbar" [formRoot]="documentUploadForm">
                   <mat-form-field appearance="outline" class="vault-field upload-type-field">
                     <mat-label>Document Type</mat-label>
-                    <mat-select
-                      [value]="documentTypeIdForUpload()"
-                      (selectionChange)="selectUploadDocumentType($any($event.value))"
-                    >
+                    <mat-select [formField]="documentUploadForm">
                       @for (
                         documentType of settings().organisationDocuments || [];
                         track documentType.id || documentType.code
@@ -435,14 +432,13 @@
 
                   <button
                     mat-flat-button
-                    type="button"
+                    type="submit"
                     class="btn-upload-document"
                     [disabled]="
                       !selectedDocumentFile() ||
                       !documentTypeIdForUpload().trim() ||
                       isUploadingDocument()
                     "
-                    (click)="uploadOrganisationDocument(documentUploadInput)"
                   >
                     <mat-icon>archive</mat-icon>
                     {{ isUploadingDocument() ? 'Uploading...' : 'Upload Archive' }}
@@ -451,7 +447,7 @@
                   <span class="selected-upload-file">{{
                     selectedDocumentFile()?.name || 'No file chosen'
                   }}</span>
-                </div>
+                </form>
 
                 <div class="table-responsive">
                   <table class="simple-table">

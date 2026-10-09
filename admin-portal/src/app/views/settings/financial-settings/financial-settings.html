@@ -7,7 +7,7 @@
     </div>
     <div class="header-actions">
       <button type="button" class="btn btn-outline" (click)="discard()">Discard Changes</button>
-      <button type="button" class="btn btn-action-primary" (click)="save()">Save Configuration</button>
+      <button type="submit" form="financial-settings-form" class="btn btn-action-primary">Save Configuration</button>
     </div>
   </header>
 
@@ -31,7 +31,7 @@
     </div>
   }
 
-  <div class="financial-layout">
+  <form class="financial-layout" id="financial-settings-form" [formRoot]="financialSettingsForm">
     <div class="settings-card salary-card">
       <div class="salary-card__header">
         <h3 class="settings-card__title" style="margin-bottom: 0">
@@ -159,5 +159,5 @@
         </div>
       </div>
     </div>
-  </div>
+  </form>
 </section>

@@ -28,7 +28,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { form, required, applyEach, FormField, min, minLength } from '@angular/forms/signals';
+import { form, required, applyEach, FormField, min, minLength, FormRoot } from '@angular/forms/signals';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { KeyField } from '@app/models/bw/co/knowvera/key-field';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
@@ -91,6 +91,7 @@ expiresIn: number | any;
     MatTabsModule,
     FormField,
     TranslateModule,
+    FormRoot,
   ],
 })
 export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
@@ -123,7 +124,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     //   minLength(path.expectedFields, 1, { message: 'verificationDataConfig.expectedFields.min' });
     // });
     // }
-  });
+  }, { submission: { action: async () => this.saveDocumentType() } });
 
   documentTypeApiStore = inject(DocumentTypeApiStore);
 
@@ -695,13 +696,14 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
     MatInputModule,
     MatSelectModule,
     FormField,
+    FormRoot,
     TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2 mat-dialog-title>{{ data.title || 'Expected Field' }}</h2>
 
-    <mat-dialog-content>
+    <form mat-dialog-content id="expected-field-form" [formRoot]="expectedFieldForm">
       <div class="dialog-form-grid">
         <mat-form-field appearance="outline">
           <mat-label>Field Name</mat-label>
@@ -768,16 +770,15 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
           <mat-checkbox [formField]="expectedFieldForm.many">Many</mat-checkbox>
         </div>
       </div>
-    </mat-dialog-content>
+    </form>
 
     <mat-dialog-actions align="end">
       <button mat-stroked-button type="button" (click)="onCancel()">Cancel</button>
       <button
         mat-flat-button
         color="primary"
-        type="button"
+        type="submit" form="expected-field-form"
         [disabled]="!expectedFieldForm().valid()"
-        (click)="onSave()"
       >
         Save
       </button>
@@ -785,7 +786,7 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
   `,
   styles: [
     `
-      mat-dialog-content {
+      .mat-mdc-dialog-content {
         min-width: 680px;
       }
 
@@ -817,7 +818,7 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
       }
 
       @media (max-width: 760px) {
-        mat-dialog-content {
+        .mat-mdc-dialog-content {
           min-width: 100%;
         }
 
@@ -849,7 +850,7 @@ export class ExpectedFieldDialogComponent {
   expectedFieldSignal = signal<ExpectedFieldDTO>(this.data.field);
   expectedFieldForm = form(this.expectedFieldSignal, (path) => {
     required(path.field);
-  });
+  }, { submission: { action: async () => this.onSave() } });
 
   constructor() {
     effect(() => {

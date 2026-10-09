@@ -8,8 +8,8 @@
     </nav>
 
     <div class="kv-page-header">
-      <div class="min-w-0 flex flex-col gap-3">
-        <div class="flex flex-wrap items-center gap-3">
+      <div class="min-w-0 kv-stack-sm">
+        <div class="kv-row">
           <h1 class="kv-title">{{ fullName() }}</h1>
           @if (individual().identityNo) {
             <span class="dp-code">{{ individual().identityNo }}</span>
@@ -19,7 +19,7 @@
             Natural Person
           </span>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="kv-row-sm">
           <span class="dp-pill" [ngClass]="kycTone(individual().kycStatus)">
             <mat-icon class="icon-fill">verified</mat-icon>
             {{ statusLabel(individual().kycStatus) }}
@@ -55,10 +55,10 @@
   }
 
   <!-- Bento grid -->
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+  <div class="kv-layout-stretch">
 
     <!-- Core identity -->
-    <section class="kv-card md:col-span-8">
+    <section class="kv-card kv-col-main">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile"><mat-icon>person</mat-icon></span>
         <div class="dp-head-copy">
@@ -68,7 +68,7 @@
         <span class="kv-tag dp-head-aside">PEP: {{ formatEnum(individual().pepStatus) }}</span>
       </div>
 
-      <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <dl class="kv-detail-grid">
         <div class="kv-field">
           <dt class="kv-label">Full Legal Name</dt>
           <dd class="kv-value dp-strong">{{ fullName() }}</dd>
@@ -112,7 +112,7 @@
     </section>
 
     <!-- Primary identification -->
-    <section class="kv-card md:col-span-4 flex flex-col">
+    <section class="kv-card kv-col-side flex flex-col">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile"><mat-icon>badge</mat-icon></span>
         <div class="dp-head-copy">
@@ -142,7 +142,7 @@
     </section>
 
     <!-- Contact -->
-    <section class="kv-card md:col-span-12">
+    <section class="kv-card kv-col-full">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile"><mat-icon>contact_mail</mat-icon></span>
         <div class="dp-head-copy">
@@ -152,7 +152,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <dl class="flex flex-col gap-4">
+        <dl class="kv-stack-md">
           <div class="kv-field">
             <dt class="kv-label">Primary Email</dt>
             <dd class="kv-value">
@@ -196,7 +196,7 @@
     </section>
 
     <!-- Employment history -->
-    <section class="kv-card md:col-span-12">
+    <section class="kv-card kv-col-full">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile"><mat-icon>work_history</mat-icon></span>
         <div class="dp-head-copy">
@@ -242,7 +242,7 @@
     </section>
 
     <!-- Compliance archive -->
-    <section class="kv-card md:col-span-12">
+    <section class="kv-card kv-col-full">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile"><mat-icon>inventory_2</mat-icon></span>
         <div class="dp-head-copy">

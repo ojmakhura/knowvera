@@ -24,22 +24,22 @@
   </header>
 
   <!-- Search criteria -->
-  <form class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-6" (submit)="$event.preventDefault(); doSearch()">
+  <form class="kv-layout-stretch mb-6" [formRoot]="searchRecordsForm">
 
     <!-- Main column -->
-    <section class="kv-card md:col-span-8">
+    <section class="kv-card kv-col-main">
       <div class="kv-card-header">
         <mat-icon class="kv-card-icon">manage_search</mat-icon>
         <h2 class="kv-card-title">Search Criteria</h2>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="kv-form-grid">
         <div class="kv-field md:col-span-2">
           <label class="kv-label" for="recordIdentityNo">Identity Number</label>
           <mat-form-field appearance="outline" class="vault-field">
             <mat-icon matPrefix>search</mat-icon>
             <input id="recordIdentityNo" type="search" matInput placeholder="ID No."
-              [value]="searchRecordsSignal().identityNo" (input)="updateField('identityNo', $any($event.target).value)" />
+              [formField]="searchRecordsForm.identityNo" />
           </mat-form-field>
         </div>
 
@@ -47,7 +47,7 @@
           <label class="kv-label" for="recordFirstName">First Name</label>
           <mat-form-field appearance="outline" class="vault-field">
             <input id="recordFirstName" type="text" matInput placeholder="e.g. Alexander"
-              [value]="searchRecordsSignal().firstName" (input)="updateField('firstName', $any($event.target).value)" />
+              [formField]="searchRecordsForm.firstName" />
           </mat-form-field>
         </div>
 
@@ -55,7 +55,7 @@
           <label class="kv-label" for="recordMiddleName">Middle Name</label>
           <mat-form-field appearance="outline" class="vault-field">
             <input id="recordMiddleName" type="text" matInput placeholder="Optional"
-              [value]="searchRecordsSignal().middleName" (input)="updateField('middleName', $any($event.target).value)" />
+              [formField]="searchRecordsForm.middleName" />
           </mat-form-field>
         </div>
 
@@ -63,7 +63,7 @@
           <label class="kv-label" for="recordSurname">Surname</label>
           <mat-form-field appearance="outline" class="vault-field">
             <input id="recordSurname" type="text" matInput placeholder="e.g. Hamilton"
-              [value]="searchRecordsSignal().surname" (input)="updateField('surname', $any($event.target).value)" />
+              [formField]="searchRecordsForm.surname" />
           </mat-form-field>
         </div>
 
@@ -71,14 +71,14 @@
           <label class="kv-label" for="recordEmail">Email Address</label>
           <mat-form-field appearance="outline" class="vault-field">
             <input id="recordEmail" type="email" matInput placeholder="name@domain.com"
-              [value]="searchRecordsSignal().emailAddress" (input)="updateField('emailAddress', $any($event.target).value)" />
+              [formField]="searchRecordsForm.emailAddress" />
           </mat-form-field>
         </div>
       </div>
     </section>
 
     <!-- Side column -->
-    <section class="kv-card border-t-4 border-emerald md:col-span-4 flex flex-col gap-4">
+    <section class="kv-card kv-card-accent kv-col-side kv-stack-md">
       <div class="kv-card-header">
         <mat-icon class="kv-card-icon">filter_alt</mat-icon>
         <h2 class="kv-card-title">Filters</h2>
@@ -87,7 +87,7 @@
       <div class="kv-field">
         <label class="kv-label" for="recordIdentityType">Identity Type</label>
         <mat-form-field appearance="outline" class="vault-field">
-          <mat-select id="recordIdentityType" [value]="searchRecordsSignal().identityType" (selectionChange)="updateField('identityType', $event.value)">
+          <mat-select id="recordIdentityType" [formField]="searchRecordsForm.identityType">
             @for (option of identityTypeOptions; track option.value) {
               <mat-option [value]="option.value">{{ option.label }}</mat-option>
             }
@@ -111,14 +111,14 @@
           <label class="kv-label" for="recordExpiryFrom">Expiry From</label>
           <mat-form-field appearance="outline" class="vault-field">
             <input id="recordExpiryFrom" type="date" matInput
-              [value]="searchRecordsSignal().expiryFrom" (input)="updateField('expiryFrom', $any($event.target).value)" />
+              [formField]="searchRecordsForm.expiryFrom" />
           </mat-form-field>
         </div>
         <div class="kv-field">
           <label class="kv-label" for="recordExpiryTo">Expiry To</label>
           <mat-form-field appearance="outline" class="vault-field">
             <input id="recordExpiryTo" type="date" matInput
-              [value]="searchRecordsSignal().expiryTo" (input)="updateField('expiryTo', $any($event.target).value)" />
+              [formField]="searchRecordsForm.expiryTo" />
           </mat-form-field>
         </div>
       </div>
@@ -229,31 +229,6 @@
           <mat-icon>chevron_right</mat-icon>
         </button>
       </nav>
-    </div>
-  </section>
-
-  <!-- Assurances (visual vault) -->
-  <section class="vs-vault" aria-label="Registry assurances">
-    <div class="vs-vault-card vs-vault-storage">
-      <mat-icon class="vs-vault-art">verified_user</mat-icon>
-      <div class="vs-vault-copy">
-        <h3>Identity Assurance</h3>
-        <p>Every KYC record is anchored to the compliance ledger for full audit visibility</p>
-      </div>
-    </div>
-    <div class="vs-vault-card vs-vault-logs">
-      <mat-icon class="vs-vault-art">sync</mat-icon>
-      <div class="vs-vault-copy">
-        <h3>Real-time Updates</h3>
-        <p>KYC status changes propagate without leaving the registry context</p>
-      </div>
-    </div>
-    <div class="vs-vault-card vs-vault-identity">
-      <mat-icon class="vs-vault-art">analytics</mat-icon>
-      <div class="vs-vault-copy">
-        <h3>Compliance Audit</h3>
-        <p>{{ currentCount() }} current and {{ flaggedCount() }} flagged on this page</p>
-      </div>
     </div>
   </section>
 </div>

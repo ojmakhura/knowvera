@@ -16,7 +16,7 @@ import { KycSubscriptionDTO } from '@app/models/bw/co/knowvera/subscription/kyc-
 import { KycSubscriptionApiStore } from '@app/store/bw/co/knowvera/subscription/kyc-subscription-api.store';
 import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
 import { TimePeriod } from '@app/models/bw/co/knowvera/time-period';
-import { form, FormField } from '@angular/forms/signals';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
 import { SearchObject } from '@app/models/search-object';
@@ -58,13 +58,14 @@ export class SearchSubscriptionsVarsForm {
     MatTooltipModule,
     FormField,
     NgxMatSelectSearchModule,
-    TranslateModule
+    TranslateModule,
+    FormRoot,
   ],
 })
 export class Subscriptions implements OnInit {
   searchSubscriptionsVarsForm = new SearchSubscriptionsVarsForm();
   searchSubscriptionsSignal = signal(this.searchSubscriptionsVarsForm);
-  searchSubscriptionForm = form(this.searchSubscriptionsSignal);
+  searchSubscriptionForm = form(this.searchSubscriptionsSignal, { submission: { action: async () => this.onSearchSubmit() } });
 
   readonly kycSubscriptionApiStore = inject(KycSubscriptionApiStore);
   readonly organisationApiStore = inject(OrganisationApiStore);
@@ -233,10 +234,6 @@ export class Subscriptions implements OnInit {
 
   pageCount(): number {
     return this.rows().length;
-  }
-
-  summaryCount(status: KycSubsciptionStatus): number {
-    return this.rows().filter((row) => row.status === status).length;
   }
 
   formatDate(value: Date | string | null | undefined): string {

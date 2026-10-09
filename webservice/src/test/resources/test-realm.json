@@ -46,7 +46,7 @@
   "waitIncrementSeconds": 60,
   "quickLoginCheckMilliSeconds": 1000,
   "maxDeltaTimeSeconds": 43200,
-  "failureFactor": 30,
+  "failureFactor": 5,
   "roles": {
     "realm": [
       {
@@ -80,83 +80,6 @@
         "attributes": {}
       },
       {
-        "id": "5f88b020-4dc9-4d6c-977a-2ee5036cb1f8",
-        "name": "KYC_REVIEWER",
-        "description": "Reviews captured KYC cases and documents (first line review)",
-        "composite": true,
-        "composites": {
-          "realm": [
-            "KYC_USER"
-          ],
-          "client": {
-            "knowvera-api": [
-              "DOCUMENT_REVIEWER",
-              "DOCUMENT_VIEWER",
-              "KYC_REVIEWER",
-              "DOCUMENT_TYPE_VIEWER",
-              "DOCUMENT_TYPE_EDITOR",
-              "DOCUMENT_EDITOR"
-            ],
-            "knowvera-web": [
-              "portal-user"
-            ],
-            "admin-portal": [
-              "DOCUMENT_REVIEWER",
-              "admin-portal-user"
-            ]
-          }
-        },
-        "clientRole": false,
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
-        "attributes": {}
-      },
-      {
-        "id": "3419b71b-b832-44ac-a515-ac625a1460e0",
-        "name": "KYC_USER",
-        "description": "KYC User",
-        "composite": true,
-        "composites": {
-          "client": {
-            "knowvera-web": [
-              "portal-user"
-            ],
-            "admin-portal": [
-              "admin-portal-user"
-            ]
-          }
-        },
-        "clientRole": false,
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
-        "attributes": {}
-      },
-      {
-        "id": "f23f6f43-a177-4cbf-a83c-d2be9e894712",
-        "name": "KYC_RECORD_VIEWER",
-        "description": "KYC Record Viewer",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
-        "attributes": {}
-      },
-      {
-        "id": "26255e72-2ade-4c33-b1a6-21e99065da43",
-        "name": "KYC_RECORD_EDITOR",
-        "description": "KYC Record Editor",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
-        "attributes": {}
-      },
-      {
-        "id": "13a5e86d-162f-4416-a225-2c9696681284",
-        "name": "KYC_RECORD_REVIEWER",
-        "description": "KYC Record Reviewer",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
-        "attributes": {}
-      },
-      {
         "id": "04a8d9b7-8063-4d52-adca-8744d847edce",
         "name": "offline_access",
         "description": "${role_offline-access}",
@@ -166,22 +89,14 @@
         "attributes": {}
       },
       {
-        "id": "74ed757c-c425-4d50-8e9f-3f91190e5ad2",
-        "name": "ADMIN",
-        "description": "Administrator",
+        "id": "20f45114-4ff9-54d2-9dcf-466d89d988cc",
+        "name": "CUSTOMER",
+        "description": "Base role of every external user: signs in to the portal, own records only",
         "composite": true,
         "composites": {
-          "realm": [
-            "KYC_REVIEWER"
-          ],
           "client": {
-            "realm-management": [
-              "query-clients",
-              "manage-users",
-              "manage-realm",
-              "manage-clients",
-              "query-realms",
-              "realm-admin"
+            "knowvera-web": [
+              "PORTAL_USER"
             ]
           }
         },
@@ -190,351 +105,256 @@
         "attributes": {}
       },
       {
-        "name": "PLATFORM_ADMIN",
-        "description": "Operates the platform: configuration, users, billing, everything",
-        "composite": false,
+        "id": "a43bccd9-78f3-5f7d-a8bc-4da8f20e3302",
+        "name": "APPLICANT",
+        "description": "Individual applying for KYC: own profile, KYC application and documents",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "CUSTOMER"
+          ]
+        },
         "clientRole": false,
-        "attributes": {},
-        "id": "3c24e987-e27f-5dbf-be7a-ca9558076b9c",
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa"
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
       },
       {
-        "name": "ORG_ADMIN",
-        "description": "Administers a client organisation: its users, branches, client requests and billing",
-        "composite": false,
+        "id": "357fa285-e52d-5de0-b4d8-e2db3ce7d111",
+        "name": "ORG_USER",
+        "description": "Member of a client organisation: its client requests and KYC cases",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "CUSTOMER"
+          ]
+        },
         "clientRole": false,
-        "attributes": {},
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
+      },
+      {
         "id": "b2320e0c-bdfa-566f-960f-20249574419b",
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa"
-      },
-      {
-        "name": "KYC_ANALYST",
-        "description": "Collects and captures KYC data and evidence, runs automated checks",
-        "composite": false,
+        "name": "ORG_ADMIN",
+        "description": "Administrator of a client organisation: also its users, branches and billing",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "ORG_USER"
+          ]
+        },
         "clientRole": false,
-        "attributes": {},
-        "id": "753bec80-8464-54cd-8d0d-8091193eec55",
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa"
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
       },
       {
+        "id": "cef62e70-e0fe-5243-8480-5c6fba182942",
+        "name": "STAFF",
+        "description": "Base role of every back-office user: signs in to the admin portal, reads reference data",
+        "composite": true,
+        "composites": {
+          "client": {
+            "admin-portal": [
+              "ADMIN_PORTAL_USER"
+            ]
+          }
+        },
+        "clientRole": false,
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
+      },
+      {
+        "id": "753bec80-8464-54cd-8d0d-8091193eec55",
+        "name": "KYC_ANALYST",
+        "description": "Captures KYC data and evidence, runs automated checks",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "STAFF"
+          ]
+        },
+        "clientRole": false,
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
+      },
+      {
+        "id": "5f88b020-4dc9-4d6c-977a-2ee5036cb1f8",
+        "name": "KYC_REVIEWER",
+        "description": "Reviews captured KYC cases and documents",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "KYC_ANALYST"
+          ]
+        },
+        "clientRole": false,
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
+      },
+      {
+        "id": "6e3a9b19-93b3-5df2-b104-ef7c4b8a5700",
         "name": "KYC_APPROVER",
         "description": "Takes the approve / reject decision on reviewed KYC cases",
-        "composite": false,
+        "composite": true,
+        "composites": {
+          "realm": [
+            "KYC_REVIEWER"
+          ]
+        },
         "clientRole": false,
-        "attributes": {},
-        "id": "6e3a9b19-93b3-5df2-b104-ef7c4b8a5700",
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa"
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
       },
       {
-        "name": "RISK_ANALYST",
-        "description": "Assesses and records customer risk",
-        "composite": false,
-        "clientRole": false,
-        "attributes": {},
-        "id": "97107bcd-cabe-5737-aa83-4eef125bc239",
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa"
-      },
-      {
+        "id": "e05a4197-993d-5948-bf5b-3c538f1f413a",
         "name": "SCREENING_ANALYST",
         "description": "Screens subjects against sanctions, PEP and adverse media lists",
-        "composite": false,
+        "composite": true,
+        "composites": {
+          "realm": [
+            "STAFF"
+          ]
+        },
         "clientRole": false,
-        "attributes": {},
-        "id": "e05a4197-993d-5948-bf5b-3c538f1f413a",
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa"
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
       },
       {
+        "id": "97107bcd-cabe-5737-aa83-4eef125bc239",
+        "name": "RISK_ANALYST",
+        "description": "Assesses and records customer risk",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "STAFF"
+          ]
+        },
+        "clientRole": false,
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
+      },
+      {
+        "id": "698af2e8-cf6f-54fa-9dd6-6edb4f06f9be",
+        "name": "AUDITOR",
+        "description": "Reads and exports everything, including the audit trail",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "STAFF"
+          ]
+        },
+        "clientRole": false,
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
+      },
+      {
+        "id": "17271a5a-bd45-5b8c-b431-0682a161f5f8",
         "name": "COMPLIANCE_OFFICER",
         "description": "Oversees KYC compliance and owns the KYC requirements configuration",
-        "composite": false,
+        "composite": true,
+        "composites": {
+          "realm": [
+            "KYC_APPROVER",
+            "SCREENING_ANALYST",
+            "RISK_ANALYST",
+            "AUDITOR"
+          ]
+        },
         "clientRole": false,
-        "attributes": {},
-        "id": "17271a5a-bd45-5b8c-b431-0682a161f5f8",
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa"
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
       },
       {
+        "id": "4d4a30e5-da00-5d0d-92ad-3a6be116300b",
         "name": "MLRO",
         "description": "Money Laundering Reporting Officer: escalations and regulatory reporting",
-        "composite": false,
+        "composite": true,
+        "composites": {
+          "realm": [
+            "COMPLIANCE_OFFICER"
+          ]
+        },
         "clientRole": false,
-        "attributes": {},
-        "id": "4d4a30e5-da00-5d0d-92ad-3a6be116300b",
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa"
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
       },
       {
-        "name": "CASE_MANAGER",
-        "description": "Routes and tracks client requests and KYC cases through the workflow",
-        "composite": false,
-        "clientRole": false,
-        "attributes": {},
         "id": "18efc494-5406-59e2-8054-90604abf4cdd",
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa"
+        "name": "CASE_MANAGER",
+        "description": "Routes client requests and KYC cases through the workflow",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "STAFF"
+          ]
+        },
+        "clientRole": false,
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
       },
       {
-        "name": "AUDITOR",
-        "description": "Read-only access to everything, including audit logs",
-        "composite": false,
+        "id": "6c763961-0eed-54dd-b80a-df77367b2a2e",
+        "name": "FINANCE_OFFICER",
+        "description": "Manages subscriptions and invoices",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "STAFF"
+          ]
+        },
         "clientRole": false,
-        "attributes": {},
-        "id": "698af2e8-cf6f-54fa-9dd6-6edb4f06f9be",
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa"
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
       },
       {
-        "name": "APPLICANT",
-        "description": "Individual or organisation applying for KYC: self service only",
-        "composite": false,
+        "id": "3c24e987-e27f-5dbf-be7a-ca9558076b9c",
+        "name": "PLATFORM_ADMIN",
+        "description": "Configures the platform: settings, reference data, users, sequences",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "STAFF"
+          ]
+        },
         "clientRole": false,
-        "attributes": {},
-        "id": "a43bccd9-78f3-5f7d-a8bc-4da8f20e3302",
-        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa"
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
+      },
+      {
+        "id": "4b77abbf-5cd2-5899-bc43-485fde45bc49",
+        "name": "SUPER_ADMIN",
+        "description": "Everything: platform administration and every business role (bootstrap, support)",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "PLATFORM_ADMIN",
+            "MLRO",
+            "CASE_MANAGER",
+            "FINANCE_OFFICER"
+          ]
+        },
+        "clientRole": false,
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
+      },
+      {
+        "id": "503db4f3-f9c0-51b5-b499-ed28d1fa8737",
+        "name": "DEVELOPER",
+        "description": "Developer / tester: every back-office and external role, to exercise both portals with one account",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "SUPER_ADMIN",
+            "APPLICANT",
+            "ORG_ADMIN"
+          ]
+        },
+        "clientRole": false,
+        "containerId": "25766eca-de01-45b8-97b8-0211d583acaa",
+        "attributes": {}
       }
     ],
     "client": {
       "knowvera-api": [
-        {
-          "id": "88286d7d-967e-400b-99b7-9689b27e6c53",
-          "name": "KYC_ADMIN",
-          "description": "KYC Administrator",
-          "composite": true,
-          "composites": {
-            "client": {
-              "knowvera-api": [
-                "KYC_REVIEWER",
-                "INDIVIDUAL_ADMIN",
-                "ORGANISATION_ADMIN"
-              ]
-            }
-          },
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "6147b7fd-0bb7-48e9-ab0c-c570cf47fc0a",
-          "name": "DOCUMENT_VIEWER",
-          "description": "Document Viewer",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "52b0b832-35c5-42d6-874c-7fa8993c4d1e",
-          "name": "KYC_REVIEWER",
-          "description": "KYC Reviewer",
-          "composite": true,
-          "composites": {
-            "client": {
-              "knowvera-api": [
-                "INDIVIDUAL_EDITOR",
-                "DOCUMENT_TYPE_EDITOR",
-                "ORGANISATION_VIEWER",
-                "DOCUMENT_EDITOR"
-              ]
-            }
-          },
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "3520b3b8-0798-40d4-9cca-d2be02e433dd",
-          "name": "DOCUMENT_TYPE_EDITOR",
-          "description": "Document Type Editor",
-          "composite": true,
-          "composites": {
-            "client": {
-              "knowvera-api": [
-                "DOCUMENT_TYPE_VIEWER"
-              ]
-            }
-          },
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "8a564acc-eb7f-4f80-b03b-caefc5a40725",
-          "name": "CLIENT_REQUEST_VIEWER",
-          "description": "Client Request Viewer",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "668fc21b-d721-4d31-bc4f-77e2a1da4f51",
-          "name": "DOCUMENT_EDITOR",
-          "description": "Document Editor",
-          "composite": true,
-          "composites": {
-            "client": {
-              "knowvera-api": [
-                "DOCUMENT_REVIEWER"
-              ]
-            }
-          },
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "1caceab6-ae06-4c59-a4bd-114d4777ff34",
-          "name": "CLIENT_REQUEST_ADMIN",
-          "description": "Client Request Admin",
-          "composite": true,
-          "composites": {
-            "client": {
-              "knowvera-api": [
-                "CLIENT_REQUEST_EDITOR"
-              ]
-            }
-          },
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "11db5cd7-74cc-4038-81b5-0badc244d411",
-          "name": "ORGANISATION_MANAGER",
-          "description": "Organisation Manager",
-          "composite": true,
-          "composites": {
-            "client": {
-              "knowvera-api": [
-                "ORGANISATION_VIEWER"
-              ]
-            }
-          },
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "b41ff395-2676-4096-9c0c-595ba4443908",
-          "name": "INDIVIDUAL_VIEWER",
-          "description": "Individual Viewer",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "8e3160c5-5821-4f1d-a13c-e1c5b8de0c6c",
-          "name": "DOCUMENT_REVIEWER",
-          "description": "Document Type Reviewer",
-          "composite": true,
-          "composites": {
-            "client": {
-              "knowvera-api": [
-                "DOCUMENT_VIEWER"
-              ]
-            }
-          },
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "e2f536bb-903d-4756-bb7a-8a873719117d",
-          "name": "INDIVIDUAL_EDITOR",
-          "description": "Individual Editor",
-          "composite": true,
-          "composites": {
-            "client": {
-              "knowvera-api": [
-                "INDIVIDUAL_VIEWER"
-              ]
-            }
-          },
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "73dda65d-bd5f-4506-9b0b-e7a243477f9e",
-          "name": "CLIENT_REQUEST_EDITOR",
-          "description": "Client Request Editor",
-          "composite": true,
-          "composites": {
-            "client": {
-              "knowvera-api": [
-                "CLIENT_REQUEST_VIEWER"
-              ]
-            }
-          },
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "9a6ffaad-ac5c-40cd-8fd0-243afc603d04",
-          "name": "DOCUMENT_TYPE_VIEWER",
-          "description": "Document Type Viewer",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "17ec09a5-ac56-4c80-a414-b2b3a1f5b601",
-          "name": "INDIVIDUAL_ADMIN",
-          "description": "Individual Admin",
-          "composite": true,
-          "composites": {
-            "client": {
-              "knowvera-api": [
-                "INDIVIDUAL_EDITOR"
-              ]
-            }
-          },
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "ea950e2b-30e3-4827-ba63-24351c93eaa7",
-          "name": "ORGANISATION_VIEWER",
-          "description": "Organisation Viewer",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "467aca15-a774-4116-9f3e-1c92e5738826",
-          "name": "ORGANISATION_ADMIN",
-          "description": "Organisation Admin",
-          "composite": true,
-          "composites": {
-            "client": {
-              "knowvera-api": [
-                "ORGANISATION_MANAGER",
-                "CLIENT_REQUEST_ADMIN",
-                "ORGANISATION_EDITOR"
-              ]
-            }
-          },
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
-        {
-          "id": "7acdf5fe-05b9-4b47-86bd-349c4da405bf",
-          "name": "ORGANISATION_EDITOR",
-          "description": "Organisation Editor",
-          "composite": true,
-          "composites": {
-            "client": {
-              "knowvera-api": [
-                "ORGANISATION_VIEWER"
-              ]
-            }
-          },
-          "clientRole": true,
-          "containerId": "9cee9c6e-1dc0-415c-bfc0-5eead80f7ef8",
-          "attributes": {}
-        },
         {
           "id": "c3e52de2-03b3-5deb-b1f7-2a41987597a4",
           "name": "uma_protection",
@@ -771,9 +591,9 @@
       ],
       "knowvera-web": [
         {
-          "id": "814fde0b-3cb6-4e59-b44f-31789c5cd0cb",
-          "name": "portal-user",
-          "description": "Portal User",
+          "id": "77caaabb-1ca2-5269-9fed-8158b216c9c0",
+          "name": "PORTAL_USER",
+          "description": "May use the customer portal",
           "composite": false,
           "clientRole": true,
           "containerId": "b0edaf1e-2c2d-4d18-98c6-1ea824614cea",
@@ -782,27 +602,9 @@
       ],
       "admin-portal": [
         {
-          "id": "c70d991c-a2c4-4a24-a14f-367b0e035aad",
-          "name": "DOCUMENT_REVIEWER",
-          "description": "Document Reviewer",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "1aba23fc-f3fb-4552-9b45-d6e29256139a",
-          "attributes": {}
-        },
-        {
-          "id": "01247fbe-6fb9-4c34-943e-1ea873ab1a4a",
-          "name": "admin-portal-user",
-          "description": "Administration Portal User",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "1aba23fc-f3fb-4552-9b45-d6e29256139a",
-          "attributes": {}
-        },
-        {
-          "id": "ea3d7ee3-8077-411c-8bfa-cfc187241343",
-          "name": "ADMIN",
-          "description": "Administrator",
+          "id": "f5e094b8-d31c-5c36-9474-2d560760fa60",
+          "name": "ADMIN_PORTAL_USER",
+          "description": "May use the back-office admin portal",
           "composite": false,
           "clientRole": true,
           "containerId": "1aba23fc-f3fb-4552-9b45-d6e29256139a",
@@ -1011,23 +813,43 @@
       "groups": []
     },
     {
-      "id": "a5afd4dd-5994-5f51-8d15-ef8d9aee362d",
-      "username": "platform.admin",
+      "id": "8db6efc5-c034-57ac-91dd-27b0f9f6ba7c",
+      "username": "applicant",
       "enabled": true,
       "emailVerified": true,
-      "firstName": "Platform",
-      "lastName": "Admin",
-      "email": "platform.admin@knowvera.test",
+      "firstName": "Applicant",
+      "lastName": "User",
+      "email": "applicant@knowvera.test",
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "Test-Passw0rd!",
           "temporary": false
         }
       ],
       "realmRoles": [
         "default-roles-knowvera",
-        "PLATFORM_ADMIN"
+        "APPLICANT"
+      ]
+    },
+    {
+      "id": "7622642f-5feb-57fb-b013-ee0eddce1f79",
+      "username": "org.user",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Org",
+      "lastName": "User",
+      "email": "org.user@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test-Passw0rd!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "ORG_USER"
       ]
     },
     {
@@ -1041,7 +863,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "Test-Passw0rd!",
           "temporary": false
         }
       ],
@@ -1061,7 +883,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "Test-Passw0rd!",
           "temporary": false
         }
       ],
@@ -1081,7 +903,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "Test-Passw0rd!",
           "temporary": false
         }
       ],
@@ -1101,33 +923,13 @@
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "Test-Passw0rd!",
           "temporary": false
         }
       ],
       "realmRoles": [
         "default-roles-knowvera",
         "KYC_APPROVER"
-      ]
-    },
-    {
-      "id": "92dd2b11-d0f3-563a-91de-a50b45dcfbac",
-      "username": "risk.analyst",
-      "enabled": true,
-      "emailVerified": true,
-      "firstName": "Risk",
-      "lastName": "Analyst",
-      "email": "risk.analyst@knowvera.test",
-      "credentials": [
-        {
-          "type": "password",
-          "value": "password",
-          "temporary": false
-        }
-      ],
-      "realmRoles": [
-        "default-roles-knowvera",
-        "RISK_ANALYST"
       ]
     },
     {
@@ -1141,13 +943,53 @@
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "Test-Passw0rd!",
           "temporary": false
         }
       ],
       "realmRoles": [
         "default-roles-knowvera",
         "SCREENING_ANALYST"
+      ]
+    },
+    {
+      "id": "92dd2b11-d0f3-563a-91de-a50b45dcfbac",
+      "username": "risk.analyst",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Risk",
+      "lastName": "Analyst",
+      "email": "risk.analyst@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test-Passw0rd!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "RISK_ANALYST"
+      ]
+    },
+    {
+      "id": "0c63d99d-a852-58fe-a7a5-eb68f45c54fa",
+      "username": "auditor",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Auditor",
+      "lastName": "User",
+      "email": "auditor@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test-Passw0rd!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "AUDITOR"
       ]
     },
     {
@@ -1161,7 +1003,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "Test-Passw0rd!",
           "temporary": false
         }
       ],
@@ -1181,7 +1023,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "Test-Passw0rd!",
           "temporary": false
         }
       ],
@@ -1201,7 +1043,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "Test-Passw0rd!",
           "temporary": false
         }
       ],
@@ -1211,43 +1053,83 @@
       ]
     },
     {
-      "id": "0c63d99d-a852-58fe-a7a5-eb68f45c54fa",
-      "username": "auditor",
+      "id": "2a07e317-2639-5ddb-85ea-87e8e5d7882b",
+      "username": "finance.officer",
       "enabled": true,
       "emailVerified": true,
-      "firstName": "Auditor",
-      "lastName": "User",
-      "email": "auditor@knowvera.test",
+      "firstName": "Finance",
+      "lastName": "Officer",
+      "email": "finance.officer@knowvera.test",
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "Test-Passw0rd!",
           "temporary": false
         }
       ],
       "realmRoles": [
         "default-roles-knowvera",
-        "AUDITOR"
+        "FINANCE_OFFICER"
       ]
     },
     {
-      "id": "8db6efc5-c034-57ac-91dd-27b0f9f6ba7c",
-      "username": "applicant",
+      "id": "a5afd4dd-5994-5f51-8d15-ef8d9aee362d",
+      "username": "platform.admin",
       "enabled": true,
       "emailVerified": true,
-      "firstName": "Applicant",
-      "lastName": "User",
-      "email": "applicant@knowvera.test",
+      "firstName": "Platform",
+      "lastName": "Admin",
+      "email": "platform.admin@knowvera.test",
       "credentials": [
         {
           "type": "password",
-          "value": "password",
+          "value": "Test-Passw0rd!",
           "temporary": false
         }
       ],
       "realmRoles": [
         "default-roles-knowvera",
-        "APPLICANT"
+        "PLATFORM_ADMIN"
+      ]
+    },
+    {
+      "id": "86463925-c96d-5056-8e10-c41ab117da17",
+      "username": "super.admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Super",
+      "lastName": "Admin",
+      "email": "super.admin@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test-Passw0rd!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "SUPER_ADMIN"
+      ]
+    },
+    {
+      "id": "7ea019f9-b902-5338-ad7d-a323c70afa02",
+      "username": "developer",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Developer",
+      "lastName": "User",
+      "email": "developer@knowvera.test",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Test-Passw0rd!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "default-roles-knowvera",
+        "DEVELOPER"
       ]
     }
   ],
@@ -1479,7 +1361,7 @@
       ],
       "protocolMappers": [
         {
-          "id": "b244545b-af72-5eb3-9bb4-b713f0664a5a",
+          "id": "2d1a5e83-0048-5ad1-883c-97ca3bca9307",
           "name": "knowvera-api audience",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-audience-mapper",
@@ -2444,9 +2326,6 @@
             ],
             "scopes": [
               {
-                "name": "self"
-              },
-              {
                 "name": "view"
               },
               {
@@ -2508,19 +2387,41 @@
             }
           },
           {
-            "name": "platform-admin-policy",
-            "description": "Operates the platform: configuration, users, billing, everything",
+            "name": "customer-policy",
+            "description": "Base role of every external user: signs in to the portal, own records only",
             "type": "role",
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
             "config": {
               "fetchRoles": "false",
-              "roles": "[{\"id\": \"PLATFORM_ADMIN\", \"required\": false}]"
+              "roles": "[{\"id\": \"CUSTOMER\", \"required\": false}]"
+            }
+          },
+          {
+            "name": "applicant-policy",
+            "description": "Individual applying for KYC: own profile, KYC application and documents",
+            "type": "role",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "fetchRoles": "false",
+              "roles": "[{\"id\": \"APPLICANT\", \"required\": false}]"
+            }
+          },
+          {
+            "name": "org-user-policy",
+            "description": "Member of a client organisation: its client requests and KYC cases",
+            "type": "role",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "fetchRoles": "false",
+              "roles": "[{\"id\": \"ORG_USER\", \"required\": false}]"
             }
           },
           {
             "name": "org-admin-policy",
-            "description": "Administers a client organisation: its users, branches, client requests and billing",
+            "description": "Administrator of a client organisation: also its users, branches and billing",
             "type": "role",
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
@@ -2530,8 +2431,19 @@
             }
           },
           {
+            "name": "staff-policy",
+            "description": "Base role of every back-office user: signs in to the admin portal, reads reference data",
+            "type": "role",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "fetchRoles": "false",
+              "roles": "[{\"id\": \"STAFF\", \"required\": false}]"
+            }
+          },
+          {
             "name": "kyc-analyst-policy",
-            "description": "Collects and captures KYC data and evidence, runs automated checks",
+            "description": "Captures KYC data and evidence, runs automated checks",
             "type": "role",
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
@@ -2542,7 +2454,7 @@
           },
           {
             "name": "kyc-reviewer-policy",
-            "description": "Reviews captured KYC cases and documents (first line review)",
+            "description": "Reviews captured KYC cases and documents",
             "type": "role",
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
@@ -2563,6 +2475,17 @@
             }
           },
           {
+            "name": "screening-analyst-policy",
+            "description": "Screens subjects against sanctions, PEP and adverse media lists",
+            "type": "role",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "fetchRoles": "false",
+              "roles": "[{\"id\": \"SCREENING_ANALYST\", \"required\": false}]"
+            }
+          },
+          {
             "name": "risk-analyst-policy",
             "description": "Assesses and records customer risk",
             "type": "role",
@@ -2574,14 +2497,14 @@
             }
           },
           {
-            "name": "screening-analyst-policy",
-            "description": "Screens subjects against sanctions, PEP and adverse media lists",
+            "name": "auditor-policy",
+            "description": "Reads and exports everything, including the audit trail",
             "type": "role",
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
             "config": {
               "fetchRoles": "false",
-              "roles": "[{\"id\": \"SCREENING_ANALYST\", \"required\": false}]"
+              "roles": "[{\"id\": \"AUDITOR\", \"required\": false}]"
             }
           },
           {
@@ -2608,7 +2531,7 @@
           },
           {
             "name": "case-manager-policy",
-            "description": "Routes and tracks client requests and KYC cases through the workflow",
+            "description": "Routes client requests and KYC cases through the workflow",
             "type": "role",
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
@@ -2618,25 +2541,47 @@
             }
           },
           {
-            "name": "auditor-policy",
-            "description": "Read-only access to everything, including audit logs",
+            "name": "finance-officer-policy",
+            "description": "Manages subscriptions and invoices",
             "type": "role",
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
             "config": {
               "fetchRoles": "false",
-              "roles": "[{\"id\": \"AUDITOR\", \"required\": false}]"
+              "roles": "[{\"id\": \"FINANCE_OFFICER\", \"required\": false}]"
             }
           },
           {
-            "name": "applicant-policy",
-            "description": "Individual or organisation applying for KYC: self service only",
+            "name": "platform-admin-policy",
+            "description": "Configures the platform: settings, reference data, users, sequences",
             "type": "role",
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
             "config": {
               "fetchRoles": "false",
-              "roles": "[{\"id\": \"APPLICANT\", \"required\": false}]"
+              "roles": "[{\"id\": \"PLATFORM_ADMIN\", \"required\": false}]"
+            }
+          },
+          {
+            "name": "super-admin-policy",
+            "description": "Everything: platform administration and every business role (bootstrap, support)",
+            "type": "role",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "fetchRoles": "false",
+              "roles": "[{\"id\": \"SUPER_ADMIN\", \"required\": false}]"
+            }
+          },
+          {
+            "name": "developer-policy",
+            "description": "Developer / tester: every back-office and external role, to exercise both portals with one account",
+            "type": "role",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "fetchRoles": "false",
+              "roles": "[{\"id\": \"DEVELOPER\", \"required\": false}]"
             }
           },
           {
@@ -2648,7 +2593,7 @@
             "config": {
               "resources": "[\"audit-logs\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2660,7 +2605,7 @@
             "config": {
               "resources": "[\"audit-logs\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2672,7 +2617,7 @@
             "config": {
               "resources": "[\"audit-logs\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"super-admin-policy\"]"
             }
           },
           {
@@ -2684,7 +2629,7 @@
             "config": {
               "resources": "[\"audit-logs\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"super-admin-policy\"]"
             }
           },
           {
@@ -2708,7 +2653,7 @@
             "config": {
               "resources": "[\"client-requests\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2720,7 +2665,7 @@
             "config": {
               "resources": "[\"client-requests\"]",
               "scopes": "[\"view-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
             }
           },
           {
@@ -2732,7 +2677,7 @@
             "config": {
               "resources": "[\"client-requests\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2744,7 +2689,7 @@
             "config": {
               "resources": "[\"client-requests\"]",
               "scopes": "[\"list-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -2756,7 +2701,7 @@
             "config": {
               "resources": "[\"client-requests\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"case-manager-policy\"]"
+              "applyPolicies": "[\"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2768,7 +2713,7 @@
             "config": {
               "resources": "[\"client-requests\"]",
               "scopes": "[\"edit-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -2780,7 +2725,7 @@
             "config": {
               "resources": "[\"client-requests\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"case-manager-policy\"]"
+              "applyPolicies": "[\"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2804,7 +2749,7 @@
             "config": {
               "resources": "[\"client-requests\"]",
               "scopes": "[\"review\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\"]"
+              "applyPolicies": "[\"compliance-officer-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2828,7 +2773,7 @@
             "config": {
               "resources": "[\"client-requests\"]",
               "scopes": "[\"export\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2840,7 +2785,7 @@
             "config": {
               "resources": "[\"client-requests\"]",
               "scopes": "[\"export-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -2852,7 +2797,7 @@
             "config": {
               "resources": "[\"client-requests\"]",
               "scopes": "[\"import\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"case-manager-policy\"]"
+              "applyPolicies": "[\"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2864,7 +2809,7 @@
             "config": {
               "resources": "[\"client-requests\"]",
               "scopes": "[\"import-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -2876,7 +2821,7 @@
             "config": {
               "resources": "[\"contacts\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2888,7 +2833,7 @@
             "config": {
               "resources": "[\"contacts\"]",
               "scopes": "[\"view-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
             }
           },
           {
@@ -2900,7 +2845,7 @@
             "config": {
               "resources": "[\"contacts\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2912,7 +2857,7 @@
             "config": {
               "resources": "[\"contacts\"]",
               "scopes": "[\"list-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -2924,7 +2869,7 @@
             "config": {
               "resources": "[\"contacts\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2936,7 +2881,7 @@
             "config": {
               "resources": "[\"contacts\"]",
               "scopes": "[\"edit-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
             }
           },
           {
@@ -2948,7 +2893,7 @@
             "config": {
               "resources": "[\"contacts\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"super-admin-policy\"]"
             }
           },
           {
@@ -2960,7 +2905,7 @@
             "config": {
               "resources": "[\"document-types\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"customer-policy\", \"staff-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2972,7 +2917,7 @@
             "config": {
               "resources": "[\"document-types\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"customer-policy\", \"staff-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2984,7 +2929,7 @@
             "config": {
               "resources": "[\"document-types\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"compliance-officer-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -2996,7 +2941,7 @@
             "config": {
               "resources": "[\"document-types\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"compliance-officer-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3020,7 +2965,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3032,7 +2977,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"view-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
             }
           },
           {
@@ -3044,7 +2989,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3056,7 +3001,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"list-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -3068,7 +3013,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3080,7 +3025,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"edit-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
             }
           },
           {
@@ -3092,7 +3037,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"super-admin-policy\"]"
             }
           },
           {
@@ -3104,7 +3049,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"delete-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-admin-policy\"]"
             }
           },
           {
@@ -3116,7 +3061,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"submit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3128,7 +3073,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"submit-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
             }
           },
           {
@@ -3140,7 +3085,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"verify\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"screening-analyst-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3152,7 +3097,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"review\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"kyc-reviewer-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3164,7 +3109,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"export\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3176,7 +3121,7 @@
             "config": {
               "resources": "[\"documents\"]",
               "scopes": "[\"export-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
             }
           },
           {
@@ -3188,7 +3133,7 @@
             "config": {
               "resources": "[\"employment-records\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3212,7 +3157,7 @@
             "config": {
               "resources": "[\"employment-records\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3236,7 +3181,7 @@
             "config": {
               "resources": "[\"employment-records\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3260,7 +3205,7 @@
             "config": {
               "resources": "[\"employment-records\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"super-admin-policy\"]"
             }
           },
           {
@@ -3284,7 +3229,7 @@
             "config": {
               "resources": "[\"expected-fields\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"customer-policy\", \"staff-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3296,7 +3241,7 @@
             "config": {
               "resources": "[\"expected-fields\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"customer-policy\", \"staff-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3308,7 +3253,7 @@
             "config": {
               "resources": "[\"expected-fields\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"compliance-officer-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3320,7 +3265,7 @@
             "config": {
               "resources": "[\"expected-fields\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"compliance-officer-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3344,7 +3289,7 @@
             "config": {
               "resources": "[\"individuals\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3356,7 +3301,7 @@
             "config": {
               "resources": "[\"individuals\"]",
               "scopes": "[\"view-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
             }
           },
           {
@@ -3368,7 +3313,7 @@
             "config": {
               "resources": "[\"individuals\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3380,7 +3325,7 @@
             "config": {
               "resources": "[\"individuals\"]",
               "scopes": "[\"list-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -3392,7 +3337,7 @@
             "config": {
               "resources": "[\"individuals\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3416,7 +3361,7 @@
             "config": {
               "resources": "[\"individuals\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"super-admin-policy\"]"
             }
           },
           {
@@ -3428,7 +3373,7 @@
             "config": {
               "resources": "[\"individuals\"]",
               "scopes": "[\"verify\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"screening-analyst-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3440,7 +3385,7 @@
             "config": {
               "resources": "[\"invoices\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"finance-officer-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3464,7 +3409,7 @@
             "config": {
               "resources": "[\"invoices\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"finance-officer-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3488,7 +3433,7 @@
             "config": {
               "resources": "[\"invoices\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"finance-officer-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3500,7 +3445,7 @@
             "config": {
               "resources": "[\"invoices\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"finance-officer-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3512,7 +3457,7 @@
             "config": {
               "resources": "[\"invoices\"]",
               "scopes": "[\"submit\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"finance-officer-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3536,7 +3481,7 @@
             "config": {
               "resources": "[\"kyc-field-groups\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"customer-policy\", \"staff-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3548,7 +3493,7 @@
             "config": {
               "resources": "[\"kyc-field-groups\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"customer-policy\", \"staff-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3560,7 +3505,7 @@
             "config": {
               "resources": "[\"kyc-field-groups\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"compliance-officer-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3572,7 +3517,7 @@
             "config": {
               "resources": "[\"kyc-field-groups\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"compliance-officer-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3596,7 +3541,7 @@
             "config": {
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3608,7 +3553,7 @@
             "config": {
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"view-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
             }
           },
           {
@@ -3620,7 +3565,7 @@
             "config": {
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3632,7 +3577,7 @@
             "config": {
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"list-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -3644,7 +3589,7 @@
             "config": {
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3656,7 +3601,7 @@
             "config": {
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"edit-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
             }
           },
           {
@@ -3668,7 +3613,7 @@
             "config": {
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"super-admin-policy\"]"
             }
           },
           {
@@ -3680,7 +3625,7 @@
             "config": {
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"submit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"case-manager-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3692,7 +3637,7 @@
             "config": {
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"submit-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
             }
           },
           {
@@ -3704,7 +3649,7 @@
             "config": {
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"verify\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"screening-analyst-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3716,7 +3661,7 @@
             "config": {
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"review\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"kyc-reviewer-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3728,7 +3673,7 @@
             "config": {
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"export\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3740,7 +3685,7 @@
             "config": {
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"export-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -3752,7 +3697,7 @@
             "config": {
               "resources": "[\"kyc-report-sections\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3764,7 +3709,7 @@
             "config": {
               "resources": "[\"kyc-report-sections\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3776,7 +3721,7 @@
             "config": {
               "resources": "[\"kyc-report-sections\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"super-admin-policy\"]"
             }
           },
           {
@@ -3800,7 +3745,7 @@
             "config": {
               "resources": "[\"organisation-branches\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"case-manager-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3812,7 +3757,7 @@
             "config": {
               "resources": "[\"organisation-branches\"]",
               "scopes": "[\"view-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -3824,7 +3769,7 @@
             "config": {
               "resources": "[\"organisation-branches\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"case-manager-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3836,7 +3781,7 @@
             "config": {
               "resources": "[\"organisation-branches\"]",
               "scopes": "[\"list-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -3848,7 +3793,7 @@
             "config": {
               "resources": "[\"organisation-branches\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3872,7 +3817,7 @@
             "config": {
               "resources": "[\"organisation-branches\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3896,7 +3841,7 @@
             "config": {
               "resources": "[\"organisation-document-types\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3908,7 +3853,7 @@
             "config": {
               "resources": "[\"organisation-document-types\"]",
               "scopes": "[\"view-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -3920,7 +3865,7 @@
             "config": {
               "resources": "[\"organisation-document-types\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3932,7 +3877,7 @@
             "config": {
               "resources": "[\"organisation-document-types\"]",
               "scopes": "[\"list-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -3944,7 +3889,7 @@
             "config": {
               "resources": "[\"organisation-document-types\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"compliance-officer-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -3968,7 +3913,7 @@
             "config": {
               "resources": "[\"organisation-document-types\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4004,7 +3949,7 @@
             "config": {
               "resources": "[\"organisations\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"finance-officer-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4016,7 +3961,7 @@
             "config": {
               "resources": "[\"organisations\"]",
               "scopes": "[\"view-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
             }
           },
           {
@@ -4028,7 +3973,7 @@
             "config": {
               "resources": "[\"organisations\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"risk-analyst-policy\", \"auditor-policy\", \"case-manager-policy\", \"finance-officer-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4040,7 +3985,7 @@
             "config": {
               "resources": "[\"organisations\"]",
               "scopes": "[\"list-own\"]",
-              "applyPolicies": "[\"org-admin-policy\"]"
+              "applyPolicies": "[\"org-user-policy\"]"
             }
           },
           {
@@ -4052,7 +3997,7 @@
             "config": {
               "resources": "[\"organisations\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"case-manager-policy\"]"
+              "applyPolicies": "[\"case-manager-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4064,7 +4009,7 @@
             "config": {
               "resources": "[\"organisations\"]",
               "scopes": "[\"edit-own\"]",
-              "applyPolicies": "[\"org-admin-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"applicant-policy\", \"org-admin-policy\"]"
             }
           },
           {
@@ -4076,7 +4021,7 @@
             "config": {
               "resources": "[\"organisations\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"super-admin-policy\"]"
             }
           },
           {
@@ -4088,7 +4033,7 @@
             "config": {
               "resources": "[\"organisations\"]",
               "scopes": "[\"verify\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"screening-analyst-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4100,7 +4045,7 @@
             "config": {
               "resources": "[\"sequences\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4112,7 +4057,7 @@
             "config": {
               "resources": "[\"sequences\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4124,7 +4069,7 @@
             "config": {
               "resources": "[\"sequences\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4136,7 +4081,7 @@
             "config": {
               "resources": "[\"sequences\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4148,7 +4093,7 @@
             "config": {
               "resources": "[\"settings\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"customer-policy\", \"staff-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4160,7 +4105,7 @@
             "config": {
               "resources": "[\"settings\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"compliance-officer-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4172,7 +4117,7 @@
             "config": {
               "resources": "[\"settings\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4184,7 +4129,7 @@
             "config": {
               "resources": "[\"settings\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4196,7 +4141,7 @@
             "config": {
               "resources": "[\"settings\"]",
               "scopes": "[\"import\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4208,7 +4153,7 @@
             "config": {
               "resources": "[\"subscriptions\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"finance-officer-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4232,7 +4177,7 @@
             "config": {
               "resources": "[\"subscriptions\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"finance-officer-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4256,7 +4201,7 @@
             "config": {
               "resources": "[\"subscriptions\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"finance-officer-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4268,19 +4213,7 @@
             "config": {
               "resources": "[\"subscriptions\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
-            }
-          },
-          {
-            "name": "users-self-permission",
-            "description": "Read or change the caller's own data (my records, my profile) (User)",
-            "type": "scope",
-            "logic": "POSITIVE",
-            "decisionStrategy": "AFFIRMATIVE",
-            "config": {
-              "resources": "[\"users\"]",
-              "scopes": "[\"self\"]",
-              "applyPolicies": "[\"authenticated-policy\"]"
+              "applyPolicies": "[\"finance-officer-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4292,7 +4225,7 @@
             "config": {
               "resources": "[\"users\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"case-manager-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4316,7 +4249,7 @@
             "config": {
               "resources": "[\"users\"]",
               "scopes": "[\"list\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\"]"
+              "applyPolicies": "[\"auditor-policy\", \"case-manager-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4340,7 +4273,7 @@
             "config": {
               "resources": "[\"users\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4364,7 +4297,7 @@
             "config": {
               "resources": "[\"users\"]",
               "scopes": "[\"manage\"]",
-              "applyPolicies": "[\"platform-admin-policy\"]"
+              "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4388,7 +4321,7 @@
             "config": {
               "resources": "[\"verification-data-configs\"]",
               "scopes": "[\"view\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"org-admin-policy\", \"kyc-analyst-policy\", \"kyc-reviewer-policy\", \"kyc-approver-policy\", \"risk-analyst-policy\", \"screening-analyst-policy\", \"compliance-officer-policy\", \"mlro-policy\", \"case-manager-policy\", \"auditor-policy\", \"applicant-policy\"]"
+              "applyPolicies": "[\"customer-policy\", \"staff-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4400,7 +4333,7 @@
             "config": {
               "resources": "[\"verification-data-configs\"]",
               "scopes": "[\"edit\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"compliance-officer-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           },
           {
@@ -4412,7 +4345,7 @@
             "config": {
               "resources": "[\"verification-data-configs\"]",
               "scopes": "[\"delete\"]",
-              "applyPolicies": "[\"platform-admin-policy\", \"compliance-officer-policy\", \"mlro-policy\"]"
+              "applyPolicies": "[\"compliance-officer-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
             }
           }
         ],
@@ -4632,7 +4565,7 @@
       ],
       "protocolMappers": [
         {
-          "id": "b244545b-af72-5eb3-9bb4-b713f0664a5a",
+          "id": "2d2ab8e9-efb1-5015-a159-fb20f7b161dd",
           "name": "knowvera-api audience",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-audience-mapper",
@@ -6526,5 +6459,6 @@
   },
   "clientPolicies": {
     "policies": []
-  }
+  },
+  "passwordPolicy": "length(12) and upperCase(1) and lowerCase(1) and digits(1) and specialChars(1) and notUsername(undefined) and notEmail(undefined) and passwordHistory(5)"
 }

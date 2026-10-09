@@ -1,5 +1,8 @@
 package bw.co.knowvera.keycloak;
 
+import org.springframework.web.server.ResponseStatusException;
+import jakarta.ws.rs.NotFoundException;
+import org.keycloak.representations.idm.ClientRepresentation;
 import java.net.URI;
 import java.security.SecureRandom;
 import java.time.LocalDate;
@@ -56,17 +59,9 @@ public class KeycloakUserService {
     @Value("${app.organisation.manager-role}")
     private String organisationManagerRole;
 
+    /** Realm role given to self-registered users (realm roles are hierarchical, see keycloak/generate_authz.py) */
     @Value("${app.realmUserRole}")
     private String realmUserRole;
-
-    @Value("${app.adminPortalRole}")
-    private String adminPortalRole;
-
-    @Value("${app.userPortalRole}")
-    private String userPortalRole;
-
-    @Value("${app.apiUserRole}")
-    private String apiUserRole;
 
     @Value("${app.security.password.min-length}")
     private int minPasswordLength;
@@ -351,6 +346,12 @@ public class KeycloakUserService {
         });
     }
 
+    /** The user's realm roles, including those inherited through composite roles. */
+    public Set<String> findEffectiveRealmRoles(String userId) {
+        return keycloakService.withRegistrationRealm(realm -> realm.users().get(userId).roles().realmLevel()
+                .listEffective().stream().map(RoleRepresentation::getName).collect(Collectors.toSet()));
+    }
+
     public UserDTO findUserById(String userId) {
         return keycloakService.withRegistrationRealm(realm -> {
             UserRepresentation rep = realm.users().get(userId).toRepresentation();
@@ -392,19 +393,10 @@ public class KeycloakUserService {
             throw new RuntimeException("User ID must be blank when creating a new registration user.");
         }
 
-        if (CollectionUtils.isEmpty(user.getRealmRoles())) {
+        // Only realm roles are assigned (getRoles); access to the API and portals follows from them
+        if (CollectionUtils.isEmpty(user.getRoles())) {
 
-            user.setRealmRoles(Set.of(realmUserRole));
-        }
-
-        if (CollectionUtils.isEmpty(user.getUserPortalRoles())) {
-
-            user.setUserPortalRoles(Set.of(userPortalRole));
-        }
-
-        if (CollectionUtils.isEmpty(user.getApiRoles())) {
-
-            user.setApiRoles(Set.of(apiUserRole));
+            user.setRoles(Set.of(realmUserRole));
         }
 
         return keycloakService.withRegistrationRealm(realm -> {
@@ -478,12 +470,24 @@ public class KeycloakUserService {
         });
     }
 
-    public boolean updateUserPassword(String userId, String newPassword) {
-        keycloakService.withRegistrationRealm(realm -> {
-            String id = StringUtils.isNotBlank(userId) ? userId : keycloakService.getJwt().getSubject();
-            UserResource userResource = realm.users().get(id);
-            userResource.resetPassword(createCredential(CredentialRepresentation.PASSWORD, newPassword, false));
+    /**
+     * Administrative password reset (requires users:manage). The password is temporary: the user must
+     * choose a new one at next sign-in. Users change their own password in Keycloak, which
+     * re-authenticates them and applies the password policy.
+     */
+    public boolean resetUserPassword(String userId, String temporaryPassword) {
 
+        if (StringUtils.isBlank(userId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId is required");
+        }
+
+        if (StringUtils.isBlank(temporaryPassword) || temporaryPassword.length() < minPasswordLength) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password must be at least " + minPasswordLength + " characters");
+        }
+
+        keycloakService.withRegistrationRealm(realm -> {
+            realm.users().get(userId)
+                    .resetPassword(createCredential(CredentialRepresentation.PASSWORD, temporaryPassword, true));
             return Boolean.TRUE;
         });
         return true;
@@ -569,27 +573,38 @@ public class KeycloakUserService {
         });
     }
 
+    /**
+     * Grants roles of the given client (clientId as configured in Keycloak, e.g. "admin-portal").
+     * Only that client's own roles are looked up, never realm roles.
+     */
     public UserDTO addClientRoles(String clientId, Set<String> roles, String userId) {
-        return keycloakService.withRegistrationRealm(realm -> {
-            // Get the user
-            UserResource userResource = realm.users().get(userId);
-            UserRepresentation userRep = userResource.toRepresentation();
 
-            if (StringUtils.isBlank(userRep.getId())) {
-                return null;
+        if (StringUtils.isAnyBlank(clientId, userId) || CollectionUtils.isEmpty(roles)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "clientId, userId and roles are required");
+        }
+
+        return keycloakService.withRegistrationRealm(realm -> {
+            List<ClientRepresentation> clients = realm.clients().findByClientId(clientId);
+            if (clients.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown client " + clientId);
             }
+            String clientUuid = clients.get(0).getId();
+            RolesResource clientRoles = realm.clients().get(clientUuid).roles();
 
             List<RoleRepresentation> roleReps = roles.stream()
                     .map(roleName -> {
-                        RoleRepresentation roleRep = realm.roles().get(roleName).toRepresentation();
-                        return StringUtils.isNotBlank(roleRep.getId()) ? roleRep : null;
+                        try {
+                            return clientRoles.get(roleName).toRepresentation();
+                        } catch (NotFoundException e) {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Client " + clientId + " has no role " + roleName);
+                        }
                     })
-                    .filter(r -> r != null)
                     .toList();
 
-            if (CollectionUtils.isNotEmpty(roleReps)) {
-                userResource.roles().clientLevel(clientId).add(roleReps);
-            }
+            UserResource userResource = realm.users().get(userId);
+            UserRepresentation userRep = userResource.toRepresentation();
+            // clientLevel() takes the client's internal id, not its clientId
+            userResource.roles().clientLevel(clientUuid).add(roleReps);
 
             return toUserDTO(userRep);
         });
@@ -738,7 +753,7 @@ public class KeycloakUserService {
         String password = kycUtils.generatePassword();
         user.setPassword(password);
         user.setEnabled(true);
-        user.setRoles(Set.of("KYC_USER"));
+        user.setRoles(Set.of(realmUserRole));
 
         if (individual.getBranch() != null && !StringUtils.isBlank(individual.getBranch().getId())) {
 

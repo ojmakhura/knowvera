@@ -116,14 +116,8 @@ describe('DocumentTypeComponent', () => {
     ]);
   });
 
-  it('should update criteria from input event', () => {
-    const event = {
-      target: {
-        value: 'passport',
-      },
-    } as unknown as Event;
-
-    component.onCriteriaInput(event);
+  it('should update criteria through the search form', () => {
+    component.searchDocumentTypesForm.criteria().value.set('passport');
 
     expect(component.searchDocumentTypesSignal().criteria).toBe('passport');
   });

@@ -11,6 +11,8 @@ Model files (both are updated, edits are textual so formatting is preserved):
 Usage:
   python3 keycloak/update_preauthorize.py            dry run, prints the changes
   python3 keycloak/update_preauthorize.py --apply    writes both model files and the Impl annotations
+  python3 keycloak/update_preauthorize.py --verify   fails if the code has an endpoint needing a
+                                                     permission without @PreAuthorize (run after the build)
 
 Rules per operation (endpoint -> resource + scope via generate_authz). Authorities are the
 Keycloak permissions loaded by KeycloakPermissionConverter: SCOPE_<resource>:<scope>.
@@ -67,7 +69,6 @@ OWNER_BY_ROLE = {
     "ContactApi.findByType",
     "ContactApi.findByTypePaged",
     "ContactApi.save",
-    "DocumentApi.downloadFileByUrl",
     "EmploymentRecordApi.findById",
     "EmploymentRecordApi.findByIndividual",
     "EmploymentRecordApi.remove",
@@ -107,17 +108,46 @@ OWNER_BY_ROLE = {
 IMPL_DIR = g.ROOT / "webservice/src/main/java"
 OWNERSHIP_IMPORT = "import bw.co.knowvera.auth.RequiresOwnership;"
 OWNERSHIP = re.compile(r'RequiresOwnership\(([^)]*)\)')
-MODEL_ANNOTATION = 'bw.co.knowvera.auth.RequiresOwnership(scope = "{0}", target = "{1}", id = "{2}")'
-IMPL_ANNOTATION = '@RequiresOwnership(scope = "{0}", target = "{1}", id = "{2}")'
+# OWNER_BY_ROLE operations whose "-own" holders are checked in code instead of by @RequiresOwnership
+CHECKED_IN_CODE = {
+    "UserApi.addRole": "UserAdministrationGuard",
+    "UserApi.removeRole": "UserAdministrationGuard",
+    "UserApi.saveUser": "UserAdministrationGuard",
+    "UserApi.updateUserName": "UserAdministrationGuard",
+}
+
+# Saves whose body names the record's owner: the caller must also own the stored record
+# (otherwise naming yourself as owner would take over someone else's record).
+STORED_RECORD_CHECKS = {
+    "KycRecordApi.save": ("KYC_RECORD", "#kycRecord.id"),
+    "DocumentApi.save": ("DOCUMENT", "#document.id"),
+    "ClientRequestApi.save": ("CLIENT_REQUEST", "#clientRequest.id"),
+}
+
+
+def ownership_attributes(ownership):
+    scope, target, id_expr, record, record_id = ownership
+    attrs = f'scope = "{scope}", target = "{target}", id = "{id_expr}"'
+    if record_id:
+        attrs += f', record = "{record}", recordId = "{record_id}"'
+    return attrs
+
+
+def model_annotation(ownership):
+    return f"bw.co.knowvera.auth.RequiresOwnership({ownership_attributes(ownership)})"
+
+
+def impl_annotation(ownership):
+    return f"@RequiresOwnership({ownership_attributes(ownership)})"
 
 
 def parse_ownership(text):
-    """RequiresOwnership(scope = "...", target = "...", id = "...") -> (scope or None, target, id)."""
+    """RequiresOwnership(...) -> (scope or None, target, id, record or None, recordId or None)."""
     m = OWNERSHIP.search(text or "")
     if not m:
         return None
     attrs = dict(re.findall(r'(\w+)\s*=\s*"([^"]*)"', m.group(1)))
-    return attrs.get("scope"), attrs["target"], attrs["id"]
+    return attrs.get("scope"), attrs["target"], attrs["id"], attrs.get("record"), attrs.get("recordId")
 
 # @kycAuthService.<method> -> TargetEntity it checks (first argument is the id)
 CHECK_TARGETS = {
@@ -192,13 +222,13 @@ def clause_to_ownership(clause):
     m = re.match(r"@kycAuthService\.(\w+)\((.*)\)$", clause)
     method, args = m.group(1), split_args(m.group(2))
     if method in CHECK_TARGETS:
-        return None, CHECK_TARGETS[method], args[0]
+        return None, CHECK_TARGETS[method], args[0], None, None
     if method in ("isTargetRecordOwner", "isRecordOwner"):
         target = args[0]
         constant = re.fullmatch(r"T\((?:bw\.co\.knowvera\.)?TargetEntity\)\.(\w+)|'(\w+)'", target)
         if constant:
             target = constant.group(1) or constant.group(2)
-        return None, target, args[1]
+        return None, target, args[1], None, None
     raise SystemExit(f"Cannot convert ownership clause {clause}")
 
 
@@ -244,7 +274,16 @@ def plan():
     endpoints = generated_endpoints()
     changes, annotations, model_annotations, notes = [], [], [], defaultdict(list)
 
-    for op_id, cls, name, current, model_ownership in model_operations(UML_DIR / "knowvera.uml"):
+    operations = model_operations(UML_DIR / "knowvera.uml")
+    managed = {(cls, name) for _, cls, name, _, _ in operations}
+    unmanaged = [f"{cls}.{name}" for (cls, name), (_, scope, _, _) in sorted(endpoints.items())
+                 if (cls, name) not in managed and scope not in ("public", "self")]
+    if unmanaged:
+        raise SystemExit("These endpoints need a permission but have no WebServiceOperation stereotype in the "
+                         "model, so their @PreAuthorize cannot be managed (apply the stereotype in MagicDraw):\n  - "
+                         + "\n  - ".join(unmanaged))
+
+    for op_id, cls, name, current, model_ownership in operations:
         if (cls, name) not in endpoints:
             notes["not generated, left unchanged"].append(f"{cls}.{name}")
             continue
@@ -263,20 +302,24 @@ def plan():
             existing = model_ownership or impl.ownership or (clause_to_ownership(clause) if clause else None)
             ownership = None
             if existing:
-                ownership = (f"{resource}:{scope}", existing[1], existing[2])
-                impl.check_params(ownership[1:])
+                record, record_id = STORED_RECORD_CHECKS.get(label, (existing[3], existing[4]))
+                ownership = (f"{resource}:{scope}", existing[1], existing[2], record, record_id)
+                impl.check_params([x for x in ownership[1:] if x])
                 if model_ownership != ownership:
                     model_annotations.append((op_id, label, ownership))
                 if impl.ownership != ownership:
                     annotations.append((impl_path, name, ownership))
-                if impl.ownership and impl.ownership[1:] != existing[1:]:
+                if impl.ownership and impl.ownership[1:3] != existing[1:3]:
                     notes["Impl @RequiresOwnership differed from the model (model wins)"].append(
-                        f"{label}: model {existing[1:]}, Impl {impl.ownership[1:]}")
+                        f"{label}: model {existing[1:3]}, Impl {impl.ownership[1:3]}")
 
             own_holders = [r for r in g.OWNER_SCOPED if r in granted[(resource, scope + g.OWN)]]
             check = authority(resource, scope)
             if own_holders and ownership:
                 new = either_authority(resource, scope)  # KycAuthorisationService checks ownership
+            elif own_holders and label in CHECKED_IN_CODE:
+                notes["-own permission checked in code"].append(f"{label}: {CHECKED_IN_CODE[label]}")
+                new = either_authority(resource, scope)
             elif own_holders and label in OWNER_BY_ROLE:
                 notes["-own permission accepted without an ownership check (add @RequiresOwnership)"].append(
                     f"{label} [{resource}:{scope}{g.OWN}] {', '.join(own_holders)}")
@@ -305,7 +348,7 @@ def annotate_impls(annotations):
         text = raw.replace("\r\n", "\n")
         for name, ownership in items:
             m = re.search(r"^([ \t]*)public\s+[^;{(=]*?\b" + name + r"\s*\(", text, re.M)
-            line = f"{m.group(1)}{IMPL_ANNOTATION.format(*ownership)}\n"
+            line = f"{m.group(1)}{impl_annotation(ownership)}\n"
             head_start = max(text.rfind("}", 0, m.start()), text.rfind(";", 0, m.start()),
                              text.rfind("{", 0, m.start())) + 1
             head = text[head_start:m.start()]
@@ -358,7 +401,7 @@ def annotate_model(path, model_annotations):
             raise SystemExit(f"{path.name}: stereotype for {label} not found")
         indent, element, self_closing = m.group(1), m.group(2), m.group(4) == "/"
         child_indent = indent + ("\t" if "\t" in indent else "  ")
-        value = MODEL_ANNOTATION.format(*ownership).replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")
+        value = model_annotation(ownership).replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")
         child = f"\n{child_indent}<andromda_additionalAnnotations>{value}</andromda_additionalAnnotations>"
         if not self_closing:
             close = text.index(f"</{element}>", m.end())
@@ -378,7 +421,32 @@ def annotate_model(path, model_annotations):
     path.write_text(text)
 
 
+def unprotected_endpoints():
+    """Endpoints in the generated and hand-written code that need a permission but have no @PreAuthorize."""
+    missing = []
+    for src in g.SOURCE_DIRS:
+        for file in sorted(src.rglob("*.java")):
+            text = file.read_text()
+            if not g.CLASS_MAPPING.search(text):
+                continue
+            for m in g.ENDPOINT.finditer(text):
+                http, _, annotations, ret, name = m.groups()
+                label = f"{file.stem}.{name}"
+                scope = g.classify(label, http.upper(), name, ret)
+                if scope not in ("public", "self") and "@PreAuthorize" not in (annotations or ""):
+                    missing.append(f"{label} [{scope}]")
+    return missing
+
+
 def main():
+    if "--verify" in sys.argv:
+        missing = unprotected_endpoints()
+        if missing:
+            raise SystemExit("Endpoints without @PreAuthorize (run --apply, then make build_mda):\n  - "
+                             + "\n  - ".join(missing))
+        print("All endpoints that need a permission have @PreAuthorize")
+        return
+
     changes, annotations, model_annotations, notes, warnings = plan()
     for w in warnings:
         print("WARNING:", w)
@@ -391,9 +459,9 @@ def main():
         for item in items:
             print("   ", item)
     for path, name, ownership in annotations:
-        print(f"{path.stem}.{name}: {IMPL_ANNOTATION.format(*ownership)}")
+        print(f"{path.stem}.{name}: {impl_annotation(ownership)}")
     for _, label, ownership in model_annotations:
-        print(f"{label}: model + {MODEL_ANNOTATION.format(*ownership)}")
+        print(f"{label}: model + {model_annotation(ownership)}")
     print(f"\n{len(changes)} expressions to update, {len(model_annotations)} model operations "
           f"and {len(annotations)} Impl methods to annotate")
 

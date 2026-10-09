@@ -24,7 +24,7 @@ import { IndividualSearchCriteria } from '@app/models/bw/co/knowvera/individual/
 import { SearchObject } from '@app/models/search-object';
 import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
 import { toast } from 'ngx-sonner';
-import { form, FormField } from '@angular/forms/signals';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
 
 export class SearchIndividualsVarsForm {
@@ -54,12 +54,13 @@ export class SearchIndividualsVarsForm {
     MatTooltipModule,
     MatFormFieldModule,
     FormField,
+    FormRoot,
   ],
 })
 export class Individuals implements OnInit {
   searchIndividualsVarsForm = new SearchIndividualsVarsForm();
   searchIndividualsSignal = signal(this.searchIndividualsVarsForm);
-  searchIndividualsForm = form(this.searchIndividualsSignal);
+  searchIndividualsForm = form(this.searchIndividualsSignal, { submission: { action: async () => this.doSearch(0, this.pageSize()) } });
 
   readonly individualApiStore = inject(IndividualApiStore);
   protected readonly rows = signal<IndividualListDTO[]>([]);
@@ -68,13 +69,6 @@ export class Individuals implements OnInit {
   protected readonly pageSize = signal(10);
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
-  protected readonly verifiedCount = computed(
-    () => this.rows().filter((r) => r.kycStatus === 'CURRENT').length,
-  );
-  protected readonly flaggedCount = computed(
-    () =>
-      this.rows().filter((r) => r.kycStatus !== 'CURRENT' && r.kycStatus !== 'INCOMPLETE').length,
-  );
   protected readonly router = inject(Router);
   loaderMessage: Signal<string> = signal('');
   messages = linkedSignal(() => this.individualApiStore.messages());

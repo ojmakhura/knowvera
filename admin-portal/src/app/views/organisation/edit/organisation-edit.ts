@@ -13,7 +13,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { applyEach, email, form, FormField, required } from '@angular/forms/signals';
+import { applyEach, email, form, FormField, required, FormRoot } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { GeneralStatus } from '@app/models/bw/co/knowvera/general-status';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
@@ -57,8 +57,9 @@ export class EditOrganisationVarsForm {
     TranslateModule,
     MatIconModule,
     RouterLink,
-    FormField
-],
+    FormField,
+    FormRoot,
+  ],
 })
 export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   @Input() id: string | any = null;
@@ -81,7 +82,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
     applyEach(path.domains, (domainPath) => {
       required(domainPath.name, { message: 'domain.name.required' });
     });
-  });
+  }, { submission: { action: async () => this.saveOrganisation() } });
 
 
   countries: string[] = [

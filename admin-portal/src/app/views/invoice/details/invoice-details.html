@@ -8,8 +8,8 @@
     </nav>
 
     <div class="kv-page-header">
-      <div class="min-w-0 flex flex-col gap-3">
-        <div class="flex flex-wrap items-center gap-3">
+      <div class="min-w-0 kv-stack-sm">
+        <div class="kv-row">
           <h1 class="kv-title">{{ invoiceRef() }}</h1>
           @if (invoice()?.subscriptionRef) {
             <span class="dp-code">{{ invoice()?.subscriptionRef }}</span>
@@ -19,7 +19,7 @@
             Invoice
           </span>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="kv-row-sm">
           <span class="dp-pill" [class.is-success]="invoice()?.paid" [class.is-warning]="!invoice()?.paid">
             <mat-icon class="icon-fill">{{ invoice()?.paid ? 'check_circle' : 'schedule' }}</mat-icon>
             {{ paymentStatusLabel() }}
@@ -54,10 +54,10 @@
   }
 
   <!-- Bento grid -->
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+  <div class="kv-layout-stretch">
 
     <!-- Summary -->
-    <section class="kv-card md:col-span-8">
+    <section class="kv-card kv-col-main">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile"><mat-icon>payments</mat-icon></span>
         <div class="dp-head-copy">
@@ -72,7 +72,7 @@
         <p class="dp-metric">{{ invoice()?.amount | currency: appEnvState.currency() || 'BWP' }}</p>
       </div>
 
-      <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <dl class="kv-detail-grid">
         <div class="kv-field">
           <dt class="kv-label">Payment Reference</dt>
           <dd class="kv-value dp-mono dp-strong">{{ paymentReference() }}</dd>
@@ -101,7 +101,7 @@
     </section>
 
     <!-- Compliance status -->
-    <section class="kv-card md:col-span-4 flex flex-col">
+    <section class="kv-card kv-col-side flex flex-col">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile" [class.is-success]="invoice()?.paid" [class.is-warning]="!invoice()?.paid">
           <mat-icon>verified</mat-icon>
@@ -133,7 +133,7 @@
     </section>
 
     <!-- Organisation context -->
-    <section class="kv-card md:col-span-12">
+    <section class="kv-card kv-col-full">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile"><mat-icon>corporate_fare</mat-icon></span>
         <div class="dp-head-copy">

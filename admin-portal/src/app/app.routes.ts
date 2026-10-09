@@ -79,4 +79,9 @@ export const routes: Routes = [
     canActivate: [AuthenticationGuard],
     loadChildren: () => import('./views/settings/settings.routes').then((m) => m.settingsRoutes),
   },
+  {
+    path: 'no-access',
+    data: { title: 'No access' },
+    loadComponent: () => import('./views/no-access/no-access').then((m) => m.NoAccess),
+  },
 ];

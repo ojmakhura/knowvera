@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormField, form } from '@angular/forms/signals';
+import { FormField, form, FormRoot } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -40,6 +40,7 @@ interface KycFieldGroupSelectionState {
     MatCheckboxModule,
     MatListModule,
     MatIconModule,
+    FormRoot,
   ],
   templateUrl: './kyc-field-group-selector-dialog.html',
   styleUrls: ['./kyc-field-group-selector-dialog.scss'],
@@ -56,7 +57,7 @@ export class KycFieldGroupSelectorDialogComponent {
     fieldIds: [...(this.data?.selectedFieldIds || [])],
     fields: this.data?.groups?.find((group) => group.id === this.data?.selectedGroupId)?.groupFields || [],
   });
-  selectionForm = form(this.selectionModel);
+  selectionForm = form(this.selectionModel, { submission: { action: async () => this.onApply() } });
 
   selectedGroup = computed(() => this.selectionModel().group);
   selectedFields = computed(() => this.selectionModel().fields);

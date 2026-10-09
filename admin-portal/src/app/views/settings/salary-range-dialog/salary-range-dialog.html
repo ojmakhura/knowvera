@@ -1,7 +1,7 @@
 <!-- salary-range-dialog.html -->
 <h2 mat-dialog-title>{{ isEditing ? 'Edit Salary Range' : 'Add Salary Range' }}</h2>
 
-<mat-dialog-content class="salary-range-dialog">
+<form mat-dialog-content class="salary-range-dialog" id="salary-range-form" [formRoot]="rangeForm">
   <label class="field">
     <span class="field__label">Min Value (BWP)</span>
     <input class="field__input" type="number" [formField]="rangeForm.min" />
@@ -16,7 +16,7 @@
     <input type="checkbox" [formField]="rangeForm.active" />
     <span>Active</span>
   </label>
-</mat-dialog-content>
+</form>
 
 <mat-dialog-actions align="end">
   @if (isEditing) {
@@ -26,7 +26,7 @@
     </button>
   }
   <button type="button" class="btn btn-outline" (click)="cancel()">Cancel</button>
-  <button type="button" class="btn btn-action-primary" [disabled]="rangeForm().invalid()" (click)="save()">
+  <button type="submit" form="salary-range-form" class="btn btn-action-primary" [disabled]="rangeForm().invalid()">
     {{ isEditing ? 'Save Changes' : 'Add Range' }}
   </button>
 </mat-dialog-actions>

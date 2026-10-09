@@ -125,7 +125,26 @@ public class KycAuthorisationService implements Ordered {
                     + (target != null ? target : "requested") + " record");
         }
 
+        // An update must also be of a record the caller already owns (the body names the new owner)
+        if (StringUtils.isNotBlank(requiresOwnership.recordId())) {
+            Object recordId = parser.parseExpression(requiresOwnership.recordId()).getValue(context);
+            if (recordId != null && StringUtils.isNotBlank(recordId.toString())
+                    && !ownsStoredRecord(resolveTarget(requiresOwnership.record(), context), recordId.toString())) {
+                throw new AuthorizationDeniedException("Access denied: caller does not own the stored "
+                        + requiresOwnership.record() + " record");
+            }
+        }
+
         return joinPoint.proceed();
+    }
+
+    private boolean ownsStoredRecord(TargetEntity record, String recordId) {
+        try {
+            return record != null && isTargetRecordOwner(record, recordId);
+        } catch (Exception e) {
+            // Unknown id or lookup failure: not proven to be the caller's record
+            return false;
+        }
     }
 
     private TargetEntity resolveTarget(String target, EvaluationContext context) {

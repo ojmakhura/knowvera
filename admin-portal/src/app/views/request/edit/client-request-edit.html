@@ -15,7 +15,7 @@
       </div>
       <div class="kv-actions">
         <button type="button" class="kv-btn-secondary" (click)="discardChanges()">Cancel</button>
-        <button type="button" class="kv-btn-primary" (click)="saveChanges()">
+        <button type="submit" form="client-request-edit-form" class="kv-btn-primary">
           <mat-icon>save</mat-icon>
           Save Changes
         </button>
@@ -23,10 +23,10 @@
     </div>
   </header>
 
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+  <form class="kv-layout" id="client-request-edit-form" [formRoot]="editClientRequestForm">
 
     <!-- Main column -->
-    <div class="md:col-span-8 flex flex-col gap-6">
+    <div class="kv-col-main kv-stack">
 
       <!-- Requesting Organisation -->
       <section class="kv-card">
@@ -35,7 +35,7 @@
           <h2 class="kv-card-title">Requesting Organisation</h2>
         </div>
 
-        <div class="flex flex-col gap-4">
+        <div class="kv-stack-md">
           <div class="kv-field">
             <label class="kv-label" for="requestOrganisation">Organisation</label>
             <mat-form-field appearance="outline" class="vault-field">
@@ -80,7 +80,7 @@
           <h2 class="kv-card-title">Target Entity</h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="kv-form-grid">
           <div class="kv-field">
             <label class="kv-label" for="targetType">Target Type</label>
             <mat-form-field appearance="outline" class="vault-field">
@@ -156,7 +156,7 @@
             <h2 class="kv-card-title">Document Information</h2>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="kv-form-grid">
             <div class="kv-field">
               <label class="kv-label" for="documentId">Document ID</label>
               <mat-form-field appearance="outline" class="vault-field">
@@ -178,10 +178,10 @@
     </div>
 
     <!-- Side column -->
-    <aside class="md:col-span-4 flex flex-col gap-6">
+    <aside class="kv-col-side kv-stack">
 
       <!-- Status -->
-      <section class="kv-card border-t-4 border-emerald">
+      <section class="kv-card kv-card-accent">
         <div class="kv-card-header">
           <mat-icon class="kv-card-icon">security</mat-icon>
           <h2 class="kv-card-title">Request Status</h2>
@@ -206,7 +206,7 @@
           <h2 class="kv-card-title">Audit Trail</h2>
         </div>
 
-        <dl class="flex flex-col gap-3">
+        <dl class="kv-meta-list">
           <div class="kv-meta-row">
             <dt class="kv-meta-label">Created At</dt>
             <dd class="kv-meta-value">{{ (editClientRequestSignal().createdAt | date: 'dd MMM yyyy, HH:mm') || 'Not available' }}</dd>
@@ -226,5 +226,5 @@
         </dl>
       </section>
     </aside>
-  </div>
+  </form>
 </div>

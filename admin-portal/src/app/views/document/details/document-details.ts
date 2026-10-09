@@ -30,7 +30,7 @@ import {
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
-import { form, FormField, readonly } from '@angular/forms/signals';
+import { form, FormField, readonly, FormRoot } from '@angular/forms/signals';
 import { MatSelectModule } from '@angular/material/select';
 import { swalFire } from '@app/@shared/swal';
 import Keycloak from 'keycloak-js';
@@ -62,7 +62,8 @@ import { LoaderState } from '@app/@shared/loader/loader.state';
     MatSelectModule,
     TranslateModule,
     FormField,
-    HasRolesDirective
+    HasRolesDirective,
+    FormRoot,
   ],
 })
 export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
@@ -70,7 +71,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   private readonly keycloak = inject(Keycloak);
   loaderState = inject(LoaderState);
 
-  readonly isDocumentReviewer = computed(() => this.keycloak.hasRealmRole('DOCUMENT_REVIEWER') || this.keycloak.hasResourceRole('DOCUMENT_REVIEWER'));
+  readonly isDocumentReviewer = computed(() => this.keycloak.hasRealmRole('KYC_REVIEWER'));
 
   readonly verificationStatusOptions: DocumentVerificationStatus[] = [
     DocumentVerificationStatus.UNVERIFIED,
@@ -107,6 +108,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
   metadataEditing = signal(false);
   metadataFields = signal<Array<{ key: string; value: string }>>([]);
+  metadataForm = form(this.metadataFields, { submission: { action: async () => this.saveMetadata() } });
 
   documentForm = form(this.document, (path) => {
     readonly(path.id);
@@ -114,7 +116,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     readonly(path.targetId);
     readonly(path.url);
     readonly(path.documentType);
-  });
+  }, { submission: { action: async () => this.saveDocument() } });
 
   constructor() {
     effect(() => {
@@ -313,18 +315,6 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
   removeMetadataField(index: number): void {
     this.metadataFields.update((fields) => fields.filter((_, i) => i !== index));
-  }
-
-  updateMetadataKey(index: number, key: string): void {
-    this.metadataFields.update((fields) =>
-      fields.map((field, i) => (i === index ? { ...field, key } : field)),
-    );
-  }
-
-  updateMetadataValue(index: number, value: string): void {
-    this.metadataFields.update((fields) =>
-      fields.map((field, i) => (i === index ? { ...field, value } : field)),
-    );
   }
 
   saveMetadata(): void {

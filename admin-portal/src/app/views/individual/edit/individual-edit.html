@@ -18,7 +18,7 @@
           class="kv-btn-secondary">
           Cancel
         </button>
-        <button type="button" [disabled]="loading()" (click)="save()"
+        <button type="submit" form="individual-edit-form" [disabled]="loading()"
           class="kv-btn-primary">
           <mat-icon>save</mat-icon>
           Save Changes
@@ -27,9 +27,9 @@
     </div>
   </header>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <form class="kv-layout" id="individual-edit-form" [formRoot]="editIndividualSignalForm">
     <!-- Main Column -->
-    <div class="lg:col-span-2 flex flex-col gap-6">
+    <div class="kv-col-main kv-stack">
 
       <!-- Core Identity -->
       <section class="kv-card">
@@ -144,7 +144,7 @@
             <h2 class="kv-card-title">Identification</h2>
           </div>
 
-          <div class="flex flex-col gap-4">
+          <div class="kv-stack-md">
             <div class="kv-field">
               <label class="kv-label" for="identityType">Identity Type</label>
               <select id="identityType" [formField]="editIndividualSignalForm.identityType"
@@ -180,7 +180,7 @@
             <h2 class="kv-card-title">Compliance &amp; Employment</h2>
           </div>
 
-          <div class="flex flex-col gap-4">
+          <div class="kv-stack-md">
             <div class="kv-field">
               <label class="kv-label" for="kycStatus">KYC Status</label>
               <select id="kycStatus" [formField]="editIndividualSignalForm.kycStatus"
@@ -228,7 +228,7 @@
           </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="kv-form-grid mb-6">
           <div class="kv-field md:col-span-2">
             <label class="kv-label" for="emailAddress">Email Address</label>
             <input id="emailAddress" type="email" [formField]="editIndividualSignalForm.emailAddress"
@@ -263,7 +263,7 @@
             <p class="text-sm text-on-surface-variant italic py-2">No phone numbers added yet.</p>
           }
 
-          <div class="flex flex-col gap-3">
+          <div class="kv-stack-sm">
             @for (phone of editIndividualSignal().phoneNumbers; track $index; let i = $index) {
               <div class="flex items-end gap-3 p-3 bg-surface-container-lowest border border-outline-variant/50 rounded-lg">
                 <div class="kv-field w-1/3">
@@ -280,7 +280,7 @@
                   <input (input)="updatePhoneNumber(i, $any($event.target).value)" [value]="phone.phoneNumber || ''"
                     class="kv-input px-2 py-1.5" />
                 </div>
-                <button (click)="phoneNumbersRemove(i)" aria-label="Remove phone number"
+                <button type="button" (click)="phoneNumbersRemove(i)" aria-label="Remove phone number"
                   class="kv-icon-btn-danger mb-[2px]" type="button">
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -292,7 +292,7 @@
     </div>
 
     <!-- Side Column -->
-    <aside class="flex flex-col gap-6">
+    <aside class="kv-col-side kv-stack">
       <!-- Organizational Context -->
       <section class="kv-card">
         <div class="kv-card-header">
@@ -300,7 +300,7 @@
           <h2 class="kv-card-title">Organizational Context</h2>
         </div>
 
-        <div class="flex flex-col gap-4">
+        <div class="kv-stack-md">
           <div class="kv-field">
             <label class="kv-label">Organisation</label>
             <mat-select
@@ -340,7 +340,7 @@
       </section>
 
       <!-- Compliance Protocol -->
-      <section class="kv-card border-t-4 border-emerald">
+      <section class="kv-card kv-card-accent">
         <div class="flex items-center gap-2 mb-4 text-primary">
           <mat-icon class="text-emerald">policy</mat-icon>
           <p class="kv-card-title font-medium">Compliance Protocol</p>
@@ -348,7 +348,7 @@
         <p class="text-sm text-on-surface-variant mb-6">
           Modifications are subject to mandatory audit trailing.
         </p>
-        <dl class="flex flex-col gap-3">
+        <dl class="kv-meta-list">
           <div class="kv-meta-row">
             <dt class="kv-meta-label">Created</dt>
             <dd class="text-sm text-on-surface">{{ formatAuditDate(editIndividualSignal().createdAt) }}</dd>
@@ -368,5 +368,5 @@
         </dl>
       </section>
     </aside>
-  </div>
+  </form>
 </div>

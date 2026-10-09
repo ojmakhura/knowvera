@@ -29,4 +29,18 @@ public class AuditTracker {
 
         }
     }
+
+    /**
+     * As {@link #auditTrail(AuditableDTO, Authentication)}, and on an update keeps the stored
+     * creation details so the caller cannot rewrite who created the record or when.
+     */
+    public static void auditTrail(AuditableDTO auditable, AuditableDTO stored, Authentication authentication) {
+
+        auditTrail(auditable, authentication);
+
+        if (auditable != null && stored != null) {
+            auditable.setCreatedBy(stored.getCreatedBy());
+            auditable.setCreatedAt(stored.getCreatedAt());
+        }
+    }
 }

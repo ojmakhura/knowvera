@@ -113,7 +113,5 @@ describe('Individuals', () => {
     fixture.detectChanges();
 
     expect((component as any).dataSource.data.length).toBe(2);
-    expect((component as any).verifiedCount()).toBe(1);
-    expect((component as any).flaggedCount()).toBe(1);
   });
 });

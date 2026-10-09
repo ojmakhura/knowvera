@@ -60,6 +60,14 @@ import org.springframework.ai.chat.prompt.Prompt;
 @RequiredArgsConstructor
 public class DocumentProcessorService {
 
+    /**
+     * Whether automated checks may mark a document VERIFIED on their own. Off by default: an
+     * LLM's verdict can be steered by text inside the document, so passing documents go to a
+     * reviewer (MANUAL_REVIEW). Automated rejections always apply.
+     */
+    @Value("${app.verification.auto-verify:false}")
+    private boolean autoVerify;
+
     @Value("${app.tessdata-prefix}")
     private String tessdataPrefix;
 
@@ -441,7 +449,9 @@ public class DocumentProcessorService {
 
             }
             if (results.getMatch()) {
-                document.setVerificationStatus(DocumentVerificationStatus.VERIFIED);
+                // The LLM's verdict alone never verifies a document: a reviewer confirms it, or
+                // (with auto-verify) the independent data verification step decides
+                document.setVerificationStatus(DocumentVerificationStatus.MANUAL_REVIEW);
             } else {
 
                 if (results.getScore() < 0.3) {

@@ -8,6 +8,7 @@
  */
 package bw.co.knowvera.document;
 
+import org.springframework.beans.factory.annotation.Value;
 import bw.co.knowvera.KeyFieldMatchResult;
 import bw.co.knowvera.PropertySearchOrder;
 import bw.co.knowvera.QueueObject;
@@ -807,6 +808,15 @@ public class DocumentServiceImpl
         return verifications;
     }
 
+    /** See DocumentProcessorService: automated checks verify on their own only when enabled. */
+    @Value("${app.verification.auto-verify:false}")
+    private boolean autoVerify;
+
+    private static boolean typeConfirmed(Document document) {
+        DocumentValidationResults results = document.getValidationResults();
+        return results != null && Boolean.TRUE.equals(results.getTypeMatch()) && Boolean.TRUE.equals(results.getMatch());
+    }
+
     @Override
     protected DocumentDTO handleVerifyData(String id, String user) throws Exception {
 
@@ -846,7 +856,8 @@ public class DocumentServiceImpl
 
                 if (hasFailedMandatory || score < 0.4) {
                     document.setVerificationStatus(DocumentVerificationStatus.REJECTED);
-                } else if (score >= 0.8) {
+                } else if (score >= 0.8 && autoVerify && typeConfirmed(document)) {
+                    // Two independent automated signals: the data matches and the type was confirmed
                     document.setVerificationStatus(DocumentVerificationStatus.VERIFIED);
                 } else {
                     document.setVerificationStatus(DocumentVerificationStatus.MANUAL_REVIEW);

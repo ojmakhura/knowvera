@@ -8,6 +8,8 @@
  */
 package bw.co.knowvera.organisation.client;
 
+import java.time.Duration;
+import bw.co.knowvera.utils.RequestTokens;
 import bw.co.knowvera.PhoneNumber;
 import bw.co.knowvera.PhoneType;
 import bw.co.knowvera.PropertySearchOrder;
@@ -82,6 +84,14 @@ public class ClientRequestServiceImpl
 
     @Value("${app.request-token-length}")
     private int requestTokenLength;
+
+    /** Lifetime of the emailed client request link (account request token). */
+    @Value("${app.request-token-link-ttl:7d}")
+    private Duration requestLinkTtl;
+
+    /** Lifetime of the identity confirmation and registration tokens minted from that link. */
+    @Value("${app.request-token-session-ttl:24h}")
+    private Duration requestSessionTtl;
 
      private static final String SEQUENCE_NAME = "CLIENT_REQUEST_REF";
 
@@ -177,9 +187,7 @@ public class ClientRequestServiceImpl
 
         if (isNew) {
             // Generate a random token with letters, digits and special characters
-            token = RandomStringUtils
-                    .secure()
-                    .next(requestTokenLength, true, true);
+            token = RequestTokens.issue(requestTokenLength);
 
             // Encode the token
             String encodedToken = passwordEncoder.encode(token);
@@ -443,9 +451,7 @@ public class ClientRequestServiceImpl
             if (isNew) {
 
                 // Generate a random token with letters, digits and special characters
-                String token = RandomStringUtils
-                        .secure()
-                        .next(requestTokenLength, true, true);
+                String token = RequestTokens.issue(requestTokenLength);
 
                 // Encode the token
                 String encodedToken = passwordEncoder.encode(token);
@@ -1046,22 +1052,18 @@ public class ClientRequestServiceImpl
 
         boolean matches = passwordEncoder.matches(token, clientRequest.getAccountRequestToken());
 
-        if (!matches) {
-            throw new ClientRequestServiceException("Invalid confirmation token");
+        if (!matches || RequestTokens.isExpired(token, requestLinkTtl, clientRequest.getCreatedAt())) {
+            throw new ClientRequestServiceException("Invalid or expired confirmation token");
         }
 
-        String confirmationToken = RandomStringUtils
-                .secure()
-                .next(requestTokenLength, true, true);
+        String confirmationToken = RequestTokens.issue(requestTokenLength);
 
         // Encode the token
         String encodedToken = passwordEncoder.encode(confirmationToken);
 
         clientRequest.setIdentityConfirmationToken(encodedToken);
 
-        String registrationToken = RandomStringUtils
-                .secure()
-                .next(requestTokenLength, true, true);
+        String registrationToken = RequestTokens.issue(requestTokenLength);
 
         // Encode the token
         String encodedRegistrationToken = passwordEncoder.encode(registrationToken);
@@ -1098,16 +1100,20 @@ public class ClientRequestServiceImpl
         ClientRequest request = clientRequestRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new ClientRequestServiceException("ClientRequest not found"));
 
-        boolean matches = passwordEncoder.matches(registrationToken, request.getRegistrationToken());
+        boolean matches = request.getRegistrationToken() != null
+                && passwordEncoder.matches(registrationToken, request.getRegistrationToken());
 
-        if (!matches) {
-            throw new ClientRequestServiceException("Invalid registration token");
+        if (!matches || RequestTokens.isExpired(registrationToken, requestSessionTtl, request.getModifiedAt())) {
+            throw new ClientRequestServiceException("Invalid or expired registration token");
         }
 
-        if (request.getStatus() == ClientRequestStatus.ACCEPTED) {
+        if (request.getStatus() == ClientRequestStatus.ACCEPTED || request.getStatus() == ClientRequestStatus.REJECTED) {
 
-            throw new ClientRequestServiceException("ClientRequest already confirmed");
+            throw new ClientRequestServiceException("ClientRequest already decided");
         }
+
+        // Single use: the decision consumes the registration token
+        request.setRegistrationToken(null);
 
         if (confirm) {
             request.setStatus(ClientRequestStatus.ACCEPTED);

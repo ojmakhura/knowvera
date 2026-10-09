@@ -8,6 +8,9 @@
  */
 package bw.co.knowvera.individual;
 
+import org.springframework.beans.factory.annotation.Value;
+import java.time.Duration;
+import bw.co.knowvera.utils.RequestTokens;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +44,10 @@ import bw.co.knowvera.settings.SettingsService;
 @Service("individualService")
 public class IndividualServiceImpl
         extends IndividualServiceBase {
+
+    /** Lifetime of the identity confirmation token (see ClientRequestServiceImpl). */
+    @Value("${app.request-token-session-ttl:24h}")
+    private Duration requestSessionTtl;
 
     private final ClientRequestRepository clientRequestRepository;
     private final PasswordEncoder passwordEncoder;
@@ -162,6 +169,14 @@ public class IndividualServiceImpl
 
         }
 
+        if(criteria.getKycStatus() != null) {
+
+            Specification<Individual> tmp = ((root, query, builder) -> builder
+                    .equal(root.get("kycStatus"), criteria.getKycStatus()));
+            spec = spec == null ? tmp : spec.and(tmp);
+
+        }
+
         return spec;
     }
 
@@ -257,10 +272,10 @@ public class IndividualServiceImpl
 
         String token = clientRequest.getIdentityConfirmationToken();
 
-        boolean matches = passwordEncoder.matches(identityConfirmationToken, token);
+        boolean matches = token != null && passwordEncoder.matches(identityConfirmationToken, token);
 
-        if (!matches) {
-            throw new IndividualServiceException("Invalid confirmation token");
+        if (!matches || RequestTokens.isExpired(identityConfirmationToken, requestSessionTtl, clientRequest.getModifiedAt())) {
+            throw new IndividualServiceException("Invalid or expired confirmation token");
         }
 
         Individual individual = individualRepository.findByIdentityNo(identityNo)

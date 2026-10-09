@@ -8,6 +8,8 @@ logging:
         roguesystems: ${KYC_LOG_LEVEL:DEBUG}
 server:
   port: ${PORT:8085}
+  # Client address from X-Forwarded-For only when set by a trusted (internal) proxy such as Traefik
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:native}
   servlet:
     context-path: /
   compression:
@@ -31,8 +33,8 @@ spring:
   servlet:
     multipart:
       enabled: true
-      max-file-size: -1 # No file size limit
-      max-request-size: -1  # No limit on request size
+      max-file-size: ${MAX_UPLOAD_FILE_SIZE:20MB}
+      max-request-size: ${MAX_UPLOAD_REQUEST_SIZE:100MB}  # several files per KYC application
       location: ${java.io.tmpdir}
       file-size-threshold: 50MB
   thymeleaf:
@@ -57,6 +59,8 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: ${AUTH_URL:http://localhost:8970}/realms/${REALM:knowvera}
+          # Only tokens meant for this API (the realm's portal clients add it with an audience mapper)
+          audiences: ${JWT_AUDIENCES:knowvera-api}
 
   cache:
     redis:
@@ -136,7 +140,7 @@ spring:
 management:
   endpoint:
     health:
-      show-details: always
+      show-details: never
     metrics:
       access: READ_ONLY
     prometheus:
@@ -145,7 +149,8 @@ management:
     web:
       base-path: /actuator
       exposure:
-        include: health,info,metrics,prometheus
+        # Metrics are pushed over OTLP; health and info only, the rest is not reachable over HTTP
+        include: ${ACTUATOR_EXPOSURE:health,info}
         exclude: env,shutdown,heapdump
   metrics:
     tags:
@@ -168,17 +173,22 @@ management:
         otlp:
           endpoint: ${OTLP_URL:http://localhost:4318}/v1/logs
 rate-limiting:
+  # Requests per minute per signed-in user
   tokens: ${RATE_LIMIT:2000}
+  # Requests per minute per IP address for calls without a token (public endpoints)
+  public-tokens: ${PUBLIC_RATE_LIMIT:30}
 minio:
     url: ${MINIO_URL:http://localhost:9000}
     access-key: ${MINIO_ACCESS_KEY:minio}
     secret-key: ${MINIO_SECRET_KEY:minio123}
     bucket-name: ${MINIO_BUCKET:knowvera}
 app:
-  realmUserRole: ${REALM_USER_ROLE:KYC_USER}
-  adminPortalRole: ${ADMIN_PORTAL_ROLE:ADMIN_PORTAL_USER}
-  userPortalRole: ${USER_PORTAL_ROLE:PORTAL_USER}
-  apiUserRole: ${API_USER_ROLE:KYC_USER}
+  verification:
+    # Automated checks may mark documents VERIFIED on their own (type match and data score);
+    # off: passing documents go to MANUAL_REVIEW for a KYC reviewer
+    auto-verify: ${DOCUMENT_AUTO_VERIFY:false}
+  # Realm role of self-registered users (roles: keycloak/generate_authz.py)
+  realmUserRole: ${REALM_USER_ROLE:APPLICANT}
   audit:
     partition:
       # Keep historical partitions available for this many past months.
@@ -191,8 +201,14 @@ app:
         # Background maintenance interval (milliseconds).
         fixed-delay-ms: ${AUDIT_PARTITION_MAINTENANCE_FIXED_DELAY_MS:300000}
   request-token-length: ${REQUEST_TOKEN_LENGTH:32}
+  # Lifetime of the emailed client request link, and of the confirmation / registration tokens it mints
+  request-token-link-ttl: ${REQUEST_TOKEN_LINK_TTL:7d}
+  request-token-session-ttl: ${REQUEST_TOKEN_SESSION_TTL:24h}
   registration-url: ${REGISTRATION_URL:http://localhost:4300/register}
   admin-web: ${ADMIN_WEB_URL:http://localhost:4200}
+  # Browser origins allowed to call the API (the admin portal and the customer portal)
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:4300}
   tessdata-prefix: ${TESSDATA_PREFIX:/usr/share/tesseract-ocr/5/tessdata}
   tessdata-langs: ${TESSDATA_LANGS:eng}
   comm:
@@ -201,9 +217,10 @@ app:
     source-email: ${SOURCE_EMAIL}
   security:
     password:
-      min-length: ${MIN_PASSWORD_LENGTH:8}
+      # Matches the realm's password policy (keycloak/generate_authz.py PASSWORD_POLICY)
+      min-length: ${MIN_PASSWORD_LENGTH:12}
   organisation:
-    manager-role: ${ORGANISATION_MANAGER_ROLE:ORG_MANAGER}
+    manager-role: ${ORGANISATION_MANAGER_ROLE:ORG_ADMIN}
   llm:
     id: ${LLM_ID:ollama}
     model: ${LLM_MODEL:gemma4}

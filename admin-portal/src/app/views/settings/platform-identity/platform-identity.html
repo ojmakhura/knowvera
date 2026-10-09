@@ -7,13 +7,13 @@
     </div>
   </header>
 
-  <form class="settings-card">
+  <div class="settings-card">
     <div class="settings-card__header">
       <mat-icon>branding_watermark</mat-icon>
       <h3 class="settings-card__title">Platform Identity</h3>
     </div>
 
-    <div class="settings-card__grid">
+    <form class="settings-card__grid" id="platform-identity-form" [formRoot]="platformIdentityForm">
       <label class="field">
         <span class="field__label">Platform Name</span>
         <input class="field__input" type="text" [formField]="platformIdentityForm.platformName" />
@@ -36,13 +36,13 @@
           <span class="field__error">Enter a valid email address</span>
         } -->
       </label>
-    </div>
+    </form>
 
     <div class="settings-card__actions">
-      <button type="button" class="btn btn-action-primary" (click)="save()">
+      <button type="submit" form="platform-identity-form" class="btn btn-action-primary">
         <mat-icon class="me-1">save</mat-icon>
         Save Configuration
       </button>
     </div>
-  </form>
+  </div>
 </section>

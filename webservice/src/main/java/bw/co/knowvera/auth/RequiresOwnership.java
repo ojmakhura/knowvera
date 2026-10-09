@@ -32,4 +32,14 @@ public @interface RequiresOwnership {
 
 	/** SpEL expression over the method parameters yielding the record id, e.g. "#id". */
 	String id();
+
+	/**
+	 * For a save whose body names its owner (target / id above): the stored record's type, e.g.
+	 * "KYC_RECORD". When {@link #recordId()} yields an id, the caller must also own the stored
+	 * record, so an update cannot take over another owner's record by naming itself as owner.
+	 */
+	String record() default "";
+
+	/** SpEL expression yielding the id of the record being updated, e.g. "#kycRecord.id". */
+	String recordId() default "";
 }

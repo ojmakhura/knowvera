@@ -18,6 +18,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
@@ -42,7 +43,10 @@ export class SearchDocumentTypesVarsForm {
     MatInputModule,
     MatProgressBarModule,
     MatTableModule,
-    MatTooltipModule],
+    MatTooltipModule,
+    FormRoot,
+    FormField,
+  ],
   templateUrl: './document-type.html',
   styleUrls: ['./document-type.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +56,7 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
 
   searchDocumentTypesVarsForm: SearchDocumentTypesVarsForm = new SearchDocumentTypesVarsForm();
   searchDocumentTypesSignal = signal(this.searchDocumentTypesVarsForm);
+  searchDocumentTypesForm = form(this.searchDocumentTypesSignal, { submission: { action: async () => this.doSearch(0, this.pageSize()) } });
   readonly documentTypeApiStore = inject(DocumentTypeApiStore);
 
   readonly rows = linkedSignal(() => this.searchDocumentTypesSignal().documentTypes || []);
@@ -115,15 +120,6 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
     }));
 
     this.doSearch();
-  }
-
-  onCriteriaInput(event: Event): void {
-    const criteria = (event.target as HTMLInputElement)?.value ?? '';
-
-    this.searchDocumentTypesSignal.update((state) => ({
-      ...state,
-      criteria,
-    }));
   }
 
   doSearch(pageNumber: number = 0, pageSize: number = 10): void {

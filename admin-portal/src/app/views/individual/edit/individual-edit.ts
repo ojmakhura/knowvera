@@ -15,7 +15,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { applyEach, email, form, required, FormField } from '@angular/forms/signals';
+import { applyEach, email, form, required, FormField, FormRoot } from '@angular/forms/signals';
 import { GeneralStatus } from '@app/models/bw/co/knowvera/general-status';
 import { EmploymentStatus } from '@app/models/bw/co/knowvera/individual/employment-status';
 import { IndividualIdentityType } from '@app/models/bw/co/knowvera/individual/individual-identity-type';
@@ -84,6 +84,7 @@ export class EditIndividualVarsForm {
     FormField,
     NgxMatSelectSearchModule,
     TranslateModule,
+    FormRoot,
   ],
 })
 export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
@@ -134,7 +135,7 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
       required(phonePath.type, { message: 'phone.type.required' });
       required(phonePath.phoneNumber, { message: 'phone.number.required' });
     });
-  });
+  }, { submission: { action: async () => this.save() } });
 
   IndividualIdentityTypeT: any = IndividualIdentityType;
   IndividualIdentityTypeOptions = Object.keys(this.IndividualIdentityTypeT);

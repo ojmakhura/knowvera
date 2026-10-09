@@ -29,7 +29,7 @@
     </div>
   }
 
-  <div class="mapping-grid">
+  <form class="mapping-grid" id="template-mappings-form" [formRoot]="templateMappingsForm">
     @for (card of cards; track card.key) {
       @let mapping = templateMappingsSignal();
       @let template = mapping[card.templateField];
@@ -61,7 +61,7 @@
               </p>
             }
           </div>
-          <button class="icon-btn" title="Download" [disabled]="!hasTemplate" (click)="downloadTemplate(card)">
+          <button type="button" class="icon-btn" title="Download" [disabled]="!hasTemplate" (click)="downloadTemplate(card)">
             <mat-icon>download</mat-icon>
           </button>
         </div>
@@ -108,10 +108,10 @@
         </div>
       </div>
     }
-  </div>
+  </form>
 
   <div class="page-actions">
-    <button class="btn btn-outline" (click)="discard()">Discard Changes</button>
-    <button class="btn btn-action-primary" (click)="save()">Save Mappings</button>
+    <button type="button" class="btn btn-outline" (click)="discard()">Discard Changes</button>
+    <button type="submit" form="template-mappings-form" class="btn btn-action-primary">Save Mappings</button>
   </div>
 </section>

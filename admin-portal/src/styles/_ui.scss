@@ -12,7 +12,25 @@
 	.kv-subtitle { @include ui.page-subtitle; }
 	.kv-actions { @include ui.actions-row; }
 
+	// Page layout: `kv-layout` > `kv-col-main` + `kv-col-side` (8/4 split from `md` up).
+	.kv-layout { @include ui.layout(start); }
+	.kv-layout-stretch { @include ui.layout(stretch); }
+	.kv-col-main { @include ui.col(8); }
+	.kv-col-side { @include ui.col(4); }
+	.kv-col-full { @include ui.col(12); }
+	.kv-stack { @include ui.stack(1.5rem); }
+	.kv-stack-md { @include ui.stack(1rem); }
+	.kv-stack-sm { @include ui.stack(0.75rem); }
+	.kv-row { @include ui.row(0.75rem); }
+	.kv-row-sm { @include ui.row(0.5rem); }
+	.kv-form-grid { @include ui.form-grid; }
+	.kv-detail-grid { @include ui.detail-grid; }
+
+	// <form> grouping sibling blocks without adding a layout box (the parent's grid/flex/gap still apply).
+	.kv-form-contents { display: contents; }
+
 	.kv-card { @include ui.card; }
+	.kv-card-accent { @include ui.card-accent; }
 	.kv-card-header { @include ui.card-header; }
 	.kv-card-title { @include ui.card-title; }
 	.kv-card-icon { @include ui.card-icon; }
@@ -20,6 +38,7 @@
 	.kv-meta-row { @include ui.meta-row; }
 	.kv-meta-label { @include ui.meta-label; }
 	.kv-meta-value { @include ui.meta-value; }
+	.kv-meta-list { @include ui.stack(0.75rem); margin: 0; }
 
 	.kv-field { @include ui.field; }
 	.kv-label { @include ui.label; }

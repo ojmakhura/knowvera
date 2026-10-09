@@ -19,7 +19,9 @@ public final class PublicEndpoints {
     public static final List<String> INFRASTRUCTURE = List.of(
             "/swagger-ui/**",
             "/v3/**",
-            "/actuator/**");
+            "/actuator/health",
+            "/actuator/health/**",
+            "/actuator/info");
 
     /** API endpoints. */
     public static final List<Endpoint> ENDPOINTS = List.of(

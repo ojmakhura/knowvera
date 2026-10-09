@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
+import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterLink } from '@angular/router';
@@ -43,6 +44,8 @@ export class SearchSequencesVarsForm {
     MatProgressBarModule,
     MatFormFieldModule,
     MatButtonModule,
+    FormRoot,
+    FormField,
   ],
 })
 export class Sequences implements OnInit, OnDestroy {
@@ -50,6 +53,7 @@ export class Sequences implements OnInit, OnDestroy {
 
   searchSequencesVarsForm = new SearchSequencesVarsForm();
   searchSequencesSignal = signal(this.searchSequencesVarsForm);
+  searchSequencesForm = form(this.searchSequencesSignal, { submission: { action: async () => this.doSearch() } });
 
   readonly sequenceGeneratorApiStore = inject(SequenceGeneratorApiStore);
   loading = linkedSignal(() => this.sequenceGeneratorApiStore.loading());
@@ -98,13 +102,6 @@ export class Sequences implements OnInit, OnDestroy {
 
 
   ngOnDestroy(): void {}
-
-  updateField(field: keyof SearchSequencesVarsForm, value: string): void {
-    this.searchSequencesSignal.update((state) => ({
-      ...state,
-      [field]: value,
-    }));
-  }
 
   resetSearch(): void {
     this.searchSequencesSignal.set(new SearchSequencesVarsForm());
@@ -186,14 +183,6 @@ export class Sequences implements OnInit, OnDestroy {
 
   openEdit(id: string): void {
     this.router.navigate(['/', 'sequence', 'edit', id]);
-  }
-
-  activeProtocols(): number {
-    return new Set(
-      this.allRows()
-        .map((row) => String(row.targetEntity || '').trim())
-        .filter(Boolean),
-    ).size;
   }
 
   showingLabel(): string {

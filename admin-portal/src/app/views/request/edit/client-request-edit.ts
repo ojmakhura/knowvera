@@ -13,7 +13,7 @@ import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/cli
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
 import { IndividualListDTO } from '@app/models/bw/co/knowvera/individual/individual-list-dto';
-import { form, FormField } from '@angular/forms/signals';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { required } from '@angular/forms/signals';
 import { ClientRequestApiStore } from '@app/store/bw/co/knowvera/organisation/client/client-request-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
@@ -67,8 +67,9 @@ export class EditClientRequestForm {
     FormField,
     NgxMatSelectSearchModule,
     TranslateModule,
-    RouterLink
-]
+    RouterLink,
+    FormRoot,
+  ]
 })
 export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
   
@@ -99,7 +100,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
   editClientRequestForm = form(this.editClientRequestSignal, (path) => {
     required(path.status, { message: 'status.required' })
     required(path.target, { message: 'target.entity.required' })
-  });
+  }, { submission: { action: async () => this.saveChanges() } });
 
   loading = computed(
     () => this.clientRequestApiStore.loading() ||

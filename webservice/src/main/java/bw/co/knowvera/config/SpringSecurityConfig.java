@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -52,6 +53,15 @@ public class SpringSecurityConfig {
 	@Value("${app.authz.enforcer-config}")
 	private String enforcerConfig;
 
+	@Value("${app.cors.allowed-origins}")
+	private List<String> allowedOrigins;
+
+	@Value("${rate-limiting.tokens}")
+	private long userRequestsPerMinute;
+
+	@Value("${rate-limiting.public-tokens}")
+	private long anonymousRequestsPerMinute;
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http,
 			JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
@@ -64,6 +74,8 @@ public class SpringSecurityConfig {
 					PublicEndpoints.INFRASTRUCTURE.forEach(pattern -> authz.requestMatchers(pattern).permitAll());
 					PublicEndpoints.ENDPOINTS.forEach(endpoint ->
 							authz.requestMatchers(endpoint.method(), endpoint.pattern()).permitAll());
+					// Other actuator endpoints are not served over HTTP (management.endpoints.web.exposure)
+					authz.requestMatchers("/actuator/**").denyAll();
 					authz.anyRequest().authenticated();
 				})
 				.sessionManagement(management -> management
@@ -71,10 +83,13 @@ public class SpringSecurityConfig {
 				.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt ->
                     jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)));
 
+		RateLimitFilter rateLimitFilter = new RateLimitFilter(userRequestsPerMinute, anonymousRequestsPerMinute);
+		http.addFilterAfter(rateLimitFilter, BearerTokenAuthenticationFilter.class);
+
 		if (policyEnforcerEnabled) {
 			// Keycloak resource-based authorization: each path + HTTP method maps to a resource scope
 			// whose permissions are evaluated by Keycloak. @PreAuthorize still checks record ownership.
-			http.addFilterAfter(policyEnforcerFilter(), BearerTokenAuthenticationFilter.class);
+			http.addFilterAfter(policyEnforcerFilter(), RateLimitFilter.class);
 		}
 
 		return http.build();
@@ -110,9 +125,7 @@ public class SpringSecurityConfig {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		// WARNING: Allowing all origins (*) is insecure for production!
-		// In production, specify exact origins: Arrays.asList("https://yourdomain.com")
-		configuration.setAllowedOriginPatterns(Arrays.asList("*")); // Use setAllowedOriginPatterns instead of setAllowedOrigins when allowing credentials
+		configuration.setAllowedOrigins(allowedOrigins); // app.cors.allowed-origins: the two portals
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("*"));
 		configuration.setAllowCredentials(true); // Important for JWT tokens in cookies/headers

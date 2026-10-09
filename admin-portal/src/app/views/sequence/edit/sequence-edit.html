@@ -10,7 +10,7 @@
 
     <div class="kv-page-header">
       <div>
-        <div class="flex flex-wrap items-center gap-3">
+        <div class="kv-row">
           <h1 class="kv-title">{{ isDraft() ? 'New Sequence Generator' : 'Edit Sequence Generator' }}</h1>
           <span class="kv-tag uppercase">{{ isDraft() ? 'Draft' : 'Published' }}</span>
         </div>
@@ -18,7 +18,7 @@
       </div>
       <div class="kv-actions">
         <button type="button" class="kv-btn-secondary" (click)="cancel()">Cancel</button>
-        <button type="button" class="kv-btn-primary" [disabled]="loading()" (click)="saveSequence()">
+        <button type="submit" form="sequence-edit-form" class="kv-btn-primary" [disabled]="loading()">
           <mat-icon>save</mat-icon>
           Save Sequence
         </button>
@@ -26,10 +26,10 @@
     </div>
   </header>
 
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+  <div class="kv-layout">
 
     <!-- Main column -->
-    <div class="md:col-span-8 flex flex-col gap-6 min-w-0">
+    <form class="kv-col-main kv-stack" id="sequence-edit-form" [formRoot]="editSequenceSignalForm">
 
       <!-- Core Identity -->
       <section class="kv-card">
@@ -38,19 +38,17 @@
           <h2 class="kv-card-title">Core Identity</h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="kv-form-grid">
           <div class="kv-field">
             <label class="kv-label" for="sequenceName">Sequence Name</label>
             <input id="sequenceName" class="kv-input" placeholder="e.g. USER_GEN_01"
-              [value]="editSequenceSignal().name || ''"
-              (input)="editSequenceSignal.update((value) => ({ ...value, name: $any($event.target).value }))" />
+              [formField]="editSequenceSignalForm.name" />
           </div>
 
           <div class="kv-field">
             <label class="kv-label" for="targetEntity">Target Entity</label>
             <mat-form-field appearance="outline" class="vault-field">
-              <mat-select id="targetEntity" placeholder="Select target entity" [value]="editSequenceSignal().targetEntity"
-                (selectionChange)="editSequenceSignal.update((value) => ({ ...value, targetEntity: $event.value }))">
+              <mat-select id="targetEntity" placeholder="Select target entity" [formField]="editSequenceSignalForm.targetEntity">
                 @for (option of TargetEntityOptions; track option) {
                   <mat-option [value]="option">{{ targetEntityLabel(option) }}</mat-option>
                 }
@@ -111,13 +109,13 @@
           </table>
         </div>
       </section>
-    </div>
+    </form>
 
     <!-- Side column -->
-    <aside class="md:col-span-4 flex flex-col gap-6">
+    <aside class="kv-col-side kv-stack">
 
       <!-- Preview -->
-      <section class="kv-card border-t-4 border-emerald">
+      <section class="kv-card kv-card-accent">
         <div class="kv-card-header">
           <mat-icon class="kv-card-icon">qr_code_2</mat-icon>
           <h2 class="kv-card-title">Generated Preview</h2>
@@ -134,7 +132,7 @@
           <mat-icon class="kv-card-icon">lightbulb</mat-icon>
           <h2 class="kv-card-title">Sequence Logic Tips</h2>
         </div>
-        <ul class="flex flex-col gap-3 text-sm text-on-surface-variant">
+        <ul class="kv-stack-sm text-sm text-on-surface-variant">
           <li class="flex gap-2">
             <mat-icon class="kv-card-icon text-emerald!">check_circle</mat-icon>
             <span>Use ISO dates for chronological sorting efficiency in high-load databases.</span>
@@ -156,7 +154,7 @@
           <mat-icon class="kv-card-icon">history</mat-icon>
           <h2 class="kv-card-title">Audit Trail</h2>
         </div>
-        <dl class="flex flex-col gap-3">
+        <dl class="kv-meta-list">
           <div class="kv-meta-row">
             <dt class="kv-meta-label">Created At</dt>
             <dd class="kv-meta-value">{{ isDraft() ? 'Not saved yet' : 'Stored in registry' }}</dd>
@@ -190,7 +188,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="kv-field sm:col-span-3">
             <label class="kv-label" for="partName">Name</label>
-            <input id="partName" class="kv-input" [value]="newPart().name" (input)="updateNewPart('name', $any($event.target).value)" />
+            <input id="partName" class="kv-input" (keydown.enter)="$event.preventDefault(); addSequencePart()" [value]="newPart().name" (input)="updateNewPart('name', $any($event.target).value)" />
           </div>
 
           <div class="kv-field sm:col-span-3">
@@ -206,15 +204,15 @@
 
           <div class="kv-field">
             <label class="kv-label" for="partInitial">Initial</label>
-            <input id="partInitial" class="kv-input" [value]="newPart().initialValue" (input)="updateNewPart('initialValue', $any($event.target).value)" />
+            <input id="partInitial" class="kv-input" (keydown.enter)="$event.preventDefault(); addSequencePart()" [value]="newPart().initialValue" (input)="updateNewPart('initialValue', $any($event.target).value)" />
           </div>
           <div class="kv-field">
             <label class="kv-label" for="partMin">Min</label>
-            <input id="partMin" class="kv-input" [value]="newPart().min" (input)="updateNewPart('min', $any($event.target).value)" />
+            <input id="partMin" class="kv-input" (keydown.enter)="$event.preventDefault(); addSequencePart()" [value]="newPart().min" (input)="updateNewPart('min', $any($event.target).value)" />
           </div>
           <div class="kv-field">
             <label class="kv-label" for="partMax">Max</label>
-            <input id="partMax" class="kv-input" [value]="newPart().max" (input)="updateNewPart('max', $any($event.target).value)" />
+            <input id="partMax" class="kv-input" (keydown.enter)="$event.preventDefault(); addSequencePart()" [value]="newPart().max" (input)="updateNewPart('max', $any($event.target).value)" />
           </div>
 
           <div class="sm:col-span-3 flex items-center justify-between bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant/50">

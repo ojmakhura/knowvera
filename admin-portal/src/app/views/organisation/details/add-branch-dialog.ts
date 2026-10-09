@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { form, FormField, required } from '@angular/forms/signals';
+import { form, FormField, required, FormRoot } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,12 +17,13 @@ import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch
     MatFormFieldModule,
     MatInputModule,
     FormField,
+    FormRoot,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2 mat-dialog-title>{{ isEditMode ? 'Edit Branch' : 'Add Branch' }}</h2>
 
-    <mat-dialog-content>
+    <form mat-dialog-content id="branch-form" [formRoot]="branchForm">
       <div class="dialog-form">
         <mat-form-field appearance="outline">
           <mat-label>Code</mat-label>
@@ -54,18 +55,18 @@ import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch
           ></textarea>
         </mat-form-field>
       </div>
-    </mat-dialog-content>
+    </form>
 
     <mat-dialog-actions align="end">
-      <button mat-stroked-button (click)="onCancel()">Cancel</button>
-      <button mat-flat-button color="primary" (click)="onSave()" [disabled]="!branchForm().valid()">
+      <button mat-stroked-button type="button" (click)="onCancel()">Cancel</button>
+      <button mat-flat-button color="primary" type="submit" form="branch-form" [disabled]="!branchForm().valid()">
         {{ isEditMode ? 'Update Branch' : 'Save Branch' }}
       </button>
     </mat-dialog-actions>
   `,
   styles: [
     `
-      mat-dialog-content {
+      .mat-mdc-dialog-content {
         min-width: 420px;
       }
       .dialog-form {
@@ -92,7 +93,7 @@ export class BranchFormDialogComponent {
     required(path.code);
     required(path.name);
     required(path.physicalAddress);
-  });
+  }, { submission: { action: async () => this.onSave() } });
 
   isEditMode = this.data?.id;
 

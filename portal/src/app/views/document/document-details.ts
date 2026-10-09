@@ -25,7 +25,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   readonly documentApiStore = inject(DocumentApiStore);
   private readonly keycloak = inject(Keycloak);
 
-  readonly isDocumentReviewer = computed(() => this.keycloak.hasRealmRole('DOCUMENT_REVIEWER') || this.keycloak.hasResourceRole('DOCUMENT_REVIEWER'));
+  readonly isDocumentReviewer = computed(() => this.keycloak.hasRealmRole('KYC_REVIEWER'));
 
   readonly verificationStatusOptions: DocumentVerificationStatus[] = [
     DocumentVerificationStatus.UNVERIFIED,

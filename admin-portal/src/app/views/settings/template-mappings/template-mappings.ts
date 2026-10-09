@@ -1,6 +1,7 @@
 // views/settings/template-mappings/template-mappings.ts
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, linkedSignal, OnInit } from '@angular/core';
+import { form, FormRoot } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
 // import { ToastrService } from 'ngx-toastr';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
@@ -37,7 +38,7 @@ interface TemplateCard {
 @Component({
   selector: 'app-template-mappings',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, FormRoot],
   templateUrl: './template-mappings.html',
   styleUrls: ['./template-mappings.scss'],
 })
@@ -69,6 +70,7 @@ export class TemplateMappings implements OnInit {
     model.quotationTemplate = store?.quotationTemplate ?? null;
     return model;
   });
+  templateMappingsForm = form(this.templateMappingsSignal, { submission: { action: async () => this.save() } });
 
   cards: TemplateCard[] = [
     {

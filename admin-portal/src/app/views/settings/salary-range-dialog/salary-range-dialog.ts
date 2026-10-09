@@ -1,6 +1,6 @@
 // views/settings/salary-range-dialog/salary-range-dialog.ts
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { form, required, FormField } from '@angular/forms/signals';
+import { form, required, FormField, FormRoot } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { SalaryRangeDTO } from '@app/models/bw/co/knowvera/settings/salary-range-dto';
@@ -22,7 +22,7 @@ class SalaryRangeForm {
   templateUrl: './salary-range-dialog.html',
   styleUrls: ['./salary-range-dialog.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatDialogModule, MatIconModule, FormField],
+  imports: [MatDialogModule, MatIconModule, FormField, FormRoot],
 })
 export class SalaryRangeDialog {
   private readonly dialogRef = inject(MatDialogRef<SalaryRangeDialog, SalaryRangeDialogResult>);
@@ -39,7 +39,7 @@ export class SalaryRangeDialog {
   readonly rangeForm = form(this.formSignal, (path) => {
     required(path.min, { message: 'Min value is required' });
     required(path.max, { message: 'Max value is required' });
-  });
+  }, { submission: { action: async () => this.save() } });
 
   save(): void {
     if (this.rangeForm().invalid()) {

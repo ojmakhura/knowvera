@@ -13,7 +13,7 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Inpu
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
-import { form, FormField, readonly } from '@angular/forms/signals';
+import { form, FormField, readonly, FormRoot } from '@angular/forms/signals';
 import { Loader } from '@app/@shared/loader/loader';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 // import { ToastrService } from 'ngx-toastr';
@@ -58,7 +58,8 @@ selector: 'app-document-edit',
     MatProgressBarModule,
     FormField,
     TranslateModule,
-    NgxMatSelectSearchModule
+    NgxMatSelectSearchModule,
+    FormRoot,
   ]
 })
 export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
@@ -81,7 +82,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
       readonly(path.targetId);
       readonly(path.url);
     }
-  });
+  }, { submission: { action: async () => this.editDocumentSave() } });
   isSaving = signal(false);
   lastLoadedId: string | null = null;
 

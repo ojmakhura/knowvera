@@ -28,7 +28,7 @@ import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { DocumentTypeApi } from '@app/services/bw/co/knowvera/document/type/document-type-api';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
-import { form, required, FormField, applyEach } from '@angular/forms/signals';
+import { form, required, FormField, applyEach, FormRoot } from '@angular/forms/signals';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TranslateModule } from '@ngx-translate/core';
@@ -129,7 +129,8 @@ type ToolSelectorTarget =
     NgxMatSelectSearchModule,
     TranslateModule,
     MatTooltipModule,
-    MatExpansionModule
+    MatExpansionModule,
+    FormRoot,
   ],
 })
 export class SystemSettings {
@@ -172,7 +173,7 @@ export class SystemSettings {
       required(itemPath.active, { message: 'Active is required' });
       required(itemPath.min, { message: 'Min is required' });
     })
-  });
+  }, { submission: { action: async () => this.saveSettings() } });
 
   invoiceDocumentTypeFilteredList = linkedSignal<DocumentTypeDTO[]>(() => []);
   invoiceTemplateTypeFilteredList = linkedSignal<DocumentTypeDTO[]>(() => []);

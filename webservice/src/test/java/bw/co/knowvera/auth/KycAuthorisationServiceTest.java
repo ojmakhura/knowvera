@@ -26,6 +26,7 @@ import bw.co.knowvera.document.DocumentService;
 import bw.co.knowvera.individual.IndividualService;
 import bw.co.knowvera.invoice.KycInvoiceService;
 import bw.co.knowvera.keycloak.KeycloakUserService;
+import bw.co.knowvera.kyc.KycRecordDTO;
 import bw.co.knowvera.kyc.KycRecordService;
 import bw.co.knowvera.organisation.OrganisationDTO;
 import bw.co.knowvera.organisation.OrganisationService;
@@ -46,15 +47,22 @@ class KycAuthorisationServiceTest {
         public String loadTarget(TargetEntity target, String targetId) {
             return "loaded " + targetId;
         }
+
+        @RequiresOwnership(scope = "kyc-records:edit", target = "#record.target", id = "#record.targetId",
+                record = "KYC_RECORD", recordId = "#record.id")
+        public String save(KycRecordDTO record) {
+            return "saved " + record.getId();
+        }
     }
 
     private final KeycloakUserService keycloakUserService = mock(KeycloakUserService.class);
     private final OrganisationService organisationService = mock(OrganisationService.class);
+    private final KycRecordService kycRecordService = mock(KycRecordService.class);
     private OrganisationController controller;
 
     @BeforeEach
     void setUp() {
-        KycAuthorisationService aspect = new KycAuthorisationService(mock(KycRecordService.class),
+        KycAuthorisationService aspect = new KycAuthorisationService(kycRecordService,
                 keycloakUserService, mock(IndividualService.class), organisationService,
                 mock(DocumentService.class), mock(ClientRequestService.class),
                 mock(KycInvoiceService.class), mock(KycSubscriptionService.class));
@@ -111,6 +119,29 @@ class KycAuthorisationServiceTest {
         authenticate("ROLE_ORG_ADMIN", "SCOPE_organisations:view-own");
 
         assertThrows(AuthorizationDeniedException.class, () -> controller.load("org-2"));
+    }
+
+    private static KycRecordDTO record(String id, String organisationId) {
+        KycRecordDTO record = new KycRecordDTO();
+        record.setId(id);
+        record.setTarget(TargetEntity.ORGANISATION);
+        record.setTargetId(organisationId);
+        return record;
+    }
+
+    @Test
+    void updateMustBeOfAStoredRecordTheCallerOwns() throws Exception {
+        authenticate("ROLE_ORG_ADMIN", "SCOPE_kyc-records:edit-own");
+        when(kycRecordService.findById("mine")).thenReturn(record("mine", "org-1"));
+        when(kycRecordService.findById("theirs")).thenReturn(record("theirs", "org-2"));
+
+        assertEquals("saved mine", controller.save(record("mine", "org-1")));
+        // Naming itself as owner does not take over another organisation's record
+        assertThrows(AuthorizationDeniedException.class, () -> controller.save(record("theirs", "org-1")));
+        // Unknown records are not proven to be the caller's
+        assertThrows(AuthorizationDeniedException.class, () -> controller.save(record("missing", "org-1")));
+        // New records only need the owner named in the body
+        assertEquals("saved null", controller.save(record(null, "org-1")));
     }
 
     @Test

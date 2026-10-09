@@ -8,8 +8,8 @@
     </nav>
 
     <div class="kv-page-header">
-      <div class="min-w-0 flex flex-col gap-3">
-        <div class="flex flex-wrap items-center gap-3">
+      <div class="min-w-0 kv-stack-sm">
+        <div class="kv-row">
           <h1 class="kv-title">{{ coreIdentity()[0].value || 'Client Request' }}</h1>
           @if (requestReference()) {
             <span class="dp-code">{{ requestReference() }}</span>
@@ -19,7 +19,7 @@
             Client Request
           </span>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="kv-row-sm">
           <span class="dp-pill" [ngClass]="statusTone(requestStatus())">
             <mat-icon class="icon-fill">flag</mat-icon>
             {{ statusLabel(requestStatus()) }}
@@ -45,10 +45,10 @@
   </header>
 
   <!-- Bento grid -->
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+  <div class="kv-layout-stretch">
 
     <!-- Applicant -->
-    <section class="kv-card md:col-span-8">
+    <section class="kv-card kv-col-main">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile"><mat-icon>person</mat-icon></span>
         <div class="dp-head-copy">
@@ -74,7 +74,7 @@
     </section>
 
     <!-- Compliance target -->
-    <section class="kv-card md:col-span-4 flex flex-col">
+    <section class="kv-card kv-col-side flex flex-col">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile" [ngClass]="targetTone(targetKycStatus())"><mat-icon>shield</mat-icon></span>
         <div class="dp-head-copy">
@@ -99,7 +99,7 @@
     </section>
 
     <!-- Organisation context -->
-    <section class="kv-card md:col-span-8">
+    <section class="kv-card kv-col-main">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile"><mat-icon>corporate_fare</mat-icon></span>
         <div class="dp-head-copy">
@@ -108,7 +108,7 @@
         </div>
       </div>
 
-      <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <dl class="kv-detail-grid">
         @for (item of organisationContext(); track item.label) {
           <div class="kv-field">
             <dt class="kv-label">{{ item.label }}</dt>
@@ -119,7 +119,7 @@
     </section>
 
     <!-- Verification artifact -->
-    <section class="kv-card md:col-span-4 flex flex-col">
+    <section class="kv-card kv-col-side flex flex-col">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile"><mat-icon>description</mat-icon></span>
         <div class="dp-head-copy">

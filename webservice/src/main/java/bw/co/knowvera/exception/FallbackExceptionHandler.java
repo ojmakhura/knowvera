@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -47,6 +49,40 @@ public class FallbackExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
+                .body(problemDetail);
+    }
+
+    /** Uploads over spring.servlet.multipart limits. */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ProblemDetail> handleUploadTooLarge(
+            MaxUploadSizeExceededException ex, WebRequest request) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONTENT_TOO_LARGE, "The upload is larger than allowed.");
+        problemDetail.setInstance(URI.create(request.getDescription(false).replace("uri=", "")));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("errors", List.of());
+
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(problemDetail);
+    }
+
+    /**
+     * Exceptions that carry their own HTTP status (e.g. 400 for invalid input). Without this the
+     * generic handler below would turn them into a 500.
+     */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ProblemDetail> handleResponseStatus(
+            ResponseStatusException ex, WebRequest request) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(ex.getStatusCode(), ex.getReason());
+        problemDetail.setInstance(URI.create(
+                request.getDescription(false).replace("uri=", "")
+        ));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("errors", List.of());
+
+        return ResponseEntity
+                .status(ex.getStatusCode())
                 .body(problemDetail);
     }
 

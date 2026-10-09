@@ -8,8 +8,8 @@
     </nav>
 
     <div class="kv-page-header">
-      <div class="min-w-0 flex flex-col gap-3">
-        <div class="flex flex-wrap items-center gap-3">
+      <div class="min-w-0 kv-stack-sm">
+        <div class="kv-row">
           <h1 class="kv-title">{{ recordTitle() }}</h1>
           @if (record()?.ref) {
             <span class="dp-code">{{ record()?.ref }}</span>
@@ -19,7 +19,7 @@
             {{ targetTypeDisplay() }}
           </span>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="kv-row-sm">
           <span class="dp-pill" [ngClass]="kycTone()">
             <mat-icon class="icon-fill">verified</mat-icon>
             KYC {{ kycStatusDisplay() }}
@@ -50,10 +50,10 @@
   }
 
   <!-- Bento grid -->
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+  <div class="kv-layout-stretch">
 
     <!-- Entity details -->
-    <section class="kv-card md:col-span-8">
+    <section class="kv-card kv-col-main">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile"><mat-icon>badge</mat-icon></span>
         <div class="dp-head-copy">
@@ -63,7 +63,7 @@
         <span class="kv-tag dp-head-aside">KYC: {{ kycStatusDisplay() }}</span>
       </div>
 
-      <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <dl class="kv-detail-grid">
         <div class="kv-field">
           <dt class="kv-label">Reference Number</dt>
           <dd class="kv-value dp-mono dp-strong">{{ record()?.ref || 'Not available' }}</dd>
@@ -94,7 +94,7 @@
     </section>
 
     <!-- Verification status -->
-    <section class="kv-card md:col-span-4 flex flex-col">
+    <section class="kv-card kv-col-side flex flex-col">
       <div class="kv-card-header dp-head">
         <span class="dp-icon-tile" [ngClass]="kycTone()"><mat-icon>verified</mat-icon></span>
         <div class="dp-head-copy">
@@ -205,7 +205,7 @@
     </section>
 
     <!-- Documents & report -->
-    <section class="kv-card dp-tabs md:col-span-12">
+    <section class="kv-card dp-tabs kv-col-full">
       <mat-tab-group [selectedIndex]="selectedSectionTabIndex()" (selectedIndexChange)="setSectionTab($event)" animationDuration="150ms">
         <mat-tab label="Documents">
           <div class="dp-tab-pane">
@@ -356,7 +356,7 @@
                     <h4 class="dp-group-title"><mat-icon>fact_check</mat-icon> {{ section.label || 'Untitled Section' }}</h4>
                     <span class="dp-field-count">{{ section.fieldValues?.length || 0 }} fields</span>
                   </div>
-                  <dl class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <dl class="kv-detail-grid">
                     @for (fieldValue of section.fieldValues || []; track fieldValue.id || $index) {
                       <div class="kv-field">
                         <dt class="kv-label">{{ fieldValue.fieldLabel || fieldValue.field || fieldValue.fieldId || 'Field' }}</dt>

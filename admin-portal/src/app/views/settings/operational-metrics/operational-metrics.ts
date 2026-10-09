@@ -1,7 +1,7 @@
 // views/settings/operational-metrics/operational-metrics.ts
 import { Component, computed, signal, OnInit, inject, linkedSignal, effect } from '@angular/core';
 import Keycloak from 'keycloak-js';
-import { form, FormField, max, min } from '@angular/forms/signals';
+import { form, FormField, max, min, FormRoot } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 import { LoaderState } from '@app/@shared/loader/loader.state';
@@ -19,7 +19,7 @@ class OperationalMetricsModel {
 
 @Component({
   selector: 'app-operational-metrics',
-  imports: [ MatIconModule, FormField ],
+  imports: [ MatIconModule, FormField, FormRoot],
   templateUrl: './operational-metrics.html',
   styleUrls: ['./operational-metrics.scss'],
 })
@@ -51,7 +51,7 @@ export class OperationalMetrics implements OnInit {
   operationalMetricsForm = form(this.operationalMetricsSignal, (path) => {
     min(path.kycDuration, 1);
     max(path.kycDuration, 5);
-  });
+  }, { submission: { action: async () => this.save() } });
 
   kycValidityYears = signal(3);
   targetCreationHours = signal(24);

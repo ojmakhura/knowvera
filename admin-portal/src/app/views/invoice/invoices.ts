@@ -24,7 +24,7 @@ import { InvoiceSearchCriteria } from '@app/models/bw/co/knowvera/invoice/invoic
 import { KycInvoiceDTO } from '@app/models/bw/co/knowvera/invoice/kyc-invoice-dto';
 import { SearchObject } from '@app/models/search-object';
 import { KycInvoiceApiStore } from '@app/store/bw/co/knowvera/invoice/kyc-invoice-api.store';
-import { form, FormField } from '@angular/forms/signals';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
@@ -61,7 +61,8 @@ export class SearchInvoicesVarsForm {
     MatProgressBarModule,
     FormField,
     NgxMatSelectSearchModule,
-    TranslateModule
+    TranslateModule,
+    FormRoot,
   ],
 })
 export class Invoices implements OnInit {
@@ -69,7 +70,7 @@ export class Invoices implements OnInit {
   searchInvoicesSignal = signal(this.searchInvoicesVarsForm);
 
   searchInvoicesForm = form(this.searchInvoicesSignal, (path) => {
-  });
+  }, { submission: { action: async () => this.doSearch(0, this.pageSize()) } });
 
   readonly kycInvoiceApiStore = inject(KycInvoiceApiStore);
   organisationApiStore = inject(OrganisationApiStore);

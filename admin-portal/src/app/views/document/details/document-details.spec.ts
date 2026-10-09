@@ -81,8 +81,8 @@ describe('DocumentDetails', () => {
 
   it('should save metadata changes', () => {
     component.openMetadataEdit();
-    component.updateMetadataKey(0, 'issuer');
-    component.updateMetadataValue(0, 'Knowvera Registry');
+    component.metadataForm[0].key().value.set('issuer');
+    component.metadataForm[0].value().value.set('Knowvera Registry');
 
     component.saveMetadata();
 

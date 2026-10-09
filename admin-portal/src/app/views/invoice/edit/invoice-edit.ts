@@ -21,7 +21,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Loader } from '@app/@shared/loader/loader';
 import { TimePeriod } from '@app/models/bw/co/knowvera/time-period';
 import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
-import { disabled, form, FormField, required } from '@angular/forms/signals';
+import { disabled, form, FormField, required, FormRoot } from '@angular/forms/signals';
 import { KycInvoiceDTO } from '@app/models/bw/co/knowvera/invoice/kyc-invoice-dto';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 // import { ToastrService } from 'ngx-toastr';
@@ -73,7 +73,8 @@ export class EditInvoiceVarsForm {
     TranslateModule,
     FormField,
     NgxMatSelectSearchModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    FormRoot,
   ],
 })
 export class InvoiceEdit implements OnInit {
@@ -86,7 +87,7 @@ export class InvoiceEdit implements OnInit {
     required(path.amount, { message: 'amount.required' });
     disabled(path.vat);
     disabled(path.totalAmount);
-  });
+  }, { submission: { action: async () => this.saveInvoice() } });
 
   protected route: ActivatedRoute = inject(ActivatedRoute);
   protected router: Router = inject(Router);

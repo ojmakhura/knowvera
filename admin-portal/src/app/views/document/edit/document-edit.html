@@ -15,7 +15,7 @@
       </div>
       <div class="kv-actions">
         <button type="button" class="kv-btn-secondary" (click)="cancelEdit()">Cancel</button>
-        <button type="button" class="kv-btn-primary" [disabled]="loading()" (click)="editDocumentSave()">
+        <button type="submit" form="document-edit-form" class="kv-btn-primary" [disabled]="loading()">
           <mat-icon>save</mat-icon>
           Save Changes
         </button>
@@ -27,10 +27,10 @@
     <mat-progress-bar mode="indeterminate" class="mb-6"></mat-progress-bar>
   }
 
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+  <div class="kv-layout">
 
     <!-- Main column -->
-    <form class="md:col-span-8 flex flex-col gap-6" (submit)="$event.preventDefault()">
+    <form class="kv-col-main kv-stack" id="document-edit-form" [formRoot]="editDocumentSignalForm">
 
       <!-- Identity & Context -->
       <section class="kv-card">
@@ -39,7 +39,7 @@
           <h2 class="kv-card-title">Identity &amp; Context</h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="kv-form-grid">
           <div class="kv-field">
             <label class="kv-label" for="documentId">Document ID</label>
             <mat-form-field appearance="outline" class="vault-field">
@@ -97,7 +97,7 @@
           <h2 class="kv-card-title">Asset Details</h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="kv-form-grid">
           <div class="kv-field">
             <label class="kv-label" for="documentFileName">File Name</label>
             <mat-form-field appearance="outline" class="vault-field">
@@ -118,7 +118,7 @@
 
           <div class="kv-field md:col-span-2">
             <label class="kv-label" for="documentUrl">Document URL</label>
-            <div class="flex flex-col sm:flex-row gap-3">
+            <div class="kv-stack-sm sm:flex-row">
               <mat-form-field appearance="outline" class="vault-field flex-1">
                 <input id="documentUrl" matInput [formField]="editDocumentSignalForm.url" />
               </mat-form-field>
@@ -134,10 +134,10 @@
     </form>
 
     <!-- Side column -->
-    <aside class="md:col-span-4 flex flex-col gap-6">
+    <aside class="kv-col-side kv-stack">
 
       <!-- Compliance Protocol -->
-      <section class="kv-card border-t-4 border-emerald">
+      <section class="kv-card kv-card-accent">
         <div class="flex items-center gap-2 mb-4 text-primary">
           <mat-icon class="text-emerald">policy</mat-icon>
           <p class="kv-card-title font-medium">Compliance Protocol</p>
@@ -146,7 +146,7 @@
           All changes to this document are logged in the audit trail. Ensure entity references align with current
           registry data before saving.
         </p>
-        <dl class="flex flex-col gap-3">
+        <dl class="kv-meta-list">
           <div class="kv-meta-row">
             <dt class="kv-meta-label">Last Updated</dt>
             <dd class="kv-meta-value">{{ lastUpdatedLabel() }}</dd>

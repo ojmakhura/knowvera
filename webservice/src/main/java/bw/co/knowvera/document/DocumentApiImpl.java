@@ -5,6 +5,9 @@
 //
 package bw.co.knowvera.document;
 
+import java.nio.charset.StandardCharsets;
+import org.springframework.http.ContentDisposition;
+import bw.co.knowvera.auth.Permissions;
 import bw.co.knowvera.auth.RequiresOwnership;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -153,12 +156,23 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Save Document", description = "Save the document")
     @Audit(entity = "DOCUMENT", eventLabel = "#document.fileName", logData = true)
-    @RequiresOwnership(scope = "documents:edit", target = "#document.target", id = "#document.targetId")
+    @RequiresOwnership(scope = "documents:edit", target = "#document.target", id = "#document.targetId", record = "DOCUMENT", recordId = "#document.id")
     public ResponseEntity<DocumentDTO> save(DocumentDTO document) {
 
         logger.debug("Saving document with fileName: {}", document.getFileName());
+        DocumentDTO stored = findStored(document.getId());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        AuditTracker.auditTrail(document, authentication);
+        AuditTracker.auditTrail(document, stored, authentication);
+
+        if (!Permissions.has("documents:verify")) {
+            // The stored file and the verification results are set by the platform: callers who
+            // cannot verify documents must not repoint a document at another file or fake results
+            document.setUrl(stored != null ? stored.getUrl() : null);
+            document.setValidationResults(stored != null ? stored.getValidationResults() : null);
+            document.setExtractedInformation(stored != null ? stored.getExtractedInformation() : null);
+            document.setDataVerifications(stored != null ? stored.getDataVerifications() : null);
+            document.setDataComparisons(stored != null ? stored.getDataComparisons() : null);
+        }
         return ResponseEntity.ok(documentService.save(document));
 
     }
@@ -174,12 +188,24 @@ public class DocumentApiImpl implements DocumentApi {
 
     }
 
+    private DocumentDTO findStored(String id) {
+
+        if (StringUtils.isBlank(id)) {
+            return null;
+        }
+        try {
+            return documentService.findById(id);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private String constructFilePath(TargetEntity target, String targetId, String purpose, String fileName) {
         StringBuilder filePath = new StringBuilder();
         filePath.append(target).append("/").append(targetId);
 
         if (StringUtils.isNotBlank(purpose)) {
-            filePath.append("/").append(purpose);
+            filePath.append("/").append(UploadValidator.safeName(purpose));
         }
 
         filePath.append("/").append(fileName);
@@ -208,6 +234,9 @@ public class DocumentApiImpl implements DocumentApi {
             String documentTypeId, String purpose, MultipartFile file) {
 
         logger.debug("Uploading document for target: {}, targetId: {}, documentTypeId: {}, purpose: {}, fileName: {}", target, targetId, documentTypeId, purpose, file.getOriginalFilename());
+        UploadValidator.validate(file, UploadValidator.DOCUMENT_TYPES);
+        String fileName = UploadValidator.safeName(file.getOriginalFilename());
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
 
@@ -220,7 +249,7 @@ public class DocumentApiImpl implements DocumentApi {
         document.setCreatedBy(username);
         document.setTarget(target);
         document.setTargetId(targetId);
-        document.setFileName(file.getOriginalFilename());
+        document.setFileName(fileName);
 
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("fileSize", file.getSize());
@@ -229,7 +258,7 @@ public class DocumentApiImpl implements DocumentApi {
 
         document.setMetadata(metadata);
 
-        String filePath = constructFilePath(target, targetId, purpose, file.getOriginalFilename());
+        String filePath = constructFilePath(target, targetId, purpose, fileName);
         try {
             document.setUrl(uploadToMinio(file, filePath));
         } catch (Exception e) {
@@ -294,7 +323,10 @@ public class DocumentApiImpl implements DocumentApi {
         logger.debug("Downloading a document with url: {}", objectName);
         InputStreamResource data = downloadFromMinio(objectName);
         ResponseEntity<InputStreamResource> response = ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + objectName + "\"")
+                // Built by ContentDisposition so the object name cannot break out of the header value
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(objectName.substring(objectName.lastIndexOf('/') + 1), StandardCharsets.UTF_8)
+                        .build().toString())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(data);
 
@@ -314,10 +346,8 @@ public class DocumentApiImpl implements DocumentApi {
             throw new IllegalArgumentException("Document not found with id: " + id);
         }
 
-        String fileName = file.getOriginalFilename();
-        if (fileName == null || fileName.isBlank()) {
-            throw new IllegalArgumentException("Uploaded file must have a name");
-        }
+        UploadValidator.validate(file, UploadValidator.DOCUMENT_TYPES);
+        String fileName = UploadValidator.safeName(file.getOriginalFilename());
 
         String filePath;
         if (StringUtils.isNotBlank(document.getUrl())) {

@@ -20,10 +20,10 @@
   </header>
 
   <!-- Search criteria -->
-  <form class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-6" (submit)="$event.preventDefault(); doSearch(0, pageSize())">
+  <form class="kv-layout-stretch mb-6" [formRoot]="searchDocumentTypesForm">
 
     <!-- Main column -->
-    <section class="kv-card md:col-span-8">
+    <section class="kv-card kv-col-main">
       <div class="kv-card-header">
         <mat-icon class="kv-card-icon">manage_search</mat-icon>
         <h2 class="kv-card-title">Search Criteria</h2>
@@ -34,19 +34,19 @@
         <mat-form-field appearance="outline" class="vault-field">
           <mat-icon matPrefix>search</mat-icon>
           <input id="documentTypeCriteria" type="search" matInput placeholder="Search by code, name, or keywords..."
-            [value]="searchDocumentTypesSignal().criteria || ''" (input)="onCriteriaInput($event)" />
+            [formField]="searchDocumentTypesForm.criteria" />
         </mat-form-field>
       </div>
     </section>
 
     <!-- Side column -->
-    <section class="kv-card border-t-4 border-emerald md:col-span-4 flex flex-col gap-4">
+    <section class="kv-card kv-card-accent kv-col-side kv-stack-md">
       <div class="kv-card-header">
         <mat-icon class="kv-card-icon">category</mat-icon>
         <h2 class="kv-card-title">Registry</h2>
       </div>
 
-      <dl class="flex flex-col gap-3">
+      <dl class="kv-meta-list">
         <div class="kv-meta-row">
           <dt class="kv-meta-label">Total Types</dt>
           <dd class="kv-meta-value">{{ totalElements() }}</dd>
@@ -157,31 +157,6 @@
           <mat-icon>chevron_right</mat-icon>
         </button>
       </nav>
-    </div>
-  </section>
-
-  <!-- Assurances (visual vault) -->
-  <section class="vs-vault" aria-label="Registry assurances">
-    <div class="vs-vault-card vs-vault-storage">
-      <mat-icon class="vs-vault-art">verified_user</mat-icon>
-      <div class="vs-vault-copy">
-        <h3>Audit Compliance</h3>
-        <p>Type rules update verification globally</p>
-      </div>
-    </div>
-    <div class="vs-vault-card vs-vault-logs">
-      <mat-icon class="vs-vault-art">sync</mat-icon>
-      <div class="vs-vault-copy">
-        <h3>Universal Trust</h3>
-        <p>Standardised classification across the registry</p>
-      </div>
-    </div>
-    <div class="vs-vault-card vs-vault-identity">
-      <mat-icon class="vs-vault-art">analytics</mat-icon>
-      <div class="vs-vault-copy">
-        <h3>Registry Integrity</h3>
-        <p>Anchored to the compliance ledger</p>
-      </div>
     </div>
   </section>
 </div>

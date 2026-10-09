@@ -99,6 +99,11 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./views/client-request/request.routes').then((module) => module.requestRoutes),
   },
+  {
+    path: 'no-access',
+    data: { title: 'No access' },
+    loadComponent: () => import('./views/no-access/no-access').then((m) => m.NoAccess),
+  },
   // Fallback when no prior route is matched
   {
     path: '**', redirectTo: '', pathMatch: 'full'

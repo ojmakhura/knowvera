@@ -24,7 +24,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Loader } from '@app/@shared/loader/loader';
-import { disabled, email, form, FormField, readonly, required } from '@angular/forms/signals';
+import { disabled, email, form, FormField, readonly, required, FormRoot } from '@angular/forms/signals';
 import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 // import { ToastrService } from 'ngx-toastr';
@@ -110,8 +110,9 @@ export class EditRecordVarsForm {
     MatProgressBarModule,
     NgxMatSelectSearchModule,
     QuillEditorComponent,
-    RouterLink
-],
+    RouterLink,
+    FormRoot,
+  ],
 })
 export class RecordEdit implements OnInit {
 
@@ -129,7 +130,7 @@ export class RecordEdit implements OnInit {
     required(path.ownerDetails.emailAddress, { message: 'email.required' });
     required(path.kycStatus, { message: 'record.kycStatus.required' });
     required(path.declaration.pepStatus, { message: 'pep.status.required' });
-  });
+  }, { submission: { action: async () => this.saveRecord() } });
 
   protected route: ActivatedRoute = inject(ActivatedRoute);
   protected router: Router = inject(Router);

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { KycFieldGroupDTO } from '@app/models/bw/co/knowvera/settings/kyc/kyc-field-group-dto';
@@ -36,7 +37,7 @@ const groupKey = (scope: FieldGroupScope, group: KycFieldGroupDTO): string => `$
 @Component({
   selector: 'app-assign-field-groups-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatIconModule],
+  imports: [MatDialogModule, MatIconModule, FormField, FormRoot],
   templateUrl: './assign-field-groups-dialog.html',
   styleUrls: ['./assign-field-groups-dialog.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +53,7 @@ export class AssignFieldGroupsDialogComponent {
 
   readonly filter = signal<FieldGroupFilter>(this.data.filter || 'ALL');
   readonly query = signal('');
+  readonly queryForm = form(this.query, { submission: { action: async () => this.assign() } });
   readonly focusKey = this.data.focusGroupId ? this.library.find((e) => e.group.id === this.data.focusGroupId)?.key : undefined;
 
   /** Selected group key -> selected field keys. */

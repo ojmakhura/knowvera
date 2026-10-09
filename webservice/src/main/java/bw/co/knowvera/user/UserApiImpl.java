@@ -16,6 +16,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import bw.co.knowvera.auth.UserAdministrationGuard;
 import bw.co.knowvera.keycloak.KeycloakUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,10 +28,12 @@ public class UserApiImpl implements UserApi {
     protected Logger logger = LoggerFactory.getLogger(UserApiImpl.class);
 
     private final KeycloakUserService keycloakUserService;
+    private final UserAdministrationGuard guard;
 
-    public UserApiImpl(KeycloakUserService keycloakUserService) {
+    public UserApiImpl(KeycloakUserService keycloakUserService, UserAdministrationGuard guard) {
 
         this.keycloakUserService = keycloakUserService;
+        this.guard = guard;
     }
 
     @Override
@@ -41,6 +44,7 @@ public class UserApiImpl implements UserApi {
         logger.debug(
                 "Add user/client roles with client Id " + clientId + ",roles " + roles
                         + " and user Id " + userId);
+        guard.checkCanManageUser(userId, "users:manage");
         UserDTO rep = this.keycloakUserService.addClientRoles(clientId, roles, userId);
         return ResponseEntity.ok(rep);
     }
@@ -51,17 +55,21 @@ public class UserApiImpl implements UserApi {
     public ResponseEntity<Boolean> addRole(String userId,
             String role) {
 
+        guard.checkCanManageUser(userId, "users:manage");
+        guard.checkCanAssign(Set.of(role), "users:manage");
         return ResponseEntity.ok(this.keycloakUserService.updateUserRoles(userId, role, 1));
     }
 
     @Override
-    @Operation(summary = "Change Password", description = "Change the password of a user")
+    @Operation(summary = "Reset Password", description = "Set a temporary password for a user (administrators); users change their own password in Keycloak")
     @Audit(entity = "USER", eventLabel = "#userId", logData = false)
     public ResponseEntity<String> changePassword(String userId,
             String newPassword) {
 
-        this.keycloakUserService.updateUserPassword(userId, newPassword);
-        return ResponseEntity.ok(true ? "Password changed successfully" : "Failed to change password.");
+        // Administrative reset (users:manage): temporary password, changed by the user at next sign-in
+        guard.checkCanManageUser(userId, "users:manage");
+        this.keycloakUserService.resetUserPassword(userId, newPassword);
+        return ResponseEntity.ok("Password reset: the user must choose a new password at next sign-in");
     }
 
     @Override
@@ -109,6 +117,8 @@ public class UserApiImpl implements UserApi {
     public ResponseEntity<Boolean> removeRole(String userId,
             String role) {
 
+        guard.checkCanManageUser(userId, "users:manage");
+        guard.checkCanAssign(Set.of(role), "users:manage");
         Boolean responseData = this.keycloakUserService.updateUserRoles(userId, role, -1);
         return ResponseEntity.ok(responseData);
     }
@@ -120,6 +130,15 @@ public class UserApiImpl implements UserApi {
             UserDTO user) {
 
         logger.debug("Save User " + user);
+
+        if (StringUtils.isBlank(user.getUserId())) {
+            guard.checkCanCreateUserIn(user.getOrganisationId(), "users:edit");
+        } else {
+            guard.checkCanManageUser(user.getUserId(), "users:edit");
+        }
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+            guard.checkCanAssign(user.getRoles(), "users:manage");
+        }
 
         if (StringUtils.isBlank(user.getUserId()))
             user = this.keycloakUserService.createUser(user);
@@ -148,6 +167,7 @@ public class UserApiImpl implements UserApi {
     public ResponseEntity<Boolean> updateUserName(String userId,
             String username) {
 
+        guard.checkCanManageUser(userId, "users:edit");
         Optional<Boolean> data = Optional.empty(); // TODO: Add custom code here;
         return ResponseEntity.ok(data.get());
     }

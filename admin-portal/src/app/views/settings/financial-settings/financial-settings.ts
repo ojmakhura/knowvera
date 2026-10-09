@@ -1,7 +1,7 @@
 // views/settings/financial-settings/financial-settings.ts
 import { CommonModule } from '@angular/common';
 import { Component, effect, inject, linkedSignal, OnInit, signal } from '@angular/core';
-import { form, min, FormField } from '@angular/forms/signals';
+import { form, min, FormField, FormRoot } from '@angular/forms/signals';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
@@ -22,7 +22,7 @@ class FinancialSettingsModel {
 
 @Component({
   selector: 'app-financial-settings',
-  imports: [CommonModule, MatIconModule, FormField],
+  imports: [CommonModule, MatIconModule, FormField, FormRoot],
   templateUrl: './financial-settings.html',
   styleUrls: ['./financial-settings.scss'],
 })
@@ -49,7 +49,7 @@ export class FinancialSettings implements OnInit {
 
   financialSettingsForm = form(this.financialSettingsSignal, (path) => {
     min(path.vat, 0, { message: 'VAT rate cannot be negative' });
-  });
+  }, { submission: { action: async () => this.save() } });
 
   // Not part of the FinancialSettings backend model yet, so these stay component-local and unsaved.
   reducedVatRate = signal(5.0);

@@ -19,7 +19,7 @@
           class="kv-btn-secondary">
           Cancel
         </button>
-        <button type="button" [disabled]="editOrganisationFormSignalForm().invalid()" (click)="saveOrganisation()"
+        <button type="submit" form="organisation-edit-form" [disabled]="editOrganisationFormSignalForm().invalid()"
           class="kv-btn-primary">
           Save Changes
         </button>
@@ -27,10 +27,10 @@
     </div>
   </header>
 
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+  <form class="kv-layout" id="organisation-edit-form" [formRoot]="editOrganisationFormSignalForm">
 
     <!-- Main column -->
-    <div class="md:col-span-8 flex flex-col gap-6">
+    <div class="kv-col-main kv-stack">
 
       <!-- Core Identity -->
       <section class="kv-card">
@@ -50,7 +50,7 @@
           }
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div class="kv-form-grid mt-4">
           <div class="kv-field">
             <label class="kv-label" for="organisationCode" translate>abbreviation</label>
             <input id="organisationCode" type="text" [formField]="editOrganisationFormSignalForm.code"
@@ -74,7 +74,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 items-end">
+        <div class="kv-form-grid mt-4 items-end">
           <div class="kv-field">
             <label class="kv-label" for="organisationCountryOfRegistration">Country of Registration</label>
             <select id="organisationCountryOfRegistration" [formField]="editOrganisationFormSignalForm.countryOfRegistration"
@@ -112,7 +112,7 @@
           <h2 class="kv-card-title">Operational Status</h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="kv-form-grid">
           <div class="kv-field">
             <label class="kv-label" for="organisationStatus">General Status</label>
             <select id="organisationStatus" [formField]="editOrganisationFormSignalForm.status"
@@ -171,9 +171,9 @@
           </button>
         </div>
 
-        <div class="flex flex-col gap-3">
+        <div class="kv-stack-sm">
           @for (domain of editOrganisationFormSignalForm.domains; track domain; let index = $index) {
-          <div class="kv-panel flex flex-col sm:flex-row sm:items-center gap-3 p-3">
+          <div class="kv-panel kv-stack-sm sm:flex-row sm:items-center p-3">
             <div class="flex items-center gap-3 flex-1 min-w-0">
               <mat-icon class="kv-card-icon text-on-surface-variant!">dns</mat-icon>
               <div class="flex-1 min-w-0">
@@ -206,7 +206,7 @@
     </div>
 
     <!-- Side column -->
-    <div class="md:col-span-4 flex flex-col gap-6">
+    <div class="kv-col-side kv-stack">
 
       <!-- Contact -->
       <section class="kv-card">
@@ -301,7 +301,7 @@
           <h2 class="kv-card-title">Audit Trail</h2>
         </div>
 
-        <div class="flex flex-col gap-3">
+        <div class="kv-stack-sm">
           <div class="kv-meta-row">
             <span class="kv-meta-label">Created At</span>
             <span class="kv-meta-value">{{ formatAuditDate(editOrganisationFormSignal().createdAt) }}</span>
@@ -321,5 +321,5 @@
         </div>
       </section>
     </div>
-  </div>
+  </form>
 </div>

@@ -9,6 +9,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -64,8 +65,10 @@ export class SearchRecordsVarsForm {
     MatSelectModule,
     MatTooltipModule,
     MatIconModule,
-    RouterLink
-],
+    RouterLink,
+    FormRoot,
+    FormField,
+  ],
 })
 export class Records implements OnInit {
   private readonly kycRecordApiStore = inject(KycRecordApiStore);
@@ -73,6 +76,7 @@ export class Records implements OnInit {
   // private readonly // toaster = inject(ToastrService);
 
   readonly searchRecordsSignal = signal(new SearchRecordsVarsForm());
+  readonly searchRecordsForm = form(this.searchRecordsSignal, { submission: { action: async () => this.doSearch() } });
   readonly dataSource = new MatTableDataSource<KycRecordDTO>([]);
   readonly rows = signal<KycRecordDTO[]>([]);
   readonly currentPage = signal(0);
@@ -92,9 +96,6 @@ export class Records implements OnInit {
     'expiryDate',
     'actions',
   ];
-
-  readonly currentCount = computed(() => this.rows().filter(r => r.kycStatus === KycComplianceStatus.CURRENT).length);
-  readonly flaggedCount = computed(() => this.rows().filter(r => r.kycStatus === KycComplianceStatus.EXPIRED || r.kycStatus === KycComplianceStatus.ABSENT).length);
 
   readonly identityTypeOptions = [
     { label: 'All Types', value: '' },
@@ -174,13 +175,6 @@ export class Records implements OnInit {
 
   pageReport(): string {
     return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
-  }
-
-  updateField(field: keyof SearchRecordsVarsForm, value: string | IndividualIdentityType | ''): void {
-    this.searchRecordsSignal.update((state) => ({
-      ...state,
-      [field]: value,
-    }));
   }
 
   toggleStatus(status: KycComplianceStatus): void {

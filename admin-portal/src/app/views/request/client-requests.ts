@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -56,8 +57,10 @@ const INITIAL_FILTERS: ClientRequestSearchForm = {
     MatProgressBarModule,
     MatFormFieldModule,
     MatTooltipModule,
-    RouterLink
-],
+    RouterLink,
+    FormRoot,
+    FormField,
+  ],
 })
 export class ClientRequests implements OnInit {
   private readonly router = inject(Router);
@@ -66,6 +69,7 @@ export class ClientRequests implements OnInit {
 
   readonly displayedColumns = ['client', 'ref', 'status', 'organisation', 'actions'];
   readonly filters = signal<ClientRequestSearchForm>({ ...INITIAL_FILTERS });
+  readonly filtersForm = form(this.filters, { submission: { action: async () => this.onSubmit() } });
   readonly organisations = signal<OrganisationListDTO[]>([]);
   readonly rows = signal<ClientRequestDTO[]>([]);
   readonly dataSource = new MatTableDataSource<ClientRequestDTO>([]);
@@ -115,13 +119,6 @@ export class ClientRequests implements OnInit {
   ngOnInit(): void {
     this.organisationApiStore.getAll();
     this.search();
-  }
-
-  updateField<K extends keyof ClientRequestSearchForm>(field: K, value: ClientRequestSearchForm[K]): void {
-    this.filters.update((current) => ({
-      ...current,
-      [field]: value,
-    }));
   }
 
   clearFilters(): void {

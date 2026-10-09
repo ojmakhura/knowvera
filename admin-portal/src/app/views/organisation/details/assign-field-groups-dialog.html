@@ -13,63 +13,65 @@
     </button>
   </div>
 
-  <!-- Search & filters -->
-  <div class="afg-filters">
-    <div class="afg-search">
-      <mat-icon>search</mat-icon>
-      <input type="text" placeholder="Search field groups or fields (e.g. UBO, Tax ID, PEP, Sanctions)..."
-        [value]="query()" (input)="query.set($any($event.target).value)" />
-    </div>
-    <div class="flex flex-wrap items-center gap-2">
-      <button type="button" class="afg-chip" [class.is-active]="filter() === 'ALL'" (click)="filter.set('ALL')">
-        All Groups ({{ library.length }})
-      </button>
-      <button type="button" class="afg-chip" [class.is-active]="filter() === 'ORG'" (click)="filter.set('ORG')">
-        Organisation ({{ orgCount }})
-      </button>
-      <button type="button" class="afg-chip" [class.is-active]="filter() === 'IND'" (click)="filter.set('IND')">
-        Individual / UBO ({{ indCount }})
-      </button>
-    </div>
-  </div>
-
-  <!-- Checklist -->
-  <mat-dialog-content class="afg-body">
-    @for (entry of visible(); track entry.key) {
-      <div class="afg-group" [class.is-selected]="isGroupSelected(entry)" [class.is-focus]="entry.key === focusKey">
-        <div class="flex items-start justify-between gap-3">
-          <label class="afg-group-label">
-            <input type="checkbox" [checked]="isGroupSelected(entry)" (change)="toggleGroup(entry)" />
-            <span class="min-w-0">
-              <span class="flex items-center gap-2">
-                <span class="afg-group-name">{{ entry.group.label || 'Untitled group' }}</span>
-                <span class="afg-scope" [class.is-ind]="entry.scope === 'IND'">{{ entry.scope }}</span>
-              </span>
-              @if (entry.group.description) {
-                <span class="dp-list-sub block">{{ entry.group.description }}</span>
-              }
-            </span>
-          </label>
-          <span class="dp-field-count afg-count" [class.is-empty]="!selectedFieldsOf(entry)">
-            {{ selectedFieldsOf(entry) }}/{{ (entry.group.groupFields || []).length }} fields selected
-          </span>
-        </div>
-
-        @if ((entry.group.groupFields || []).length) {
-          <div class="afg-fields">
-            @for (field of entry.group.groupFields; track field.id || field.fieldId || $index) {
-              <label class="afg-field">
-                <input type="checkbox" [checked]="isFieldSelected(entry, field)" (change)="toggleField(entry, field)" />
-                <span>{{ field.field || field.fieldId || 'Unnamed field' }}</span>
-              </label>
-            }
-          </div>
-        }
+  <form class="kv-form-contents" id="assign-field-groups-form" [formRoot]="queryForm">
+    <!-- Search & filters -->
+    <div class="afg-filters">
+      <div class="afg-search">
+        <mat-icon>search</mat-icon>
+        <input type="text" placeholder="Search field groups or fields (e.g. UBO, Tax ID, PEP, Sanctions)..."
+          [formField]="queryForm" (keydown.enter)="$event.preventDefault()" />
       </div>
-    } @empty {
-      <p class="dp-empty-text">No field groups match. Add groups to the library in Settings.</p>
-    }
-  </mat-dialog-content>
+      <div class="kv-row-sm">
+        <button type="button" class="afg-chip" [class.is-active]="filter() === 'ALL'" (click)="filter.set('ALL')">
+          All Groups ({{ library.length }})
+        </button>
+        <button type="button" class="afg-chip" [class.is-active]="filter() === 'ORG'" (click)="filter.set('ORG')">
+          Organisation ({{ orgCount }})
+        </button>
+        <button type="button" class="afg-chip" [class.is-active]="filter() === 'IND'" (click)="filter.set('IND')">
+          Individual / UBO ({{ indCount }})
+        </button>
+      </div>
+    </div>
+
+    <!-- Checklist -->
+    <mat-dialog-content class="afg-body">
+      @for (entry of visible(); track entry.key) {
+        <div class="afg-group" [class.is-selected]="isGroupSelected(entry)" [class.is-focus]="entry.key === focusKey">
+          <div class="flex items-start justify-between gap-3">
+            <label class="afg-group-label">
+              <input type="checkbox" [checked]="isGroupSelected(entry)" (change)="toggleGroup(entry)" />
+              <span class="min-w-0">
+                <span class="flex items-center gap-2">
+                  <span class="afg-group-name">{{ entry.group.label || 'Untitled group' }}</span>
+                  <span class="afg-scope" [class.is-ind]="entry.scope === 'IND'">{{ entry.scope }}</span>
+                </span>
+                @if (entry.group.description) {
+                  <span class="dp-list-sub block">{{ entry.group.description }}</span>
+                }
+              </span>
+            </label>
+            <span class="dp-field-count afg-count" [class.is-empty]="!selectedFieldsOf(entry)">
+              {{ selectedFieldsOf(entry) }}/{{ (entry.group.groupFields || []).length }} fields selected
+            </span>
+          </div>
+
+          @if ((entry.group.groupFields || []).length) {
+            <div class="afg-fields">
+              @for (field of entry.group.groupFields; track field.id || field.fieldId || $index) {
+                <label class="afg-field">
+                  <input type="checkbox" [checked]="isFieldSelected(entry, field)" (change)="toggleField(entry, field)" />
+                  <span>{{ field.field || field.fieldId || 'Unnamed field' }}</span>
+                </label>
+              }
+            </div>
+          }
+        </div>
+      } @empty {
+        <p class="dp-empty-text">No field groups match. Add groups to the library in Settings.</p>
+      }
+    </mat-dialog-content>
+  </form>
 
   <!-- Footer -->
   <div class="afg-foot">
@@ -79,7 +81,7 @@
     </span>
     <div class="flex items-center gap-3">
       <button type="button" class="kv-btn-secondary" (click)="cancel()">Cancel</button>
-      <button type="button" class="dp-btn-navy" (click)="assign()">
+      <button type="submit" form="assign-field-groups-form" class="dp-btn-navy">
         <mat-icon>check_circle</mat-icon>
         Assign Selected ({{ selectedGroupCount() }} Groups, {{ selectedFieldCount() }} Fields)
       </button>

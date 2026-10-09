@@ -10,7 +10,15 @@
       "enforcement-mode": "DISABLED"
     },
     {
-      "path": "/actuator/*",
+      "path": "/actuator/health",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "path": "/actuator/health/*",
+      "enforcement-mode": "DISABLED"
+    },
+    {
+      "path": "/actuator/info",
       "enforcement-mode": "DISABLED"
     },
     {
@@ -2944,10 +2952,12 @@
       "path": "/users/updatePassword",
       "methods": [
         {
-          "method": "GET",
+          "method": "POST",
           "scopes": [
-            "self"
-          ]
+            "manage",
+            "manage-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },

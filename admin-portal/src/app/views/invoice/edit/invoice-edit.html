@@ -15,8 +15,7 @@
       </div>
       <div class="kv-actions">
         <button type="button" class="kv-btn-secondary" (click)="cancel()">Cancel</button>
-        <button type="button" class="kv-btn-primary" [disabled]="loading() || editInvoiceSignalForm().invalid()"
-          (click)="saveInvoice()">
+        <button type="submit" form="invoice-edit-form" class="kv-btn-primary" [disabled]="loading() || editInvoiceSignalForm().invalid()">
           <mat-icon>save</mat-icon>
           Save Changes
         </button>
@@ -24,10 +23,10 @@
     </div>
   </header>
 
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+  <div class="kv-layout">
 
     <!-- Main column -->
-    <div class="md:col-span-8 flex flex-col gap-6">
+    <form class="kv-col-main kv-stack" id="invoice-edit-form" [formRoot]="editInvoiceSignalForm">
 
       <!-- Invoice Identity -->
       <section class="kv-card">
@@ -36,7 +35,7 @@
           <h2 class="kv-card-title">Invoice Identity</h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="kv-form-grid">
           <div class="kv-field">
             <label class="kv-label" for="invoiceRef">Invoice Reference</label>
             <mat-form-field appearance="outline" class="vault-field">
@@ -129,7 +128,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="kv-form-grid">
           <div class="kv-field">
             <label class="kv-label" for="paymentDate" translate>payment.date</label>
             <mat-form-field appearance="outline" class="vault-field">
@@ -149,10 +148,10 @@
           </div>
         </div>
       </section>
-    </div>
+    </form>
 
     <!-- Side column -->
-    <aside class="md:col-span-4 flex flex-col gap-6">
+    <aside class="kv-col-side kv-stack">
 
       <!-- Subscription Context -->
       <section class="kv-card">
@@ -165,7 +164,7 @@
           Inherited from the linked subscription and cannot be edited here.
         </p>
 
-        <dl class="flex flex-col gap-3">
+        <dl class="kv-meta-list">
           <div class="kv-meta-row">
             <dt class="kv-meta-label">Billing Period</dt>
             <dd class="kv-meta-value">{{ subscriptionPeriodLabel() }}</dd>
@@ -188,7 +187,7 @@
           <h2 class="kv-card-title">Audit Trail</h2>
         </div>
 
-        <dl class="flex flex-col gap-3">
+        <dl class="kv-meta-list">
           <div class="kv-meta-row">
             <dt class="kv-meta-label">Created At</dt>
             <dd class="kv-meta-value">{{ (editInvoiceSignal().createdAt | date: 'dd MMM yyyy, HH:mm') || 'Not available' }}</dd>

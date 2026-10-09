@@ -54,11 +54,8 @@ export MINIO_SECRET_KEY=minio123
 export MINIO_BUCKET=knowvera
 
 # --- Application roles ---
-export REALM_USER_ROLE=KYC_USER
-export ADMIN_PORTAL_ROLE=ADMIN_PORTAL_USER
-export USER_PORTAL_ROLE=PORTAL_USER
-export API_USER_ROLE=KYC_USER
-export ORGANISATION_MANAGER_ROLE=ORG_MANAGER
+export REALM_USER_ROLE=APPLICANT
+export ORGANISATION_MANAGER_ROLE=ORG_ADMIN
 
 # --- Audit partition maintenance ---
 export AUDIT_PARTITION_MONTHS_HISTORY=12
@@ -70,7 +67,10 @@ export AUDIT_PARTITION_MAINTENANCE_FIXED_DELAY_MS=300000
 export REQUEST_TOKEN_LENGTH=32
 export REGISTRATION_URL=http://localhost:4300/register
 export ADMIN_WEB_URL=http://localhost:4200
-export MIN_PASSWORD_LENGTH=8
+export CORS_ALLOWED_ORIGINS=http://localhost:4200,http://localhost:4300
+export JWT_AUDIENCES=knowvera-api
+export DOCUMENT_AUTO_VERIFY=false
+export MIN_PASSWORD_LENGTH=12
 
 # --- Tesseract OCR ---
 export TESSDATA_PREFIX=/usr/share/tesseract-ocr/4/tessdata

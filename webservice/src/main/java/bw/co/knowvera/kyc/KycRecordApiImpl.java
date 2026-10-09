@@ -5,6 +5,7 @@
 //
 package bw.co.knowvera.kyc;
 
+import bw.co.knowvera.auth.Permissions;
 import bw.co.knowvera.auth.RequiresOwnership;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -93,6 +94,32 @@ public class KycRecordApiImpl implements KycRecordApi {
             }
         }
 
+    }
+
+    private KycRecordDTO findStored(String id) {
+
+        if (StringUtils.isBlank(id)) {
+            return null;
+        }
+        try {
+            return kycRecordService.findById(id);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Status and validity change through review: callers without kyc-records:review (applicants,
+     * organisations, analysts) keep the stored values, and a new record starts INCOMPLETE.
+     */
+    private void protectReviewFields(KycRecordDTO record, KycRecordDTO stored) {
+
+        if (Permissions.has("kyc-records:review")) {
+            return;
+        }
+        record.setKycStatus(stored != null ? stored.getKycStatus() : KycComplianceStatus.INCOMPLETE);
+        record.setUploadDate(stored != null ? stored.getUploadDate() : null);
+        record.setExpiryDate(stored != null ? stored.getExpiryDate() : null);
     }
 
     @Override
@@ -203,13 +230,15 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Save KYC Record", description = "Save a KYC record")
     @Audit(entity = "KYC_RECORD", logData = true)
-    @RequiresOwnership(scope = "kyc-records:edit", target = "#kycRecord.target", id = "#kycRecord.targetId")
+    @RequiresOwnership(scope = "kyc-records:edit", target = "#kycRecord.target", id = "#kycRecord.targetId", record = "KYC_RECORD", recordId = "#kycRecord.id")
     public ResponseEntity<KycRecordDTO> save(KycRecordDTO kycRecord) throws Exception {
 
         logger.debug("Saving KYC record: {}", kycRecord);
 
+        KycRecordDTO stored = findStored(kycRecord.getId());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        AuditTracker.auditTrail(kycRecord, authentication);
+        AuditTracker.auditTrail(kycRecord, stored, authentication);
+        protectReviewFields(kycRecord, stored);
 
         KycRecordDTO savedRecord = kycRecordService.save(kycRecord);
         updateOrganisations(List.of(savedRecord));
@@ -476,6 +505,7 @@ public class KycRecordApiImpl implements KycRecordApi {
         List<DocumentDTO> docs = record.getDocuments();
 
         AuditTracker.auditTrail(record, authentication);
+        protectReviewFields(record, null);
 
         docs.forEach(d -> {
             AuditTracker.auditTrail(d, authentication);

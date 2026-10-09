@@ -51,11 +51,8 @@ services:
       MINIO_BUCKET: ${MINIO_BUCKET:-knowvera}
 
       # --- Application roles ---
-      REALM_USER_ROLE: ${REALM_USER_ROLE:-KYC_USER}
-      ADMIN_PORTAL_ROLE: ${ADMIN_PORTAL_ROLE:-ADMIN_PORTAL_USER}
-      USER_PORTAL_ROLE: ${USER_PORTAL_ROLE:-PORTAL_USER}
-      API_USER_ROLE: ${API_USER_ROLE:-KYC_USER}
-      ORGANISATION_MANAGER_ROLE: ${ORGANISATION_MANAGER_ROLE:-ORG_MANAGER}
+      REALM_USER_ROLE: ${REALM_USER_ROLE:-APPLICANT}
+      ORGANISATION_MANAGER_ROLE: ${ORGANISATION_MANAGER_ROLE:-ORG_ADMIN}
 
       # --- Audit partition maintenance ---
       AUDIT_PARTITION_MONTHS_HISTORY: ${AUDIT_PARTITION_MONTHS_HISTORY:-12}
@@ -67,7 +64,7 @@ services:
       REQUEST_TOKEN_LENGTH: ${REQUEST_TOKEN_LENGTH:-32}
       REGISTRATION_URL: ${REGISTRATION_URL:-http://localhost:4300/register}
       ADMIN_WEB_URL: ${ADMIN_WEB_URL:-http://localhost:4200}
-      MIN_PASSWORD_LENGTH: ${MIN_PASSWORD_LENGTH:-8}
+      MIN_PASSWORD_LENGTH: ${MIN_PASSWORD_LENGTH:-12}
 
       # --- Tesseract OCR ---
       TESSDATA_PREFIX: ${TESSDATA_PREFIX:-/usr/share/tesseract-ocr/4/tessdata}
@@ -84,6 +81,9 @@ services:
 
       # --- Resource-based authorization (Keycloak policy enforcer) ---
       AUTHZ_ENABLED: ${AUTHZ_ENABLED:-true}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost:4300}
+      JWT_AUDIENCES: ${JWT_AUDIENCES:-knowvera-api}
+      DOCUMENT_AUTO_VERIFY: ${DOCUMENT_AUTO_VERIFY:-false}
       AUTHZ_PERMISSION_AUTHORITIES: ${AUTHZ_PERMISSION_AUTHORITIES:-true}
       API_CLIENT: ${API_CLIENT:-knowvera-api}
       API_CLIENT_SECRET: ${API_CLIENT_SECRET:-secret}
