@@ -1,176 +1,167 @@
-<main class="individual-details-page">
-	<!-- Back Navigation -->
-	<div class="back-nav">
-		<button mat-button type="button" class="back-button" (click)="goBack()">
-			<mat-icon>arrow_back</mat-icon>
-			Back to Search
-		</button>
-	</div>
+<div class="kv-page">
+	<!-- Header -->
+	<header class="dp-header">
+		<nav class="kv-breadcrumb" aria-label="Breadcrumb">
+			<button type="button" class="hover:text-primary" (click)="goBack()">Individuals</button>
+			<mat-icon>chevron_right</mat-icon>
+			<span class="kv-breadcrumb-current">{{ fullName() }}</span>
+		</nav>
 
-	@if (loading()) {
-		<mat-card class="loading-card">
-			<mat-card-content>
-				<div class="loading-row">
-					<mat-icon>hourglass_top</mat-icon>
-					<div>
-						<p class="alert-title">{{ loaderMessage() || 'Loading profile' }}</p>
-						<p class="alert-message">Fetching the latest identity, contact, and compliance records.</p>
+		<div class="kv-page-header">
+			<div class="min-w-0 flex items-center gap-4">
+				<span class="grid place-items-center shrink-0 size-14 rounded-full bg-primary-container text-on-primary text-lg font-bold" aria-hidden="true">
+					{{ initials() }}
+				</span>
+				<div class="min-w-0 flex flex-col gap-3">
+					<div class="flex flex-wrap items-center gap-3">
+						<h1 class="kv-title">{{ fullName() }}</h1>
+						<span class="dp-code">ID: {{ individual().id || 'Pending' }}</span>
+						<span class="dp-entity-pill">
+							<mat-icon>person</mat-icon>
+							Natural Person
+						</span>
 					</div>
-				</div>
-			</mat-card-content>
-		</mat-card>
-	}
-
-	<!-- Hero Section -->
-	<div class="hero-section">
-		<div class="hero-avatar" aria-hidden="true">{{ initials() }}</div>
-		<div class="hero-content">
-			<div>
-				<h1 class="hero-title">{{ fullName() }}</h1>
-				<div class="hero-meta">
-					<span class="meta-id">
-						<mat-icon>tag</mat-icon>
-						ID: {{ individual().id || 'Pending' }}
-					</span>
-					<div class="divider"></div>
-					<mat-chip class="status-chip">
-						<mat-icon>check_circle</mat-icon>
-						{{ kycStatusLabel() }} / {{ accountStatusLabel() }}
-					</mat-chip>
+					<div class="flex flex-wrap items-center gap-2">
+						<span class="dp-pill is-success">
+							<mat-icon>check_circle</mat-icon>
+							{{ kycStatusLabel() }} / {{ accountStatusLabel() }}
+						</span>
+						@if (individual().organisation?.name) {
+							<span class="dp-pill is-info">
+								<mat-icon>corporate_fare</mat-icon>
+								{{ individual().organisation?.name }}
+							</span>
+						}
+					</div>
 				</div>
 			</div>
-		</div>
-		<div class="hero-actions">
-			<button mat-stroked-button type="button" (click)="openEditProfile()">
-				<mat-icon>edit</mat-icon>
-				Edit Profile
-			</button>
-			<button mat-raised-button type="button" color="accent">
-				<mat-icon>download</mat-icon>
-				Export Report
-			</button>
-		</div>
-	</div>
 
-	@if (error() && messages().length) {
-		<mat-card class="alert-card">
-			<mat-card-content>
-				<div class="alert-row">
-					<mat-icon>error_outline</mat-icon>
-					<div>
-						<p class="alert-title">Profile data could not be refreshed</p>
-						<p class="alert-message">{{ messages()[0] }}</p>
-					</div>
-				</div>
-			</mat-card-content>
-		</mat-card>
+			<div class="kv-actions">
+				<button type="button" class="kv-btn-secondary" (click)="openEditProfile()">
+					<mat-icon>edit</mat-icon>
+					Edit Profile
+				</button>
+				<button type="button" class="kv-btn-primary">
+					<mat-icon>download</mat-icon>
+					Export Report
+				</button>
+			</div>
+		</div>
+	</header>
+
+	@if (loading()) {
+		<div class="kv-panel flex items-center gap-3 mb-6">
+			<mat-icon class="text-primary">hourglass_top</mat-icon>
+			<div>
+				<p class="text-sm font-semibold text-primary">{{ loaderMessage() || 'Loading profile' }}</p>
+				<p class="text-xs text-on-surface-variant">Fetching the latest identity, contact, and compliance records.</p>
+			</div>
+		</div>
 	}
 
-	<!-- Main Content Grid -->
-	<div class="content-grid">
-		<!-- Left Column - Main Content -->
-		<div class="content-main">
-			<!-- Core Identity Card -->
-			<mat-card class="content-card">
-				<mat-card-header>
-					<h2 class="card-title">
-						<mat-icon>person</mat-icon>
-						Core Identity
-					</h2>
-				</mat-card-header>
-				<mat-card-content>
-					<div class="field-grid">
-						<div class="field-group">
-							<label class="field-label">Full Legal Name</label>
-							<p class="field-value">{{ fullName() }}</p>
-						</div>
-						<div class="field-group">
-							<label class="field-label">Date of Birth</label>
-							<p class="field-value">{{ individual().dateOfBirth ? (individual().dateOfBirth | date:'d MMM y') : 'Not provided' }}</p>
-						</div>
-						<div class="field-group">
-							<label class="field-label">Sex</label>
-							<p class="field-value">{{ sexLabel() }}</p>
-						</div>
-						<div class="field-group">
-							<label class="field-label">Marital Status</label>
-							<p class="field-value">{{ maritalStatusLabel() }}</p>
-						</div>
-						<div class="field-group full-width">
-							<label class="field-label">Nationality</label>
-							<div class="nationality-tags">
-								<span class="tag">{{ nationalityLabel() }}</span>
-							</div>
-						</div>
-					</div>
-				</mat-card-content>
-			</mat-card>
+	@if (error() && messages().length) {
+		<div class="kv-panel kv-tone-danger flex items-center gap-3 mb-6">
+			<mat-icon>error_outline</mat-icon>
+			<div>
+				<p class="text-sm font-semibold">Profile data could not be refreshed</p>
+				<p class="text-xs">{{ messages()[0] }}</p>
+			</div>
+		</div>
+	}
 
-			<!-- Identification Card -->
-			<mat-card class="content-card">
-				<mat-card-header>
-					<div class="card-header-top">
-						<h2 class="card-title">
-							<mat-icon>badge</mat-icon>
-							Primary Identification
-						</h2>
-						<mat-chip class="verification-badge">
-							<mat-icon>verified</mat-icon>
-							Verified via API
-						</mat-chip>
+	<!-- Bento grid -->
+	<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+		<div class="lg:col-span-8 flex flex-col gap-6">
+			<!-- Core Identity -->
+			<section class="kv-card">
+				<div class="kv-card-header dp-head">
+					<span class="dp-icon-tile"><mat-icon>person</mat-icon></span>
+					<div class="dp-head-copy">
+						<h2 class="kv-card-title">Core Identity</h2>
+						<p class="dp-head-sub">Personal particulars held in the identity registry</p>
 					</div>
-				</mat-card-header>
-				<mat-card-content>
-					<div class="id-card-container">
-						<div class="id-card-icon">
-							<mat-icon>credit_card</mat-icon>
-						</div>
-						<div class="field-grid">
-							<div class="field-group">
-								<label class="field-label">Document Type</label>
-								<p class="field-value font-semibold">{{ identityTypeLabel() }}</p>
-							</div>
-							<div class="field-group">
-								<label class="field-label">Document Number</label>
-								<p class="field-value font-mono">{{ individual().identityNo || 'Not provided' }}</p>
-							</div>
-							<div class="field-group">
-								<label class="field-label">Issue Date</label>
-								<p class="field-value">12 Jun 2020</p>
-							</div>
-							<div class="field-group">
-								<label class="field-label">Expiry Date</label>
-								<p class="field-value">12 Jun 2030</p>
-							</div>
-						</div>
-					</div>
-				</mat-card-content>
-			</mat-card>
+				</div>
 
-			<!-- Employment History Card -->
-			<mat-card class="content-card">
-				<mat-card-header>
-					<h2 class="card-title">
-						<mat-icon>work</mat-icon>
-						Employment History
-					</h2>
-				</mat-card-header>
-				<mat-card-content>
-					<div class="employment-timeline">
-						@for (record of employmentRecords(); track record.identityNo || record.name || $index; let isFirst = $first) {
-							<div class="timeline-item" [class.is-active]="isFirst">
-								<div class="timeline-marker">
-									<mat-icon>domain</mat-icon>
-								</div>
-								<div class="timeline-card">
-									<div class="timeline-header">
-										<h3 class="timeline-title">{{ record.employer?.name || record.name || 'Employment record' }}</h3>
-										@if (isFirst) {
-											<span class="timeline-badge">Current</span>
-										}
-									</div>
-									<p class="timeline-position">{{ record.positions?.[0] || 'Position not recorded' }}</p>
-									<p class="timeline-dates">
+				<dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+					<div class="kv-field">
+						<dt class="kv-label">Full Legal Name</dt>
+						<dd class="kv-value dp-strong">{{ fullName() }}</dd>
+					</div>
+					<div class="kv-field">
+						<dt class="kv-label">Date of Birth</dt>
+						<dd class="kv-value">{{ individual().dateOfBirth ? (individual().dateOfBirth | date:'d MMM y') : 'Not provided' }}</dd>
+					</div>
+					<div class="kv-field">
+						<dt class="kv-label">Sex</dt>
+						<dd class="kv-value">{{ sexLabel() }}</dd>
+					</div>
+					<div class="kv-field">
+						<dt class="kv-label">Marital Status</dt>
+						<dd class="kv-value">{{ maritalStatusLabel() }}</dd>
+					</div>
+					<div class="kv-field sm:col-span-2">
+						<dt class="kv-label">Nationality</dt>
+						<dd><span class="kv-tag">{{ nationalityLabel() }}</span></dd>
+					</div>
+				</dl>
+			</section>
+
+			<!-- Primary Identification -->
+			<section class="kv-card">
+				<div class="kv-card-header dp-head">
+					<span class="dp-icon-tile"><mat-icon>badge</mat-icon></span>
+					<div class="dp-head-copy">
+						<h2 class="kv-card-title">Primary Identification</h2>
+						<p class="dp-head-sub">{{ identityTypeLabel() }}</p>
+					</div>
+					<span class="dp-pill is-success dp-head-aside">
+						<mat-icon>verified</mat-icon>
+						Verified via API
+					</span>
+				</div>
+
+				<div class="flex flex-col sm:flex-row gap-6">
+					<span class="dp-icon-tile size-16!" aria-hidden="true"><mat-icon>credit_card</mat-icon></span>
+					<dl class="grid grid-cols-1 sm:grid-cols-2 gap-6 flex-1">
+						<div class="kv-field">
+							<dt class="kv-label">Document Type</dt>
+							<dd class="kv-value dp-strong">{{ identityTypeLabel() }}</dd>
+						</div>
+						<div class="kv-field">
+							<dt class="kv-label">Document Number</dt>
+							<dd class="kv-value dp-mono">{{ individual().identityNo || 'Not provided' }}</dd>
+						</div>
+						<div class="kv-field">
+							<dt class="kv-label">Issue Date</dt>
+							<dd class="kv-value">12 Jun 2020</dd>
+						</div>
+						<div class="kv-field">
+							<dt class="kv-label">Expiry Date</dt>
+							<dd class="kv-value">12 Jun 2030</dd>
+						</div>
+					</dl>
+				</div>
+			</section>
+
+			<!-- Employment History -->
+			<section class="kv-card">
+				<div class="kv-card-header dp-head">
+					<span class="dp-icon-tile"><mat-icon>work</mat-icon></span>
+					<div class="dp-head-copy">
+						<h2 class="kv-card-title">Employment History</h2>
+						<p class="dp-head-sub">Current and previous employers on record</p>
+					</div>
+				</div>
+
+				<div class="flex flex-col gap-3">
+					@for (record of employmentRecords(); track record.identityNo || record.name || $index; let isFirst = $first) {
+						<div class="dp-list-item" [class.is-primary]="isFirst">
+							<div class="flex items-center gap-3 min-w-0">
+								<span class="dp-icon-tile"><mat-icon>domain</mat-icon></span>
+								<div class="min-w-0">
+									<p class="dp-strong text-sm">{{ record.employer?.name || record.name || 'Employment record' }}</p>
+									<p class="dp-list-sub">{{ record.positions?.[0] || 'Position not recorded' }}</p>
+									<p class="dp-list-sub dp-inline-icon">
 										<mat-icon>calendar_month</mat-icon>
 										{{ record.employmentStart ? (record.employmentStart | date:'MMM y') : 'Unknown start' }}
 										-
@@ -178,118 +169,114 @@
 									</p>
 								</div>
 							</div>
-						}
-						@if (!employmentRecords().length) {
-							<p class="empty-state">No employment records available.</p>
-						}
-					</div>
-				</mat-card-content>
-			</mat-card>
+							@if (isFirst) {
+								<span class="dp-mini-badge">Current</span>
+							}
+						</div>
+					}
+					@if (!employmentRecords().length) {
+						<p class="dp-empty-text">No employment records available.</p>
+					}
+				</div>
+			</section>
 		</div>
 
-		<!-- Right Column - Sidebar -->
-		<aside class="content-side">
-			<!-- Contact Card -->
-			<mat-card class="content-card">
-				<mat-card-header>
-					<h2 class="card-title">
-						<mat-icon>contact_mail</mat-icon>
-						Contact
-					</h2>
-				</mat-card-header>
-				<mat-card-content>
-					<ul class="contact-list">
-						<li class="contact-item">
-							<mat-icon>mail</mat-icon>
-							<div>
-								<p class="contact-value">{{ individual().emailAddress || 'Not provided' }}</p>
-								<span class="contact-label">Primary Email</span>
-							</div>
-						</li>
-						<li class="contact-item">
-							<mat-icon>phone</mat-icon>
-							<div>
-								<p class="contact-value">{{ phoneCount() }} contact{{ phoneCount() === 1 ? '' : 's' }}</p>
-								<span class="contact-label">Mobile</span>
-							</div>
-						</li>
-						<li class="contact-item">
-							<mat-icon>home</mat-icon>
-							<div>
-								<p class="contact-value">{{ individual().physicalAddress || 'Not provided' }}</p>
-								<span class="contact-label">Residential Address</span>
-							</div>
-						</li>
-					</ul>
-				</mat-card-content>
-			</mat-card>
-
-			<!-- Documents Vault Card -->
-			<mat-card class="content-card">
-				<mat-card-header>
-					<div class="card-header-top">
-						<h2 class="card-title">
-							<mat-icon>folder_open</mat-icon>
-							Vault
-						</h2>
-						<button mat-icon-button type="button" class="add-button">
-							<mat-icon>add</mat-icon>
-						</button>
+		<aside class="lg:col-span-4 flex flex-col gap-6">
+			<!-- Contact -->
+			<section class="kv-card">
+				<div class="kv-card-header dp-head">
+					<span class="dp-icon-tile"><mat-icon>contact_mail</mat-icon></span>
+					<div class="dp-head-copy">
+						<h2 class="kv-card-title">Contact</h2>
 					</div>
-				</mat-card-header>
-				<mat-card-content>
-					<ul class="document-list">
-						@for (document of documents(); track document.id || document.fileName || $index) {
-							<li class="document-item">
-								<div class="doc-icon">
-									<mat-icon>description</mat-icon>
-								</div>
-								<div class="doc-info">
-									<p class="doc-name">{{ document.fileName || 'Untitled document' }}</p>
-									<span class="doc-meta">2.4 MB • {{ humanize(document.verificationStatus) }}</span>
-								</div>
-								<mat-icon class="doc-action">download</mat-icon>
-							</li>
-						}
-						@if (!documents().length) {
-							<p class="empty-state">No supporting documents have been uploaded.</p>
-						}
-					</ul>
-				</mat-card-content>
-			</mat-card>
+				</div>
 
-			<!-- Snapshot Card -->
-			<mat-card class="content-card snapshot-card">
-				<mat-card-header>
-					<h2 class="card-title">
-						<mat-icon>info</mat-icon>
-						Snapshot
-					</h2>
-				</mat-card-header>
-				<mat-card-content>
-					<div class="snapshot-grid">
-						<div class="snapshot-row">
-							<span class="snapshot-label">Profile Created</span>
-							<span class="snapshot-value">{{ individual().createdAt ? (individual().createdAt | date:'d MMM y') : 'Not provided' }}</span>
+				<ul class="flex flex-col gap-4">
+					<li class="flex items-start gap-3">
+						<mat-icon class="text-primary shrink-0">mail</mat-icon>
+						<div class="min-w-0">
+							<p class="kv-value">{{ individual().emailAddress || 'Not provided' }}</p>
+							<span class="kv-meta-label">Primary Email</span>
 						</div>
-						<div class="snapshot-row">
-							<span class="snapshot-label">Last Updated</span>
-							<span class="snapshot-value">{{ individual().modifiedAt ? (individual().modifiedAt | date:'d MMM y') : 'Not provided' }}</span>
+					</li>
+					<li class="flex items-start gap-3">
+						<mat-icon class="text-primary shrink-0">phone</mat-icon>
+						<div class="min-w-0">
+							<p class="kv-value">{{ phoneCount() }} contact{{ phoneCount() === 1 ? '' : 's' }}</p>
+							<span class="kv-meta-label">Mobile</span>
 						</div>
-						<div class="snapshot-row">
-							<span class="snapshot-label">Risk Level</span>
-							<span class="snapshot-value risk-low">
-								<span class="risk-dot"></span>
-								Low
-							</span>
+					</li>
+					<li class="flex items-start gap-3">
+						<mat-icon class="text-primary shrink-0">home</mat-icon>
+						<div class="min-w-0">
+							<p class="kv-value">{{ individual().physicalAddress || 'Not provided' }}</p>
+							<span class="kv-meta-label">Residential Address</span>
 						</div>
-						<div class="snapshot-row">
-							<span class="snapshot-label">Linked Org</span>
-							<span class="snapshot-value org-link">{{ individual().organisation?.name || 'Not linked' }}</span>
-						</div>
+					</li>
+				</ul>
+			</section>
+
+			<!-- Vault -->
+			<section class="kv-card">
+				<div class="kv-card-header dp-head">
+					<span class="dp-icon-tile"><mat-icon>folder_open</mat-icon></span>
+					<div class="dp-head-copy">
+						<h2 class="kv-card-title">Vault</h2>
 					</div>
-				</mat-card-content>
-			</mat-card>
+					<button type="button" class="kv-icon-btn dp-head-aside" aria-label="Add document">
+						<mat-icon>add</mat-icon>
+					</button>
+				</div>
+
+				<ul class="flex flex-col gap-2">
+					@for (document of documents(); track document.id || document.fileName || $index) {
+						<li class="dp-list-item">
+							<div class="flex items-center gap-3 min-w-0">
+								<mat-icon class="text-primary shrink-0">description</mat-icon>
+								<div class="min-w-0">
+									<p class="dp-strong truncate">{{ document.fileName || 'Untitled document' }}</p>
+									<p class="dp-list-sub">2.4 MB • {{ humanize(document.verificationStatus) }}</p>
+								</div>
+							</div>
+							<button type="button" class="kv-icon-btn" aria-label="Download document">
+								<mat-icon>download</mat-icon>
+							</button>
+						</li>
+					}
+					@if (!documents().length) {
+						<p class="dp-empty-text">No supporting documents have been uploaded.</p>
+					}
+				</ul>
+			</section>
+
+			<!-- Snapshot -->
+			<section class="kv-card">
+				<div class="kv-card-header dp-head">
+					<span class="dp-icon-tile"><mat-icon>info</mat-icon></span>
+					<div class="dp-head-copy">
+						<h2 class="kv-card-title">Snapshot</h2>
+					</div>
+				</div>
+
+				<dl class="flex flex-col gap-3">
+					<div class="kv-meta-row">
+						<dt class="kv-meta-label">Profile Created</dt>
+						<dd class="kv-meta-value">{{ individual().createdAt ? (individual().createdAt | date:'d MMM y') : 'Not provided' }}</dd>
+					</div>
+					<div class="kv-meta-row">
+						<dt class="kv-meta-label">Last Updated</dt>
+						<dd class="kv-meta-value">{{ individual().modifiedAt ? (individual().modifiedAt | date:'d MMM y') : 'Not provided' }}</dd>
+					</div>
+					<div class="kv-meta-row">
+						<dt class="kv-meta-label">Risk Level</dt>
+						<dd><span class="kv-chip kv-tone-success">Low</span></dd>
+					</div>
+					<div class="kv-meta-row">
+						<dt class="kv-meta-label">Linked Org</dt>
+						<dd class="kv-meta-value font-semibold text-primary">{{ individual().organisation?.name || 'Not linked' }}</dd>
+					</div>
+				</dl>
+			</section>
 		</aside>
 	</div>
-</main>
+</div>

@@ -11,7 +11,7 @@ import { SearchObject } from '@models/search-object';
 })
 export class EmploymentRecordApi {
 
-    protected path = '/employment';
+    protected path = '/employment-records';
 
     private http = inject(HttpClient);
 

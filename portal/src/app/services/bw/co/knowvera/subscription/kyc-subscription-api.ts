@@ -12,7 +12,7 @@ import { SubscriptionSearchCriteria } from '@app/models/bw/co/knowvera/subscript
 })
 export class KycSubscriptionApi {
 
-    protected path = '/subscription';
+    protected path = '/subscriptions';
 
     private http = inject(HttpClient);
 

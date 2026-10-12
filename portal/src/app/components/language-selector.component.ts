@@ -9,9 +9,8 @@ import { TranslationService, type Language } from '../services/translation.servi
       @for (lang of translationService.availableLanguages; track lang) {
         <button
           type="button"
-          class="btn btn-sm"
-          [class.btn-primary]="translationService.currentLang() === lang"
-          [class.btn-outline-primary]="translationService.currentLang() !== lang"
+          class="kv-choice"
+          [class.is-active]="translationService.currentLang() === lang"
           (click)="selectLanguage(lang)">
           {{ lang.toUpperCase() }}
         </button>

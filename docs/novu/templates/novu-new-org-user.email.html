@@ -1,0 +1,54 @@
+<!-- Novu email step body (novu-new-org-user). Variables: {{ payload.* }} (Liquid). Paste into the
+     email step's HTML editor; the subject is in ../workflows/novu-new-org-user.json. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You have been added by your organisation</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f8;padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:8px;">
+          <tr>
+            <td style="padding:24px 32px;border-bottom:1px solid #e4e7eb;font-size:20px;font-weight:bold;color:#0b4f6c;">
+              {{ payload.platformName | default: "Knowvera" }}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;font-size:15px;line-height:1.6;">
+              <p style="margin:0 0 16px;">Dear {{ payload.firstName | strip }} {{ payload.surname }},</p>
+              <p style="margin:0 0 16px;">
+                <strong>{{ payload.organisationName }}</strong> has added you to {{ payload.platformName | default: "Knowvera" }}
+                {% if payload.roleName %}as <strong>{{ payload.roleName }}</strong>{% else %}to manage its account{% endif %}.
+                From the portal you can manage your organisation's KYC requests and their progress.
+              </p>
+              <p style="margin:0 0 8px;"><strong>Your username:</strong> {{ payload.username }}</p>
+              <p style="margin:16px 0;">
+                <strong>Next step:</strong> we have sent you a separate email titled <em>Update your account</em>.
+                Open its link to choose your password and confirm your email address.
+                The link is valid for {{ payload.setupLinkValidFor | default: "a limited time" }}.
+              </p>
+              <p style="margin:24px 0;">
+                <a href="{{ payload.loginUrl }}" style="display:inline-block;background:#0b4f6c;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;">Go to the portal</a>
+              </p>
+              <p style="margin:0;font-size:13px;color:#52606d;">
+                Not part of {{ payload.organisationName }}? Ignore this email and let us know.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 32px;border-top:1px solid #e4e7eb;font-size:12px;line-height:1.5;color:#7b8794;">
+              Need help? Contact {{ payload.supportContact | default: "our support team" }}.<br>
+              We will never ask for your password by email or phone.<br>
+              &copy; {{ payload.currentYear }} {{ payload.platformName | default: "Knowvera" }}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

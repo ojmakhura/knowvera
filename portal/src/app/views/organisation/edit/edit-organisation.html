@@ -1,188 +1,185 @@
-<div class="edit-organisation-page">
-	<header class="mobile-app-bar" aria-label="Mobile page header">
-		<button type="button" mat-icon-button class="mobile-app-bar__back" (click)="cancel()" aria-label="Go back">
-			<mat-icon>arrow_back</mat-icon>
-		</button>
-		<h1>Edit Organisation</h1>
+<div class="kv-page">
+	<header>
+		<nav class="kv-breadcrumb" aria-label="Breadcrumb">
+			<button type="button" class="hover:text-primary" (click)="cancel()">Organisation</button>
+			<mat-icon>chevron_right</mat-icon>
+			<span>{{ editOrganisationFormSignal().name || 'Organisation' }}</span>
+			<mat-icon>chevron_right</mat-icon>
+			<span class="kv-breadcrumb-current">Edit</span>
+		</nav>
+
+		<div class="kv-page-header">
+			<div>
+				<h1 class="kv-title">Edit Organisation</h1>
+				<p class="kv-subtitle">Maintain the registered identity, status and contact details of this entity.</p>
+			</div>
+			<div class="kv-actions">
+				<button type="button" class="kv-btn-secondary" (click)="cancel()">Cancel</button>
+				<button type="button" class="kv-btn-primary" [disabled]="loading()" (click)="saveOrganisation()">
+					<mat-icon>save</mat-icon>
+					Save Organisation
+				</button>
+			</div>
+		</div>
 	</header>
 
-	<main class="page-container">
-		<header class="page-header">
-			<nav class="breadcrumb" aria-label="Breadcrumb">
-				<span>Organisation</span>
-				<mat-icon>chevron_right</mat-icon>
-				<span>{{ editOrganisationFormSignal().name || 'Organisation' }}</span>
-				<mat-icon>chevron_right</mat-icon>
-				<span class="is-active">Edit</span>
-			</nav>
+	@let editForm = editOrganisationFormSignalForm;
 
-			<div class="page-header__title-row">
-				<h1>Edit Organisation</h1>
-				<div class="page-actions page-actions--header">
-					<button type="button" mat-stroked-button class="page-actions__button" (click)="cancel()">
-						Cancel
-					</button>
-					<button
-						type="button"
-						mat-flat-button
-						class="page-actions__button save-button"
-						[disabled]="loading()"
-						(click)="saveOrganisation()">
-						Save Organisation
-					</button>
+	<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+		<div class="lg:col-span-2 flex flex-col gap-6">
+			<!-- Core Identity -->
+			<section class="kv-card">
+				<div class="kv-card-header">
+					<mat-icon class="kv-card-icon">business</mat-icon>
+					<h2 class="kv-card-title">Core Identity</h2>
 				</div>
-			</div>
-		</header>
 
-		@let editForm = editOrganisationFormSignalForm;
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<mat-form-field class="vault-field" appearance="outline">
+						<mat-label>Organisation Name</mat-label>
+						<input matInput [formField]="editForm.name" />
+					</mat-form-field>
 
-		<div class="page-grid">
-			<section class="main-column">
-				<mat-card class="edit-card">
-					<div class="card-header">
-						<h2>Core Identity</h2>
-					</div>
+					<mat-form-field class="vault-field" appearance="outline">
+						<mat-label>Abbreviation / Code</mat-label>
+						<input matInput [formField]="editForm.code" />
+					</mat-form-field>
 
-					<div class="form-grid">
-						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
-							<mat-label>Organisation Name</mat-label>
-							<input matInput [formField]="editForm.name" />
-						</mat-form-field>
+					<mat-form-field class="vault-field" appearance="outline">
+						<mat-label>Registration No.</mat-label>
+						<input matInput [formField]="editForm.registrationNo" />
+					</mat-form-field>
 
-						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
-							<mat-label>Abbreviation / Code</mat-label>
-							<input matInput [formField]="editForm.code" />
-						</mat-form-field>
+					<mat-form-field class="vault-field" appearance="outline">
+						<mat-label>Country of Registration</mat-label>
+						<mat-select [formField]="editForm.countryOfRegistration">
+							@for (country of countries; track country) {
+								<mat-option [value]="country">{{ country }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
 
-						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
-							<mat-label>Registration No.</mat-label>
-							<input matInput [formField]="editForm.registrationNo" />
-						</mat-form-field>
-
-						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
-							<mat-label>Country of Registration</mat-label>
-							<mat-select [formField]="editForm.countryOfRegistration">
-								@for (country of countries; track country) {
-									<mat-option [value]="country">{{ country }}</mat-option>
-								}
-							</mat-select>
-						</mat-form-field>
-
-						<section class="status-toggle" aria-label="Client status">
-							<div>
-								<p class="status-toggle__title">Client Status</p>
-								<p class="status-toggle__subtitle">Mark this entity as an active client of the firm</p>
-							</div>
-							<mat-slide-toggle
-								[checked]="!!editOrganisationFormSignal().isClient"
-								(change)="toggleIsClient($event)"
-								aria-label="Client status toggle">
-							</mat-slide-toggle>
-						</section>
-					</div>
-				</mat-card>
-
-				<mat-card class="edit-card">
-					<div class="card-header">
-						<h2>Operational Status</h2>
-					</div>
-
-					<div class="form-grid">
-						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
-							<mat-label>General Status</mat-label>
-							<mat-select [formField]="editForm.status">
-								@for (status of generalStatuses; track status) {
-									<mat-option [value]="status">{{ status }}</mat-option>
-								}
-							</mat-select>
-						</mat-form-field>
-
-						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
-							<mat-label>KYC Compliance Status</mat-label>
-							<mat-select [formField]="editForm.kycStatus">
-								@for (status of kycComplianceStatuses; track status) {
-									<mat-option [value]="status">{{ status }}</mat-option>
-								}
-							</mat-select>
-						</mat-form-field>
-
-						<mat-form-field class="vault-field vault-field--full" appearance="outline" subscriptSizing="dynamic">
-							<mat-label>Description</mat-label>
-							<textarea matInput rows="4" [formField]="editForm.description"></textarea>
-						</mat-form-field>
-					</div>
-				</mat-card>
-
-				<mat-card class="edit-card desktop-only-section">
-					<div class="card-header card-header--split">
-						<div class="card-header__title">
-							<h2>Managed Domains</h2>
+					<div class="md:col-span-2 flex items-center justify-between gap-3 bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant/50" aria-label="Client status">
+						<div>
+							<p class="text-sm font-medium text-on-surface">Client Status</p>
+							<p class="text-xs text-on-surface-variant">Mark this entity as an active client of the firm</p>
 						</div>
-
-						<button type="button" mat-button class="inline-action" (click)="addDomain()">
-							<mat-icon>add</mat-icon>
-							<span>Add Domain</span>
-						</button>
+						<mat-slide-toggle
+							[checked]="!!editOrganisationFormSignal().isClient"
+							(change)="toggleIsClient($event)"
+							aria-label="Client status toggle">
+						</mat-slide-toggle>
 					</div>
-
-					<div class="domain-list">
-						@if (!editOrganisationFormSignal().domains.length) {
-							<p class="list-empty">No domains added yet.</p>
-						}
-
-						@for (domainForm of editForm.domains; track $index) {
-							@let domain = domainForm().value();
-							<div class="domain-item">
-								<mat-icon class="domain-item__icon">language</mat-icon>
-
-								<mat-form-field class="vault-field vault-field--ghost" appearance="outline" subscriptSizing="dynamic">
-									<mat-label>Domain</mat-label>
-									<input matInput [formField]="domainForm.name" />
-								</mat-form-field>
-
-								<span class="status-pill" [class.status-pill--pending]="!domainVerified(domain)">
-									<mat-icon>{{ domainVerified(domain) ? 'check_circle' : 'pending' }}</mat-icon>
-									<span>{{ domainVerified(domain) ? 'Verified' : 'Pending' }}</span>
-								</span>
-
-								<button type="button" mat-icon-button (click)="removeDomain($index)" aria-label="Remove domain">
-									<mat-icon>delete</mat-icon>
-								</button>
-							</div>
-						}
-					</div>
-				</mat-card>
+				</div>
 			</section>
 
-			<aside class="side-column">
-				<mat-card class="edit-card desktop-only-section">
-					<div class="card-header">
-						<h2>Contact</h2>
-					</div>
+			<!-- Operational Status -->
+			<section class="kv-card">
+				<div class="kv-card-header">
+					<mat-icon class="kv-card-icon">shield</mat-icon>
+					<h2 class="kv-card-title">Operational Status</h2>
+				</div>
 
-					<div class="side-stack">
-						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
-							<mat-label>Contact Email Address</mat-label>
-							<input matInput type="email" [formField]="editForm.contactEmailAddress" />
-						</mat-form-field>
-
-						<div class="phone-block">
-							<div class="phone-block__header">
-								<h3>Phone Numbers</h3>
-								<button type="button" mat-button class="inline-action" (click)="addPhoneNumber()">
-									<mat-icon>add</mat-icon>
-									<span>Add</span>
-								</button>
-							</div>
-
-							@if (!editOrganisationFormSignal().phoneNumbers.length) {
-								<p class="list-empty">No phone numbers added yet.</p>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<mat-form-field class="vault-field" appearance="outline">
+						<mat-label>General Status</mat-label>
+						<mat-select [formField]="editForm.status">
+							@for (status of generalStatuses; track status) {
+								<mat-option [value]="status">{{ status }}</mat-option>
 							}
+						</mat-select>
+					</mat-form-field>
 
+					<mat-form-field class="vault-field" appearance="outline">
+						<mat-label>KYC Compliance Status</mat-label>
+						<mat-select [formField]="editForm.kycStatus">
+							@for (status of kycComplianceStatuses; track status) {
+								<mat-option [value]="status">{{ status }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field class="vault-field vault-textarea md:col-span-2" appearance="outline">
+						<mat-label>Description</mat-label>
+						<textarea matInput rows="4" [formField]="editForm.description"></textarea>
+					</mat-form-field>
+				</div>
+			</section>
+
+			<!-- Managed Domains -->
+			<section class="kv-card">
+				<div class="kv-card-header justify-between">
+					<div class="flex items-center gap-3">
+						<mat-icon class="kv-card-icon">language</mat-icon>
+						<h2 class="kv-card-title">Managed Domains</h2>
+					</div>
+					<button type="button" class="kv-btn-subtle" (click)="addDomain()">
+						<mat-icon>add</mat-icon>
+						Add Domain
+					</button>
+				</div>
+
+				<div class="flex flex-col gap-3">
+					@if (!editOrganisationFormSignal().domains.length) {
+						<p class="text-sm text-on-surface-variant italic py-2">No domains added yet.</p>
+					}
+
+					@for (domainForm of editForm.domains; track $index) {
+						@let domain = domainForm().value();
+						<div class="flex flex-wrap sm:flex-nowrap items-center gap-3 p-3 bg-surface-container-low border border-outline-variant/50 rounded-lg">
+							<mat-icon class="text-primary shrink-0">language</mat-icon>
+
+							<mat-form-field class="vault-field flex-1 min-w-40" appearance="outline">
+								<mat-label>Domain</mat-label>
+								<input matInput [formField]="domainForm.name" />
+							</mat-form-field>
+
+							<span class="kv-chip" [class]="domainVerified(domain) ? 'kv-tone-success' : 'kv-tone-warning'">
+								<mat-icon>{{ domainVerified(domain) ? 'check_circle' : 'pending' }}</mat-icon>
+								{{ domainVerified(domain) ? 'Verified' : 'Pending' }}
+							</span>
+
+							<button type="button" class="kv-icon-btn-danger" (click)="removeDomain($index)" aria-label="Remove domain">
+								<mat-icon>delete</mat-icon>
+							</button>
+						</div>
+					}
+				</div>
+			</section>
+		</div>
+
+		<aside class="flex flex-col gap-6">
+			<!-- Contact -->
+			<section class="kv-card">
+				<div class="kv-card-header">
+					<mat-icon class="kv-card-icon">contact_mail</mat-icon>
+					<h2 class="kv-card-title">Contact</h2>
+				</div>
+
+				<div class="flex flex-col gap-4">
+					<mat-form-field class="vault-field" appearance="outline">
+						<mat-label>Contact Email Address</mat-label>
+						<input matInput type="email" [formField]="editForm.contactEmailAddress" />
+					</mat-form-field>
+
+					<div class="kv-panel">
+						<div class="flex items-center justify-between gap-3 mb-3">
+							<h3 class="text-sm font-medium text-primary">Phone Numbers</h3>
+							<button type="button" class="kv-btn-subtle" (click)="addPhoneNumber()">
+								<mat-icon>add</mat-icon>
+								Add
+							</button>
+						</div>
+
+						@if (!editOrganisationFormSignal().phoneNumbers.length) {
+							<p class="text-sm text-on-surface-variant italic py-2">No phone numbers added yet.</p>
+						}
+
+						<div class="flex flex-col gap-3">
 							@for (phoneForm of editForm.phoneNumbers; track $index) {
 								@let phone = phoneForm().value();
-								<div class="phone-row">
-									<mat-form-field class="vault-field vault-field--compact" appearance="outline" subscriptSizing="dynamic">
+								<div class="flex flex-col gap-2 p-3 bg-surface-container-lowest border border-outline-variant/50 rounded-lg">
+									<mat-form-field class="vault-field" appearance="outline">
 										<mat-label>Type</mat-label>
 										<mat-select
 											[value]="phone?.type"
@@ -193,98 +190,84 @@
 										</mat-select>
 									</mat-form-field>
 
-									<mat-form-field class="vault-field vault-field--grow" appearance="outline" subscriptSizing="dynamic">
-										<mat-label>Phone Number</mat-label>
-										<input
-											matInput
-											[value]="phone?.phoneNumber || ''"
-											(input)="updatePhoneNumber($index, $any($event.target).value)" />
-									</mat-form-field>
+									<div class="flex items-center gap-2">
+										<mat-form-field class="vault-field flex-1" appearance="outline">
+											<mat-label>Phone Number</mat-label>
+											<input
+												matInput
+												[value]="phone?.phoneNumber || ''"
+												(input)="updatePhoneNumber($index, $any($event.target).value)" />
+										</mat-form-field>
 
-									<button
-										type="button"
-										mat-icon-button
-										(click)="removePhoneNumber($index)"
-										aria-label="Remove phone number">
-										<mat-icon>delete</mat-icon>
-									</button>
+										<button
+											type="button"
+											class="kv-icon-btn-danger"
+											(click)="removePhoneNumber($index)"
+											aria-label="Remove phone number">
+											<mat-icon>delete</mat-icon>
+										</button>
+									</div>
 								</div>
 							}
 						</div>
 					</div>
-				</mat-card>
+				</div>
+			</section>
 
-				<mat-card class="edit-card desktop-only-section">
-					<div class="card-header">
-						<h2>Addresses</h2>
+			<!-- Addresses -->
+			<section class="kv-card">
+				<div class="kv-card-header">
+					<mat-icon class="kv-card-icon">location_on</mat-icon>
+					<h2 class="kv-card-title">Addresses</h2>
+				</div>
+
+				<div class="flex flex-col gap-4">
+					<mat-form-field class="vault-field vault-textarea" appearance="outline">
+						<mat-label>Physical Address</mat-label>
+						<textarea matInput rows="3" [formField]="editForm.physicalAddress"></textarea>
+					</mat-form-field>
+
+					<div class="flex items-center justify-between gap-3">
+						<span class="kv-label">Postal Address</span>
+						<button type="button" class="kv-btn-subtle" (click)="copyPhysicalAddress()">
+							<mat-icon>content_copy</mat-icon>
+							Same as Physical
+						</button>
 					</div>
 
-					<div class="side-stack">
-						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
-							<mat-label>Physical Address</mat-label>
-							<textarea matInput rows="3" [formField]="editForm.physicalAddress"></textarea>
-						</mat-form-field>
+					<mat-form-field class="vault-field vault-textarea" appearance="outline">
+						<mat-label>Postal Address</mat-label>
+						<textarea matInput rows="3" [formField]="editForm.postalAddress"></textarea>
+					</mat-form-field>
+				</div>
+			</section>
 
-						<div class="card-inline-action">
-							<span class="card-inline-action__label">Postal Address</span>
-							<button type="button" mat-button class="card-inline-action__button" (click)="copyPhysicalAddress()">
-								<mat-icon>content_copy</mat-icon>
-								<span>Same as Physical</span>
-							</button>
-						</div>
-
-						<mat-form-field class="vault-field" appearance="outline" subscriptSizing="dynamic">
-							<mat-label>Postal Address</mat-label>
-							<textarea matInput rows="3" [formField]="editForm.postalAddress"></textarea>
-						</mat-form-field>
+			<!-- Audit trail -->
+			<section class="kv-card border-t-4 border-emerald" aria-label="Managed entity audit trail">
+				<div class="flex items-center gap-2 mb-4 text-primary">
+					<mat-icon class="text-emerald">security</mat-icon>
+					<p class="kv-card-title">Managed Entity Audit Trail</p>
+				</div>
+				<p class="text-sm text-on-surface-variant mb-6">
+					All changes to this organisation record are cryptographically signed and logged for compliance auditing.
+				</p>
+				<dl class="flex flex-col gap-3 mb-6">
+					<div class="kv-meta-row">
+						<dt class="kv-meta-label">Created</dt>
+						<dd class="kv-meta-value">{{ formatAuditDate(editOrganisationFormSignal().createdAt) }}</dd>
 					</div>
-				</mat-card>
-
-				<section class="audit-card desktop-only-section" aria-label="Managed entity audit trail">
-					<div class="audit-card__heading">
-						<mat-icon>security</mat-icon>
-						<p>Managed Entity Audit Trail</p>
+					<div class="kv-meta-row">
+						<dt class="kv-meta-label">Last Modified</dt>
+						<dd class="kv-meta-value">{{ formatAuditDate(editOrganisationFormSignal().modifiedAt) }}</dd>
 					</div>
-
-					<p class="audit-card__body">
-						All changes to this organisation record are cryptographically signed and logged for compliance auditing.
-					</p>
-
-					<dl>
-						<div>
-							<dt>Created</dt>
-							<dd>{{ formatAuditDate(editOrganisationFormSignal().createdAt) }}</dd>
-						</div>
-						<div>
-							<dt>Last Modified</dt>
-							<dd>{{ formatAuditDate(editOrganisationFormSignal().modifiedAt) }}</dd>
-						</div>
-					</dl>
-
-					<button type="button" mat-stroked-button class="audit-card__cta" aria-label="View organisation version history">
-						<mat-icon>history</mat-icon>
-						<span>View Version History</span>
-					</button>
-				</section>
-			</aside>
-		</div>
-
-		<footer class="page-actions page-actions--mobile">
-			<button type="button" mat-stroked-button class="page-actions__button" (click)="cancel()">
-				Cancel
-			</button>
-			<button
-				type="button"
-				mat-flat-button
-				class="page-actions__button save-button"
-				[disabled]="loading()"
-				(click)="saveOrganisation()">
-				Save Organisation
-			</button>
-		</footer>
-	</main>
-
-	<div class="loader-overlay">
-		<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
+				</dl>
+				<button type="button" class="kv-btn-secondary w-full" aria-label="View organisation version history">
+					<mat-icon>history</mat-icon>
+					View Version History
+				</button>
+			</section>
+		</aside>
 	</div>
+
+	<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
 </div>

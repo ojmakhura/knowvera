@@ -9,15 +9,15 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDividerModule } from '@angular/material/divider';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
-import { form, required } from '@angular/forms/signals';
-import { Router } from '@angular/router';
+import { form, required, FormRoot, FormField } from '@angular/forms/signals';
+import { Router, RouterLink } from '@angular/router';
 import { SequenceGeneratorDTO } from '@app/models/bw/co/knowvera/sequence/sequence-generator-dto';
 import { SequencePartDTO } from '@app/models/bw/co/knowvera/sequence/sequence-part-dto';
 import { SequencePartType } from '@app/models/bw/co/knowvera/sequence/sequence-part-type';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { SequenceGeneratorApiStore } from '@app/store/bw/co/knowvera/sequence/sequence-generator-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
 
 
@@ -35,6 +35,7 @@ export class EditSequenceVarsForm {
   styleUrl: './sequence-edit.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     CommonModule,
     TranslateModule,
     MatCardModule,
@@ -46,7 +47,8 @@ export class EditSequenceVarsForm {
     MatCheckboxModule,
     MatSlideToggleModule,
     MatDividerModule,
-    Loader
+    FormRoot,
+    FormField,
   ]
 })
 export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
@@ -61,7 +63,7 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
     required(path.targetEntity, { message: 'target.entity.required' })
     required(path.name, { message: 'name.required' })
     required(path.sequenceParts, { message: 'sequence.parts.required' })
-  });
+  }, { submission: { action: async () => this.saveSequence() } });
 
   TargetEntityT: any = TargetEntity;
   TargetEntityOptions = Object.keys(this.TargetEntityT);
@@ -85,7 +87,7 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
 
   saving = false;
 
-  toastr = inject(ToastrService);
+  // toastr = inject(ToastrService);
 
   constructor() {
 
@@ -110,14 +112,14 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       const error = this.error();
       if (error) {
-        this.toastr.error(this.messages()[0], 'Error ');
+        // this.toastr.error(this.messages()[0], 'Error ');
       }
     });
 
     effect(() => {
       const success = this.success();
       if (success) {
-        this.toastr.success(this.messages()[0], 'Success');
+        // this.toastr.success(this.messages()[0], 'Success');
       }
     });
   }

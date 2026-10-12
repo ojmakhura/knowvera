@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,6 +27,7 @@ type IdentityField = {
   styleUrls: ['./client-request-details.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     CommonModule,
     MatCardModule,
     MatButtonModule,
@@ -231,6 +233,34 @@ export class ClientRequestDetails implements OnInit, AfterViewInit, OnDestroy {
       case KycComplianceStatus.ABSENT:
       default:
         return 'absent';
+    }
+  }
+
+  /** Shared details-page pill tone (dp-pill is-*) for a request status. */
+  statusTone(status: ClientRequestStatus): string {
+    switch (status) {
+      case ClientRequestStatus.ACCEPTED:
+        return 'is-success';
+      case ClientRequestStatus.REJECTED:
+        return 'is-danger';
+      case ClientRequestStatus.PENDING:
+        return 'is-warning';
+      default:
+        return 'is-info';
+    }
+  }
+
+  /** Shared details-page pill tone (dp-pill is-*) for the target's KYC status. */
+  targetTone(status: KycComplianceStatus): string {
+    switch (status) {
+      case KycComplianceStatus.CURRENT:
+        return 'is-success';
+      case KycComplianceStatus.INCOMPLETE:
+        return 'is-warning';
+      case KycComplianceStatus.EXPIRED:
+        return 'is-danger';
+      default:
+        return '';
     }
   }
 

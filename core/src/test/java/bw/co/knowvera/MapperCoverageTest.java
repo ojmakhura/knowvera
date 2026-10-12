@@ -87,6 +87,7 @@ import bw.co.knowvera.settings.SalaryRangeMapper;
 import bw.co.knowvera.settings.Settings;
 import bw.co.knowvera.settings.SettingsDTO;
 import bw.co.knowvera.settings.SettingsMapper;
+import bw.co.knowvera.settings.ToolSelectorMapper;
 import bw.co.knowvera.settings.kyc.KycFieldGroup;
 import bw.co.knowvera.settings.kyc.KycFieldGroupDTO;
 import bw.co.knowvera.settings.kyc.KycFieldGroupMapper;
@@ -118,6 +119,7 @@ class MapperCoverageTest {
     private final KycRecordMapper kycRecordMapper = Mappers.getMapper(KycRecordMapper.class);
     private final KycReportSectionMapper kycReportSectionMapper = Mappers.getMapper(KycReportSectionMapper.class);
     private final GroupFieldValueMapper groupFieldValueMapper = Mappers.getMapper(GroupFieldValueMapper.class);
+    private final ToolSelectorMapper toolSelectorMapper = Mappers.getMapper(ToolSelectorMapper.class);
     private final VerificationDataConfigRepository verificationDataConfigRepository = mock(VerificationDataConfigRepository.class);
 
     @BeforeEach
@@ -167,15 +169,13 @@ class MapperCoverageTest {
         inject(organisationMapper, "documentMapper", documentMapper);
         inject(organisationMapper, "documentTypeMapper", documentTypeMapper);
         inject(organisationMapper, "branchMapper", branchMapper);
-        inject(organisationMapper, "kycSubscriptionMapper", kycSubscriptionMapper);
-        inject(organisationMapper, "kycInvoiceMapper", kycInvoiceMapper);
+        inject(organisationMapper, "groupFieldMapper", groupFieldMapper);
 
         inject(settingsMapper, "documentTypeMapper", documentTypeMapper);
         inject(settingsMapper, "documentMapper", documentMapper);
         inject(settingsMapper, "salaryRangeMapper", salaryRangeMapper);
-        inject(settingsMapper, "expectedFieldMapper", expectedFieldMapper);
         inject(settingsMapper, "kycFieldGroupMapper", kycFieldGroupMapper);
-        inject(settingsMapper, "groupFieldMapper", groupFieldMapper);
+        inject(settingsMapper, "toolSelectorMapper", toolSelectorMapper);
         inject(settingsMapper, "mappingUtils", new bw.co.knowvera.utils.MappingUtils());
 
         inject(individualMapper, "mappingUtils", new bw.co.knowvera.utils.MappingUtils());
@@ -190,6 +190,7 @@ class MapperCoverageTest {
         inject(employmentRecordMapper, "salaryRangeMapper", salaryRangeMapper);
 
         inject(kycSubscriptionMapper, "mappingUtils", new bw.co.knowvera.utils.MappingUtils());
+        inject(kycSubscriptionMapper, "kycInvoiceMapper", kycInvoiceMapper);
 
         inject(kycInvoiceMapper, "mappingUtils", new bw.co.knowvera.utils.MappingUtils());
         inject(kycInvoiceMapper, "documentMapper", documentMapper);

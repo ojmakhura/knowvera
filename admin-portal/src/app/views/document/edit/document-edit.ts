@@ -13,10 +13,10 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Inpu
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
-import { form, FormField, readonly } from '@angular/forms/signals';
+import { form, FormField, readonly, FormRoot } from '@angular/forms/signals';
 import { Loader } from '@app/@shared/loader/loader';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+// import { ToastrService } from 'ngx-toastr';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
@@ -45,6 +45,7 @@ selector: 'app-document-edit',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
+    RouterLink,
     CommonModule,
     MatCardModule,
     MatFormFieldModule,
@@ -56,9 +57,9 @@ selector: 'app-document-edit',
     MatDividerModule,
     MatProgressBarModule,
     FormField,
-    Loader,
     TranslateModule,
-    NgxMatSelectSearchModule
+    NgxMatSelectSearchModule,
+    FormRoot,
   ]
 })
 export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
@@ -67,7 +68,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
 
   readonly route = inject(ActivatedRoute);
   readonly router = inject(Router);
-  readonly toaster = inject(ToastrService);
+  // readonly toaster = inject(ToastrService);
   readonly documentApiStore = inject(DocumentApiStore);
   readonly documentTypeApiStore = inject(DocumentTypeApiStore);
   readonly documentApi = inject(DocumentApi);
@@ -81,7 +82,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
       readonly(path.targetId);
       readonly(path.url);
     }
-  });
+  }, { submission: { action: async () => this.editDocumentSave() } });
   isSaving = signal(false);
   lastLoadedId: string | null = null;
 
@@ -115,13 +116,13 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       if (this.isSaving() && this.success() && !this.loading()) {
         this.isSaving.set(false);
-        this.toaster.success(this.messages()?.[0] || 'Document saved');
+        // this.toaster.success(this.messages()?.[0] || 'Document saved');
         this.router.navigate(['/documents/details', this.editDocumentSignal().id]);
       }
 
       if (this.isSaving() && this.error() && !this.loading()) {
         this.isSaving.set(false);
-        this.toaster.error(this.messages()?.[0] || 'Failed to save document');
+        // this.toaster.error(this.messages()?.[0] || 'Failed to save document');
       }
     });
 
@@ -129,7 +130,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
       const error = this.error();
       
       if (error) {
-        this.toaster.error(this.messages()?.[0] || 'An error occurred while loading document details.');
+        // this.toaster.error(this.messages()?.[0] || 'An error occurred while loading document details.');
       }
     });
 
@@ -137,7 +138,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
       const success = this.success();
 
       if (success && this.document()) {
-        this.toaster.success(this.messages()?.[0] || 'Document details loaded successfully.');
+        // this.toaster.success(this.messages()?.[0] || 'Document details loaded successfully.');
       }
     });
   }
@@ -267,7 +268,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
     const value = this.editDocumentSignal().url;
 
     if (!value) {
-      this.toaster.error('No document URL is available for preview.');
+      // this.toaster.error('No document URL is available for preview.');
       return;
     }
 
@@ -282,7 +283,9 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
         window.open(objectUrl, '_blank', 'noopener');
         window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 10000);
       },
-      error: () => this.toaster.error('Failed to load document preview.'),
+      error: () => {
+        // this.toaster.error('Failed to load document preview.');
+      },
     });
   }
 
@@ -335,7 +338,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
     //     this.loading.set(false);
     //   },
     //   (error) => {
-    //     this.toastr.error(error.error?.message ? error.error.message : error.message);
+    //     // this.toastr.error(error.error?.message ? error.error.message : error.message);
     //     this.loading.set(false);
     //   }
     // );

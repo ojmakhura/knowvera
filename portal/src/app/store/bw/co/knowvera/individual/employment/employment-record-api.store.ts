@@ -9,6 +9,7 @@ import { SearchObject } from '@app/models/search-object';
 import { Page } from '@app/models/page.model';
 import { EmploymentRecordDTO } from '@app/models/bw/co/knowvera/individual/employment/employment-record-dto';
 import { EmploymentRecordApi } from '@app/services/bw/co/knowvera/individual/employment/employment-record-api';
+import { toast } from 'ngx-sonner';
 
 export type EmploymentRecordApiState = AppState<EmploymentRecordDTO, any> & {};
 
@@ -29,6 +30,7 @@ export const EmploymentRecordApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const employmentRecordApi = inject(EmploymentRecordApi);
+    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -39,25 +41,29 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -71,25 +77,29 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.findByIndividual(data.individualId, ).pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -103,25 +113,29 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.getAll().pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -135,25 +149,29 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<EmploymentRecordDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -167,25 +185,29 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.pagedSearch(data.criteria, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<EmploymentRecordDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -199,25 +221,29 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -231,25 +257,29 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.save(data.employmentRecord, ).pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -263,25 +293,29 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },

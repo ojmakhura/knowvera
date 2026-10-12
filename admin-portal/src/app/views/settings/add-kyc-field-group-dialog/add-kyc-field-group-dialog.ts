@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { form, min, required } from '@angular/forms/signals';
+import { form, min, required, FormRoot, FormField } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
@@ -37,6 +37,8 @@ export class KycFieldGroupForm {
     CommonModule,
     FormsModule,
     MatDialogModule,
+    FormRoot,
+    FormField,
   ],
 })
 export class AddKycFieldGroupDialog implements OnInit {
@@ -47,7 +49,7 @@ export class AddKycFieldGroupDialog implements OnInit {
   groupForm = form(this.groupSignal, (path) => {
     required(path.label, { message: 'Label is required' });
     min(path.position, 1, { message: 'Position must be at least 1' });
-  });
+  }, { submission: { action: async () => this.save() } });
 
   showBrowsePanel = signal(false);
   browseQuery = signal('');

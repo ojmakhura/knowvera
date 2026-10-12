@@ -13,6 +13,7 @@ import {
   withInterceptors,
   withInterceptorsFromDi,
   HttpClient,
+  withXhr,
 } from '@angular/common/http';
 import {
   MAT_DATE_FORMATS,
@@ -27,7 +28,6 @@ import { errorHandlerInterceptor } from './@core/http/error-handler.interceptor'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { provideToastr } from 'ngx-toastr';
 import {
   AutoRefreshTokenService,
   createInterceptorCondition,
@@ -42,6 +42,7 @@ import { provideQuillConfig } from 'ngx-quill';
 import { AppEnvStore } from './store/app-env.state';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { App } from './app';
+// import { provideToastr } from 'ngx-toastr';
 
 export class CustomTranslateLoader implements TranslateLoader {
   constructor(private http: HttpClient) {}
@@ -147,7 +148,7 @@ export const initialiseApp = async () => {
       provideKeycloakAndInterceptor(env),
       provideRouter(routes, withComponentInputBinding()),
       provideHttpClient(
-        withFetch(),
+        withXhr(),
         withInterceptorsFromDi(),
         withInterceptors([
           apiPrefixInterceptor,
@@ -155,18 +156,7 @@ export const initialiseApp = async () => {
           includeBearerTokenInterceptor,
         ]),
       ),
-      provideToastr({
-        timeOut: 3000,
-        positionClass: 'toast-top-right',
-        preventDuplicates: true,
-        progressBar: true,
-        closeButton: true,
-        newestOnTop: true,
-        enableHtml: true,
-        tapToDismiss: true,
-        maxOpened: 5,
-        autoDismiss: true,
-      }),
+      provideNativeDateAdapter(),
       importProvidersFrom(
         TranslateModule.forRoot({
           defaultLanguage: 'en',

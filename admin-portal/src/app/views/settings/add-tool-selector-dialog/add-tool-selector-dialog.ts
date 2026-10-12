@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { form, required, FormField } from '@angular/forms/signals';
+import { form, required, FormField, FormRoot } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -24,7 +24,7 @@ class AddToolSelectorForm {
   template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
 
-    <mat-dialog-content>
+    <form mat-dialog-content id="add-tool-form" [formRoot]="addToolForm">
       <mat-form-field class="dialog-field">
         <mat-label>Tool</mat-label>
         <mat-select [formField]="addToolForm.tool" id="toolSelectorTool">
@@ -33,11 +33,11 @@ class AddToolSelectorForm {
           }
         </mat-select>
       </mat-form-field>
-    </mat-dialog-content>
+    </form>
 
     <mat-dialog-actions align="end">
       <button mat-stroked-button type="button" (click)="cancel()">Cancel</button>
-      <button mat-flat-button color="primary" type="button" (click)="save()" [disabled]="addToolForm().invalid()">Add</button>
+      <button mat-flat-button color="primary" type="submit" form="add-tool-form" [disabled]="addToolForm().invalid()">Add</button>
     </mat-dialog-actions>
   `,
   styles: [
@@ -56,6 +56,7 @@ class AddToolSelectorForm {
     MatSelectModule,
     MatButtonModule,
     FormField,
+    FormRoot,
   ],
 })
 export class AddToolSelectorDialog {
@@ -65,7 +66,7 @@ export class AddToolSelectorDialog {
   readonly formSignal = signal<AddToolSelectorForm>(new AddToolSelectorForm());
   readonly addToolForm = form(this.formSignal, (path) => {
     required(path.tool, { message: 'Tool is required' });
-  });
+  }, { submission: { action: async () => this.save() } });
 
   save(): void {
     if (!this.addToolForm().valid()) {

@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -27,7 +28,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { form, required, applyEach, FormField, min, minLength } from '@angular/forms/signals';
+import { form, required, applyEach, FormField, min, minLength, FormRoot } from '@angular/forms/signals';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { KeyField } from '@app/models/bw/co/knowvera/key-field';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
@@ -36,7 +37,7 @@ import { Loader } from '@app/@shared/loader/loader';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
 import { VerificationDataConfigDTO } from '@app/models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { PromptMessage } from '@app/models/bw/co/knowvera/llm/prompt-message';
 import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
@@ -77,6 +78,7 @@ expiresIn: number | any;
   styleUrls: ['./document-type-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     CommonModule,
     MatCardModule,
     MatFormFieldModule,
@@ -87,9 +89,9 @@ expiresIn: number | any;
     MatTooltipModule,
     MatCheckboxModule,
     MatTabsModule,
-    Loader,
     FormField,
     TranslateModule,
+    FormRoot,
   ],
 })
 export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
@@ -122,7 +124,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     //   minLength(path.expectedFields, 1, { message: 'verificationDataConfig.expectedFields.min' });
     // });
     // }
-  });
+  }, { submission: { action: async () => this.saveDocumentType() } });
 
   documentTypeApiStore = inject(DocumentTypeApiStore);
 
@@ -132,7 +134,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   error = linkedSignal(() => this.documentTypeApiStore.error());
   messages = linkedSignal(() => this.documentTypeApiStore.messages());
 
-  toastr = inject(ToastrService);
+  // toastr = inject(ToastrService);
   dialog = inject(MatDialog);
   expectedFieldApiStore = inject(ExpectedFieldApiStore);
   verificationConfigApiStore = inject(VerificationDataConfigApiStore);
@@ -157,9 +159,9 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
       if (error) {
         console.log('Error messages:', this.messages());
-        this.toastr.error(
-          this.messages()[0] || 'An error occurred while saving the document type.',
-        );
+        // this.toastr.error(
+        //   this.messages()[0] || 'An error occurred while saving the document type.',
+        // );
       }
     });
 
@@ -167,7 +169,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       const success = this.success();
 
       if (success) {
-        this.toastr.success(this.messages()[0] || 'Document type saved successfully.');
+        // this.toastr.success(this.messages()[0] || 'Document type saved successfully.');
       }
     });
   }
@@ -429,13 +431,13 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
           next: (done: boolean) => {
             if (done) {
               this.saveDocumentType();
-              this.toastr.success('Verification data config removed successfully.');
+              // this.toastr.success('Verification data config removed successfully.');
             }
 
             this.loading.set(false);
           },
           error: (error: any) => {
-            this.toastr.error('Failed to remove verification data config.');
+            // this.toastr.error('Failed to remove verification data config.');
             this.loading.set(false);
           },
         });
@@ -694,13 +696,14 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
     MatInputModule,
     MatSelectModule,
     FormField,
+    FormRoot,
     TranslateModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <h2 mat-dialog-title>{{ data.title || 'Expected Field' }}</h2>
 
-    <mat-dialog-content>
+    <form mat-dialog-content id="expected-field-form" [formRoot]="expectedFieldForm">
       <div class="dialog-form-grid">
         <mat-form-field appearance="outline">
           <mat-label>Field Name</mat-label>
@@ -767,16 +770,15 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
           <mat-checkbox [formField]="expectedFieldForm.many">Many</mat-checkbox>
         </div>
       </div>
-    </mat-dialog-content>
+    </form>
 
     <mat-dialog-actions align="end">
       <button mat-stroked-button type="button" (click)="onCancel()">Cancel</button>
       <button
         mat-flat-button
         color="primary"
-        type="button"
+        type="submit" form="expected-field-form"
         [disabled]="!expectedFieldForm().valid()"
-        (click)="onSave()"
       >
         Save
       </button>
@@ -784,7 +786,7 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
   `,
   styles: [
     `
-      mat-dialog-content {
+      .mat-mdc-dialog-content {
         min-width: 680px;
       }
 
@@ -816,7 +818,7 @@ const TARGET_ENTITY_MATCH_TO_FACTORIES: Partial<Record<TargetEntity, () => strin
       }
 
       @media (max-width: 760px) {
-        mat-dialog-content {
+        .mat-mdc-dialog-content {
           min-width: 100%;
         }
 
@@ -848,7 +850,7 @@ export class ExpectedFieldDialogComponent {
   expectedFieldSignal = signal<ExpectedFieldDTO>(this.data.field);
   expectedFieldForm = form(this.expectedFieldSignal, (path) => {
     required(path.field);
-  });
+  }, { submission: { action: async () => this.onSave() } });
 
   constructor() {
     effect(() => {

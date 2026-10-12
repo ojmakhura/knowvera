@@ -26,7 +26,6 @@ import { errorHandlerInterceptor } from './@core/http/error-handler.interceptor'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { provideToastr } from 'ngx-toastr';
 import {
   AutoRefreshTokenService,
   createInterceptorCondition,
@@ -158,26 +157,13 @@ export const initialiseApp = async () => {
       provideKeycloakAndInterceptor(env),
       provideRouter(routes, withComponentInputBinding()),
       provideHttpClient(
-        withFetch(),
-        withInterceptorsFromDi(),
+         withInterceptorsFromDi(),
         withInterceptors([
           apiPrefixInterceptor,
           errorHandlerInterceptor,
           includeBearerTokenInterceptor,
         ]),
       ),
-      provideToastr({
-        timeOut: 3000,
-        positionClass: 'toast-top-right',
-        preventDuplicates: true,
-        progressBar: true,
-        closeButton: true,
-        newestOnTop: true,
-        enableHtml: true,
-        tapToDismiss: true,
-        maxOpened: 5,
-        autoDismiss: true,
-      }),
       importProvidersFrom(
         TranslateModule.forRoot({
           defaultLanguage: 'en',

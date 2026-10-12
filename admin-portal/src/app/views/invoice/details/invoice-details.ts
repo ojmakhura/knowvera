@@ -1,3 +1,4 @@
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,11 +7,11 @@ import { ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { KycInvoiceApiStore } from '@app/store/bw/co/knowvera/invoice/kyc-invoice-api.store';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { KycInvoiceDTO } from '@app/models/bw/co/knowvera/invoice/kyc-invoice-dto';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { AppEnvStore } from '@app/store/app-env.state';
 
 type RepositoryFile = {
@@ -27,6 +28,8 @@ type RepositoryFile = {
   styleUrls: ['./invoice-details.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    MatProgressBarModule,
+    RouterLink,
     CommonModule,
     MatIconModule,
     MatButtonModule,
@@ -38,7 +41,7 @@ type RepositoryFile = {
 export class InvoiceDetails implements OnInit {
   readonly route = inject(ActivatedRoute);
   readonly router = inject(Router);
-  readonly toaster = inject(ToastrService);
+  // readonly toaster = inject(ToastrService);
   readonly documentApi = inject(DocumentApi);
   readonly kycInvoiceApiStore = inject(KycInvoiceApiStore);
   protected appEnvState = inject(AppEnvStore);
@@ -61,7 +64,7 @@ export class InvoiceDetails implements OnInit {
 
       if (this.error() && !this.loading() && message && message !== this.lastErrorMessage) {
         this.lastErrorMessage = message;
-        this.toaster.error(message);
+        // this.toaster.error(message);
       }
     });
 
@@ -105,7 +108,7 @@ export class InvoiceDetails implements OnInit {
     // const primary = this.repositoryFiles().find((file) => file.key === 'invoice');
 
     // if (!primary) {
-    //   this.toaster.error('No invoice document is available.');
+    //   // this.toaster.error('No invoice document is available.');
     //   return;
     // }
 
@@ -139,7 +142,7 @@ export class InvoiceDetails implements OnInit {
 
   downloadAttachment(file: RepositoryFile): void {
     if (!file.document) {
-      this.toaster.error(`No ${file.type.toLowerCase()} is available.`);
+      // this.toaster.error(`No ${file.type.toLowerCase()} is available.`);
       return;
     }
 
@@ -248,13 +251,15 @@ export class InvoiceDetails implements OnInit {
         : null;
 
     if (!request) {
-      this.toaster.error('No downloadable file reference was found for this document.');
+      // this.toaster.error('No downloadable file reference was found for this document.');
       return;
     }
 
     request.subscribe({
       next: (blob: Blob) => this.saveBlob(blob, fileName),
-      error: () => this.toaster.error('Failed to download document.'),
+      error: () => {
+        // this.toaster.error('Failed to download document.');
+      },
     });
   }
 

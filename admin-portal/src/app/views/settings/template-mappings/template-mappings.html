@@ -1,0 +1,117 @@
+<!-- template-mappings.html -->
+<section class="settings-page">
+  <header class="settings-page__header">
+    <div>
+      <h2 class="settings-page__title">Template Mappings</h2>
+      <p class="settings-page__subtitle">
+        Configure document structures, map template types, and manage verification thresholds.
+      </p>
+    </div>
+  </header>
+
+  @if (error() && messages().length) {
+    <div class="error-banner" role="alert">
+      <mat-icon>error</mat-icon>
+      <ul>
+        @for (message of messages(); track message) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    </div>
+  } @else if (success() && messages().length) {
+    <div class="success-banner" role="status">
+      <mat-icon>check_circle</mat-icon>
+      <ul>
+        @for (message of messages(); track message) {
+          <li>{{ message }}</li>
+        }
+      </ul>
+    </div>
+  }
+
+  <form class="mapping-grid" id="template-mappings-form" [formRoot]="templateMappingsForm">
+    @for (card of cards; track card.key) {
+      @let mapping = templateMappingsSignal();
+      @let template = mapping[card.templateField];
+      @let hasTemplate = !!template?.id;
+
+      <div class="settings-card mapping-card">
+        <div class="mapping-card__header">
+          <h3 class="settings-card__title">
+            <mat-icon>{{ card.icon }}</mat-icon>
+            {{ card.title }}
+          </h3>
+          <span class="status-pill" [class.status-pill--draft]="!hasTemplate">
+            <span class="status-pill__dot"></span>
+            {{ hasTemplate ? 'Active' : 'Draft' }}
+          </span>
+        </div>
+        <p class="mapping-card__desc">{{ card.description }}</p>
+
+        <div class="template-banner" [class.template-banner--muted]="!hasTemplate">
+          <div class="template-banner__icon">
+            <mat-icon>{{ hasTemplate ? 'description' : 'pending_actions' }}</mat-icon>
+          </div>
+          <div class="template-banner__body">
+            <p>Current Template: <strong>{{ template?.fileName || 'No template uploaded yet' }}</strong></p>
+            @if (hasTemplate) {
+              <p class="template-banner__updated">
+                Last updated: {{ (template.modifiedAt || template.createdAt) | date: 'mediumDate' }}
+                by {{ template.modifiedBy || template.createdBy }}
+              </p>
+            }
+          </div>
+          <button type="button" class="icon-btn" title="Download" [disabled]="!hasTemplate" (click)="downloadTemplate(card)">
+            <mat-icon>download</mat-icon>
+          </button>
+        </div>
+
+        <hr />
+
+        <div class="mapping-card__fields">
+          <label class="field">
+            <span class="field__label">Document Type</span>
+            <select
+              class="field__input"
+              [value]="mapping[card.documentTypeField]?.id ?? ''"
+              (change)="updateDocumentType(card.documentTypeField, $any($event.target).value)"
+            >
+              <option value="" disabled>Select a document type</option>
+              @for (opt of documentTypeOptions(); track opt.id) {
+                <option [value]="opt.id">{{ opt.name }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Map to Template Type</span>
+            <select
+              class="field__input"
+              [value]="mapping[card.templateTypeField]?.id ?? ''"
+              (change)="updateDocumentType(card.templateTypeField, $any($event.target).value)"
+            >
+              <option value="" disabled>Select a template type</option>
+              @for (opt of documentTypeOptions(); track opt.id) {
+                <option [value]="opt.id">{{ opt.name }}</option>
+              }
+            </select>
+          </label>
+        </div>
+
+        <!-- Confidence Threshold / Anomaly Tolerance are not part of the TemplateMappings
+             backend model yet, so they are omitted rather than bound to nothing. -->
+
+        <div class="dropzone" (click)="triggerUpload(card)">
+          <mat-icon>upload_file</mat-icon>
+          <p>Drag &amp; drop template file or <span>browse</span></p>
+          <p class="dropzone__hint">Supports {{ card.acceptedFormats }}</p>
+        </div>
+      </div>
+    }
+  </form>
+
+  <div class="page-actions">
+    <button type="button" class="btn btn-outline" (click)="discard()">Discard Changes</button>
+    <button type="submit" form="template-mappings-form" class="btn btn-action-primary">Save Mappings</button>
+  </div>
+</section>

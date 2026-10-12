@@ -12,6 +12,7 @@ import { ClientRequestApi } from '@app/services/bw/co/knowvera/organisation/clie
 import { ClientRequestSearchCriteria } from '@app/models/bw/co/knowvera/organisation/client/client-request-search-criteria';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
+import { toast } from 'ngx-sonner';
 
 export type ClientRequestApiState = AppState<ClientRequestDTO, ClientRequestDTO> & {
   individualsRequests: ClientRequestDTO[];
@@ -47,6 +48,7 @@ export const ClientRequestApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const clientRequestApi = inject(ClientRequestApi);
+    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -89,25 +91,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findByDocument(data.documentId,).pipe(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -121,25 +127,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findByDocumentPaged(data.documentId, data.pageNumber, data.pageSize,).pipe(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -153,25 +163,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findById(data.id,).pipe(
             tapResponse({
               next: (response: ClientRequestDTO | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -185,25 +199,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findByIndividual(data.individualId,).pipe(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -217,25 +235,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findByIndividualPaged(data.individualId, data.pageNumber, data.pageSize,).pipe(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -249,25 +271,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findByOrganisation(data.organisationId, data.target,).pipe(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -281,25 +307,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findByOrganisationPaged(data.organisationId, data.pageNumber, data.pageSize, data.target,).pipe(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -313,25 +343,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findByStatus(data.status,).pipe(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -345,25 +379,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findByStatusPaged(data.status, data.pageNumber, data.pageSize,).pipe(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -377,25 +415,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findByTarget(data.target, data.targetId,).pipe(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -409,25 +451,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findByTargetPaged(data.target, data.targetId, data.pageNumber, data.pageSize,).pipe(
             tapResponse({
               next: (response: Page<ClientRequestDTO>) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -441,25 +487,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findIndividualsByOrganisation(data.organisationId,).pipe(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     individualsRequests: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -473,25 +523,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findIndividualsByOrganisationPaged(data.organisationId, data.pageNumber, data.pageSize,).pipe(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     individualsRequestsPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -505,25 +559,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findOrganisationsByOrganisation(data.organisationId,).pipe(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     organisationsRequests: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -537,25 +595,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findOrganisationsByOrganisationPaged(data.organisationId, data.pageNumber, data.pageSize,).pipe(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     organisationsRequestsPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -569,25 +631,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.getAll().pipe(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -601,25 +667,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.getAllPaged(data.pageNumber, data.pageSize,).pipe(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -633,25 +703,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.pagedSearch(data.criteria,).pipe(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -665,25 +739,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.remove(data.id,).pipe(
             tapResponse({
               next: (response: boolean | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -697,25 +775,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.save(data.clientRequest,).pipe(
             tapResponse({
               next: (response: ClientRequestDTO | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -729,25 +811,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.search(data.criteria,).pipe(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -761,25 +847,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.uploadRequests(data.file, data.organisationId, data.target,).pipe(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -793,25 +883,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.updateStatus(data.id, data.status).pipe(
             tapResponse({
               next: (response: ClientRequestDTO) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -829,6 +923,8 @@ export const ClientRequestApiStore = signalStore(
 
                 let split = response.split('|');
 
+                const message = 'Registration token confirmed!!';
+                toastr.success(message);
                 patchState(
                   store,
                   {
@@ -837,12 +933,14 @@ export const ClientRequestApiStore = signalStore(
                     tokenConfirmed: true,
                     loading: false,
                     success: true,
-                    messages: ['Registration token confirmed!!'],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -852,7 +950,7 @@ export const ClientRequestApiStore = signalStore(
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -866,25 +964,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findMyRequests().pipe(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -898,25 +1000,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findMyRequestsPaged(data.pageNumber, data.pageSize,).pipe(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -930,25 +1036,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findMyOrganisationRequests().pipe(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     organisationsRequests: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -962,25 +1072,29 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.findMyOrganisationRequestsPaged(data.pageNumber, data.pageSize,).pipe(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     organisationsRequestsPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },

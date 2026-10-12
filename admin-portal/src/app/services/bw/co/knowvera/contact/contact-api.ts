@@ -12,7 +12,7 @@ import { ContactType } from '@app/models/bw/co/knowvera/contact/contact-type';
 })
 export class ContactApi {
     
-    protected path = '/contact';
+    protected path = '/contacts';
 
     private http = inject(HttpClient);
 

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { IndividualDetails } from './individual-details';
 

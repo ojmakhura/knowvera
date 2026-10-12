@@ -1,3 +1,4 @@
+@use 'shared/standard';
 // system-settings.component.scss
 // Aligned with Corporate Precision UI spec (code.html)
 
@@ -551,24 +552,4 @@ mat-card.tool-selectors {
   }
 }
 
-
-:host ::ng-deep .vault-field {
-  width: 100%;
-}
-
-:host ::ng-deep .vault-field .mat-mdc-text-field-wrapper {
-  background: var(--vault-surface-container-low, #f2f4f6);
-  border-radius: 0.7rem;
-}
-
-:host ::ng-deep .vault-field .mdc-notched-outline__leading,
-:host ::ng-deep .vault-field .mdc-notched-outline__notch,
-:host ::ng-deep .vault-field .mdc-notched-outline__trailing {
-  border-color: rgb(196 198 208 / 28%) !important;
-}
-
-:host ::ng-deep .vault-field.mat-focused .mdc-notched-outline__leading,
-:host ::ng-deep .vault-field.mat-focused .mdc-notched-outline__notch,
-:host ::ng-deep .vault-field.mat-focused .mdc-notched-outline__trailing {
-  border-color: var(--vault-primary, #001735) !important;
-}
+@include standard.vocabulary((cards, fields));

@@ -3,7 +3,6 @@ import { provideRouter } from '@angular/router';
 
 import { EditOrganisation } from './edit-organisation';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
-import { ToastrService } from 'ngx-toastr';
 import { AppEnvStore } from '@app/store/app-env.state';
 
 describe('EditOrganisation', () => {
@@ -20,10 +19,6 @@ describe('EditOrganisation', () => {
     save: () => undefined,
   };
 
-  const toastrMock = {
-    success: () => undefined,
-    error: () => undefined,
-  };
 
   const appEnvStoreMock = {
     userOrganisation: () => ({ id: null }),
@@ -35,7 +30,6 @@ describe('EditOrganisation', () => {
       providers: [
         provideRouter([]),
         { provide: OrganisationApiStore, useValue: organisationApiStoreMock },
-        { provide: ToastrService, useValue: toastrMock },
         { provide: AppEnvStore, useValue: appEnvStoreMock },
       ],
     }).compileComponents();

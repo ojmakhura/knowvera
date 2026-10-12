@@ -1,0 +1,17 @@
+// Document-level resets that sit on top of Tailwind preflight.
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--surface);
+    color: var(--on-surface);
+}

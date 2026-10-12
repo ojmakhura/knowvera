@@ -5,6 +5,12 @@
 //
 package bw.co.knowvera.kyc;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+import bw.co.knowvera.auth.CurrentCaller;
+import bw.co.knowvera.auth.Permissions;
+import bw.co.knowvera.auth.RequiresOwnership;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +34,7 @@ import bw.co.knowvera.organisation.OrganisationDTO;
 import bw.co.knowvera.user.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -50,11 +57,14 @@ public class KycRecordApiImpl implements KycRecordApi {
     private final IndividualService individualService;
     private final DocumentApi documentApi;
 
+    private final CurrentCaller currentCaller;
+
     public KycRecordApiImpl(KycRecordService kycRecordService,
             KeycloakOrganisationService keycloakOrganisationService,
             KeycloakUserService keycloakUserService,
             IndividualService individualService,
-            DocumentApi documentApi) {
+            DocumentApi documentApi, CurrentCaller currentCaller) {
+        this.currentCaller = currentCaller;
 
         this.kycRecordService = kycRecordService;
         this.keycloakOrganisationService = keycloakOrganisationService;
@@ -93,9 +103,36 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     }
 
+    private KycRecordDTO findStored(String id) {
+
+        if (StringUtils.isBlank(id)) {
+            return null;
+        }
+        try {
+            return kycRecordService.findById(id);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Status and validity change through review: callers without kyc-records:review (applicants,
+     * organisations, analysts) keep the stored values, and a new record starts INCOMPLETE.
+     */
+    private void protectReviewFields(KycRecordDTO record, KycRecordDTO stored) {
+
+        if (Permissions.has("kyc-records:review")) {
+            return;
+        }
+        record.setKycStatus(stored != null ? stored.getKycStatus() : KycComplianceStatus.INCOMPLETE);
+        record.setUploadDate(stored != null ? stored.getUploadDate() : null);
+        record.setExpiryDate(stored != null ? stored.getExpiryDate() : null);
+    }
+
     @Override
     @Operation(summary = "Find KYC Record by ID", description = "Find a KYC record by its ID")
-    // @Audit(entity = "KYC_RECORD", eventLabel="#id", logData = false)
+    @Audit(entity = "KYC_RECORD", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "kyc-records:view", target = "KYC_RECORD", id = "#id")
     public ResponseEntity<KycRecordDTO> findById(String id) throws Exception {
 
         logger.debug("Finding KYC record by ID: {}", id);
@@ -133,6 +170,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Find KYC Records by Individual", description = "Find KYC records by their individual ID")
     @Audit(entity = "KYC_RECORD", eventLabel = "#individualId", logData = false)
+    @RequiresOwnership(scope = "kyc-records:list", target = "INDIVIDUAL", id = "#individualId")
     public ResponseEntity<List<KycRecordListDTO>> findByIndividual(String individualId)
             throws Exception {
 
@@ -199,12 +237,15 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Save KYC Record", description = "Save a KYC record")
     @Audit(entity = "KYC_RECORD", logData = true)
+    @RequiresOwnership(scope = "kyc-records:edit", target = "#kycRecord.target", id = "#kycRecord.targetId", record = "KYC_RECORD", recordId = "#kycRecord.id")
     public ResponseEntity<KycRecordDTO> save(KycRecordDTO kycRecord) throws Exception {
 
         logger.debug("Saving KYC record: {}", kycRecord);
 
+        KycRecordDTO stored = findStored(kycRecord.getId());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        AuditTracker.auditTrail(kycRecord, authentication);
+        AuditTracker.auditTrail(kycRecord, stored, authentication);
+        protectReviewFields(kycRecord, stored);
 
         KycRecordDTO savedRecord = kycRecordService.save(kycRecord);
         updateOrganisations(List.of(savedRecord));
@@ -243,6 +284,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Find KYC Records by Individual Paged", description = "Find KYC records by their individual ID with pagination")
     @Audit(entity = "KYC_RECORD", eventLabel = "#individualId + ' ' + #pageNumber + ' ' + #pageSize", logData = false)
+    @RequiresOwnership(scope = "kyc-records:list", target = "INDIVIDUAL", id = "#individualId")
     public ResponseEntity<Page<KycRecordListDTO>> findByIndividualPaged(String individualId, Integer pageNumber,
             Integer pageSize) throws Exception {
 
@@ -256,6 +298,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Find KYC Records by Organisation", description = "Find KYC records by their organisation ID")
     @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
+    @RequiresOwnership(scope = "kyc-records:list", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<List<KycRecordListDTO>> findByOrganisation(String organisationId) throws Exception {
 
         logger.debug("Finding KYC records by organisation ID: {}", organisationId);
@@ -310,6 +353,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Create Individual KYC Record", description = "Create a KYC record for an individual")
     @Audit(entity = "KYC_RECORD", eventLabel = "#individualId", logData = false)
+    @RequiresOwnership(scope = "kyc-records:submit", target = "INDIVIDUAL", id = "#individualId")
     public ResponseEntity<KycRecordDTO> createIndividualRecord(String individualId) throws Exception {
 
         logger.debug("Creating KYC record for individual ID: {}", individualId);
@@ -330,6 +374,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Create Organisation KYC Record", description = "Create a KYC record for an organisation")
     @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
+    @RequiresOwnership(scope = "kyc-records:submit", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<KycRecordDTO> createOrganisationRecord(String organisationId) throws Exception {
 
         logger.debug("Creating KYC record for organisation ID: {}", organisationId);
@@ -355,62 +400,31 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         logger.debug("Finding current KYC record for authenticated user with owner type: {}", ownerType);
 
-        String username = "anonymousUser";
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-
-            username = authentication.getName();
+        String ownerId = switch (ownerType) {
+            case INDIVIDUAL -> currentCaller.individual().map(IndividualDTO::getId).orElse(null);
+            case ORGANISATION -> currentCaller.organisationId().orElse(null);
+            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported owner type " + ownerType);
+        };
+        if (ownerId == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No " + ownerType + " profile for this user");
         }
 
-        UserDTO user = keycloakUserService.findByUsername(username);
-        IndividualDTO individual = individualService.findByUserId(user.getUserId());
-
-        if (individual == null || StringUtils.isBlank(individual.getId())) {
-
-            throw new Exception("No individual or organisation associated with user: " + username);
+        KycRecordDTO current = kycRecordService.findLatestValidForOwner(ownerId, ownerType, LocalDate.now());
+        if (current == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No current KYC record");
         }
-
-        KycRecordDTO current = kycRecordService.findLatestValidForOwner(individual.getId(), ownerType,
-                LocalDate.now());
-
-        return ResponseEntity
-                .ok(current);
+        return ResponseEntity.ok(current);
     }
 
-    private KycRecordSearchCriteria buildSearchCriteriaForCurrentUser() throws Exception {
+    /** Criteria matching the caller's own records; null when the caller owns no subject (nothing matches). */
+    private KycRecordSearchCriteria buildSearchCriteriaForCurrentUser() {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-
-            throw new KycRecordServiceException("User is not authenticated");
+        List<String> subjects = currentCaller.subjectIds();
+        if (subjects.isEmpty()) {
+            return null;  // an empty targetIds criterion would match every record
         }
-
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-
-        UserDTO user = keycloakUserService.findUserById(jwt.getSubject());
-
-        List<String> targetIds = new ArrayList<>();
-
-        if (StringUtils.isNotBlank(user.getOrganisationId())) {
-
-            targetIds.add(user.getOrganisationId());
-        }
-
-        IndividualDTO individual = individualService.findByUserId(user.getUserId());
-
-        if (individual != null && StringUtils.isNotBlank(individual.getId())) {
-
-            targetIds.add(individual.getId());
-
-            if (individual.getOrganisation() != null && StringUtils.isNotBlank(individual.getOrganisation().id())) {
-                targetIds.add(individual.getOrganisation().id());
-
-            }
-        }
-
         KycRecordSearchCriteria criteria = new KycRecordSearchCriteria();
-        criteria.setTargetIds(targetIds);
-
+        criteria.setTargetIds(subjects);
         return criteria;
     }
 
@@ -422,6 +436,9 @@ public class KycRecordApiImpl implements KycRecordApi {
         logger.debug("Finding KYC records for the authenticated user");
 
         KycRecordSearchCriteria criteria = buildSearchCriteriaForCurrentUser();
+        if (criteria == null) {
+            return ResponseEntity.ok(List.of());
+        }
 
         List<KycRecordListDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
         // updateOrganisations(records);
@@ -433,6 +450,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Create New KYC Record", description = "Create a new KYC record")
     @Audit(entity = "KYC_RECORD", logData = true)
+    @RequiresOwnership(scope = "kyc-records:submit", target = "#record.target", id = "#record.targetId")
     public ResponseEntity<KycRecordDTO> createNew(KycRecordDTO record,
             List<MultipartFile> files) throws Exception {
 
@@ -466,6 +484,7 @@ public class KycRecordApiImpl implements KycRecordApi {
         List<DocumentDTO> docs = record.getDocuments();
 
         AuditTracker.auditTrail(record, authentication);
+        protectReviewFields(record, null);
 
         docs.forEach(d -> {
             AuditTracker.auditTrail(d, authentication);
@@ -520,6 +539,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Remove KYC Record File", description = "Remove a file from a KYC record")
     @Audit(entity = "KYC_RECORD", eventLabel = "#id + ' ' + #documentId", logData = false)
+    @RequiresOwnership(scope = "kyc-records:submit", target = "KYC_RECORD", id = "#id")
     public ResponseEntity<KycRecordDTO> removeRecordFile(String id, @Nullable String documentId) throws Exception {
 
         logger.debug("Removing file with document ID: {} from KYC record with ID: {}", documentId, id);
@@ -543,6 +563,7 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Update KYC Record Files", description = "Update the files associated with a KYC record")
     @Audit(entity = "KYC_RECORD", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "kyc-records:submit", target = "KYC_RECORD", id = "#id")
     public ResponseEntity<KycRecordDTO> updateRecordFiles(String id, List<DocumentDTO> documents,
             List<MultipartFile> files) throws Exception {
 
@@ -603,6 +624,10 @@ public class KycRecordApiImpl implements KycRecordApi {
                 pageNumber, pageSize);
 
         KycRecordSearchCriteria criteria = buildSearchCriteriaForCurrentUser();
+        if (criteria == null) {
+            return ResponseEntity.ok(Page.empty(PageRequest.of(pageNumber == null ? 0 : pageNumber,
+                    pageSize == null || pageSize < 1 ? 10 : pageSize)));
+        }
 
         SearchObject<KycRecordSearchCriteria> searchObject = new SearchObject<>();
         searchObject.setCriteria(criteria);
@@ -624,11 +649,12 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Find KYC Record Summary by ID", description = "Find a summary of a KYC record by its ID")
     @Audit(entity = "KYC_RECORD", eventLabel = "#id", logData = false)
-    public ResponseEntity<KycRecordSummary> findSummaryById(String id) throws Exception {
+    @RequiresOwnership(scope = "kyc-records:view", target = "KYC_RECORD", id = "#id")
+    public ResponseEntity<KycRecordSummary> findSummaryById(String id, @Nullable String organisationId) throws Exception {
 
         logger.debug("Finding KYC record summary by ID: {}", id);
 
-        KycRecordSummary summary = kycRecordService.findSummaryById(id);
+        KycRecordSummary summary = kycRecordService.findSummaryById(id, organisationId);
 
         return ResponseEntity.ok(summary);
     }
@@ -689,5 +715,55 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         return ResponseEntity.ok(record);
 
+    }
+
+    @Override
+    @RequiresOwnership(scope = "kyc-records:list", target = "ORGANISATION", id = "#organisationId")
+    @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
+    public @Nullable ResponseEntity<List<KycRecordSummary>> findClientIndividualSummaries(
+            @Nullable String organisationId) throws Exception {
+        
+        return ResponseEntity.ok(kycRecordService.findOrganisationSummaries(organisationId, true));
+    }
+
+    @Override
+    @RequiresOwnership(scope = "kyc-records:list", target = "ORGANISATION", id = "#organisationId")
+    @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
+    public ResponseEntity<Page<KycRecordSummary>> findClientIndividualSummariesPaged(@Nullable String organisationId,
+            @Nullable Integer pageNumber, @Nullable Integer pageSize) throws Exception {
+        return ResponseEntity.ok(kycRecordService.findOrganisationSummaries(organisationId, true, pageSize, pageNumber));
+    }
+
+    @Override
+    @RequiresOwnership(scope = "kyc-records:list", target = "ORGANISATION", id = "#organisationId")
+    @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
+    public @Nullable ResponseEntity<List<KycRecordSummary>> findClientOrganisationSummaries(
+            @Nullable String organisationId) throws Exception {
+        return ResponseEntity.ok(kycRecordService.findOrganisationSummaries(organisationId, false));
+    }
+
+    @Override
+    @RequiresOwnership(scope = "kyc-records:list", target = "ORGANISATION", id = "#organisationId")
+    @Audit(entity = "KYC_RECORD", eventLabel = "#organisationId", logData = false)
+    public ResponseEntity<Page<KycRecordSummary>> findClientOrganisationSummariesPage(@Nullable String organisationId,
+            @Nullable Integer pageNumber, @Nullable Integer pageSize) throws Exception {
+        return ResponseEntity.ok(kycRecordService.findOrganisationSummaries(organisationId, false, pageSize, pageNumber));
+    }
+
+    @Override
+    @Audit(entity = "KYC_RECORD", logData = false)
+    public @Nullable ResponseEntity<Page<KycRecordSummary>> pagedSearchSummaries(
+            @Nullable @Valid SearchObject<KycRecordSearchCriteria> criteria) throws Exception {
+        
+        Page<KycRecordSummary> summaries = kycRecordService.searchSummaries(criteria);
+        return ResponseEntity.ok(summaries);
+    }
+
+    @Override
+    @Audit(entity = "KYC_RECORD", logData = false)
+    public @Nullable ResponseEntity<List<KycRecordSummary>> searchSummaries(@Nullable KycRecordSearchCriteria criteria)
+            throws Exception {
+        List<KycRecordSummary> summaries = kycRecordService.searchSummaries(criteria, Set.<PropertySearchOrder>of());
+        return ResponseEntity.ok(summaries);
     }
 }

@@ -1,0 +1,235 @@
+<div class="kv-page">
+
+  <!-- Header -->
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/client-request">Client Requests</a>
+    </nav>
+
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">Client Request Search</h1>
+      </div>
+      <div class="kv-actions">
+        <button type="button" class="kv-btn-primary" [routerLink]="['/client-request/edit']">
+          <mat-icon>add</mat-icon>
+          New Request
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Search criteria -->
+  <form class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch mb-6" (submit)="$event.preventDefault(); onSubmit()">
+
+    <!-- Main column -->
+    <section class="kv-card md:col-span-8">
+      <div class="kv-card-header">
+        <mat-icon class="kv-card-icon">manage_search</mat-icon>
+        <h2 class="kv-card-title">Search Criteria</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="kv-field md:col-span-2">
+          <label class="kv-label" for="requestName">Client Name</label>
+          <mat-form-field appearance="outline" class="vault-field">
+            <mat-icon matPrefix>search</mat-icon>
+            <input id="requestName" type="search" matInput placeholder="Search by name..."
+              [value]="filters().name" (input)="updateField('name', $any($event.target).value)" />
+          </mat-form-field>
+        </div>
+
+        <div class="kv-field">
+          <label class="kv-label" for="requestEmail">Email Address</label>
+          <mat-form-field appearance="outline" class="vault-field">
+            <input id="requestEmail" type="email" matInput placeholder="client@example.com"
+              [value]="filters().emailAddress" (input)="updateField('emailAddress', $any($event.target).value)" />
+          </mat-form-field>
+        </div>
+
+        <div class="kv-field">
+          <label class="kv-label" for="requestTargetId">Target ID</label>
+          <mat-form-field appearance="outline" class="vault-field">
+            <input id="requestTargetId" type="text" matInput placeholder="UUID or reference no."
+              [value]="filters().targetId" (input)="updateField('targetId', $any($event.target).value)" />
+          </mat-form-field>
+        </div>
+      </div>
+    </section>
+
+    <!-- Side column -->
+    <section class="kv-card border-t-4 border-emerald md:col-span-4 flex flex-col gap-4">
+      <div class="kv-card-header">
+        <mat-icon class="kv-card-icon">filter_alt</mat-icon>
+        <h2 class="kv-card-title">Filters</h2>
+      </div>
+
+      <!-- <div class="kv-field">
+        <label class="kv-label" for="requestOrganisation">Organisation</label>
+        <mat-form-field appearance="outline" class="vault-field">
+          <mat-select id="requestOrganisation" placeholder="All organisations" [value]="filters().organisationId" (selectionChange)="updateField('organisationId', $event.value)">
+            <mat-option value="">All organisations</mat-option>
+            @for (organisation of organisations(); track organisation.id) {
+              <mat-option [value]="organisation.id">{{ organisation.name || organisation.registrationNo }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div> -->
+
+      <div class="kv-field">
+        <label class="kv-label" for="requestStatus">Status</label>
+        <mat-form-field appearance="outline" class="vault-field">
+          <mat-select id="requestStatus" placeholder="All statuses" [value]="filters().status" (selectionChange)="updateField('status', $event.value)">
+            <mat-option value="">All statuses</mat-option>
+            @for (status of statusOptions; track status) {
+              <mat-option [value]="status">{{ statusLabel(status) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="kv-field">
+        <label class="kv-label" for="requestTarget">Target Entity</label>
+        <mat-form-field appearance="outline" class="vault-field">
+          <mat-select id="requestTarget" placeholder="All targets" [value]="filters().target" (selectionChange)="updateField('target', $event.value)">
+            <mat-option value="">All targets</mat-option>
+            @for (target of targetOptions; track target) {
+              <mat-option [value]="target">{{ targetLabel(target) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="kv-actions mt-auto pt-2">
+        <button type="button" class="kv-btn-secondary flex-1 justify-center" (click)="clearFilters()">Reset</button>
+        <button type="submit" class="kv-btn-primary flex-1 justify-center" [disabled]="loading()">
+          <mat-icon>manage_search</mat-icon>
+          {{ loading() ? 'Searching...' : 'Search' }}
+        </button>
+      </div>
+    </section>
+  </form>
+
+  <!-- Results -->
+  <section class="vs-results">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+    <div class="vs-results-head">
+      <h2 class="vs-results-title">Search Results</h2>
+      <span class="vs-count">{{ showingLabel() }}</span>
+    </div>
+
+    <div class="vs-table-wrap">
+      <table class="vs-table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Reference</th>
+            <th>Organisation</th>
+            <th>Status</th>
+            <th class="align-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of $any(rows()); track row.id) {
+            <tr>
+              <td>
+                <div class="vs-file">
+                  <mat-icon class="vs-file-icon">{{ row.target === 'ORGANISATION' ? 'business' : 'person' }}</mat-icon>
+                  <div class="vs-file-copy">
+                    <button type="button" class="vs-file-name" (click)="openDetails(row.id)">
+                      {{ row.name || 'Unnamed Request' }}
+                    </button>
+                    <p class="vs-file-meta">{{ targetLabel(row.target) }}@if (row.registration) { &bull; {{ row.registration }} }</p>
+                  </div>
+                </div>
+              </td>
+              <td class="vs-mono">{{ row.ref || '—' }}</td>
+              <td>
+                <p class="vs-strong">{{ row.organisation || 'No organisation attached' }}</p>
+                <p class="vs-file-meta">{{ organisationSubtitle(row) }}</p>
+              </td>
+              <td>
+                <span class="vs-status" [class]="statusClass(row.status)">{{ statusLabel(row.status) }}</span>
+              </td>
+              <td>
+                <div class="vs-row-actions">
+                  <button type="button" class="vs-action" matTooltip="View request" aria-label="View request" (click)="openDetails(row.id)">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button type="button" class="vs-action" matTooltip="Edit request" aria-label="Edit request" (click)="openEdit(row.id)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr class="vs-empty">
+              <td colspan="5">
+                <mat-icon>search_off</mat-icon>
+                <p>No client requests matched the current search.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="vs-results-foot">
+      <div class="vs-page-report">
+        {{ pageReport() }}
+        <label class="vs-page-size">
+          Rows
+          <select [value]="pageSize()" (change)="changePageSize($any($event.target).value)">
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      <nav class="vs-pager" aria-label="Pagination">
+        <button type="button" class="vs-page-arrow" aria-label="Previous page" [disabled]="currentPage() === 0"
+          (click)="goToPage(currentPage() - 1)">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        @for (page of pageNumbers(); track page) {
+          <button type="button" class="vs-page-btn" [class.is-active]="page === currentPage()"
+            [attr.aria-current]="page === currentPage() ? 'page' : null" (click)="goToPage(page)">
+            {{ page + 1 }}
+          </button>
+        }
+        <button type="button" class="vs-page-arrow" aria-label="Next page"
+          [disabled]="currentPage() >= totalPages() - 1" (click)="goToPage(currentPage() + 1)">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Assurances (visual vault) -->
+  <section class="vs-vault" aria-label="Request assurances">
+    <div class="vs-vault-card vs-vault-storage">
+      <mat-icon class="vs-vault-art">lock</mat-icon>
+      <div class="vs-vault-copy">
+        <h3>Encrypted Access</h3>
+        <p>End-to-end encrypted data access for every client request</p>
+      </div>
+    </div>
+    <div class="vs-vault-card vs-vault-logs">
+      <mat-icon class="vs-vault-art">history</mat-icon>
+      <div class="vs-vault-copy">
+        <h3>Immutable Logs</h3>
+        <p>Status changes and approvals are recorded in the audit trail</p>
+      </div>
+    </div>
+    <div class="vs-vault-card vs-vault-identity">
+      <mat-icon class="vs-vault-art">hub</mat-icon>
+      <div class="vs-vault-copy">
+        <h3>Linked Targets</h3>
+        <p>Requests link to the individual or organisation being verified</p>
+      </div>
+    </div>
+  </section>
+</div>

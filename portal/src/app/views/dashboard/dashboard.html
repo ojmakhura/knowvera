@@ -1,62 +1,58 @@
-<main class="dashboard-shell">
-
-  <!-- ── Hero ── -->
-  <section class="dashboard-hero" aria-labelledby="dashboard-title">
+<div class="kv-page">
+  <!-- Header -->
+  <header class="kv-page-header" aria-labelledby="dashboard-title">
     <div>
-      <h1 id="dashboard-title">Dashboard</h1>
-      <p>Overview of compliance and verification metrics.</p>
+      <h1 id="dashboard-title" class="kv-title">Dashboard</h1>
+      <p class="kv-subtitle">Overview of compliance and verification metrics.</p>
     </div>
-  </section>
+  </header>
 
-  <!-- ── Metrics ── -->
-  <section class="metric-grid" aria-label="Verification metrics">
+  <!-- Metrics -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8" aria-label="Verification metrics">
     @for (metric of metrics(); track metric.label) {
-    <article class="metric-card">
-      <div class="metric-card__header">
-        <span class="metric-card__label">{{ metric.label }}</span>
-        <span [class]="'metric-card__icon metric-card__icon--' + metric.tone" aria-hidden="true">
-          <span class="material-symbols-outlined">{{ metric.icon }}</span>
-        </span>
-      </div>
-      <p class="metric-card__value">{{ metric.value }}</p>
-      <p [class]="'metric-card__detail metric-card__detail--' + metric.tone">
-        @switch (metric.tone) {
-          @case ('success') {
-            <span class="material-symbols-outlined detail-icon" aria-hidden="true">trending_up</span>
-          }
-          @case ('primary') {
-            <span class="material-symbols-outlined detail-icon" aria-hidden="true">trending_up</span>
-          }
-          @case ('warning') {
-            <span class="material-symbols-outlined detail-icon" aria-hidden="true">schedule</span>
-          }
-          @default {
-            <span class="material-symbols-outlined detail-icon" aria-hidden="true">priority_high</span>
-          }
-        }
-        {{ metric.detail }}
-      </p>
-    </article>
+      <article class="kv-card flex flex-col gap-2">
+        <div class="flex items-center justify-between gap-3">
+          <span class="kv-label">{{ metric.label }}</span>
+          <span
+            class="dp-icon-tile"
+            [class.is-success]="metric.tone === 'success'"
+            [class.is-warning]="metric.tone === 'warning'"
+            [class.is-danger]="metric.tone === 'neutral'"
+            aria-hidden="true"
+          >
+            <mat-icon>{{ metric.icon }}</mat-icon>
+          </span>
+        </div>
+        <p class="dp-metric">{{ metric.value }}</p>
+        <p
+          class="dp-inline-icon text-xs font-medium"
+          [class.text-emerald-dark]="metric.tone === 'success'"
+          [class.text-primary]="metric.tone === 'primary'"
+          [class.text-on-tertiary-container]="metric.tone === 'warning'"
+          [class.text-error]="metric.tone === 'neutral'"
+        >
+          <mat-icon class="text-current!">{{ metric.tone === 'warning' ? 'schedule' : metric.tone === 'neutral' ? 'priority_high' : 'trending_up' }}</mat-icon>
+          {{ metric.detail }}
+        </p>
+      </article>
     }
   </section>
 
-  <!-- ── Current Records Setup ── -->
-  <section class="dashboard-section" aria-labelledby="setup-title">
-    <h2 id="setup-title" class="dashboard-section__title">Current Records Setup</h2>
-    <div class="setup-grid">
-      <article class="setup-card">
-        <div class="setup-card__icon" aria-hidden="true">
-          <span class="material-symbols-outlined">person</span>
-        </div>
-        <div class="setup-card__body">
-          <h3>Individual Records</h3>
-          <p>Manage personal identity verification and PEP checks for retail clients.</p>
-          <div class="setup-card__actions">
-            <a class="link-button" routerLink="/individual">
+  <!-- Current Records Setup -->
+  <section class="mb-8" aria-labelledby="setup-title">
+    <h2 id="setup-title" class="kv-card-title text-lg! mb-4">Current Records Setup</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <article class="kv-card flex items-start gap-4">
+        <span class="dp-icon-tile" aria-hidden="true"><mat-icon>person</mat-icon></span>
+        <div class="flex flex-col gap-2 min-w-0">
+          <h3 class="kv-card-title">Individual Records</h3>
+          <p class="text-sm text-on-surface-variant">Manage personal identity verification and PEP checks for retail clients.</p>
+          <div class="flex flex-wrap items-center gap-3 mt-2">
+            <a class="dp-btn-link" routerLink="/individual">
               View Individuals
-              <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+              <mat-icon>arrow_forward</mat-icon>
             </a>
-            <button type="button" class="primary-button" (click)="createRecord(targetEntityEnum.INDIVIDUAL)">
+            <button type="button" class="kv-btn-primary" (click)="createRecord(targetEntityEnum.INDIVIDUAL)">
               New KYC Record
             </button>
           </div>
@@ -64,99 +60,101 @@
       </article>
 
       @if (hasOrg()) {
-      <article class="setup-card">
-        <div class="setup-card__icon" aria-hidden="true">
-          <span class="material-symbols-outlined">corporate_fare</span>
-        </div>
-        <div class="setup-card__body">
-          <h3>Organisation Records</h3>
-          <p>Manage corporate entity verification, UBO structures, and institutional risk.</p>
-          <div class="setup-card__actions">
-            <a class="link-button" routerLink="/organisation">
-              View Organisations
-              <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-            </a>
-            <button type="button" class="primary-button" (click)="createRecord(targetEntityEnum.ORGANISATION)">
-              New KYC Record
-            </button>
+        <article class="kv-card flex items-start gap-4">
+          <span class="dp-icon-tile" aria-hidden="true"><mat-icon>corporate_fare</mat-icon></span>
+          <div class="flex flex-col gap-2 min-w-0">
+            <h3 class="kv-card-title">Organisation Records</h3>
+            <p class="text-sm text-on-surface-variant">Manage corporate entity verification, UBO structures, and institutional risk.</p>
+            <div class="flex flex-wrap items-center gap-3 mt-2">
+              <a class="dp-btn-link" routerLink="/organisation">
+                View Organisations
+                <mat-icon>arrow_forward</mat-icon>
+              </a>
+              <button type="button" class="kv-btn-primary" (click)="createRecord(targetEntityEnum.ORGANISATION)">
+                New KYC Record
+              </button>
+            </div>
           </div>
-        </div>
-      </article>
+        </article>
       }
     </div>
   </section>
 
-  <!-- ── Institutional Records Registry ── -->
-  <section class="dashboard-section" id="registry" aria-labelledby="registry-title">
-    <div class="registry-table-wrap">
-      <div class="registry-header">
-        <h2 id="registry-title">Institutional Records Registry</h2>
-        <button
-          type="button"
-          class="icon-button"
-          (click)="cycleFilter()"
-          [attr.aria-label]="filterButtonLabel()"
-        >
-          <span class="material-symbols-outlined" aria-hidden="true">filter_list</span>
-        </button>
-      </div>
+  <!-- Institutional Records Registry -->
+  <section class="kv-card p-0! overflow-hidden" id="registry" aria-labelledby="registry-title">
+    <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-outline-variant">
+      <h2 id="registry-title" class="kv-card-title">Institutional Records Registry</h2>
+      <button
+        type="button"
+        class="kv-icon-btn"
+        (click)="cycleFilter()"
+        [attr.aria-label]="filterButtonLabel()"
+      >
+        <mat-icon>filter_list</mat-icon>
+      </button>
+    </div>
 
-      <div class="registry-table-scroll">
-        <table class="registry-table">
-          <caption class="sr-only">Registry of institutional and individual KYC records</caption>
-          <thead>
-            <tr>
-              <th scope="col">Client Name / Type</th>
-              <th scope="col">Identity No.</th>
-              <th scope="col">Status</th>
-              <th scope="col">Upload Date</th>
-              <th scope="col">Expiry</th>
-              <th scope="col" class="actions-column">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (record of visibleRecords(); track record.id || $index) {
+    <div class="dp-table-wrap">
+      <table class="dp-table">
+        <caption class="sr-only">Registry of institutional and individual KYC records</caption>
+        <thead>
+          <tr>
+            <th scope="col">Client Name / Type</th>
+            <th scope="col">Identity No.</th>
+            <th scope="col">Status</th>
+            <th scope="col">Upload Date</th>
+            <th scope="col">Expiry</th>
+            <th scope="col" class="align-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (record of visibleRecords(); track record.id || $index) {
+            @let tone = statusTone(record.kycStatus);
             <tr>
               <td>
-                <p class="registry-client-name">{{ recordTitle(record) }}</p>
-                <span class="registry-client-type">{{ rowTypeLabel(record) }}</span>
+                <p class="dp-strong">{{ recordTitle(record) }}</p>
+                <span class="dp-list-sub">{{ rowTypeLabel(record) }}</span>
               </td>
-              <td class="mono">{{ recordReference(record) }}</td>
+              <td class="dp-mono">{{ recordReference(record) }}</td>
               <td>
-                <span [class]="'status-chip status-chip--' + statusTone(record.kycStatus)">
+                <span
+                  class="kv-chip"
+                  [class.kv-tone-success]="tone === 'verified'"
+                  [class.kv-tone-danger]="tone === 'expired'"
+                  [class.kv-tone-warning]="tone === 'attention'"
+                  [class.kv-tone-info]="tone === 'review'"
+                >
                   {{ statusLabel(record.kycStatus) }}
                 </span>
               </td>
               <td>{{ rowUploadDate(record) }}</td>
-              <td [class]="statusTone(record.kycStatus) === 'expired' ? 'text-alert' : ''">
+              <td [class.text-error]="tone === 'expired'" [class.font-semibold]="tone === 'expired'">
                 {{ formatDate(record.expiryDate) }}
               </td>
-              <td class="actions-column">
+              <td class="align-end">
                 <button
                   type="button"
-                  class="icon-button"
+                  class="kv-icon-btn"
                   (click)="viewRecord(record)"
                   [attr.aria-label]="'Actions for ' + recordTitle(record)"
                 >
-                  <span class="material-symbols-outlined" aria-hidden="true">more_vert</span>
+                  <mat-icon>more_vert</mat-icon>
                 </button>
               </td>
             </tr>
-            } @empty {
+          } @empty {
             <tr>
-              <td colspan="6" class="registry-table__empty">
+              <td colspan="6" class="dp-table-empty">
                 No records match the current registry filter.
               </td>
             </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+          }
+        </tbody>
+      </table>
+    </div>
 
-      <div class="registry-footer">
-        <a class="link-button" routerLink="/kyc-record">View All Records</a>
-      </div>
+    <div class="flex justify-center px-6 py-3 border-t border-outline-variant bg-surface-container-low">
+      <a class="dp-btn-link" routerLink="/kyc-record">View All Records</a>
     </div>
   </section>
-
-</main>
+</div>

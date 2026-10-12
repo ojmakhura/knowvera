@@ -44,8 +44,10 @@ public class AuditContextProvider {
 
         if (authentication != null) {
             context.setUsername(authentication.getName());
-            Jwt jwt = (Jwt) authentication.getPrincipal();
-            context.setUserId(jwt.getSubject());
+            // Public endpoints run with an anonymous (non-JWT) principal
+            if (authentication.getPrincipal() instanceof Jwt jwt) {
+                context.setUserId(jwt.getSubject());
+            }
         }
 
         SpanContext spanContext =

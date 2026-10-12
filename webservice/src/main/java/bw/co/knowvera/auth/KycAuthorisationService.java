@@ -1,15 +1,34 @@
 package bw.co.knowvera.auth;
 
+import java.lang.reflect.Method;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.aop.support.AopUtils;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.expression.MethodBasedEvaluationContext;
+import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.core.Ordered;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.authorization.method.AuthorizationInterceptorsOrder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import bw.co.knowvera.TargetEntity;
+import bw.co.knowvera.config.KeycloakPermissionConverter;
 import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.document.DocumentService;
 import bw.co.knowvera.individual.IndividualDTO;
@@ -28,8 +47,27 @@ import bw.co.knowvera.subscription.KycSubscriptionService;
 import bw.co.knowvera.user.UserDTO;
 import lombok.RequiredArgsConstructor;
 
-@Service("kycAuthService")
-public class KycAuthorisationService {
+/**
+ * Record ownership checks, applied as an aspect to methods annotated with
+ * {@link RequiresOwnership}. Runs right after @PreAuthorize (Keycloak permission check):
+ * callers holding the type-level permission ({@code SCOPE_<resource>:<scope>}) pass, callers
+ * holding only {@code SCOPE_<resource>:<scope>-own} must own the record.
+ *
+ * Dependencies are injected lazily so that creating this aspect does not instantiate the
+ * services before the auto-proxy creator can wrap them (e.g. for @Transactional).
+ */
+@Aspect
+@Component("kycAuthService")
+public class KycAuthorisationService implements Ordered {
+
+    /** Directly inside @PreAuthorize, outside @Audit. */
+    public static final int ORDER = AuthorizationInterceptorsOrder.PRE_AUTHORIZE.getOrder() + 1;
+
+    /** Suffix of the Keycloak scope that limits a permission to the caller's own records (OWN in generate_authz.py). */
+    public static final String OWN_SUFFIX = "-own";
+
+    private final SpelExpressionParser parser = new SpelExpressionParser();
+    private final ParameterNameDiscoverer parameterNames = new DefaultParameterNameDiscoverer();
 
     private final KycRecordService kycRecordService;
     private final KeycloakUserService keycloakUserService;
@@ -40,10 +78,10 @@ public class KycAuthorisationService {
     private final KycInvoiceService invoiceService;
     private final KycSubscriptionService subscriptionService;
 
-    public KycAuthorisationService(KycRecordService kycRecordService, KeycloakUserService keycloakUserService,
-            IndividualService individualService, OrganisationService organisationService,
-            DocumentService documentService, ClientRequestService clientRequestService,
-            KycInvoiceService invoiceService, KycSubscriptionService subscriptionService) {
+    public KycAuthorisationService(@Lazy KycRecordService kycRecordService, @Lazy KeycloakUserService keycloakUserService,
+            @Lazy IndividualService individualService, @Lazy OrganisationService organisationService,
+            @Lazy DocumentService documentService, @Lazy ClientRequestService clientRequestService,
+            @Lazy KycInvoiceService invoiceService, @Lazy KycSubscriptionService subscriptionService) {
         this.kycRecordService = kycRecordService;
         this.keycloakUserService = keycloakUserService;
         this.individualService = individualService;
@@ -52,6 +90,86 @@ public class KycAuthorisationService {
         this.clientRequestService = clientRequestService;
         this.invoiceService = invoiceService;
         this.subscriptionService = subscriptionService;
+    }
+
+    @Override
+    public int getOrder() {
+        return ORDER;
+    }
+
+    @Around("@annotation(requiresOwnership)")
+    public Object checkOwnership(ProceedingJoinPoint joinPoint, RequiresOwnership requiresOwnership) throws Throwable {
+
+        String permission = KeycloakPermissionConverter.AUTHORITY_PREFIX + requiresOwnership.scope();
+        Set<String> authorities = currentAuthorities();
+
+        if (authorities.contains(permission)) {
+            // Type-level permission (staff): not limited to own records
+            return joinPoint.proceed();
+        }
+
+        if (!authorities.contains(permission + OWN_SUFFIX)) {
+            throw new AuthorizationDeniedException("Access denied: missing permission " + requiresOwnership.scope());
+        }
+
+        Method method = AopUtils.getMostSpecificMethod(
+                ((MethodSignature) joinPoint.getSignature()).getMethod(), joinPoint.getTarget().getClass());
+        EvaluationContext context = new MethodBasedEvaluationContext(
+                joinPoint.getTarget(), method, joinPoint.getArgs(), parameterNames);
+
+        TargetEntity target = resolveTarget(requiresOwnership.target(), context);
+        Object id = parser.parseExpression(requiresOwnership.id()).getValue(context);
+
+        if (target == null || id == null || !ownsStoredRecord(target, id.toString())) {
+            throw new AuthorizationDeniedException("Access denied: caller does not own the "
+                    + (target != null ? target : "requested") + " record");
+        }
+
+        // An update must also be of a record the caller already owns (the body names the new owner)
+        if (StringUtils.isNotBlank(requiresOwnership.recordId())) {
+            Object recordId = parser.parseExpression(requiresOwnership.recordId()).getValue(context);
+            if (recordId != null && StringUtils.isNotBlank(recordId.toString())
+                    && !ownsStoredRecord(resolveTarget(requiresOwnership.record(), context), recordId.toString())) {
+                throw new AuthorizationDeniedException("Access denied: caller does not own the stored "
+                        + requiresOwnership.record() + " record");
+            }
+        }
+
+        return joinPoint.proceed();
+    }
+
+    private boolean ownsStoredRecord(TargetEntity record, String recordId) {
+        try {
+            return record != null && isTargetRecordOwner(record, recordId);
+        } catch (Exception e) {
+            // Unknown id or lookup failure: not proven to be the caller's record
+            return false;
+        }
+    }
+
+    private TargetEntity resolveTarget(String target, EvaluationContext context) {
+
+        if (!target.startsWith("#")) {
+            return TargetEntity.valueOf(target);
+        }
+
+        Object value = parser.parseExpression(target).getValue(context);
+        if (value instanceof TargetEntity entity) {
+            return entity;
+        }
+        return value != null ? TargetEntity.valueOf(value.toString()) : null;
+    }
+
+    private Set<String> currentAuthorities() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return Set.of();
+        }
+
+        return auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
     }
 
     public boolean canViewRequest(UUID requestId, Authentication auth) {
@@ -79,6 +197,11 @@ public class KycAuthorisationService {
 
     public Boolean isIndividualMatch(String individualId) {
 
+        if(StringUtils.isBlank(individualId)) {
+
+            return false;
+        }
+
         UserDTO user = getCurrentUser();
 
         if (user == null || StringUtils.isBlank(user.getUserId())) {
@@ -103,6 +226,10 @@ public class KycAuthorisationService {
 
     public Boolean isOrganisationUserMatch(String organisationId) {
 
+        if(StringUtils.isBlank(organisationId)) {
+            return false;
+        }
+
         UserDTO user = getCurrentUser();
 
         if(user == null || StringUtils.isBlank(user.getUserId()) || StringUtils.isBlank(user.getOrganisationId())) {
@@ -120,6 +247,11 @@ public class KycAuthorisationService {
 
     public Boolean isOrganisationUserMatchByRegistration(String registrationId) {
 
+        if(StringUtils.isBlank(registrationId)) {
+
+            return false;
+        }
+
         UserDTO user = getCurrentUser();
 
         if(user == null || StringUtils.isBlank(user.getUserId()) || StringUtils.isBlank(user.getOrganisationId())) {
@@ -136,7 +268,10 @@ public class KycAuthorisationService {
     }
 
     private Boolean isKycRecordOwnershipMatch(String kycRecordId) {
-        
+
+        if(StringUtils.isBlank(kycRecordId)) {
+            return false;
+        }
         KycRecordDTO kycRecord = kycRecordService.findById(kycRecordId);
         if (kycRecord == null || StringUtils.isBlank(kycRecord.getId())) {
             return false;

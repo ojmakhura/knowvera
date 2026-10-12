@@ -13,10 +13,18 @@ import { KycRecordApi } from '@app/services/bw/co/knowvera/kyc/kyc-record-api';
 import { KycRecordSearchCriteria } from '@app/models/bw/co/knowvera/kyc/kyc-record-search-criteria';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { KycRecordListDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-list-dto';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
+import { toast } from 'ngx-sonner';
+import { KycRecordSummary } from '@app/models/bw/co/knowvera/kyc/kyc-record-summary';
 
 export type KycRecordApiState = AppState<KycRecordDTO, KycRecordDTO> & {
   currentIndividualRecord: KycRecordDTO | null;
   currentOrganisationRecord: KycRecordDTO | null;
+  individualSummaries: KycRecordSummary[] | null;
+  organisationSummaries: KycRecordSummary[] | null;
+  individualSummariesPaged: Page<KycRecordSummary> | null;
+  organisationSummariesPaged: Page<KycRecordSummary> | null;
+  summary: KycRecordSummary | null;
 };
 
 const initialState: KycRecordApiState = {
@@ -31,6 +39,11 @@ const initialState: KycRecordApiState = {
   error: false,
   currentIndividualRecord: null,
   currentOrganisationRecord: null,
+  individualSummaries: null,
+  organisationSummaries: null,
+  individualSummariesPaged: null,
+  organisationSummariesPaged: null,
+  summary: null,
 };
 
 export const KycRecordApiStore = signalStore(
@@ -38,6 +51,7 @@ export const KycRecordApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const kycRecordApi = inject(KycRecordApi);
+    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -48,21 +62,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.createIndividualRecord(data.individualId).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   data: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -75,21 +93,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.createOrganisationRecord(data.organisationId).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   data: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -102,21 +124,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findById(data.id).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   data: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -129,21 +155,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findByIdentityNo(data.identityNo).pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -158,21 +188,25 @@ export const KycRecordApiStore = signalStore(
             .pipe(
               tapResponse({
                 next: (response: Page<KycRecordListDTO>) => {
+                  const message = `Success!!`;
+                  toastr.success(message);
                   patchState(store, {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   });
                 },
                 error: (error: any) => {
+                  const message = getErrormessage(error);
+                  toastr.error(message);
                   patchState(store, {
                     status: error?.status || 0,
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   });
                 },
               }),
@@ -185,21 +219,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findByIndividual(data.individualId).pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -218,21 +256,25 @@ export const KycRecordApiStore = signalStore(
             .pipe(
               tapResponse({
                 next: (response: Page<KycRecordListDTO>) => {
+                  const message = `Success!!`;
+                  toastr.success(message);
                   patchState(store, {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   });
                 },
                 error: (error: any) => {
+                  const message = getErrormessage(error);
+                  toastr.error(message);
                   patchState(store, {
                     status: error?.status || 0,
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   });
                 },
               }),
@@ -245,21 +287,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findByOrganisation(data.organisationId).pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -272,21 +318,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findByOrganisationRegistration(data.registrationNo).pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -309,21 +359,25 @@ export const KycRecordApiStore = signalStore(
             .pipe(
               tapResponse({
                 next: (response: Page<KycRecordListDTO>) => {
+                  const message = `Success!!`;
+                  toastr.success(message);
                   patchState(store, {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   });
                 },
                 error: (error: any) => {
+                  const message = getErrormessage(error);
+                  toastr.error(message);
                   patchState(store, {
                     status: error?.status || 0,
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   });
                 },
               }),
@@ -336,21 +390,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.getAll().pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -363,21 +421,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.getAllPaged(data.pageNumber, data.pageSize).pipe(
             tapResponse({
               next: (response: Page<KycRecordListDTO>) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   dataPage: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -390,21 +452,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.pagedSearch(data.criteria).pipe(
             tapResponse({
               next: (response: Page<KycRecordListDTO>) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   dataPage: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -417,21 +483,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.remove(data.id).pipe(
             tapResponse({
               next: (response: boolean) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   data: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -444,21 +514,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.save(data.kycRecord).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   data: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -471,21 +545,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.search(data.criteria).pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -498,21 +576,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findMyCurrentRecord(TargetEntity.ORGANISATION).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   currentOrganisationRecord: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -525,21 +607,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findMyCurrentRecord(TargetEntity.INDIVIDUAL).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   currentIndividualRecord: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -552,21 +638,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findMyRecords().pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   dataList: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -580,22 +670,26 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordDTO) => {
                 console.log('Create new record response:', response);
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   data: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
                 console.log('Create new record error:', error);
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -608,21 +702,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findMyRecordsPaged(data.pageNumber, data.pageSize).pipe(
             tapResponse({
               next: (response: Page<KycRecordListDTO>) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(store, {
                   dataPage: response,
                   loading: false,
                   success: true,
-                  messages: [`Success!!`],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 });
               },
             }),
@@ -635,23 +733,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.updateRecordFiles(data.id, data.documents, data.files).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
+                const message = 'Record files updated successfully!!';
+                toastr.success(message);
                 patchState(store, {
                   data: response,
                   loading: false,
                   success: true,
-                  messages: ['Record files updated successfully!!'],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [
-                    getErrormessage(error),
-                  ],
+                  messages: [message],
                 });
               },
             }),
@@ -664,23 +764,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.removeRecordFile(data.id, data.documentId).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
+                const message = 'Record file removed successfully!!';
+                toastr.success(message);
                 patchState(store, {
                   data: response,
                   loading: false,
                   success: true,
-                  messages: ['Record file removed successfully!!'],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [
-                    getErrormessage(error),
-                  ],
+                  messages: [message],
                 });
               },
             }),
@@ -693,23 +795,25 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.runVerifications(data.id).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
+                const message = 'Verifications run successfully!!';
+                toastr.success(message);
                 patchState(store, {
                   data: response,
                   loading: false,
                   success: true,
-                  messages: ['Verifications run successfully!!'],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [
-                    getErrormessage(error),
-                  ],
+                  messages: [message],
                 });
               },
             }),
@@ -717,28 +821,278 @@ export const KycRecordApiStore = signalStore(
         }),
       ),
       generateKycReport: rxMethod<{ id: string }>(
-        switchMap((data: any) => {
+        switchMap((data: { id: string }) => {
           patchState(store, { loading: true, loaderMessage: 'Generating KYC report ...' });
           return kycRecordApi.generateKycReport(data.id).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
+                const message = 'KYC report generated successfully!!';
+                toastr.success(message);
                 patchState(store, {
                   data: response,
                   loading: false,
                   success: true,
-                  messages: ['KYC report generated successfully!!'],
+                  messages: [message],
                   error: false,
                 });
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [
-                    getErrormessage(error),
-                  ],
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      updateStatus: rxMethod<{ id: string; status: KycComplianceStatus }>(
+        switchMap((data: { id: string; status: KycComplianceStatus }) => {
+          patchState(store, { loading: true, loaderMessage: 'Updating KYC record status ...' });
+          return kycRecordApi.updateStatus(data.id, data.status).pipe(
+            tapResponse({
+              next: (response: KycRecordDTO) => {
+                const message = 'KYC record status updated successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  data: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      findClientIndividualSummaries: rxMethod<{ organisationId: string }>(
+        switchMap((data: { organisationId: string }) => {
+          patchState(store, { loading: true, loaderMessage: 'Fetching client individual summaries ...' });
+          return kycRecordApi.findClientIndividualSummaries(data.organisationId).pipe(
+            tapResponse({
+              next: (response: KycRecordSummary[]) => {
+                const message = 'Client individual summaries fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  individualSummaries: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      findClientIndividualSummariesPaged: rxMethod<{ organisationId: string; pageNumber: number; pageSize: number }>(
+        switchMap((data: { organisationId: string; pageNumber: number; pageSize: number }) => {
+          patchState(store, { loading: true, loaderMessage: 'Fetching client individual summaries (paged) ...' });
+          return kycRecordApi.findClientIndividualSummariesPaged(data.organisationId, data.pageNumber, data.pageSize).pipe(
+            tapResponse({
+              next: (response: Page<KycRecordSummary>) => {
+                const message = 'Client individual summaries (paged) fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  individualSummariesPaged: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      findClientOrganisationSummaries: rxMethod<{ organisationId: string }>(
+        switchMap((data: { organisationId: string }) => {
+          patchState(store, { loading: true, loaderMessage: 'Fetching client organisation summaries ...' });
+          return kycRecordApi.findClientOrganisationSummaries(data.organisationId).pipe(
+            tapResponse({
+              next: (response: KycRecordSummary[]) => {
+                const message = 'Client organisation summaries fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  organisationSummaries: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      findClientOrganisationSummariesPaged: rxMethod<{ organisationId: string; pageNumber: number; pageSize: number }>(
+        switchMap((data: { organisationId: string; pageNumber: number; pageSize: number }) => {
+          patchState(store, { loading: true, loaderMessage: 'Fetching client organisation summaries (paged) ...' });
+          return kycRecordApi.findClientOrganisationSummariesPaged(data.organisationId, data.pageNumber, data.pageSize).pipe(
+            tapResponse({
+              next: (response: Page<KycRecordSummary>) => {
+                const message = 'Client organisation summaries (paged) fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  organisationSummariesPaged: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      findSummaryById: rxMethod<{ id: string }>(
+        switchMap((data: { id: string }) => {
+          patchState(store, { loading: true, loaderMessage: 'Fetching summary by ID ...' });
+          return kycRecordApi.findSummaryById(data.id).pipe(
+            tapResponse({
+              next: (response: KycRecordSummary) => {
+                const message = 'Summary fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  summary: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      searchSummaries: rxMethod<{ criteria: KycRecordSearchCriteria }>(
+        switchMap((data: { criteria: KycRecordSearchCriteria }) => {
+          patchState(store, { loading: true, loaderMessage: 'Searching summaries ...' });
+          return kycRecordApi.searchSummaries(data.criteria).pipe(
+            tapResponse({
+              next: (response: KycRecordSummary[]) => {
+                const message = 'Summaries fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  summaries: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
+                });
+              },
+            }),
+          );
+        }),
+      ),
+      pagedSearchSummaries: rxMethod<{ criteria: SearchObject<KycRecordSearchCriteria> }>(
+        switchMap((data: { criteria: SearchObject<KycRecordSearchCriteria> }) => {
+          patchState(store, { loading: true, loaderMessage: 'Searching summaries (paged) ...' });
+          return kycRecordApi.pagedSearchSummaries(data.criteria).pipe(
+            tapResponse({
+              next: (response: Page<KycRecordSummary>) => {
+                const message = 'Paged summaries fetched successfully!!';
+                toastr.success(message);
+                patchState(store, {
+                  pagedSummaries: response,
+                  loading: false,
+                  success: true,
+                  messages: [message],
+                  error: false,
+                });
+              },
+              error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
+                patchState(store, {
+                  status: error?.status || 0,
+                  loading: false,
+                  success: false,
+                  error: true,
+                  messages: [message],
                 });
               },
             }),

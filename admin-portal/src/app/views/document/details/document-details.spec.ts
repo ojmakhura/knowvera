@@ -5,7 +5,6 @@ import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-ap
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import Keycloak from 'keycloak-js';
-import { ToastrService } from 'ngx-toastr';
 import { DocumentDetails } from './document-details';
 
 describe('DocumentDetails', () => {
@@ -61,7 +60,6 @@ describe('DocumentDetails', () => {
           provide: KEYCLOAK_EVENT_SIGNAL,
           useValue: signal({ type: KeycloakEventType.Ready, args: true }),
         },
-        { provide: ToastrService, useValue: toastrMock },
       ],
     }).compileComponents();
 
@@ -83,8 +81,8 @@ describe('DocumentDetails', () => {
 
   it('should save metadata changes', () => {
     component.openMetadataEdit();
-    component.updateMetadataKey(0, 'issuer');
-    component.updateMetadataValue(0, 'Knowvera Registry');
+    component.metadataForm[0].key().value.set('issuer');
+    component.metadataForm[0].value().value.set('Knowvera Registry');
 
     component.saveMetadata();
 

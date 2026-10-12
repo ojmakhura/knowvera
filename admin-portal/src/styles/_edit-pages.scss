@@ -1,0 +1,413 @@
+// Layout shared by the edit routes (.edit-page and its *-edit-page variants).
+
+.edit-page,
+.edit-page .editor-canvas,
+.edit-page .section-nav,
+.edit-page .stack-8,
+.edit-page .stack-6,
+.edit-page .stack-4,
+.edit-page .field-block,
+.edit-page .audit-list,
+.edit-page .preview-body,
+.edit-page .preview-lines,
+.edit-page .editor-section,
+.edit-page .fields-body {
+    display: grid
+}
+
+.edit-page,
+.edit-page .editor-canvas,
+.edit-page .stack-8 {
+    gap: var(--vault-space-8)
+}
+
+.edit-page .stack-6 {
+    gap: 1.5rem
+}
+
+.edit-page .stack-4,
+.edit-page .section-nav,
+.edit-page .audit-list,
+.edit-page .editor-section {
+    gap: var(--vault-space-4)
+}
+
+.edit-page .field-block,
+.edit-page .preview-body,
+.edit-page .preview-lines {
+    gap: .5rem
+}
+
+.edit-page .edit-header,
+.edit-page .header-actions,
+.edit-page .section-title-row,
+.edit-page .section-head-between,
+.edit-page .status-head,
+.edit-page .extraction-head,
+.edit-page .audit-item,
+.edit-page .preview-footer,
+.edit-page .section-link {
+    display: flex;
+    align-items: center
+}
+
+.edit-page .edit-header,
+.edit-page .section-head-between,
+.edit-page .preview-footer {
+    justify-content: space-between
+}
+
+.edit-page .workspace-grid {
+    display: grid;
+    grid-template-columns: 16rem minmax(0, 1fr) 18rem;
+    gap: var(--vault-space-8);
+    align-items: start
+}
+
+.edit-page .local-sidebar,
+.edit-page .helper-rail {
+    position: sticky;
+    top: var(--vault-space-8)
+}
+
+.edit-page .page-title,
+.edit-page .section-title,
+.edit-page .mini-title,
+.edit-page .audit-title {
+    color: var(--vault-primary)
+}
+
+.edit-page .page-title {
+    font-size: 2rem;
+    letter-spacing: -.02em
+}
+
+.edit-page .page-subtitle,
+.edit-page .status-copy,
+.edit-page .muted-copy,
+.edit-page .audit-time {
+    color: var(--vault-on-surface-variant)
+}
+
+.edit-page .page-subtitle {
+    margin-top: .35rem
+}
+
+.edit-page .panel-card,
+.edit-page .status-card,
+.edit-page .audit-card,
+.edit-page .preview-card,
+.edit-page .section-link-active {
+    background: var(--vault-surface-container-lowest);
+    border-radius: .75rem
+}
+
+.edit-page .panel-card,
+.edit-page .status-card,
+.edit-page .audit-card {
+    padding: var(--vault-space-8)
+}
+
+.edit-page .status-label,
+.edit-page .step-label,
+.edit-page .field-label,
+.edit-page .helper-title,
+.edit-page .helper-title-secondary,
+.edit-page .fields-head {
+    color: var(--vault-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-size: .75rem;
+    font-weight: 700
+}
+
+.edit-page .section-link {
+    gap: .7rem;
+    padding: .9rem 1rem;
+    color: var(--vault-on-surface-variant);
+    text-decoration: none
+}
+
+.edit-page .section-link-active {
+    color: var(--vault-primary);
+    box-shadow: 0 4px 20px rgb(25 28 30 / 4%), 0 8px 40px rgb(25 28 30 / 8%)
+}
+
+.edit-page .section-icon,
+.edit-page .status-mark,
+.edit-page .psychology-mark,
+.edit-page .preview-image {
+    display: grid;
+    place-items: center
+}
+
+.edit-page .section-icon {
+    width: 1rem;
+    font-size: .75rem
+}
+
+.edit-page .status-mark,
+.edit-page .psychology-mark {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px
+}
+
+.edit-page .status-card {
+    background: linear-gradient(135deg, var(--vault-primary-container), var(--vault-primary))
+}
+
+.edit-page .status-card .status-label,
+.edit-page .status-card .status-copy,
+.edit-page .status-card .status-mark {
+    color: #fff
+}
+
+.edit-page .status-mark {
+    background: rgb(255 255 255 /.18)
+}
+
+.edit-page .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--vault-space-4)
+}
+
+.edit-page .delete-btn {
+    font: inherit
+}
+
+.edit-page .field-input,
+.edit-page .table-input,
+.edit-page .format-select {
+    width: 100%;
+    padding: .9rem 1rem;
+    border: 1px solid rgb(196 198 208 / 20%);
+    border-radius: .75rem;
+    background: var(--vault-surface-container-low);
+    color: var(--vault-on-surface)
+}
+
+.edit-page .field-input:focus-visible,
+.edit-page .table-input:focus-visible,
+.edit-page .format-select:focus-visible {
+    outline: none;
+    border-color: var(--vault-primary);
+    box-shadow: 0 0 0 2px rgb(111 135 164 / 30%)
+}
+
+.edit-page .field-input-mono,
+.edit-page .table-input {
+    font-family: ui-monospace, 'SFMono-Regular', 'SF Mono', Consolas, 'Liberation Mono', monospace
+}
+
+.edit-page .field-textarea {
+    resize: vertical
+}
+
+.edit-page .btn-primary,
+.edit-page .add-btn {
+    border: 0;
+    background: linear-gradient(135deg, var(--vault-primary), var(--vault-primary-container));
+    color: #fff
+}
+
+.edit-page .btn-primary,
+.edit-page .btn-secondary,
+.edit-page .add-btn,
+.edit-page .text-action {
+    padding: .85rem 1rem;
+    cursor: pointer
+}
+
+.edit-page .btn-secondary,
+.edit-page .text-action {
+    border: 0;
+    background: var(--vault-surface-container);
+    color: var(--vault-on-surface-variant)
+}
+
+.edit-page .fields-head,
+.edit-page .fields-row {
+    display: grid;
+    grid-template-columns: 2fr .8fr .9fr 1.4fr .5fr;
+    gap: var(--vault-space-4);
+    align-items: center
+}
+
+.edit-page .fields-row {
+    padding: var(--vault-space-4) 0
+}
+
+.edit-page .centered {
+    text-align: center
+}
+
+.edit-page .row-action-wrap {
+    display: flex;
+    justify-content: end
+}
+
+.edit-page .delete-btn {
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    background: transparent;
+    color: var(--vault-on-error-container)
+}
+
+.edit-page .prompt-card {
+    display: grid;
+    grid-template-columns: 13rem 1fr;
+    gap: var(--vault-space-8)
+}
+
+.edit-page .prompt-card-accent {
+    box-shadow: inset 4px 0 0 rgb(0 23 53 / 10%)
+}
+
+.edit-page .select-input,
+.edit-page .format-select {
+    appearance: none
+}
+
+.edit-page .psychology-mark {
+    background: color-mix(in srgb, var(--vault-secondary-container) 30%, transparent);
+    color: var(--vault-primary)
+}
+
+.edit-page .preview-card {
+    overflow: hidden
+}
+
+.edit-page .preview-head,
+.edit-page .preview-footer,
+.edit-page .preview-body {
+    padding: 1rem
+}
+
+.edit-page .preview-head span,
+.edit-page .preview-lines span,
+.edit-page .preview-pill {
+    display: block;
+    height: .45rem;
+    border-radius: 999px;
+    background: var(--vault-surface-container-high)
+}
+
+.edit-page .preview-head span {
+    width: 50%
+}
+
+.edit-page .preview-image {
+    min-height: 6rem;
+    border-radius: .75rem;
+    background: color-mix(in srgb, var(--vault-surface-container) 50%, transparent);
+    color: rgb(25 28 30 / 20%);
+    font-size: 2rem
+}
+
+.edit-page .preview-lines span:nth-child(2) {
+    width: 80%
+}
+
+.edit-page .preview-lines span:nth-child(3) {
+    width: 66%
+}
+
+.edit-page .preview-footer {
+    background: color-mix(in srgb, var(--vault-surface-container-high) 30%, transparent)
+}
+
+.edit-page .preview-dot {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: rgb(0 23 53 / 10%)
+}
+
+.edit-page .preview-pill {
+    width: 5rem;
+    height: 1.5rem;
+    background: rgb(0 23 53 / 10%)
+}
+
+.edit-page .audit-list {
+    list-style: none;
+    padding: 0;
+    margin: 0
+}
+
+.edit-page .audit-item {
+    gap: var(--vault-space-4)
+}
+
+.edit-page .audit-dot {
+    width: .45rem;
+    height: .45rem;
+    margin-top: .35rem;
+    border-radius: 999px;
+    background: var(--vault-primary-fixed)
+}
+
+.edit-page .audit-time {
+    margin-top: .2rem;
+    font-size: .8rem
+}
+
+@media (max-width:1320px) {
+    .edit-page .workspace-grid {
+        grid-template-columns: 14rem minmax(0, 1fr)
+    }
+
+    .edit-page .helper-rail {
+        grid-column: 1/-1;
+        position: static
+    }
+}
+
+@media (max-width:1080px) {
+
+    .edit-page .workspace-grid,
+    .edit-page .prompt-card,
+    .edit-page .field-grid,
+    .edit-page .fields-head,
+    .edit-page .fields-row {
+        grid-template-columns: 1fr
+    }
+
+    .edit-page .local-sidebar,
+    .edit-page .helper-rail {
+        position: static
+    }
+
+    .edit-page .centered,
+    .edit-page .row-action-wrap {
+        text-align: left;
+        justify-content: start
+    }
+}
+
+@media (max-width:720px) {
+
+    .header-btns {
+        justify-content: stretch;
+    }
+
+    .header-btns .mdc-button {
+        flex: 1;
+    }
+
+    .edit-page .edit-header,
+    .edit-page .header-actions,
+    .edit-page .section-head-between {
+        flex-direction: column;
+        align-items: stretch
+    }
+
+    .edit-page .panel-card,
+    .edit-page .status-card,
+    .edit-page .audit-card {
+        padding: var(--vault-space-4)
+    }
+}

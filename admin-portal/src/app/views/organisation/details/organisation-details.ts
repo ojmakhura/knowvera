@@ -11,12 +11,17 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, ElementRef, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { TableComponent } from '@app/components/table/table';
 import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch-dto';
 import { ClientRequestDTO } from '@app/models/bw/co/knowvera/organisation/client/client-request-dto';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
+import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
+import { KycReportSectionDTO } from '@app/models/bw/co/knowvera/kyc/fields/kyc-report-section-dto';
+import { GeneralStatus } from '@app/models/bw/co/knowvera/general-status';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
 import { KycSubsciptionStatus } from '@app/models/bw/co/knowvera/subscription/kyc-subsciption-status';
 import { KycSubscriptionDTO } from '@app/models/bw/co/knowvera/subscription/kyc-subscription-dto';
@@ -33,12 +38,24 @@ import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/org
 import { KycSubscriptionApiStore } from '@app/store/bw/co/knowvera/subscription/kyc-subscription-api.store';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 import { BranchFormDialogComponent } from './add-branch-dialog';
+import {
+  KycFieldGroupSelectorDialogComponent,
+} from './kyc-field-group-selector-dialog';
 import { swalFire } from '@app/@shared/swal';
-import { Loader } from '@app/@shared/loader/loader';
-import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { CreateClientRequestDialogComponent } from './create-client-request-dialog';
+import { LoaderState } from '@app/@shared/loader/loader.state';
+import { KycFieldGroupDTO } from '@app/models/bw/co/knowvera/settings/kyc/kyc-field-group-dto';
+import { GroupFieldDTO } from '@app/models/bw/co/knowvera/settings/kyc/group-field-dto';
+import {
+  AssignFieldGroupsDialogComponent,
+  AssignFieldGroupsDialogData,
+  AssignFieldGroupsDialogResult,
+  FieldGroupFilter,
+  FieldGroupScope,
+} from './assign-field-groups-dialog';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-organisation-details',
@@ -57,11 +74,12 @@ import { CreateClientRequestDialogComponent } from './create-client-request-dial
     MatChipsModule,
     MatTabsModule,
     MatSelectModule,
-    Loader
+    TranslateModule,
+    FormRoot,
+    FormField,
   ],
   templateUrl: './organisation-details.html',
-  styleUrl: './organisation-details.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrls: ['./organisation-details.scss'],
   providers: [DatePipe, CurrencyPipe],
 })
 export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
@@ -71,6 +89,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   organisationApiStore = inject(OrganisationApiStore);
   settingsApiStore = inject(SettingsApiStore);
   settings = linkedSignal(() => this.settingsApiStore.data());
+  loaderState = inject(LoaderState);
 
   organisation = linkedSignal(() => this.organisationApiStore.data());
 
@@ -146,12 +165,177 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   // Uploaded documents actions
   documentTypeIdForUpload = signal('');
+  @ViewChild('documentUploadInput') documentUploadInput?: ElementRef<HTMLInputElement>;
+  documentUploadForm = form(this.documentTypeIdForUpload, {
+    submission: {
+      action: async () => {
+        if (this.documentUploadInput) this.uploadOrganisationDocument(this.documentUploadInput.nativeElement);
+      },
+    },
+  });
   selectedDocumentFile = signal<File | null>(null);
   isUploadingDocument = signal(false);
 
-  toaster: ToastrService = inject(ToastrService);
+  // KYC report sections and document requirements
+  individualFieldGroups = computed<KycFieldGroupDTO[]>(() =>
+    [...(this.organisation()?.individualFieldGroups || [])].sort((a: KycFieldGroupDTO, b: KycFieldGroupDTO) => (a.position ?? 0) - (b.position ?? 0))
+  );
+  organisationFieldGroups = computed<KycFieldGroupDTO[]>(() =>
+    [...(this.organisation()?.organisationFieldGroups || [])].sort((a: KycFieldGroupDTO, b: KycFieldGroupDTO) => (a.position ?? 0) - (b.position ?? 0))
+  );
+  selectedOrganisationReportGroups = computed<KycFieldGroupDTO[]>(() => {
+    const selectedGroup = this.selectedOrganisationKycGroup();
+    const selectedFields = this.selectedOrganisationKycFields();
+
+    if (!selectedGroup.length && !selectedFields.length) {
+      return this.organisationFieldGroups();
+    }
+
+    return this.organisationFieldGroups()
+      .map((section) => ({
+        ...section,
+        fieldValues: (section.groupFields || []).filter((fieldValue: any) => {
+          const matchesGroup = selectedGroup.length
+            ? selectedGroup.includes(fieldValue.fieldGroupId)
+            : true;
+          const matchesField = selectedFields.length
+            ? selectedFields.some((field) => field.id === fieldValue.fieldId)
+            : true;
+
+          return matchesGroup && matchesField;
+        }),
+      }))
+      .filter((section) => section.groupFields.length);
+  });
+  verifiedDomainCount = computed(() => (this.organisation()?.domains || []).filter((domain: any) => domain?.verified).length);
+  individualKycDocuments = computed<DocumentTypeDTO[]>(() => this.organisation()?.individualKycDocuments || []);
+  organisationKycDocuments = computed<DocumentTypeDTO[]>(() => this.organisation()?.organisationKycDocuments || []);
+  organisationKycGroupSelectorOpen = signal(false);
+  selectedOrganisationKycGroup = signal<KycFieldGroupDTO[]>([]);
+  selectedOrganisationKycFields = signal<GroupFieldDTO[]>([]);
+
+  toggleOrganisationKycGroupSelector(): void {
+    this.organisationKycGroupSelectorOpen.update((open) => !open);
+  }
+
+  isOrganisationKycGroupSelected(groupId: string): boolean {
+    return this.selectedOrganisationKycGroup().some((group) => group.id === groupId);
+  }
+
+  toggleOrganisationKycGroup(groupId: string): void {
+    this.selectedOrganisationKycGroup.update((selectedGroups) =>
+      selectedGroups.some((group) => group.id === groupId)
+        ? selectedGroups.filter((group) => group.id !== groupId)
+        : [...selectedGroups, { id: groupId } as KycFieldGroupDTO]
+    );
+  }
+
+  selectAllOrganisationKycGroups(): void {
+    this.selectedOrganisationKycGroup.set(
+      (this.settings()?.organisationKycFieldGroups || []).map((group: any) => group)
+    );
+  }
+
+  clearOrganisationKycFieldGroupFilter(): void {
+    this.selectedOrganisationKycGroup.set([]);
+    this.selectedOrganisationKycFields.set([]);
+  }
+
+  openOrganisationKycFieldGroupDialog(): void {
+    const groups = this.settings()?.organisationKycFieldGroups || [];
+    const selectedGroupIds = this.selectedOrganisationKycGroup();
+
+    const ref = this.dialog.open(KycFieldGroupSelectorDialogComponent, {
+      data: {
+        groups,
+        selectedGroupId: selectedGroupIds[0] || null,
+        selectedFieldIds: this.selectedOrganisationKycFields().map((field) => field.id || field.fieldId),
+      },
+      width: '480px',
+    });
+
+    ref.afterClosed().subscribe((result: KycFieldGroupDTO | undefined) => {
+      if (!result) return;
+      
+      console.log(result);
+      this.selectedOrganisationKycGroup.set([result]);
+      this.selectedOrganisationKycFields.set(result.groupFields);
+    });
+  }
+
+  /** Opens the library picker and saves the chosen field groups onto the organisation. */
+  openAssignFieldGroups(filter: FieldGroupFilter = 'ALL', focusGroupId: string | null = null): void {
+    const organisation = this.organisation();
+    const data: AssignFieldGroupsDialogData = {
+      organisationGroups: this.settings()?.organisationKycFieldGroups || [],
+      individualGroups: this.settings()?.individualKycFieldGroups || [],
+      assignedOrganisationGroups: this.organisationFieldGroups(),
+      assignedIndividualGroups: this.individualFieldGroups(),
+      filter,
+      focusGroupId,
+    };
+
+    this.dialog
+      .open<AssignFieldGroupsDialogComponent, AssignFieldGroupsDialogData, AssignFieldGroupsDialogResult>(
+        AssignFieldGroupsDialogComponent,
+        { data, width: '48rem', maxWidth: '95vw', panelClass: 'dp-dialog' },
+      )
+      .afterClosed()
+      .subscribe((result) => {
+        if (!result || !organisation?.id) {
+          return;
+        }
+
+        this.organisationApiStore.save({
+          organisation: {
+            ...organisation,
+            organisationFieldGroups: result.organisationReportGroups,
+            individualFieldGroups: result.individualReportGroups,
+          },
+        });
+      });
+  }
+
+  /** Number of fields the library defines for an assigned group (for the "n / m fields active" count). */
+  libraryFieldCount(scope: FieldGroupScope, group: KycFieldGroupDTO): number {
+    const library: KycFieldGroupDTO[] =
+      (scope === 'ORG' ? this.settings()?.organisationKycFieldGroups : this.settings()?.individualKycFieldGroups) || [];
+    const match = library.find((g) => (group.id && g.id === group.id) || g.label === group.label);
+    return (match?.groupFields || group.groupFields || []).length;
+  }
+
+  /** Downloads the organisation record as JSON. */
+  exportRecord(): void {
+    const organisation = this.organisation();
+    const blob = new Blob([JSON.stringify(organisation, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+
+    anchor.href = url;
+    anchor.download = `${organisation?.code || organisation?.name || 'organisation'}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
+  organisationFieldValue(group: any, field: any): any {
+    const fieldValues = this.organisationFieldGroups().flatMap((section) => section.groupFields || []);
+
+    return fieldValues.find(
+      (fieldValue: any) =>
+        (fieldValue.fieldGroupId
+          ? fieldValue.fieldGroupId === group.id
+          : fieldValue.fieldId === (field.id || field.fieldId)) &&
+        fieldValue.fieldId === (field.id || field.fieldId)
+    );
+  }
+
+  // toaster: ToastrService = inject(ToastrService);
 
   constructor() {
+
+    this.loaderState.isLoading = this.loading;
+    this.loaderState.message = this.loaderMessage;
+
     effect(() => {
       const page = this.clientRequestsTableSignal();
 
@@ -173,11 +357,11 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
-        this.toaster.success(messages[0]);
+        // // this.toaster.success(messages[0]);
       }
 
       if (this.error() && !this.loading()) {
-        this.toaster.error(messages[0]);
+        // // this.toaster.error(messages[0]);
       }
     });
 
@@ -197,6 +381,11 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
       this.branches.set(this.organisationApiStore.data()?.branches || []);
     });
+
+    effect(() => {
+      console.log('Loading state changed:', this.loading());
+      // this.loaderState.isLoading.set(this.loading());
+    });
   }
 
   ngOnInit(): void {
@@ -206,6 +395,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       this.organisationApiStore.findById({
         id: this.id
       })
+      this.settingsApiStore.getAll();
 
       // this.branchApiStore.findByOrganisation({
       //   organisationId: this.id
@@ -217,6 +407,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       this.loadIndividualClientRequests();
       this.loadOrganisationClientRequests();
       this.doSearchRequests();
+
     }
   }
 
@@ -235,6 +426,37 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void { }
+
+  orgInitials(): string {
+    const name = (this.organisation()?.name || '').trim();
+    if (!name) {
+      return 'OR';
+    }
+
+    const parts = name.split(/\s+/).filter(Boolean);
+    return parts.length === 1
+      ? parts[0].substring(0, 2).toUpperCase()
+      : (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+
+  isOrganisationVerified(): boolean {
+    return this.organisation()?.status === GeneralStatus.ACTIVE;
+  }
+
+  kycStatusClass(): string {
+    switch (this.organisation()?.kycStatus) {
+      case KycComplianceStatus.CURRENT:
+        return 'kyc-current';
+      case KycComplianceStatus.INCOMPLETE:
+        return 'kyc-incomplete';
+      case KycComplianceStatus.EXPIRED:
+      case KycComplianceStatus.ABSENT:
+      case KycComplianceStatus.DOCUMENT_VERIFICATION_FAILED:
+        return 'kyc-failed';
+      default:
+        return 'kyc-unknown';
+    }
+  }
 
   private openBranchDialog(data: BranchDTO): void {
     const ref = this.dialog.open(BranchFormDialogComponent, { data, width: '480px' });
@@ -278,7 +500,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   openDocumentDetails(document: DocumentDTO): void {
     if (!document?.id) {
-      this.toaster.warning('Document details are unavailable for unsaved records.');
+      // // this.toaster.warning('Document details are unavailable for unsaved records.');
       return;
     }
 
@@ -287,15 +509,11 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   openDocumentEdit(document: DocumentDTO): void {
     if (!document?.id) {
-      this.toaster.warning('Cannot edit a document without an id.');
+      // // this.toaster.warning('Cannot edit a document without an id.');
       return;
     }
 
     this.router.navigate(['/document/edit', document.id]);
-  }
-
-  selectUploadDocumentType(documentTypeId: string): void {
-    this.documentTypeIdForUpload.set(documentTypeId || '');
   }
 
   onDocumentFileSelected(event: Event): void {
@@ -310,17 +528,17 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     const file = this.selectedDocumentFile();
 
     if (!org?.id) {
-      this.toaster.error('Organisation must be loaded before uploading documents.');
+      // // this.toaster.error('Organisation must be loaded before uploading documents.');
       return;
     }
 
     if (!documentTypeId) {
-      this.toaster.warning('Please provide a document type id.');
+      // // this.toaster.warning('Please provide a document type id.');
       return;
     }
 
     if (!file) {
-      this.toaster.warning('Please choose a file to upload.');
+      // // this.toaster.warning('Please choose a file to upload.');
       return;
     }
 
@@ -331,14 +549,14 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       .pipe(finalize(() => this.isUploadingDocument.set(false)))
       .subscribe({
         next: () => {
-          this.toaster.success('Document uploaded successfully.');
+          // // this.toaster.success('Document uploaded successfully.');
           this.selectedDocumentFile.set(null);
           fileInput.value = '';
           this.organisationApiStore.findById({ id: this.id });
         },
         error: (error: any) => {
-          const message = error?.error?.message || 'Failed to upload document.';
-          this.toaster.error(message);
+          // const message = error?.error?.message || 'Failed to upload document.';
+          // // this.toaster.error(message);
         }
       });
   }
@@ -422,7 +640,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
   openSubscriptionDetails(subscription: KycSubscriptionDTO): void {
     if (!subscription?.id) {
-      this.toaster.warning('Subscription details are unavailable for unsaved records.');
+      // this.toaster.warning('Subscription details are unavailable for unsaved records.');
       return;
     }
 
@@ -491,7 +709,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (!this.isSupportedClientRequestFile(file.name)) {
-      this.toaster.warning('Please select a valid Excel or CSV file (.xlsx, .xls, .csv).');
+      // this.toaster.warning('Please select a valid Excel or CSV file (.xlsx, .xls, .csv).');
       fileInput.value = '';
       return;
     }
@@ -504,13 +722,13 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       }))
       .subscribe({
         next: () => {
-          this.toaster.success('Individual client requests uploaded successfully.');
+          // this.toaster.success('Individual client requests uploaded successfully.');
           const page = this.individualClientRequests().page;
           this.loadIndividualClientRequests(page.number || 0, page.size || 10);
         },
         error: (error: any) => {
           const message = error?.error?.message || 'Failed to upload individual client requests.';
-          this.toaster.error(message);
+          // this.toaster.error(message);
         }
       });
   }
@@ -524,7 +742,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (!this.isSupportedClientRequestFile(file.name)) {
-      this.toaster.warning('Please select a valid Excel or CSV file (.xlsx, .xls, .csv).');
+      // this.toaster.warning('Please select a valid Excel or CSV file (.xlsx, .xls, .csv).');
       fileInput.value = '';
       return;
     }
@@ -537,13 +755,13 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       }))
       .subscribe({
         next: () => {
-          this.toaster.success('Organisation client requests uploaded successfully.');
+          // this.toaster.success('Organisation client requests uploaded successfully.');
           const page = this.organisationClientRequests().page;
           this.loadOrganisationClientRequests(page.number || 0, page.size || 10);
         },
         error: (error: any) => {
           const message = error?.error?.message || 'Failed to upload organisation client requests.';
-          this.toaster.error(message);
+          // this.toaster.error(message);
         }
       });
   }
@@ -556,7 +774,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     const organisation = this.organisation();
 
     if (!this.id) {
-      this.toaster.warning('Organisation must be loaded before creating a client request.');
+      // this.toaster.warning('Organisation must be loaded before creating a client request.');
       return;
     }
 
@@ -613,7 +831,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
       this.clientRequestApi.save(clientRequest).subscribe({
         next: (savedRequest) => {
-          this.toaster.success('Client request created successfully.');
+          // this.toaster.success('Client request created successfully.');
           this.doSearchRequests(this.clientRequestsCurrentPage(), this.clientRequestsPageSize());
 
           if (target === TargetEntity.INDIVIDUAL && individual) {
@@ -634,7 +852,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
         },
         error: (error: any) => {
           const message = error?.error?.message || 'Failed to create client request.';
-          this.toaster.error(message);
+          // this.toaster.error(message);
         }
       });
 

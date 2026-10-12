@@ -11,6 +11,7 @@ import { IndividualListDTO } from '@app/models/bw/co/knowvera/individual/individ
 import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
 import { IndividualApi } from '@app/services/bw/co/knowvera/individual/individual-api';
 import { IndividualSearchCriteria } from '@app/models/bw/co/knowvera/individual/individual-search-criteria';
+import { toast } from 'ngx-sonner';
 
 export type IndividualApiState = AppState<IndividualDTO, IndividualListDTO> & {
   registrationIndividualLoaded: boolean;
@@ -34,6 +35,7 @@ export const IndividualApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const individualApi = inject(IndividualApi);
+    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -44,25 +46,29 @@ export const IndividualApiStore = signalStore(
           return individualApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: IndividualDTO | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -76,25 +82,29 @@ export const IndividualApiStore = signalStore(
           return individualApi.getAll().pipe(
             tapResponse({
               next: (response: IndividualListDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -108,25 +118,29 @@ export const IndividualApiStore = signalStore(
           return individualApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<IndividualListDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -140,25 +154,29 @@ export const IndividualApiStore = signalStore(
           return individualApi.getOrganisationClients(data.organisationId, ).pipe(
             tapResponse({
               next: (response: IndividualListDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -172,25 +190,29 @@ export const IndividualApiStore = signalStore(
           return individualApi.getOrganisationClientsPaged(data.organisationId, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<IndividualListDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -204,25 +226,29 @@ export const IndividualApiStore = signalStore(
           return individualApi.pagedSearch(data.criteria, ).pipe(
             tapResponse({
               next: (response: Page<IndividualListDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -236,25 +262,29 @@ export const IndividualApiStore = signalStore(
           return individualApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -262,31 +292,35 @@ export const IndividualApiStore = signalStore(
           );
         }),
       ),
-      save: rxMethod<{individual: IndividualDTO | any }>(
-        switchMap((data: any) => {
+      save: rxMethod<{individual: IndividualDTO }>(
+        switchMap((data: {individual: IndividualDTO}) => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
           return individualApi.save(data.individual, ).pipe(
             tapResponse({
-              next: (response: IndividualDTO | any) => {
+              next: (response: IndividualDTO) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -300,25 +334,29 @@ export const IndividualApiStore = signalStore(
           return individualApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: IndividualListDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -332,26 +370,30 @@ export const IndividualApiStore = signalStore(
           return individualApi.loadRequestIndividual(data.requestId, data.identityConfirmationToken, data.identityNo).pipe(
             tapResponse({
               next: (response: IndividualDTO) => {
+                const message = 'Client request individual successfully loaded!!';
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Client request individual successfully loaded!!'],
+                    messages: [message],
                     error: false,
                     registrationIndividualLoaded: true,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                     registrationIndividualLoaded: false,
                   }
                 );
@@ -366,18 +408,22 @@ export const IndividualApiStore = signalStore(
           return individualApi.loadMe().pipe(
             tapResponse({
               next: (response: IndividualDTO) => {
+                const message = 'Client individual successfully loaded!!';
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Client individual successfully loaded!!'],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -385,7 +431,7 @@ export const IndividualApiStore = signalStore(
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },

@@ -10,7 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 // Material Imports
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +20,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -34,11 +33,12 @@ import { SearchObject } from '@app/models/search-object';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
-import { ToastrService } from 'ngx-toastr';
+import { toast } from 'ngx-sonner';
 import { Loader } from '@app/@shared/loader/loader';
-import { form, FormField } from '@angular/forms/signals';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { DocumentListDTO } from '@app/models/bw/co/knowvera/document/document-list-dto';
+import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
 
 export class SearchDocumentsVarsForm {
   fileName: string = '';
@@ -56,6 +56,7 @@ export class SearchDocumentsVarsForm {
   styleUrls: ['./documents.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     CommonModule,
     MatIconModule,
     MatButtonModule,
@@ -64,25 +65,24 @@ export class SearchDocumentsVarsForm {
     MatInputModule,
     MatSelectModule,
     MatTableModule,
-    MatPaginatorModule,
     MatChipsModule,
     MatTooltipModule,
     MatProgressBarModule,
     FormsModule,
     FormField,
     TranslateModule,
-    Loader
+    FormRoot,
   ],
 })
 export class Documents implements OnInit {
   searchDocumentsVarsForm = new SearchDocumentsVarsForm();
   searchDocumentsSignal = signal(this.searchDocumentsVarsForm);
-  searchDocumentsForm = form(this.searchDocumentsSignal, (path) => {});
+  searchDocumentsForm = form(this.searchDocumentsSignal, (path) => {}, { submission: { action: async () => this.doSearch() } });
 
   readonly documentApiStore = inject(DocumentApiStore);
   readonly documentTypeApiStore = inject(DocumentTypeApiStore);
   private readonly documentApi = inject(DocumentApi);
-  private readonly toaster = inject(ToastrService);
+  // protected readonly toast = toast;
   protected readonly rows = signal<DocumentListDTO[]>([]);
   protected readonly dataSource = new MatTableDataSource<DocumentListDTO>([]);
   protected readonly currentPage = signal(0);
@@ -99,7 +99,6 @@ export class Documents implements OnInit {
     this.documentTypeApiStore.dataList(),
   );
 
-  protected readonly toastr = inject(ToastrService);
   protected readonly targetOptions = Object.values(TargetEntity);
   protected readonly statusOptions = Object.values(DocumentVerificationStatus);
 
@@ -126,26 +125,10 @@ export class Documents implements OnInit {
       }));
     });
 
-    effect(() => {
-      let error = this.error();
-
-      if(error) {
-        console.error('Error state changed:', error, this.messages());
-        this.toastr.error(this.messages()[0] || 'An error occurred while fetching documents.');
-      }
-    });
-
-    effect(() => {
-      let success = this.success();
-      
-      if(success) {
-        console.log('Success state changed:', success, this.messages());
-        this.toastr.success(this.messages()[0] || 'Documents fetched successfully.');
-      }
-    });
   }
 
   ngOnInit(): void {
+    // toast.info('Documents view initialized');
     this.documentTypeApiStore.getAll();
     this.doSearch();
   }
@@ -185,9 +168,19 @@ export class Documents implements OnInit {
     });
   }
 
-  onPageChange(event: PageEvent): void {
-    this.pageSize.set(event.pageSize);
-    this.doSearch(event.pageIndex, event.pageSize);
+  protected readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+  protected readonly pageNumbers = computed(() => pageWindow(this.currentPage(), this.totalPages()));
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= Math.max(this.totalPages(), 1) || page === this.currentPage()) {
+      return;
+    }
+    this.doSearch(page, this.pageSize());
+  }
+
+  changePageSize(size: string | number): void {
+    this.pageSize.set(Number(size));
+    this.doSearch(0, Number(size));
   }
 
   openDetails(id: string): void {
@@ -206,13 +199,15 @@ export class Documents implements OnInit {
         : null;
 
     if (!request) {
-      this.toaster.error('No downloadable file reference was found for this document.');
+      // this.toast.error('No downloadable file reference was found for this document.');
       return;
     }
 
     request.subscribe({
       next: (blob: Blob) => this.saveBlob(blob, this.downloadFileNameOf(row)),
-      error: () => this.toaster.error('Failed to download document.'),
+      error: () => {
+        // this.toast.error('Failed to download document.');
+      },
     });
   }
 
@@ -254,6 +249,20 @@ export class Documents implements OnInit {
     }
   }
 
+  /** Shared status-chip tone (kv-tone-*) for a verification status. */
+  statusTone(status: string | null | undefined): string {
+    switch (status) {
+      case DocumentVerificationStatus.VERIFIED:
+        return 'kv-tone-success';
+      case DocumentVerificationStatus.MANUAL_REVIEW:
+        return 'kv-tone-warning';
+      case DocumentVerificationStatus.REJECTED:
+        return 'kv-tone-danger';
+      default:
+        return 'kv-tone-neutral';
+    }
+  }
+
   documentIcon(row: DocumentDTO): string {
     if (row.verificationStatus === DocumentVerificationStatus.REJECTED) {
       return 'report';
@@ -271,15 +280,7 @@ export class Documents implements OnInit {
   }
 
   showingLabel(): string {
-    const total = this.totalElements();
-
-    if (!total) {
-      return 'Showing 0 records';
-    }
-
-    const start = this.currentPage() * this.pageSize() + 1;
-    const end = Math.min(start + this.rows().length - 1, total);
-    return `Showing ${start}-${end} of ${total} records`;
+    return showingRecordsLabel(this.currentPage(), this.pageSize(), this.rows().length, this.totalElements());
   }
 
   pageReport(): string {
@@ -293,12 +294,6 @@ export class Documents implements OnInit {
   private downloadFileNameOf(row: DocumentListDTO): string {
     return row.fileName || 'document-download';
   }
-
-  verifiedCount = computed(
-    () =>
-      this.rows().filter((r) => r.verificationStatus === DocumentVerificationStatus.VERIFIED)
-        .length,
-  );
 
   private saveBlob(blob: Blob, fileName: string): void {
     const url = window.URL.createObjectURL(blob);

@@ -14,6 +14,7 @@ import { DocumentSearchCriteria } from '@app/models/bw/co/knowvera/document/docu
 import { DocumentListDTO } from '@app/models/bw/co/knowvera/document/document-list-dto';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
+import { toast } from 'ngx-sonner';
 
 export type DocumentApiState = AppState<DocumentDTO, DocumentListDTO> & {};
 
@@ -34,6 +35,7 @@ export const DocumentApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const documentApi = inject(DocumentApi);
+    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -44,25 +46,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.downloadFile(data.id,).pipe(
             tapResponse({
               next: (response: any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -76,25 +82,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.downloadFileByUrl(data.objectName,).pipe(
             tapResponse({
               next: (response: any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -108,25 +118,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.findByDocumentType(data.documentTypeId,).pipe(
             tapResponse({
               next: (response: DocumentDTO[] | any[]) => {
+                const message = `${response.length || 'No'} document(s) found for the given document type!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`${response.length || 'No'} document(s) found for the given document type!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -140,25 +154,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.findById(data.id,).pipe(
             tapResponse({
               next: (response: DocumentDTO | any) => {
+                const message = `Document "${response?.fileName || 'unknown'}" loaded successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Document "${response?.fileName || 'unknown'}" loaded successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -172,25 +190,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.findByTarget(data.target, data.targetId,).pipe(
             tapResponse({
               next: (response: DocumentDTO[] | any[]) => {
+                const message = `${response.length || 'No'} document(s) found for the given target!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`${response.length || 'No'} document(s) found for the given target!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -204,25 +226,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.getAll().pipe(
             tapResponse({
               next: (response: DocumentDTO[] | any[]) => {
+                const message = `${response.length || 'No'} document(s) found!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`${response.length || 'No'} document(s) found!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -236,24 +262,28 @@ export const DocumentApiStore = signalStore(
           return documentApi.getAllPaged(data.pageNumber, data.pageSize,).pipe(
             tapResponse({
               next: (response: Page<DocumentDTO> | any) => {
+                const message = `${response.content.length || 'No'} document(s) found!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`${response.content.length || 'No'} document(s) found!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -267,25 +297,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.remove(data.id,).pipe(
             tapResponse({
               next: (response: boolean | any) => {
+                const message = `Document removed successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Document removed successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -299,25 +333,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.save(data.document,).pipe(
             tapResponse({
               next: (response: DocumentDTO | any) => {
+                const message = `Document "${response?.fileName || 'unknown'}" saved successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Document "${response?.fileName || 'unknown'}" saved successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -331,25 +369,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.search(data.criteria,).pipe(
             tapResponse({
               next: (response: DocumentDTO[] | any[]) => {
+                const message = `${response.length || 'No'} document(s) found for the given criteria!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`${response.length || 'No'} document(s) found for the given criteria!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -363,25 +405,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.searchPaged(data.criteria,).pipe(
             tapResponse({
               next: (response: Page<DocumentDTO> | any) => {
+                const message = `${response.content.length || 'No'} document(s) found!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`${response.content.length || 'No'} document(s) found!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: HttpErrorResponse) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -395,25 +441,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.upload(data.target, data.targetId, data.documentTypeId, data.file, data.purpose).pipe(
             tapResponse({
               next: (response: DocumentDTO | any) => {
+                const message = `Upload ${response?.fileName || 'document'} successful!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Upload ${response?.fileName || 'document'} successful!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -427,25 +477,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.updateFileContent(data.id, data.content,).pipe(
             tapResponse({
               next: (response: DocumentDTO) => {
+                const message = `Document "${response?.fileName || 'unknown'}" updated successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Document "${response?.fileName || 'unknown'}" updated successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -459,25 +513,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.analyseDocument(data.id,).pipe(
             tapResponse({
               next: (response: DocumentDTO) => {
+                const message = `Document "${response?.fileName || 'unknown'}" analysis happening in the background!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Document "${response?.fileName || 'unknown'}" analysis happening in the background!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -491,25 +549,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.verifyData(data.id,).pipe(
             tapResponse({
               next: (response: DocumentDTO) => {
+                const message = `Background verification "${response?.fileName || 'unknown'}" triggered successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Background verification "${response?.fileName || 'unknown'}" triggered successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -523,25 +585,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.updateVerificationStatus(data.id, data.status).pipe(
             tapResponse({
               next: (response: DocumentDTO) => {
+                const message = `Document "${response?.fileName || 'unknown'}" verification status updated successfully!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Document "${response?.fileName || 'unknown'}" verification status updated successfully!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },
@@ -555,25 +621,29 @@ export const DocumentApiStore = signalStore(
           return documentApi.textExtraction(data.id, data.block).pipe(
             tapResponse({
               next: (response: DocumentDTO) => {
+                const message = `Document "${response?.fileName || 'unknown'}" text extraction happening in the background!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Document "${response?.fileName || 'unknown'}" text extraction happening in the background!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
                   loading: false,
                   success: false,
                   error: true,
-                  messages: [getErrormessage(error)],
+                  messages: [message],
                 }
                 );
               },

@@ -33,11 +33,11 @@ import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-ap
 // import { BranchFormDialogComponent } from './add-branch-dialog';
 import { swalFire } from '@app/@shared/swal-loader';
 import { Loader } from '@app/@shared/loader/loader';
-import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { BranchFormDialogComponent } from './add-branch-dialog';
 import { CreateClientRequestDialogComponent } from './create-client-request-dialog';
+import { toast } from '@app/@shared/toast';
 // import { CreateClientRequestDialogComponent } from './create-client-request-dialog';
 
 @Component({
@@ -141,7 +141,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   selectedDocumentFile = signal<File | null>(null);
   isUploadingDocument = signal(false);
 
-  toaster: ToastrService = inject(ToastrService);
+  toaster = toast;
 
   // Tab management
   activeTab = signal(0);

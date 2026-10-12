@@ -5,6 +5,10 @@
 //
 package bw.co.knowvera.individual;
 
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+import bw.co.knowvera.auth.CurrentCaller;
+import bw.co.knowvera.auth.RequiresOwnership;
 import bw.co.knowvera.organisation.OrganisationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -91,10 +95,13 @@ public class IndividualApiImpl implements IndividualApi {
             knowvera Team
             """;
 
+    private final CurrentCaller currentCaller;
+
     public IndividualApiImpl(IndividualService individualService, KeycloakUserService keycloakUserService,
             OrganisationService organisationService, SettingsService settingsService,
             BranchService branchService, KeycloakOrganisationService keycloakOrgService,
-            RabbitTemplate rabbitTemplate) {
+            RabbitTemplate rabbitTemplate, CurrentCaller currentCaller) {
+        this.currentCaller = currentCaller;
 
         this.individualService = individualService;
         this.keycloakUserService = keycloakUserService;
@@ -118,6 +125,7 @@ public class IndividualApiImpl implements IndividualApi {
     @Override
     @Operation(summary = "Find Individual by ID", description = "Get the individual with the given id")
     @Audit(entity = "INDIVIDUAL", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "individuals:view", target = "INDIVIDUAL", id = "#id")
     public ResponseEntity<IndividualDTO> findById(String id) throws Exception {
 
         logger.debug("Finding individual with id: {}", id);
@@ -206,8 +214,8 @@ public class IndividualApiImpl implements IndividualApi {
         payload.put("organisationName",
                 individual.getOrganisation() != null ? individual.getOrganisation().name() : "");
         payload.put("loginUrl", settings.getPlatformUrl());
+        payload.put("email", user.getEmail());
         payload.put("username", user.getUsername());
-        payload.put("password", user.getPassword());
         payload.put("currentYear", "" + LocalDate.now().getYear());
 
         rabbitTemplate.convertAndSend(newUserQueueExchange, newUserQueueRoutingKey, payload);
@@ -355,6 +363,7 @@ public class IndividualApiImpl implements IndividualApi {
     @Override
     @Operation(summary = "Get Organisation Clients", description = "Get all clients for a given organisation")
     @Audit(entity = "INDIVIDUAL", logData = false)
+    @RequiresOwnership(scope = "individuals:list", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<List<IndividualListDTO>> getOrganisationClients(
             String organisationId) throws Exception {
         logger.debug("Getting organisation clients for organisationId: {}", organisationId);
@@ -365,10 +374,11 @@ public class IndividualApiImpl implements IndividualApi {
     @Override
     @Operation(summary = "Get Organisation Clients Paged", description = "Get all clients for a given organisation with pagination")
     @Audit(entity = "INDIVIDUAL", logData = false)
+    @RequiresOwnership(scope = "individuals:list", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<Page<IndividualListDTO>> getOrganisationClientsPaged(
-            String criteria, Integer pageNumber, Integer pageSize) throws Exception {
+            String organisationId, Integer pageNumber, Integer pageSize) throws Exception {
 
-        logger.debug("Getting organisation clients paged for criteria: {}, pageNumber: {}, pageSize: {}", criteria, pageNumber, pageSize);
+        logger.debug("Getting organisation clients paged for organisationId: {}, pageNumber: {}, pageSize: {}", organisationId, pageNumber, pageSize);
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
@@ -393,16 +403,8 @@ public class IndividualApiImpl implements IndividualApi {
 
         logger.debug("Loading currently authenticated individual");
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!authentication.isAuthenticated()) {
-            throw new IndividualServiceException("Unauthenticated");
-        }
-
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        String userId = jwt.getSubject();
-
-        return ResponseEntity.ok(individualService.findByUserId(userId));
-
+        return ResponseEntity.ok(currentCaller.individual()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No individual profile for this user")));
     }
 
     @Override

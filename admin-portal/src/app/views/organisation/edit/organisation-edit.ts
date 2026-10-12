@@ -1,12 +1,4 @@
-import { MatDividerModule } from '@angular/material/divider';
-import { MatListModule } from '@angular/material/list';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
 import { OrganisationApiStore } from './../../../store/bw/co/knowvera/organisation/organisation-api.store';
 import {
@@ -21,9 +13,8 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { applyEach, email, form, FormField, required } from '@angular/forms/signals';
+import { applyEach, email, form, FormField, required, FormRoot } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
-import { Loader } from '@app/@shared/loader/loader';
 import { GeneralStatus } from '@app/models/bw/co/knowvera/general-status';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { OrganisationDomain } from '@app/models/bw/co/knowvera/organisation/organisation-domain';
@@ -31,11 +22,9 @@ import { OrganisationDTO } from '@app/models/bw/co/knowvera/organisation/organis
 import { PhoneNumber } from '@app/models/bw/co/knowvera/phone-number';
 import { PhoneType } from '@app/models/bw/co/knowvera/phone-type';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { swalFire } from '@app/@shared/swal';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 
 export class EditOrganisationVarsForm {
   id: string | any = null;
@@ -65,21 +54,12 @@ export class EditOrganisationVarsForm {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
-    FormsModule,
     TranslateModule,
-    MatFormFieldModule,
-    MatCardModule,
-    MatButtonModule,
     MatIconModule,
-    MatInputModule,
-    MatSelectModule,
-    MatListModule,
-    MatDividerModule,
-    MatSlideToggleModule,
-    MatCheckboxModule,
-    Loader,
-    FormField
-],
+    RouterLink,
+    FormField,
+    FormRoot,
+  ],
 })
 export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   @Input() id: string | any = null;
@@ -102,7 +82,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
     applyEach(path.domains, (domainPath) => {
       required(domainPath.name, { message: 'domain.name.required' });
     });
-  });
+  }, { submission: { action: async () => this.saveOrganisation() } });
 
 
   countries: string[] = [
@@ -130,7 +110,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
 
   organisationApiStore = inject(OrganisationApiStore);
   router = inject(Router);
-  toaster = inject(ToastrService);
+  // toaster = inject(ToastrService);
 
   loaderMessage = linkedSignal(() => 'Loading...');
   messages = linkedSignal(() => this.organisationApiStore.messages());
@@ -155,11 +135,11 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
-        this.toaster.success(messages[0]);
+        // this.toaster.success(messages[0]);
       }
 
       if (this.error() && !this.loading()) {
-        this.toaster.error(messages[0]);
+        // this.toaster.error(messages[0]);
       }
     });
   }

@@ -1,0 +1,21 @@
+// operational-metrics.scss
+@use 'shared/settings' as *;
+
+.slider-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+
+  &__value {
+    font-weight: 700;
+    color: var(--emerald);
+  }
+}
+
+.slider {
+  width: 100%;
+  accent-color: var(--emerald);
+}
+

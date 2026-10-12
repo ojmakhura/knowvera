@@ -29,7 +29,7 @@ import { Router } from "@angular/router";
 import { PhoneType } from "@app/models/bw/co/knowvera/phone-type";
 import { GeneralStatus } from "@app/models/bw/co/knowvera/general-status";
 import { IndividualDTO } from "@app/models/bw/co/knowvera/individual/individual-dto";
-import { ToastrService } from "ngx-toastr";
+import { toast } from '@app/@shared/toast';
 
 export class EditIndividualVarsForm {
     id: string | any = null;
@@ -89,7 +89,7 @@ export class EditIndividual implements OnInit, AfterViewInit, OnDestroy {
     branchApiStore = inject(BranchApiStore);
     readonly individualApiStore = inject(IndividualApiStore);
     readonly router = inject(Router);
-    readonly toaster = inject(ToastrService);
+    readonly toaster = toast;
     loading = computed(
         () => this.individualApiStore.loading() || this.organisationApiStore.loading() || this.branchApiStore.loading(),
     );
@@ -245,7 +245,7 @@ export class EditIndividual implements OnInit, AfterViewInit, OnDestroy {
             }
 
             const message = this.messages()[0] || 'Individual saved successfully';
-            this.toaster.success(message, 'Success');
+            this.toaster.success(message);
             this.isSaving.set(false);
         });
 
@@ -255,7 +255,7 @@ export class EditIndividual implements OnInit, AfterViewInit, OnDestroy {
             }
 
             const message = this.messages()[0] || 'Unable to save individual';
-            this.toaster.error(message, 'Error');
+            this.toaster.error(message);
             this.isSaving.set(false);
 
         });

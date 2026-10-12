@@ -5,6 +5,7 @@
 //
 package bw.co.knowvera.sequence;
 
+import bw.co.knowvera.logging.Audit;
 import jakarta.validation.Valid;
 import java.util.Collection;
 import java.util.List;
@@ -74,6 +75,7 @@ public class SequenceGeneratorApiImpl implements SequenceGeneratorApi {
 
     @Override
     @Operation(summary = "Remove Sequence Generator", description = "Remove a sequence generator by its ID")
+    @Audit(entity = "SEQUENCE", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
         try {
             return ResponseEntity.ok(this.getSequenceGeneratorService().remove(id));
@@ -86,6 +88,7 @@ public class SequenceGeneratorApiImpl implements SequenceGeneratorApi {
 
     @Override
     @Operation(summary = "Save Sequence Generator", description = "Save a sequence generator")
+    @Audit(entity = "SEQUENCE", eventLabel = "#result?.body?.id", logData = false)
     public ResponseEntity<SequenceGeneratorDTO> save(@Valid SequenceGeneratorDTO sequenceGenerator) throws Exception {
         try {
             return ResponseEntity.ok(this.getSequenceGeneratorService().save(sequenceGenerator));

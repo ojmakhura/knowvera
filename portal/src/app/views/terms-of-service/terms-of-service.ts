@@ -1,11 +1,10 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-terms-of-service',
-  imports: [TranslateModule, MatCardModule],
+  imports: [TranslateModule],
   templateUrl: './terms-of-service.html',
   styleUrl: './terms-of-service.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

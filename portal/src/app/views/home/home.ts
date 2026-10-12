@@ -1,8 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '@app/@core/services/auth.service';
 import { Router } from '@angular/router';
 
@@ -14,7 +12,7 @@ interface Feature {
 
 @Component({
   selector: 'app-home',
-  imports: [TranslateModule, MatButtonModule, MatIconModule, MatCardModule],
+  imports: [TranslateModule, MatIconModule],
   templateUrl: './home.html',
   styleUrl: './home.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

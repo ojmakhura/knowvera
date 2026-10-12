@@ -5,9 +5,11 @@
 //
 package bw.co.knowvera.user;
 
+import bw.co.knowvera.logging.Audit;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -15,6 +17,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import bw.co.knowvera.auth.UserAdministrationGuard;
 import bw.co.knowvera.keycloak.KeycloakUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,42 +29,53 @@ public class UserApiImpl implements UserApi {
     protected Logger logger = LoggerFactory.getLogger(UserApiImpl.class);
 
     private final KeycloakUserService keycloakUserService;
+    private final UserAdministrationGuard guard;
 
-    public UserApiImpl(KeycloakUserService keycloakUserService) {
+    public UserApiImpl(KeycloakUserService keycloakUserService, UserAdministrationGuard guard) {
 
         this.keycloakUserService = keycloakUserService;
+        this.guard = guard;
     }
 
     @Override
     @Operation(summary = "Add Client Roles", description = "Add roles to a user for a specific client")
+    @Audit(entity = "USER", eventLabel = "#userId + ' ' + #clientId + ' ' + #roles", logData = false)
     public ResponseEntity<UserDTO> addClientRoles(
             String clientId, Set<String> roles, String userId) {
         logger.debug(
                 "Add user/client roles with client Id " + clientId + ",roles " + roles
                         + " and user Id " + userId);
+        guard.checkCanManageUser(userId, "users:manage");
         UserDTO rep = this.keycloakUserService.addClientRoles(clientId, roles, userId);
         return ResponseEntity.ok(rep);
     }
 
     @Override
     @Operation(summary = "Add Role", description = "Add a role to a user")
+    @Audit(entity = "USER", eventLabel = "#userId + ' ' + #role", logData = false)
     public ResponseEntity<Boolean> addRole(String userId,
             String role) {
 
+        guard.checkCanManageUser(userId, "users:manage");
+        guard.checkCanAssign(Set.of(role), "users:manage");
         return ResponseEntity.ok(this.keycloakUserService.updateUserRoles(userId, role, 1));
     }
 
     @Override
-    @Operation(summary = "Change Password", description = "Change the password of a user")
+    @Operation(summary = "Reset Password", description = "Set a temporary password for a user (administrators); users change their own password in Keycloak")
+    @Audit(entity = "USER", eventLabel = "#userId", logData = false)
     public ResponseEntity<String> changePassword(String userId,
             String newPassword) {
 
-        this.keycloakUserService.updateUserPassword(userId, newPassword);
-        return ResponseEntity.ok(true ? "Password changed successfully" : "Failed to change password.");
+        // Administrative reset (users:manage): temporary password, changed by the user at next sign-in
+        guard.checkCanManageUser(userId, "users:manage");
+        this.keycloakUserService.resetUserPassword(userId, newPassword);
+        return ResponseEntity.ok("Password reset: the user must choose a new password at next sign-in");
     }
 
     @Override
     @Operation(summary = "Find Users by Client Roles", description = "Find users by their roles for a specific client")
+    @Audit(entity = "USER", eventLabel = "#clientId + ' ' + #roles", logData = false)
     public ResponseEntity<List<UserDTO>> findByClientRoles(
             Set<String> roles, String clientId) {
 
@@ -72,6 +86,7 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Find Users by Realm Roles", description = "Find users by their roles for the realm")
+    @Audit(entity = "USER", eventLabel = "#roles", logData = false)
     public ResponseEntity<List<UserDTO>> findByRealmRoles(
             Set<String> roles) {
         List<UserDTO> data = this.keycloakUserService.getUsersByRealmRoles(roles).stream().toList();
@@ -80,6 +95,7 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Find User by ID", description = "Find a user by their ID")
+    @Audit(entity = "USER", eventLabel = "#userId", logData = false)
     public ResponseEntity<UserDTO> findUserById(String userId) {
 
         logger.debug("Search user by Id " + userId);
@@ -89,6 +105,7 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Load All Users", description = "Load all users from the system")
+    @Audit(entity = "USER", logData = false)
     public ResponseEntity<List<UserDTO>> loadUsers() {
 
         List<UserDTO> data = this.keycloakUserService.findAll().stream().toList();
@@ -97,31 +114,53 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Remove Role", description = "Remove a role from a user")
+    @Audit(entity = "USER", eventLabel = "#userId + ' ' + #role", logData = false)
     public ResponseEntity<Boolean> removeRole(String userId,
             String role) {
 
+        guard.checkCanManageUser(userId, "users:manage");
+        guard.checkCanAssign(Set.of(role), "users:manage");
         Boolean responseData = this.keycloakUserService.updateUserRoles(userId, role, -1);
         return ResponseEntity.ok(responseData);
     }
 
     @Override
     @Operation(summary = "Save User", description = "Save a user")
+    @Audit(entity = "USER", eventLabel = "#result?.body?.userId", logData = false)
     public ResponseEntity<UserDTO> saveUser(
             UserDTO user) {
 
         logger.debug("Save User " + user);
 
-        if (StringUtils.isBlank(user.getUserId()))
+        if (StringUtils.isBlank(user.getUserId())) {
+            guard.checkCanCreateUserIn(user.getOrganisationId(), "users:edit");
+            if (!user.getRoles().isEmpty()) {
+                guard.checkCanAssign(user.getRoles(), "users:manage");
+            }
             user = this.keycloakUserService.createUser(user);
-        else {
+        } else {
+            guard.checkCanManageUser(user.getUserId(), "users:edit");
+            // Non-empty roles replace the user's direct roles: every role added or removed must be assignable
+            if (!user.getRoles().isEmpty()) {
+                Set<String> current = keycloakUserService.findDirectRealmRoles(user.getUserId());
+                Set<String> changed = new HashSet<>(user.getRoles());
+                changed.addAll(current);
+                changed.removeIf(role -> current.contains(role) && user.getRoles().contains(role));
+                if (!changed.isEmpty()) {
+                    guard.checkCanAssign(changed, "users:manage");
+                }
+            }
             keycloakUserService.updateUser(user);
         }
 
+        // Never echo a password back
+        user.setPassword(null);
         return ResponseEntity.ok(user);
     }
 
     @Override
     @Operation(summary = "Search Users", description = "Search users based on criteria")
+    @Audit(entity = "USER", logData = false)
     public ResponseEntity<List<UserDTO>> search(String criteria) {
 
         logger.debug("Search user by criteria" + criteria);
@@ -133,15 +172,18 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Update User Name", description = "Update the username of a user")
+    @Audit(entity = "USER", eventLabel = "#userId", logData = false)
     public ResponseEntity<Boolean> updateUserName(String userId,
             String username) {
 
+        guard.checkCanManageUser(userId, "users:edit");
         Optional<Boolean> data = Optional.empty(); // TODO: Add custom code here;
         return ResponseEntity.ok(data.get());
     }
 
     @Override
     @Operation(summary = "Find Users by Branch ID", description = "Find users by their branch ID")
+    @Audit(entity = "USER", eventLabel = "#branchId", logData = false)
     public ResponseEntity<List<UserDTO>> findByBranchId(String branchId) {
 
         List<UserDTO> data = this.keycloakUserService.getBranchUsers(branchId).stream().toList();
@@ -150,6 +192,7 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Find Users by Branch Name", description = "Find users by their branch name")
+    @Audit(entity = "USER", eventLabel = "#branch", logData = false)
     public ResponseEntity<List<UserDTO>> findByBranchName(String branch) {
 
         Optional<List<UserDTO>> data = Optional.empty(); // TODO: Add custom code here;
@@ -158,6 +201,7 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Find Users by Organisation ID", description = "Find users by their organisation ID")
+    @Audit(entity = "USER", eventLabel = "#organisationId", logData = false)
     public ResponseEntity<List<UserDTO>> findByOrganisationId(String organisationId) {
 
         List<UserDTO> data = this.keycloakUserService.getOrganisationUsers(organisationId).stream().toList();
@@ -166,6 +210,7 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Find Users by Organisation Name", description = "Find users by their organisation name")
+    @Audit(entity = "USER", eventLabel = "#organisation", logData = false)
     public ResponseEntity<List<UserDTO>> findByOrganisationName(String organisation) {
 
         Optional<List<UserDTO>> data = Optional.empty(); // TODO: Add custom code here;
@@ -174,6 +219,7 @@ public class UserApiImpl implements UserApi {
 
     @Override
     @Operation(summary = "Find User by Identity No", description = "Find a user by their identity number")
+    @Audit(entity = "USER", eventLabel = "#identityNo", logData = false)
     public ResponseEntity<UserDTO> findByIdentityNo(String identityNo) {
 
         return ResponseEntity.ok(this.keycloakUserService.getUserByIdentityNo(identityNo));

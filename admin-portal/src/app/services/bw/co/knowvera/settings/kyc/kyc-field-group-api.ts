@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { KycFieldGroupDTO } from '@models/bw/co/knowvera/settings/kyc/kyc-field-group-dto';
 import { HttpClient } from '@angular/common/http';
+import { TargetEntity } from '@models/bw/co/knowvera/target-entity';
 
 @Injectable({
   providedIn: 'root'
@@ -31,5 +32,10 @@ export class KycFieldGroupApi {
     public removeField(id: string, fieldId: string): Observable<KycFieldGroupDTO> {
 
         return this.http.delete<KycFieldGroupDTO>(`${this.path}/${id}/field/${fieldId}`);
+    }
+
+    public findByTarget(targetType: TargetEntity | any): Observable<KycFieldGroupDTO[] | any> {
+
+        return this.http.get<KycFieldGroupDTO[] | any>(`${this.path}/target/${targetType}`);
     }
 }

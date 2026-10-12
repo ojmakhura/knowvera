@@ -1,3 +1,5 @@
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -25,17 +27,16 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { Loader } from '@app/@shared/loader/loader';
-import { ToastrService } from 'ngx-toastr';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
-import { form, FormField, readonly } from '@angular/forms/signals';
+import { form, FormField, readonly, FormRoot } from '@angular/forms/signals';
 import { MatSelectModule } from '@angular/material/select';
 import { swalFire } from '@app/@shared/swal';
 import Keycloak from 'keycloak-js';
 import { HasRolesDirective } from 'keycloak-angular';
 import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 @Component({
   selector: 'app-document-details',
@@ -43,6 +44,8 @@ import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/fiel
   styleUrls: ['./document-details.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    MatProgressBarModule,
+    RouterLink,
     CommonModule,
     FormsModule,
     MatCardModule,
@@ -58,17 +61,17 @@ import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/fiel
     MatTabsModule,
     MatSelectModule,
     TranslateModule,
-    Loader,
     FormField,
-    HasRolesDirective
+    HasRolesDirective,
+    FormRoot,
   ],
 })
 export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
-  toaster: ToastrService = inject(ToastrService);
   readonly documentApiStore = inject(DocumentApiStore);
   private readonly keycloak = inject(Keycloak);
+  loaderState = inject(LoaderState);
 
-  readonly isDocumentReviewer = computed(() => this.keycloak.hasRealmRole('DOCUMENT_REVIEWER') || this.keycloak.hasResourceRole('DOCUMENT_REVIEWER'));
+  readonly isDocumentReviewer = computed(() => this.keycloak.hasRealmRole('KYC_REVIEWER'));
 
   readonly verificationStatusOptions: DocumentVerificationStatus[] = [
     DocumentVerificationStatus.UNVERIFIED,
@@ -83,6 +86,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
   success = linkedSignal(() => this.documentApiStore.success());
   loading = linkedSignal(() => this.documentApiStore.loading());
   error = linkedSignal(() => this.documentApiStore.error());
+
 
   readonly ExpectedFieldType = ExpectedFieldType;
 
@@ -104,6 +108,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
   metadataEditing = signal(false);
   metadataFields = signal<Array<{ key: string; value: string }>>([]);
+  metadataForm = form(this.metadataFields, { submission: { action: async () => this.saveMetadata() } });
 
   documentForm = form(this.document, (path) => {
     readonly(path.id);
@@ -111,18 +116,18 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     readonly(path.targetId);
     readonly(path.url);
     readonly(path.documentType);
-  });
+  }, { submission: { action: async () => this.saveDocument() } });
 
   constructor() {
     effect(() => {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
-        this.toaster.success(messages[0]);
+        // this.toaster.success(messages[0]);
       }
 
       if (this.error() && !this.loading()) {
-        this.toaster.error(messages[0]);
+        // this.toaster.error(messages[0]);
       }
     });
 
@@ -131,9 +136,13 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
       const error = this.error();
       console.log('Error state changed:', error);
       if (error) {
-        this.toaster.error(this.messages()[0] || 'An error occurred while processing the document. Please try again.');
+        // this.toaster.error(this.messages()[0] || 'An error occurred while processing the document. Please try again.');
       }
     });
+
+    this.loaderState.message = this.loaderMessage;
+    this.loaderState.isLoading = this.loading;
+    
   }
 
   removeVerificationTagResult(index: number): void {
@@ -181,6 +190,21 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
         return 'pending_actions';
       default:
         return 'radio_button_unchecked';
+    }
+  }
+
+  /** Shared details-page tone (dp-pill is-*) for a verification status. */
+  statusTone(status: string | null | undefined): string {
+    switch (status) {
+      case 'VERIFIED':
+        return 'is-success';
+      case 'REJECTED':
+        return 'is-danger';
+      case 'MANUAL_REVIEW':
+      case 'IN_PROGRESS':
+        return 'is-warning';
+      default:
+        return '';
     }
   }
 
@@ -291,18 +315,6 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
   removeMetadataField(index: number): void {
     this.metadataFields.update((fields) => fields.filter((_, i) => i !== index));
-  }
-
-  updateMetadataKey(index: number, key: string): void {
-    this.metadataFields.update((fields) =>
-      fields.map((field, i) => (i === index ? { ...field, key } : field)),
-    );
-  }
-
-  updateMetadataValue(index: number, value: string): void {
-    this.metadataFields.update((fields) =>
-      fields.map((field, i) => (i === index ? { ...field, value } : field)),
-    );
   }
 
   saveMetadata(): void {

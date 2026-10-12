@@ -2,6 +2,9 @@ import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot, Url
 import { inject } from '@angular/core';
 import { AuthGuardData, createAuthGuard } from 'keycloak-angular';
 
+/** Client role of this portal's Keycloak client (PORTAL_ROLES in keycloak/generate_authz.py). */
+const PORTAL_ROLE = 'ADMIN_PORTAL_USER';
+
 const isAccessAllowed = async (
   route: ActivatedRouteSnapshot,
   _: RouterStateSnapshot,
@@ -16,11 +19,14 @@ const isAccessAllowed = async (
     });
   }
 
+  const router = inject(Router);
+
   if (authenticated) {
-    return true;
+    // Signed in, but only users granted this portal's role may use it
+    const clientId = authData.keycloak.clientId ?? '';
+    return (grantedRoles.resourceRoles[clientId] ?? []).includes(PORTAL_ROLE) || router.parseUrl('/no-access');
   }
 
-  const router = inject(Router);
   return router.parseUrl('/forbidden');
 };
 

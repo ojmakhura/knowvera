@@ -1,20 +1,23 @@
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
+import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { Router, RouterLink } from '@angular/router';
 import { SequenceGeneratorDTO } from '@app/models/bw/co/knowvera/sequence/sequence-generator-dto';
 import { SequencePartDTO } from '@app/models/bw/co/knowvera/sequence/sequence-part-dto';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { SequenceGeneratorApiStore } from '@app/store/bw/co/knowvera/sequence/sequence-generator-api.store';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
+import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
 
 export class SearchSequencesVarsForm {
   name: string = '';
@@ -30,23 +33,27 @@ export class SearchSequencesVarsForm {
   styleUrls: ['./sequences.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    MatTooltipModule,
+    RouterLink,
     CommonModule,
     MatIconModule,
     MatCardModule,
     MatInputModule,
     MatSelectModule,
     MatTableModule,
-    MatPaginatorModule,
+    MatProgressBarModule,
     MatFormFieldModule,
     MatButtonModule,
-    Loader
+    FormRoot,
+    FormField,
   ],
 })
-export class Sequences implements OnInit, AfterViewInit, OnDestroy {
+export class Sequences implements OnInit, OnDestroy {
   displayedColumns: string[] = ['name', 'targetEntity', 'patternPreview', 'lastModified', 'actions'];
 
   searchSequencesVarsForm = new SearchSequencesVarsForm();
   searchSequencesSignal = signal(this.searchSequencesVarsForm);
+  searchSequencesForm = form(this.searchSequencesSignal, { submission: { action: async () => this.doSearch() } });
 
   readonly sequenceGeneratorApiStore = inject(SequenceGeneratorApiStore);
   loading = linkedSignal(() => this.sequenceGeneratorApiStore.loading());
@@ -55,7 +62,7 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
   loadingMessage = linkedSignal(() => this.loading() ? 'Loading sequence generators...' : null);
   success = linkedSignal(() => this.messages()?.length ? this.messages()[0] : null);
 
-  toastr = inject(ToastrService);
+  // toastr = inject(ToastrService);
 
   protected readonly allRows = signal<SequenceGeneratorDTO[]>([]);
   protected readonly rows = signal<SequenceGeneratorDTO[]>([]);
@@ -66,7 +73,6 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
   protected readonly totalPages = signal(0);
   protected readonly router = inject(Router);
   protected readonly targetOptions = Object.values(TargetEntity);
-  @ViewChild(MatPaginator) paginator?: MatPaginator;
 
   constructor() {
     effect(() => {
@@ -78,14 +84,14 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       const error = this.error();
       if (error) {
-        this.toastr.error(String(error), 'Error loading sequence generators');
+        // this.toastr.error(String(error), 'Error loading sequence generators');
       }
     });
     
     effect(() => {
       const message = this.success();
       if (message) {
-        this.toastr.success(String(message), 'Success');
+        // this.toastr.success(String(message), 'Success');
       }
     });
   }
@@ -94,20 +100,8 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
     this.sequenceGeneratorApiStore.getAll();
   }
 
-  ngAfterViewInit(): void {
-    if (this.paginator) {
-      this.dataSource.paginator = this.paginator;
-    }
-  }
 
   ngOnDestroy(): void {}
-
-  updateField(field: keyof SearchSequencesVarsForm, value: string): void {
-    this.searchSequencesSignal.update((state) => ({
-      ...state,
-      [field]: value,
-    }));
-  }
 
   resetSearch(): void {
     this.searchSequencesSignal.set(new SearchSequencesVarsForm());
@@ -118,14 +112,14 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
     this.recomputeRows(pageNumber);
   }
 
-  onPageChange(event: PageEvent): void {
-    this.pageSize.set(event.pageSize);
-    this.recomputeRows(event.pageIndex);
+  readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+  readonly pageNumbers = computed(() => pageWindow(this.currentPage(), this.totalPages()));
+
+  changePageSize(size: string | number): void {
+    this.pageSize.set(Number(size));
+    this.recomputeRows(0);
   }
 
-  pageNumbers(): number[] {
-    return Array.from({ length: this.totalPages() }, (_, index) => index + 1);
-  }
 
   previousPage(): void {
     if (this.currentPage() <= 0) {
@@ -179,7 +173,7 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
     this.totalElements.set(total);
     this.totalPages.set(totalPages);
     this.currentPage.set(safePage);
-    this.rows.set(filtered);
+    this.rows.set(filtered.slice(start, start + size));
     this.dataSource.data = filtered;
   }
 
@@ -191,22 +185,12 @@ export class Sequences implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/', 'sequence', 'edit', id]);
   }
 
-  activeProtocols(): number {
-    return new Set(
-      this.allRows()
-        .map((row) => String(row.targetEntity || '').trim())
-        .filter(Boolean),
-    ).size;
+  showingLabel(): string {
+    return showingRecordsLabel(this.currentPage(), this.pageSize(), this.rows().length, this.totalElements());
   }
 
-  showingLabel(): string {
-    if (!this.totalElements()) {
-      return '0-0';
-    }
-
-    const start = this.currentPage() * this.pageSize() + 1;
-    const end = Math.min(start + this.pageSize() - 1, this.totalElements());
-    return `${start}-${end}`;
+  pageReport(): string {
+    return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
   }
 
   targetLabel(target: TargetEntity | string | null | undefined): string {

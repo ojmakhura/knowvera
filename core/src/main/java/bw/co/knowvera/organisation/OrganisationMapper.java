@@ -7,18 +7,21 @@ package bw.co.knowvera.organisation;
 
 import bw.co.knowvera.document.DocumentMapper;
 import bw.co.knowvera.document.type.DocumentTypeMapper;
-import bw.co.knowvera.individual.IndividualMapper;
 import bw.co.knowvera.invoice.KycInvoiceMapper;
 import bw.co.knowvera.organisation.branch.BranchMapper;
-import bw.co.knowvera.organisation.client.ClientRequestMapper;
+import bw.co.knowvera.settings.kyc.GroupField;
+import bw.co.knowvera.settings.kyc.GroupFieldMapper;
+import bw.co.knowvera.settings.kyc.KycFieldGroupDTO;
+import bw.co.knowvera.settings.kyc.KycFieldGroupMapper;
 import bw.co.knowvera.subscription.KycSubscriptionMapper;
-import bw.co.knowvera.utils.MappingUtils;
-import bw.co.knowvera.organisation.Organisation;
-import bw.co.knowvera.organisation.OrganisationDTO;
-import bw.co.knowvera.organisation.OrganisationListDTO;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.mapstruct.BeanMapping;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
@@ -34,10 +37,17 @@ import org.springframework.beans.factory.annotation.Autowired;
         DocumentTypeMapper.class,
         BranchMapper.class,
         KycSubscriptionMapper.class,
-        KycInvoiceMapper.class
+        KycInvoiceMapper.class,
+        GroupFieldMapper.class
     }
 )
 public abstract class OrganisationMapper {
+
+    @Autowired 
+    protected GroupFieldMapper groupFieldMapper;
+
+    @Autowired 
+    protected KycFieldGroupMapper kycFieldGroupMapper;
     
     /**
      * Converts this entity to an object of type {@link OrganisationDTO}.
@@ -45,11 +55,42 @@ public abstract class OrganisationMapper {
      * @return OrganisationDTO
      */
     @Mapping(source = "documents", target = "documents")
-    @Mapping(source = "clientKycDocuments", target = "clientKycDocuments")
+    @Mapping(source = "individualKycDocuments", target = "individualKycDocuments")
+    @Mapping(source = "organisationKycDocuments", target = "organisationKycDocuments")
     @Mapping(source = "clientRequestsFiles", target = "clientRequestsFiles")
     @Mapping(source = "phoneNumbers", target = "phoneNumbers")
-    @Mapping(source = "branches", target = "branches")
+    @Mapping(target = "organisationFieldGroups", expression = "java(toKycFieldGroupDTOList(entity.getOrganisationFields()))")
+    @Mapping(target = "individualFieldGroups", expression = "java(toKycFieldGroupDTOList(entity.getIndividualFields()))")
     public abstract OrganisationDTO toOrganisationDTO(Organisation entity);
+
+    protected List<KycFieldGroupDTO> toKycFieldGroupDTOList(List<GroupField> groupFields) {
+        if(groupFields == null || groupFields.isEmpty()) {
+            return null;
+        }
+
+        Map<UUID, KycFieldGroupDTO> fieldGroupMap = new HashMap<>();    
+
+        List<KycFieldGroupDTO> fieldGroups = new ArrayList<>();
+        for (GroupField groupField : groupFields) {
+
+            if(!fieldGroupMap.containsKey(groupField.getKycFieldGroup().getId())) {
+                
+                KycFieldGroupDTO newFieldGroup = kycFieldGroupMapper.toKycFieldGroupDTO(groupField.getKycFieldGroup());
+                newFieldGroup.setGroupFields(new ArrayList<>());
+                fieldGroupMap.put(groupField.getKycFieldGroup().getId(), newFieldGroup);
+
+            }
+
+            KycFieldGroupDTO fieldGroup = fieldGroupMap.get(groupField.getKycFieldGroup().getId());
+            fieldGroup.getGroupFields().add(groupFieldMapper.toGroupFieldDTO(groupField));
+
+            if(fieldGroup != null) {
+                fieldGroups.add(fieldGroup);
+            }
+        }
+
+        return fieldGroupMap.values().stream().toList();
+    }
 
      /**
      * Converts this DAO's entity to a Collection of instances of type {@link OrganisationDTO}.
@@ -68,7 +109,29 @@ public abstract class OrganisationMapper {
     @Mapping(target = "clientRequests", ignore = true)
     @Mapping(target = "kycInvoices", ignore = true)
     @Mapping(target = "kycSubscriptions", ignore = true)
+    @Mapping(target = "organisationFields", expression = "java(toGroupFieldList(organisationDTO.getOrganisationFieldGroups()))")
+    @Mapping(target = "individualFields", expression = "java(toGroupFieldList(organisationDTO.getIndividualFieldGroups()))")
     public abstract Organisation organisationDTOToEntity(OrganisationDTO organisationDTO);
+
+    protected List<GroupField> toGroupFieldList(List<KycFieldGroupDTO> fieldGroups) {
+
+        if (fieldGroups == null) {
+            return null;
+        }
+
+        List<GroupField> fields = new ArrayList<>();
+        for (KycFieldGroupDTO fieldGroup : fieldGroups) {
+            if(fieldGroup.getGroupFields() == null || fieldGroup.getGroupFields().isEmpty()) {
+                continue;
+            } 
+
+            fields.addAll(fieldGroup.getGroupFields().stream()
+                    .map(groupField -> groupFieldMapper.groupFieldDTOToEntity(groupField))
+                    .toList());
+        }
+
+        return fields;
+    }
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration

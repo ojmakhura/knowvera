@@ -1,3 +1,4 @@
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -23,10 +24,10 @@ import {
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { Loader } from '@app/@shared/loader/loader';
-import { disabled, email, form, FormField, readonly, required } from '@angular/forms/signals';
+import { disabled, email, form, FormField, readonly, required, FormRoot } from '@angular/forms/signals';
 import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
 import { DeclarationDTO } from '@app/models/bw/co/knowvera/kyc/declaration-dto';
 import { PepStatus } from '@app/models/bw/co/knowvera/individual/pep-status';
@@ -92,6 +93,7 @@ export class EditRecordVarsForm {
   styleUrls: ['./record-edit.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    MatTooltipModule,
     CommonModule,
     MatCardModule,
     MatButtonModule,
@@ -102,15 +104,15 @@ export class EditRecordVarsForm {
     MatSlideToggleModule,
     MatButtonToggleModule,
     TranslateModule,
-    Loader,
     FormField,
     MatDatepickerModule,
     MatListModule,
     MatProgressBarModule,
     NgxMatSelectSearchModule,
     QuillEditorComponent,
-    RouterLink
-],
+    RouterLink,
+    FormRoot,
+  ],
 })
 export class RecordEdit implements OnInit {
 
@@ -128,11 +130,11 @@ export class RecordEdit implements OnInit {
     required(path.ownerDetails.emailAddress, { message: 'email.required' });
     required(path.kycStatus, { message: 'record.kycStatus.required' });
     required(path.declaration.pepStatus, { message: 'pep.status.required' });
-  });
+  }, { submission: { action: async () => this.saveRecord() } });
 
   protected route: ActivatedRoute = inject(ActivatedRoute);
   protected router: Router = inject(Router);
-  toaster: ToastrService = inject(ToastrService);
+  // toaster: ToastrService = inject(ToastrService);
   readonly kycRecordApiStore = inject(KycRecordApiStore);
   readonly settingsApiStore = inject(SettingsApiStore);
   readonly organisationApiStore = inject(OrganisationApiStore);
@@ -243,7 +245,7 @@ export class RecordEdit implements OnInit {
       }
 
       if (this.kycRecordApiStore.error()) {
-        this.toaster.error(this.messages()[0] || 'Failed to save record.');
+        // this.toaster.error(this.messages()[0] || 'Failed to save record.');
         this.saveRequested.set(false);
         return;
       }
@@ -251,7 +253,7 @@ export class RecordEdit implements OnInit {
       const savedRecord = this.kycRecordApiStore.data();
 
       if (savedRecord?.id) {
-        this.toaster.success(this.messages()[0] || 'Record saved successfully.');
+        // this.toaster.success(this.messages()[0] || 'Record saved successfully.');
         this.saveRequested.set(false);
 
         if (!this.id && !this.route.snapshot.queryParamMap.get('id')) {
@@ -284,12 +286,12 @@ export class RecordEdit implements OnInit {
 
   saveRecord(): void {
     // if (this.editRecordSignalForm().invalid()) {
-    //   this.toaster.error('Complete the required record fields before saving.');
+    //   // this.toaster.error('Complete the required record fields before saving.');
     //   return;
     // }
 
     // if (this.hasDocumentsWithoutType()) {
-    //   this.toaster.error('Select a document type for each file before saving.');
+    //   // this.toaster.error('Select a document type for each file before saving.');
     //   return;
     // }
 
@@ -542,13 +544,15 @@ export class RecordEdit implements OnInit {
         : null;
 
     if (!request) {
-      this.toaster.error('No downloadable file reference was found for this document.');
+      // this.toaster.error('No downloadable file reference was found for this document.');
       return;
     }
 
     request.subscribe({
       next: (blob: Blob) => this.saveBlob(blob, document.fileName || 'document-download'),
-      error: () => this.toaster.error('Failed to download document.'),
+      error: () => {
+        // this.toaster.error('Failed to download document.'),
+      }
     });
   }
 
@@ -567,7 +571,7 @@ export class RecordEdit implements OnInit {
   //       : null;
 
   //   if (!request) {
-  //     this.toaster.error('No document preview source was found for this document.');
+  //     // this.toaster.error('No document preview source was found for this document.');
   //     return;
   //   }
 
@@ -577,13 +581,13 @@ export class RecordEdit implements OnInit {
   //       window.open(objectUrl, '_blank', 'noopener');
   //       window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 10000);
   //     },
-  //     error: () => this.toaster.error('Failed to load document preview.'),
+  //     error: () => // this.toaster.error('Failed to load document preview.'),
   //   });
   // }
 
   // editUploadedDocument(document: DocumentDTO): void {
   //   if (!document.id) {
-  //     this.toaster.error('This document cannot be edited because it has no ID.');
+  //     // this.toaster.error('This document cannot be edited because it has no ID.');
   //     return;
   //   }
 

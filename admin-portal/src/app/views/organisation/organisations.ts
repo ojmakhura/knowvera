@@ -1,10 +1,9 @@
-import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   AfterViewInit,
@@ -19,16 +18,23 @@ import {
   Signal,
   signal,
 } from '@angular/core';
-import { form } from '@angular/forms/signals';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
 import { SearchObject } from '@app/models/search-object';
+import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
+import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
+
+interface FilterOption {
+  label: string;
+  value: string;
+}
 
 export class SearchOrganisationsVarsForm {
   criteria: string | any = null;
@@ -38,17 +44,17 @@ export class SearchOrganisationsVarsForm {
 @Component({
   selector: 'app-organisations',
   imports: [
+    RouterLink,
     TranslateModule,
     MatIconModule,
-    MatCardModule,
     MatButtonModule,
-    MatTableModule,
-    MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatProgressBarModule,
     MatTooltipModule,
-    Loader
+    FormRoot,
+    FormField,
   ],
   templateUrl: './organisations.html',
   styleUrls: ['./organisations.scss'],
@@ -58,9 +64,10 @@ export class Organisations implements OnInit, OnDestroy {
 
   searchOrganisationsVarsForm: SearchOrganisationsVarsForm = new SearchOrganisationsVarsForm();
   searchOrganisationsSignal = signal(this.searchOrganisationsVarsForm);
-  searchOrganisationsSignalForm = form(this.searchOrganisationsSignal, (path) => {});
+  searchOrganisationsSignalForm = form(this.searchOrganisationsSignal, (path) => {}, { submission: { action: async () => this.onSearchSubmit() } });
+  readonly breadcrumbLabel = 'Organisations';
 
-  toaster: ToastrService = inject(ToastrService);
+  // toaster: ToastrService = inject(ToastrService);
   readonly organisationApiStore = inject(OrganisationApiStore);
   loaderMessage: Signal<string> = signal('');
   messages = linkedSignal(() => this.organisationApiStore.messages());
@@ -76,10 +83,76 @@ export class Organisations implements OnInit, OnDestroy {
   totalPages = signal(0);
   router = inject(Router);
 
-  displayedColumns: string[] = ['name', 'registrationNo', 'code', 'contactEmailAddress', 'kycStatus', 'clientStatus', 'actions'];
+  displayedColumns: string[] = ['name', 'registrationNo', 'code', 'kycStatus', 'clientStatus', 'actions'];
 
-  handlePageEvent(event: PageEvent): void {
-    this.doSearch(event.pageIndex, event.pageSize);
+  readonly kycStatusOptions: FilterOption[] = [
+    { label: 'All KYC Statuses', value: '' },
+    { label: 'Verified', value: 'kyc-current' },
+    { label: 'Pending Review', value: 'kyc-incomplete' },
+    { label: 'Flagged', value: 'kyc-failed' },
+  ];
+
+  readonly clientStatusOptions: FilterOption[] = [
+    { label: 'All Client Statuses', value: '' },
+    { label: 'Active Client', value: 'ACTIVE' },
+    { label: 'Prospect', value: 'PROSPECT' },
+    { label: 'Dormant', value: 'INACTIVE' },
+  ];
+
+  kycStatusFilter = signal<string>('');
+  clientStatusFilter = signal<string>('');
+
+  filteredOrganisations = computed(() => {
+    const kycFilter = this.kycStatusFilter();
+    const clientFilter = this.clientStatusFilter();
+
+    return this.organisations().filter((organisation) => {
+      if (kycFilter && this.kycStatusClass(organisation.kycStatus) !== kycFilter) {
+        return false;
+      }
+
+      if (clientFilter && this.getClientStatus(organisation) !== clientFilter) {
+        return false;
+      }
+
+      return true;
+    });
+  });
+
+  updateKycStatusFilter(value: string): void {
+    this.kycStatusFilter.set(value);
+  }
+
+  updateClientStatusFilter(value: string): void {
+    this.clientStatusFilter.set(value);
+  }
+
+  readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+  readonly pageNumbers = computed(() => pageWindow(this.currentPage(), this.totalPages()));
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= Math.max(this.totalPages(), 1) || page === this.currentPage()) {
+      return;
+    }
+    this.doSearch(page, this.pageSize());
+  }
+
+  changePageSize(size: string | number): void {
+    this.pageSize.set(Number(size));
+    this.doSearch(0, Number(size));
+  }
+
+  showingLabel(): string {
+    return showingRecordsLabel(
+      this.currentPage(),
+      this.pageSize(),
+      this.filteredOrganisations().length,
+      this.totalElements(),
+    );
+  }
+
+  pageReport(): string {
+    return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
   }
 
   constructor() {
@@ -87,11 +160,11 @@ export class Organisations implements OnInit, OnDestroy {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
-        this.toaster.success(messages[0]);
+        // this.toaster.success(messages[0]);
       }
 
       if (this.error() && !this.loading()) {
-        this.toaster.error(messages[0]);
+        // this.toaster.error(messages[0]);
       }
     });
 
@@ -103,11 +176,14 @@ export class Organisations implements OnInit, OnDestroy {
       }
 
       this.organisations.set(page.content || []);
-      this.dataSource.data = page.content || [];
       this.currentPage.set(page.page?.number || 0);
       this.pageSize.set(page.page?.size || 10);
       this.totalElements.set(page.page?.totalElements || 0);
       this.totalPages.set(page.page?.totalPages || 0);
+    });
+
+    effect(() => {
+      this.dataSource.data = this.filteredOrganisations();
     });
   }
 
@@ -138,6 +214,17 @@ export class Organisations implements OnInit, OnDestroy {
     return organisation.status || 'ACTIVE';
   }
 
+  clientStatusLabel(status: string): string {
+    switch (status) {
+      case 'PROSPECT':
+        return 'Prospect';
+      case 'INACTIVE':
+        return 'Dormant';
+      default:
+        return 'Active Client';
+    }
+  }
+
   openEdit(id: string): void {
     this.router.navigate(['organisation', 'edit', id]);
   }
@@ -150,13 +237,6 @@ export class Organisations implements OnInit, OnDestroy {
     this.router.navigate(['organisation', 'edit']);
   }
 
-  updateCriteria(value: string): void {
-    this.searchOrganisationsSignal.update((current) => ({
-      ...current,
-      criteria: value,
-    }));
-  }
-
   onSearchSubmit(): void {
     this.doSearch(0, this.pageSize());
   }
@@ -167,7 +247,7 @@ export class Organisations implements OnInit, OnDestroy {
   }
 
   organisationIcon(organisation: OrganisationListDTO): string {
-    if (organisation.kycStatus === 'FLAGGED' || organisation.status === 'SUSPENDED') {
+    if (this.kycStatusClass(organisation.kycStatus) === 'kyc-failed') {
       return 'warning_amber';
     }
 
@@ -179,33 +259,109 @@ export class Organisations implements OnInit, OnDestroy {
   }
 
   kycStatusClass(status: string | null | undefined): string {
-    if (status === 'FLAGGED') {
-      return 'flagged';
+    switch (status) {
+      case KycComplianceStatus.CURRENT:
+        return 'kyc-current';
+      case KycComplianceStatus.INCOMPLETE:
+        return 'kyc-incomplete';
+      case KycComplianceStatus.EXPIRED:
+      case KycComplianceStatus.ABSENT:
+      case KycComplianceStatus.DOCUMENT_VERIFICATION_FAILED:
+        return 'kyc-failed';
+      default:
+        return 'kyc-incomplete';
     }
+  }
 
-    if (status?.includes('PENDING')) {
-      return 'pending';
+  kycStatusLabel(status: string | null | undefined): string {
+    switch (this.kycStatusClass(status)) {
+      case 'kyc-current':
+        return 'Verified';
+      case 'kyc-failed':
+        return 'Flagged';
+      default:
+        return 'Pending Review';
     }
+  }
 
-    return 'verified';
+  kycStatusIcon(status: string | null | undefined): string {
+    switch (this.kycStatusClass(status)) {
+      case 'kyc-current':
+        return 'check_circle';
+      case 'kyc-failed':
+        return 'warning';
+      default:
+        return 'schedule';
+    }
   }
 
   clientStatusClass(status: string | null | undefined): string {
-    if (status === 'SUSPENDED') {
-      return 'suspended';
+    if (status === 'PROSPECT') {
+      return 'prospect';
     }
 
-    if (status === 'ONBOARDING' || status === 'PROSPECT') {
-      return 'onboarding';
+    if (status === 'INACTIVE') {
+      return 'dormant';
     }
 
     return 'active';
   }
 
-  clientCount = computed(() => this.organisations().filter(o => o.isClient).length);
+  /** Shared status-chip tone (kv-tone-*) for a KYC status. */
+  kycTone(status: string | null | undefined): string {
+    switch (this.kycStatusClass(status)) {
+      case 'kyc-current':
+        return 'kv-tone-success';
+      case 'kyc-failed':
+        return 'kv-tone-danger';
+      default:
+        return 'kv-tone-warning';
+    }
+  }
+
+  /** Shared status-chip tone (kv-tone-*) for a client status. */
+  clientTone(status: string | null | undefined): string {
+    switch (this.clientStatusClass(status)) {
+      case 'active':
+        return 'kv-tone-success';
+      case 'dormant':
+        return 'kv-tone-neutral';
+      default:
+        return 'kv-tone-info';
+    }
+  }
 
   resetSearch(): void {
     this.searchOrganisationsSignal.set(new SearchOrganisationsVarsForm());
+    this.kycStatusFilter.set('');
+    this.clientStatusFilter.set('');
     this.doSearch(0, this.pageSize());
+  }
+
+  exportOrganisations(): void {
+    const rows = this.filteredOrganisations();
+
+    if (!rows.length) {
+      // this.toaster.info('There are no organisations to export.');
+      return;
+    }
+
+    const header = ['Name', 'Registration No.', 'Code', 'KYC Status', 'Client Status'];
+    const lines = rows.map((organisation) => [
+      organisation.name || '',
+      organisation.registrationNo || '',
+      organisation.code || '',
+      this.kycStatusLabel(organisation.kycStatus),
+      this.clientStatusLabel(this.getClientStatus(organisation)),
+    ].map((value) => `"${String(value).replace(/"/g, '""')}"`).join(','));
+
+    const csv = [header.join(','), ...lines].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `organisations-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 }

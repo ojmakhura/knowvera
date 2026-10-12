@@ -5,7 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { disabled, form, FormField, required } from '@angular/forms/signals';
+import { disabled, form, FormField, required, FormRoot } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -21,7 +21,7 @@ import { KycSubscriptionApi } from '@app/services/bw/co/knowvera/subscription/ky
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { KycSubscriptionApiStore } from '@app/store/bw/co/knowvera/subscription/kyc-subscription-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import {provideNativeDateAdapter} from '@angular/material/core';
@@ -62,15 +62,15 @@ export class EditSubscriptionVarsForm {
     MatSelectModule,
     FormsModule,
     ReactiveFormsModule,
-    Loader,
     NgxMatSelectSearchModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    FormRoot,
   ]
 })
 export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
 
   organisationApiStore = inject(OrganisationApiStore);
-  toaster: ToastrService = inject(ToastrService);
+  // toaster: ToastrService = inject(ToastrService);
   readonly kycSubscriptionApi = inject(KycSubscriptionApi);
   readonly kycSubscriptionApiStore = inject(KycSubscriptionApiStore);
 
@@ -83,7 +83,7 @@ export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
     required(path.startDate, { message: 'start.date.required' })
     required(path.amount, { message: 'amount.required' });
     disabled(path.ref);
-  });
+  }, { submission: { action: async () => this.subscriptionSave() } });
 
   @Input() id: string | any;
 

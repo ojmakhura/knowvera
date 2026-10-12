@@ -1,0 +1,138 @@
+// Shared mat-table result card used by the search/list screens.
+
+.search-results-card {
+    overflow: hidden;
+    border-radius: 1rem;
+}
+
+.search-results-table-wrap {
+    overflow-x: auto;
+}
+
+.search-results-table {
+    width: 100%;
+    min-width: 56rem;
+    background: transparent;
+}
+
+.search-results-table .mat-mdc-header-row,
+.search-results-table .mat-mdc-row,
+.search-results-table .mdc-data-table__content,
+.search-results-footer .mat-mdc-paginator,
+.search-results-footer .mat-mdc-paginator-container {
+    background: transparent;
+}
+
+.search-results-table .mat-mdc-header-row {
+    background: var(--vault-surface-container-low);
+}
+
+.search-results-table .mat-mdc-header-cell {
+    border-bottom: 0;
+    padding: 1rem 1.1rem;
+    color: var(--vault-on-surface-variant);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.search-results-table .mat-mdc-cell {
+    border-bottom: 1px solid rgb(196 198 208 / 18%);
+    padding: 1rem 1.1rem;
+    vertical-align: middle;
+    color: var(--vault-on-surface);
+}
+
+.search-results-table .mat-mdc-row {
+    transition: background-color 160ms ease;
+}
+
+.search-results-table .mat-mdc-row:hover .mat-mdc-cell {
+    background: var(--vault-surface-container-low);
+}
+
+.search-results-table .mat-column-actions,
+.search-results-table .cdk-column-actions {
+    text-align: right;
+}
+
+.search-results-table .empty-row .mat-mdc-cell,
+.search-results-table .empty-row .mat-cell {
+    padding: 2rem 1.25rem;
+    text-align: center;
+    border-bottom: 0;
+}
+
+.search-results-table .empty-state {
+    display: grid;
+    place-items: center;
+    gap: 0.5rem;
+    color: var(--vault-on-surface-variant);
+    text-align: center;
+}
+
+.search-results-table .empty-state h3,
+.search-results-table .empty-state p {
+    margin: 0;
+}
+
+.search-results-table .empty-state .mat-icon,
+.search-results-table .empty-state mat-icon {
+    width: 2rem;
+    height: 2rem;
+    font-size: 2rem;
+    color: var(--vault-primary-container);
+}
+
+.search-results-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    border-top: 1px solid rgb(196 198 208 / 18%);
+    background: rgb(242 244 246 / 38%);
+}
+
+.search-results-summary {
+    margin: 0;
+    color: var(--vault-on-surface-variant);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.search-results-footer .mat-mdc-paginator-page-size-label,
+.search-results-footer .mat-mdc-paginator-range-label {
+    color: var(--vault-on-surface-variant);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.search-results-footer .mat-mdc-paginator-container {
+    min-height: auto;
+    padding: 0;
+    gap: 0.5rem;
+}
+
+.search-results-footer .mat-mdc-icon-button {
+    --mdc-icon-button-state-layer-size: 30px;
+}
+
+@media (max-width: 960px) {
+    .search-results-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .search-results-table {
+        min-width: 42rem;
+    }
+
+    .search-results-table .mat-column-actions,
+    .search-results-table .cdk-column-actions {
+        text-align: left;
+    }
+}

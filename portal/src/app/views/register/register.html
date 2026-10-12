@@ -1,187 +1,194 @@
 @if (tokenConfirmed()) {
-<div class="register-stepper" id="id-stepper">
-  <mat-horizontal-stepper #stepper [linear]="true">
+<div class="kv-page" id="id-stepper">
+  <header class="kv-page-header">
+    <div>
+      <h1 class="kv-title">Complete Registration</h1>
+      <p class="kv-subtitle">Confirm your identity and review your details to finish onboarding.</p>
+    </div>
+  </header>
+
+  <mat-horizontal-stepper #stepper [linear]="true" class="bg-transparent!">
     <mat-step [completed]="registerSignal().identificationNumber" >
       <ng-template matStepLabel>Enter identification</ng-template>
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Confirm identification number</mat-card-title>
-          <mat-card-subtitle>Please enter your identification number to complete verification.</mat-card-subtitle>
-        </mat-card-header>
+      <section class="kv-card">
+        <header class="mb-6">
+          <h2 class="kv-card-title">Confirm identification number</h2>
+          <p class="kv-subtitle">Please enter your identification number to complete verification.</p>
+        </header>
 
-        <mat-card-content>
+        <div>
 
-          <mat-form-field class="full-width">
+          <mat-form-field appearance="outline" class="vault-field">
             <mat-label>Identification Number</mat-label>
             <input matInput id="identificationNumber" [formField]="registerForm.identificationNumber"
               placeholder="Enter identification number" />
           </mat-form-field>
-        </mat-card-content>
+        </div>
 
-        <mat-card-actions class="register-stepper__actions">
-          <button mat-button matStepperPrevious>Back</button>
+        <div class="kv-actions justify-end mt-6">
+          <button type="button" class="kv-btn-secondary" matStepperPrevious>Back</button>
           @if(registerForm.identificationNumber().valid()) {
-          <button mat-raised-button color="primary" (click)="confirmIdentification(stepper)">Confirm</button>
+          <button type="button" class="kv-btn-primary" (click)="confirmIdentification(stepper)">Confirm</button>
           }
-        </mat-card-actions>
-      </mat-card>
+        </div>
+      </section>
     </mat-step>
 
     <mat-step>
       <ng-template matStepLabel>Details Confirmation</ng-template>
-      <mat-card>
+      <section class="kv-card">
           @if (individual().id) {
-        <mat-card-header>
-          <mat-card-title>Confirm Your Details</mat-card-title>
-          <mat-card-subtitle>Please review and confirm the details below</mat-card-subtitle>
-        </mat-card-header>
+        <header class="mb-6">
+          <h2 class="kv-card-title">Confirm Your Details</h2>
+          <p class="kv-subtitle">Please review and confirm the details below</p>
+        </header>
       }
 
-        <mat-card-content>
+        <div>
           @if (individual().id) {
-          <div class="details-section">
-            <h3>Individual Details</h3>
-            <div class="detail-row">
-              <span class="detail-label">Name:</span>
-              <span class="detail-value">{{individual().firstName}}{{individual().middleName ? ` ${individual().middleName} ` : ' '}}{{individual().surname}}</span>
+          <h3 class="kv-card-title mb-4">Individual Details</h3>
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div class="kv-field">
+              <dt class="kv-label">Name</dt>
+              <dd class="kv-value">{{individual().firstName}}{{individual().middleName ? ` ${individual().middleName} ` : ' '}}{{individual().surname}}</dd>
             </div>
-            <div class="detail-row">
-              <span class="detail-label">Identity Number:</span>
-              <span class="detail-value">{{individual().identityNo}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">Identity Number</dt>
+              <dd class="kv-value">{{individual().identityNo}}</dd>
             </div>
-            <div class="detail-row">
-              <span class="detail-label">Identity Type:</span>
-              <span class="detail-value">{{individual().identityType}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">Identity Type</dt>
+              <dd class="kv-value">{{individual().identityType}}</dd>
             </div>
             @if (individual().emailAddress) {
-            <div class="detail-row">
-              <span class="detail-label">Email:</span>
-              <span class="detail-value">{{individual().emailAddress}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">Email</dt>
+              <dd class="kv-value">{{individual().emailAddress}}</dd>
             </div>
             }
             @if (individual().physicalAddress) {
-            <div class="detail-row">
-              <span class="detail-label">Physical Address:</span>
-              <span class="detail-value">{{individual().physicalAddress}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">Physical Address</dt>
+              <dd class="kv-value">{{individual().physicalAddress}}</dd>
             </div>
             }
             @if (individual().phoneNumbers && individual().phoneNumbers.length > 0) {
-            <div class="detail-row">
-              <span class="detail-label">Phone:</span>
+            <div class="kv-field">
+              <dt class="kv-label">Phone</dt>
               @for (phone of individual().phoneNumbers; track $index) {
-              <span class="detail-value">{{phone.type}}: {{phone.phoneNumber}}</span>
+              <dd class="kv-value">{{phone.type}}: {{phone.phoneNumber}}</dd>
               }
             </div>
             }
             @if (individual().postalAddress) {
-            <div class="detail-row">
-              <span class="detail-label">Postal Address:</span>
-              <span class="detail-value">{{individual().postalAddress}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">Postal Address</dt>
+              <dd class="kv-value">{{individual().postalAddress}}</dd>
             </div>
             }
             @if (individual().sex) {
-            <div class="detail-row">
-              <span class="detail-label">Sex:</span>
-              <span class="detail-value">{{individual().sex}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">Sex</dt>
+              <dd class="kv-value">{{individual().sex}}</dd>
             </div>
             }
             @if (individual().nationality) {
-            <div class="detail-row">
-              <span class="detail-label">Nationality:</span>
-              <span class="detail-value">{{individual().nationality}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">Nationality</dt>
+              <dd class="kv-value">{{individual().nationality}}</dd>
             </div>
             }
             @if (individual().maritalStatus) {
-            <div class="detail-row">
-              <span class="detail-label">Marital Status:</span>
-              <span class="detail-value">{{individual().maritalStatus}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">Marital Status</dt>
+              <dd class="kv-value">{{individual().maritalStatus}}</dd>
             </div>
             }
             @if (individual().employmentStatus) {
-            <div class="detail-row">
-              <span class="detail-label">Employment Status:</span>
-              <span class="detail-value">{{individual().employmentStatus}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">Employment Status</dt>
+              <dd class="kv-value">{{individual().employmentStatus}}</dd>
             </div>
             }
             @if (individual().username) {
-            <div class="detail-row">
-              <span class="detail-label">Username:</span>
-              <span class="detail-value">{{individual().username}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">Username</dt>
+              <dd class="kv-value">{{individual().username}}</dd>
             </div>
             }
             @if (individual().organisation && individual().organisation.name) {
-            <div class="detail-row">
-              <span class="detail-label">Organisation:</span>
-              <span class="detail-value">{{individual().organisation.name}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">Organisation</dt>
+              <dd class="kv-value">{{individual().organisation.name}}</dd>
             </div>
             }
             @if (individual().branch && individual().branch.name) {
-            <div class="detail-row">
-              <span class="detail-label">Branch:</span>
-              <span class="detail-value">{{individual().branch.name}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">Branch</dt>
+              <dd class="kv-value">{{individual().branch.name}}</dd>
             </div>
             }
             @if (individual().kycStatus) {
-            <div class="detail-row">
-              <span class="detail-label">KYC Status:</span>
-              <span class="detail-value">{{individual().kycStatus}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">KYC Status</dt>
+              <dd class="kv-value">{{individual().kycStatus}}</dd>
             </div>
             }
             @if (individual().roles && individual().roles.length > 0) {
-            <div class="detail-row">
-              <span class="detail-label">Roles:</span>
-              <span class="detail-value">{{individual().roles.join(', ')}}</span>
+            <div class="kv-field">
+              <dt class="kv-label">Roles</dt>
+              <dd class="kv-value">{{individual().roles.join(', ')}}</dd>
             </div>
             }
-          </div>
+          </dl>
 
           } @else {
             @if(individualApiStore.error()) {
-              <p class="error-message">Error fetching individual details.</p>
+              <p class="kv-panel kv-tone-danger text-sm">Error fetching individual details.</p>
             } @else {
-              <p class="info-message">No details available to display.</p>
+              <p class="dp-empty-text">No details available to display.</p>
             }
           }
-        </mat-card-content>
+        </div>
 
-        <mat-card-actions class="register-stepper__actions">
-          <button mat-button matStepperPrevious>Back</button>
+        <div class="kv-actions justify-end mt-6">
+          <button type="button" class="kv-btn-secondary" matStepperPrevious>Back</button>
           @if (individual().id) {
-          <button mat-raised-button color="primary" (click)="detailsConfirmed(stepper)">Confirm</button>
+          <button type="button" class="kv-btn-primary" (click)="detailsConfirmed(stepper)">Confirm</button>
           }
-        </mat-card-actions>
-      </mat-card>
+        </div>
+      </section>
     </mat-step>
 
     <mat-step>
       <ng-template matStepLabel>Registration Confirmation</ng-template>
 
-      <mat-card>
+      <section class="kv-card">
         @if(individualDetailsConfirmed() && individual().id){
-        <mat-card-header>
-          <mat-card-title>Registration Status</mat-card-title>
-          <mat-card-subtitle>Select the status for this registration request</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="registration-status-section">
-            <mat-radio-group [formField]="registerForm.registrationStatus" class="status-radio-group">
-              <mat-radio-button [value]="ClientRequestStatus.ACCEPTED" class="status-radio-option">
-                <div class="status-option-content">
-                  <span class="status-option-title">Accept Registration</span>
-                  <span class="status-option-description">Approve and complete this registration request</span>
+        <header class="mb-6">
+          <h2 class="kv-card-title">Registration Status</h2>
+          <p class="kv-subtitle">Select the status for this registration request</p>
+        </header>
+        <div>
+          <div class="flex flex-col gap-4">
+            <mat-radio-group [formField]="registerForm.registrationStatus" class="flex flex-col gap-3">
+              <mat-radio-button [value]="ClientRequestStatus.ACCEPTED" class="status-option">
+                <div class="flex flex-col gap-1 ms-2">
+                  <span class="text-sm font-semibold text-on-surface">Accept Registration</span>
+                  <span class="text-xs text-on-surface-variant">Approve and complete this registration request</span>
                 </div>
               </mat-radio-button>
 
-              <mat-radio-button [value]="ClientRequestStatus.REJECTED" class="status-radio-option">
-                <div class="status-option-content">
-                  <span class="status-option-title">Reject Registration</span>
-                  <span class="status-option-description">Decline this registration request</span>
+              <mat-radio-button [value]="ClientRequestStatus.REJECTED" class="status-option">
+                <div class="flex flex-col gap-1 ms-2">
+                  <span class="text-sm font-semibold text-on-surface">Reject Registration</span>
+                  <span class="text-xs text-on-surface-variant">Decline this registration request</span>
                 </div>
               </mat-radio-button>
             </mat-radio-group>
 
             @if (registerSignal().registrationStatus) {
-              <div class="status-confirmation">
+              <div class="kv-panel text-sm">
                 <p>
                   <strong>Selected Status:</strong>
                   {{ registerSignal().registrationStatus === ClientRequestStatus.ACCEPTED ? 'Accepted' : 'Rejected' }}
@@ -189,34 +196,32 @@
               </div>
             }
           </div>
-        </mat-card-content>
+        </div>
         }
 
-        <mat-card-actions class="register-stepper__actions">
-          <button mat-button matStepperPrevious>Back</button>
+        <div class="kv-actions justify-end mt-6">
+          <button type="button" class="kv-btn-secondary" matStepperPrevious>Back</button>
           @if(individualDetailsConfirmed() && individual().id) {
-          <button mat-raised-button color="primary" [disabled]="!registerSignal().registrationStatus" (click)="submitRegistration()">Submit</button>
+          <button type="button" class="kv-btn-primary" [disabled]="!registerSignal().registrationStatus" (click)="submitRegistration()">Submit</button>
           }
-        </mat-card-actions>
-      </mat-card>
+        </div>
+      </section>
     </mat-step>
     <!-- } -->
   </mat-horizontal-stepper>
 </div>
 } @else {
-<div class="register-stepper__error">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>No Registration Request</mat-card-title>
-    </mat-card-header>
+<div class="kv-page max-w-2xl!">
+  <section class="kv-card">
+    <header class="mb-6">
+      <h2 class="kv-card-title">No Registration Request</h2>
+    </header>
 
-    <mat-card-content>
+    <div>
       <p>No registration request provided. Please wait for a request email with the required token to proceed with registration.</p>
 
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </section>
 </div>
 }
-<div class="loading-container">
-  <app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>
-</div>
+<app-loader [isLoading]="loading()" [size]="'medium'" [message]="loaderMessage()"></app-loader>

@@ -16,9 +16,8 @@
       <button class="btn-ghost" type="button" (click)="cancel()">Cancel Changes</button>
       <button
         class="btn-primary"
-        type="button"
+        type="submit" form="kyc-field-group-form"
         [disabled]="!groupForm().valid()"
-        (click)="save()"
       >
         <span class="material-symbols-outlined">save</span>
         {{ isEditing ? 'Save Changes' : 'Save Group' }}
@@ -28,7 +27,7 @@
 
   <!-- ─── Main ──────────────────────────────────────────────────────────── -->
   <main class="dialog-main">
-    <div class="dialog-grid">
+    <form class="dialog-grid" id="kyc-field-group-form" [formRoot]="groupForm">
 
       <!-- Left column: Group Configuration -->
       <div class="col-config">
@@ -49,8 +48,7 @@
                 class="field-input"
                 type="text"
                 placeholder="e.g., Personal Identity Verification"
-                [value]="groupSignal().label ?? ''"
-                (input)="groupSignal.update(s => ({...s, label: $any($event).target.value}))"
+                [formField]="groupForm.label"
               />
               @if (groupForm.label().errors(); as errs) {
                 <span class="field-error">{{ errs[0]?.message }}</span>
@@ -71,9 +69,7 @@
               <input
                 class="field-input"
                 type="number"
-                min="1"
-                [value]="groupSignal().position"
-                (input)="groupSignal.update(s => ({...s, position: +$any($event).target.value}))"
+                [formField]="groupForm.position"
               />
             </div>
 
@@ -84,8 +80,7 @@
                 class="field-input field-input--textarea"
                 rows="4"
                 placeholder="Briefly describe the purpose of this collection group..."
-                [value]="groupSignal().description ?? ''"
-                (input)="groupSignal.update(s => ({...s, description: $any($event).target.value}))"
+                [formField]="groupForm.description"
               ></textarea>
             </div>
 
@@ -177,7 +172,9 @@
                   type="text"
                   placeholder="Search by name or code..."
                   [ngModel]="browseQuery()"
+                  [ngModelOptions]="{ standalone: true }"
                   (ngModelChange)="browseQuery.set($event)"
+                  (keydown.enter)="$event.preventDefault()"
                   autofocus
                 />
 
@@ -219,6 +216,6 @@
         </section>
       </div>
 
-    </div>
+    </form>
   </main>
 </div>

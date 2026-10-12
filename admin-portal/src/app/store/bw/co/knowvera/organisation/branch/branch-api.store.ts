@@ -9,6 +9,7 @@ import { SearchObject } from '@app/models/search-object';
 import { Page } from '@app/models/page.model';
 import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch-dto';
 import { BranchApi } from '@app/services/bw/co/knowvera/organisation/branch/branch-api';
+import { toast } from 'ngx-sonner';
 
 export type BranchApiState = AppState<BranchDTO, BranchDTO> & {};
 
@@ -29,6 +30,7 @@ export const BranchApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const branchApi = inject(BranchApi);
+    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -39,25 +41,29 @@ export const BranchApiStore = signalStore(
           return branchApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: BranchDTO | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -71,25 +77,29 @@ export const BranchApiStore = signalStore(
           return branchApi.findByOrganisation(data.organisationId, ).pipe(
             tapResponse({
               next: (response: BranchDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -103,25 +113,29 @@ export const BranchApiStore = signalStore(
           return branchApi.findByOrganisationPaged(data.organisationId, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: BranchDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -135,25 +149,29 @@ export const BranchApiStore = signalStore(
           return branchApi.getAll().pipe(
             tapResponse({
               next: (response: BranchDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -167,25 +185,29 @@ export const BranchApiStore = signalStore(
           return branchApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<BranchDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -199,25 +221,29 @@ export const BranchApiStore = signalStore(
           return branchApi.pagedSearch(data.criteria, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<BranchDTO> | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -231,25 +257,29 @@ export const BranchApiStore = signalStore(
           return branchApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean | any) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },
@@ -263,25 +293,29 @@ export const BranchApiStore = signalStore(
           return branchApi.save(data.branch, ).pipe(
             tapResponse({
               next: (response: BranchDTO | any) => {
+                const message = 'Branch saved successfully!!';
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: ['Branch saved successfully!!'],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [error?.error?.message || 'An error occurred while saving the branch'],
+                    messages: [message],
                   }
                 );
               },
@@ -295,25 +329,29 @@ export const BranchApiStore = signalStore(
           return branchApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: BranchDTO[] | any[]) => {
+                const message = `Success!!`;
+                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [message],
                     error: false,
                   }
                 );
               },
               error: (error: any) => {
+                const message = getErrormessage(error);
+                toastr.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),
                     loading: false,
                     success: false,
                     error: true,
-                    messages: [getErrormessage(error)],
+                    messages: [message],
                   }
                 );
               },

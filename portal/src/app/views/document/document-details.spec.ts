@@ -3,7 +3,6 @@ import Keycloak from 'keycloak-js';
 
 import { DocumentDetails } from './document-details';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
-import { ToastrService } from 'ngx-toastr';
 
 describe('DocumentDetails', () => {
   let component: DocumentDetails;
@@ -19,10 +18,6 @@ describe('DocumentDetails', () => {
     findById: () => undefined,
   };
 
-  const toastrMock = {
-    success: () => undefined,
-    error: () => undefined,
-  };
 
   const keycloakMock = {
     hasRealmRole: () => false,
@@ -34,7 +29,6 @@ describe('DocumentDetails', () => {
       imports: [DocumentDetails],
       providers: [
         { provide: DocumentApiStore, useValue: documentApiStoreMock },
-        { provide: ToastrService, useValue: toastrMock },
         { provide: Keycloak, useValue: keycloakMock },
       ],
     }).compileComponents();

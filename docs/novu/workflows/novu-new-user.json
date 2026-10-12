@@ -1,0 +1,60 @@
+{
+  "workflowId": "novu-new-user",
+  "name": "New user account",
+  "description": "Welcome message for an individual whose Knowvera account was just created. Carries no credentials: Keycloak separately emails the link to set a password and verify the address.",
+  "config": "app.novu.queue.newUserNovuId (NOVU_NEW_USER_NOVU_ID)",
+  "queue": {
+    "exchange": "x.novu-new-user-queue",
+    "queue": "q.novu-new-user",
+    "routingKey": "novu-new-user"
+  },
+  "publishers": [
+    "webservice: KeycloakUserService.registerUser (individual without an organisation)",
+    "webservice: IndividualApiImpl.newUserMessage (duplicate; see README, issue 8)"
+  ],
+  "tags": ["account"],
+  "critical": true,
+  "payloadSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": true,
+    "required": ["email", "firstName", "surname", "username", "loginUrl"],
+    "properties": {
+      "email": { "type": "string", "format": "email", "description": "Recipient; also the Novu subscriberId" },
+      "firstName": { "type": "string", "description": "Given name (today: first + middle name with a trailing space)" },
+      "surname": { "type": "string" },
+      "username": { "type": "string", "description": "Keycloak username (the email address)" },
+      "loginUrl": { "type": "string", "format": "uri", "description": "Settings.kycPortalLink" },
+      "platformName": { "type": "string", "description": "Settings.platformName (to add)" },
+      "supportContact": { "type": "string", "description": "Settings.supportContact (to add)" },
+      "setupLinkValidFor": { "type": "string", "description": "e.g. \"72 hours\", from app.users.setup-link-lifespan (to add)" },
+      "currentYear": { "type": "string", "pattern": "^[0-9]{4}$" }
+    }
+  },
+  "steps": [
+    {
+      "type": "in_app",
+      "name": "welcome-in-app",
+      "subject": "Welcome to {{payload.platformName | default: 'Knowvera'}}",
+      "body": "Your account is ready. Use the link we emailed you to set your password, then complete your KYC profile.",
+      "primaryAction": { "label": "Open portal", "redirect": { "url": "{{payload.loginUrl}}", "target": "_self" } }
+    },
+    {
+      "type": "email",
+      "name": "welcome-email",
+      "subject": "Your {{payload.platformName | default: 'Knowvera'}} account is ready",
+      "bodyTemplate": "../templates/novu-new-user.email.html"
+    }
+  ],
+  "examplePayload": {
+    "email": "ann.applicant@example.com",
+    "firstName": "Ann",
+    "surname": "Applicant",
+    "username": "ann.applicant@example.com",
+    "loginUrl": "https://portal.knowvera.example",
+    "platformName": "Knowvera",
+    "supportContact": "support@knowvera.example",
+    "setupLinkValidFor": "72 hours",
+    "currentYear": "2026"
+  }
+}

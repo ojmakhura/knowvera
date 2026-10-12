@@ -294,4 +294,16 @@ public class OrganisationServiceImpl
 
     }
 
+    @Override
+    protected OrganisationListDTO handleFindListOrganisationById(String id) throws Exception {
+        
+        return organisationRepository.findListOrganisationById(UUID.fromString(id)).get();
+    }
+
+    @Override
+    protected OrganisationListDTO handleFindListOrganisationByKeycloakId(String keycloakId) throws Exception {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'handleFindListOrganisationByKeycloakId'");
+    }
+
 }

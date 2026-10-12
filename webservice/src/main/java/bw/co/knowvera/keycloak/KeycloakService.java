@@ -6,16 +6,22 @@ import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.OrganizationResource;
 import org.keycloak.admin.client.resource.OrganizationsResource;
 import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
+import jakarta.annotation.PreDestroy;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * Access to the Keycloak admin API as the registration client's service account. One admin
+ * client is shared by all requests: it is thread-safe and refreshes its own token, so calls do
+ * not each pay for a new HTTP client and a token request.
+ */
 @Component
 public class KeycloakService {
 
@@ -28,79 +34,45 @@ public class KeycloakService {
     @Value("${app.registration.client-secret}")
     private String registrationClientSecret;
 
+    private volatile Keycloak keycloak;
+
     /**
-     * Returns the JWT of the currently authenticated user
+     * The JWT of the signed-in caller, or null when the request is not authenticated with a token.
      */
     public Jwt getJwt() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if(authentication.getPrincipal() instanceof String) {
-            return null;
-        }
-
-        return (Jwt) authentication.getPrincipal();
+        return authentication != null && authentication.getPrincipal() instanceof Jwt jwt ? jwt : null;
     }
 
-    /**
-     * Creates a new Keycloak admin client for the current request JWT
-     */
-    private Keycloak createKeycloak() {
-        Jwt jwt = getJwt();
-
-        if(jwt == null) {
-            return null;
-        }
-
-        String iss = jwt.getClaimAsString("iss");  // e.g., https://auth.example.com/realms/bocraportal
-        String realm = iss.substring(iss.lastIndexOf('/') + 1);
-        String serverUrl = iss.substring(0, iss.indexOf("/realms"));
-        String clientId = jwt.getClaimAsString("azp");
-
-        return KeycloakBuilder.builder()
-                .serverUrl(serverUrl)
-                .realm(realm)
-                .clientId(clientId)
-                .authorization(jwt.getTokenValue())
-                .build();
-    }
-
-    private Keycloak createRegistrationKeycloak() {
-        String realm = issuerUri.substring(issuerUri.lastIndexOf('/') + 1);
-        String serverUrl = issuerUri.substring(0, issuerUri.indexOf("/realms"));
-
-        return KeycloakBuilder.builder()
-                .serverUrl(serverUrl)
-                .realm(realm)
-                .clientId(registrationClient)
-                .clientSecret(registrationClientSecret)
-                .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
-                .build();
-    }
-
-    public AccessTokenResponse getAccessToken() {
-
-        try (Keycloak kc = createRegistrationKeycloak()) {
-
-            if(kc == null) {
-                return null;
+    private Keycloak keycloak() {
+        Keycloak kc = keycloak;
+        if (kc == null) {
+            synchronized (this) {
+                if (keycloak == null) {
+                    keycloak = KeycloakBuilder.builder()
+                            .serverUrl(issuerUri.substring(0, issuerUri.indexOf("/realms")))
+                            .realm(realmName())
+                            .clientId(registrationClient)
+                            .clientSecret(registrationClientSecret)
+                            .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
+                            .build();
+                }
+                kc = keycloak;
             }
-
-            return kc.tokenManager().getAccessToken();
         }
+        return kc;
     }
 
-    /**
-     * Returns the Keycloak realm name for the current JWT
-     */
-    private String getRealm() {
-        Jwt jwt = getJwt();
+    private String realmName() {
+        return issuerUri.substring(issuerUri.lastIndexOf('/') + 1);
+    }
 
-        if(jwt == null) {
-            return null;
+    @PreDestroy
+    void close() {
+        Keycloak kc = keycloak;
+        if (kc != null) {
+            kc.close();
         }
-        
-        String iss = jwt.getClaimAsString("iss");
-        return iss.substring(iss.lastIndexOf('/') + 1);
     }
 
     /* =====================================================
@@ -108,46 +80,10 @@ public class KeycloakService {
        ===================================================== */
 
     /**
-     * Executes a Keycloak RealmResource operation that returns a value
+     * Runs {@code fn} against the application realm as the registration service account.
      */
-    public <T> T withRealm(Function<RealmResource, T> fn) {
-        try (Keycloak kc = createKeycloak()) {
-
-            if(kc == null) {
-                return null;
-            }
-
-            RealmResource realm = kc.realm(getRealm());
-            return fn.apply(realm);
-        }
-    }
-
     public <T> T withRegistrationRealm(Function<RealmResource, T> fn) {
-        try (Keycloak kc = createRegistrationKeycloak()) {
-
-            if(kc == null) {
-                return null;
-            }
-
-            String r = issuerUri.substring(issuerUri.lastIndexOf('/') + 1);
-            RealmResource realm = kc.realm(r);
-            return fn.apply(realm);
-        }
-    }
-
-    /**
-     * Executes a Keycloak RealmResource operation that returns void
-     */
-    public void runWithRealm(Consumer<RealmResource> fn) {
-        try (Keycloak kc = createKeycloak()) {
-
-            if(kc == null) {
-                return;
-            }
-
-            RealmResource realm = kc.realm(getRealm());
-            fn.accept(realm);
-        }
+        return fn.apply(keycloak().realm(realmName()));
     }
 
     /* =====================================================

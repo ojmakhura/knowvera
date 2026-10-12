@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 
 import { Register } from './register';
@@ -20,13 +19,6 @@ describe('Register', () => {
           useValue: {
             params: of({}),
             queryParams: of({}),
-          },
-        },
-        {
-          provide: ToastrService,
-          useValue: {
-            success: () => undefined,
-            error: () => undefined,
           },
         },
       ],

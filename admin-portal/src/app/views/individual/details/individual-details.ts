@@ -1,3 +1,4 @@
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -13,7 +14,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { EmploymentRecordDTO } from '@app/models/bw/co/knowvera/individual/employment/employment-record-dto';
 import { PhoneNumber } from '@app/models/bw/co/knowvera/phone-number';
@@ -22,7 +23,7 @@ import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individ
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { swalFire } from '@app/@shared/swal';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
 import {
   IndividualUploadDocumentDialogComponent,
@@ -32,7 +33,9 @@ import {
 @Component({
   selector: 'app-individual-details',
   imports: [
+    MatProgressBarModule,
     CommonModule,
+    RouterLink,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -48,7 +51,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
   readonly documentApi = inject(DocumentApi);
   readonly dialog = inject(MatDialog);
   readonly router = inject(Router);
-  readonly toaster = inject(ToastrService);
+  // readonly toaster = inject(ToastrService);
 
   settings = linkedSignal(() => this.settingsApiStore.data());
 
@@ -169,7 +172,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
 
   openDocumentDetails(document: DocumentDTO): void {
     if (!document?.id) {
-      this.toaster.warning('Document details are unavailable for unsaved records.');
+      // this.toaster.warning('Document details are unavailable for unsaved records.');
       return;
     }
 
@@ -178,7 +181,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
 
   openDocumentEdit(document: DocumentDTO): void {
     if (!document?.id) {
-      this.toaster.warning('Cannot edit a document without an id.');
+      // this.toaster.warning('Cannot edit a document without an id.');
       return;
     }
 
@@ -187,7 +190,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
 
   deleteDocument(document: DocumentDTO): void {
     if (!document?.id) {
-      this.toaster.warning('Cannot delete a document without an id.');
+      // this.toaster.warning('Cannot delete a document without an id.');
       return;
     }
 
@@ -206,7 +209,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
 
       this.documentApi.remove(document.id).subscribe({
         next: () => {
-          this.toaster.success('Document deleted successfully.');
+          // this.toaster.success('Document deleted successfully.');
 
           this.individual.update((current) => {
             const nextDocuments = (current.latestKyc?.documents || []).filter((doc: DocumentDTO) => doc.id !== document.id);
@@ -220,7 +223,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
         },
         error: (error: any) => {
           const message = error?.error?.message || 'Failed to delete document.';
-          this.toaster.error(message);
+          // this.toaster.error(message);
         },
       });
     });
@@ -231,7 +234,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
     const targetId = individual.id || this.id;
 
     if (!targetId) {
-      this.toaster.warning('Cannot add a document until the individual record has been loaded.');
+      // this.toaster.warning('Cannot add a document until the individual record has been loaded.');
       return;
     }
 
@@ -254,12 +257,12 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
         .subscribe({
           next: () => {
             this.loading.set(false);
-            this.toaster.success('Document uploaded successfully.');
+            // this.toaster.success('Document uploaded successfully.');
             this.individualApiStore.findById({ id: targetId });
           },
           error: (error: any) => {
             const message = error?.error?.message || 'Failed to upload document.';
-            this.toaster.error(message);
+            // this.toaster.error(message);
           },
         });
     });
@@ -273,5 +276,74 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
   recordHash(): string {
     const base = this.individual().id || this.individual().identityNo || 'record';
     return `${String(base).slice(0, 4)}...${String(base).slice(-8)}`;
+  }
+
+  initials(): string {
+    const individual = this.individual();
+    const first = (individual.firstName || '').trim();
+    const last = (individual.surname || '').trim();
+
+    if (!first && !last) {
+      return 'IN';
+    }
+
+    return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase() || first.slice(0, 2).toUpperCase();
+  }
+
+  formatEnum(value: string | null | undefined): string {
+    if (!value) {
+      return 'Not available';
+    }
+
+    return value
+      .toLowerCase()
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  documentStatusClass(status: string | null | undefined): string {
+    switch (status) {
+      case 'VERIFIED':
+        return 'verified';
+      case 'REJECTED':
+        return 'rejected';
+      case 'MANUAL_REVIEW':
+      case 'IN_PROGRESS':
+        return 'review';
+      default:
+        return 'pending';
+    }
+  }
+
+  /** Shared details-page pill tone (dp-pill is-*) for a KYC status. */
+  kycTone(status: string | null | undefined): string {
+    switch (status) {
+      case 'CURRENT':
+        return 'is-success';
+      case 'INCOMPLETE':
+        return 'is-warning';
+      default:
+        return 'is-danger';
+    }
+  }
+
+  /** Shared details-page pill tone (dp-pill is-*) for a document verification status. */
+  documentTone(status: string | null | undefined): string {
+    switch (status) {
+      case 'VERIFIED':
+        return 'is-success';
+      case 'REJECTED':
+        return 'is-danger';
+      case 'MANUAL_REVIEW':
+      case 'IN_PROGRESS':
+        return 'is-info';
+      default:
+        return 'is-warning';
+    }
+  }
+
+  isEmploymentCurrent(record: EmploymentRecordDTO): boolean {
+    return !record.employmentEnd;
   }
 }

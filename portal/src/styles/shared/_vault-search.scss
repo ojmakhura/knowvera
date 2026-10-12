@@ -1,0 +1,435 @@
+@use 'ui';
+
+// Search/list page in the "vault search" design, shared by the registry screens (documents, document
+// types, organisations, individuals). The criteria form uses the global edit-page primitives
+// (kv-card, kv-field, vault-field); this partial styles the results table, numbered pager and the
+// visual-vault cards.
+//
+//   @use '../../../styles/shared/vault-search';
+//   @include vault-search.styles;
+//
+// Markup outline:
+//   section.vs-results
+//     .vs-results-head > h2.vs-results-title + span.vs-count
+//     .vs-table-wrap > table.vs-table
+//       td > .vs-file > (mat-icon.vs-file-icon | span.vs-avatar) + .vs-file-copy > button.vs-file-name + p.vs-file-meta
+//       td > span.vs-status.status-{verified,pending,flagged,unverified} (or a kv-tone-* class)
+//       td > .vs-row-actions > button.vs-action(.is-danger)
+//       helpers: .vs-mono, .vs-strong, .vs-nowrap, .align-center, .align-end
+//     .vs-results-foot > .vs-page-report(.vs-page-size) + nav.vs-pager(.vs-page-arrow, .vs-page-btn.is-active)
+//   section.vs-vault > .vs-vault-card.vs-vault-{storage,logs,identity} > mat-icon.vs-vault-art + .vs-vault-copy
+
+$ghost-border: 1px solid color-mix(in oklab, var(--outline-variant) 35%, transparent);
+$radius-xl: 0.5rem;
+$radius-lg: 0.375rem;
+
+@mixin styles {
+	:host {
+		display: block;
+	}
+
+	// ------------------------------------------------------------ results
+	.vs-results {
+		overflow: hidden;
+		border: $ghost-border;
+		border-radius: $radius-xl;
+		background: var(--surface-container-lowest);
+	}
+
+	.vs-results-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 1.5rem 2rem;
+		border-bottom: 1px solid var(--surface-container);
+	}
+
+	.vs-results-title {
+		margin: 0;
+		font-size: 1.125rem;
+		line-height: 1.75rem;
+		font-weight: 700;
+		letter-spacing: -0.025em;
+		text-transform: uppercase;
+		color: var(--primary);
+	}
+
+	.vs-count {
+		padding: 0.25rem 0.75rem;
+		border-radius: 999px;
+		background: var(--surface-container);
+		font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+		font-size: 0.75rem;
+		line-height: 1rem;
+		color: var(--on-surface-variant);
+	}
+
+	.vs-table-wrap {
+		overflow-x: auto;
+	}
+
+	.vs-table {
+		width: 100%;
+		min-width: 48rem;
+		border-collapse: collapse;
+		text-align: left;
+
+		th {
+			padding: 1rem 2rem;
+			background: var(--surface-container-low);
+			font-size: 0.75rem;
+			line-height: 1rem;
+			font-weight: 700;
+			letter-spacing: 0.1em;
+			text-transform: uppercase;
+			white-space: nowrap;
+			color: var(--on-surface-variant);
+		}
+
+		td {
+			padding: 1.25rem 2rem;
+			border-top: 1px solid var(--surface-container);
+			font-size: 0.875rem;
+			line-height: 1.25rem;
+			color: var(--on-surface-variant);
+			vertical-align: middle;
+		}
+
+		tbody tr {
+			transition: background-color 150ms ease;
+
+			&:hover {
+				background: var(--surface-container-high);
+			}
+		}
+
+		.align-center {
+			text-align: center;
+		}
+
+		.align-end {
+			text-align: right;
+		}
+	}
+
+	.vs-file {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-width: 0;
+	}
+
+	.mat-icon.vs-file-icon {
+		flex-shrink: 0;
+		color: var(--on-primary-container);
+
+		&.is-danger {
+			color: var(--error);
+		}
+	}
+
+	// Initials avatar in place of the row icon (people).
+	.vs-avatar {
+		display: grid;
+		flex-shrink: 0;
+		place-items: center;
+		width: 2rem;
+		height: 2rem;
+		border-radius: 999px;
+		background: var(--primary-fixed);
+		font-size: 0.75rem;
+		font-weight: 700;
+		color: var(--on-primary-fixed-variant);
+	}
+
+	.vs-mono {
+		font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+		white-space: nowrap;
+	}
+
+	.vs-strong {
+		margin: 0;
+		font-weight: 500;
+		color: var(--on-surface);
+	}
+
+	.vs-nowrap {
+		white-space: nowrap;
+	}
+
+	.vs-file-copy {
+		min-width: 0;
+	}
+
+	.vs-file-name {
+		display: block;
+		max-width: 100%;
+		overflow: hidden;
+		padding: 0;
+		border: 0;
+		background: none;
+		text-align: left;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font: inherit;
+		font-size: 0.9375rem;
+		font-weight: 500;
+		color: var(--on-surface);
+		cursor: pointer;
+
+		&:hover {
+			color: var(--primary);
+			text-decoration: underline;
+		}
+	}
+
+	.vs-file-meta {
+		margin: 0.125rem 0 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-size: 0.75rem;
+		line-height: 1rem;
+		color: var(--outline);
+	}
+
+	// Status pill: tiny uppercase label with an inset ring.
+	.vs-status {
+		display: inline-block;
+		padding: 0.25rem 0.75rem;
+		border-radius: 999px;
+		font-size: 0.625rem;
+		line-height: 0.875rem;
+		font-weight: 700;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		white-space: nowrap;
+		// Colour comes from a status-* modifier or a global kv-tone-* class.
+		--ring: color-mix(in oklab, currentColor 20%, transparent);
+		box-shadow: inset 0 0 0 1px var(--ring);
+
+		&.status-verified {
+			--ring: color-mix(in oklab, var(--emerald) 25%, transparent);
+			background: color-mix(in oklab, var(--emerald) 12%, transparent);
+			color: var(--emerald-dark);
+		}
+
+		&.status-pending {
+			--ring: #fed7aa;
+			background: #ffedd5;
+			color: #9a3412;
+		}
+
+		&.status-flagged {
+			--ring: color-mix(in oklab, var(--error) 20%, transparent);
+			background: var(--error-container);
+			color: var(--on-error-container);
+		}
+
+		&.status-unverified {
+			--ring: color-mix(in oklab, var(--outline) 25%, transparent);
+			background: var(--surface-container);
+			color: var(--on-surface-variant);
+		}
+	}
+
+	.vs-row-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.5rem;
+	}
+
+	.vs-action {
+		display: grid;
+		place-items: center;
+		padding: 0.5rem;
+		border: 0;
+		border-radius: $radius-lg;
+		background: none;
+		color: var(--on-surface-variant);
+		cursor: pointer;
+		transition: background-color 150ms ease, color 150ms ease;
+
+		.mat-icon {
+			@include ui.icon-size(1.25rem);
+		}
+
+		&:hover {
+			background: var(--surface-container-lowest);
+			color: var(--primary);
+		}
+
+		&.is-danger:hover {
+			color: var(--error);
+		}
+	}
+
+	.vs-empty td {
+		padding-block: 3rem;
+		text-align: center;
+
+		.mat-icon {
+			color: var(--outline);
+		}
+
+		p {
+			margin: 0.5rem 0 0;
+		}
+	}
+
+	// ------------------------------------------------------------ pagination
+	.vs-results-foot {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 1rem 2rem;
+		background: var(--surface-container-low);
+	}
+
+	.vs-page-report {
+		display: flex;
+		align-items: center;
+		gap: 1.25rem;
+		font-size: 0.75rem;
+		font-weight: 500;
+		color: var(--on-surface-variant);
+	}
+
+	.vs-page-size {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+
+		select {
+			padding: 0.25rem 2rem 0.25rem 0.5rem;
+			border: 0;
+			border-radius: $radius-lg;
+			background-color: var(--surface-container-lowest);
+			font-size: 0.75rem;
+			color: var(--on-surface);
+		}
+	}
+
+	.vs-pager {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
+
+	.vs-page-arrow,
+	.vs-page-btn {
+		border: 0;
+		border-radius: 0.25rem;
+		background: none;
+		font-family: inherit;
+		color: var(--on-surface);
+		cursor: pointer;
+		transition: background-color 150ms ease;
+
+		&:hover:not(:disabled):not(.is-active) {
+			background: var(--surface-container-highest);
+		}
+	}
+
+	.vs-page-arrow {
+		display: grid;
+		place-items: center;
+		padding: 0.5rem;
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+	}
+
+	.vs-page-btn {
+		min-width: 1.75rem;
+		padding: 0.25rem 0.75rem;
+		font-size: 0.75rem;
+		font-weight: 700;
+
+		&.is-active {
+			background: var(--primary);
+			color: var(--on-primary);
+			cursor: default;
+		}
+	}
+
+	// ------------------------------------------------------------ visual vault
+	.vs-vault {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.5rem;
+		margin-top: 3rem;
+
+		@media (min-width: 768px) {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+
+	.vs-vault-card {
+		position: relative;
+		display: flex;
+		align-items: flex-end;
+		height: 12rem;
+		overflow: hidden;
+		padding: 1.5rem;
+		border: $ghost-border;
+		border-radius: $radius-xl;
+		background: linear-gradient(135deg, var(--primary-container), var(--primary));
+
+		// Bottom-up scrim, as over the design's photography.
+		&::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: linear-gradient(to top, color-mix(in oklab, var(--primary) 80%, transparent), transparent);
+		}
+
+		&.vs-vault-logs {
+			background: linear-gradient(135deg, var(--on-primary-fixed-variant), var(--primary));
+		}
+
+		&.vs-vault-identity {
+			background: linear-gradient(135deg, var(--surface-tint), var(--primary-container));
+		}
+
+		&:hover .vs-vault-art {
+			transform: scale(1.1) rotate(-4deg);
+		}
+	}
+
+	.mat-icon.vs-vault-art {
+		@include ui.icon-size(9rem);
+		position: absolute;
+		top: -1rem;
+		right: -1rem;
+		color: var(--primary-fixed-dim);
+		opacity: 0.18;
+		transition: transform 500ms ease;
+	}
+
+	.vs-vault-copy {
+		position: relative;
+		z-index: 1;
+
+		h3 {
+			margin: 0;
+			font-size: 1.125rem;
+			line-height: 1.375rem;
+			font-weight: 700;
+			color: #fff;
+		}
+
+		p {
+			margin: 0.25rem 0 0;
+			font-size: 0.75rem;
+			line-height: 1rem;
+			color: var(--primary-fixed-dim);
+		}
+	}
+}

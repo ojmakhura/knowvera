@@ -11,7 +11,7 @@ services:
         condition: on-failure
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.knowvera-portal.rule=Host(`knowvera.roguedev.local`)"
+        - "traefik.http.routers.knowvera-portal.rule=Host(`knowvera.example.com`)"
         - "traefik.http.routers.knowvera-portal.entrypoints=websecure"
         - "traefik.http.routers.knowvera-portal.tls=true"
         - "traefik.http.services.knowvera-portal.loadbalancer.server.port=80"

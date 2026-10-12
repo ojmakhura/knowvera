@@ -13,7 +13,7 @@ import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/cli
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
 import { IndividualListDTO } from '@app/models/bw/co/knowvera/individual/individual-list-dto';
-import { form, FormField } from '@angular/forms/signals';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { required } from '@angular/forms/signals';
 import { ClientRequestApiStore } from '@app/store/bw/co/knowvera/organisation/client/client-request-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
@@ -21,7 +21,7 @@ import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individ
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { IndividualIdentityType } from '@app/models/bw/co/knowvera/individual/individual-identity-type';
 import { ClientRequestDTO } from '@app/models/bw/co/knowvera/organisation/client/client-request-dto';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { SearchObject } from '@app/models/search-object';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
 import { IndividualSearchCriteria } from '@app/models/bw/co/knowvera/individual/individual-search-criteria';
@@ -67,8 +67,9 @@ export class EditClientRequestForm {
     FormField,
     NgxMatSelectSearchModule,
     TranslateModule,
-    RouterLink
-]
+    RouterLink,
+    FormRoot,
+  ]
 })
 export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
   
@@ -99,7 +100,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
   editClientRequestForm = form(this.editClientRequestSignal, (path) => {
     required(path.status, { message: 'status.required' })
     required(path.target, { message: 'target.entity.required' })
-  });
+  }, { submission: { action: async () => this.saveChanges() } });
 
   loading = computed(
     () => this.clientRequestApiStore.loading() ||
@@ -131,7 +132,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
   IndividualIdentityTypeT: any = IndividualIdentityType;
   IndividualIdentityTypeOptions = Object.keys(this.IndividualIdentityTypeT);
 
-  toastr = inject(ToastrService);
+  // toastr = inject(ToastrService);
 
   constructor() {
     effect(() => {
@@ -144,11 +145,11 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
-        this.toastr.success(messages[0]);
+        // this.toastr.success(messages[0]);
       }
 
       if (this.error() && !this.loading()) {
-        this.toastr.error(messages[0]);
+        // this.toastr.error(messages[0]);
       }
     })
 

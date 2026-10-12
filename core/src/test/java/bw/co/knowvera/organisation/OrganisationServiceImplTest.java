@@ -68,14 +68,12 @@ class OrganisationServiceImplTest {
         Organisation organisation = Organisation.Factory.newInstance();
         OrganisationDTO expected = new OrganisationDTO();
 
-        when(organisationRepository.getReferenceById(id)).thenReturn(organisation);
-        when(organisationRepository.save(organisation)).thenReturn(organisation);
+        when(organisationRepository.findById(id)).thenReturn(Optional.of(organisation));
         when(organisationMapper.toOrganisationDTO(organisation)).thenReturn(expected);
 
         OrganisationDTO actual = service.findById(id.toString());
 
         assertSame(expected, actual);
-        verify(organisationRepository).save(organisation);
     }
 
     @Test

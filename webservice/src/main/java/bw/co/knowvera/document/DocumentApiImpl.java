@@ -5,6 +5,14 @@
 //
 package bw.co.knowvera.document;
 
+import java.util.ArrayList;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import bw.co.knowvera.auth.CurrentCaller;
+import java.nio.charset.StandardCharsets;
+import org.springframework.http.ContentDisposition;
+import bw.co.knowvera.auth.Permissions;
+import bw.co.knowvera.auth.RequiresOwnership;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -61,9 +69,12 @@ public class DocumentApiImpl implements DocumentApi {
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
 
+    private final CurrentCaller currentCaller;
+
     public DocumentApiImpl(DocumentService documentService, RabbitTemplate rabbitTemplate, MinioService minioService,
             DocumentProcessorService documentProcessor, GeminiTextExtractionProcessor geminiTextExtractionProcessor,
-            RabbitProperties rabbitProperties, DocumentQueueProcessor documentQueueProcessor) {
+            RabbitProperties rabbitProperties, DocumentQueueProcessor documentQueueProcessor, CurrentCaller currentCaller) {
+        this.currentCaller = currentCaller;
 
         this.documentService = documentService;
         this.minioService = minioService;
@@ -86,6 +97,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Find Document by ID", description = "Get the document with the given id")
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "documents:view", target = "DOCUMENT", id = "#id")
     public ResponseEntity<DocumentDTO> findById(String id) {
 
         logger.debug("Finding document with id: {}", id);
@@ -95,6 +107,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Find Documents by Target", description = "Get the documents with the given target entity and target id")
     @Audit(entity = "DOCUMENT", eventLabel = "#target + ' ' + #targetId", logData = false)
+    @RequiresOwnership(scope = "documents:list", target = "#target", id = "#targetId")
     public ResponseEntity<List<DocumentListDTO>> findByTarget(
             bw.co.knowvera.TargetEntity target, String targetId) {
 
@@ -123,6 +136,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Remove Document", description = "Remove the document with the given id")
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "documents:delete", target = "DOCUMENT", id = "#id")
     public ResponseEntity<Boolean> remove(String id) {
 
         logger.debug("Removing document with id: {}", id);
@@ -149,11 +163,23 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Save Document", description = "Save the document")
     @Audit(entity = "DOCUMENT", eventLabel = "#document.fileName", logData = true)
+    @RequiresOwnership(scope = "documents:edit", target = "#document.target", id = "#document.targetId", record = "DOCUMENT", recordId = "#document.id")
     public ResponseEntity<DocumentDTO> save(DocumentDTO document) {
 
         logger.debug("Saving document with fileName: {}", document.getFileName());
+        DocumentDTO stored = findStored(document.getId());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        AuditTracker.auditTrail(document, authentication);
+        AuditTracker.auditTrail(document, stored, authentication);
+
+        if (!Permissions.has("documents:verify")) {
+            // The stored file and the verification results are set by the platform: callers who
+            // cannot verify documents must not repoint a document at another file or fake results
+            document.setUrl(stored != null ? stored.getUrl() : null);
+            document.setValidationResults(stored != null ? stored.getValidationResults() : null);
+            document.setExtractedInformation(stored != null ? stored.getExtractedInformation() : null);
+            document.setDataVerifications(stored != null ? stored.getDataVerifications() : null);
+            document.setDataComparisons(stored != null ? stored.getDataComparisons() : null);
+        }
         return ResponseEntity.ok(documentService.save(document));
 
     }
@@ -169,12 +195,24 @@ public class DocumentApiImpl implements DocumentApi {
 
     }
 
+    private DocumentDTO findStored(String id) {
+
+        if (StringUtils.isBlank(id)) {
+            return null;
+        }
+        try {
+            return documentService.findById(id);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private String constructFilePath(TargetEntity target, String targetId, String purpose, String fileName) {
         StringBuilder filePath = new StringBuilder();
         filePath.append(target).append("/").append(targetId);
 
         if (StringUtils.isNotBlank(purpose)) {
-            filePath.append("/").append(purpose);
+            filePath.append("/").append(UploadValidator.safeName(purpose));
         }
 
         filePath.append("/").append(fileName);
@@ -198,10 +236,14 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Upload Document", description = "Upload a document for the given target entity and target id")
     @Audit(entity = "DOCUMENT", eventLabel = "#target + ' ' + #targetId", logData = false)
+    @RequiresOwnership(scope = "documents:submit", target = "#target", id = "#targetId")
     public ResponseEntity<DocumentDTO> upload(TargetEntity target, String targetId,
             String documentTypeId, String purpose, MultipartFile file) {
 
         logger.debug("Uploading document for target: {}, targetId: {}, documentTypeId: {}, purpose: {}, fileName: {}", target, targetId, documentTypeId, purpose, file.getOriginalFilename());
+        UploadValidator.validate(file, UploadValidator.DOCUMENT_TYPES);
+        String fileName = UploadValidator.safeName(file.getOriginalFilename());
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) authentication.getPrincipal();
 
@@ -214,7 +256,7 @@ public class DocumentApiImpl implements DocumentApi {
         document.setCreatedBy(username);
         document.setTarget(target);
         document.setTargetId(targetId);
-        document.setFileName(file.getOriginalFilename());
+        document.setFileName(fileName);
 
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("fileSize", file.getSize());
@@ -223,7 +265,7 @@ public class DocumentApiImpl implements DocumentApi {
 
         document.setMetadata(metadata);
 
-        String filePath = constructFilePath(target, targetId, purpose, file.getOriginalFilename());
+        String filePath = constructFilePath(target, targetId, purpose, fileName);
         try {
             document.setUrl(uploadToMinio(file, filePath));
         } catch (Exception e) {
@@ -259,6 +301,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Download Document", description = "Download the document with the given id")
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "documents:export", target = "DOCUMENT", id = "#id")
     public ResponseEntity<InputStreamResource> downloadFile(String id) {
 
         logger.debug("Downloading document with id: {}", id);
@@ -287,7 +330,10 @@ public class DocumentApiImpl implements DocumentApi {
         logger.debug("Downloading a document with url: {}", objectName);
         InputStreamResource data = downloadFromMinio(objectName);
         ResponseEntity<InputStreamResource> response = ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + objectName + "\"")
+                // Built by ContentDisposition so the object name cannot break out of the header value
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(objectName.substring(objectName.lastIndexOf('/') + 1), StandardCharsets.UTF_8)
+                        .build().toString())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(data);
 
@@ -298,6 +344,7 @@ public class DocumentApiImpl implements DocumentApi {
     @Override
     @Operation(summary = "Update Document", description = "Update the document with the given id")
     @Audit(entity = "DOCUMENT", eventLabel = "#id", logData = true)
+    @RequiresOwnership(scope = "documents:edit", target = "DOCUMENT", id = "#id")
     public ResponseEntity<DocumentDTO> updateDocument(String id, MultipartFile file) throws Exception {
 
         logger.debug("Updating document with id: {}", id);
@@ -306,10 +353,8 @@ public class DocumentApiImpl implements DocumentApi {
             throw new IllegalArgumentException("Document not found with id: " + id);
         }
 
-        String fileName = file.getOriginalFilename();
-        if (fileName == null || fileName.isBlank()) {
-            throw new IllegalArgumentException("Uploaded file must have a name");
-        }
+        UploadValidator.validate(file, UploadValidator.DOCUMENT_TYPES);
+        String fileName = UploadValidator.safeName(file.getOriginalFilename());
 
         String filePath;
         if (StringUtils.isNotBlank(document.getUrl())) {
@@ -364,18 +409,33 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", logData = false)
     public ResponseEntity<Page<DocumentListDTO>> findMyDocumentsPaged(TargetEntity target, @Nullable Integer pageNumber,
             @Nullable Integer pageSize) throws Exception {
+
         logger.debug("Finding my documents paged with target: {}, pageNumber: {}, pageSize: {}", target, pageNumber, pageSize);
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByDocumentsPaged'");
+        List<DocumentListDTO> documents = myDocuments(target);
+        PageRequest page = PageRequest.of(pageNumber == null || pageNumber < 0 ? 0 : pageNumber,
+                pageSize == null || pageSize < 1 ? 10 : pageSize);
+        int from = (int) Math.min(page.getOffset(), documents.size());
+        int to = Math.min(from + page.getPageSize(), documents.size());
+        return ResponseEntity.ok(new PageImpl<>(documents.subList(from, to), page, documents.size()));
     }
 
     @Override
     @Operation(summary = "Find My Documents", description = "Find documents for the current user based on the given criteria")
     @Audit(entity = "DOCUMENT", logData = false)
     public @Nullable ResponseEntity<List<DocumentListDTO>> findMyDocuments(TargetEntity target) throws Exception {
+
         logger.debug("Finding my documents with target: {}", target);
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findMyDocuments'");
+        return ResponseEntity.ok(myDocuments(target));
+    }
+
+    /** Documents attached to the records the caller owns (all supported kinds when target is null). */
+    private List<DocumentListDTO> myDocuments(TargetEntity target) {
+
+        List<DocumentListDTO> documents = new ArrayList<>();
+        for (CurrentCaller.Owned owned : currentCaller.owned(target)) {
+            documents.addAll(documentService.findByTarget(owned.target(), owned.id()));
+        }
+        return documents;
     }
 
     @Override

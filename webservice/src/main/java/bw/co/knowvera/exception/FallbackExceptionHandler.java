@@ -7,19 +7,75 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
 import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Last-resort handlers. Spring MVC's own client errors (malformed JSON, missing parameters or
+ * file parts, wrong types, oversized uploads, ...) keep their 4xx status through
+ * {@link ResponseEntityExceptionHandler}; without it the generic handler below made them 500s.
+ */
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
-public class FallbackExceptionHandler {
+public class FallbackExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FallbackExceptionHandler.class);
+
+    /**
+     * @PreAuthorize and ownership (@RequiresOwnership) denials. Without this the generic
+     * handler below would turn them into a 500.
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ProblemDetail> handleAccessDenied(
+            AccessDeniedException ex, WebRequest request) {
+
+        LOGGER.debug("Access denied for request [{}]: {}",
+                request.getDescription(false), ex.getMessage());
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.FORBIDDEN,
+                "You do not have permission to perform this action."
+        );
+        problemDetail.setType(URI.create("forbidden"));
+        problemDetail.setTitle("FORBIDDEN");
+        problemDetail.setInstance(URI.create(
+                request.getDescription(false).replace("uri=", "")
+        ));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("errors", List.of());
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(problemDetail);
+    }
+
+    /**
+     * Exceptions that carry their own HTTP status (e.g. 400 for invalid input). Without this the
+     * generic handler below would turn them into a 500.
+     */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ProblemDetail> handleResponseStatus(
+            ResponseStatusException ex, WebRequest request) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(ex.getStatusCode(), ex.getReason());
+        problemDetail.setInstance(URI.create(
+                request.getDescription(false).replace("uri=", "")
+        ));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("errors", List.of());
+
+        return ResponseEntity
+                .status(ex.getStatusCode())
+                .body(problemDetail);
+    }
 
     /**
      * Fallback handler for any other unexpected exception, so clients never

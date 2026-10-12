@@ -1,0 +1,65 @@
+{
+  "workflowId": "novu-new-kyc-record",
+  "name": "KYC record opened (proposed)",
+  "description": "PROPOSED: nothing publishes to this queue yet and its listener does not trigger Novu. Tells the subject of a KYC record (applicant, or organisation contact) that a record was opened and what to do next. Only non-sensitive fields: no identity numbers, screening results or risk ratings.",
+  "config": "app.novu.queue.newKycRecordNovuId (NOVU_NEW_KYC_RECORD_NOVU_ID)",
+  "queue": {
+    "exchange": "x.novu-new-kyc-record-queue",
+    "queue": "q.novu-new-kyc-record",
+    "routingKey": "novu-new-kyc-record"
+  },
+  "publishers": [
+    "none yet: proposed in KycRecordServiceImpl after a new record is saved"
+  ],
+  "tags": ["kyc"],
+  "critical": false,
+  "payloadSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": true,
+    "required": ["email", "recipientName", "reference", "recordUrl"],
+    "properties": {
+      "email": { "type": "string", "format": "email", "description": "Recipient; also the Novu subscriberId" },
+      "firstName": { "type": "string" },
+      "surname": { "type": "string" },
+      "recipientName": { "type": "string", "description": "Person, or organisation contact, the record is about" },
+      "subjectType": { "type": "string", "enum": ["INDIVIDUAL", "ORGANISATION"] },
+      "reference": { "type": "string", "description": "KYC record reference shown to the user" },
+      "organisationName": { "type": "string", "description": "Requesting organisation, when there is one" },
+      "status": { "type": "string", "description": "Readable record status, e.g. \"Documents required\"" },
+      "recordUrl": { "type": "string", "format": "uri", "description": "<kycPortalLink>/kyc-record/<id>; requires sign-in" },
+      "platformName": { "type": "string" },
+      "supportContact": { "type": "string" },
+      "currentYear": { "type": "string", "pattern": "^[0-9]{4}$" }
+    }
+  },
+  "steps": [
+    {
+      "type": "in_app",
+      "name": "kyc-record-in-app",
+      "subject": "KYC record {{payload.reference}} opened",
+      "body": "{% if payload.organisationName %}{{payload.organisationName}} has opened{% else %}We have opened{% endif %} KYC record {{payload.reference}} for you. Status: {{payload.status | default: 'in progress'}}.",
+      "primaryAction": { "label": "View record", "redirect": { "url": "{{payload.recordUrl}}", "target": "_self" } }
+    },
+    {
+      "type": "email",
+      "name": "kyc-record-email",
+      "subject": "Your KYC record {{payload.reference}} has been opened",
+      "bodyTemplate": "../templates/novu-new-kyc-record.email.html"
+    }
+  ],
+  "examplePayload": {
+    "email": "ann.applicant@example.com",
+    "firstName": "Ann",
+    "surname": "Applicant",
+    "recipientName": "Ann Applicant",
+    "subjectType": "INDIVIDUAL",
+    "reference": "KYC-2026-000123",
+    "organisationName": "Example Holdings (Pty) Ltd",
+    "status": "Documents required",
+    "recordUrl": "https://portal.knowvera.example/kyc-record/0192f3c4-0000-7000-8000-000000000001",
+    "platformName": "Knowvera",
+    "supportContact": "support@knowvera.example",
+    "currentYear": "2026"
+  }
+}

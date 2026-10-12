@@ -4,7 +4,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { DocumentTypeComponent } from './document-type';
 
 type DocumentTypePage = {
@@ -116,14 +116,8 @@ describe('DocumentTypeComponent', () => {
     ]);
   });
 
-  it('should update criteria from input event', () => {
-    const event = {
-      target: {
-        value: 'passport',
-      },
-    } as unknown as Event;
-
-    component.onCriteriaInput(event);
+  it('should update criteria through the search form', () => {
+    component.searchDocumentTypesForm.criteria().value.set('passport');
 
     expect(component.searchDocumentTypesSignal().criteria).toBe('passport');
   });
@@ -163,15 +157,21 @@ describe('DocumentTypeComponent', () => {
     ]);
   });
 
-  it('should update page size and request a new page on paginator event', () => {
-    component.onPageChange({
-      pageIndex: 3,
-      pageSize: 50,
-      length: 120,
-      previousPageIndex: 2,
-    });
+  it('should update page size and request pages from the pager', () => {
+    component.changePageSize('50');
 
     expect(component.pageSize()).toBe(50);
+    expect(mockDocumentTypeApiStore.pagedSearch.calls).toContainEqual([
+      {
+        criteria: '',
+        pageNumber: 0,
+        pageSize: 50,
+      },
+    ]);
+
+    component.totalPages.set(5);
+    component.goToPage(3);
+
     expect(mockDocumentTypeApiStore.pagedSearch.calls).toContainEqual([
       {
         criteria: '',

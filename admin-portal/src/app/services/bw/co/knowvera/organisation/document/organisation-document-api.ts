@@ -13,7 +13,7 @@ import { OrganisationDocumentSearchCriteria } from '@app/models/bw/co/knowvera/o
 })
 export class OrganisationDocumentApi {
 
-    protected path = '/organisation/document/type';
+    protected path = '/organisation-document-types';
 
     private http = inject(HttpClient);
 
@@ -44,7 +44,7 @@ export class OrganisationDocumentApi {
 
     public getAll(): Observable<OrganisationDocumentDTO[] | any[]> {
 
-        return this.http.get<OrganisationDocumentDTO[] | any[]>(`${this.path}`);
+        return this.http.get<OrganisationDocumentDTO[] | any[]>(`${this.path}/all`);
     }
 
     public getAllPaged(pageNumber: number | any , pageSize: number | any ): Observable<Page<OrganisationDocumentDTO> | any> {

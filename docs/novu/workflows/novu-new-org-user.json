@@ -1,0 +1,63 @@
+{
+  "workflowId": "novu-new-org-user",
+  "name": "New organisation user account",
+  "description": "Tells a person their organisation has made them a user (today: the organisation manager) on Knowvera. Carries no credentials: Keycloak separately emails the link to set a password and verify the address.",
+  "config": "app.novu.queue.newOrgUserNovuId (NOVU_NEW_ORG_USER_NOVU_ID)",
+  "queue": {
+    "exchange": "x.novu-new-org-user-queue",
+    "queue": "q.novu-new-org-user",
+    "routingKey": "novu-new-org-user"
+  },
+  "publishers": [
+    "webservice: KeycloakUserService.registerUser (individual linked to an organisation)"
+  ],
+  "tags": ["account", "organisation"],
+  "critical": true,
+  "payloadSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": true,
+    "required": ["email", "firstName", "surname", "username", "loginUrl", "organisationName"],
+    "properties": {
+      "email": { "type": "string", "format": "email", "description": "Recipient; also the Novu subscriberId" },
+      "firstName": { "type": "string" },
+      "surname": { "type": "string" },
+      "username": { "type": "string" },
+      "loginUrl": { "type": "string", "format": "uri", "description": "Settings.kycPortalLink" },
+      "organisationName": { "type": "string" },
+      "roleName": { "type": "string", "description": "Readable role, e.g. \"Organisation administrator\" (to add)" },
+      "platformName": { "type": "string", "description": "Settings.platformName (to add)" },
+      "supportContact": { "type": "string", "description": "Settings.supportContact (to add)" },
+      "setupLinkValidFor": { "type": "string", "description": "From app.users.setup-link-lifespan (to add)" },
+      "currentYear": { "type": "string", "pattern": "^[0-9]{4}$" }
+    }
+  },
+  "steps": [
+    {
+      "type": "in_app",
+      "name": "org-welcome-in-app",
+      "subject": "You now manage {{payload.organisationName}}",
+      "body": "{{payload.organisationName}} has added you to {{payload.platformName | default: 'Knowvera'}}. Set your password from the email we sent, then review your organisation's KYC requests.",
+      "primaryAction": { "label": "Open portal", "redirect": { "url": "{{payload.loginUrl}}", "target": "_self" } }
+    },
+    {
+      "type": "email",
+      "name": "org-welcome-email",
+      "subject": "{{payload.organisationName}} has added you to {{payload.platformName | default: 'Knowvera'}}",
+      "bodyTemplate": "../templates/novu-new-org-user.email.html"
+    }
+  ],
+  "examplePayload": {
+    "email": "olivia.admin@example.com",
+    "firstName": "Olivia",
+    "surname": "Admin",
+    "username": "olivia.admin@example.com",
+    "loginUrl": "https://portal.knowvera.example",
+    "organisationName": "Example Holdings (Pty) Ltd",
+    "roleName": "Organisation administrator",
+    "platformName": "Knowvera",
+    "supportContact": "support@knowvera.example",
+    "setupLinkValidFor": "72 hours",
+    "currentYear": "2026"
+  }
+}

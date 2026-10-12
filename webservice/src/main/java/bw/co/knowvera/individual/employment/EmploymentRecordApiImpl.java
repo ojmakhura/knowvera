@@ -5,6 +5,7 @@
 //
 package bw.co.knowvera.individual.employment;
 
+import bw.co.knowvera.logging.Audit;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,12 +17,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
+import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
 
 @RestController
 @Tag(name = "Individual Employment Records", description = "Operations related to individual employment records.")
 public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
+    private static Logger logger = org.slf4j.LoggerFactory.getLogger(EmploymentRecordApi.class);
     private final EmploymentRecordService employmentRecordService;
 
     public EmploymentRecordApiImpl(
@@ -32,54 +35,68 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     @Override
     @Operation(summary = "Find Employment Record by ID", description = "Find an employment record by its ID")
+    @Audit(entity = "EMPLOYMENT_RECORD", eventLabel = "#id", logData = false)
     public ResponseEntity<EmploymentRecordDTO> findById(String id) throws Exception {
 
+        logger.debug("Finding employment record with ID: {}", id);
         return ResponseEntity.ok(employmentRecordService.findById(id));
     }
 
     @Override
     @Operation(summary = "Find Employment Records by Individual ID", description = "Find all employment records for a given individual ID")
+    @Audit(entity = "EMPLOYMENT_RECORD", eventLabel = "#individualId", logData = false)
     public ResponseEntity<List<EmploymentRecordDTO>> findByIndividual(String individualId)
             throws Exception {
 
+        logger.debug("Finding employment records for individual ID: {}", individualId);
         return ResponseEntity.ok(employmentRecordService.findByIndividual(individualId));
     }
 
     @Override
     @Operation(summary = "Get All Employment Records", description = "Get all employment records")
+    @Audit(entity = "EMPLOYMENT_RECORD", logData = false)
     public ResponseEntity<List<EmploymentRecordDTO>> getAll() throws Exception {
 
+        logger.debug("Retrieving all employment records");
         return ResponseEntity.ok(employmentRecordService.getAll());
     }
 
     @Override
     @Operation(summary = "Get All Employment Records Paged", description = "Get all employment records with pagination")
+    @Audit(entity = "EMPLOYMENT_RECORD", logData = false)
     public ResponseEntity<Page<EmploymentRecordDTO>> getAllPaged(Integer pageNumber,
             Integer pageSize) throws Exception {
 
+        logger.debug("Retrieving all employment records with pagination - Page: {}, Size: {}", pageNumber, pageSize);
         return ResponseEntity.ok(employmentRecordService.getAll(pageNumber, pageSize));
     }
 
     @Override
     @Operation(summary = "Paged Search Employment Records", description = "Search employment records with pagination")
+    @Audit(entity = "EMPLOYMENT_RECORD", logData = false)
     public ResponseEntity<Page<EmploymentRecordDTO>> pagedSearch(String criteria,
             Integer pageNumber, Integer pageSize) throws Exception {
 
+        logger.debug("Searching employment records with criteria: {}, page: {}, size: {}", criteria, pageNumber, pageSize);
         return ResponseEntity.ok(employmentRecordService.search(criteria, pageNumber, pageSize));
     }
 
     @Override
     @Operation(summary = "Remove Employment Record", description = "Remove an employment record by its ID")
+    @Audit(entity = "EMPLOYMENT_RECORD", eventLabel = "#id", logData = false)
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
+        logger.debug("Removing employment record with ID: {}", id);
         return ResponseEntity.ok(employmentRecordService.remove(id));
     }
 
     @Override
     @Operation(summary = "Save Employment Record", description = "Save an employment record. If the ID is not provided, a new record will be created.")
+    @Audit(entity = "EMPLOYMENT_RECORD", eventLabel = "#result?.body?.id", logData = false)
     public ResponseEntity<EmploymentRecordDTO> save(EmploymentRecordDTO employmentRecord)
             throws Exception {
 
+        logger.debug("Saving employment record: {}", employmentRecord);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuditTracker.auditTrail(employmentRecord, authentication);
 
@@ -88,9 +105,11 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
 
     @Override
     @Operation(summary = "Search Employment Records", description = "Search employment records by criteria")
+    @Audit(entity = "EMPLOYMENT_RECORD", logData = false)
     public ResponseEntity<List<EmploymentRecordDTO>> search(String criteria)
             throws Exception {
 
+        logger.debug("Searching employment records with criteria: {}", criteria);
         return ResponseEntity.ok(employmentRecordService.search(criteria));
     }
 }

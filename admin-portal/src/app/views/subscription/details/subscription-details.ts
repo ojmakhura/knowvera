@@ -54,7 +54,6 @@ type TimelineItem = {
     MatTableModule,
     MatTooltipModule,
     RouterLink,
-    Loader,
     TranslateModule
   ],
   providers: [DatePipe, CurrencyPipe],
@@ -208,6 +207,20 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
         return 'cancelled';
       default:
         return 'unknown';
+    }
+  }
+
+  /** Shared details-page pill tone (dp-pill is-*) for a subscription status. */
+  statusTone(status: string | null | undefined): string {
+    switch (status) {
+      case KycSubsciptionStatus.ACTIVE:
+        return 'is-success';
+      case KycSubsciptionStatus.INACTIVE:
+        return 'is-warning';
+      case KycSubsciptionStatus.CANCELLED:
+        return 'is-danger';
+      default:
+        return '';
     }
   }
 

@@ -8,12 +8,13 @@ import { TargetEntity } from '@models/bw/co/knowvera/target-entity';
 import { SearchObject } from '@models/search-object';
 import { DocumentSearchCriteria } from '@models/bw/co/knowvera/document/document-search-criteria';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
+import { DocumentListDTO } from '@models/bw/co/knowvera/document/document-list-dto';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DocumentApi {
-  protected path = '/document';
+  protected path = '/documents';
 
   private http = inject(HttpClient);
 
@@ -113,5 +114,27 @@ export class DocumentApi {
 
   public updateVerificationStatus(id: string, status: DocumentVerificationStatus): Observable<DocumentDTO> {
     return this.http.get<DocumentDTO>(`${this.path}/${id}/verification-status?verificationStatus=${status}`);
+  }
+
+  public textExtraction(id: string, block: boolean): Observable<DocumentDTO> {
+    return this.http.get<DocumentDTO>(`${this.path}/${id}/text-extraction?block=${block}`);
+  }
+
+  public findMyDocuments(target: TargetEntity | any): Observable<DocumentListDTO[] | any> {
+
+    return this.http.get<DocumentListDTO[] | any>(`${this.path}/mine?target=${target}`);
+  }
+
+  public findMyDocumentsPaged(target: TargetEntity | any, pageNumber: number | any, pageSize: number | any): Observable<Page<DocumentListDTO> | any> {
+
+    return this.http.get<Page<DocumentListDTO> | any>(`${this.path}/mine/paged?target=${target}&pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  }
+
+  public updateDocument(id: string | any, file: File | any): Observable<DocumentDTO | any> {
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<DocumentDTO | any>(`${this.path}/${id}/update`, formData);
   }
 }

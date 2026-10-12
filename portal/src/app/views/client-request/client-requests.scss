@@ -1,0 +1,9 @@
+@use '../../../styles/shared/vault-search';
+@use '../../../styles/shared/ui';
+
+@include vault-search.styles;
+
+// Request status → shared tones.
+.approved { @include ui.tone-success; }
+.pending { @include ui.tone-warning; }
+.rejected { @include ui.tone-danger; }

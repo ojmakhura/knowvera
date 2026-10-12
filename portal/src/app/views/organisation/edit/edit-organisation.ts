@@ -20,10 +20,10 @@ import { Loader } from "@app/@shared/loader/loader";
 import { applyEach, email, form, FormField, required } from "@angular/forms/signals";
 import { OrganisationApiStore } from "@app/store/bw/co/knowvera/organisation/organisation-api.store";
 import { Router } from "@angular/router";
-import { ToastrService } from "ngx-toastr";
 import { PhoneType } from "@app/models/bw/co/knowvera/phone-type";
 import { swalFire } from "@app/@shared/swal-loader";
 import { AppEnvStore } from "@app/store/app-env.state";
+import { toast } from '@app/@shared/toast';
 
 export class EditOrganisationVarsForm {
   id: string | any = null;
@@ -117,7 +117,7 @@ export class EditOrganisation implements OnInit, AfterViewInit, OnDestroy {
 
   organisationApiStore = inject(OrganisationApiStore);
   router = inject(Router);
-  toaster = inject(ToastrService);
+  toaster = toast;
 
   loaderMessage = linkedSignal(() => 'Loading...');
   messages = linkedSignal(() => this.organisationApiStore.messages());

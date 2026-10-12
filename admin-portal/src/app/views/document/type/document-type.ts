@@ -2,7 +2,7 @@
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   linkedSignal,
@@ -17,13 +18,16 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastrService } from 'ngx-toastr';
+import { toast } from 'ngx-sonner';
+import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
+// import { ToastrService } from 'ngx-toastr';
 
 export class SearchDocumentTypesVarsForm {
   criteria: string | any = null;
@@ -32,13 +36,17 @@ export class SearchDocumentTypesVarsForm {
 
 @Component({
   selector: 'app-document-type',
-  imports: [TranslateModule, CommonModule, MatIconModule, MatButtonModule,
+  imports: [
+    RouterLink,TranslateModule, CommonModule, MatIconModule, MatButtonModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatPaginatorModule,
+    MatProgressBarModule,
     MatTableModule,
-    MatTooltipModule],
+    MatTooltipModule,
+    FormRoot,
+    FormField,
+  ],
   templateUrl: './document-type.html',
   styleUrls: ['./document-type.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,6 +56,7 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
 
   searchDocumentTypesVarsForm: SearchDocumentTypesVarsForm = new SearchDocumentTypesVarsForm();
   searchDocumentTypesSignal = signal(this.searchDocumentTypesVarsForm);
+  searchDocumentTypesForm = form(this.searchDocumentTypesSignal, { submission: { action: async () => this.doSearch(0, this.pageSize()) } });
   readonly documentTypeApiStore = inject(DocumentTypeApiStore);
 
   readonly rows = linkedSignal(() => this.searchDocumentTypesSignal().documentTypes || []);
@@ -61,7 +70,7 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
   pageSize = signal(10);
   totalElements = signal(0);
   totalPages = signal(0);
-  toaster: ToastrService = inject(ToastrService);
+  protected readonly toast = toast;
 
   protected router: Router = inject(Router);
 
@@ -70,11 +79,11 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
       const messages = this.messages();
 
       if (this.success() && !this.loading() && messages.length) {
-        this.toaster.success(messages[0]);
+        // this.toast.success(messages[0]);
       }
 
       if (this.error() && !this.loading() && messages.length) {
-        this.toaster.error(messages[0]);
+        // this.toaster.error(messages[0]);
       }
     });
 
@@ -113,15 +122,6 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
     this.doSearch();
   }
 
-  onCriteriaInput(event: Event): void {
-    const criteria = (event.target as HTMLInputElement)?.value ?? '';
-
-    this.searchDocumentTypesSignal.update((state) => ({
-      ...state,
-      criteria,
-    }));
-  }
-
   doSearch(pageNumber: number = 0, pageSize: number = 10): void {
     const criteria = this.searchDocumentTypesSignal().criteria;
 
@@ -132,13 +132,31 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
     });
   }
 
-  onPageChange(event: PageEvent): void {
-    this.pageSize.set(event.pageSize);
-    this.doSearch(event.pageIndex, event.pageSize);
+  readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+  readonly pageNumbers = computed(() => pageWindow(this.currentPage(), this.totalPages()));
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= Math.max(this.totalPages(), 1) || page === this.currentPage()) {
+      return;
+    }
+    this.doSearch(page, this.pageSize());
+  }
+
+  changePageSize(size: string | number): void {
+    this.pageSize.set(Number(size));
+    this.doSearch(0, Number(size));
   }
 
   showingCount(): number {
     return this.rows().length;
+  }
+
+  showingLabel(): string {
+    return showingRecordsLabel(this.currentPage(), this.pageSize(), this.rows().length, this.totalElements());
+  }
+
+  pageReport(): string {
+    return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
   }
 
   fieldCount(documentType: DocumentTypeDTO): number {

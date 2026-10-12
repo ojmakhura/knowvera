@@ -9,18 +9,19 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 import { IndividualIdentityType } from '@app/models/bw/co/knowvera/individual/individual-identity-type';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
@@ -29,6 +30,7 @@ import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { SearchObject } from '@app/models/search-object';
 import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
 import { swalFire } from '@app/@shared/swal';
+import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
 
 export class SearchRecordsVarsForm {
   firstName = '';
@@ -57,26 +59,30 @@ export class SearchRecordsVarsForm {
     MatButtonModule,
     MatCardModule,
     MatTableModule,
-    MatPaginatorModule,
+    MatProgressBarModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatTooltipModule,
     MatIconModule,
-    RouterLink
-],
+    RouterLink,
+    FormRoot,
+    FormField,
+  ],
 })
 export class Records implements OnInit {
   private readonly kycRecordApiStore = inject(KycRecordApiStore);
   private readonly router = inject(Router);
-  private readonly toaster = inject(ToastrService);
+  // private readonly // toaster = inject(ToastrService);
 
   readonly searchRecordsSignal = signal(new SearchRecordsVarsForm());
+  readonly searchRecordsForm = form(this.searchRecordsSignal, { submission: { action: async () => this.doSearch() } });
   readonly dataSource = new MatTableDataSource<KycRecordDTO>([]);
   readonly rows = signal<KycRecordDTO[]>([]);
   readonly currentPage = signal(0);
   readonly pageSize = signal(10);
   readonly totalElements = signal(0);
+  readonly totalPages = signal(0);
   readonly pendingDeleteId = signal<string | null>(null);
 
   readonly loading = linkedSignal(() => this.kycRecordApiStore.loading());
@@ -90,9 +96,6 @@ export class Records implements OnInit {
     'expiryDate',
     'actions',
   ];
-
-  readonly currentCount = computed(() => this.rows().filter(r => r.kycStatus === KycComplianceStatus.CURRENT).length);
-  readonly flaggedCount = computed(() => this.rows().filter(r => r.kycStatus === KycComplianceStatus.EXPIRED || r.kycStatus === KycComplianceStatus.ABSENT).length);
 
   readonly identityTypeOptions = [
     { label: 'All Types', value: '' },
@@ -123,6 +126,7 @@ export class Records implements OnInit {
       this.currentPage.set(page.page?.number || 0);
       this.pageSize.set(page.page?.size || 10);
       this.totalElements.set(page.page?.totalElements || 0);
+      this.totalPages.set(page.page?.totalPages || 0);
     });
 
     effect(() => {
@@ -134,13 +138,13 @@ export class Records implements OnInit {
 
       if (this.kycRecordApiStore.error()) {
         this.pendingDeleteId.set(null);
-        this.toaster.error(this.kycRecordApiStore.messages()?.[0] || 'Failed to delete record.');
+        // this.toaster.error(this.kycRecordApiStore.messages()?.[0] || 'Failed to delete record.');
         return;
       }
 
       if (this.kycRecordApiStore.success()) {
         this.pendingDeleteId.set(null);
-        this.toaster.success('Record deleted successfully.');
+        // this.toaster.success('Record deleted successfully.');
         this.doSearch(this.currentPage(), this.pageSize());
       }
     });
@@ -150,15 +154,27 @@ export class Records implements OnInit {
     this.doSearch();
   }
 
-  handlePageEvent(event: PageEvent): void {
-    this.doSearch(event.pageIndex, event.pageSize);
+  readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+  readonly pageNumbers = computed(() => pageWindow(this.currentPage(), this.totalPages()));
+
+  goToPage(page: number): void {
+    if (page < 0 || page >= Math.max(this.totalPages(), 1) || page === this.currentPage()) {
+      return;
+    }
+    this.doSearch(page, this.pageSize());
   }
 
-  updateField(field: keyof SearchRecordsVarsForm, value: string | IndividualIdentityType | ''): void {
-    this.searchRecordsSignal.update((state) => ({
-      ...state,
-      [field]: value,
-    }));
+  changePageSize(size: string | number): void {
+    this.pageSize.set(Number(size));
+    this.doSearch(0, Number(size));
+  }
+
+  showingLabel(): string {
+    return showingRecordsLabel(this.currentPage(), this.pageSize(), this.rows().length, this.totalElements());
+  }
+
+  pageReport(): string {
+    return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
   }
 
   toggleStatus(status: KycComplianceStatus): void {
@@ -253,7 +269,7 @@ export class Records implements OnInit {
 
   deleteRecord(row: KycRecordDTO): void {
     if (!row?.id) {
-      this.toaster.warning('Cannot delete a record without an id.');
+      // this.toaster.warning('Cannot delete a record without an id.');
       return;
     }
 

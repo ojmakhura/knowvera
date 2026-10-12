@@ -4,13 +4,11 @@ import { Loader } from '@app/@shared/loader/loader';
 import { form, FormField, minLength, required } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
 import { MatStepperModule, MatStepper } from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-import { ToastrService } from 'ngx-toastr';
 import { MatRadioModule } from '@angular/material/radio';
 import { swalFire } from '@app/@shared/swal-loader';
 import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
@@ -20,6 +18,7 @@ import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individ
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { ClientRequestApiStore } from '@app/store/bw/co/knowvera/organisation/client/client-request-api.store';
 import { ClientRequestApi } from '@app/services/bw/co/knowvera/organisation/client/client-request-api';
+import { toast } from '@app/@shared/toast';
 
 class RegisterParams {
   // identificationType: string = '';
@@ -34,7 +33,6 @@ class RegisterParams {
   imports: [
     CommonModule,
     TranslateModule,
-    MatCardModule,
     MatStepperModule,
     MatFormFieldModule,
     MatInputModule,
@@ -52,7 +50,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
   requestId!: string;
   token!: string;
 
-  toastr = inject(ToastrService);
+  toastr = toast;
 
   // ClientRequestStatus enum for template
   ClientRequestStatus = ClientRequestStatus;
@@ -124,7 +122,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
         }));
 
         if (this.individual()?.id) {
-          this.toastr.success('Individual details loaded successfully', 'Success');
+          this.toastr.success('Individual details loaded successfully');
         }
       }
     });
@@ -139,7 +137,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
         }));
 
         if (this.organisationApiStore.data()?.id) {
-          this.toastr.success('Organisation details loaded successfully', 'Success');
+          this.toastr.success('Organisation details loaded successfully');
         }
       }
     });
@@ -147,7 +145,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
     effect(() => {
       let clientRequest = this.clientRequestApiStore.data();
       if (clientRequest.id && !this.confirmingRegistration) {
-        this.toastr.success(`Client request has been ${clientRequest.status.toLowerCase()} successfully`, 'Success');
+        this.toastr.success(`Client request has been ${clientRequest.status.toLowerCase()} successfully`);
       }
 
       this.confirmingRegistration = false;
@@ -216,11 +214,11 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
           this.registrationToken()
         ).subscribe({
           next: () => {
-            this.toastr.success('Registration status confirmed successfully', 'Success');
+            this.toastr.success('Registration status confirmed successfully');
             this.router.navigate(['/']);
           },
           error: () => {
-            this.toastr.error('An error occurred while confirming registration status', 'Error');
+            this.toastr.error('An error occurred while confirming registration status');
           }
         });
 

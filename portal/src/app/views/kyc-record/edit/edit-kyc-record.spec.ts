@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import Keycloak from 'keycloak-js';
-import { ToastrService } from 'ngx-toastr';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
@@ -24,13 +23,6 @@ describe('EditKycRecord', () => {
             hasRealmRole: () => false,
             hasResourceRole: () => false,
             profile: null,
-          },
-        },
-        {
-          provide: ToastrService,
-          useValue: {
-            success: () => undefined,
-            error: () => undefined,
           },
         },
         {
