@@ -5,6 +5,10 @@
 //
 package bw.co.knowvera.document;
 
+import java.util.ArrayList;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import bw.co.knowvera.auth.CurrentCaller;
 import java.nio.charset.StandardCharsets;
 import org.springframework.http.ContentDisposition;
 import bw.co.knowvera.auth.Permissions;
@@ -65,9 +69,12 @@ public class DocumentApiImpl implements DocumentApi {
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
 
+    private final CurrentCaller currentCaller;
+
     public DocumentApiImpl(DocumentService documentService, RabbitTemplate rabbitTemplate, MinioService minioService,
             DocumentProcessorService documentProcessor, GeminiTextExtractionProcessor geminiTextExtractionProcessor,
-            RabbitProperties rabbitProperties, DocumentQueueProcessor documentQueueProcessor) {
+            RabbitProperties rabbitProperties, DocumentQueueProcessor documentQueueProcessor, CurrentCaller currentCaller) {
+        this.currentCaller = currentCaller;
 
         this.documentService = documentService;
         this.minioService = minioService;
@@ -402,18 +409,33 @@ public class DocumentApiImpl implements DocumentApi {
     @Audit(entity = "DOCUMENT", logData = false)
     public ResponseEntity<Page<DocumentListDTO>> findMyDocumentsPaged(TargetEntity target, @Nullable Integer pageNumber,
             @Nullable Integer pageSize) throws Exception {
+
         logger.debug("Finding my documents paged with target: {}, pageNumber: {}, pageSize: {}", target, pageNumber, pageSize);
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByDocumentsPaged'");
+        List<DocumentListDTO> documents = myDocuments(target);
+        PageRequest page = PageRequest.of(pageNumber == null || pageNumber < 0 ? 0 : pageNumber,
+                pageSize == null || pageSize < 1 ? 10 : pageSize);
+        int from = (int) Math.min(page.getOffset(), documents.size());
+        int to = Math.min(from + page.getPageSize(), documents.size());
+        return ResponseEntity.ok(new PageImpl<>(documents.subList(from, to), page, documents.size()));
     }
 
     @Override
     @Operation(summary = "Find My Documents", description = "Find documents for the current user based on the given criteria")
     @Audit(entity = "DOCUMENT", logData = false)
     public @Nullable ResponseEntity<List<DocumentListDTO>> findMyDocuments(TargetEntity target) throws Exception {
+
         logger.debug("Finding my documents with target: {}", target);
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findMyDocuments'");
+        return ResponseEntity.ok(myDocuments(target));
+    }
+
+    /** Documents attached to the records the caller owns (all supported kinds when target is null). */
+    private List<DocumentListDTO> myDocuments(TargetEntity target) {
+
+        List<DocumentListDTO> documents = new ArrayList<>();
+        for (CurrentCaller.Owned owned : currentCaller.owned(target)) {
+            documents.addAll(documentService.findByTarget(owned.target(), owned.id()));
+        }
+        return documents;
     }
 
     @Override

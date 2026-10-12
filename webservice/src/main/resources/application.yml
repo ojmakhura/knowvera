@@ -187,6 +187,14 @@ app:
     # Automated checks may mark documents VERIFIED on their own (type match and data score);
     # off: passing documents go to MANUAL_REVIEW for a KYC reviewer
     auto-verify: ${DOCUMENT_AUTO_VERIFY:false}
+  keycloak:
+    # How long user accounts looked up in Keycloak are reused (0s disables); changes made
+    # through the API evict the user at once
+    user-cache-ttl: ${KEYCLOAK_USER_CACHE_TTL:60s}
+  users:
+    # New accounts get no password: Keycloak emails a link to set one (needs the realm's SMTP
+    # settings). How long that link stays valid:
+    setup-link-lifespan: ${USER_SETUP_LINK_LIFESPAN:72h}
   # Realm role of self-registered users (roles: keycloak/generate_authz.py)
   realmUserRole: ${REALM_USER_ROLE:APPLICANT}
   audit:

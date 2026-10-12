@@ -9,6 +9,7 @@ import bw.co.knowvera.logging.Audit;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -133,19 +134,27 @@ public class UserApiImpl implements UserApi {
 
         if (StringUtils.isBlank(user.getUserId())) {
             guard.checkCanCreateUserIn(user.getOrganisationId(), "users:edit");
+            if (!user.getRoles().isEmpty()) {
+                guard.checkCanAssign(user.getRoles(), "users:manage");
+            }
+            user = this.keycloakUserService.createUser(user);
         } else {
             guard.checkCanManageUser(user.getUserId(), "users:edit");
-        }
-        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
-            guard.checkCanAssign(user.getRoles(), "users:manage");
-        }
-
-        if (StringUtils.isBlank(user.getUserId()))
-            user = this.keycloakUserService.createUser(user);
-        else {
+            // Non-empty roles replace the user's direct roles: every role added or removed must be assignable
+            if (!user.getRoles().isEmpty()) {
+                Set<String> current = keycloakUserService.findDirectRealmRoles(user.getUserId());
+                Set<String> changed = new HashSet<>(user.getRoles());
+                changed.addAll(current);
+                changed.removeIf(role -> current.contains(role) && user.getRoles().contains(role));
+                if (!changed.isEmpty()) {
+                    guard.checkCanAssign(changed, "users:manage");
+                }
+            }
             keycloakUserService.updateUser(user);
         }
 
+        // Never echo a password back
+        user.setPassword(null);
         return ResponseEntity.ok(user);
     }
 

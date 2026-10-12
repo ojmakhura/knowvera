@@ -45,17 +45,35 @@ Sample users (password `Test-Passw0rd!`):
 | `super.admin` | `SUPER_ADMIN` | admin-portal |
 | `developer` | `DEVELOPER` | admin-portal |
 
+## Test API on the local stack
+
+`jmeter/test-stack.sh` runs a second API instance (port 18085) on the existing services, kept apart
+from dev: Keycloak realm `knowvera-test` (import `results/test-stack/knowvera-test-realm.json` once),
+Postgres database `knowvera_test`, RabbitMQ vhost `knowvera-test` and Redis database 1.
+
+```bash
+jmeter/test-stack.sh up
+```
+
+```bash
+jmeter/test-stack.sh seed
+```
+
+`seed` (idempotent) gives `applicant` an individual profile and links `org.admin` to a client
+organisation, which the load journeys need. Then run a plan with
+`JMETER_ARGS="$(jmeter/test-stack.sh jmeter-opts)"`, and stop the API with `jmeter/test-stack.sh down`.
+
 ## Running
 
 With the Makefile (JMeter at `/usr/local/apache-jmeter-5.6.3/bin/jmeter`, override with `JMETER=...`;
 reports land in `results/`):
 
 ```bash
-make jmeter_authz JMETER_OPTS="-JkeycloakUrl=http://localhost:8970"
+make jmeter_authz JMETER_ARGS="-JkeycloakUrl=http://localhost:8970"
 ```
 
 ```bash
-make jmeter_load JMETER_OPTS="-JstaffThreads=10 -Jduration=600"
+make jmeter_load JMETER_ARGS="-JstaffThreads=10 -Jduration=600"
 ```
 
 Or directly:

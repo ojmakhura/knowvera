@@ -5,6 +5,10 @@
 //
 package bw.co.knowvera.kyc;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+import bw.co.knowvera.auth.CurrentCaller;
 import bw.co.knowvera.auth.Permissions;
 import bw.co.knowvera.auth.RequiresOwnership;
 import org.springframework.http.ResponseEntity;
@@ -53,11 +57,14 @@ public class KycRecordApiImpl implements KycRecordApi {
     private final IndividualService individualService;
     private final DocumentApi documentApi;
 
+    private final CurrentCaller currentCaller;
+
     public KycRecordApiImpl(KycRecordService kycRecordService,
             KeycloakOrganisationService keycloakOrganisationService,
             KeycloakUserService keycloakUserService,
             IndividualService individualService,
-            DocumentApi documentApi) {
+            DocumentApi documentApi, CurrentCaller currentCaller) {
+        this.currentCaller = currentCaller;
 
         this.kycRecordService = kycRecordService;
         this.keycloakOrganisationService = keycloakOrganisationService;
@@ -393,62 +400,31 @@ public class KycRecordApiImpl implements KycRecordApi {
 
         logger.debug("Finding current KYC record for authenticated user with owner type: {}", ownerType);
 
-        String username = "anonymousUser";
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-
-            username = authentication.getName();
+        String ownerId = switch (ownerType) {
+            case INDIVIDUAL -> currentCaller.individual().map(IndividualDTO::getId).orElse(null);
+            case ORGANISATION -> currentCaller.organisationId().orElse(null);
+            default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported owner type " + ownerType);
+        };
+        if (ownerId == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No " + ownerType + " profile for this user");
         }
 
-        UserDTO user = keycloakUserService.findByUsername(username);
-        IndividualDTO individual = individualService.findByUserId(user.getUserId());
-
-        if (individual == null || StringUtils.isBlank(individual.getId())) {
-
-            throw new Exception("No individual or organisation associated with user: " + username);
+        KycRecordDTO current = kycRecordService.findLatestValidForOwner(ownerId, ownerType, LocalDate.now());
+        if (current == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No current KYC record");
         }
-
-        KycRecordDTO current = kycRecordService.findLatestValidForOwner(individual.getId(), ownerType,
-                LocalDate.now());
-
-        return ResponseEntity
-                .ok(current);
+        return ResponseEntity.ok(current);
     }
 
-    private KycRecordSearchCriteria buildSearchCriteriaForCurrentUser() throws Exception {
+    /** Criteria matching the caller's own records; null when the caller owns no subject (nothing matches). */
+    private KycRecordSearchCriteria buildSearchCriteriaForCurrentUser() {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-
-            throw new KycRecordServiceException("User is not authenticated");
+        List<String> subjects = currentCaller.subjectIds();
+        if (subjects.isEmpty()) {
+            return null;  // an empty targetIds criterion would match every record
         }
-
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-
-        UserDTO user = keycloakUserService.findUserById(jwt.getSubject());
-
-        List<String> targetIds = new ArrayList<>();
-
-        if (StringUtils.isNotBlank(user.getOrganisationId())) {
-
-            targetIds.add(user.getOrganisationId());
-        }
-
-        IndividualDTO individual = individualService.findByUserId(user.getUserId());
-
-        if (individual != null && StringUtils.isNotBlank(individual.getId())) {
-
-            targetIds.add(individual.getId());
-
-            if (individual.getOrganisation() != null && StringUtils.isNotBlank(individual.getOrganisation().id())) {
-                targetIds.add(individual.getOrganisation().id());
-
-            }
-        }
-
         KycRecordSearchCriteria criteria = new KycRecordSearchCriteria();
-        criteria.setTargetIds(targetIds);
-
+        criteria.setTargetIds(subjects);
         return criteria;
     }
 
@@ -460,6 +436,9 @@ public class KycRecordApiImpl implements KycRecordApi {
         logger.debug("Finding KYC records for the authenticated user");
 
         KycRecordSearchCriteria criteria = buildSearchCriteriaForCurrentUser();
+        if (criteria == null) {
+            return ResponseEntity.ok(List.of());
+        }
 
         List<KycRecordListDTO> records = kycRecordService.search(criteria, Set.<PropertySearchOrder>of());
         // updateOrganisations(records);
@@ -645,6 +624,10 @@ public class KycRecordApiImpl implements KycRecordApi {
                 pageNumber, pageSize);
 
         KycRecordSearchCriteria criteria = buildSearchCriteriaForCurrentUser();
+        if (criteria == null) {
+            return ResponseEntity.ok(Page.empty(PageRequest.of(pageNumber == null ? 0 : pageNumber,
+                    pageSize == null || pageSize < 1 ? 10 : pageSize)));
+        }
 
         SearchObject<KycRecordSearchCriteria> searchObject = new SearchObject<>();
         searchObject.setCriteria(criteria);

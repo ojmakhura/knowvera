@@ -7,9 +7,10 @@
 # Everything else comes from .env.
 #
 #   jmeter/test-stack.sh up      start the test API on port 18085 and wait until ready
+#   jmeter/test-stack.sh seed    create the data the load journeys need (idempotent)
 #   jmeter/test-stack.sh down    stop it
 #
-# Then: make jmeter_authz JMETER_OPTS="$(jmeter/test-stack.sh jmeter-opts)"
+# Then: make jmeter_authz JMETER_ARGS="$(jmeter/test-stack.sh jmeter-opts)"
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -40,13 +41,15 @@ up() {
         . "$ROOT/.env"
         PORT=$API_PORT
         REALM=$TEST_REALM
-        API_CLIENT=knowvera-api
-        API_CLIENT_SECRET=$TEST_CLIENT_SECRET
+        CLIENT_ID=knowvera-api  # app.authz.client / client-secret
+        CLIENT_SECRET=$TEST_CLIENT_SECRET
         REGISTRATION_CLIENT=knowvera-registration
         REGISTRATION_CLIENT_SECRET=$TEST_CLIENT_SECRET
         DATABASE_URL="${DATABASE_URL%/*}/$TEST_DATABASE"
         SPRING_RABBITMQ_VIRTUAL_HOST=$TEST_VHOST
         SPRING_DATA_REDIS_DATABASE=$TEST_REDIS_DATABASE
+        # The plans send hundreds of requests per user per minute; keep the per-IP public limit
+        RATE_LIMIT=100000
         set +a
         exec java -jar "$ROOT/webservice/target/knowvera-webservice.jar"
     ) >"$STATE/api.log" 2>&1 &
@@ -71,5 +74,6 @@ case "${1:-}" in
     up) up ;;
     down) down ;;
     jmeter-opts) echo "-Jport=$API_PORT -Jrealm=$TEST_REALM -JkeycloakUrl=$(auth_url)" ;;
-    *) echo "usage: $0 up|down|jmeter-opts" >&2; exit 2 ;;
+    seed) python3 -I "$ROOT/jmeter/seed_test_data.py" "http://localhost:$API_PORT" "$(auth_url)" "$TEST_REALM" "Test-Passw0rd!" ;;
+    *) echo "usage: $0 up|seed|down|jmeter-opts" >&2; exit 2 ;;
 esac

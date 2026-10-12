@@ -1,0 +1,56 @@
+<!-- Novu email step body (novu-new-org-client-request). Variables: {{ payload.* }} (Liquid). Paste into the
+     email step's HTML editor; the subject is in ../workflows/novu-new-org-client-request.json. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete your KYC</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f8;padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:8px;">
+          <tr>
+            <td style="padding:24px 32px;border-bottom:1px solid #e4e7eb;font-size:20px;font-weight:bold;color:#0b4f6c;">
+              {{ payload.platformName | default: "Knowvera" }}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;font-size:15px;line-height:1.6;">
+              <p style="margin:0 0 16px;">Dear {{ payload.recipientName }},</p>
+              <p style="margin:0 0 16px;">
+                <strong>{{ payload.organisationName }}</strong> uses {{ payload.platformName | default: "Knowvera" }} to carry out
+                Know Your Customer (KYC) checks, as required by law, and asks you to complete yours.
+                {% if payload.reference %}Your request reference is <strong>{{ payload.reference }}</strong>.{% endif %}
+              </p>
+              <p style="margin:0 0 16px;">
+                Have your identity document (Omang or passport) at hand; the portal tells you if anything else is needed.
+              </p>
+              <p style="margin:24px 0;">
+                <a href="{{ payload.kycPortalLink }}" style="display:inline-block;background:#0b4f6c;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;">Start my KYC</a>
+              </p>
+              <p style="margin:0 0 16px;font-size:13px;color:#52606d;">
+                This link is personal and works once.
+                {% if payload.linkExpiresAt %}It expires on {{ payload.linkExpiresAt }}.{% else %}It expires after a few days.{% endif %}
+                Do not forward it. If it has expired, ask {{ payload.organisationName }} to send a new request.
+              </p>
+              <p style="margin:0;font-size:13px;color:#52606d;">
+                Not a client of {{ payload.organisationName }}? Ignore this email; nothing happens unless the link is used.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 32px;border-top:1px solid #e4e7eb;font-size:12px;line-height:1.5;color:#7b8794;">
+              Need help? Contact {{ payload.supportContact | default: "our support team" }}.<br>
+              We will never ask for your password by email or phone.<br>
+              &copy; {{ payload.currentYear }} {{ payload.platformName | default: "Knowvera" }}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

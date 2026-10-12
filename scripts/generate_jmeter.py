@@ -409,14 +409,16 @@ def authorization_plan(endpoints, granted, enums):
 
 def load_plan(endpoints, enums):
     by_label = {e["label"]: e for e in endpoints}
+    defaults = {name: default for name, default, _ in LOAD_PROPERTIES}
 
     def get(label, name=None):
         e = by_label.get(label)
         if e is None:
             sys.exit(f"generate_jmeter.py: the load journeys use {label}, which no longer exists")
         path, _, _ = request_for(e, enums)
+        # Any 2xx: empty lists may answer 204 No Content
         return sampler(name or f"{e['http']} {e['path']}", "GET", path, comment=label,
-                       children=[status_assertion("200", "200")])
+                       children=[status_assertion("2xx", "2[0-9][0-9]")])
 
     def journey(name, role, threads_prop, steps, comment):
         return thread_group(
@@ -424,8 +426,9 @@ def load_plan(endpoints, enums):
             name, [once_only("Sign in once", [login(role, client_for(role))]),
                    simple_controller("Journey", [headers([("Authorization", "Bearer ${access_token}")], "Bearer token"),
                                                  think_time()] + steps)],
-            threads=f"${{__P({threads_prop},1)}}", loops="-1", ramp="${__P(rampUp,60)}",
-            duration="${__P(duration,600)}", comment=comment)
+            threads=f"${{__P({threads_prop},{defaults[threads_prop]})}}", loops="-1",
+            ramp=f"${{__P(rampUp,{defaults['rampUp']})}}", duration=f"${{__P(duration,{defaults['duration']})}}",
+            comment=comment)
 
     groups = [
         journey("Back office: KYC analyst", "KYC_ANALYST", "staffThreads", [

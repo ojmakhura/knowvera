@@ -5,6 +5,10 @@
 //
 package bw.co.knowvera.organisation;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+import bw.co.knowvera.auth.CurrentCaller;
 import bw.co.knowvera.auth.RequiresOwnership;
 import java.util.Collection;
 import java.util.HashSet;
@@ -39,7 +43,10 @@ public class OrganisationApiImpl implements OrganisationApi {
     private final KeycloakOrganisationService orgService;
     private final OrganisationService organisationService;
 
-    public OrganisationApiImpl(OrganisationService organisationService, KeycloakOrganisationService orgService) {
+    private final CurrentCaller currentCaller;
+
+    public OrganisationApiImpl(OrganisationService organisationService, KeycloakOrganisationService orgService, CurrentCaller currentCaller) {
+        this.currentCaller = currentCaller;
 
         this.orgService = orgService;
         this.organisationService = organisationService;
@@ -154,10 +161,11 @@ public class OrganisationApiImpl implements OrganisationApi {
 
             keycloakOrg.copy(organisation);
 
-            if (existingOrg != null) {
-
-                keycloakOrg.setId(existingOrg.getId());
-            }
+            // The Keycloak Organization has its own id (copy() brought the database one): the one
+            // stored on the organisation, else the one registered under its registration number,
+            // else none, so that it is created
+            keycloakOrg.setId(StringUtils.isNotBlank(organisation.getKeycloakId()) ? organisation.getKeycloakId()
+                    : existingOrg != null ? existingOrg.getId() : null);
 
             keycloakOrg = orgService.createOrganisation(keycloakOrg);
 
@@ -211,20 +219,18 @@ public class OrganisationApiImpl implements OrganisationApi {
     public ResponseEntity<OrganisationDTO> loadMyOrganisation() throws Exception {
 
         logger.debug("Loading organisation for the authenticated user");
+
+        // Keycloak Organizations membership (token claim), else the organisation on the user's account
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!authentication.isAuthenticated()) {
-            throw new IndividualServiceException("Unauthenticated");
+        Map<String, Object> org = authentication != null && authentication.getPrincipal() instanceof Jwt jwt
+                ? jwt.getClaimAsMap("organization") : null;
+        if (org != null && !org.isEmpty()) {
+            return ResponseEntity.ok(organisationService.findByCode(org.keySet().iterator().next()));
         }
 
-        Jwt jwt = (Jwt) authentication.getPrincipal();
-        Map<String, Object> org = jwt.getClaimAsMap("organization");
-        if (org == null) {
-
-            throw new UnsupportedOperationException("Not implemented yet");
-        }
-
-        String code = org.keySet().iterator().next();
-        return ResponseEntity.ok(organisationService.findByCode(code));
+        String organisationId = currentCaller.organisationId()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No organisation for this user"));
+        return ResponseEntity.ok(organisationService.findById(organisationId));
     }
 
     @Override

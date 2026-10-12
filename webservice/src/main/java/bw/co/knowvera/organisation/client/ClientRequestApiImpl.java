@@ -5,6 +5,8 @@
 //
 package bw.co.knowvera.organisation.client;
 
+import java.util.Optional;
+import bw.co.knowvera.auth.CurrentCaller;
 import bw.co.knowvera.auth.RequiresOwnership;
 import bw.co.knowvera.AuditTracker;
 import bw.co.knowvera.PropertySearchOrder;
@@ -61,6 +63,8 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     private final OrganisationService organisationService;
     private final KycAuthorisationService kycAuthorisationService;
 
+    private final CurrentCaller currentCaller;
+
     public ClientRequestApiImpl(
             ClientRequestService clientRequestService,
             SettingsService settingsService,
@@ -69,7 +73,8 @@ public class ClientRequestApiImpl implements ClientRequestApi {
             IndividualService individualService,
             OrganisationService organisationService,
             ClientRequestNotification clientRequestNotification,
-            KycAuthorisationService kycAuthorisationService) {
+            KycAuthorisationService kycAuthorisationService, CurrentCaller currentCaller) {
+        this.currentCaller = currentCaller;
 
         this.settingsService = settingsService;
         this.documentApi = documentApi;
@@ -584,29 +589,12 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findMyOrganisationRequests() throws Exception {
 
-        String username = "anonymousUser";
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-
-            username = authentication.getName();
+        // Requests made by the caller's organisation; none when the caller has no organisation
+        Optional<String> organisationId = currentCaller.organisationId();
+        if (organisationId.isEmpty()) {
+            return ResponseEntity.ok(List.of());
         }
-
-        UserDTO user = keycloakUserService.findByUsername(username);
-        IndividualDTO individual = individualService.findByUserId(user.getUserId());
-
-        if (individual == null || StringUtils.isBlank(individual.getId())) {
-
-            throw new Exception("No individual associated with user: " + username);
-        }
-
-        if (individual.getOrganisation() != null && StringUtils.isNotBlank(individual.getOrganisation().id())) {
-
-            return null;
-        }
-
-        List<ClientRequestDTO> requests = clientRequestService.findByOrganisation(individual.getOrganisation().id());
-
-        return ResponseEntity.ok(requests);
+        return ResponseEntity.ok(clientRequestService.findByOrganisation(organisationId.get()));
     }
 
     @Override
@@ -614,30 +602,19 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Audit(entity = "CLIENT_REQUEST", logData = false)
     public ResponseEntity<List<ClientRequestDTO>> findMyRequests() throws Exception {
 
-        String username = "anonymousUser";
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-
-            username = authentication.getName();
-        }
-
-        UserDTO user = keycloakUserService.findByUsername(username);
-        IndividualDTO individual = individualService.findByUserId(user.getUserId());
-
-        if (individual == null || StringUtils.isBlank(individual.getId())) {
-
-            throw new Exception("No individual associated with user: " + username);
+        // Requests that target the caller as an individual; none when the caller has no profile
+        Optional<IndividualDTO> individual = currentCaller.individual();
+        if (individual.isEmpty()) {
+            return ResponseEntity.ok(List.of());
         }
 
         ClientRequestSearchCriteria criteria = new ClientRequestSearchCriteria();
         criteria.setTarget(TargetEntity.INDIVIDUAL);
-        criteria.setTargetId(individual.getId());
+        criteria.setTargetId(individual.get().getId());
 
         Set<PropertySearchOrder> sortProperties = new HashSet<>();
         sortProperties.add(new PropertySearchOrder("createdAt", SortOrder.DESC));
 
-        List<ClientRequestDTO> requests = clientRequestService.search(criteria, sortProperties);
-
-        return ResponseEntity.ok(requests);
+        return ResponseEntity.ok(clientRequestService.search(criteria, sortProperties));
     }
 }

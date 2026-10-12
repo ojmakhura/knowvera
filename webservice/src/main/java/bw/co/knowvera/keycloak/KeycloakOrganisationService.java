@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,11 +27,11 @@ import bw.co.knowvera.organisation.OrganisationDTO;
 import bw.co.knowvera.organisation.OrganisationDomain;
 import bw.co.knowvera.organisation.OrganisationListDTO;
 import bw.co.knowvera.organisation.OrganisationSearchCriteria;
-import bw.co.knowvera.subscription.KycSubscriptionRepository;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.StatusType;
-import lombok.RequiredArgsConstructor;
+import org.springframework.web.server.ResponseStatusException;
 import tools.jackson.databind.json.JsonMapper;
 
 @Component
@@ -40,13 +41,9 @@ public class KeycloakOrganisationService {
     private final JsonMapper jsonMapper;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss.SSSSSS");
 
-    private final KycSubscriptionRepository subscriptionRepository;
-
-    public KeycloakOrganisationService(KeycloakService keycloakService, JsonMapper jsonMapper,
-            KycSubscriptionRepository subscriptionRepository) {
+    public KeycloakOrganisationService(KeycloakService keycloakService, JsonMapper jsonMapper) {
         this.keycloakService = keycloakService;
         this.jsonMapper = jsonMapper;
-        this.subscriptionRepository = subscriptionRepository;
     }
 
     // --------------------- Core Conversion Methods --------------------- //
@@ -63,8 +60,10 @@ public class KeycloakOrganisationService {
         rep.setDescription(organisation.getDescription());
 
         Map<String, List<String>> attributes = new HashMap<>();
-        attributes.put("registrationNo", List.of(organisation.getRegistrationNo()));
-        attributes.put("status", List.of(organisation.getStatus().toString()));
+        if (organisation.getRegistrationNo() != null)
+            attributes.put("registrationNo", List.of(organisation.getRegistrationNo()));
+        if (organisation.getStatus() != null)
+            attributes.put("status", List.of(organisation.getStatus().toString()));
 
         if (organisation.getDomains() != null) {
             for (OrganisationDomain dom : organisation.getDomains()) {
@@ -101,7 +100,9 @@ public class KeycloakOrganisationService {
         if (organisation.getIsClient() != null)
             attributes.put("isClient", List.of(organisation.getIsClient().toString()));
         if (CollectionUtils.isNotEmpty(organisation.getPhoneNumbers()))
-            attributes.put("phoneNumbers", organisation.getPhoneNumbers().stream().map(PhoneNumber::toString).toList());
+            // JSON, as toOrganisationDTO reads them back
+            attributes.put("phoneNumbers",
+                    organisation.getPhoneNumbers().stream().map(jsonMapper::writeValueAsString).toList());
         if (organisation.getKycStatus() != null)
             attributes.put("kycStatus", List.of(organisation.getKycStatus().toString()));
         if (organisation.getCountryOfRegistration() != null)
@@ -126,7 +127,9 @@ public class KeycloakOrganisationService {
             org.setRegistrationNo(getFirst(attrs, "registrationNo"));
             org.setPhysicalAddress(getFirst(attrs, "physicalAddress"));
             org.setPostalAddress(getFirst(attrs, "postalAddress"));
-            org.setStatus(GeneralStatus.valueOf(getFirst(attrs, "status")));
+            String status = getFirst(attrs, "status");
+            if (status != null)
+                org.setStatus(GeneralStatus.valueOf(status));
             org.setContactEmailAddress(getFirst(attrs, "contactEmailAddress"));
             org.setIsClient(Boolean.parseBoolean(getFirst(attrs, "isClient")));
             org.setCreatedBy(getFirst(attrs, "createdBy"));
@@ -137,14 +140,16 @@ public class KeycloakOrganisationService {
                 org.setPhoneNumbers(attrs.get("phoneNumbers").stream()
                         .map(p -> jsonMapper.readValue(p, PhoneNumber.class)).toList());
             }
-            if (attrs.containsKey("kycStatus"))
-                org.setKycStatus(KycComplianceStatus.valueOf(getFirst(attrs, "kycStatus")));
+            String kycStatus = getFirst(attrs, "kycStatus");
+            if (kycStatus != null)
+                org.setKycStatus(KycComplianceStatus.valueOf(kycStatus));
             if (attrs.containsKey("countryOfRegistration"))
                 org.setCountryOfRegistration(getFirst(attrs, "countryOfRegistration"));
         }
 
-        org.setDomains(rep.getDomains().stream().map(d -> new OrganisationDomain(d.getName(), d.isVerified()))
-                .collect(Collectors.toList()));
+        if (rep.getDomains() != null)
+            org.setDomains(rep.getDomains().stream().map(d -> new OrganisationDomain(d.getName(), d.isVerified()))
+                    .collect(Collectors.toList()));
         return org;
     }
 
@@ -179,14 +184,15 @@ public class KeycloakOrganisationService {
     public OrganisationDTO createOrganisation(OrganisationDTO organisation) {
         return keycloakService.withOrganizations(orgsResource -> {
 
-            OrganisationDTO existing = findByName(organisation.getRegistrationNo());
-
-            if (existing != null) {
-                return existing;
-            }
-
             Response res;
             if (StringUtils.isBlank(organisation.getId())) {
+                // Registration numbers identify organisations; never create a second one
+                OrganisationDTO existing = StringUtils.isBlank(organisation.getRegistrationNo()) ? null
+                        : findByRegistrationNo(organisation.getRegistrationNo());
+                if (existing != null) {
+                    return existing;
+                }
+
                 res = orgsResource.create(fromOrganisationDTO(organisation));
                 organisation.setId(getCreatedId(res));
             } else {
@@ -200,17 +206,25 @@ public class KeycloakOrganisationService {
         });
     }
 
+    /** The Keycloak Organization with this (Keycloak) id; 404 when there is none. */
     public OrganisationDTO findById(String id) {
-        return keycloakService.withOrganization(id, orgResource -> toOrganisationDTO(orgResource.toRepresentation()));
+        return keycloakService.withOrganization(id, orgResource -> {
+            try {
+                return toOrganisationDTO(orgResource.toRepresentation());
+            } catch (NotFoundException e) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Organisation not found");
+            }
+        });
     }
 
+    /** The organisation with exactly this name, or null. */
     public OrganisationDTO findByName(String name) {
+        if (StringUtils.isBlank(name)) {
+            return null;
+        }
         return keycloakService.withOrganizations(resource -> {
-            List<OrganizationRepresentation> t = resource.search("name:" + name);
-            if (t == null || t.size() == 0) {
-                return null;
-            }
-            return toOrganisationDTO(t.get(0));
+            List<OrganizationRepresentation> t = resource.search(name, true, 0, 1);
+            return t == null || t.isEmpty() ? null : toOrganisationDTO(t.get(0));
         });
     }
 
@@ -241,8 +255,10 @@ public class KeycloakOrganisationService {
     public Boolean remove(String id) {
         // Use runWithOrganization(String orgId, Consumer<OrganizationResource>)
         return keycloakService.withOrganization(id, orgResource -> {
-            Response res = orgResource.delete();
-            return res.getStatus() == HttpStatus.OK.value();
+            try (Response res = orgResource.delete()) {
+                // Keycloak answers 204 No Content
+                return res.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL;
+            }
         });
     }
 
@@ -255,11 +271,13 @@ public class KeycloakOrganisationService {
 
             List<OrganizationRepresentation> t = resource.searchByAttribute("registrationNo:" + registrationNo);
 
-            if (t == null || t.size() == 0) {
-                return null;
-            }
-
-            return toOrganisationDTO(t.get(0));
+            // Only an exact match counts
+            return t == null ? null : t.stream()
+                    .filter(rep -> rep.getAttributes() != null
+                            && registrationNo.equals(getFirst(rep.getAttributes(), "registrationNo")))
+                    .findFirst()
+                    .map(this::toOrganisationDTO)
+                    .orElse(null);
         });
     }
 
@@ -281,8 +299,8 @@ public class KeycloakOrganisationService {
             String search = criteria.getCriteria().getId() != null
                     ? criteria.getCriteria().getId()
                     : criteria.getCriteria().getName();
-            Integer pageNumber = criteria.getPageNumber();
-            Integer pageSize = criteria.getPageSize();
+            int pageNumber = Objects.requireNonNullElse(criteria.getPageNumber(), 0);
+            int pageSize = Objects.requireNonNullElse(criteria.getPageSize(), 20);
 
             List<OrganizationRepresentation> reps = orgsResource.search(search, false, pageNumber * pageSize, pageSize);
             long count = orgsResource.count(search);
@@ -316,10 +334,10 @@ public class KeycloakOrganisationService {
 
         if (attrs != null) {
             registrationNo = getFirst(attrs, "registrationNo");
-            if (attrs.containsKey("status"))
+            if (getFirst(attrs, "status") != null)
                 status = GeneralStatus.valueOf(getFirst(attrs, "status"));
             contactEmailAddress = getFirst(attrs, "contactEmailAddress");
-            if (attrs.containsKey("kycStatus"))
+            if (getFirst(attrs, "kycStatus") != null)
                 kycStatus = KycComplianceStatus.valueOf(getFirst(attrs, "kycStatus"));
             if (attrs.containsKey("isClient"))
                 isClient = Boolean.parseBoolean(getFirst(attrs, "isClient"));

@@ -1,0 +1,54 @@
+{
+  "workflowId": "novu-new-org-client-request",
+  "name": "KYC request from an organisation",
+  "description": "Invites a client of an organisation to complete KYC on Knowvera. The link contains a single-use token (valid app.request-token-link-ttl, default 7 days), so this is email only: never copy kycPortalLink into an in-app, SMS or push step, logs or analytics.",
+  "config": "app.novu.queue.newOrgClientRequestNovuId (NOVU_NEW_ORG_CLIENT_REQUEST_NOVU_ID)",
+  "queue": {
+    "exchange": "x.novu-new-org-client-request-queue",
+    "queue": "q.novu-new-org-client-request",
+    "routingKey": "novu-new-org-client-request"
+  },
+  "publishers": [
+    "core: ClientRequestNotification.queueEmailNotificationsForRequests (single request save and bulk upload)"
+  ],
+  "tags": ["kyc", "client-request"],
+  "critical": true,
+  "payloadSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": true,
+    "required": ["email", "recipientName", "organisationName", "kycPortalLink"],
+    "properties": {
+      "email": { "type": "string", "format": "email", "description": "Recipient: the individual's email address, or the organisation's contactEmailAddress (to add; missing today, see README issue 1)" },
+      "recipientName": { "type": "string", "description": "Person or organisation name (today: the target's UUID, see README issue 2)" },
+      "organisationName": { "type": "string", "description": "Name of the requesting organisation" },
+      "kycPortalLink": { "type": "string", "format": "uri", "description": "<app.registration-url>/<requestId>?token=<token>; secret" },
+      "linkExpiresAt": { "type": "string", "description": "Readable expiry, e.g. \"19 October 2026\" (to add)" },
+      "reference": { "type": "string", "description": "ClientRequest.ref (to add)" },
+      "platformName": { "type": "string", "description": "Settings.platformName" },
+      "platformUrl": { "type": "string", "format": "uri", "description": "Settings.kycPortalLink" },
+      "supportContact": { "type": "string", "description": "Settings.supportContact" },
+      "currentYear": { "type": "string", "pattern": "^[0-9]{4}$", "description": "(to add)" }
+    }
+  },
+  "steps": [
+    {
+      "type": "email",
+      "name": "client-request-email",
+      "subject": "{{payload.organisationName}} asks you to complete your KYC",
+      "bodyTemplate": "../templates/novu-new-org-client-request.email.html"
+    }
+  ],
+  "examplePayload": {
+    "email": "ann.applicant@example.com",
+    "recipientName": "Ann Applicant",
+    "organisationName": "Example Holdings (Pty) Ltd",
+    "kycPortalLink": "https://portal.knowvera.example/register/0192f3c4-0000-7000-8000-000000000000?token=EXAMPLE-NOT-A-REAL-TOKEN",
+    "linkExpiresAt": "19 October 2026",
+    "reference": "EXH-00000042",
+    "platformName": "Knowvera",
+    "platformUrl": "https://portal.knowvera.example",
+    "supportContact": "support@knowvera.example",
+    "currentYear": "2026"
+  }
+}
