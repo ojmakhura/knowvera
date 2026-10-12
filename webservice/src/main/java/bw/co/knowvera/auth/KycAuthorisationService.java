@@ -120,7 +120,7 @@ public class KycAuthorisationService implements Ordered {
         TargetEntity target = resolveTarget(requiresOwnership.target(), context);
         Object id = parser.parseExpression(requiresOwnership.id()).getValue(context);
 
-        if (target == null || id == null || !isTargetRecordOwner(target, id.toString())) {
+        if (target == null || id == null || !ownsStoredRecord(target, id.toString())) {
             throw new AuthorizationDeniedException("Access denied: caller does not own the "
                     + (target != null ? target : "requested") + " record");
         }
