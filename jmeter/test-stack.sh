@@ -1,72 +1,62 @@
 #!/usr/bin/env bash
-# Throwaway stack for the JMeter plans: Keycloak with the test realm, fresh Postgres, RabbitMQ
-# and Redis containers, and a second API instance (built jar) pointed at them. The dev stack is
-# not touched, except MinIO, which is shared (the plans only read from it).
+# A second API instance for the JMeter plans, using the existing services kept apart from dev:
+#   - Keycloak: realm "knowvera-test" (results/test-stack/knowvera-test-realm.json, a copy of
+#     webservice/src/test/resources/test-realm.json; import it once in the admin console)
+#   - Postgres: database "knowvera_test" on the dev server (the API creates the schema)
+#   - RabbitMQ: vhost "knowvera-test";  Redis: database 1
+# Everything else comes from .env.
 #
-#   jmeter/test-stack.sh up      start everything, wait until ready
-#   jmeter/test-stack.sh down    stop and remove everything
+#   jmeter/test-stack.sh up      start the test API on port 18085 and wait until ready
+#   jmeter/test-stack.sh down    stop it
 #
-# Then: make jmeter_authz JMETER_OPTS="-Jport=18085 -JkeycloakUrl=http://localhost:18970"
+# Then: make jmeter_authz JMETER_OPTS="$(jmeter/test-stack.sh jmeter-opts)"
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 STATE="$ROOT/results/test-stack"
 API_PORT=18085
-KC_PORT=18970
-PG_PORT=15432
-RABBIT_PORT=15673
-REDIS_PORT=16379
-KC_IMAGE="${KC_IMAGE:-quay.io/keycloak/keycloak:26.5}"
-PREFIX=knowvera-test
+TEST_REALM=knowvera-test
+TEST_DATABASE=knowvera_test
+TEST_VHOST=knowvera-test
+TEST_REDIS_DATABASE=1
+TEST_CLIENT_SECRET=test-secret  # client secrets of the test realm
+
+auth_url() {
+    # shellcheck disable=SC1091
+    (. "$ROOT/.env" && echo "$AUTH_URL")
+}
 
 up() {
     mkdir -p "$STATE"
-    # The import file must be named after the realm
-    docker run -d --rm --name $PREFIX-keycloak -p $KC_PORT:8080 \
-        -v "$ROOT/webservice/src/test/resources/test-realm.json:/opt/keycloak/data/import/knowvera-realm.json:ro" \
-        "$KC_IMAGE" start-dev --import-realm >/dev/null
-    docker run -d --rm --name $PREFIX-postgres -p $PG_PORT:5432 \
-        -e POSTGRES_DB=knowvera -e POSTGRES_USER=knowvera -e POSTGRES_PASSWORD=knowvera-test postgres:18 >/dev/null
-    docker run -d --rm --name $PREFIX-rabbit -p $RABBIT_PORT:5672 rabbitmq:4.2-management >/dev/null
-    docker run -d --rm --name $PREFIX-redis -p $REDIS_PORT:6379 redis:8-alpine >/dev/null
+    if ! curl -sfk -o /dev/null "$(auth_url)/realms/$TEST_REALM/.well-known/openid-configuration"; then
+        echo "Realm $TEST_REALM not found at $(auth_url): import results/test-stack/knowvera-test-realm.json first" >&2
+        exit 1
+    fi
 
-    echo "Waiting for Keycloak..."
-    curl -sf --retry 90 --retry-delay 2 --retry-all-errors -o /dev/null \
-        "http://localhost:$KC_PORT/realms/knowvera/.well-known/openid-configuration"
-
-    echo "Starting the API on port $API_PORT..."
+    echo "Starting the test API on port $API_PORT..."
     (
         set -a
         # shellcheck disable=SC1091
         . "$ROOT/.env"
         PORT=$API_PORT
-        AUTH_URL=http://localhost:$KC_PORT
-        REALM=knowvera
+        REALM=$TEST_REALM
         API_CLIENT=knowvera-api
-        API_CLIENT_SECRET=test-secret
+        API_CLIENT_SECRET=$TEST_CLIENT_SECRET
         REGISTRATION_CLIENT=knowvera-registration
-        REGISTRATION_CLIENT_SECRET=test-secret
-        DATABASE_URL=jdbc:postgresql://localhost:$PG_PORT/knowvera
-        DB_USERNAME=knowvera
-        DB_PASSWORD=knowvera-test
-        RABBITMQ_HOST=localhost
-        RABBITMQ_PORT=$RABBIT_PORT
-        RABBITMQ_USERNAME=guest
-        RABBITMQ_PASSWORD=guest
-        REDIS_HOST=localhost
-        REDIS_PORT=$REDIS_PORT
-        REDIS_PASSWORD=
+        REGISTRATION_CLIENT_SECRET=$TEST_CLIENT_SECRET
+        DATABASE_URL="${DATABASE_URL%/*}/$TEST_DATABASE"
+        SPRING_RABBITMQ_VIRTUAL_HOST=$TEST_VHOST
+        SPRING_DATA_REDIS_DATABASE=$TEST_REDIS_DATABASE
         set +a
         exec java -jar "$ROOT/webservice/target/knowvera-webservice.jar"
     ) >"$STATE/api.log" 2>&1 &
     echo $! >"$STATE/api.pid"
 
-    echo "Waiting for the API..."
     if ! curl -sf --retry 90 --retry-delay 2 --retry-all-errors -o /dev/null "http://localhost:$API_PORT/actuator/health"; then
-        echo "The API did not start; see $STATE/api.log" >&2
+        echo "The test API did not start; see $STATE/api.log" >&2
         exit 1
     fi
-    echo "Test stack ready: API http://localhost:$API_PORT, Keycloak http://localhost:$KC_PORT"
+    echo "Test API ready on http://localhost:$API_PORT (realm $TEST_REALM)"
 }
 
 down() {
@@ -74,12 +64,12 @@ down() {
         kill "$(cat "$STATE/api.pid")" 2>/dev/null || true
         rm -f "$STATE/api.pid"
     fi
-    docker rm -f $PREFIX-keycloak $PREFIX-postgres $PREFIX-rabbit $PREFIX-redis >/dev/null 2>&1 || true
-    echo "Test stack stopped"
+    echo "Test API stopped"
 }
 
 case "${1:-}" in
     up) up ;;
     down) down ;;
-    *) echo "usage: $0 up|down" >&2; exit 2 ;;
+    jmeter-opts) echo "-Jport=$API_PORT -Jrealm=$TEST_REALM -JkeycloakUrl=$(auth_url)" ;;
+    *) echo "usage: $0 up|down|jmeter-opts" >&2; exit 2 ;;
 esac
