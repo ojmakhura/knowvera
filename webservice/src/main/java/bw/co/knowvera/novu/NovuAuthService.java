@@ -16,8 +16,13 @@ public class NovuAuthService {
     @Value("${app.novu.api-key}")
     private String novuApiKey;
 
+    /** Whether a Novu API key is set (NOVU_API_KEY). */
+    public boolean isConfigured() {
+        return novuApiKey != null && !novuApiKey.isBlank();
+    }
+
     public String generateSubscriberHash(String subscriberId) {
-        if (novuApiKey == null || novuApiKey.isBlank()) {
+        if (!isConfigured()) {
             throw new IllegalStateException("Novu API key is not configured in application.yml");
         }
         

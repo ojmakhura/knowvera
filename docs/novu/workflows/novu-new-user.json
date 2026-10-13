@@ -9,8 +9,7 @@
     "routingKey": "novu-new-user"
   },
   "publishers": [
-    "webservice: KeycloakUserService.registerUser (individual without an organisation)",
-    "webservice: IndividualApiImpl.newUserMessage (duplicate; see README, issue 8)"
+    "webservice: KeycloakUserService.registerUser (individual without an organisation)"
   ],
   "tags": ["account"],
   "critical": true,
@@ -21,13 +20,14 @@
     "required": ["email", "firstName", "surname", "username", "loginUrl"],
     "properties": {
       "email": { "type": "string", "format": "email", "description": "Recipient; also the Novu subscriberId" },
-      "firstName": { "type": "string", "description": "Given name (today: first + middle name with a trailing space)" },
+      "firstName": { "type": "string", "description": "Given name" },
+      "middleName": { "type": "string", "description": "Left out when blank" },
       "surname": { "type": "string" },
       "username": { "type": "string", "description": "Keycloak username (the email address)" },
       "loginUrl": { "type": "string", "format": "uri", "description": "Settings.kycPortalLink" },
-      "platformName": { "type": "string", "description": "Settings.platformName (to add)" },
-      "supportContact": { "type": "string", "description": "Settings.supportContact (to add)" },
-      "setupLinkValidFor": { "type": "string", "description": "e.g. \"72 hours\", from app.users.setup-link-lifespan (to add)" },
+      "platformName": { "type": "string", "description": "Settings.platformName" },
+      "supportContact": { "type": "string", "description": "Settings.supportContact" },
+      "setupLinkValidFor": { "type": "string", "description": "e.g. \"72 hours\", from app.users.setup-link-lifespan" },
       "currentYear": { "type": "string", "pattern": "^[0-9]{4}$" }
     }
   },

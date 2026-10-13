@@ -16,8 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,12 +60,6 @@ public class IndividualApiImpl implements IndividualApi {
 
     @Value("${app.comm.source-email}")
     private String sourceEmail;
-
-    @Value("${app.novu.queue.newUserQueueExchange}")
-    private String newUserQueueExchange;
-
-    @Value("${app.novu.queue.newUserQueueRoutingKey}")
-    private String newUserQueueRoutingKey;
 
     private final KeycloakUserService keycloakUserService;
     private final KeycloakOrganisationService keycloakOrgService;
@@ -196,32 +188,6 @@ public class IndividualApiImpl implements IndividualApi {
 
     }
 
-    private void newUserMessage(IndividualDTO individual, UserDTO user) {
-
-        SettingsDTO settings = settingsService.getAll().stream().findFirst()
-                .orElseThrow(() -> new RuntimeException("No application settings found"));
-
-        Map<String, String> payload = new HashMap<>();
-
-        StringBuilder nameBuilder = new StringBuilder();
-        nameBuilder.append(individual.getFirstName()).append(' ');
-        if (StringUtils.isNotBlank(individual.getMiddleName())) {
-            nameBuilder.append(individual.getMiddleName()).append(' ');
-        }
-
-        payload.put("firstName", nameBuilder.toString());
-        payload.put("surname", individual.getSurname());
-        payload.put("organisationName",
-                individual.getOrganisation() != null ? individual.getOrganisation().name() : "");
-        payload.put("loginUrl", settings.getPlatformUrl());
-        payload.put("email", user.getEmail());
-        payload.put("username", user.getUsername());
-        payload.put("currentYear", "" + LocalDate.now().getYear());
-
-        rabbitTemplate.convertAndSend(newUserQueueExchange, newUserQueueRoutingKey, payload);
-
-    }
-
     @Override
     @Operation(summary = "Save Individual", description = "Save the individual. If the id is not provided, a new individual will be created.")
     @Audit(entity = "INDIVIDUAL", eventLabel = "#individual.id", logData = true)
@@ -232,7 +198,6 @@ public class IndividualApiImpl implements IndividualApi {
         AuditTracker.auditTrail(individual, authentication);
 
         UserDTO user = keycloakUserService.getUserByIdentityNo(individual.getIdentityNo());
-        boolean isNewUser = false;
 
         if (user == null && StringUtils.isNotBlank(individual.getEmailAddress())) {
             user = keycloakUserService.getUserByEmail(individual.getEmailAddress());
@@ -255,7 +220,7 @@ public class IndividualApiImpl implements IndividualApi {
 
             UserDTO existing = keycloakUserService.getUserByEmail(individual.getEmailAddress());
 
-            boolean createUser = isNewUser = (existing == null)
+            boolean createUser = (existing == null)
                     && (individual.getHasUser() != null && individual.getHasUser());
 
             if (createUser) {
@@ -324,18 +289,7 @@ public class IndividualApiImpl implements IndividualApi {
         }
 
         individual = individualService.save(individual);
-        if (isNewUser) {
-            try {
-                // emailService.sendEmail(List.of(newUserMessage(individual, user)));
-                this.newUserMessage(individual, user);
-            } catch (Exception e) {
-                // Log and continue
-                System.err.println("Failed to send new user email: " + e.getMessage());
-                throw new IndividualServiceException(
-                        "Individual saved but failed to send new user email notification.", e);
-            }
-
-        }
+        // New users get their welcome notification from KeycloakUserService.registerUser
 
         return ResponseEntity.ok(individual);
 

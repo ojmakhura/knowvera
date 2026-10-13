@@ -1,16 +1,22 @@
 package bw.co.knowvera.keycloak;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
+import bw.co.knowvera.individual.IndividualDTO;
+import bw.co.knowvera.organisation.OrganisationDTO;
+import bw.co.knowvera.settings.SettingsDTO;
 import bw.co.knowvera.user.UserDTO;
 
 class KeycloakUserServiceHelpersTest {
@@ -57,5 +63,66 @@ class KeycloakUserServiceHelpersTest {
                 (first, max) -> all.subList(Math.min(first, all.size()), Math.min(first + max, all.size())));
 
         assertEquals(all, read);
+    }
+
+    @Test
+    void newUserPayloadSendsNamePartsSeparatelyAndSettings() {
+
+        IndividualDTO individual = new IndividualDTO();
+        individual.setFirstName("Ann");
+        individual.setMiddleName("Mary");
+        individual.setSurname("Applicant");
+        UserDTO user = new UserDTO();
+        user.setEmail("ann@example.com");
+        user.setUsername("ann@example.com");
+        SettingsDTO settings = new SettingsDTO();
+        settings.setPlatformName("Knowvera");
+        settings.setKycPortalLink("https://portal.example");
+        settings.setSupportContact("support@example.com");
+
+        Map<String, String> payload = KeycloakUserService.newUserPayload(individual, user, null, settings,
+                Duration.ofHours(72), 2026);
+
+        assertEquals(Map.of(
+                "email", "ann@example.com",
+                "username", "ann@example.com",
+                "firstName", "Ann",
+                "middleName", "Mary",
+                "surname", "Applicant",
+                "loginUrl", "https://portal.example",
+                "platformName", "Knowvera",
+                "supportContact", "support@example.com",
+                "setupLinkValidFor", "72 hours",
+                "currentYear", "2026"), payload);
+    }
+
+    @Test
+    void newUserPayloadOmitsBlankValuesAndNamesTheOrganisation() {
+
+        IndividualDTO individual = new IndividualDTO();
+        individual.setFirstName("Olivia");
+        individual.setMiddleName(" ");
+        individual.setSurname("Admin");
+        UserDTO user = new UserDTO();
+        user.setEmail("olivia@example.com");
+        OrganisationDTO organisation = new OrganisationDTO();
+        organisation.setId("org-1");
+        organisation.setName("Example Holdings");
+
+        Map<String, String> payload = KeycloakUserService.newUserPayload(individual, user, organisation, null,
+                Duration.ofMinutes(90), 2026);
+
+        assertFalse(payload.containsKey("middleName"));
+        assertFalse(payload.containsKey("loginUrl"), "no empty login link");
+        assertEquals("Example Holdings", payload.get("organisationName"));
+        assertEquals("90 minutes", payload.get("setupLinkValidFor"));
+    }
+
+    @Test
+    void readableDurations() {
+        assertEquals("1 hour", KeycloakUserService.readable(Duration.ofHours(1)));
+        assertEquals("24 hours", KeycloakUserService.readable(Duration.ofDays(1)));
+        assertNull(KeycloakUserService.readable(Duration.ZERO));
+        assertNull(KeycloakUserService.readable(null));
     }
 }

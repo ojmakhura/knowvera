@@ -19,16 +19,16 @@
     "additionalProperties": true,
     "required": ["email", "recipientName", "organisationName", "kycPortalLink"],
     "properties": {
-      "email": { "type": "string", "format": "email", "description": "Recipient: the individual's email address, or the organisation's contactEmailAddress (to add; missing today, see README issue 1)" },
-      "recipientName": { "type": "string", "description": "Person or organisation name (today: the target's UUID, see README issue 2)" },
+      "email": { "type": "string", "format": "email", "description": "Recipient: the individual's email address, or the organisation's contactEmailAddress" },
+      "recipientName": { "type": "string", "description": "Person or organisation name" },
       "organisationName": { "type": "string", "description": "Name of the requesting organisation" },
       "kycPortalLink": { "type": "string", "format": "uri", "description": "<app.registration-url>/<requestId>?token=<token>; secret" },
-      "linkExpiresAt": { "type": "string", "description": "Readable expiry, e.g. \"19 October 2026\" (to add)" },
-      "reference": { "type": "string", "description": "ClientRequest.ref (to add)" },
+      "linkExpiresAt": { "type": "string", "description": "Readable expiry, e.g. \"19 October 2026\"" },
+      "reference": { "type": "string", "description": "ClientRequest.ref" },
       "platformName": { "type": "string", "description": "Settings.platformName" },
       "platformUrl": { "type": "string", "format": "uri", "description": "Settings.kycPortalLink" },
       "supportContact": { "type": "string", "description": "Settings.supportContact" },
-      "currentYear": { "type": "string", "pattern": "^[0-9]{4}$", "description": "(to add)" }
+      "currentYear": { "type": "string", "pattern": "^[0-9]{4}$", "description": "Year the message was queued" }
     }
   },
   "steps": [

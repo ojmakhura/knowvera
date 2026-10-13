@@ -400,6 +400,25 @@ public class ClientRequestServiceImpl
     }
 
     /**
+     * Gives each unsaved request (no id yet) a new account request token, stores its hash on the
+     * request and returns the plain tokens by target id. Saved requests keep theirs.
+     */
+    static Map<String, String> issueTokensForNewRequests(List<ClientRequest> clientRequests, int tokenLength,
+            PasswordEncoder passwordEncoder) {
+
+        Map<String, String> tokens = new HashMap<>();
+        for (ClientRequest c : clientRequests) {
+            if (c.getId() != null) {
+                continue;
+            }
+            String token = RequestTokens.issue(tokenLength);
+            c.setAccountRequestToken(passwordEncoder.encode(token));
+            tokens.put(c.getTargetId(), token);
+        }
+        return tokens;
+    }
+
+    /**
      * @see bw.co.knowvera.organisation.client.ClientRequestService#uploadRequests(InputStream)
      */
     @Override
@@ -445,22 +464,7 @@ public class ClientRequestServiceImpl
             throw new Exception("Error reading file: " + e.getMessage(), e);
         }
 
-        clientRequests.forEach(c -> {
-            boolean isNew = StringUtils.isBlank(c.getId().toString());
-
-            if (isNew) {
-
-                // Generate a random token with letters, digits and special characters
-                String token = RequestTokens.issue(requestTokenLength);
-
-                // Encode the token
-                String encodedToken = passwordEncoder.encode(token);
-
-                c.setAccountRequestToken(encodedToken);
-
-                tokenMap.put(c.getTargetId(), token);
-            }
-        });
+        tokenMap.putAll(issueTokensForNewRequests(clientRequests, requestTokenLength, passwordEncoder));
 
         clientRequests = clientRequestRepository.saveAll(clientRequests);
 

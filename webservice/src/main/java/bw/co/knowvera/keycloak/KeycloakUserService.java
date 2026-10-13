@@ -313,28 +313,67 @@ public class KeycloakUserService {
     private void newUserMessage(IndividualDTO individual, UserDTO user, OrganisationDTO organisation,
             SettingsDTO settings) {
 
-        Map<String, String> payload = new HashMap<>();
+        Map<String, String> payload = newUserPayload(individual, user, organisation, settings,
+                setupLinkLifespan, LocalDate.now().getYear());
 
-        StringBuilder nameBuilder = new StringBuilder();
-        nameBuilder.append(individual.getFirstName()).append(' ');
-        if (StringUtils.isNotBlank(individual.getMiddleName())) {
-            nameBuilder.append(individual.getMiddleName()).append(' ');
+        if (StringUtils.isBlank(payload.get("email"))) {
+            LOGGER.warn("User {} has no email address: no welcome notification sent", user.getUserId());
+            return;
         }
 
-        payload.put("firstName", nameBuilder.toString());
-        payload.put("surname", individual.getSurname());
-        payload.put("email", user.getEmail());
-        payload.put("loginUrl", settings != null ? settings.getKycPortalLink() : "");
-        payload.put("username", user.getUsername());
-        payload.put("currentYear", "" + LocalDate.now().getYear());
-
-        if (organisation != null && StringUtils.isNotBlank(organisation.getId())) {
-            payload.put("organisationName", StringUtils.defaultString(organisation.getName()));
+        if (payload.containsKey("organisationName")) {
             rabbitTemplate.convertAndSend(newOrgUserQueueExchange, newOrgUserQueueRoutingKey, payload);
         } else {
             rabbitTemplate.convertAndSend(newUserQueueExchange, newUserQueueRoutingKey, payload);
         }
+    }
 
+    /**
+     * Payload of the novu-new-user and novu-new-org-user workflows (docs/novu/workflows). Blank
+     * values are left out; {@code organisationName} is present only for organisation users.
+     */
+    static Map<String, String> newUserPayload(IndividualDTO individual, UserDTO user,
+            OrganisationDTO organisation, SettingsDTO settings, Duration setupLinkLifespan, int currentYear) {
+
+        Map<String, String> payload = new HashMap<>();
+
+        putIfPresent(payload, "email", user.getEmail());
+        putIfPresent(payload, "username", user.getUsername());
+        putIfPresent(payload, "firstName", StringUtils.trim(individual.getFirstName()));
+        putIfPresent(payload, "middleName", StringUtils.trim(individual.getMiddleName()));
+        putIfPresent(payload, "surname", StringUtils.trim(individual.getSurname()));
+        if (settings != null) {
+            putIfPresent(payload, "loginUrl", settings.getKycPortalLink());
+            putIfPresent(payload, "platformName", settings.getPlatformName());
+            putIfPresent(payload, "supportContact", settings.getSupportContact());
+        }
+        putIfPresent(payload, "setupLinkValidFor", readable(setupLinkLifespan));
+        payload.put("currentYear", String.valueOf(currentYear));
+
+        if (organisation != null && StringUtils.isNotBlank(organisation.getId())) {
+            payload.put("organisationName", StringUtils.defaultString(organisation.getName()));
+        }
+        return payload;
+    }
+
+    private static void putIfPresent(Map<String, String> payload, String key, String value) {
+        if (StringUtils.isNotBlank(value)) {
+            payload.put(key, value);
+        }
+    }
+
+    /** "72 hours", "1 hour", "30 minutes"; null for no duration. */
+    static String readable(Duration duration) {
+
+        if (duration == null || duration.isZero() || duration.isNegative()) {
+            return null;
+        }
+        long minutes = duration.toMinutes();
+        if (minutes % 60 == 0) {
+            long hours = minutes / 60;
+            return hours + (hours == 1 ? " hour" : " hours");
+        }
+        return minutes + (minutes == 1 ? " minute" : " minutes");
     }
 
     /**
@@ -864,7 +903,7 @@ public class KeycloakUserService {
 
         SettingsDTO settings = settingsService.getAll().stream().findFirst().orElse(null);
         if (settings == null) {
-            LOGGER.warn("No application settings: the welcome notification has no login link");
+            LOGGER.warn("No application settings: the welcome notification has no login link, platform name or support contact");
         }
 
         UserDTO user = new UserDTO();

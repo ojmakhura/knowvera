@@ -21,14 +21,15 @@
     "properties": {
       "email": { "type": "string", "format": "email", "description": "Recipient; also the Novu subscriberId" },
       "firstName": { "type": "string" },
+      "middleName": { "type": "string", "description": "Left out when blank" },
       "surname": { "type": "string" },
       "username": { "type": "string" },
       "loginUrl": { "type": "string", "format": "uri", "description": "Settings.kycPortalLink" },
       "organisationName": { "type": "string" },
       "roleName": { "type": "string", "description": "Readable role, e.g. \"Organisation administrator\" (to add)" },
-      "platformName": { "type": "string", "description": "Settings.platformName (to add)" },
-      "supportContact": { "type": "string", "description": "Settings.supportContact (to add)" },
-      "setupLinkValidFor": { "type": "string", "description": "From app.users.setup-link-lifespan (to add)" },
+      "platformName": { "type": "string", "description": "Settings.platformName" },
+      "supportContact": { "type": "string", "description": "Settings.supportContact" },
+      "setupLinkValidFor": { "type": "string", "description": "From app.users.setup-link-lifespan" },
       "currentYear": { "type": "string", "pattern": "^[0-9]{4}$" }
     }
   },

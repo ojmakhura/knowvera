@@ -35,7 +35,10 @@ public class RabbitMQConfig {
 
     @Bean
     public JacksonJsonMessageConverter converter(JsonMapper mapper) {
-        return new JacksonJsonMessageConverter(mapper);
+        JacksonJsonMessageConverter converter = new JacksonJsonMessageConverter(mapper);
+        // Gives each message a stable id (listeners use it, e.g. as Novu's transactionId)
+        converter.setCreateMessageIds(true);
+        return converter;
     }
 
     @Bean

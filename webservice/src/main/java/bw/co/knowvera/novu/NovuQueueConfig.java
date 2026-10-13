@@ -1,16 +1,47 @@
 package bw.co.knowvera.novu;
 
+import java.time.Duration;
+import java.util.concurrent.Executors;
+
+import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Declarables;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
+import org.springframework.amqp.rabbit.config.RetryInterceptorBuilder;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class NovuQueueConfig {
+
+    /** Listener container factory of the Novu queues: bounded retries, then the dead-letter queue. */
+    public static final String CONTAINER_FACTORY = "novuListenerContainerFactory";
+
+    /** Suffix of each queue's dead-letter queue. */
+    static final String DLQ_SUFFIX = ".dlq";
+
+    @Value("${app.novu.queue.deadLetterExchange:x.novu-dead-letter}")
+    private String deadLetterExchange;
+
+    @Value("${app.novu.retry.max-retries:3}")
+    private int maxRetries;
+
+    @Value("${app.novu.retry.initial-interval:2s}")
+    private Duration initialInterval;
+
+    @Value("${app.novu.retry.multiplier:3}")
+    private double multiplier;
+
+    @Value("${app.novu.retry.max-interval:30s}")
+    private Duration maxInterval;
 
     @Value("${app.novu.queue.newUserQueueExchange}")
     private String newUserQueueExchange;
@@ -47,6 +78,53 @@ public class NovuQueueConfig {
 
     @Value("${app.novu.queue.newKycRecordQueueRoutingKey}")
     private String newKycRecordQueueRoutingKey;
+
+    /**
+     * Retries a failed trigger with back-off, then republishes it, with the exception in its
+     * headers, to the dead-letter exchange under its original routing key. The main queues keep
+     * their arguments, so existing brokers need no queue changes.
+     */
+    @Bean(CONTAINER_FACTORY)
+    public SimpleRabbitListenerContainerFactory novuListenerContainerFactory(ConnectionFactory connectionFactory,
+            JacksonJsonMessageConverter converter, RabbitTemplate rabbitTemplate) {
+
+        RepublishMessageRecoverer recoverer = new RepublishMessageRecoverer(rabbitTemplate, deadLetterExchange)
+                .errorRoutingKeyPrefix("");
+
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
+        factory.setDefaultRequeueRejected(false);
+        factory.setMessageConverter(converter);
+        factory.setTaskExecutor(Executors.newVirtualThreadPerTaskExecutor());
+        factory.setAdviceChain(RetryInterceptorBuilder.stateless()
+                .maxRetries(maxRetries)
+                .backOffOptions(initialInterval.toMillis(), multiplier, maxInterval.toMillis())
+                .recoverer(recoverer)
+                .build());
+        return factory;
+    }
+
+    @Bean
+    public Declarables novuDeadLetterSchema() {
+
+        DirectExchange exchange = new DirectExchange(deadLetterExchange);
+        Queue newUserDlq = QueueBuilder.durable(newUserQueue + DLQ_SUFFIX).build();
+        Queue newOrgUserDlq = QueueBuilder.durable(newOrgUserQueue + DLQ_SUFFIX).build();
+        Queue newOrgClientRequestDlq = QueueBuilder.durable(newOrgClientRequestQueue + DLQ_SUFFIX).build();
+        Queue newKycRecordDlq = QueueBuilder.durable(newKycRecordQueue + DLQ_SUFFIX).build();
+
+        return new Declarables(
+                exchange,
+                newUserDlq,
+                newOrgUserDlq,
+                newOrgClientRequestDlq,
+                newKycRecordDlq,
+                BindingBuilder.bind(newUserDlq).to(exchange).with(newUserQueueRoutingKey),
+                BindingBuilder.bind(newOrgUserDlq).to(exchange).with(newOrgUserQueueRoutingKey),
+                BindingBuilder.bind(newOrgClientRequestDlq).to(exchange).with(newOrgClientRequestQueueRoutingKey),
+                BindingBuilder.bind(newKycRecordDlq).to(exchange).with(newKycRecordQueueRoutingKey));
+    }
 
     @Bean
     public Declarables newUserQueueSchema() {

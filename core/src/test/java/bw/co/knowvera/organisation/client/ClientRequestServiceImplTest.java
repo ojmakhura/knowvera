@@ -1,5 +1,6 @@
 package bw.co.knowvera.organisation.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -8,6 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -355,5 +358,24 @@ class ClientRequestServiceImplTest {
         document.setTargetId(UUID.randomUUID().toString());
         document.setFileName("requests.csv");
         return document;
+    }
+
+    @Test
+    void bulkUploadIssuesTokensOnlyForUnsavedRequests() {
+        ClientRequest unsaved = ClientRequest.Factory.newInstance();
+        unsaved.setTargetId("new-target");
+        ClientRequest saved = ClientRequest.Factory.newInstance();
+        saved.setId(UUID.randomUUID());
+        saved.setTargetId("old-target");
+        saved.setAccountRequestToken("existing-hash");
+
+        when(passwordEncoder.encode(any())).thenAnswer(invocation -> "hash:" + invocation.getArgument(0));
+
+        Map<String, String> tokens = ClientRequestServiceImpl.issueTokensForNewRequests(
+                List.of(unsaved, saved), 16, passwordEncoder);
+
+        assertEquals(Set.of("new-target"), tokens.keySet());
+        assertEquals("hash:" + tokens.get("new-target"), unsaved.getAccountRequestToken());
+        assertEquals("existing-hash", saved.getAccountRequestToken());
     }
 }

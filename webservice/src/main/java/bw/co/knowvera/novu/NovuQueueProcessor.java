@@ -1,35 +1,38 @@
 package bw.co.knowvera.novu;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 
-import bw.co.knowvera.keycloak.KeycloakUserService;
-import bw.co.knowvera.settings.SettingsService;
 import co.novu.Novu;
-import co.novu.models.components.CreateSubscriberRequestDto;
+import co.novu.models.components.SubscriberPayloadDto;
 import co.novu.models.components.To2;
 import co.novu.models.components.TriggerEventRequestDto;
-import co.novu.models.components.TriggerEventRequestDtoOverrides;
-import co.novu.models.errors.ErrorDto;
-import co.novu.models.operations.EventsControllerTriggerResponse;
-import co.novu.models.operations.SubscribersControllerGetSubscriberResponse;
-import lombok.RequiredArgsConstructor;
 
+/**
+ * Triggers the Novu workflows queued by the API (payloads: docs/novu/workflows). The subscriber is
+ * sent inline with each trigger, so Novu creates or updates it. A failed trigger is retried and
+ * then dead-lettered by {@link NovuQueueConfig#CONTAINER_FACTORY}; the AMQP message id is the
+ * transactionId, so a retry of a trigger Novu already accepted is not delivered twice.
+ */
 @Service
 public class NovuQueueProcessor {
-    
-  private final Novu novuSdk;
-  private final KeycloakUserService keycloakUserService;
-  private final SettingsService settingsService;
 
-  public NovuQueueProcessor(Novu novuSdk, KeycloakUserService keycloakUserService,
-      SettingsService settingsService) {
+  private static final Logger LOGGER = LoggerFactory.getLogger(NovuQueueProcessor.class);
+
+  private final Novu novuSdk;
+
+  public NovuQueueProcessor(Novu novuSdk) {
     this.novuSdk = novuSdk;
-    this.keycloakUserService = keycloakUserService;
-    this.settingsService = settingsService;
   }
 
   @Value("${app.novu.queue.newUserNovuId}")
@@ -44,113 +47,67 @@ public class NovuQueueProcessor {
   @Value("${app.novu.queue.newKycRecordNovuId}")
   private String novuNewKycRecordId;
 
-  private void checkSubscriberExists(Map<String, String> payload) {
-    try {
-      SubscribersControllerGetSubscriberResponse response = novuSdk.subscribers()
-          .get()
-          .subscriberId(payload.get("email"))
-          .call();
-
-      if (!response.subscriberResponseDto().isPresent()) {
-        novuSdk.subscribers()
-            .create()
-            .body(CreateSubscriberRequestDto.builder()
-                .subscriberId(payload.get("email"))
-                .email(payload.get("email"))
-                .firstName(payload.get("firstName"))
-                .lastName(payload.get("surname"))
-                .build())
-            .call();
-      }
-
-    } catch(ErrorDto ex) {
-      // Most SDKs throw an exception when the subscriber is not found (404)
-      if (ex.code() == 404) {
-        novuSdk.subscribers()
-            .create()
-            .body(CreateSubscriberRequestDto.builder()
-                .subscriberId(payload.get("email"))
-                .email(payload.get("email"))
-                .firstName(payload.get("firstName"))
-                .lastName(payload.get("surname"))
-                .build())
-            .call();
-      } else {
-        throw ex;
-      }
-    } catch (Exception ex) {
-      // Most SDKs throw an exception when the subscriber is not found (404)
-
-      throw ex;
-
-    } 
+  @RabbitListener(queues = "${app.novu.queue.newUserQueue}", containerFactory = NovuQueueConfig.CONTAINER_FACTORY)
+  public void processNewUserQueue(Map<String, String> payload,
+      @Header(name = AmqpHeaders.MESSAGE_ID, required = false) String messageId) {
+    trigger(novuNewUserId, payload, messageId);
   }
 
-  @RabbitListener(queues = "${app.novu.queue.newUserQueue}")
-  public void processNewUserQueue(Map<String, String> payload) {
-
-    checkSubscriberExists(payload);
-
-    EventsControllerTriggerResponse res = novuSdk.trigger()
-        .body(TriggerEventRequestDto.builder()
-            .workflowId(novuNewUserId)
-            .to(To2.of(payload.get("email")))
-            .payload((Map)payload)
-            .overrides(TriggerEventRequestDtoOverrides.builder()
-                .build())
-            .build())
-        .call();
-
-    if (res.triggerEventResponseDto().isPresent()) {
-      // handle response
-    }
+  @RabbitListener(queues = "${app.novu.queue.newOrgUserQueue}", containerFactory = NovuQueueConfig.CONTAINER_FACTORY)
+  public void processNewOrgUserQueue(Map<String, String> payload,
+      @Header(name = AmqpHeaders.MESSAGE_ID, required = false) String messageId) {
+    trigger(novuNewOrgUserId, payload, messageId);
   }
 
-  @RabbitListener(queues = "${app.novu.queue.newOrgUserQueue}")
-  public void processNewOrgUserQueue(Map<String, String> payload) {
-
-    checkSubscriberExists(payload);
-
-    EventsControllerTriggerResponse res = novuSdk.trigger()
-        .body(TriggerEventRequestDto.builder()
-            .workflowId(novuNewOrgUserId)
-            .to(To2.of(payload.get("email")))
-            .payload((Map)payload)
-            .overrides(TriggerEventRequestDtoOverrides.builder()
-                .build())
-            .build())
-        .call();
+  @RabbitListener(queues = "${app.novu.queue.newOrgClientRequestQueue}",
+      containerFactory = NovuQueueConfig.CONTAINER_FACTORY)
+  public void processNewOrgClientRequestQueue(Map<String, String> payload,
+      @Header(name = AmqpHeaders.MESSAGE_ID, required = false) String messageId) {
+    trigger(novuNewOrgClientRequestId, payload, messageId);
   }
 
-  @RabbitListener(queues = "${app.novu.queue.newOrgClientRequestQueue}")
-  public void processNewOrgClientRequestQueue(Map<String, String> payload) {
-
-    checkSubscriberExists(payload);
-
-    EventsControllerTriggerResponse res = novuSdk.trigger()
-        .body(TriggerEventRequestDto.builder()
-            .workflowId(novuNewOrgClientRequestId)
-            .to(To2.of(payload.get("email")))
-            .payload((Map)payload)
-            .overrides(TriggerEventRequestDtoOverrides.builder()
-                .build())
-            .build())
-        .call();
-  }
-
-  @RabbitListener(queues = "${app.novu.queue.newKycRecordQueue}")
+  /** Proposed workflow (docs/novu/workflows/novu-new-kyc-record.json): nothing publishes to it yet. */
+  @RabbitListener(queues = "${app.novu.queue.newKycRecordQueue}", containerFactory = NovuQueueConfig.CONTAINER_FACTORY)
   public void processNewKycRecordQueue(Map<String, String> payload) {
+    LOGGER.debug("Ignoring {} message: the workflow is not implemented yet", novuNewKycRecordId);
+  }
 
-    checkSubscriberExists(payload);
+  private void trigger(String workflowId, Map<String, String> payload, String messageId) {
 
-    // EventsControllerTriggerResponse res = novuSdk.trigger()
-    //     .body(TriggerEventRequestDto.builder()
-    //         .workflowId(novuNewKycRecordId)
-    //         .to(To2.of(payload.get("email")))
-    //         .payload((Map)payload)
-    //         .overrides(TriggerEventRequestDtoOverrides.builder()
-    //             .build())
-    //         .build())
-    //     .call();
+    if (payload == null || StringUtils.isBlank(payload.get("email"))) {
+      LOGGER.warn("Dropping {} message {}: it has no recipient email", workflowId, messageId);
+      return;
+    }
+
+    TriggerEventRequestDto request = triggerRequest(workflowId, payload, messageId);
+    novuSdk.trigger().body(request).call();
+    LOGGER.debug("Triggered {} (transaction {})", workflowId, request.transactionId().orElse(null));
+  }
+
+  /**
+   * The trigger for {@code payload}: subscriberId and email are the recipient's email address;
+   * the name is firstName/surname, or recipientName for client requests.
+   */
+  static TriggerEventRequestDto triggerRequest(String workflowId, Map<String, String> payload, String messageId) {
+
+    String email = payload.get("email").trim();
+    String firstName = StringUtils.firstNonBlank(payload.get("firstName"), payload.get("recipientName"));
+
+    SubscriberPayloadDto.Builder subscriber = SubscriberPayloadDto.builder()
+        .subscriberId(email)
+        .email(email);
+    if (StringUtils.isNotBlank(firstName)) {
+      subscriber.firstName(firstName);
+    }
+    if (StringUtils.isNotBlank(payload.get("surname"))) {
+      subscriber.lastName(payload.get("surname"));
+    }
+
+    return TriggerEventRequestDto.builder()
+        .workflowId(workflowId)
+        .to(To2.of(subscriber.build()))
+        .payload(new HashMap<String, Object>(payload))
+        .transactionId(StringUtils.isNotBlank(messageId) ? messageId : UUID.randomUUID().toString())
+        .build();
   }
 }

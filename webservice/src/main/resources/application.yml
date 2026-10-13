@@ -302,7 +302,15 @@ app:
   novu:
     api-key: ${NOVU_API_KEY:}
     base-url: ${NOVU_BASE_URL:https://api.novu.co}
+    # Failed triggers are retried with back-off, then moved to the dead-letter queues
+    # (<queue>.dlq on the dead-letter exchange) instead of being dropped
+    retry:
+      max-retries: ${NOVU_RETRY_MAX_RETRIES:3}
+      initial-interval: ${NOVU_RETRY_INITIAL_INTERVAL:2s}
+      multiplier: ${NOVU_RETRY_MULTIPLIER:3}
+      max-interval: ${NOVU_RETRY_MAX_INTERVAL:30s}
     queue:
+      deadLetterExchange: ${NOVU_DEAD_LETTER_EXCHANGE:x.novu-dead-letter}
       newUserNovuId: ${NOVU_NEW_USER_NOVU_ID:novu-new-user}
       newUserQueueExchange: ${NOVU_NEW_USER_QUEUE_EXCHANGE:x.novu-new-user-queue}
       newUserQueue: ${NOVU_NEW_USER_QUEUE:q.novu-new-user}

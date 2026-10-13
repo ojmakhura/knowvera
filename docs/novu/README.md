@@ -13,10 +13,10 @@ portals ── GET /novu/config ──► { subscriberId, subscriberHash } ─�
 
 | Workflow id (`app.novu.queue.*NovuId`) | Queue | Sent by | Channels | State |
 |---|---|---|---|---|
-| `novu-new-user` | `q.novu-new-user` | `KeycloakUserService.registerUser`, `IndividualApiImpl` | in-app, email | works once the template exists |
+| `novu-new-user` | `q.novu-new-user` | `KeycloakUserService.registerUser` | in-app, email | works once the template exists |
 | `novu-new-org-user` | `q.novu-new-org-user` | `KeycloakUserService.registerUser` | in-app, email | works once the template exists |
-| `novu-new-org-client-request` | `q.novu-new-org-client-request` | `ClientRequestNotification` (core) | email only | **broken**: no recipient (issue 1) |
-| `novu-new-kyc-record` | `q.novu-new-kyc-record` | nobody | in-app, email | proposed; listener does not trigger |
+| `novu-new-org-client-request` | `q.novu-new-org-client-request` | `ClientRequestNotification` (core) | email only | works once the template exists |
+| `novu-new-kyc-record` | `q.novu-new-kyc-record` | nobody | in-app, email | proposed; listener ignores messages |
 
 Files:
 
@@ -25,8 +25,9 @@ Files:
   and an example payload.
 - `templates/<id>.email.html`: the email step bodies (Liquid, `{{ payload.x }}`).
 
-Fields marked *(to add)* in the schemas are not sent today; the templates fall back when they are
-missing (`| default:`), so the workflows can go live before the code changes.
+Fields marked *(to add)* in the schemas are not sent yet (today only `roleName`, and everything in
+`novu-new-kyc-record`); the templates fall back when a field is missing (`| default:`). Blank values
+are left out of the payload rather than sent as `""`.
 
 ## Setting up Novu
 
@@ -77,8 +78,9 @@ The other workflows add their own fields; see `payloadSchema` in each workflow f
 - Strings only; dates already formatted for reading (`"19 October 2026"`), enums as readable labels.
 - Never: passwords, identity numbers, screening/risk results, document contents. The client request
   link token is the one secret allowed, and only in the email step of `novu-new-org-client-request`.
-- Recommended envelope fields for idempotency and tracing (*to add*): `"transactionId"` (a UUID per
-  notification; Novu ignores a repeated trigger with the same id) and `"locale"` (`"en"`).
+- Idempotency: `NovuQueueProcessor` sends the AMQP message id (set by the message converter) as the
+  trigger's `transactionId`, so a retried trigger Novu already accepted is not delivered twice.
+  `"locale"` (`"en"`) is still *to add*.
 
 ### 2. Novu trigger (NovuQueueProcessor → `POST /v1/events/trigger`)
 
@@ -140,7 +142,7 @@ Inbox shows nothing.
 
 ## Problems found in the current integration
 
-Ordered by impact. None are fixed yet.
+Ordered by impact. Fixed items are marked **Fixed** with what changed.
 
 1. **Client request invitations are never delivered.** `ClientRequestNotification`
    (`core/.../messaging/ClientRequestNotification.java:95`) builds the payload without `email`.
@@ -148,34 +150,46 @@ Ordered by impact. None are fixed yet.
    With no dead-letter queue and Spring's default requeue, the message is redelivered in a loop.
    Fix: add the recipient's email (the individual's `emailAddress`; for an organisation target, its
    `contactEmailAddress`) and skip, with a warning, requests that have none.
+   **Fixed:** the payload carries `email` (individual's `emailAddress`, or the organisation's `contactEmailAddress`); requests without one are skipped with a warning, and so are re-uploaded requests that got no new token.
 2. **`recipientName` is the target's UUID** (`request.getTargetId()`), so the email would greet
    "Dear 0192f3c4-…". Use the individual's full name or the organisation's name.
+   **Fixed:** full name (first, middle, surname) or organisation name. `reference`, `linkExpiresAt` (from `app.request-token-link-ttl`) and `currentYear` are sent too.
 3. **The invitation token is logged** at INFO (`ClientRequestNotification.java:92`: "Token: …").
    Anyone with log access can open the client's KYC link. Remove the token from the log line.
+   **Fixed:** the log line has only the request id.
 4. **Bulk uploads crash before any invitation:** `ClientRequestServiceImpl.java:449` calls
    `c.getId().toString()` on requests not yet saved (id is null until `saveAll`), so it throws a
    NullPointerException. Use `c.getId() == null`.
+   **Fixed:** `ClientRequestServiceImpl.issueTokensForNewRequests` checks `c.getId() == null`.
 5. **No failure handling on the listeners.** Any Novu error (outage, bad key, rate limit) makes the
    message redeliver immediately and forever. Add a dead-letter exchange to the four queues and a
    retry interceptor with back-off (or catch, log and drop after N attempts).
+   **Fixed:** the Novu listeners use `novuListenerContainerFactory` (`NovuQueueConfig`): `app.novu.retry.*` retries with back-off (default 3 retries, 2 s ×3 up to 30 s), then the message, with the exception in its headers, goes to `<queue>.dlq` on `x.novu-dead-letter` (`NOVU_DEAD_LETTER_EXCHANGE`). The main queues keep their arguments, so existing brokers need no changes. Messages without `email` are dropped with a warning. The trigger passes the subscriber inline (`to` object) instead of the `checkSubscriberExists` lookups.
 6. **`novu-new-kyc-record` does nothing**: no publisher, and the listener only upserts the subscriber.
    Either implement it (draft included) or remove the queue and listener.
+   *Open:* the listener now ignores messages (debug log) instead of upserting a subscriber; the workflow still has no publisher.
 7. **The client request message is `Map<String, Object>`** while the listener expects
    `Map<String, String>`; harmless today (all values are strings) but it should be typed the same.
+   **Fixed:** `Map<String, String>`.
 8. **New individuals can get two welcome messages**: `KeycloakUserService.registerUser` sends one,
    and `IndividualApiImpl.save` sends another (`newUserMessage`) to the same queue, with a different
    `loginUrl` (`platformUrl` instead of `kycPortalLink`) and an extra `organisationName` the
    `novu-new-user` template ignores. Keep the one in `registerUser`.
+   **Fixed:** `IndividualApiImpl` no longer sends one.
 9. **`firstName` carries the middle name and a trailing space** ("Ann Mary "). Send `firstName`,
    `middleName` and `surname` separately (the templates use `| strip` meanwhile).
+   **Fixed:** `firstName`, `middleName` and `surname` are separate; `platformName`, `supportContact` and `setupLinkValidFor` (e.g. "72 hours") are sent too.
 10. **Subscriber id is the email address**, in both the triggers and `/novu/config`. When a user
     changes their email, the Inbox loses their history and they get a second subscriber. The
     Keycloak user id (`sub`) is stable; switching needs both sides changed together. Also,
     `/novu/config` throws a NullPointerException for tokens without an `email` claim.
+    *Partly fixed:* `/novu/config` returns 400 for tokens without an `email` claim. The subscriber id is still the email address.
 11. **`loginUrl` can be empty**: `KeycloakUserService` sends `""` when no Settings row exists, which
     fails the schema's `uri` format once validation is on and leaves the button without a link.
+    **Fixed:** blank values are left out, so with no Settings row there is no `loginUrl` (a warning is logged) instead of `""`. Templates must cope with it missing.
 12. **`/novu/config` returns 500 when `NOVU_API_KEY` is not set** (seen on the test stack). Return
     503, or let the portals hide the Inbox when Novu is not configured.
+    **Fixed:** 503 when `NOVU_API_KEY` is blank.
 13. **The portals load the Inbox configuration but render no Inbox.** `@novu/js` is installed in
     both portals, and the admin portal stores the config in `AppEnvState`, but no component mounts
     the Inbox, and the customer portal never calls `/novu/config`. In-app steps are therefore
