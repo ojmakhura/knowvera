@@ -39,6 +39,7 @@ import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { DocumentListDTO } from '@app/models/bw/co/knowvera/document/document-list-dto';
 import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 export class SearchDocumentsVarsForm {
   fileName: string = '';
@@ -77,12 +78,12 @@ export class SearchDocumentsVarsForm {
 export class Documents implements OnInit {
   searchDocumentsVarsForm = new SearchDocumentsVarsForm();
   searchDocumentsSignal = signal(this.searchDocumentsVarsForm);
-  searchDocumentsForm = form(this.searchDocumentsSignal, (path) => {}, { submission: { action: async () => this.doSearch() } });
+  searchDocumentsForm = form(this.searchDocumentsSignal, (path) => {}, { submission: { action: async () => this.doSearch(0, this.pageSize(), true) } });
 
   readonly documentApiStore = inject(DocumentApiStore);
   readonly documentTypeApiStore = inject(DocumentTypeApiStore);
   private readonly documentApi = inject(DocumentApi);
-  // protected readonly toast = toast;
+  protected readonly toast = toast;
   protected readonly rows = signal<DocumentListDTO[]>([]);
   protected readonly dataSource = new MatTableDataSource<DocumentListDTO>([]);
   protected readonly currentPage = signal(0);
@@ -91,6 +92,10 @@ export class Documents implements OnInit {
   protected readonly totalPages = signal(0);
   protected readonly router = inject(Router);
   protected readonly loading = linkedSignal(() => this.documentApiStore.loading());
+  loaderState = inject(LoaderState);
+  // Set while a search request is in flight, so the toast fires once when it completes.
+  private searchInFlight = false;
+  private notifyOnSuccess = false;
   protected readonly loaderMessage = linkedSignal(() => this.documentApiStore.loaderMessage());
   protected readonly messages = linkedSignal(() => this.documentApiStore.messages());
   protected readonly success = linkedSignal(() => this.documentApiStore.success());
@@ -105,6 +110,25 @@ export class Documents implements OnInit {
   displayedColumns: string[] = ['fileName', 'documentType', 'target', 'analyticsStatus', 'status', 'actions'];
 
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
+    effect(() => {
+      if (this.loading() || !this.searchInFlight) {
+        return;
+      }
+
+      this.searchInFlight = false;
+
+      if (this.error()) {
+        this.toast.error(this.messages()[0] || 'Failed to search documents.');
+      } else if (this.notifyOnSuccess) {
+        const total = this.documentApiStore.dataPage()?.page?.totalElements || 0;
+        this.toast.success(`${total} document${total === 1 ? '' : 's'} found`);
+      }
+    });
+
     effect(() => {
       const page = this.documentApiStore.dataPage();
 
@@ -148,7 +172,10 @@ export class Documents implements OnInit {
     this.doSearch();
   }
 
-  doSearch(pageNumber: number = 0, pageSize: number = this.pageSize()): void {
+  doSearch(pageNumber: number = 0, pageSize: number = this.pageSize(), notify: boolean = false): void {
+    this.searchInFlight = true;
+    this.notifyOnSuccess = notify;
+    this.loaderState.message.set('Searching documents');
     const value = this.searchDocumentsSignal();
     const criteria = new SearchObject<DocumentSearchCriteria>();
 
@@ -184,11 +211,11 @@ export class Documents implements OnInit {
   }
 
   openDetails(id: string): void {
-    this.router.navigate(['/', 'documents', 'details', id]);
+    this.router.navigate(['/', 'documents', id]);
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['/', 'documents', 'edit', id]);
+    this.router.navigate(['/', 'documents', id, 'edit']);
   }
 
   downloadDocument(row: DocumentDTO): void {

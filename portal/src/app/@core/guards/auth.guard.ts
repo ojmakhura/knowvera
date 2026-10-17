@@ -15,13 +15,8 @@ const isAccessAllowed = async (
   const router = inject(Router);
 
   if(_.url.startsWith('/register')) {
-
-    if(!authenticated) {
-
-      return false;
-    }
-
-    return router.parseUrl('/');
+    // Registration links are opened by signed-out users; signed-in users go home
+    return !authenticated || router.parseUrl('/');
   }
 
   if (authenticated) {

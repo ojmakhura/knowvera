@@ -431,6 +431,26 @@
       ]
     },
     {
+      "name": "keycloak",
+      "displayName": "Keycloak Helper",
+      "type": "urn:knowvera-api:resources:keycloak",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/keycloak/client-roles",
+        "/keycloak/permissions",
+        "/keycloak/real-roles"
+      ],
+      "scopes": [
+        {
+          "name": "self"
+        },
+        {
+          "name": "list"
+        }
+      ]
+    },
+    {
       "name": "kyc-field-groups",
       "displayName": "Kyc Field Group",
       "type": "urn:knowvera-api:resources:kyc-field-groups",
@@ -571,11 +591,19 @@
       "ownerManagedAccess": false,
       "attributes": {},
       "uris": [
-        "/novu/config"
+        "/novu/config",
+        "/novu/dead-letters",
+        "/novu/dead-letters/{queue}/redrive"
       ],
       "scopes": [
         {
           "name": "self"
+        },
+        {
+          "name": "view"
+        },
+        {
+          "name": "edit"
         }
       ]
     },
@@ -1992,6 +2020,30 @@
       }
     },
     {
+      "name": "keycloak-self-permission",
+      "description": "Read or change the caller's own data (my records, my profile) (Keycloak Helper)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"keycloak\"]",
+        "scopes": "[\"self\"]",
+        "applyPolicies": "[\"authenticated-policy\"]"
+      }
+    },
+    {
+      "name": "keycloak-list-permission",
+      "description": "List, page or search records (Keycloak Helper)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"keycloak\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
       "name": "kyc-field-groups-view-permission",
       "description": "Read a single record (Kyc Field Group)",
       "type": "scope",
@@ -2253,6 +2305,30 @@
         "resources": "[\"novu\"]",
         "scopes": "[\"self\"]",
         "applyPolicies": "[\"authenticated-policy\"]"
+      }
+    },
+    {
+      "name": "novu-view-permission",
+      "description": "Read a single record (Novu Auth)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"novu\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "novu-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Novu Auth)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"novu\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
       }
     },
     {

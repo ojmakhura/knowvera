@@ -163,9 +163,13 @@ CHECK_TARGETS = {
 def generated_endpoints():
     """(ApiInterface, method) -> (resource, scope, path, Impl file) from the generated sources."""
     endpoints = {}
-    for file in g.SOURCE_DIRS[0].rglob("*Api.java"):
+    # Every generated controller (an ...Api or ...Controller), as generate_authz.scan() finds them
+    for file in g.SOURCE_DIRS[0].rglob("*.java"):
         text = file.read_text()
-        base = g.CLASS_MAPPING.search(text).group(1)
+        mapping = g.CLASS_MAPPING.search(text)
+        if not mapping:
+            continue
+        base = mapping.group(1)
         for m in g.ENDPOINT.finditer(text):
             http, args, _, ret, name = m.groups()
             impl = IMPL_DIR / file.relative_to(g.SOURCE_DIRS[0]).with_name(file.stem + "Impl.java")

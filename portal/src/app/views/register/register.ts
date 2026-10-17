@@ -182,6 +182,13 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
   confirmIdentification(stepper: MatStepper) {
 
+    // The link was not accepted (expired, already used, or the server failed): there is no
+    // confirmation token, so loading the individual can only fail
+    if (!this.identityConfirmationToken()) {
+      this.toastr.error('This registration link could not be confirmed. Please open the link from your email again, or ask for a new one.');
+      return;
+    }
+
     this.individualApiStore.loadRequestIndividual({
       requestId: this.requestId,
       identityConfirmationToken: this.identityConfirmationToken(),

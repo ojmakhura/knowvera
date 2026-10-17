@@ -42,7 +42,7 @@
         <mat-icon>file_download</mat-icon>
         Export Record
       </button>
-      <button type="button" class="dp-btn-outline is-primary-text" [routerLink]="['/organisation/edit', organisation().id || id]">
+      <button type="button" class="dp-btn-outline is-primary-text" [routerLink]="['/organisation', organisation().id || id, 'edit']">
         <mat-icon>edit</mat-icon>
         Edit Organisation
       </button>
@@ -141,7 +141,7 @@
         </ul>
       </div>
 
-      <button type="button" class="dp-dashed-btn" [routerLink]="['/organisation/edit', organisation().id || id]">
+      <button type="button" class="dp-dashed-btn" [routerLink]="['/organisation', organisation().id || id, 'edit']">
         <mat-icon>add</mat-icon>
         Add Domain
       </button>

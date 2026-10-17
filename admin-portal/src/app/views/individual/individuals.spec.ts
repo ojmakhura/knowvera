@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
 import { Individuals, SearchIndividualsVarsForm } from './individuals';
 
@@ -33,18 +33,18 @@ describe('Individuals', () => {
     pagedSearch: vi.fn(),
   };
 
-  const routerMock = {
-    navigate: vi.fn(),
-  };
+  let navigateSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Individuals],
       providers: [
         { provide: IndividualApiStore, useValue: individualApiStoreMock },
-        { provide: Router, useValue: routerMock },
+        provideRouter([]),
       ],
     }).compileComponents();
+
+    navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     fixture = TestBed.createComponent(Individuals);
     component = fixture.componentInstance;
@@ -57,7 +57,7 @@ describe('Individuals', () => {
   });
 
   it('should update search field and reset search', () => {
-    component.updateField('firstName', 'Alice');
+    component.searchIndividualsForm.firstName().value.set('Alice');
     expect(component.searchIndividualsSignal().firstName).toBe('Alice');
 
     component.resetSearch();
@@ -76,9 +76,9 @@ describe('Individuals', () => {
     component.openDetails('ind-1');
     component.openEdit('ind-2');
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/individual', 'edit']);
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/individual', 'details', 'ind-1']);
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/individual', 'edit', 'ind-2']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/individual', 'edit']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/individual', 'ind-1']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/individual', 'ind-2', 'edit']);
   });
 
   it('should apply page navigation boundaries', () => {

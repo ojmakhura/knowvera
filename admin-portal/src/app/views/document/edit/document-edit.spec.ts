@@ -1,12 +1,11 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-// import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { DocumentEdit } from './document-edit';
 
@@ -42,22 +41,7 @@ describe('DocumentEdit', () => {
     downloadFileByUrl: vi.fn(() => of(new Blob(['file']))),
   };
 
-  const routerMock = {
-    navigate: vi.fn(),
-  };
-
-  const routeMock = {
-    snapshot: {
-      queryParamMap: {
-        get: vi.fn(() => null),
-      },
-    },
-  };
-
-  const toastrMock = {
-    success: vi.fn(),
-    error: vi.fn(),
-  };
+  let navigateSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -66,11 +50,11 @@ describe('DocumentEdit', () => {
         { provide: DocumentApiStore, useValue: documentApiStoreMock },
         { provide: DocumentTypeApiStore, useValue: documentTypeApiStoreMock },
         { provide: DocumentApi, useValue: documentApiMock },
-        { provide: Router, useValue: routerMock },
-        { provide: ActivatedRoute, useValue: routeMock },
-        { provide: ToastrService, useValue: toastrMock },
+        provideRouter([]),
       ],
     }).compileComponents();
+
+    navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     fixture = TestBed.createComponent(DocumentEdit);
     component = fixture.componentInstance;
@@ -108,7 +92,7 @@ describe('DocumentEdit', () => {
 
   it('should navigate on cancel according to edit state', () => {
     component.cancelEdit();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/documents']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/documents']);
 
     component.editDocumentSignal.update((value) => ({
       ...value,
@@ -116,6 +100,6 @@ describe('DocumentEdit', () => {
     }));
     component.cancelEdit();
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/documents/details', 'doc-7']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/documents', 'doc-7']);
   });
 });

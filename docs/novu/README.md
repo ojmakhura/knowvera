@@ -13,9 +13,9 @@ portals ── GET /novu/config ──► { subscriberId, subscriberHash } ─�
 
 | Workflow id (`app.novu.queue.*NovuId`) | Queue | Sent by | Channels | State |
 |---|---|---|---|---|
-| `novu-new-user` | `q.novu-new-user` | `KeycloakUserService.registerUser` | in-app, email | works once the template exists |
-| `novu-new-org-user` | `q.novu-new-org-user` | `KeycloakUserService.registerUser` | in-app, email | works once the template exists |
-| `novu-new-org-client-request` | `q.novu-new-org-client-request` | `ClientRequestNotification` (core) | email only | works once the template exists |
+| `novu-new-user` | `q.novu-new-user` | `KeycloakUserService.registerUser` (individual without an organisation of their own) | in-app, email | works once the template exists |
+| `novu-new-org-user` | `q.novu-new-org-user` | `KeycloakUserService.registerUser` (member of an organisation) | in-app, email | works once the template exists |
+| `novu-new-org-client-request` | `q.novu-new-org-client-request` | `ClientRequestNotification` (core), after a single client request is saved | email only | works once the template exists; bulk upload sends nothing yet |
 | `novu-new-kyc-record` | `q.novu-new-kyc-record` | nobody | in-app, email | proposed; listener ignores messages |
 
 Files:
@@ -26,8 +26,11 @@ Files:
 - `templates/<id>.email.html`: the email step bodies (Liquid, `{{ payload.x }}`).
 
 Fields marked *(to add)* in the schemas are not sent yet (today only `roleName`, and everything in
-`novu-new-kyc-record`); the templates fall back when a field is missing (`| default:`). Blank values
-are left out of the payload rather than sent as `""`.
+`novu-new-kyc-record`). Blank values are left out of the payload rather than sent as `""`. The
+templates print plain variables (no Liquid `| default:` filters), so the publishers send the
+fallbacks themselves: `platformName` ("Knowvera"), `supportContact` ("our support team") and
+`setupLinkValidFor` ("a limited time"). Only `loginUrl` and `platformUrl` can be missing, when no
+Settings row exists.
 
 ## Setting up Novu
 
@@ -36,8 +39,9 @@ are left out of the payload rather than sent as `""`.
 2. For each workflow, paste the payload schema from `workflows/<id>.json`, add the steps listed
    there, and paste `templates/<id>.email.html` as the email body. Mark `novu-new-user`,
    `novu-new-org-user` and `novu-new-org-client-request` *critical*, so subscriber preferences cannot
-   switch them off. Leave payload schema *validation* off until the code sends every required field
-   (issues 1, 2 and 11): a rejected trigger is redelivered forever today (issue 5).
+   switch them off. Payload schema *validation* can be turned on: every required field is sent,
+   except `loginUrl` when no Settings row exists. A trigger Novu rejects is retried, then moved to
+   the dead-letter queue (see *Message flow*).
 3. Connect an email provider to the environment and an in-app (Inbox) channel.
 4. Enable **HMAC encryption** for the Inbox (the API already signs subscriber ids, see below).
 5. Configure the API: `NOVU_API_KEY` (the environment's secret key), `NOVU_BASE_URL`
@@ -50,6 +54,75 @@ Account emails depend on two systems: Novu sends the welcome message, and **Keyc
 "Update your account" email with the link to set a password and verify the address
 (`executeActionsEmail`). That needs SMTP configured on the realm (Realm settings → Email); without
 it, creating a user without a password fails with 503 and the account is rolled back.
+
+## Message flow
+
+How each notification gets from an HTTP request to Novu (class.method).
+
+**Common tail.** Publishers call `rabbitTemplate.convertAndSend(exchange, routingKey, Map<String,String>)`;
+the shared `JacksonJsonMessageConverter` (`RabbitMQConfig`) gives every message a stable message id.
+`NovuQueueProcessor.process…Queue(payload, messageId)` → `trigger(workflowId, payload, messageId)`:
+a message without `email` is dropped with a warning; otherwise `triggerRequest(...)` builds the
+trigger (subscriber inline, `transactionId` = message id) and `novuSdk.trigger().body(…).call()`
+sends it. On failure `novuListenerContainerFactory` (`NovuQueueConfig`) retries with back-off, then
+`RepublishMessageRecoverer` moves the message to `<queue>.dlq` on `x.novu-dead-letter`.
+
+**1. Client request invitation (`novu-new-org-client-request`)**
+
+```
+POST /client-requests                                   ClientRequestApiImpl.save
+ └ ClientRequestServiceImpl.handleSave
+    ├ new request: RequestTokens.issue() → BCrypt hash stored → clientRequestRepository.save
+    └ ClientRequestNotification.queueEmailNotificationsForRequests(requests, {targetId → token}, organisation)
+       ├ on the caller's thread: only the request ids and tokens are read; requests without a new
+       │ token are skipped
+       ├ after the caller's transaction commits (at once when there is none):
+       │ virtualThreadExecutor → read-only transaction → send(tokens, organisation)
+       │   └ per id: clientRequestRepository.findById (deleted → skipped) → buildPayload
+       │      → recipientOf: the individual's emailAddress and full name, or the organisation's
+       │        contactEmailAddress and name (none → skipped with a warning)
+       └ convertAndSend(x.novu-new-org-client-request-queue, …) → processNewOrgClientRequestQueue → trigger
+```
+
+The requests are reloaded in their own transaction because the caller's entities belong to a
+closed persistence context (lazy associations such as `request.getOrganisation()` would fail on
+another thread), and before the commit the new requests are not visible.
+`ClientRequestServiceImpl.handleUploadRequests` (bulk upload) calls the same method, but
+`ClientRequestApiImpl.uploadRequests` throws `UnsupportedOperationException`, so uploaded requests
+get no invitation yet.
+
+**2. Welcome when a client accepts a request (`novu-new-user` or `novu-new-org-user`)**
+
+```
+GET /client-requests/{id}/confirm?confirm=true&registrationToken=…   ClientRequestApiImpl.confirmRegistration
+ ├ individualService.findById, keycloakUserService.getUserByIdentityNo (existing user → error)
+ ├ organisationService.findById(request.getOrganisationId())          the requesting organisation
+ └ KeycloakUserService.registerUser(individual, requestingOrganisation)
+    ├ role: ORG_ADMIN if the individual belongs to an organisation, else APPLICANT
+    ├ createRegistrationUser → create(): Keycloak user, organisation membership, realm roles,
+    │   executeActionsEmail(UPDATE_PASSWORD, VERIFY_EMAIL)   ← the password e-mail comes from Keycloak
+    └ newUserMessage(individual, user, memberOrganisation(individual, requestingOrganisation), settings)
+       ├ member of an organisation → organisationName set → x.novu-new-org-user-queue → processNewOrgUserQueue
+       └ otherwise (a client)      →                        x.novu-new-user-queue     → processNewUserQueue
+```
+
+The workflow follows the same test as the role: `memberOrganisation` returns the individual's own
+organisation, or null. The requesting organisation only fills in a missing name when it is the
+same organisation, so an invited client is an applicant and gets `novu-new-user`.
+
+**3. Welcome when staff create an individual with an account (same workflows)**
+
+```
+POST /individuals (new individual, hasUser = true, no existing user)  IndividualApiImpl.save
+ └ KeycloakUserService.registerUser(individual, organisation of the individual's branch or organisation)
+```
+
+**Not sending:** `novu-new-kyc-record` has no publisher, and `processNewKycRecordQueue` only logs.
+`KeycloakUserService.registerUser(String individualId)` has no callers.
+
+**Inbox:** `GET /novu/config` → `NovuAuthController.getNovuConfig` →
+`NovuAuthService.generateSubscriberHash(email)` → `{ subscriberId, subscriberHash }` → the
+portals' `@novu/js` Inbox (not mounted yet, issue 13).
 
 ## JSON contracts
 
@@ -84,9 +157,9 @@ The other workflows add their own fields; see `payloadSchema` in each workflow f
 
 ### 2. Novu trigger (NovuQueueProcessor → `POST /v1/events/trigger`)
 
-What the listener should send. Passing the subscriber as an object creates or updates the
-subscriber in the same call, which replaces `checkSubscriberExists` (two extra API calls per
-message today):
+What `NovuQueueProcessor.triggerRequest` sends. The subscriber is passed inline, which creates or
+updates it in the same call. `firstName` is the payload's `firstName` (or `recipientName` for client
+requests), `lastName` its `surname`:
 
 ```json
 {
@@ -194,3 +267,15 @@ Ordered by impact. Fixed items are marked **Fixed** with what changed.
     both portals, and the admin portal stores the config in `AppEnvState`, but no component mounts
     the Inbox, and the customer portal never calls `/novu/config`. In-app steps are therefore
     invisible until an Inbox (bell) is added to the shells.
+14. **An accepted client got the organisation-manager welcome.** `confirmRegistration` passes the
+    *requesting* organisation to `registerUser`, and the payload added `organisationName` whenever
+    that was set, so the client received `novu-new-org-user` ("You now manage …") while their role
+    (decided by `individual.getOrganisation()`) was APPLICANT.
+    **Fixed:** `KeycloakUserService.memberOrganisation` picks the workflow by the same test as the
+    role; organisation users are named after their own organisation.
+15. **Invitations were built from detached entities on another thread.** `@Async`
+    `queueEmailNotificationsForRequests` received the caller's `ClientRequest` entities, so lazy
+    associations could fail outside the request's persistence context, and the thread could run
+    before the new requests were committed.
+    **Fixed:** only ids and tokens leave the caller; after the commit the requests are reloaded in a
+    read-only transaction on `virtualThreadExecutor` (see *Message flow*, path 1).

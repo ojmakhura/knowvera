@@ -1,11 +1,10 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
-// import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { IndividualDetails } from './individual-details';
 
@@ -56,15 +55,7 @@ describe('IndividualDetails', () => {
     open: vi.fn(() => ({ afterClosed: () => of(undefined) })),
   };
 
-  const routerMock = {
-    navigate: vi.fn(),
-  };
-
-  const toastrMock = {
-    success: vi.fn(),
-    warning: vi.fn(),
-    error: vi.fn(),
-  };
+  let navigateSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -74,10 +65,13 @@ describe('IndividualDetails', () => {
         { provide: SettingsApiStore, useValue: settingsApiStoreMock },
         { provide: DocumentApi, useValue: documentApiMock },
         { provide: MatDialog, useValue: dialogMock },
-        { provide: Router, useValue: routerMock },
-        { provide: ToastrService, useValue: toastrMock },
+        provideRouter([]),
       ],
     }).compileComponents();
+
+    navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    dialogMock.open.mockClear();
+    documentApiMock.remove.mockClear();
 
     fixture = TestBed.createComponent(IndividualDetails);
     component = fixture.componentInstance;
@@ -103,26 +97,27 @@ describe('IndividualDetails', () => {
     component.openDocumentDetails({ id: 'doc-1' } as any);
     component.openDocumentEdit({ id: 'doc-2' } as any);
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/individual', 'edit', 'ind-1']);
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/documents/details', 'doc-1']);
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/documents/edit', 'doc-2']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/individual', 'ind-1', 'edit']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/documents', 'doc-1']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/documents', 'doc-2', 'edit']);
   });
 
-  it('should warn when document id is missing', () => {
+  it('should do nothing when document id is missing', () => {
     component.openDocumentDetails({ id: null } as any);
     component.openDocumentEdit({ id: null } as any);
     component.deleteDocument({ id: null } as any);
 
-    expect(toastrMock.warning).toHaveBeenCalledTimes(3);
+    expect(navigateSpy).not.toHaveBeenCalled();
+    expect(documentApiMock.remove).not.toHaveBeenCalled();
   });
 
-  it('should warn when adding document before target id exists', () => {
+  it('should not open the upload dialog before target id exists', () => {
     individualSignal.set({ id: null, documents: [], latestKyc: { documents: [] } });
     fixture.detectChanges();
 
     component.id = null;
     component.openDocumentAdd();
 
-    expect(toastrMock.warning).toHaveBeenCalled();
+    expect(dialogMock.open).not.toHaveBeenCalled();
   });
 });

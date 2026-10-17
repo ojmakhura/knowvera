@@ -15,19 +15,13 @@ export const subscriptionRoutes: Routes = [
       import('./edit/subscription-edit').then((module) => module.SubscriptionEdit),
   },
   {
-    path: 'edit/:id',
+    path: ':id/edit',
     canActivate: [AuthenticationGuard],
     loadComponent: () =>
       import('./edit/subscription-edit').then((module) => module.SubscriptionEdit),
   },
   {
-    path: 'details',
-    canActivate: [AuthenticationGuard],
-    loadComponent: () =>
-      import('./details/subscription-details').then((module) => module.SubscriptionDetails),
-  },
-  {
-    path: 'details/:id',
+    path: ':id',
     canActivate: [AuthenticationGuard],
     loadComponent: () =>
       import('./details/subscription-details').then((module) => module.SubscriptionDetails),

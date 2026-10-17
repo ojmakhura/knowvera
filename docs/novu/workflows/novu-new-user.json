@@ -35,14 +35,14 @@
     {
       "type": "in_app",
       "name": "welcome-in-app",
-      "subject": "Welcome to {{payload.platformName | default: 'Knowvera'}}",
-      "body": "Your account is ready. Use the link we emailed you to set your password, then complete your KYC profile.",
-      "primaryAction": { "label": "Open portal", "redirect": { "url": "{{payload.loginUrl}}", "target": "_self" } }
+      "subject": "Welcome to {{payload.platformName}}",
+      "body": "Your account has been created. Open the \"Update Your Account\" email we sent you to choose your password, then sign in to complete your KYC profile.",
+      "primaryAction": { "label": "Sign in", "redirect": { "url": "{{payload.loginUrl}}", "target": "_self" } }
     },
     {
       "type": "email",
       "name": "welcome-email",
-      "subject": "Your {{payload.platformName | default: 'Knowvera'}} account is ready",
+      "subject": "Welcome to {{payload.platformName}}: set your password to get started",
       "bodyTemplate": "../templates/novu-new-user.email.html"
     }
   ],

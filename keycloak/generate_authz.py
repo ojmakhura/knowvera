@@ -71,6 +71,7 @@ RESOURCES = {
     "expected-fields":             "Reference: fields expected on a document type",
     "individuals":                 "Individuals (KYC subjects)",
     "invoices":                    "Invoices",
+    "keycloak":                    "Realm and client role names, and the caller's own permissions",
     "kyc-field-groups":            "Reference: KYC field groups",
     "kyc-records":                 "KYC cases",
     "kyc-report-sections":         "Sections of a KYC report",
@@ -102,6 +103,8 @@ PUBLIC_INFRASTRUCTURE = ["/swagger-ui/**", "/v3/**", "/actuator/health", "/actua
 ENDPOINT_SCOPES = {
     # Administrative password reset of any user; users change their own password in Keycloak
     "UserApi.changePassword": "manage",
+    # Moves failed notifications from a Novu dead-letter queue back to be sent again
+    "NovuDeadLetterController.redriveDeadLetters": "edit",
 }
 
 # --------------------------------------------------------------------------
@@ -124,7 +127,7 @@ SCOPES = {
 # Method name rules, first match wins. HTTP method rules follow in classify().
 SCOPE_RULES = [
     # Only endpoints that act on the caller and take no user / record id as input
-    ("self",   r"^(findMy|loadMe$|loadMyOrganisation$|getNovuConfig$)"),
+    ("self",   r"^(findMy|loadMe$|loadMyOrganisation$|getNovuConfig$|getUserPermissions$)"),
     ("manage", r"^(add|remove)(Client)?Roles?$"),
     ("import", r"^upload(Requests|Template)$"),
     ("export", r"^(download|generateKycReport$)"),
@@ -229,7 +232,7 @@ READ_EXPORT = ("view", "list", "export")
 
 REFERENCE = ["document-types", "expected-fields", "kyc-field-groups", "verification-data-configs"]
 # Shared reference data: nobody owns it, so owner-scoped roles get the plain scopes there
-REFERENCE_RESOURCES = set(REFERENCE) | {"settings"}
+REFERENCE_RESOURCES = set(REFERENCE) | {"settings", "keycloak"}
 
 # Roles limited to their own records: the external tree. Keycloak grants them "<scope>-own"
 # instead of "<scope>" (except on REFERENCE_RESOURCES); @RequiresOwnership lets "<scope>"
@@ -275,6 +278,7 @@ GRANTS = {
         "organisation-branches": ("edit", "delete"),
         "organisation-document-types": ("edit", "delete"),
         "users": ("view", "list", "edit", "manage"),
+        "keycloak": ("list",),  # role names for assigning roles
         "client-requests": ("delete", "review"),
         "documents": ("delete",),
         "subscriptions": READ,
@@ -345,6 +349,8 @@ GRANTS = {
         "sequences": ALL,
         **grant(REFERENCE, ALL),
         "users": ALL,
+        "keycloak": ("list",),
+        "novu": ("view", "edit"),  # dead-letter counts and re-drive
         "organisation-branches": ALL,
         "organisation-document-types": ALL,
         "audit-logs": READ,

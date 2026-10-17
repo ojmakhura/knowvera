@@ -21,7 +21,9 @@ interface DialogData {
 }
 
 export class KycFieldGroupForm {
-  label: string | any = null;
+  // Native text inputs bound with [formField] must start as '' — signal forms treats a null
+  // model value on <input type="text"> as numeric and rejects non-numeric input.
+  label: string | any = '';
   description: string | any = null;
   position: number | any = 1;
   groupFields: Array<GroupFieldDTO> | any = [];
@@ -93,7 +95,7 @@ export class AddKycFieldGroupDialog implements OnInit {
     const editing = this.data.editingGroup;
     if (editing) {
       this.groupSignal.set({
-        label: editing.label ?? null,
+        label: editing.label ?? '',
         description: editing.description ?? null,
         position: editing.position ?? 1,
         groupFields: editing.groupFields || [],
@@ -175,7 +177,7 @@ export class AddKycFieldGroupDialog implements OnInit {
     const group: KycFieldGroupDTO = this.isEditing
       ? { ...this.data.editingGroup! }
       : new KycFieldGroupDTO();
-    group.label = values.label?.trim();
+    group.label = values.label?.trim() || null;
     group.description = values.description?.trim();
     group.position = values.position;
     group.targetType = this.data.targetType;

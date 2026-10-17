@@ -52,6 +52,10 @@ spring:
     port: ${RABBITMQ_PORT:5672} 
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
+    # The broker confirms every publish and returns unroutable ones, so lost messages are logged
+    # (RabbitMQConfig, ConfirmedPublisher) instead of disappearing
+    publisher-confirm-type: correlated
+    publisher-returns: true
   liquibase:
     enabled: false
   security:
@@ -309,6 +313,11 @@ app:
       initial-interval: ${NOVU_RETRY_INITIAL_INTERVAL:2s}
       multiplier: ${NOVU_RETRY_MULTIPLIER:3}
       max-interval: ${NOVU_RETRY_MAX_INTERVAL:30s}
+    # Consumers per Novu queue, each prefetching one message, so a message waiting between retries
+    # does not hold up the rest of its queue
+    consumers:
+      concurrency: ${NOVU_CONSUMERS:3}
+      max-concurrency: ${NOVU_MAX_CONSUMERS:10}
     queue:
       deadLetterExchange: ${NOVU_DEAD_LETTER_EXCHANGE:x.novu-dead-letter}
       newUserNovuId: ${NOVU_NEW_USER_NOVU_ID:novu-new-user}

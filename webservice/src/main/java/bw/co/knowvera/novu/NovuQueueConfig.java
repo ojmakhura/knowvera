@@ -43,6 +43,13 @@ public class NovuQueueConfig {
     @Value("${app.novu.retry.max-interval:30s}")
     private Duration maxInterval;
 
+    /** Consumers per Novu queue; a message waiting between retries holds only its own consumer. */
+    @Value("${app.novu.consumers.concurrency:3}")
+    private int concurrentConsumers;
+
+    @Value("${app.novu.consumers.max-concurrency:10}")
+    private int maxConcurrentConsumers;
+
     @Value("${app.novu.queue.newUserQueueExchange}")
     private String newUserQueueExchange;
 
@@ -97,6 +104,11 @@ public class NovuQueueConfig {
         factory.setDefaultRequeueRejected(false);
         factory.setMessageConverter(converter);
         factory.setTaskExecutor(Executors.newVirtualThreadPerTaskExecutor());
+        // Several consumers, each holding one unacknowledged message: while one message waits
+        // between retries, the others keep the queue moving
+        factory.setConcurrentConsumers(concurrentConsumers);
+        factory.setMaxConcurrentConsumers(Math.max(concurrentConsumers, maxConcurrentConsumers));
+        factory.setPrefetchCount(1);
         factory.setAdviceChain(RetryInterceptorBuilder.stateless()
                 .maxRetries(maxRetries)
                 .backOffOptions(initialInterval.toMillis(), multiplier, maxInterval.toMillis())

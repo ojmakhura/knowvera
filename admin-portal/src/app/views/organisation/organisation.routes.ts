@@ -14,7 +14,7 @@ export const organisationRoutes: Routes = [
       import('./edit/organisation-edit').then((module) => module.OrganisationEdit),
   },
   {
-    path: 'edit/:id',
+    path: ':id/edit',
     canActivate: [AuthenticationGuard],
     loadComponent: () =>
       import('./edit/organisation-edit').then((module) => module.OrganisationEdit),

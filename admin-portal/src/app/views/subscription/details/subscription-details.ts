@@ -30,6 +30,7 @@ import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/org
 import { KycSubscriptionApiStore } from '@app/store/bw/co/knowvera/subscription/kyc-subscription-api.store';
 import { TranslateModule } from '@ngx-translate/core';
 import { swalFire } from '@app/@shared/swal';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 type TimelineItem = {
   icon: string;
@@ -73,6 +74,7 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
   protected readonly displayedInvoiceColumns = ['ref', 'date', 'amount', 'status', 'actions'];
   protected readonly statusEnum = KycSubsciptionStatus;
   protected readonly loading = linkedSignal(() => this.kycSubscriptionApiStore.loading());
+  loaderState = inject(LoaderState);
   protected readonly error = linkedSignal(() => this.kycSubscriptionApiStore.error());
   protected readonly messages = linkedSignal(() => this.kycSubscriptionApiStore.messages())
   protected readonly success = linkedSignal(() => this.kycSubscriptionApiStore.success());
@@ -124,6 +126,10 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
 
   constructor() {
     effect(() => {
+      this.loaderState.isLoading.set(this.loading() || this.kycInvoiceApiStore.loading());
+    });
+
+    effect(() => {
       this.invoiceDataSource.data = this.invoices();
     });
   }
@@ -133,6 +139,7 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
     this.kycInvoiceApiStore.reset();
     this.kycSubscriptionApiStore.reset();
     if (this.id) {
+      this.loaderState.message.set('Loading subscription');
       this.kycSubscriptionApiStore.findById({ id: this.id });
       this.kycInvoiceApiStore.findBySubscription({ subscriptionId: this.id });
     }
@@ -156,7 +163,7 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openRenew(): void {
-    this.router.navigate(['/subscription', 'edit', this.subscription().id || this.id]);
+    this.router.navigate(['/subscription', this.subscription().id || this.id, 'edit']);
   }
 
   openInvoice(invoice: KycInvoiceDTO): void {
@@ -164,7 +171,7 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.router.navigate(['/invoice', 'details', invoice.id]);
+    this.router.navigate(['/invoice', invoice.id]);
   }
 
   printView(): void {
@@ -371,6 +378,7 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
       cancelButtonText: 'No, cancel',
     }).then((result) => {
       if (result.isConfirmed) {
+        this.loaderState.message.set('Generating invoice');
         this.kycInvoiceApiStore.generateInvoice({
           subscriptionId: this.subscription()?.id,
         });

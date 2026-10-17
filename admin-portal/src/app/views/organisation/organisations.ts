@@ -30,6 +30,8 @@ import { TranslateModule } from '@ngx-translate/core';
 // import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
 import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
+import { LoaderState } from '@app/@shared/loader/loader.state';
+import { toast } from 'ngx-sonner';
 
 interface FilterOption {
   label: string;
@@ -73,6 +75,11 @@ export class Organisations implements OnInit, OnDestroy {
   messages = linkedSignal(() => this.organisationApiStore.messages());
   success = linkedSignal(() => this.organisationApiStore.success());
   loading = linkedSignal(() => this.organisationApiStore.loading());
+  loaderState = inject(LoaderState);
+  protected readonly toast = toast;
+  // Set while a search request is in flight, so the toast fires once when it completes.
+  private searchInFlight = false;
+  private notifyOnSuccess = false;
   error = linkedSignal(() => this.organisationApiStore.error());
 
   organisations = signal<OrganisationListDTO[]>([]);
@@ -157,14 +164,21 @@ export class Organisations implements OnInit, OnDestroy {
 
   constructor() {
     effect(() => {
-      let messages = this.messages();
+      this.loaderState.isLoading.set(this.loading());
+    });
 
-      if (this.success() && !this.loading()) {
-        // this.toaster.success(messages[0]);
+    effect(() => {
+      if (this.loading() || !this.searchInFlight) {
+        return;
       }
 
-      if (this.error() && !this.loading()) {
-        // this.toaster.error(messages[0]);
+      this.searchInFlight = false;
+
+      if (this.error()) {
+        this.toast.error(this.messages()[0] || 'Failed to search organisations.');
+      } else if (this.notifyOnSuccess) {
+        const total = this.organisationApiStore.dataPage()?.page?.totalElements || 0;
+        this.toast.success(`${total} organisation${total === 1 ? '' : 's'} found`);
       }
     });
 
@@ -193,7 +207,10 @@ export class Organisations implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {}
 
-  doSearch(pageNumber: number = 0, pageSize: number = 10): void {
+  doSearch(pageNumber: number = 0, pageSize: number = 10, notify: boolean = false): void {
+    this.searchInFlight = true;
+    this.notifyOnSuccess = notify;
+    this.loaderState.message.set('Searching organisations');
     let value = this.searchOrganisationsSignal().criteria;
 
     let criteria = new SearchObject<OrganisationSearchCriteria>();
@@ -226,7 +243,7 @@ export class Organisations implements OnInit, OnDestroy {
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['organisation', 'edit', id]);
+    this.router.navigate(['organisation', id, 'edit']);
   }
 
   openDetails(id: string): void {
@@ -238,7 +255,7 @@ export class Organisations implements OnInit, OnDestroy {
   }
 
   onSearchSubmit(): void {
-    this.doSearch(0, this.pageSize());
+    this.doSearch(0, this.pageSize(), true);
   }
 
   organisationSubtitle(organisation: OrganisationListDTO): string {

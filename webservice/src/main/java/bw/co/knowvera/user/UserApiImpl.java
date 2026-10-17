@@ -127,17 +127,17 @@ public class UserApiImpl implements UserApi {
     @Override
     @Operation(summary = "Save User", description = "Save a user")
     @Audit(entity = "USER", eventLabel = "#result?.body?.userId", logData = false)
-    public ResponseEntity<UserDTO> saveUser(
-            UserDTO user) {
+    public ResponseEntity<UserDTO> saveUser(UserDTO user) {
 
         logger.debug("Save User " + user);
+        UserDTO savedUser = null;
 
         if (StringUtils.isBlank(user.getUserId())) {
             guard.checkCanCreateUserIn(user.getOrganisationId(), "users:edit");
             if (!user.getRoles().isEmpty()) {
                 guard.checkCanAssign(user.getRoles(), "users:manage");
             }
-            user = this.keycloakUserService.createUser(user);
+            savedUser = this.keycloakUserService.createUser(user);
         } else {
             guard.checkCanManageUser(user.getUserId(), "users:edit");
             // Non-empty roles replace the user's direct roles: every role added or removed must be assignable
@@ -150,12 +150,12 @@ public class UserApiImpl implements UserApi {
                     guard.checkCanAssign(changed, "users:manage");
                 }
             }
-            keycloakUserService.updateUser(user);
+            keycloakUserService.updateUser(savedUser);
         }
 
         // Never echo a password back
-        user.setPassword(null);
-        return ResponseEntity.ok(user);
+        savedUser.setPassword(null);
+        return ResponseEntity.ok(savedUser);
     }
 
     @Override

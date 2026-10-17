@@ -14,19 +14,13 @@ export const invoiceRoutes: Routes = [
       import('./edit/invoice-edit').then((module) => module.InvoiceEdit),
   },
   {
-    path: 'edit/:id',
+    path: ':id/edit',
     canActivate: [AuthenticationGuard],
     loadComponent: () =>
       import('./edit/invoice-edit').then((module) => module.InvoiceEdit),
   },
   {
-    path: 'details',
-    canActivate: [AuthenticationGuard],
-    loadComponent: () =>
-      import('./details/invoice-details').then((module) => module.InvoiceDetails),
-  },
-  {
-    path: 'details/:id',
+    path: ':id',
     canActivate: [AuthenticationGuard],
     loadComponent: () =>
       import('./details/invoice-details').then((module) => module.InvoiceDetails),

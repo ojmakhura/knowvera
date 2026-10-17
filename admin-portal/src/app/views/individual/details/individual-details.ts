@@ -7,6 +7,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
   Input,
   linkedSignal,
@@ -29,6 +30,7 @@ import {
   IndividualUploadDocumentDialogComponent,
   UploadDocumentDialogResult,
 } from './upload-document-dialog';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 @Component({
   selector: 'app-individual-details',
@@ -61,14 +63,20 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
   messages = linkedSignal(() => this.individualApiStore.messages());
   success = linkedSignal(() => this.individualApiStore.success());
   loading = linkedSignal(() => this.individualApiStore.loading());
+  loaderState = inject(LoaderState);
   error = linkedSignal(() => this.individualApiStore.error());
 
-  constructor() {}
+  constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+  }
 
   ngOnInit(): void {
     this.settingsApiStore.getAll();
 
     if (this.id) {
+      this.loaderState.message.set('Loading individual');
       this.individualApiStore.findById({ id: this.id });
     }
   }
@@ -78,7 +86,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {}
 
   openEdit(): void {
-    this.router.navigate(['/individual', 'edit', this.individual().id || this.id]);
+    this.router.navigate(['/individual', this.individual().id || this.id, 'edit']);
   }
 
   fullName(): string {
@@ -176,7 +184,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.router.navigate(['/documents/details', document.id]);
+    this.router.navigate(['/documents', document.id]);
   }
 
   openDocumentEdit(document: DocumentDTO): void {
@@ -185,7 +193,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.router.navigate(['/documents/edit', document.id]);
+    this.router.navigate(['/documents', document.id, 'edit']);
   }
 
   deleteDocument(document: DocumentDTO): void {
@@ -249,6 +257,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
       if (!result) {
         return;
       }
+      this.loaderState.message.set('Uploading document');
       this.loading.set(true);
       this.loaderMessage.set('Uploading document...');
       this.documentApi

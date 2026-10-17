@@ -25,9 +25,9 @@ import { Router, RouterLink } from '@angular/router';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-import { toast } from 'ngx-sonner';
 import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
-// import { ToastrService } from 'ngx-toastr';
+import { LoaderState } from '@app/@shared/loader/loader.state';
+import { toast } from 'ngx-sonner';
 
 export class SearchDocumentTypesVarsForm {
   criteria: string | any = null;
@@ -56,7 +56,7 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
 
   searchDocumentTypesVarsForm: SearchDocumentTypesVarsForm = new SearchDocumentTypesVarsForm();
   searchDocumentTypesSignal = signal(this.searchDocumentTypesVarsForm);
-  searchDocumentTypesForm = form(this.searchDocumentTypesSignal, { submission: { action: async () => this.doSearch(0, this.pageSize()) } });
+  searchDocumentTypesForm = form(this.searchDocumentTypesSignal, { submission: { action: async () => this.doSearch(0, this.pageSize(), true) } });
   readonly documentTypeApiStore = inject(DocumentTypeApiStore);
 
   readonly rows = linkedSignal(() => this.searchDocumentTypesSignal().documentTypes || []);
@@ -65,26 +65,22 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
   messages = linkedSignal(() => this.documentTypeApiStore.messages());
   success = linkedSignal(() => this.documentTypeApiStore.success());
   loading = linkedSignal(() => this.documentTypeApiStore.loading());
+  loaderState = inject(LoaderState);
   error = linkedSignal(() => this.documentTypeApiStore.error());
   currentPage = signal(0);
   pageSize = signal(10);
   totalElements = signal(0);
   totalPages = signal(0);
   protected readonly toast = toast;
+  // Set while a search request is in flight, so the toast fires once when it completes.
+  private searchInFlight = false;
+  private notifyOnSuccess = false;
 
   protected router: Router = inject(Router);
 
   constructor() {
     effect(() => {
-      const messages = this.messages();
-
-      if (this.success() && !this.loading() && messages.length) {
-        // this.toast.success(messages[0]);
-      }
-
-      if (this.error() && !this.loading() && messages.length) {
-        // this.toaster.error(messages[0]);
-      }
+      this.loaderState.isLoading.set(this.loading());
     });
 
     effect(() => {
@@ -104,6 +100,20 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
       }
     });
 
+    effect(() => {
+      if (this.loading() || !this.searchInFlight) {
+        return;
+      }
+
+      this.searchInFlight = false;
+
+      if (this.error()) {
+        this.toast.error(this.messages()[0] || 'Failed to search document types.');
+      } else if (this.notifyOnSuccess) {
+        const total = this.documentTypeApiStore.dataPage()?.page?.totalElements || 0;
+        this.toast.success(`${total} document type${total === 1 ? '' : 's'} found`);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -122,7 +132,10 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
     this.doSearch();
   }
 
-  doSearch(pageNumber: number = 0, pageSize: number = 10): void {
+  doSearch(pageNumber: number = 0, pageSize: number = 10, notify: boolean = false): void {
+    this.searchInFlight = true;
+    this.notifyOnSuccess = notify;
+    this.loaderState.message.set('Searching document types');
     const criteria = this.searchDocumentTypesSignal().criteria;
 
     this.documentTypeApiStore.pagedSearch({
@@ -172,6 +185,6 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['/', 'document', 'type', 'edit', id]);
+    this.router.navigate(['/', 'document', 'type', id, 'edit']);
   }
 }

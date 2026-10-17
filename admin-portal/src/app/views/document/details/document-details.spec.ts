@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { KEYCLOAK_EVENT_SIGNAL, KeycloakEventType } from 'keycloak-angular';
@@ -45,15 +46,11 @@ describe('DocumentDetails', () => {
     hasResourceRole: vi.fn(() => false),
   };
 
-  const toastrMock = {
-    success: vi.fn(),
-    error: vi.fn(),
-  };
-
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DocumentDetails, TranslateModule.forRoot()],
       providers: [
+        provideRouter([]),
         { provide: DocumentApiStore, useValue: documentApiStoreMock },
         { provide: Keycloak, useValue: keycloakMock },
         {

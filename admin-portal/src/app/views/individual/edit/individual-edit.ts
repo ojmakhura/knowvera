@@ -38,22 +38,25 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
 import Swal from 'sweetalert2';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 export class EditIndividualVarsForm {
-  id: string | any = null;
+  id: string | null = null;
   createdAt: Date | any = null;
   createdBy: string | any = null;
   modifiedAt: Date | any = null;
   modifiedBy: string | any = null;
-  kycStatus: KycComplianceStatus | any = null;
+  kycStatus: KycComplianceStatus = KycComplianceStatus.ABSENT;
   kycStatusFilter: KycComplianceStatus | any = null;
   identityType: IndividualIdentityType | any = null;
   identityTypeFilter: IndividualIdentityType | any = null;
-  identityNo: string | any = null;
+  // Native text inputs bound with [formField] must start as '' — signal forms treats a null
+  // model value on <input type="text"> as numeric and rejects non-numeric input.
+  identityNo: string | any = '';
   sex: Sex | any = null;
-  firstName: string | any = null;
-  middleName: string | any = null;
-  surname: string | any = null;
+  firstName: string | any = '';
+  middleName: string | any = '';
+  surname: string | any = '';
   phoneNumbers: Array<PhoneNumber> = [];
   nationality: string | any = null;
   postalAddress: string | any = null;
@@ -62,7 +65,7 @@ export class EditIndividualVarsForm {
   maritalStatus: MaritalStatus | any = null;
   dateOfBirth: Date | any = null;
   employmentStatus: EmploymentStatus | any = null;
-  hasUser: boolean | any = null;
+  hasUser: boolean = false;
   organisation: OrganisationListDTO | any = null;
   organisationFilter: OrganisationListDTO | any = null;
   branch: BranchDTO | any = null;
@@ -124,13 +127,12 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
     required(path.sex, { message: 'sex.required' });
     required(path.firstName, { message: 'first.name.required' });
     required(path.surname, { message: 'surname.required' });
+    required(path.dateOfBirth, { message: 'date.of.birth.required' });
     required(path.nationality, { message: 'nationality.required' });
     required(path.emailAddress, { message: 'email.address.required' });
     email(path.emailAddress, { message: 'email.address.invalid' });
     required(path.maritalStatus, { message: 'marital.status.required' });
     required(path.employmentStatus, { message: 'employment.status.required' });
-    required(path.hasUser, { message: 'has.user.required' });
-    email(path.emailAddress, { message: 'email.address.invalid' });
     applyEach(path.phoneNumbers, (phonePath) => {
       required(phonePath.type, { message: 'phone.type.required' });
       required(phonePath.phoneNumber, { message: 'phone.number.required' });
@@ -359,7 +361,13 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
     'Zimbabwe',
   ];
 
+  loaderState = inject(LoaderState);
+
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
     effect(() => {
       const individual = this.individualApiStore.data();
 
@@ -367,6 +375,10 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
         this.editIndividualSignal.update((value) => ({
           ...value,
           ...individual,
+          identityNo: individual.identityNo ?? '',
+          firstName: individual.firstName ?? '',
+          middleName: individual.middleName ?? '',
+          surname: individual.surname ?? '',
         }));
 
         if (individual.organisation) {
@@ -389,7 +401,6 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
         this.isSaving.set(false);
         this.router.navigate([
           '/individual',
-          'details',
           this.individual().id || this.editIndividualSignal().id,
         ]);
       }
@@ -407,6 +418,7 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
     this.organisationApiStore.getAll();
 
     if (this.id && this.id !== '') {
+      this.loaderState.message.set('Loading individual');
       this.individualApiStore.findById({ id: this.id });
     }
   }
@@ -419,7 +431,7 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
     const targetId = this.editIndividualSignal().id || this.id;
 
     if (targetId) {
-      this.router.navigate(['/individual', 'details', targetId]);
+      this.router.navigate(['/individual', targetId]);
       return;
     }
 
@@ -507,6 +519,7 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   save(): void {
+    console.log('0000000000000000000000000')
     this.isSaving.set(true);
 
     let individual = new IndividualDTO();
@@ -514,12 +527,17 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
       ...individual,
       ...this.editIndividualSignal(),
     };
+    individual.identityNo = individual.identityNo || null;
+    individual.firstName = individual.firstName || null;
+    individual.middleName = individual.middleName || null;
+    individual.surname = individual.surname || null;
 
     if (individual.dateOfBirth instanceof Date) {
       const d = individual.dateOfBirth as Date;
       individual.dateOfBirth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
 
+    this.loaderState.message.set('Saving individual');
     this.individualApiStore.save({ individual: individual });
   }
 

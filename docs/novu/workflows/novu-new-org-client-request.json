@@ -9,7 +9,7 @@
     "routingKey": "novu-new-org-client-request"
   },
   "publishers": [
-    "core: ClientRequestNotification.queueEmailNotificationsForRequests (single request save and bulk upload)"
+    "core: ClientRequestNotification.queueEmailNotificationsForRequests (after a single client request is saved; bulk upload calls it too, but its endpoint is not implemented yet)"
   ],
   "tags": ["kyc", "client-request"],
   "critical": true,

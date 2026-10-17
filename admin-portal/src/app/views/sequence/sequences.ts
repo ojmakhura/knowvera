@@ -15,9 +15,10 @@ import { SequenceGeneratorDTO } from '@app/models/bw/co/knowvera/sequence/sequen
 import { SequencePartDTO } from '@app/models/bw/co/knowvera/sequence/sequence-part-dto';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { SequenceGeneratorApiStore } from '@app/store/bw/co/knowvera/sequence/sequence-generator-api.store';
-// import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
 import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
+import { LoaderState } from '@app/@shared/loader/loader.state';
+import { toast } from 'ngx-sonner';
 
 export class SearchSequencesVarsForm {
   name: string = '';
@@ -53,16 +54,17 @@ export class Sequences implements OnInit, OnDestroy {
 
   searchSequencesVarsForm = new SearchSequencesVarsForm();
   searchSequencesSignal = signal(this.searchSequencesVarsForm);
-  searchSequencesForm = form(this.searchSequencesSignal, { submission: { action: async () => this.doSearch() } });
+  searchSequencesForm = form(this.searchSequencesSignal, { submission: { action: async () => this.doSearch(0, true) } });
 
   readonly sequenceGeneratorApiStore = inject(SequenceGeneratorApiStore);
   loading = linkedSignal(() => this.sequenceGeneratorApiStore.loading());
+  loaderState = inject(LoaderState);
+  protected readonly toast = toast;
+  // Set while the generators are loading, so a failure toasts once when the request completes.
+  private searchInFlight = false;
   error = linkedSignal(() => this.sequenceGeneratorApiStore.error());
   messages = linkedSignal(() => this.sequenceGeneratorApiStore.messages());
-  loadingMessage = linkedSignal(() => this.loading() ? 'Loading sequence generators...' : null);
   success = linkedSignal(() => this.messages()?.length ? this.messages()[0] : null);
-
-  // toastr = inject(ToastrService);
 
   protected readonly allRows = signal<SequenceGeneratorDTO[]>([]);
   protected readonly rows = signal<SequenceGeneratorDTO[]>([]);
@@ -76,27 +78,31 @@ export class Sequences implements OnInit, OnDestroy {
 
   constructor() {
     effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
+    effect(() => {
       const rows = this.sequenceGeneratorApiStore.dataList() || [];
       this.allRows.set(rows);
       this.recomputeRows(0);
     });
 
     effect(() => {
-      const error = this.error();
-      if (error) {
-        // this.toastr.error(String(error), 'Error loading sequence generators');
+      if (this.loading() || !this.searchInFlight) {
+        return;
       }
-    });
-    
-    effect(() => {
-      const message = this.success();
-      if (message) {
-        // this.toastr.success(String(message), 'Success');
+
+      this.searchInFlight = false;
+
+      if (this.error()) {
+        this.toast.error(this.messages()[0] || 'Failed to load sequence generators.');
       }
     });
   }
 
   ngOnInit(): void {
+    this.loaderState.message.set('Loading sequence generators');
+    this.searchInFlight = true;
     this.sequenceGeneratorApiStore.getAll();
   }
 
@@ -108,8 +114,14 @@ export class Sequences implements OnInit, OnDestroy {
     this.recomputeRows(0);
   }
 
-  doSearch(pageNumber: number = 0): void {
+  // Filtering happens client-side over the loaded generators, so the result is known immediately.
+  doSearch(pageNumber: number = 0, notify: boolean = false): void {
     this.recomputeRows(pageNumber);
+
+    if (notify) {
+      const total = this.totalElements();
+      this.toast.success(`${total} sequence generator${total === 1 ? '' : 's'} found`);
+    }
   }
 
   readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
@@ -182,7 +194,7 @@ export class Sequences implements OnInit, OnDestroy {
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['/', 'sequence', 'edit', id]);
+    this.router.navigate(['/', 'sequence', id, 'edit']);
   }
 
   showingLabel(): string {

@@ -1390,6 +1390,42 @@
       ]
     },
     {
+      "name": "keycloak",
+      "path": "/keycloak/client-roles",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "keycloak",
+      "path": "/keycloak/permissions",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "keycloak",
+      "path": "/keycloak/real-roles",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
       "name": "kyc-field-groups",
       "path": "/kyc-field-groups",
       "methods": [
@@ -1929,6 +1965,30 @@
           "method": "GET",
           "scopes": [
             "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "novu",
+      "path": "/novu/dead-letters",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "novu",
+      "path": "/novu/dead-letters/{queue}/redrive",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
           ]
         }
       ]

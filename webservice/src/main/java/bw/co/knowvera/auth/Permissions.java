@@ -1,5 +1,9 @@
 package bw.co.knowvera.auth;
 
+import java.util.Collections;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,5 +29,25 @@ public final class Permissions {
 
         String authority = KeycloakPermissionConverter.AUTHORITY_PREFIX + permission;
         return auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).anyMatch(authority::equals);
+    }
+
+    /**
+     * Every {@code <resource>:<scope>} permission the caller holds, sorted. OAuth scopes in the
+     * token (openid, profile, ...) share the authority prefix but have no ':' and are left out.
+     */
+    public static SortedSet<String> current() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return Collections.emptySortedSet();
+        }
+
+        String prefix = KeycloakPermissionConverter.AUTHORITY_PREFIX;
+        SortedSet<String> permissions = new TreeSet<>();
+        auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(a -> a.startsWith(prefix) && a.indexOf(':') > prefix.length())
+                .forEach(a -> permissions.add(a.substring(prefix.length())));
+        return permissions;
     }
 }

@@ -10,7 +10,6 @@ import { Page } from '@models/page.model';
 import { ContactDTO } from '@app/models/bw/co/knowvera/contact/contact-dto';
 import { ContactApi } from '@app/services/bw/co/knowvera/contact/contact-api';
 import { ContactType } from '@app/models/bw/co/knowvera/contact/contact-type';
-import { toast } from 'ngx-sonner';
 
 export type ContactApiState = AppState<ContactDTO, ContactDTO> & {};
 
@@ -31,7 +30,6 @@ export const ContactApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const contactApi = inject(ContactApi);
-    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -43,7 +41,7 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: ContactDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -57,7 +55,7 @@ export const ContactApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -79,7 +77,7 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: ContactDTO[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -93,7 +91,7 @@ export const ContactApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -115,7 +113,7 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: Page<ContactDTO>) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -129,7 +127,7 @@ export const ContactApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -151,7 +149,7 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: ContactDTO[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -165,7 +163,7 @@ export const ContactApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -187,7 +185,7 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: Page<ContactDTO>) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -201,7 +199,7 @@ export const ContactApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -223,7 +221,7 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: boolean) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -237,7 +235,7 @@ export const ContactApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -259,7 +257,7 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: ContactDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -273,7 +271,7 @@ export const ContactApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -295,7 +293,7 @@ export const ContactApiStore = signalStore(
             tapResponse({
               next: (response: ContactDTO[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -309,7 +307,7 @@ export const ContactApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),

@@ -10,7 +10,6 @@ import { Page } from '@app/models/page.model';
 import { KycSubscriptionDTO } from '@app/models/bw/co/knowvera/subscription/kyc-subscription-dto';
 import { KycSubscriptionApi } from '@app/services/bw/co/knowvera/subscription/kyc-subscription-api';
 import { SubscriptionSearchCriteria } from '@app/models/bw/co/knowvera/subscription/subscription-search-criteria';
-import { toast } from 'ngx-sonner';
 
 export type KycSubscriptionApiState = AppState<KycSubscriptionDTO, KycSubscriptionDTO> & {};
 
@@ -31,7 +30,6 @@ export const KycSubscriptionApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const kycSubscriptionApi = inject(KycSubscriptionApi);
-    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -43,7 +41,7 @@ export const KycSubscriptionApiStore = signalStore(
             tapResponse({
               next: (response: KycSubscriptionDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -57,7 +55,7 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -79,7 +77,7 @@ export const KycSubscriptionApiStore = signalStore(
             tapResponse({
               next: (response: KycSubscriptionDTO[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -93,7 +91,7 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -115,7 +113,7 @@ export const KycSubscriptionApiStore = signalStore(
             tapResponse({
               next: (response: KycSubscriptionDTO[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -129,7 +127,7 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -151,7 +149,7 @@ export const KycSubscriptionApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycSubscriptionDTO>) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -165,7 +163,7 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -187,7 +185,7 @@ export const KycSubscriptionApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycSubscriptionDTO>) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -201,7 +199,7 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -223,7 +221,7 @@ export const KycSubscriptionApiStore = signalStore(
             tapResponse({
               next: (response: boolean) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -237,7 +235,7 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -259,7 +257,7 @@ export const KycSubscriptionApiStore = signalStore(
             tapResponse({
               next: (response: KycSubscriptionDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -273,7 +271,7 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -295,7 +293,7 @@ export const KycSubscriptionApiStore = signalStore(
             tapResponse({
               next: (response: KycSubscriptionDTO[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -309,7 +307,7 @@ export const KycSubscriptionApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),

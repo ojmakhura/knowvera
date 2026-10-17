@@ -1,11 +1,9 @@
-import { Injectable, signal } from "@angular/core";
+import { Injectable, Service, signal } from "@angular/core";
 
 export type LoaderType = 'spinner' | 'dots' | 'pulse' | 'bars';
 export type LoaderColor = 'primary' | 'accent' | 'warn' | 'white';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Service()
 export class LoaderState {
 
   isLoading = signal(false);

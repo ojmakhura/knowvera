@@ -32,6 +32,8 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TranslateModule } from '@ngx-translate/core';
 import { AppEnvStore } from '@app/store/app-env.state';
 import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
+import { LoaderState } from '@app/@shared/loader/loader.state';
+import { toast } from 'ngx-sonner';
 
 export class SearchInvoicesVarsForm {
   ref: string | any = null;
@@ -70,7 +72,7 @@ export class Invoices implements OnInit {
   searchInvoicesSignal = signal(this.searchInvoicesVarsForm);
 
   searchInvoicesForm = form(this.searchInvoicesSignal, (path) => {
-  }, { submission: { action: async () => this.doSearch(0, this.pageSize()) } });
+  }, { submission: { action: async () => this.doSearch(0, this.pageSize(), true) } });
 
   readonly kycInvoiceApiStore = inject(KycInvoiceApiStore);
   organisationApiStore = inject(OrganisationApiStore);
@@ -84,6 +86,13 @@ export class Invoices implements OnInit {
   protected readonly totalPages = signal(0);
   protected readonly router = inject(Router);
   protected readonly loading = linkedSignal(() => this.kycInvoiceApiStore.loading());
+  protected readonly error = linkedSignal(() => this.kycInvoiceApiStore.error());
+  protected readonly messages = linkedSignal(() => this.kycInvoiceApiStore.messages());
+  loaderState = inject(LoaderState);
+  protected readonly toast = toast;
+  // Set while a search request is in flight, so the toast fires once when it completes.
+  private searchInFlight = false;
+  private notifyOnSuccess = false;
   protected readonly loaderMessage = linkedSignal(() => this.kycInvoiceApiStore.loaderMessage());
   protected readonly paidOptions = [
     { label: 'All Statuses', value: '' },
@@ -94,6 +103,25 @@ export class Invoices implements OnInit {
   displayedColumns: string[] = ['ref', 'organisation', 'billingDate', 'amount', 'status', 'actions'];
 
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
+    effect(() => {
+      if (this.loading() || !this.searchInFlight) {
+        return;
+      }
+
+      this.searchInFlight = false;
+
+      if (this.error()) {
+        this.toast.error(this.messages()[0] || 'Failed to search invoices.');
+      } else if (this.notifyOnSuccess) {
+        const total = this.kycInvoiceApiStore.dataPage()?.page?.totalElements || 0;
+        this.toast.success(`${total} invoice${total === 1 ? '' : 's'} found`);
+      }
+    });
+
     effect(() => {
       const page = this.kycInvoiceApiStore.dataPage();
 
@@ -139,7 +167,10 @@ export class Invoices implements OnInit {
     this.doSearch();
   }
 
-  doSearch(pageNumber: number = 0, pageSize: number = 10): void {
+  doSearch(pageNumber: number = 0, pageSize: number = 10, notify: boolean = false): void {
+    this.searchInFlight = true;
+    this.notifyOnSuccess = notify;
+    this.loaderState.message.set('Searching invoices');
     const value = this.searchInvoicesSignal();
     const criteria = new SearchObject<InvoiceSearchCriteria>();
 
@@ -160,11 +191,11 @@ export class Invoices implements OnInit {
   }
 
   openDetails(id: string): void {
-    this.router.navigate(['/', 'invoice', 'details', id]);
+    this.router.navigate(['/', 'invoice', id]);
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['/', 'invoice', 'edit', id]);
+    this.router.navigate(['/', 'invoice', id, 'edit']);
   }
 
   formatDate(value: Date | string | null | undefined): string {

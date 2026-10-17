@@ -51,6 +51,7 @@ import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api'
 import { VerificationSummaryEntry } from '@app/models/bw/co/knowvera/kyc/verification-summary-entry';
 import { KycReportSectionDTO } from '@app/models/bw/co/knowvera/kyc/fields/kyc-report-section-dto';
 import 'quill/dist/quill.snow.css';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 type QueuedDocumentUpload = {
   file: File;
@@ -63,7 +64,9 @@ export class EditRecordVarsForm {
   createdBy: string | any = null;
   modifiedAt: Date | any = null;
   modifiedBy: string | any = null;
-  ref: string | any = null;
+  // Native text inputs bound with [formField] must start as '' — signal forms treats a null
+  // model value on <input type="text"> as numeric and rejects non-numeric input.
+  ref: string | any = '';
   target: TargetEntity = TargetEntity.INDIVIDUAL;
   targetId: string | any = null;
   ownerDetails: OwnerDetails = new OwnerDetails();
@@ -186,7 +189,13 @@ export class RecordEdit implements OnInit {
 
   @Input() id: string | null = null;
 
+  loaderState = inject(LoaderState);
+
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
     effect(() => {
       const settings = this.settingsApiStore.data();
       const target = this.editRecordSignal().target;
@@ -217,7 +226,7 @@ export class RecordEdit implements OnInit {
         createdBy: record.createdBy,
         modifiedAt: record.modifiedAt,
         modifiedBy: record.modifiedBy,
-        ref: record.ref,
+        ref: record.ref ?? '',
         target: record.target || TargetEntity.INDIVIDUAL,
         targetId: record.targetId,
         ownerDetails: record.ownerDetails,
@@ -257,7 +266,7 @@ export class RecordEdit implements OnInit {
         this.saveRequested.set(false);
 
         if (!this.id && !this.route.snapshot.queryParamMap.get('id')) {
-          this.router.navigate(['/', 'records', 'edit', savedRecord.id]);
+          this.router.navigate(['/', 'records', savedRecord.id, 'edit']);
         }
       }
     });
@@ -274,12 +283,14 @@ export class RecordEdit implements OnInit {
 
   ngOnInit(): void {
     if (this.id) {
+      this.loaderState.message.set('Loading KYC record');
       this.kycRecordApiStore.findById({ id: this.id });
     }
 
     const routeId = this.route.snapshot.queryParamMap.get('id');
 
     if (routeId) {
+      this.loaderState.message.set('Loading KYC record');
       this.kycRecordApiStore.findById({ id: routeId });
     }
   }
@@ -297,7 +308,7 @@ export class RecordEdit implements OnInit {
 
     let record: KycRecordDTO = {
       id: this.editRecordSignal().id,
-      ref: this.editRecordSignal().ref,
+      ref: this.editRecordSignal().ref || null,
       target: this.editRecordSignal().target,
       targetId: this.editRecordSignal().targetId,
       ownerDetails: this.editRecordSignal().ownerDetails,
@@ -321,6 +332,7 @@ export class RecordEdit implements OnInit {
     console.log('Saving record with data:', this.editRecordSignal());
 
     // this.saveRequested.set(true);
+    this.loaderState.message.set('Saving KYC record');
     this.kycRecordApiStore.save({
       kycRecord: record,
     });
@@ -517,6 +529,7 @@ export class RecordEdit implements OnInit {
     console.log('Uploading documents for record ID:', form.id);
     console.log('Documents to upload:', documents);
     console.log('Files to upload:', files);
+    this.loaderState.message.set('Uploading record documents');
     this.kycRecordApiStore.updateRecordFiles({ id: form.id, documents, files });
   }
 
@@ -591,7 +604,7 @@ export class RecordEdit implements OnInit {
   //     return;
   //   }
 
-  //   this.router.navigate(['/', 'documents', 'edit', document.id]);
+  //   this.router.navigate(['/', 'documents', document.id, 'edit']);
   // }
 
 

@@ -29,6 +29,7 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterLink } from '@angular/router';
 import { swalFire } from '@app/@shared/swal';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 export class EditClientRequestForm {
   id: string = '';
@@ -134,7 +135,13 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
 
   // toastr = inject(ToastrService);
 
+  loaderState = inject(LoaderState);
+
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
     effect(() => {
       let clientRequest = this.clientRequestApiStore.data();
 
@@ -225,6 +232,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
 
     if(this.id) {
 
+      this.loaderState.message.set('Loading client request');
       this.clientRequestApiStore.findById({ id: this.id });
     }
   }
@@ -278,6 +286,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
 
     }
 
+    this.loaderState.message.set('Saving client request');
     this.clientRequestApiStore.save({ clientRequest: clientRequest });
   }
 
@@ -302,10 +311,12 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
 
       if(clientRequest.target === TargetEntity.ORGANISATION) {
 
+        this.loaderState.message.set('Loading organisation');
         this.organisationApiStore.findById({ id: clientRequest.targetId });
 
       } else {
 
+        this.loaderState.message.set('Loading individual');
         this.individualApiStore.findById({ id: clientRequest.targetId });
         
       }
@@ -346,6 +357,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
   setRequestStatus(value: ClientRequestStatus): void {
     this.editClientRequestSignal.update(v => ({ ...v, status: value }));
 
+    this.loaderState.message.set('Updating request status');
     this.clientRequestApiStore.updateStatus({
       id: this.editClientRequestSignal().id,
       status: value

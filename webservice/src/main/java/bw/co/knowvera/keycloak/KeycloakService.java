@@ -6,13 +6,18 @@ import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.OrganizationResource;
 import org.keycloak.admin.client.resource.OrganizationsResource;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.annotation.PreDestroy;
+import jakarta.ws.rs.ForbiddenException;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -24,6 +29,8 @@ import java.util.function.Function;
  */
 @Component
 public class KeycloakService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeycloakService.class);
 
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String issuerUri;
@@ -83,7 +90,16 @@ public class KeycloakService {
      * Runs {@code fn} against the application realm as the registration service account.
      */
     public <T> T withRegistrationRealm(Function<RealmResource, T> fn) {
-        return fn.apply(keycloak().realm(realmName()));
+        try {
+            return fn.apply(keycloak().realm(realmName()));
+        } catch (ForbiddenException e) {
+            // Not the caller's fault: the service account lacks admin rights (or the wrong client is configured)
+            LOGGER.error("Keycloak refused an admin call for client '{}' in realm '{}': its service account needs the "
+                    + "realm-management roles manage-users and manage-realm (app.registration.client must be the "
+                    + "registration client, not the API client)", registrationClient, realmName());
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "The user directory is not available. Please contact the administrator.", e);
+        }
     }
 
     /* =====================================================

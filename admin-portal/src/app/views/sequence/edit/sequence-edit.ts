@@ -19,6 +19,7 @@ import { SequenceGeneratorApiStore } from '@app/store/bw/co/knowvera/sequence/se
 import { TranslateModule } from '@ngx-translate/core';
 // import { ToastrService } from 'ngx-toastr';
 import { Loader } from '@app/@shared/loader/loader';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 
 export class EditSequenceVarsForm {
@@ -89,7 +90,13 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
 
   // toastr = inject(ToastrService);
 
+  loaderState = inject(LoaderState);
+
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
 
     this.sequenceApiStore.reset();
 
@@ -127,6 +134,7 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
 
     if (this.id && this.id !== '') {
+      this.loaderState.message.set('Loading sequence generator');
       this.sequenceApiStore.findById({ id: this.id });
     }
 
@@ -142,6 +150,7 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
     this.saving = true;
+    this.loaderState.message.set('Saving sequence generator');
     this.sequenceApiStore.save({
       SequenceGeneratorDTO: this.sequencePayload()
     });

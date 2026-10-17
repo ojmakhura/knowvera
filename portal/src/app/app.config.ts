@@ -4,7 +4,7 @@ import {
   inject,
   provideAppInitializer,
 } from '@angular/core';
-import { provideRouter, RouteReuseStrategy, withComponentInputBinding } from '@angular/router';
+import { PreloadAllModules, provideRouter, RouteReuseStrategy, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions } from '@angular/router';
 
 import { routes } from './app.routes';
 import {
@@ -155,7 +155,13 @@ export const initialiseApp = async () => {
     providers: [
       provideAppInitializer(initialiseEnv(env)),
       provideKeycloakAndInterceptor(env),
-      provideRouter(routes, withComponentInputBinding()),
+      provideRouter(
+        routes, 
+        withComponentInputBinding(),
+        withViewTransitions(),
+        withInMemoryScrolling(),
+        withPreloading(PreloadAllModules)
+      ),
       provideHttpClient(
          withInterceptorsFromDi(),
         withInterceptors([

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import bw.co.knowvera.individual.IndividualDTO;
 import bw.co.knowvera.organisation.OrganisationDTO;
+import bw.co.knowvera.organisation.OrganisationListDTO;
 import bw.co.knowvera.settings.SettingsDTO;
 import bw.co.knowvera.user.UserDTO;
 
@@ -116,6 +117,8 @@ class KeycloakUserServiceHelpersTest {
         assertFalse(payload.containsKey("loginUrl"), "no empty login link");
         assertEquals("Example Holdings", payload.get("organisationName"));
         assertEquals("90 minutes", payload.get("setupLinkValidFor"));
+        assertEquals("Knowvera", payload.get("platformName"), "default when there are no settings");
+        assertEquals("our support team", payload.get("supportContact"));
     }
 
     @Test
@@ -124,5 +127,48 @@ class KeycloakUserServiceHelpersTest {
         assertEquals("24 hours", KeycloakUserService.readable(Duration.ofDays(1)));
         assertNull(KeycloakUserService.readable(Duration.ZERO));
         assertNull(KeycloakUserService.readable(null));
+    }
+
+    @Test
+    void clientInvitedByAnOrganisationIsNotAnOrganisationUser() {
+
+        IndividualDTO client = new IndividualDTO();  // no organisation of their own
+        OrganisationDTO requesting = new OrganisationDTO();
+        requesting.setId("org-1");
+        requesting.setName("Example Holdings");
+
+        assertNull(KeycloakUserService.memberOrganisation(client, requesting));
+        assertFalse(KeycloakUserService.newUserPayload(client, new UserDTO(), null, null, Duration.ofHours(72), 2026)
+                .containsKey("organisationName"), "novu-new-user, not novu-new-org-user");
+    }
+
+    @Test
+    void memberOrganisationIsTheIndividualsOwn() {
+
+        IndividualDTO member = new IndividualDTO();
+        member.setOrganisation(organisation("org-2", "Own Co"));
+        OrganisationDTO requesting = new OrganisationDTO();
+        requesting.setId("org-1");
+        requesting.setName("Example Holdings");
+
+        OrganisationDTO result = KeycloakUserService.memberOrganisation(member, requesting);
+        assertEquals("org-2", result.getId());
+        assertEquals("Own Co", result.getName());
+    }
+
+    @Test
+    void memberOrganisationNameFallsBackToTheSameRequestedOrganisation() {
+
+        IndividualDTO member = new IndividualDTO();
+        member.setOrganisation(organisation("org-1", null));
+        OrganisationDTO requested = new OrganisationDTO();
+        requested.setId("org-1");
+        requested.setName("Example Holdings");
+
+        assertEquals("Example Holdings", KeycloakUserService.memberOrganisation(member, requested).getName());
+    }
+
+    private static OrganisationListDTO organisation(String id, String name) {
+        return new OrganisationListDTO(id, null, name, null, null, null, null, false, null, "", "");
     }
 }

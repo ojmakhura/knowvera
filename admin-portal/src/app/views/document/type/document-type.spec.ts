@@ -1,10 +1,9 @@
 import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Router } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/document-type-api.store';
-// import { ToastrService } from 'ngx-toastr';
+import { toast } from 'ngx-sonner';
 import { DocumentTypeComponent } from './document-type';
 
 type DocumentTypePage = {
@@ -55,14 +54,9 @@ describe('DocumentTypeComponent', () => {
     error: typeof errorSignal;
   };
 
-  let mockToastr: {
-    success: SpyFn<[string]>;
-    error: SpyFn<[string]>;
-  };
-
-  let mockRouter: {
-    navigate: SpyFn<[string[]]>;
-  };
+  let toastSuccessSpy: ReturnType<typeof vi.spyOn>;
+  let toastErrorSpy: ReturnType<typeof vi.spyOn>;
+  let navigateSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     dataPageSignal = signal<DocumentTypePage | null>(null);
@@ -82,27 +76,26 @@ describe('DocumentTypeComponent', () => {
       error: errorSignal,
     };
 
-    mockToastr = {
-      success: createSpyFn(),
-      error: createSpyFn(),
-    };
-
-    mockRouter = {
-      navigate: createSpyFn(),
-    };
+    toastSuccessSpy = vi.spyOn(toast, 'success').mockReturnValue(0);
+    toastErrorSpy = vi.spyOn(toast, 'error').mockReturnValue(0);
 
     await TestBed.configureTestingModule({
-      imports: [DocumentTypeComponent, NoopAnimationsModule],
+      imports: [DocumentTypeComponent],
       providers: [
         { provide: DocumentTypeApiStore, useValue: mockDocumentTypeApiStore },
-        { provide: ToastrService, useValue: mockToastr },
-        { provide: Router, useValue: mockRouter },
+        provideRouter([]),
       ],
     }).compileComponents();
+
+    navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     fixture = TestBed.createComponent(DocumentTypeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('should create and run initial search', () => {
@@ -210,27 +203,40 @@ describe('DocumentTypeComponent', () => {
     expect(component.showingCount()).toBe(2);
   });
 
-  it('should show success toast when store reports successful operation', () => {
-    messagesSignal.set(['Saved successfully']);
-    successSignal.set(true);
-    loadingSignal.set(false);
-
-    fixture.detectChanges();
-
-    expect(mockToastr.success.calls).toContainEqual(['Saved successfully']);
-    expect(mockToastr.error.calls.length).toBe(0);
+  it('should not toast for the initial search', () => {
+    expect(toastSuccessSpy).not.toHaveBeenCalled();
+    expect(toastErrorSpy).not.toHaveBeenCalled();
   });
 
-  it('should show error toast when store reports failed operation', () => {
-    messagesSignal.set(['Failed to save']);
-    successSignal.set(false);
-    errorSignal.set(true);
-    loadingSignal.set(false);
-
+  it('should show success toast when a notifying search completes', () => {
+    component.doSearch(0, 10, true);
+    loadingSignal.set(true);
     fixture.detectChanges();
 
-    expect(mockToastr.error.calls).toContainEqual(['Failed to save']);
-    expect(mockToastr.success.calls.length).toBe(0);
+    dataPageSignal.set({
+      content: [],
+      page: { number: 0, size: 10, totalElements: 3, totalPages: 1 },
+    });
+    successSignal.set(true);
+    loadingSignal.set(false);
+    fixture.detectChanges();
+
+    expect(toastSuccessSpy).toHaveBeenCalledWith('3 document types found');
+    expect(toastErrorSpy).not.toHaveBeenCalled();
+  });
+
+  it('should show error toast when a search fails', () => {
+    component.doSearch();
+    loadingSignal.set(true);
+    fixture.detectChanges();
+
+    messagesSignal.set(['Failed to search']);
+    errorSignal.set(true);
+    loadingSignal.set(false);
+    fixture.detectChanges();
+
+    expect(toastErrorSpy).toHaveBeenCalledWith('Failed to search');
+    expect(toastSuccessSpy).not.toHaveBeenCalled();
   });
 
   it('should calculate field and prompt counts defensively', () => {
@@ -254,7 +260,7 @@ describe('DocumentTypeComponent', () => {
     component.openCreate();
     component.openEdit('doc-99');
 
-    expect(mockRouter.navigate.calls).toContainEqual([['/', 'document', 'type', 'edit']]);
-    expect(mockRouter.navigate.calls).toContainEqual([['/', 'document', 'type', 'edit', 'doc-99']]);
+    expect(navigateSpy).toHaveBeenCalledWith(['/', 'document', 'type', 'edit']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/', 'document', 'type', 'doc-99', 'edit']);
   });
 });

@@ -63,10 +63,11 @@ Owner-scoped roles (CUSTOMER, APPLICANT, ORG_USER, ORG_ADMIN) are granted `<scop
 | `expected-fields` | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | **all** | **all** | view, list | view, list | **all** | **all** | **all** |
 | `individuals` | – | own: view, edit | own: view, list | own: view, list | – | view, list, edit, verify | view, list, edit, verify | view, list, edit, verify | view, list, verify | view, list | view, list | view, list, edit, verify | view, list, edit, verify | view, list, edit | – | – | **all** | **all**; own: view, list, edit |
 | `invoices` | – | – | – | own: view, list, submit | – | – | – | – | – | – | view, list | view, list | view, list | – | **all** | – | **all** | **all**; own: view, list, submit |
+| `keycloak` | – | – | – | **all** | – | – | – | – | – | – | **all** | **all** | **all** | – | – | **all** | **all** | **all** |
 | `kyc-field-groups` | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | **all** | **all** | view, list | view, list | **all** | **all** | **all** |
 | `kyc-records` | – | own: view, edit, submit | own: view, list, edit, submit, export | own: view, list, edit, submit, export | – | view, list, edit, submit, verify, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, verify, review, export | view, list, verify | view, list, export | view, list, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, export | – | – | **all** | **all**; own: view, list, edit, submit, export |
 | `kyc-report-sections` | – | – | – | – | – | view, edit | view, edit | view, edit | view, edit | view, edit | view | view, edit | view, edit | view | – | – | **all** | **all** |
-| `novu` | self | self | self | self | self | self | self | self | self | self | self | self | self | self | self | self | self | self |
+| `novu` | – | – | – | – | – | – | – | – | – | – | view | view | view | – | – | **all** | **all** | **all** |
 | `organisation-branches` | – | – | own: view, list | own: view, list, edit, delete | – | – | – | – | – | – | view, list | view, list | view, list | view, list | – | **all** | **all** | **all**; own: view, list, edit, delete |
 | `organisation-document-types` | – | – | own: view, list | own: view, list, edit, delete | – | – | – | – | – | – | view, list | view, list, edit | view, list, edit | – | – | **all** | **all** | **all**; own: view, list, edit, delete |
 | `organisations` | – | own: view, edit | own: view, list | own: view, list, edit | – | view, list, verify | view, list, verify | view, list, verify | view, list, verify | view, list | view, list | view, list, verify | view, list, verify | view, list, edit | view, list | – | **all** | **all**; own: view, list, edit |
@@ -261,6 +262,16 @@ Invoices
 | `delete` | `SCOPE_invoices:delete` | `DELETE /invoices/{id}` | `remove` |
 | `submit` | `SCOPE_invoices:submit` / `SCOPE_invoices:submit-own` | `POST /invoices/{id}/upload` | `upload` |
 
+### `keycloak`
+
+Realm and client role names, and the caller's own permissions
+
+| Scope | Authority | Endpoint | Method |
+|---|---|---|---|
+| `self` | – | `GET /keycloak/permissions` | `getUserPermissions` |
+| `list` | `SCOPE_keycloak:list` | `GET /keycloak/client-roles` | `getClientRoles` |
+| `list` | `SCOPE_keycloak:list` | `GET /keycloak/real-roles` | `getRealmRoles` |
+
 ### `kyc-field-groups`
 
 Reference: KYC field groups
@@ -331,6 +342,8 @@ Notification service configuration
 | Scope | Authority | Endpoint | Method |
 |---|---|---|---|
 | `self` | – | `GET /novu/config` | `getNovuConfig` |
+| `view` | `SCOPE_novu:view` | `GET /novu/dead-letters` | `getDeadLetterCounts` |
+| `edit` | `SCOPE_novu:edit` | `POST /novu/dead-letters/{queue}/redrive` | `redriveDeadLetters` |
 
 ### `organisation-branches`
 

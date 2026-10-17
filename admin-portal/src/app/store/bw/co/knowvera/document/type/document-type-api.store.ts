@@ -10,7 +10,6 @@ import { Page } from '@app/models/page.model';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { DocumentTypeApi } from '@app/services/bw/co/knowvera/document/type/document-type-api';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
-import { toast } from 'ngx-sonner';
 
 export type DocumentTypeApiState = AppState<DocumentTypeDTO, DocumentTypeDTO> & {};
 
@@ -31,7 +30,6 @@ export const DocumentTypeApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const documentTypeApi = inject(DocumentTypeApi);
-    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -139,7 +137,6 @@ export const DocumentTypeApiStore = signalStore(
             tapResponse({
               next: (response: Page<DocumentTypeDTO>) => {
                 const message = `Page ${response.page.number + 1} of ${response.page.totalPages} document types loaded successfully!!`;
-                toast.success(message);
                 patchState(
                   store,
                   {
@@ -153,7 +150,6 @@ export const DocumentTypeApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toast.error(message);
                 patchState(
                   store, {
                     status: (error?.status || 0),

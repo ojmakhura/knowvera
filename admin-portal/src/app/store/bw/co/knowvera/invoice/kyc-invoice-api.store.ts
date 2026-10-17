@@ -11,7 +11,6 @@ import { KycInvoiceDTO } from '@app/models/bw/co/knowvera/invoice/kyc-invoice-dt
 import { KycInvoiceApi } from '@app/services/bw/co/knowvera/invoice/kyc-invoice-api';
 import { InvoiceSearchCriteria } from '@app/models/bw/co/knowvera/invoice/invoice-search-criteria';
 import { UploadPurpose } from '@app/models/bw/co/knowvera/invoice/upload-purpose';
-import { toast } from 'ngx-sonner';
 
 export type KycInvoiceApiState = AppState<KycInvoiceDTO, KycInvoiceDTO> & {};
 
@@ -32,7 +31,6 @@ export const KycInvoiceApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const kycInvoiceApi = inject(KycInvoiceApi);
-    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -44,7 +42,7 @@ export const KycInvoiceApiStore = signalStore(
             tapResponse({
               next: (response: KycInvoiceDTO | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -58,7 +56,7 @@ export const KycInvoiceApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -80,7 +78,7 @@ export const KycInvoiceApiStore = signalStore(
             tapResponse({
               next: (response: KycInvoiceDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -94,7 +92,7 @@ export const KycInvoiceApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -116,7 +114,7 @@ export const KycInvoiceApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycInvoiceDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -130,7 +128,7 @@ export const KycInvoiceApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -152,7 +150,7 @@ export const KycInvoiceApiStore = signalStore(
             tapResponse({
               next: (response: KycInvoiceDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -166,7 +164,7 @@ export const KycInvoiceApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -188,7 +186,7 @@ export const KycInvoiceApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycInvoiceDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -202,7 +200,7 @@ export const KycInvoiceApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -224,7 +222,7 @@ export const KycInvoiceApiStore = signalStore(
             tapResponse({
               next: (response: KycInvoiceDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -238,7 +236,7 @@ export const KycInvoiceApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -260,7 +258,7 @@ export const KycInvoiceApiStore = signalStore(
             tapResponse({
               next: (response: KycInvoiceDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -274,7 +272,7 @@ export const KycInvoiceApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -296,7 +294,7 @@ export const KycInvoiceApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycInvoiceDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -310,7 +308,7 @@ export const KycInvoiceApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -332,7 +330,7 @@ export const KycInvoiceApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycInvoiceDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -346,7 +344,7 @@ export const KycInvoiceApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -368,7 +366,7 @@ export const KycInvoiceApiStore = signalStore(
             tapResponse({
               next: (response: boolean | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -382,7 +380,7 @@ export const KycInvoiceApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -404,7 +402,7 @@ export const KycInvoiceApiStore = signalStore(
             tapResponse({
               next: (response: KycInvoiceDTO | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -418,7 +416,7 @@ export const KycInvoiceApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -440,7 +438,7 @@ export const KycInvoiceApiStore = signalStore(
             tapResponse({
               next: (response: KycInvoiceDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -454,7 +452,7 @@ export const KycInvoiceApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -476,7 +474,7 @@ export const KycInvoiceApiStore = signalStore(
             tapResponse({
               next: (response: KycInvoiceDTO | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -490,7 +488,7 @@ export const KycInvoiceApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),

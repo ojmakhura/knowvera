@@ -14,7 +14,7 @@ export const documentTypeRoutes: Routes = [
       import('./edit/document-type-edit').then((module) => module.DocumentTypeEdit),
   },
   {
-    path: 'edit/:id',
+    path: ':id/edit',
     canActivate: [AuthenticationGuard],
     loadComponent: () =>
       import('./edit/document-type-edit').then((module) => module.DocumentTypeEdit),

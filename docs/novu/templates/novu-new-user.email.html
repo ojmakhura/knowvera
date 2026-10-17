@@ -1,46 +1,91 @@
-<!-- Novu email step body (novu-new-user). Variables: {{ payload.* }} (Liquid). Paste into the
-     email step's HTML editor; the subject is in ../workflows/novu-new-user.json. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your account is ready</title>
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <title>Welcome to {{payload.platformName}}</title>
 </head>
 <body style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#1f2933;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f8;padding:24px 0;">
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#f4f6f8;">
+    Your account is ready. Open the "Update Your Account" email from us to choose your password.
+  </div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f4f6f8" style="background:#f4f6f8;padding:24px 0;">
     <tr>
-      <td align="center">
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:8px;">
+      <td align="center" style="padding:0 12px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="max-width:600px;width:100%;background:#ffffff;border-radius:8px;">
           <tr>
             <td style="padding:24px 32px;border-bottom:1px solid #e4e7eb;font-size:20px;font-weight:bold;color:#0b4f6c;">
-              {{ payload.platformName | default: "Knowvera" }}
+              {{payload.platformName}}
             </td>
           </tr>
           <tr>
             <td style="padding:32px;font-size:15px;line-height:1.6;">
-              <p style="margin:0 0 16px;">Dear {{ payload.firstName | strip }} {{ payload.surname }},</p>
-              <p style="margin:0 0 16px;">Welcome to {{ payload.platformName | default: "Knowvera" }}. Your account has been created.</p>
-              <p style="margin:0 0 8px;"><strong>Your username:</strong> {{ payload.username }}</p>
-              <p style="margin:16px 0;">
-                <strong>Next step:</strong> we have sent you a separate email titled <em>Update your account</em>.
-                Open its link to choose your password and confirm your email address.
-                The link is valid for {{ payload.setupLinkValidFor | default: "a limited time" }}.
+              <p style="margin:0 0 16px;">Dear {{payload.firstName}},</p>
+              <p style="margin:0 0 24px;">
+                Welcome to {{payload.platformName}}. Your account has been created.
+                Three steps to get started:
               </p>
-              <p style="margin:0 0 16px;">Once your password is set, sign in to complete your KYC profile:</p>
-              <p style="margin:24px 0;">
-                <a href="{{ payload.loginUrl }}" style="display:inline-block;background:#0b4f6c;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:bold;">Go to the portal</a>
-              </p>
-              <p style="margin:0;font-size:13px;color:#52606d;">
-                Did not expect this email? You can ignore it; no one can use the account without the set-up link.
+
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+                <tr>
+                  <td width="36" valign="top" style="padding:0 0 16px;">
+                    <div style="width:26px;height:26px;line-height:26px;border-radius:13px;background:#0b4f6c;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;">1</div>
+                  </td>
+                  <td valign="top" style="padding:0 0 16px;">
+                    <strong>Open the email titled "Update Your Account".</strong><br>
+                    We sent it to this address at the same time as this one. If it is not in your inbox, check your spam or junk folder.
+                  </td>
+                </tr>
+                <tr>
+                  <td width="36" valign="top" style="padding:0 0 16px;">
+                    <div style="width:26px;height:26px;line-height:26px;border-radius:13px;background:#0b4f6c;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;">2</div>
+                  </td>
+                  <td valign="top" style="padding:0 0 16px;">
+                    <strong>Choose your password.</strong><br>
+                    The link in that email also confirms your email address. It works once and expires after {{payload.setupLinkValidFor}}.
+                  </td>
+                </tr>
+                <tr>
+                  <td width="36" valign="top">
+                    <div style="width:26px;height:26px;line-height:26px;border-radius:13px;background:#0b4f6c;color:#ffffff;font-size:13px;font-weight:bold;text-align:center;">3</div>
+                  </td>
+                  <td valign="top">
+                    <strong>Sign in and complete your KYC profile.</strong><br>
+                    Your username is <strong>{{payload.username}}</strong>.
+                  </td>
+                </tr>
+              </table>
+
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+                <tr>
+                  <td bgcolor="#0b4f6c" style="border-radius:6px;">
+                    <a href="{{payload.loginUrl}}" target="_blank" style="display:inline-block;padding:12px 24px;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:6px;">Sign in to {{payload.platformName}}</a>
+                  </td>
+                </tr>
+              </table>
+
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f4f6f8" style="background:#f4f6f8;border-radius:6px;">
+                <tr>
+                  <td style="padding:16px 20px;font-size:13px;line-height:1.5;color:#3e4c59;">
+                    <strong>Link expired or email missing?</strong>
+                    Go to the sign-in page, choose <em>Forgot password?</em> and enter {{payload.username}}.
+                    We will send you a new link.
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:24px 0 0;font-size:13px;color:#52606d;">
+                Did not expect this email? You can ignore it. No one can use the account without the link we sent to this address.
               </p>
             </td>
           </tr>
           <tr>
             <td style="padding:20px 32px;border-top:1px solid #e4e7eb;font-size:12px;line-height:1.5;color:#7b8794;">
-              Need help? Contact {{ payload.supportContact | default: "our support team" }}.<br>
+              Need help? Contact {{payload.supportContact}}.<br>
               We will never ask for your password by email or phone.<br>
-              &copy; {{ payload.currentYear }} {{ payload.platformName | default: "Knowvera" }}
+              &copy; {{payload.currentYear}} {{payload.platformName}}
             </td>
           </tr>
         </table>

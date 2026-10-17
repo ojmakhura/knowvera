@@ -270,11 +270,24 @@ public class IndividualServiceImpl
         ClientRequest clientRequest = clientRequestRepository.findById(UUID.fromString(requestId))
                 .orElseThrow(() -> new IndividualServiceException("ClientRequest not found"));
 
+        if (StringUtils.isBlank(identityConfirmationToken)) {
+            // The portal only has a token after confirm-token succeeded
+            throw new IndividualServiceException("No identity confirmation token: the registration link was not confirmed");
+        }
+
         String token = clientRequest.getIdentityConfirmationToken();
 
         boolean matches = token != null && passwordEncoder.matches(identityConfirmationToken, token);
 
-        if (!matches || RequestTokens.isExpired(identityConfirmationToken, requestSessionTtl, clientRequest.getModifiedAt())) {
+        System.out.println("*******************************************************************");
+        System.out.println(matches);
+        System.out.println(identityConfirmationToken);
+        System.out.println(requestSessionTtl);
+        System.out.println(clientRequest.getCreatedAt());
+        System.out.println(RequestTokens.isExpired(identityConfirmationToken, requestSessionTtl, clientRequest.getCreatedAt()));
+        System.out.println("*******************************************************************");
+
+        if (!matches || RequestTokens.isExpired(identityConfirmationToken, requestSessionTtl, clientRequest.getCreatedAt())) {
             throw new IndividualServiceException("Invalid or expired confirmation token");
         }
 

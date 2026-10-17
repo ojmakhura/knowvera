@@ -38,13 +38,13 @@
       "type": "in_app",
       "name": "org-welcome-in-app",
       "subject": "You now manage {{payload.organisationName}}",
-      "body": "{{payload.organisationName}} has added you to {{payload.platformName | default: 'Knowvera'}}. Set your password from the email we sent, then review your organisation's KYC requests.",
+      "body": "{{payload.organisationName}} has added you to {{payload.platformName}}. Set your password from the email we sent, then review your organisation's KYC requests.",
       "primaryAction": { "label": "Open portal", "redirect": { "url": "{{payload.loginUrl}}", "target": "_self" } }
     },
     {
       "type": "email",
       "name": "org-welcome-email",
-      "subject": "{{payload.organisationName}} has added you to {{payload.platformName | default: 'Knowvera'}}",
+      "subject": "{{payload.organisationName}} has added you to {{payload.platformName}}",
       "bodyTemplate": "../templates/novu-new-org-user.email.html"
     }
   ],

@@ -11,7 +11,6 @@ import { OrganisationDocumentDTO } from '@models/bw/co/knowvera/organisation/doc
 import { OrganisationDocumentApi } from '@services/bw/co/knowvera/organisation/document/organisation-document-api';
 import { OrganisationDocumentStatus } from '@app/models/bw/co/knowvera/organisation/document/organisation-document-status';
 import { OrganisationDocumentSearchCriteria } from '@app/models/bw/co/knowvera/organisation/document/organisation-document-search-criteria';
-import { toast } from 'ngx-sonner';
 
 export type OrganisationDocumentApiState = AppState<any, any> & {};
 
@@ -32,7 +31,6 @@ export const OrganisationDocumentApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const organisationDocumentApi = inject(OrganisationDocumentApi);
-    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -44,7 +42,7 @@ export const OrganisationDocumentApiStore = signalStore(
             tapResponse({
               next: (response: OrganisationDocumentDTO | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -58,7 +56,7 @@ export const OrganisationDocumentApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -80,7 +78,7 @@ export const OrganisationDocumentApiStore = signalStore(
             tapResponse({
               next: (response: OrganisationDocumentDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -94,7 +92,7 @@ export const OrganisationDocumentApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -116,7 +114,7 @@ export const OrganisationDocumentApiStore = signalStore(
             tapResponse({
               next: (response: Page<OrganisationDocumentDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -130,7 +128,7 @@ export const OrganisationDocumentApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -152,7 +150,7 @@ export const OrganisationDocumentApiStore = signalStore(
             tapResponse({
               next: (response: OrganisationDocumentDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -166,7 +164,7 @@ export const OrganisationDocumentApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -188,7 +186,7 @@ export const OrganisationDocumentApiStore = signalStore(
             tapResponse({
               next: (response: Page<OrganisationDocumentDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -202,7 +200,7 @@ export const OrganisationDocumentApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -224,7 +222,7 @@ export const OrganisationDocumentApiStore = signalStore(
             tapResponse({
               next: (response: OrganisationDocumentDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -238,7 +236,7 @@ export const OrganisationDocumentApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -260,7 +258,7 @@ export const OrganisationDocumentApiStore = signalStore(
             tapResponse({
               next: (response: Page<OrganisationDocumentDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -274,7 +272,7 @@ export const OrganisationDocumentApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -296,7 +294,7 @@ export const OrganisationDocumentApiStore = signalStore(
             tapResponse({
               next: (response: Page<OrganisationDocumentDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -310,7 +308,7 @@ export const OrganisationDocumentApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -332,7 +330,7 @@ export const OrganisationDocumentApiStore = signalStore(
             tapResponse({
               next: (response: boolean | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -346,7 +344,7 @@ export const OrganisationDocumentApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -368,7 +366,7 @@ export const OrganisationDocumentApiStore = signalStore(
             tapResponse({
               next: (response: OrganisationDocumentDTO | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -382,7 +380,7 @@ export const OrganisationDocumentApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -404,7 +402,7 @@ export const OrganisationDocumentApiStore = signalStore(
             tapResponse({
               next: (response: OrganisationDocumentDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -418,7 +416,7 @@ export const OrganisationDocumentApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 

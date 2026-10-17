@@ -15,7 +15,7 @@ export const sequenceRoutes: Routes = [
       import('./edit/sequence-edit').then((module) => module.SequenceEdit),
   },
   {
-    path: 'edit/:id',
+    path: ':id/edit',
     canActivate: [AuthenticationGuard],
     loadComponent: () =>
       import('./edit/sequence-edit').then((module) => module.SequenceEdit),

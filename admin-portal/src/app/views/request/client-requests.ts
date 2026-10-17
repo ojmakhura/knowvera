@@ -22,6 +22,8 @@ import { SearchObject } from '@app/models/search-object';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { ClientRequestApiStore } from '@app/store/bw/co/knowvera/organisation/client/client-request-api.store';
 import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
+import { LoaderState } from '@app/@shared/loader/loader.state';
+import { toast } from 'ngx-sonner';
 
 type ClientRequestSearchForm = {
   name: string;
@@ -79,6 +81,13 @@ export class ClientRequests implements OnInit {
   readonly statusOptions = Object.values(ClientRequestStatus);
   readonly targetOptions = [TargetEntity.INDIVIDUAL, TargetEntity.ORGANISATION];
   readonly loading = computed(() => this.clientRequestApiStore.loading());
+  readonly error = computed(() => this.clientRequestApiStore.error());
+  readonly messages = computed(() => this.clientRequestApiStore.messages());
+  loaderState = inject(LoaderState);
+  protected readonly toast = toast;
+  // Set while a search request is in flight, so the toast fires once when it completes.
+  private searchInFlight = false;
+  private notifyOnSuccess = false;
   readonly totalPages = signal(0);
   readonly showingStart = computed(() => {
     if (!this.totalElements()) {
@@ -96,6 +105,25 @@ export class ClientRequests implements OnInit {
   });
 
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
+    effect(() => {
+      if (this.loading() || !this.searchInFlight) {
+        return;
+      }
+
+      this.searchInFlight = false;
+
+      if (this.error()) {
+        this.toast.error(this.messages()[0] || 'Failed to search client requests.');
+      } else if (this.notifyOnSuccess) {
+        const total = this.clientRequestApiStore.dataPage()?.page?.totalElements || 0;
+        this.toast.success(`${total} client request${total === 1 ? '' : 's'} found`);
+      }
+    });
+
     effect(() => {
       const page = this.clientRequestApiStore.dataPage();
 
@@ -127,7 +155,7 @@ export class ClientRequests implements OnInit {
   }
 
   onSubmit(): void {
-    this.search(0, this.pageSize());
+    this.search(0, this.pageSize(), true);
   }
 
   readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
@@ -162,7 +190,7 @@ export class ClientRequests implements OnInit {
       return;
     }
 
-    this.router.navigate(['client-request', 'details', id]);
+    this.router.navigate(['client-request', id]);
   }
 
   openEdit(id: string | null | undefined): void {
@@ -170,7 +198,7 @@ export class ClientRequests implements OnInit {
       return;
     }
 
-    this.router.navigate(['client-request', 'edit', id]);
+    this.router.navigate(['client-request', id, 'edit']);
   }
 
   statusLabel(status: ClientRequestStatus | null | undefined): string {
@@ -269,7 +297,10 @@ export class ClientRequests implements OnInit {
     return row.id || row.registration || index;
   }
 
-  private search(pageNumber: number = 0, pageSize: number = 10): void {
+  private search(pageNumber: number = 0, pageSize: number = 10, notify: boolean = false): void {
+    this.searchInFlight = true;
+    this.notifyOnSuccess = notify;
+    this.loaderState.message.set('Searching client requests');
     const criteria = new SearchObject<ClientRequestSearchCriteria>();
     criteria.pageNumber = pageNumber;
     criteria.pageSize = pageSize;

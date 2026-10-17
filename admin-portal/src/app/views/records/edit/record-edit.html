@@ -396,13 +396,13 @@
                     <mat-icon class="kv-card-icon text-emerald!">check_circle</mat-icon>
                   </div>
                   <div class="flex flex-wrap gap-1 justify-end">
-                    <button type="button" class="kv-icon-btn" matTooltip="View" aria-label="View document" [routerLink]="['/', 'documents', 'details', doc.id]">
+                    <button type="button" class="kv-icon-btn" matTooltip="View" aria-label="View document" [routerLink]="['/', 'documents', doc.id]">
                       <mat-icon>visibility</mat-icon>
                     </button>
                     <button type="button" class="kv-icon-btn" matTooltip="Download" aria-label="Download document" (click)="downloadDocument(doc)">
                       <mat-icon>download</mat-icon>
                     </button>
-                    <button type="button" class="kv-icon-btn" matTooltip="Edit" aria-label="Edit document" [routerLink]="['/', 'documents', 'edit', doc.id]">
+                    <button type="button" class="kv-icon-btn" matTooltip="Edit" aria-label="Edit document" [routerLink]="['/', 'documents', doc.id, 'edit']">
                       <mat-icon>edit</mat-icon>
                     </button>
                     <button type="button" class="kv-icon-btn-danger" matTooltip="Delete" aria-label="Delete document" (click)="deleteDocument(doc.id)">

@@ -120,6 +120,10 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
   constructor() {
     effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
+    effect(() => {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
@@ -139,10 +143,6 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
         // this.toaster.error(this.messages()[0] || 'An error occurred while processing the document. Please try again.');
       }
     });
-
-    this.loaderState.message = this.loaderMessage;
-    this.loaderState.isLoading = this.loading;
-    
   }
 
   removeVerificationTagResult(index: number): void {
@@ -170,6 +170,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.id) {
+      this.loaderState.message.set('Loading document');
       this.documentApiStore.findById({ id: this.id });
     }
   }
@@ -334,6 +335,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
     this.document.update((doc) => ({ ...doc, metadata }));
     this.metadataEditing.set(false);
+    this.loaderState.message.set('Saving document');
     this.documentApiStore.save({ document: { ...currentDocument, metadata } });
   }
 
@@ -345,6 +347,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
     console.log('Saving document with updated verification tag results:', this.document());
 
+    this.loaderState.message.set('Saving document');
     this.documentApiStore.save({
       document: currentDocument,
     });
@@ -354,6 +357,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     const documentId = this.document()?.id;
     if (!documentId) return;
 
+    this.loaderState.message.set('Analysing document');
     this.documentApiStore.analyseDocument({ id: documentId });
   }
 
@@ -362,6 +366,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     const documentId = this.document()?.id;
     if (!documentId) return;
 
+    this.loaderState.message.set('Extracting document text');
     this.documentApiStore.textExtraction({ id: documentId, block: false });
   }
 
@@ -369,6 +374,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     const documentId = this.document()?.id;
     if (!documentId) return;
 
+    this.loaderState.message.set('Verifying document data');
     this.documentApiStore.verifyData({ id: documentId });
   }
 
@@ -376,6 +382,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     const documentId = this.document()?.id;
     if (!documentId) return;
 
+    this.loaderState.message.set('Updating verification status');
     this.documentApiStore.updateVerificationStatus({ id: documentId, status });
   }
 }

@@ -31,6 +31,8 @@ import { SearchObject } from '@app/models/search-object';
 import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
 import { swalFire } from '@app/@shared/swal';
 import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
+import { LoaderState } from '@app/@shared/loader/loader.state';
+import { toast } from 'ngx-sonner';
 
 export class SearchRecordsVarsForm {
   firstName = '';
@@ -76,7 +78,7 @@ export class Records implements OnInit {
   // private readonly // toaster = inject(ToastrService);
 
   readonly searchRecordsSignal = signal(new SearchRecordsVarsForm());
-  readonly searchRecordsForm = form(this.searchRecordsSignal, { submission: { action: async () => this.doSearch() } });
+  readonly searchRecordsForm = form(this.searchRecordsSignal, { submission: { action: async () => this.doSearch(0, this.pageSize(), true) } });
   readonly dataSource = new MatTableDataSource<KycRecordDTO>([]);
   readonly rows = signal<KycRecordDTO[]>([]);
   readonly currentPage = signal(0);
@@ -86,6 +88,13 @@ export class Records implements OnInit {
   readonly pendingDeleteId = signal<string | null>(null);
 
   readonly loading = linkedSignal(() => this.kycRecordApiStore.loading());
+  readonly error = linkedSignal(() => this.kycRecordApiStore.error());
+  readonly messages = linkedSignal(() => this.kycRecordApiStore.messages());
+  loaderState = inject(LoaderState);
+  protected readonly toast = toast;
+  // Set while a search request is in flight, so the toast fires once when it completes.
+  private searchInFlight = false;
+  private notifyOnSuccess = false;
   readonly loaderMessage = linkedSignal(() => this.kycRecordApiStore.loaderMessage());
 
   readonly displayedColumns: string[] = [
@@ -114,6 +123,25 @@ export class Records implements OnInit {
   ];
 
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
+    effect(() => {
+      if (this.loading() || !this.searchInFlight) {
+        return;
+      }
+
+      this.searchInFlight = false;
+
+      if (this.error()) {
+        this.toast.error(this.messages()[0] || 'Failed to search KYC records.');
+      } else if (this.notifyOnSuccess) {
+        const total = this.kycRecordApiStore.dataPage()?.page?.totalElements || 0;
+        this.toast.success(`${total} KYC record${total === 1 ? '' : 's'} found`);
+      }
+    });
+
     effect(() => {
       const page = this.kycRecordApiStore.dataPage();
 
@@ -229,7 +257,10 @@ export class Records implements OnInit {
     return tones[index % tones.length];
   }
 
-  doSearch(pageNumber: number = 0, size: number = this.pageSize()): void {
+  doSearch(pageNumber: number = 0, size: number = this.pageSize(), notify: boolean = false): void {
+    this.searchInFlight = true;
+    this.notifyOnSuccess = notify;
+    this.loaderState.message.set('Searching KYC records');
     const value = this.searchRecordsSignal();
     const criteria = new SearchObject<KycRecordSearchCriteria>();
 
@@ -260,11 +291,11 @@ export class Records implements OnInit {
     }
 
     if (row.target === TargetEntity.ORGANISATION) {
-      this.router.navigate(['/', 'organisation', 'details', row.targetId]);
+      this.router.navigate(['/', 'organisation', row.targetId]);
       return;
     }
 
-    this.router.navigate(['/', 'individuals', 'details', row.targetId]);
+    this.router.navigate(['/', 'individual', row.targetId]);
   }
 
   deleteRecord(row: KycRecordDTO): void {

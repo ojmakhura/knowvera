@@ -5,9 +5,8 @@ describe('individualRoutes', () => {
     expect(individualRoutes.map((route) => route.path)).toEqual([
       '',
       'edit',
-      'edit/:id',
-      'details',
-      'details/:id',
+      ':id/edit',
+      ':id',
     ]);
   });
 

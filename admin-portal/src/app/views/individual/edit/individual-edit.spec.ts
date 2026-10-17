@@ -1,7 +1,8 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { Router } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
+import Swal from 'sweetalert2';
 import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individual-api.store';
 import { BranchApiStore } from '@app/store/bw/co/knowvera/organisation/branch/branch-api.store';
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
@@ -46,9 +47,7 @@ describe('IndividualEdit', () => {
     findByOrganisation: vi.fn(),
   };
 
-  const routerMock = {
-    navigate: vi.fn(),
-  };
+  let navigateSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -58,9 +57,11 @@ describe('IndividualEdit', () => {
         { provide: IndividualApiStore, useValue: individualApiStoreMock },
         { provide: OrganisationApiStore, useValue: organisationApiStoreMock },
         { provide: BranchApiStore, useValue: branchApiStoreMock },
-        { provide: Router, useValue: routerMock },
+        provideRouter([]),
       ],
     }).compileComponents();
+
+    navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     fixture = TestBed.createComponent(IndividualEdit);
     component = fixture.componentInstance;
@@ -82,20 +83,25 @@ describe('IndividualEdit', () => {
     expect(individualApiStoreMock.findById).toHaveBeenCalledWith({ id: 'ind-7' });
   });
 
-  it('should manage phone numbers', () => {
+  it('should manage phone numbers', async () => {
     component.addPhoneNumber();
     expect(component.editIndividualSignal().phoneNumbers.length).toBe(1);
 
     component.updatePhoneNumber(0, '123456789');
     expect(component.editIndividualSignal().phoneNumbers[0].phoneNumber).toBe('123456789');
 
+    const fireSpy = vi.spyOn(Swal, 'fire').mockResolvedValue({ isConfirmed: true } as any);
     component.phoneNumbersRemove(0);
+    await fireSpy.mock.results[0].value;
+    await Promise.resolve();
+    expect(fireSpy).toHaveBeenCalled();
     expect(component.editIndividualSignal().phoneNumbers.length).toBe(0);
+    fireSpy.mockRestore();
   });
 
   it('should navigate correctly on cancel', () => {
     component.cancel();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/individual']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/individual']);
 
     component.editIndividualSignal.update((value) => ({
       ...value,
@@ -103,7 +109,7 @@ describe('IndividualEdit', () => {
     }));
     component.cancel();
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/individual', 'details', 'ind-9']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/individual', 'ind-9']);
   });
 
   it('should save and normalize date of birth', () => {

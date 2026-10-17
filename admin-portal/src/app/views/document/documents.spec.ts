@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
@@ -53,14 +53,7 @@ describe('Documents', () => {
     downloadFileByUrl: vi.fn(() => of(new Blob(['y']))),
   };
 
-  const routerMock = {
-    navigate: vi.fn(),
-  };
-
-  const toastrMock = {
-    success: vi.fn(),
-    error: vi.fn(),
-  };
+  let navigateSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -69,9 +62,11 @@ describe('Documents', () => {
         { provide: DocumentApiStore, useValue: documentApiStoreMock },
         { provide: DocumentTypeApiStore, useValue: documentTypeApiStoreMock },
         { provide: DocumentApi, useValue: documentApiMock },
-        { provide: Router, useValue: routerMock },
+        provideRouter([]),
       ],
     }).compileComponents();
+
+    navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     fixture = TestBed.createComponent(Documents);
     component = fixture.componentInstance;
@@ -107,7 +102,7 @@ describe('Documents', () => {
     component.openDetails('doc-11');
     component.openEdit('doc-12');
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/', 'documents', 'details', 'doc-11']);
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/', 'documents', 'edit', 'doc-12']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/', 'documents', 'doc-11']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/', 'documents', 'doc-12', 'edit']);
   });
 });

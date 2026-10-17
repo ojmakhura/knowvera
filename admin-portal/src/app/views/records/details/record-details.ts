@@ -28,6 +28,7 @@ import {
 } from '@app/views/individual/details/upload-document-dialog';
 import { Loader } from '@app/@shared/loader/loader';
 import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 @Component({
   selector: 'app-record-details',
@@ -60,6 +61,7 @@ export class RecordDetails implements OnInit {
   datePipe = inject(DatePipe);
 
   readonly loading = linkedSignal(() => this.kycRecordApiStore.loading());
+  loaderState = inject(LoaderState);
   readonly loaderMessage = linkedSignal(() => this.kycRecordApiStore.loaderMessage());
   readonly messages = linkedSignal(() => this.kycRecordApiStore.messages());
   readonly error = linkedSignal(() => this.kycRecordApiStore.error());
@@ -89,6 +91,10 @@ export class RecordDetails implements OnInit {
 
   constructor() {
     this.kycRecordApiStore.reset();
+
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
 
     effect(() => {
       const message = this.messages()?.[0] || '';
@@ -136,6 +142,7 @@ export class RecordDetails implements OnInit {
       return;
     }
 
+    this.loaderState.message.set('Loading KYC record');
     this.kycRecordApiStore.findById({ id: recordId });
   }
 
@@ -150,7 +157,7 @@ export class RecordDetails implements OnInit {
       return;
     }
 
-    this.router.navigate(['/records', 'edit', id]);
+    this.router.navigate(['/records', id, 'edit']);
   }
 
   openDocumentUpload(): void {
@@ -180,6 +187,7 @@ export class RecordDetails implements OnInit {
         return;
       }
 
+      this.loaderState.message.set('Uploading document');
       this.loading.set(true);
       this.loaderMessage.set('Uploading document...');
 
@@ -582,7 +590,7 @@ export class RecordDetails implements OnInit {
     }
 
     if (document.id) {
-      this.router.navigate(['/documents', 'details', document.id]);
+      this.router.navigate(['/documents', document.id]);
       return;
     }
 
@@ -600,7 +608,7 @@ export class RecordDetails implements OnInit {
       return;
     }
 
-    this.router.navigate(['/documents', 'edit', document.id]);
+    this.router.navigate(['/documents', document.id, 'edit']);
   }
 
   downloadCurrentDocument(): void {
@@ -680,6 +688,7 @@ export class RecordDetails implements OnInit {
       return;
     }
 
+    this.loaderState.message.set('Generating KYC report');
     this.kycRecordApiStore.generateKycReport({ id: recordId }); 
   }
 }

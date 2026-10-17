@@ -176,10 +176,10 @@
               <td class="vs-nowrap">{{ formatDate(row.expiryDate) }}</td>
               <td>
                 <div class="vs-row-actions">
-                  <button type="button" class="vs-action" matTooltip="View details" aria-label="View details" [routerLink]="['/records/details', row.id]">
+                  <button type="button" class="vs-action" matTooltip="View details" aria-label="View details" [routerLink]="['/records', row.id]">
                     <mat-icon>visibility</mat-icon>
                   </button>
-                  <button type="button" class="vs-action" matTooltip="Edit record" aria-label="Edit record" [routerLink]="['/records/edit', row.id]">
+                  <button type="button" class="vs-action" matTooltip="Edit record" aria-label="Edit record" [routerLink]="['/records', row.id, 'edit']">
                     <mat-icon>edit</mat-icon>
                   </button>
                   <button type="button" class="vs-action is-danger" matTooltip="Delete record" aria-label="Delete record" (click)="deleteRecord(row)">

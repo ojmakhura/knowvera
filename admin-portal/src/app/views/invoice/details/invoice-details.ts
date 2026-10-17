@@ -13,6 +13,7 @@ import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
 // import { ToastrService } from 'ngx-toastr';
 import { AppEnvStore } from '@app/store/app-env.state';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 type RepositoryFile = {
   key: 'invoice' | 'payment';
@@ -47,6 +48,7 @@ export class InvoiceDetails implements OnInit {
   protected appEnvState = inject(AppEnvStore);
 
   readonly loading = linkedSignal(() => this.kycInvoiceApiStore.loading());
+  loaderState = inject(LoaderState);
   readonly loaderMessage = linkedSignal(() => this.kycInvoiceApiStore.loaderMessage());
   readonly messages = linkedSignal(() => this.kycInvoiceApiStore.messages());
   readonly error = linkedSignal(() => this.kycInvoiceApiStore.error());
@@ -58,6 +60,10 @@ export class InvoiceDetails implements OnInit {
 
   constructor() {
     this.kycInvoiceApiStore.reset();
+
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
 
     effect(() => {
       const message = this.messages()?.[0] || '';
@@ -83,6 +89,7 @@ export class InvoiceDetails implements OnInit {
       return;
     }
 
+    this.loaderState.message.set('Loading invoice');
     this.kycInvoiceApiStore.findById({ id: invoiceId });
   }
 
@@ -97,7 +104,7 @@ export class InvoiceDetails implements OnInit {
       return;
     }
 
-    this.router.navigate(['/invoice', 'edit', id]);
+    this.router.navigate(['/invoice', id, 'edit']);
   }
 
   printView(): void {

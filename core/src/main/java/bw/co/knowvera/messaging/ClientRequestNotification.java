@@ -5,34 +5,45 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.individual.Individual;
 import bw.co.knowvera.individual.IndividualRepository;
 import bw.co.knowvera.organisation.OrganisationRepository;
 import bw.co.knowvera.organisation.client.ClientRequest;
+import bw.co.knowvera.organisation.client.ClientRequestRepository;
 import bw.co.knowvera.settings.Settings;
 import bw.co.knowvera.settings.SettingsRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * Queues the novu-new-org-client-request invitation (docs/novu/workflows) for new client
  * requests. The link carries the request's single-use token, so neither the token nor the link is
  * ever logged.
+ *
+ * <p>Only request ids and tokens leave the caller's thread. The invitations are built after the
+ * caller's transaction commits, on {@code virtualThreadExecutor}, from entities reloaded in a
+ * read-only transaction of their own: entities of the caller's (closed) persistence context
+ * cannot load lazy associations there, and before the commit the new requests are not visible.
  */
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class ClientRequestNotification {
 
@@ -54,41 +65,111 @@ public class ClientRequestNotification {
   private final SettingsRepository settingsRepository;
   private final IndividualRepository individualRepository;
   private final OrganisationRepository organisationRepository;
-  private final RabbitTemplate rabbitTemplate;
+  private final ClientRequestRepository clientRequestRepository;
+  private final ConfirmedPublisher publisher;
+  private final Executor executor;
+  private final TransactionOperations readOnlyTransaction;
+
+  /** The constructor Spring uses; the other one lets tests run the background work inline. */
+  @Autowired
+  public ClientRequestNotification(SettingsRepository settingsRepository, IndividualRepository individualRepository,
+      OrganisationRepository organisationRepository, ClientRequestRepository clientRequestRepository,
+      ConfirmedPublisher publisher, @Qualifier("virtualThreadExecutor") Executor executor,
+      PlatformTransactionManager transactionManager) {
+    this(settingsRepository, individualRepository, organisationRepository, clientRequestRepository, publisher,
+        executor, readOnly(transactionManager));
+  }
+
+  ClientRequestNotification(SettingsRepository settingsRepository, IndividualRepository individualRepository,
+      OrganisationRepository organisationRepository, ClientRequestRepository clientRequestRepository,
+      ConfirmedPublisher publisher, Executor executor, TransactionOperations readOnlyTransaction) {
+    this.settingsRepository = settingsRepository;
+    this.individualRepository = individualRepository;
+    this.organisationRepository = organisationRepository;
+    this.clientRequestRepository = clientRequestRepository;
+    this.publisher = publisher;
+    this.executor = executor;
+    this.readOnlyTransaction = readOnlyTransaction;
+  }
+
+  private static TransactionOperations readOnly(PlatformTransactionManager transactionManager) {
+    TransactionTemplate template = new TransactionTemplate(transactionManager);
+    template.setReadOnly(true);
+    return template;
+  }
 
   /**
+   * Sends an invitation for each saved request that has a new token, once the caller's
+   * transaction (if any) has committed. Returns at once.
+   *
    * @param tokenMap the plain token of each request, by target id; requests without one (already
    *                 invited) get no message
    */
-  @Async("virtualThreadExecutor")
   public void queueEmailNotificationsForRequests(List<ClientRequest> clientRequests,
       Map<String, String> tokenMap, String organisation) {
 
+    // Read the ids now, while the entities are still attached; nothing else crosses threads
+    Map<UUID, String> tokens = new LinkedHashMap<>();
+    for (ClientRequest request : clientRequests) {
+      String token = tokenMap.get(request.getTargetId());
+      if (StringUtils.isBlank(token) || request.getId() == null) {
+        log.debug("Client request {} has no new token: no invitation sent", request.getId());
+        continue;
+      }
+      tokens.put(request.getId(), token);
+    }
+    if (tokens.isEmpty()) {
+      return;
+    }
+
+    Runnable send = () -> executor.execute(() -> {
+      try {
+        readOnlyTransaction.executeWithoutResult(status -> send(tokens, organisation));
+      } catch (RuntimeException e) {
+        log.error("Queueing client request invitations failed", e);
+      }
+    });
+
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+        @Override
+        public void afterCommit() {
+          send.run();
+        }
+      });
+    } else {
+      send.run();
+    }
+  }
+
+  /** Builds and queues the invitations, in a transaction of their own. */
+  void send(Map<UUID, String> tokens, String organisation) {
+
     Settings settings = settingsRepository.findAll().stream().findFirst().orElse(null);
     if (settings == null) {
-      log.warn("No application settings: client request invitations have no platform name or support contact");
+      log.warn("No application settings: client request invitations use the default platform name and support contact");
     }
 
     Instant now = Instant.now();
-    for (ClientRequest request : clientRequests) {
+    tokens.forEach((requestId, token) -> {
 
-      String token = tokenMap.get(request.getTargetId());
-      if (StringUtils.isBlank(token)) {
-        log.debug("Client request {} has no new token: no invitation sent", request.getId());
-        continue;
+      ClientRequest request = clientRequestRepository.findById(requestId).orElse(null);
+      if (request == null) {
+        log.warn("Client request {} no longer exists: no invitation sent", requestId);
+        return;
       }
 
       Map<String, String> payload = buildPayload(request, token, organisation, settings, now);
       if (payload == null) {
         log.warn("Client request {} ({} {}) has no recipient email address: no invitation sent",
             request.getId(), request.getTarget(), request.getTargetId());
-        continue;
+        return;
       }
 
-      log.info("Queueing invitation for client request {}", request.getId());
-      rabbitTemplate.convertAndSend(novuNewOrgClientRequestQueueExchange, novuNewOrgClientRequestQueueRoutingKey,
+      String messageId = publisher.publish(novuNewOrgClientRequestQueueExchange, novuNewOrgClientRequestQueueRoutingKey,
           payload);
-    }
+      log.info("Queued invitation for client request {} (message {})", request.getId(), messageId);
+    });
   }
 
   /**
@@ -115,10 +196,13 @@ public class ClientRequestNotification {
       payload.put("linkExpiresAt", EXPIRY_FORMAT.format(issuedAt.plus(requestLinkTtl).atZone(ZoneId.systemDefault())));
     }
     if (settings != null) {
-      putIfPresent(payload, "platformName", settings.getPlatformName());
       putIfPresent(payload, "platformUrl", settings.getKycPortalLink());
-      putIfPresent(payload, "supportContact", settings.getSupportContact());
     }
+    // The Novu template prints these without Liquid filters, so the defaults are sent from here.
+    payload.put("platformName",
+        StringUtils.defaultIfBlank(settings != null ? settings.getPlatformName() : null, "Knowvera"));
+    payload.put("supportContact",
+        StringUtils.defaultIfBlank(settings != null ? settings.getSupportContact() : null, "our support team"));
     payload.put("currentYear", String.valueOf(issuedAt.atZone(ZoneId.systemDefault()).getYear()));
     return payload;
   }

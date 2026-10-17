@@ -29,6 +29,7 @@ public final class RequestTokens {
     public static boolean isExpired(String token, Duration ttl, LocalDateTime fallbackIssuedAt) {
 
         Instant issuedAt = issuedAt(token);
+        System.out.println("=======================> " + ttl.toHours());
         if (issuedAt == null && fallbackIssuedAt != null) {
             issuedAt = fallbackIssuedAt.atZone(ZoneId.systemDefault()).toInstant();
         }

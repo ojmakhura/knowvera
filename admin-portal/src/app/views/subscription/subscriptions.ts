@@ -25,6 +25,8 @@ import { SubscriptionSearchCriteria } from '@app/models/bw/co/knowvera/subscript
 import { TranslateModule } from '@ngx-translate/core';
 import { AppEnvStore } from '@app/store/app-env.state';
 import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
+import { LoaderState } from '@app/@shared/loader/loader.state';
+import { toast } from 'ngx-sonner';
 
 export class SearchSubscriptionsVarsForm {
   ref: string | any = null;
@@ -78,6 +80,13 @@ export class Subscriptions implements OnInit {
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
   protected readonly loading = computed(() => this.kycSubscriptionApiStore.loading());
+  protected readonly error = computed(() => this.kycSubscriptionApiStore.error());
+  protected readonly messages = computed(() => this.kycSubscriptionApiStore.messages());
+  loaderState = inject(LoaderState);
+  protected readonly toast = toast;
+  // Set while a search request is in flight, so the toast fires once when it completes.
+  private searchInFlight = false;
+  private notifyOnSuccess = false;
   protected readonly router = inject(Router);
   protected readonly subscriptionStatus = KycSubsciptionStatus;
   protected readonly statusOptions = Object.values(KycSubsciptionStatus);
@@ -94,6 +103,25 @@ export class Subscriptions implements OnInit {
   statuses = Object.values(KycSubsciptionStatus);
 
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
+    effect(() => {
+      if (this.loading() || !this.searchInFlight) {
+        return;
+      }
+
+      this.searchInFlight = false;
+
+      if (this.error()) {
+        this.toast.error(this.messages()[0] || 'Failed to search subscriptions.');
+      } else if (this.notifyOnSuccess) {
+        const total = this.kycSubscriptionApiStore.dataPage()?.page?.totalElements || 0;
+        this.toast.success(`${total} subscription${total === 1 ? '' : 's'} found`);
+      }
+    });
+
     effect(() => {
       const page = this.kycSubscriptionApiStore.dataPage();
 
@@ -131,7 +159,7 @@ export class Subscriptions implements OnInit {
   // }
 
   onSearchSubmit(): void {
-    this.doSearch(0, this.pageSize());
+    this.doSearch(0, this.pageSize(), true);
   }
 
   applyStatusFilter(status: string): void {
@@ -148,7 +176,10 @@ export class Subscriptions implements OnInit {
     this.doSearch();
   }
 
-  doSearch(pageNumber: number = 0, pageSize: number = 10): void {
+  doSearch(pageNumber: number = 0, pageSize: number = 10, notify: boolean = false): void {
+    this.searchInFlight = true;
+    this.notifyOnSuccess = notify;
+    this.loaderState.message.set('Searching subscriptions');
     const value = this.searchSubscriptionsSignal();
 
     const criteria = new SearchObject<SubscriptionSearchCriteria>();
@@ -196,11 +227,11 @@ export class Subscriptions implements OnInit {
   }
 
   openDetails(id: string): void {
-    this.router.navigate(['/', 'subscription', 'details', id]);
+    this.router.navigate(['/', 'subscription', id]);
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['/', 'subscription', 'edit', id]);
+    this.router.navigate(['/', 'subscription', id, 'edit']);
   }
 
   ownerOf(row: KycSubscriptionDTO): string {

@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -31,12 +33,12 @@ import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.*;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import bw.co.knowvera.individual.IndividualDTO;
+import bw.co.knowvera.messaging.ConfirmedPublisher;
 import bw.co.knowvera.individual.IndividualService;
 import bw.co.knowvera.organisation.OrganisationDTO;
 import bw.co.knowvera.organisation.OrganisationService;
@@ -101,13 +103,13 @@ public class KeycloakUserService {
     private final OrganisationService organisationService;
     private final ClientRequestService clientRequestService;
     private final SettingsService settingsService;
-    private final RabbitTemplate rabbitTemplate;
+    private final ConfirmedPublisher publisher;
 
     public KeycloakUserService(KeycloakService keycloakService, BranchService branchService,
             IndividualService individualService, OrganisationService organisationService,
             ClientRequestService clientRequestService,
             KeycloakOrganisationService keycloakOrganisationService, SettingsService settingsService,
-            RabbitTemplate rabbitTemplate) {
+            ConfirmedPublisher publisher) {
         this.keycloakService = keycloakService;
         this.keycloakOrganisationService = keycloakOrganisationService;
         this.branchService = branchService;
@@ -115,7 +117,7 @@ public class KeycloakUserService {
         this.organisationService = organisationService;
         this.clientRequestService = clientRequestService;
         this.settingsService = settingsService;
-        this.rabbitTemplate = rabbitTemplate;
+        this.publisher = publisher;
     }
 
     // -------------------- UTILS --------------------
@@ -322,15 +324,37 @@ public class KeycloakUserService {
         }
 
         if (payload.containsKey("organisationName")) {
-            rabbitTemplate.convertAndSend(newOrgUserQueueExchange, newOrgUserQueueRoutingKey, payload);
+            publisher.publish(newOrgUserQueueExchange, newOrgUserQueueRoutingKey, payload);
         } else {
-            rabbitTemplate.convertAndSend(newUserQueueExchange, newUserQueueRoutingKey, payload);
+            publisher.publish(newUserQueueExchange, newUserQueueRoutingKey, payload);
         }
     }
 
     /**
+     * The organisation the individual belongs to, or null. {@code requested} may be another
+     * organisation (the one that requested the client's KYC); it only fills in a missing name.
+     */
+    static OrganisationDTO memberOrganisation(IndividualDTO individual, OrganisationDTO requested) {
+
+        if (individual.getOrganisation() == null || StringUtils.isBlank(individual.getOrganisation().id())) {
+            return null;
+        }
+        OrganisationDTO member = new OrganisationDTO();
+        member.setId(individual.getOrganisation().id());
+        member.setName(individual.getOrganisation().name());
+        member.setRegistrationNo(individual.getOrganisation().registrationNo());
+        if (StringUtils.isBlank(member.getName()) && requested != null
+                && member.getId().equals(requested.getId())) {
+            member.setName(requested.getName());
+        }
+        return member;
+    }
+
+    /**
      * Payload of the novu-new-user and novu-new-org-user workflows (docs/novu/workflows). Blank
-     * values are left out; {@code organisationName} is present only for organisation users.
+     * values are left out, except the texts the templates print, which fall back to defaults (the
+     * Novu templates use plain variables, without Liquid filters); {@code organisationName} is
+     * present only for organisation users.
      */
     static Map<String, String> newUserPayload(IndividualDTO individual, UserDTO user,
             OrganisationDTO organisation, SettingsDTO settings, Duration setupLinkLifespan, int currentYear) {
@@ -344,10 +368,12 @@ public class KeycloakUserService {
         putIfPresent(payload, "surname", StringUtils.trim(individual.getSurname()));
         if (settings != null) {
             putIfPresent(payload, "loginUrl", settings.getKycPortalLink());
-            putIfPresent(payload, "platformName", settings.getPlatformName());
-            putIfPresent(payload, "supportContact", settings.getSupportContact());
         }
-        putIfPresent(payload, "setupLinkValidFor", readable(setupLinkLifespan));
+        payload.put("platformName",
+                StringUtils.defaultIfBlank(settings != null ? settings.getPlatformName() : null, "Knowvera"));
+        payload.put("supportContact",
+                StringUtils.defaultIfBlank(settings != null ? settings.getSupportContact() : null, "our support team"));
+        payload.put("setupLinkValidFor", StringUtils.defaultIfBlank(readable(setupLinkLifespan), "a limited time"));
         payload.put("currentYear", String.valueOf(currentYear));
 
         if (organisation != null && StringUtils.isNotBlank(organisation.getId())) {
@@ -495,6 +521,30 @@ public class KeycloakUserService {
     public Set<String> findEffectiveRealmRoles(String userId) {
         return keycloakService.withRegistrationRealm(realm -> realm.users().get(userId).roles().realmLevel()
                 .listEffective().stream().map(RoleRepresentation::getName).collect(Collectors.toSet()));
+    }
+
+    /** Names of the realm's roles that can be assigned, sorted (built-in roles left out). */
+    public SortedSet<String> findRealmRoleNames() {
+        return keycloakService.withRegistrationRealm(realm -> realm.roles().list().stream()
+                .map(RoleRepresentation::getName).filter(KeycloakUserService::isManagedRole)
+                .collect(Collectors.toCollection(TreeSet::new)));
+    }
+
+    /** Names of the roles of the client with this clientId (e.g. "admin-portal"), sorted; 400 for an unknown client. */
+    public SortedSet<String> findClientRoleNames(String clientId) {
+        if (StringUtils.isBlank(clientId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "clientId is required");
+        }
+        return keycloakService.withRegistrationRealm(realm -> {
+            List<ClientRepresentation> clients = realm.clients().findByClientId(clientId);
+            if (clients.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown client " + clientId);
+            }
+            // clients().get() takes the client's internal id, not its clientId
+            return realm.clients().get(clients.get(0).getId()).roles().list().stream()
+                    .map(RoleRepresentation::getName)
+                    .collect(Collectors.toCollection(TreeSet::new));
+        });
     }
 
     /** The realm roles assigned to the user directly (as {@link UserDTO#getRoles()} shows them). */
@@ -933,7 +983,9 @@ public class KeycloakUserService {
         // No password: create() sends Keycloak's set-up email so the user chooses their own
         user = createRegistrationUser(user);
 
-        newUserMessage(individual, user, organisation, settings);
+        // The organisation-user welcome only for members of an organisation (as the role above);
+        // a client invited by an organisation is an applicant and gets the plain welcome
+        newUserMessage(individual, user, memberOrganisation(individual, organisation), settings);
 
         return user;
     }

@@ -24,8 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.individual.Individual;
@@ -33,6 +35,7 @@ import bw.co.knowvera.individual.IndividualRepository;
 import bw.co.knowvera.organisation.Organisation;
 import bw.co.knowvera.organisation.OrganisationRepository;
 import bw.co.knowvera.organisation.client.ClientRequest;
+import bw.co.knowvera.organisation.client.ClientRequestRepository;
 import bw.co.knowvera.settings.Settings;
 import bw.co.knowvera.settings.SettingsRepository;
 
@@ -49,14 +52,17 @@ class ClientRequestNotificationTest {
     @Mock
     private OrganisationRepository organisationRepository;
     @Mock
-    private RabbitTemplate rabbitTemplate;
+    private ClientRequestRepository clientRequestRepository;
+    @Mock
+    private ConfirmedPublisher publisher;
 
     private ClientRequestNotification notification;
 
     @BeforeEach
     void setUp() {
+        // Runs the background work inline, without a real transaction
         notification = new ClientRequestNotification(settingsRepository, individualRepository, organisationRepository,
-                rabbitTemplate);
+                clientRequestRepository, publisher, Runnable::run, TransactionOperations.withoutTransaction());
         ReflectionTestUtils.setField(notification, "registrationUrl", "https://portal.example/register");
         ReflectionTestUtils.setField(notification, "requestLinkTtl", Duration.ofDays(7));
         ReflectionTestUtils.setField(notification, "novuNewOrgClientRequestQueueExchange", "x.requests");
@@ -105,7 +111,8 @@ class ClientRequestNotificationTest {
 
         assertEquals("kyc@client.example", payload.get("email"));
         assertEquals("Client Co", payload.get("recipientName"));
-        assertFalse(payload.containsKey("platformName"));
+        assertEquals("Knowvera", payload.get("platformName"), "default when there are no settings");
+        assertEquals("our support team", payload.get("supportContact"));
     }
 
     @Test
@@ -118,10 +125,11 @@ class ClientRequestNotificationTest {
         when(settingsRepository.findAll()).thenReturn(List.of(settings()));
 
         assertNull(notification.buildPayload(request, "tok", "Org", null, ISSUED_AT));
+        when(clientRequestRepository.findById(request.getId())).thenReturn(Optional.of(request));
 
         notification.queueEmailNotificationsForRequests(List.of(request),
                 Map.of(individualId.toString(), "tok"), "Org");
-        verify(rabbitTemplate, never()).convertAndSend(anyString(), anyString(), any(Object.class));
+        verify(publisher, never()).publish(anyString(), anyString(), any());
     }
 
     @Test
@@ -136,11 +144,53 @@ class ClientRequestNotificationTest {
         individual.setEmailAddress("ann@example.com");
         when(individualRepository.findById(individualId)).thenReturn(Optional.of(individual));
         when(settingsRepository.findAll()).thenReturn(List.of());
+        when(clientRequestRepository.findById(invited.getId())).thenReturn(Optional.of(invited));
 
         notification.queueEmailNotificationsForRequests(List.of(invited, alreadyInvited),
                 Map.of(individualId.toString(), "tok"), "Org");
 
-        verify(rabbitTemplate).convertAndSend(eq("x.requests"), eq("requests"), any(Object.class));
+        verify(publisher).publish(eq("x.requests"), eq("requests"), any());
+        verify(clientRequestRepository, never()).findById(alreadyInvited.getId());
+    }
+
+    @Test
+    void waitsForTheCallersCommitAndReloadsTheRequest() {
+        UUID individualId = UUID.randomUUID();
+        ClientRequest request = request(TargetEntity.INDIVIDUAL, individualId);
+        Individual individual = Individual.Factory.newInstance();
+        individual.setFirstName("Ann");
+        individual.setEmailAddress("ann@example.com");
+        when(individualRepository.findById(individualId)).thenReturn(Optional.of(individual));
+        when(settingsRepository.findAll()).thenReturn(List.of());
+        when(clientRequestRepository.findById(request.getId())).thenReturn(Optional.of(request));
+
+        TransactionSynchronizationManager.initSynchronization();
+        try {
+            notification.queueEmailNotificationsForRequests(List.of(request),
+                    Map.of(individualId.toString(), "tok"), "Org");
+
+            // Inside the caller's transaction nothing is read or sent yet
+            verify(clientRequestRepository, never()).findById(any());
+            verify(publisher, never()).publish(anyString(), anyString(), any());
+
+            TransactionSynchronizationManager.getSynchronizations().forEach(TransactionSynchronization::afterCommit);
+        } finally {
+            TransactionSynchronizationManager.clearSynchronization();
+        }
+
+        verify(clientRequestRepository).findById(request.getId());
+        verify(publisher).publish(eq("x.requests"), eq("requests"), any());
+    }
+
+    @Test
+    void deletedRequestGetsNoInvitation() {
+        ClientRequest request = request(TargetEntity.INDIVIDUAL, UUID.randomUUID());
+        when(settingsRepository.findAll()).thenReturn(List.of());
+        when(clientRequestRepository.findById(request.getId())).thenReturn(Optional.empty());
+
+        notification.queueEmailNotificationsForRequests(List.of(request), Map.of(request.getTargetId(), "tok"), "Org");
+
+        verify(publisher, never()).publish(anyString(), anyString(), any());
     }
 
     private static ClientRequest request(TargetEntity target, UUID targetId) {

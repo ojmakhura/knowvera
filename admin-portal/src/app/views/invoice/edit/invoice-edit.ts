@@ -32,6 +32,7 @@ import { SearchObject } from '@app/models/search-object';
 import { OrganisationSearchCriteria } from '@app/models/bw/co/knowvera/organisation/organisation-search-criteria';
 import { AppEnvStore } from '@app/store/app-env.state';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 export class EditInvoiceVarsForm {
   id: string | any = null;
@@ -41,14 +42,16 @@ export class EditInvoiceVarsForm {
   modifiedBy: string | any = null;
   organisation: OrganisationListDTO | any = null;
   organisationFilter: OrganisationListDTO | any = null;
-  ref: string | any = null;
+  // Native text inputs bound with [formField] must start as '' — signal forms treats a null
+  // model value on <input type="text"> as numeric and rejects non-numeric input.
+  ref: string | any = '';
   subscriptionPeriod: TimePeriod | any = null;
   startDate: Date | any = null;
   endDate: Date | any = null;
   amount: number | any = null;
   paid: boolean | any = null;
   paymentDate: Date | any = null;
-  paymentReference: string | any = null;
+  paymentReference: string | any = '';
   vat: number | any = null;
   totalAmount: number | any = null;
   issueDate: Date | any = null;
@@ -108,7 +111,13 @@ export class InvoiceEdit implements OnInit {
 
   @Input() id: string | null = null;
 
+  loaderState = inject(LoaderState);
+
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading() || this.organisationLoading());
+    });
+
     effect(() => {
       const organisations = this.organisationApiStore.dataList();
 
@@ -148,14 +157,14 @@ export class InvoiceEdit implements OnInit {
           contactEmailAddress: ''
         } : null,
         organisationFilter: invoice.organisationName || '',
-        ref: invoice.ref,
+        ref: invoice.ref ?? '',
         subscriptionPeriod: invoice.subscriptionPeriod,
         startDate: invoice.startDate,
         endDate: invoice.endDate,
         amount: invoice.amount,
         paid: Boolean(invoice.paid),
         paymentDate: invoice.paymentDate,
-        paymentReference: invoice.paymentReference,
+        paymentReference: invoice.paymentReference ?? '',
         vat: invoice.vat,
         totalAmount: invoice.totalAmount,
         issueDate: invoice.issueDate,
@@ -231,7 +240,7 @@ export class InvoiceEdit implements OnInit {
         this.saveRequested.set(false);
 
         if (!this.id && !this.route.snapshot.queryParamMap.get('id')) {
-          this.router.navigate(['/', 'invoice', 'edit', savedInvoice.id]);
+          this.router.navigate(['/', 'invoice', savedInvoice.id, 'edit']);
         }
       }
     });
@@ -241,6 +250,7 @@ export class InvoiceEdit implements OnInit {
     this.filterOrganisation();
 
     if (this.id) {
+      this.loaderState.message.set('Loading invoice');
       this.kycInvoiceApiStore.findById({ id: this.id });
     }
 
@@ -248,10 +258,12 @@ export class InvoiceEdit implements OnInit {
     const organisationId = this.route.snapshot.queryParamMap.get('organisationId');
 
     if (routeId) {
+      this.loaderState.message.set('Loading invoice');
       this.kycInvoiceApiStore.findById({ id: routeId });
     }
 
     if (organisationId) {
+      this.loaderState.message.set('Loading organisation');
       this.organisationApiStore.findById({ id: organisationId });
     }
   }
@@ -302,6 +314,7 @@ export class InvoiceEdit implements OnInit {
     }
 
     this.saveRequested.set(true);
+    this.loaderState.message.set('Saving invoice');
     this.kycInvoiceApiStore.save({ invoice: this.buildInvoicePayload() });
   }
 
@@ -360,7 +373,7 @@ export class InvoiceEdit implements OnInit {
     invoice.createdBy = current.createdBy;
     invoice.modifiedAt = current.modifiedAt;
     invoice.modifiedBy = current.modifiedBy;
-    invoice.ref = current.ref;
+    invoice.ref = current.ref || null;
     invoice.organisationId = current.organisation?.id || null;
     invoice.organisationName = current.organisation?.name || null;
     invoice.organisationCode = current.organisation?.code || null;

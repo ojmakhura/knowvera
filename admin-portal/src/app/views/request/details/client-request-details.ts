@@ -3,11 +3,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, inject, Input, OnDestroy, OnInit, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, inject, Input, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { ClientRequestApiStore } from '@app/store/bw/co/knowvera/organisation/client/client-request-api.store';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 type LabeledValue = {
   label: string;
@@ -39,6 +40,8 @@ export class ClientRequestDetails implements OnInit, AfterViewInit, OnDestroy {
   
   readonly clientRequestApiStore = inject(ClientRequestApiStore);
   readonly clientRequest = this.clientRequestApiStore.data;
+  readonly loading = computed(() => this.clientRequestApiStore.loading());
+  loaderState = inject(LoaderState);
 
   readonly requestReference = computed(() => this.displayValue(this.clientRequest().ref) || this.displayValue(this.id));
   readonly requestStatus = computed<ClientRequestStatus>(
@@ -129,11 +132,15 @@ export class ClientRequestDetails implements OnInit, AfterViewInit, OnDestroy {
   @Input() id: string | null = null;
 
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
   }
 
   ngOnInit(): void {
     if(this.id) {
 
+      this.loaderState.message.set('Loading client request');
       this.clientRequestApiStore.findById({ id: this.id });
     }
   }

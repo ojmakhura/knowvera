@@ -108,7 +108,6 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   appEnvState = inject(AppEnvStore);
 
   error = linkedSignal(() => this.organisationApiStore.error());
-  loaderMessage = linkedSignal(() => 'Loading...');
   messages = linkedSignal(() => this.organisationApiStore.messages());
   success = linkedSignal(() => this.organisationApiStore.success());
   loading = linkedSignal(() => this.organisationApiStore.loading() || this.clientRequestApiStore.loading() || this.branchApiStore.loading() || this.isUploadingDocument());
@@ -286,6 +285,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
           return;
         }
 
+        this.loaderState.message.set('Saving organisation');
         this.organisationApiStore.save({
           organisation: {
             ...organisation,
@@ -332,9 +332,9 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   // toaster: ToastrService = inject(ToastrService);
 
   constructor() {
-
-    this.loaderState.isLoading = this.loading;
-    this.loaderState.message = this.loaderMessage;
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
 
     effect(() => {
       const page = this.clientRequestsTableSignal();
@@ -381,17 +381,12 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
 
       this.branches.set(this.organisationApiStore.data()?.branches || []);
     });
-
-    effect(() => {
-      console.log('Loading state changed:', this.loading());
-      // this.loaderState.isLoading.set(this.loading());
-    });
   }
 
   ngOnInit(): void {
 
     if (this.id && this.id !== '') {
-
+      this.loaderState.message.set('Loading organisation');
       this.organisationApiStore.findById({
         id: this.id
       })
@@ -462,6 +457,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     const ref = this.dialog.open(BranchFormDialogComponent, { data, width: '480px' });
     ref.afterClosed().subscribe((branch: BranchDTO | undefined) => {
       if (branch) {
+        this.loaderState.message.set('Saving branch');
         this.branchApiStore.save({ branch });
         this.branchApiStore.findByOrganisation({ organisationId: this.id });
       }
@@ -491,6 +487,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed && branch.id) {
+        this.loaderState.message.set('Removing branch');
         this.branchApiStore.remove({ id: branch.id });
         this.branchApiStore.findByOrganisation({ organisationId: this.id });
       }
@@ -504,7 +501,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.router.navigate(['/document/details', document.id]);
+    this.router.navigate(['/documents', document.id]);
   }
 
   openDocumentEdit(document: DocumentDTO): void {
@@ -513,7 +510,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.router.navigate(['/document/edit', document.id]);
+    this.router.navigate(['/documents', document.id, 'edit']);
   }
 
   onDocumentFileSelected(event: Event): void {
@@ -542,6 +539,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    this.loaderState.message.set('Uploading document');
     this.isUploadingDocument.set(true);
 
 
@@ -577,6 +575,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       organisation: this.organisation().name
     } as BranchDTO;
 
+    this.loaderState.message.set('Saving branch');
     this.branchApiStore.save({ branch });
     this.branchApiStore.findByOrganisation({ organisationId: this.id });
 
@@ -601,12 +600,14 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onClientRequestsPageChange(event: PageEvent): void {
+    this.loaderState.message.set('Loading client requests');
     this.doSearchRequests(event.pageIndex, event.pageSize);
   }
 
   // Branches Management Methods
   loadBranches(): void {
     if (this.id) {
+      this.loaderState.message.set('Loading branches');
       this.branchApiStore.findByOrganisation({ organisationId: this.id });
     }
   }
@@ -644,7 +645,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.router.navigate(['/subscription/details', subscription.id]);
+    this.router.navigate(['/subscription', subscription.id]);
   }
 
   subscriptionStatusClass(status: KycSubsciptionStatus | string | null | undefined): string {

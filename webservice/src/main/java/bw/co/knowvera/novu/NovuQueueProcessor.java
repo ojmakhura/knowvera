@@ -35,6 +35,9 @@ public class NovuQueueProcessor {
     this.novuSdk = novuSdk;
   }
 
+  @Value("${app.novu.base-url}")
+  private String novuBaseUrl;
+
   @Value("${app.novu.queue.newUserNovuId}")
   private String novuNewUserId;
 
@@ -80,7 +83,14 @@ public class NovuQueueProcessor {
     }
 
     TriggerEventRequestDto request = triggerRequest(workflowId, payload, messageId);
-    novuSdk.trigger().body(request).call();
+    try {
+      novuSdk.trigger().body(request).call();
+    } catch (RuntimeException e) {
+      // The retry and dead-letter steps do not say why; this is where the cause shows
+      LOGGER.warn("Novu trigger of {} (message {}) at {} failed: {}", workflowId, messageId, novuBaseUrl,
+          e.toString());
+      throw e;
+    }
     LOGGER.debug("Triggered {} (transaction {})", workflowId, request.transactionId().orElse(null));
   }
 

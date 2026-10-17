@@ -17,7 +17,7 @@ export const requestRoutes: Routes = [
       ),
   },
   {
-    path: 'edit/:id',
+    path: ':id/edit',
     canActivate: [AuthenticationGuard],
     loadComponent: () =>
       import('./edit/client-request-edit').then(
@@ -25,15 +25,7 @@ export const requestRoutes: Routes = [
       ),
   },
   {
-    path: 'details',
-    canActivate: [AuthenticationGuard],
-    loadComponent: () =>
-      import('./details/client-request-details').then(
-        (module) => module.ClientRequestDetails
-      ),
-  },
-  {
-    path: 'details/:id',
+    path: ':id',
     canActivate: [AuthenticationGuard],
     loadComponent: () =>
       import('./details/client-request-details').then(

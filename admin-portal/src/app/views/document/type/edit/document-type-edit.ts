@@ -52,6 +52,7 @@ import { ExpectedFieldApiStore } from '@app/store/bw/co/knowvera/document/type/f
 import { VerificationDataConfigApiStore } from '@app/store/bw/co/knowvera/document/type/verification/verification-data-config-api.store';
 import { VerificationDataConfigApi } from '@app/services/bw/co/knowvera/document/type/verification/verification-data-config-api';
 import { TimePeriod } from '@app/models/bw/co/knowvera/time-period';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -59,8 +60,10 @@ export class EditDocumentTypeVarsForm {
   createdBy: string | any = null;
   modifiedAt: Date | any = null;
   modifiedBy: string | any = null;
-  code: string | any = null;
-  name: string | any = null;
+  // Native text inputs bound with [formField] must start as '' — signal forms treats a null
+  // model value on <input type="text"> as numeric and rejects non-numeric input.
+  code: string | any = '';
+  name: string | any = '';
   description: string | any = null;
   expires: boolean | any = false;
   expiryField: KeyField | any = null;
@@ -144,7 +147,13 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     this.editDocumentTypeSignal().expectedFields.filter((field) => field.id),
   );
 
+  loaderState = inject(LoaderState);
+
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
     effect(() => {
       let docType = this.documentTypeApiStore.data();
 
@@ -178,6 +187,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     this.documentTypeApiStore.reset();
 
     if (this.id && this.id !== '') {
+      this.loaderState.message.set('Loading document type');
       this.documentTypeApiStore.findById({ id: this.id });
     }
   }
@@ -385,6 +395,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     const config = new VerificationDataConfigDTO();
     config.documentTypeId = this.editDocumentTypeSignal().id;
     config.documentType = this.editDocumentTypeSignal().name;
+    config.name = '';
     return config;
   }
 
@@ -427,6 +438,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
         });
 
         this.loading.set(true);
+        this.loaderState.message.set('Removing verification data config');
         this.verificationConfigApi.remove(selected.id).subscribe({
           next: (done: boolean) => {
             if (done) {
@@ -599,7 +611,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
   updateDocumentTypeSignal(documentType: DocumentTypeDTO): EditDocumentTypeVarsForm {
     return {
-      code: documentType.code,
+      code: documentType.code ?? '',
       createdAt: documentType.createdAt,
       createdBy: documentType.createdBy,
       description: documentType.description,
@@ -610,18 +622,21 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       id: documentType.id,
       modifiedAt: documentType.modifiedAt,
       modifiedBy: documentType.modifiedBy,
-      name: documentType.name,
+      name: documentType.name ?? '',
       expectedFields: documentType.expectedFields || [],
       textExtractionPrompts: documentType.textExtractionPrompts || [],
       validationPrompts: documentType.validationPrompts || [],
-      verificationDataConfigs: documentType.verificationDataConfigs || [],
+      verificationDataConfigs: (documentType.verificationDataConfigs || []).map((config: VerificationDataConfigDTO) => ({
+        ...config,
+        name: config.name ?? '',
+      })),
     };
   }
 
   saveDocumentType(): void {
     let formData: EditDocumentTypeVarsForm = this.editDocumentTypeSignal();
     let docType = new DocumentTypeDTO();
-    docType.code = formData.code;
+    docType.code = formData.code || null;
     docType.createdAt = formData.createdAt;
     docType.createdBy = formData.createdBy;
     docType.description = formData.description;
@@ -632,12 +647,16 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.id = formData.id;
     docType.modifiedAt = formData.modifiedAt;
     docType.modifiedBy = formData.modifiedBy;
-    docType.name = formData.name;
+    docType.name = formData.name || null;
     docType.expectedFields = formData.expectedFields || [];
     docType.textExtractionPrompts = formData.textExtractionPrompts || [];
     docType.validationPrompts = formData.validationPrompts || [];
-    docType.verificationDataConfigs = formData.verificationDataConfigs || [];
+    docType.verificationDataConfigs = (formData.verificationDataConfigs || []).map((config) => ({
+      ...config,
+      name: config.name || null,
+    }));
 
+    this.loaderState.message.set('Saving document type');
     this.documentTypeApiStore.save({
       documentType: docType,
     });

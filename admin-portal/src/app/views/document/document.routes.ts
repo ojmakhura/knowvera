@@ -14,19 +14,13 @@ export const documentRoutes: Routes = [
       import('./edit/document-edit').then((module) => module.DocumentEdit),
   },
   {
-    path: 'edit/:id',
+    path: ':id/edit',
     canActivate: [AuthenticationGuard],
     loadComponent: () =>
       import('./edit/document-edit').then((module) => module.DocumentEdit),
   },
   {
-    path: 'details',
-    canActivate: [AuthenticationGuard],
-    loadComponent: () =>
-      import('./details/document-details').then((module) => module.DocumentDetails),
-  },
-  {
-    path: 'details/:id',
+    path: ':id',
     canActivate: [AuthenticationGuard],
     loadComponent: () =>
       import('./details/document-details').then((module) => module.DocumentDetails),

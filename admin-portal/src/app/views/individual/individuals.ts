@@ -26,6 +26,7 @@ import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individ
 import { toast } from 'ngx-sonner';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 export class SearchIndividualsVarsForm {
   identityNo: string = '';
@@ -60,7 +61,7 @@ export class SearchIndividualsVarsForm {
 export class Individuals implements OnInit {
   searchIndividualsVarsForm = new SearchIndividualsVarsForm();
   searchIndividualsSignal = signal(this.searchIndividualsVarsForm);
-  searchIndividualsForm = form(this.searchIndividualsSignal, { submission: { action: async () => this.doSearch(0, this.pageSize()) } });
+  searchIndividualsForm = form(this.searchIndividualsSignal, { submission: { action: async () => this.doSearch(0, this.pageSize(), true) } });
 
   readonly individualApiStore = inject(IndividualApiStore);
   protected readonly rows = signal<IndividualListDTO[]>([]);
@@ -76,6 +77,10 @@ export class Individuals implements OnInit {
   loading = linkedSignal(() => this.individualApiStore.loading());
   error = linkedSignal(() => this.individualApiStore.error());
   protected readonly toast = toast;
+  loaderState = inject(LoaderState);
+  // Set while a search request is in flight, so the toast fires once when it completes.
+  private searchInFlight = false;
+  private notifyOnSuccess = false;
 
   displayedColumns: string[] = ['name', 'identityNo', 'email', 'status', 'actions'];
   protected readonly kycStatusOptions = [
@@ -105,6 +110,25 @@ export class Individuals implements OnInit {
         ...state,
         individuals: page.content || [],
       }));
+    });
+
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
+    effect(() => {
+      if (this.loading() || !this.searchInFlight) {
+        return;
+      }
+
+      this.searchInFlight = false;
+
+      if (this.error()) {
+        this.toast.error(this.messages()[0] || 'Failed to search individuals.');
+      } else if (this.notifyOnSuccess) {
+        const total = this.individualApiStore.dataPage()?.page?.totalElements || 0;
+        this.toast.success(`${total} individual${total === 1 ? '' : 's'} found`);
+      }
     });
   }
 
@@ -154,18 +178,6 @@ export class Individuals implements OnInit {
     return `Page ${this.currentPage() + 1} of ${Math.max(this.totalPages(), 1)}`;
   }
 
-  // updateField(field: keyof SearchIndividualsVarsForm, value: string): void {
-  //   this.searchIndividualsSignal.update((state) => ({
-  //     ...state,
-  //     [field]: value,
-  //   }));
-  // }
-
-  // resetSearch(): void {
-  //   this.searchIndividualsSignal.set(new SearchIndividualsVarsForm());
-  //   this.doSearch();
-  // }
-
   createNewIndividual(): void {
     this.router.navigate(['/individual', 'edit']);
   }
@@ -202,10 +214,13 @@ export class Individuals implements OnInit {
     return tones[index % tones.length];
   }
 
-  doSearch(pageNumber: number = 0, pageSize: number = 10): void {
+  doSearch(pageNumber: number = 0, pageSize: number = 10, notify: boolean = false): void {
+    this.searchInFlight = true;
+    this.notifyOnSuccess = notify;
     const value = this.searchIndividualsSignal();
     const criteria = new SearchObject<IndividualSearchCriteria>();
-
+    this.loaderState.message.set('Searching individuals');
+    
     criteria.pageNumber = pageNumber;
     criteria.pageSize = pageSize;
     criteria.criteria = {
@@ -224,11 +239,11 @@ export class Individuals implements OnInit {
   }
 
   openDetails(id: string): void {
-    this.router.navigate(['/individual', 'details', id]);
+    this.router.navigate(['/individual', id]);
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['/individual', 'edit', id]);
+    this.router.navigate(['/individual', id, 'edit']);
   }
 
   initialsOf(name: string | null | undefined): string {
