@@ -10471,7 +10471,9 @@
   <andromdawebservice:WebServiceOperation xmi:id="_kjoV98nlEfGT5-lSOaTmjg" andromda_REST_path="/by-organisation/{organisationId}" andromda_REST_request_type="GET" base_Operation="_19_0_4_90e0298_1766925888034_418464_9361" andromda_REST_pre_authorize="hasAnyAuthority('SCOPE_kyc-records:list', 'SCOPE_kyc-records:list-own')" andromda_REST_path_static="true">
     <andromda_additionalAnnotations>bw.co.knowvera.auth.RequiresOwnership(scope = &quot;kyc-records:list&quot;, target = &quot;ORGANISATION&quot;, id = &quot;#organisationId&quot;)</andromda_additionalAnnotations>
   </andromdawebservice:WebServiceOperation>
-  <andromdawebservice:WebServiceOperation xmi:id="_kjoV-MnlEfGT5-lSOaTmjg" andromda_REST_path="/{id}" andromda_REST_request_type="DELETE" base_Operation="_19_0_4_90e0298_1763968055993_388363_9413" andromda_REST_pre_authorize="hasAuthority('SCOPE_kyc-records:delete')" andromda_REST_path_static="true"/>
+  <andromdawebservice:WebServiceOperation xmi:id="_kjoV-MnlEfGT5-lSOaTmjg" andromda_REST_path="/{id}" andromda_REST_request_type="DELETE" base_Operation="_19_0_4_90e0298_1763968055993_388363_9413" andromda_REST_pre_authorize="hasAnyAuthority('SCOPE_kyc-records:delete', 'SCOPE_kyc-records:delete-own')" andromda_REST_path_static="true">
+    <andromda_additionalAnnotations>bw.co.knowvera.auth.RequiresOwnership(scope = &quot;kyc-records:delete&quot;, target = &quot;KYC_RECORD&quot;, id = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdawebservice:WebServiceOperation>
   <andromdawebservice:WebServiceOperation xmi:id="_kjoV-cnlEfGT5-lSOaTmjg" andromda_REST_path="/by-individual/{individualId}/paged" andromda_REST_request_type="GET" base_Operation="_19_0_4_90e0298_1766925932677_765403_9376" andromda_REST_pre_authorize="hasAnyAuthority('SCOPE_kyc-records:list', 'SCOPE_kyc-records:list-own')" andromda_REST_path_static="true">
     <andromda_additionalAnnotations>bw.co.knowvera.auth.RequiresOwnership(scope = &quot;kyc-records:list&quot;, target = &quot;INDIVIDUAL&quot;, id = &quot;#individualId&quot;)</andromda_additionalAnnotations>
   </andromdawebservice:WebServiceOperation>

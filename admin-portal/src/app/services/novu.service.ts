@@ -15,8 +15,6 @@ export class NovuService {
         return this.http.get<any>(`${this.path}/config`);
     }
 
-    // configs = httpResource<any>(() => `${this.path}/config`);
-
     loadConfigs(): Observable<any> {
         return this.http.get<any>(`${this.path}/config`);
     }

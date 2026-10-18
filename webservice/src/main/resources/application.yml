@@ -25,11 +25,19 @@ spring:
   threads:
     virtual:
       enabled: true
+  datasource:
+    # URL, username and password: DATABASE_URL, DB_USERNAME, DB_PASSWORD (core-application.properties)
+    driver-class-name: ${DRIVER_CLASS:org.postgresql.Driver}
   jpa:
-    show-sql: ${SHOW_SQL:false }
+    database-platform: ${DB_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}
+    show-sql: ${SHOW_SQL:false}
     properties:
       hibernate:
         format_sql: true
+        # ddl-auto=update re-creates named unique constraints at every start by default; only
+        # create the missing ones
+        schema_update:
+          unique_constraint_strategy: RECREATE_QUIETLY
   servlet:
     multipart:
       enabled: true
@@ -56,6 +64,19 @@ spring:
     # (RabbitMQConfig, ConfirmedPublisher) instead of disappearing
     publisher-confirm-type: correlated
     publisher-returns: true
+  cloud:
+    aws:
+      # Document storage (S3). The MINIO_* variables still work as fallbacks.
+      credentials:
+        access-key: ${S3_ACCESS_KEY}
+        secret-key: ${S3_SECRET_KEY}
+      region:
+        # Must match the server: Garage's s3_region (default "garage"); SeaweedFS accepts any
+        static: ${S3_REGION:garage}
+      s3:
+        # The endpoint is storage.s3.endpoint (set only when given; an empty one fails here)
+        # Self-hosted servers expect http://host/bucket/key URLs
+        path-style-access-enabled: true
   liquibase:
     enabled: false
   security:
@@ -75,7 +96,7 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD}
-      timeout: 100
+      timeout: ${REDIS_TIMEOUT:100}
       lettuce:
         pool:
           max-active: 16
@@ -181,11 +202,16 @@ rate-limiting:
   tokens: ${RATE_LIMIT:2000}
   # Requests per minute per IP address for calls without a token (public endpoints)
   public-tokens: ${PUBLIC_RATE_LIMIT:30}
-minio:
-    url: ${MINIO_URL:http://localhost:9000}
-    access-key: ${MINIO_ACCESS_KEY:minio}
-    secret-key: ${MINIO_SECRET_KEY:minio123}
-    bucket-name: ${MINIO_BUCKET:knowvera}
+# Document storage: the bucket on an external S3-compatible server (SeaweedFS, Garage, AWS S3).
+# The client itself is configured under spring.cloud.aws (Spring Cloud AWS).
+storage:
+  s3:
+    # The server's S3 API, e.g. https://s3.example.com; blank: AWS S3 itself
+    endpoint: ${S3_ENDPOINT:${MINIO_URL:}}
+    bucket: ${S3_BUCKET:${MINIO_BUCKET:knowvera}}
+    # Create the bucket on first upload. Garage keys need --create-bucket for this; otherwise
+    # create the bucket on the server and turn this off.
+    create-bucket: ${S3_CREATE_BUCKET:true}
 app:
   verification:
     # Automated checks may mark documents VERIFIED on their own (type match and data score);
@@ -243,7 +269,7 @@ app:
     model: ${OLLAMA_MODEL:gemma4}
   gemini:
     base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
-    api-key: ${GEMINI_API_KEY:}
+    api-key: ${GEMINI_KEY:${GEMINI_API_KEY:}}
     model: ${GEMINI_MODEL:gemini-2.0-flash}
     project-id: ${GEMINI_PROJECT_ID:knowvera-kyc}
     location: ${GEMINI_LOCATION:us-central1}

@@ -193,7 +193,6 @@ export class Dashboard implements OnInit {
   }
 
   ngOnInit(): void {
-    this.settingsApiStore.getAll();
     this.loadDashboardData();
   }
 

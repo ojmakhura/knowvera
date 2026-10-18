@@ -56,6 +56,9 @@ class IndividualServiceImplTest {
 
     private IndividualService service;
 
+    /** A token as RequestTokens issues it: random part and issue time, so it is not expired. */
+    private static final String TOKEN = "plain-token." + java.time.Instant.now().getEpochSecond();
+
     @BeforeEach
     void setUp() {
         service = new IndividualServiceImpl(
@@ -64,6 +67,8 @@ class IndividualServiceImplTest {
                 individualMapper,
                 clientRequestRepository,
                 passwordEncoder);
+        org.springframework.test.util.ReflectionTestUtils.setField(service, "requestSessionTtl",
+                java.time.Duration.ofHours(24));
     }
 
     @Test
@@ -79,11 +84,11 @@ class IndividualServiceImplTest {
         IndividualDTO expected = new IndividualDTO();
 
         when(clientRequestRepository.findById(requestId)).thenReturn(Optional.of(clientRequest));
-        when(passwordEncoder.matches("plain-token", "encoded-token")).thenReturn(true);
+        when(passwordEncoder.matches(TOKEN, "encoded-token")).thenReturn(true);
         when(individualRepository.findByIdentityNo("OMANG-1")).thenReturn(Optional.of(individual));
         when(individualMapper.toIndividualDTO(individual)).thenReturn(expected);
 
-        IndividualDTO actual = service.loadRequestIndividual(requestId.toString(), "plain-token", "OMANG-1");
+        IndividualDTO actual = service.loadRequestIndividual(requestId.toString(), TOKEN, "OMANG-1");
 
         assertSame(expected, actual);
     }
@@ -334,11 +339,11 @@ class IndividualServiceImplTest {
         clientRequest.setTargetId(individualId.toString());
 
         when(clientRequestRepository.findById(requestId)).thenReturn(Optional.of(clientRequest));
-        when(passwordEncoder.matches("plain-token", "encoded-token")).thenReturn(true);
+        when(passwordEncoder.matches(TOKEN, "encoded-token")).thenReturn(true);
         when(individualRepository.findByIdentityNo("OMANG-1")).thenReturn(Optional.empty());
 
         assertThrows(Exception.class,
-                () -> service.loadRequestIndividual(requestId.toString(), "plain-token", "OMANG-1"));
+                () -> service.loadRequestIndividual(requestId.toString(), TOKEN, "OMANG-1"));
     }
 
     @Test
@@ -355,11 +360,11 @@ class IndividualServiceImplTest {
         individual.setId(otherIndividualId);
 
         when(clientRequestRepository.findById(requestId)).thenReturn(Optional.of(clientRequest));
-        when(passwordEncoder.matches("plain-token", "encoded-token")).thenReturn(true);
+        when(passwordEncoder.matches(TOKEN, "encoded-token")).thenReturn(true);
         when(individualRepository.findByIdentityNo("OMANG-1")).thenReturn(Optional.of(individual));
 
         assertThrows(IndividualServiceException.class,
-                () -> service.loadRequestIndividual(requestId.toString(), "plain-token", "OMANG-1"));
+                () -> service.loadRequestIndividual(requestId.toString(), TOKEN, "OMANG-1"));
     }
 
     @Test

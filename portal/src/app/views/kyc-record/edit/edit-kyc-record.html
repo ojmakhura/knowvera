@@ -78,18 +78,19 @@
 
             <mat-form-field appearance="outline" class="vault-field">
               <mat-label>PEP Screening</mat-label>
-              <mat-select>
-                <mat-option>Cleared - No Match</mat-option>
-                <mat-option>Flagged - Pending Review</mat-option>
-                <mat-option>Confirmed PEP</mat-option>
+              <mat-select [formField]="editForm.declaration.pepStatus">
+                <mat-option [value]="pepStatusEnum.NOT_PEP">Not a PEP</mat-option>
+                <mat-option [value]="pepStatusEnum.PEP_SELF">PEP - Self</mat-option>
+                <mat-option [value]="pepStatusEnum.PEP_RELATIVE">PEP - Relative</mat-option>
+                <mat-option [value]="pepStatusEnum.PEP_ASSOCIATE">PEP - Close Associate</mat-option>
               </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="vault-field">
               <mat-label>Sanctions Check</mat-label>
-              <mat-select>
-                <mat-option>Cleared</mat-option>
-                <mat-option>Possible Match</mat-option>
+              <mat-select [formField]="editForm.declaration.sanctionsMatch">
+                <mat-option [value]="false">Cleared</mat-option>
+                <mat-option [value]="true">Possible Match</mat-option>
               </mat-select>
             </mat-form-field>
           </div>

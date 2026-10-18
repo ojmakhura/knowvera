@@ -16,7 +16,7 @@ import bw.co.knowvera.document.DocumentAnalyticsStatus;
 import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.document.DocumentService;
 import bw.co.knowvera.extractor.GeminiExtractorService;
-import bw.co.knowvera.minio.MinioService;
+import bw.co.knowvera.storage.ObjectStorageService;
 import bw.co.knowvera.properties.RabbitProperties;
 import lombok.RequiredArgsConstructor;
 
@@ -26,16 +26,16 @@ public class GeminiTextExtractionProcessor {
     private static final Logger log = LoggerFactory.getLogger(GeminiTextExtractionProcessor.class);
 
     private final DocumentService documentService;
-    private final MinioService minioService;
+    private final ObjectStorageService storageService;
     private final GeminiExtractorService geminiExtractorService;
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
 
-    public GeminiTextExtractionProcessor(DocumentService documentService, MinioService minioService,
+    public GeminiTextExtractionProcessor(DocumentService documentService, ObjectStorageService storageService,
             GeminiExtractorService geminiExtractorService, RabbitTemplate rabbitTemplate,
             RabbitProperties rabbitProperties) {
         this.documentService = documentService;
-        this.minioService = minioService;
+        this.storageService = storageService;
         this.geminiExtractorService = geminiExtractorService;
         this.rabbitTemplate = rabbitTemplate;
         this.rabbitProperties = rabbitProperties;
@@ -51,9 +51,9 @@ public class GeminiTextExtractionProcessor {
 
             String objectName = resolveObjectName(document.getUrl());
             byte[] pdfBytes;
-            try (InputStream stream = minioService.downloadFile(objectName)) {
+            try (InputStream stream = storageService.downloadFile(objectName)) {
                 if (stream == null) {
-                    throw new IOException("Minio returned null stream for object: " + objectName);
+                    throw new IOException("Storage returned no stream for object: " + objectName);
                 }
                 pdfBytes = stream.readAllBytes();
             }

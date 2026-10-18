@@ -15,7 +15,7 @@ import bw.co.knowvera.QueueObject;
 import bw.co.knowvera.document.DocumentAnalyticsStatus;
 import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.document.DocumentService;
-import bw.co.knowvera.minio.MinioService;
+import bw.co.knowvera.storage.ObjectStorageService;
 import bw.co.knowvera.properties.RabbitProperties;
 import lombok.RequiredArgsConstructor;
 
@@ -27,7 +27,7 @@ public class DocumentQueueProcessor {
 
     private final DocumentProcessorService documentProcessorService;
     private final DocumentService documentService;
-    private final MinioService minioService;
+    private final ObjectStorageService storageService;
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
 
@@ -44,9 +44,9 @@ public class DocumentQueueProcessor {
             byte[] pdfBytes;
 
             // Use a more robust way to read the stream
-            try (InputStream stream = minioService.downloadFile(objectName)) {
+            try (InputStream stream = storageService.downloadFile(objectName)) {
                 if (stream == null) {
-                    throw new IOException("Minio returned null stream for object: " + objectName);
+                    throw new IOException("Storage returned no stream for object: " + objectName);
                 }
                 pdfBytes = stream.readAllBytes();
             }

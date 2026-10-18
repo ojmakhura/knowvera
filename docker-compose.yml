@@ -44,11 +44,13 @@ services:
       # --- Rate limiting ---
       RATE_LIMIT: ${RATE_LIMIT:-2000}
 
-      # --- MinIO ---
-      MINIO_URL: ${MINIO_URL:-http://minio:9000}
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minio}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minio123}
-      MINIO_BUCKET: ${MINIO_BUCKET:-knowvera}
+      # --- Document storage: an external S3-compatible server (SeaweedFS, Garage; docs/storage.md) ---
+      S3_ENDPOINT: ${S3_ENDPOINT:-${MINIO_URL:-}}
+      S3_REGION: ${S3_REGION:-garage}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-${MINIO_ACCESS_KEY:-}}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-${MINIO_SECRET_KEY:-}}
+      S3_BUCKET: ${S3_BUCKET:-${MINIO_BUCKET:-knowvera}}
+      S3_CREATE_BUCKET: ${S3_CREATE_BUCKET:-true}
 
       # --- Application roles ---
       REALM_USER_ROLE: ${REALM_USER_ROLE:-APPLICANT}
@@ -164,7 +166,8 @@ services:
     networks:
       - knowvera
 
+
+
 networks:
   knowvera:
     driver: bridge
-

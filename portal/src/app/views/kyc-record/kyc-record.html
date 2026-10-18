@@ -50,6 +50,12 @@
       </div>
 
       <div class="kv-actions">
+        @if (record()?.id) {
+          <button type="button" class="kv-btn-danger" [disabled]="deleting()" (click)="deleteRecord()">
+            <mat-icon>delete</mat-icon>
+            {{ deleting() ? 'Deleting...' : 'Delete Record' }}
+          </button>
+        }
         <button type="button" class="kv-btn-secondary">
           <mat-icon>download</mat-icon>
           Download PDF Report

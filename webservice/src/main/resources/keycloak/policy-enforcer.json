@@ -1810,8 +1810,10 @@
         {
           "method": "DELETE",
           "scopes": [
-            "delete"
-          ]
+            "delete",
+            "delete-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         },
         {
           "method": "GET",

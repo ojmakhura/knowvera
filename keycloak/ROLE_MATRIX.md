@@ -65,7 +65,7 @@ Owner-scoped roles (CUSTOMER, APPLICANT, ORG_USER, ORG_ADMIN) are granted `<scop
 | `invoices` | – | – | – | own: view, list, submit | – | – | – | – | – | – | view, list | view, list | view, list | – | **all** | – | **all** | **all**; own: view, list, submit |
 | `keycloak` | – | – | – | **all** | – | – | – | – | – | – | **all** | **all** | **all** | – | – | **all** | **all** | **all** |
 | `kyc-field-groups` | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | **all** | **all** | view, list | view, list | **all** | **all** | **all** |
-| `kyc-records` | – | own: view, edit, submit | own: view, list, edit, submit, export | own: view, list, edit, submit, export | – | view, list, edit, submit, verify, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, verify, review, export | view, list, verify | view, list, export | view, list, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, export | – | – | **all** | **all**; own: view, list, edit, submit, export |
+| `kyc-records` | – | own: view, edit, delete, submit | own: view, list, edit, delete, submit, export | own: view, list, edit, delete, submit, export | – | view, list, edit, submit, verify, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, verify, review, export | view, list, verify | view, list, export | view, list, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, export | – | – | **all** | **all**; own: view, list, edit, delete, submit, export |
 | `kyc-report-sections` | – | – | – | – | – | view, edit | view, edit | view, edit | view, edit | view, edit | view | view, edit | view, edit | view | – | – | **all** | **all** |
 | `novu` | – | – | – | – | – | – | – | – | – | – | view | view | view | – | – | **all** | **all** | **all** |
 | `organisation-branches` | – | – | own: view, list | own: view, list, edit, delete | – | – | – | – | – | – | view, list | view, list | view, list | view, list | – | **all** | **all** | **all**; own: view, list, edit, delete |
@@ -313,7 +313,7 @@ KYC cases
 | `list` | `SCOPE_kyc-records:list` / `SCOPE_kyc-records:list-own` | `POST /kyc-records/search/summaries` | `searchSummaries` |
 | `list` | `SCOPE_kyc-records:list` / `SCOPE_kyc-records:list-own` | `POST /kyc-records/search/summaries/paged` | `pagedSearchSummaries` |
 | `edit` | `SCOPE_kyc-records:edit` / `SCOPE_kyc-records:edit-own` | `POST /kyc-records` | `save` |
-| `delete` | `SCOPE_kyc-records:delete` | `DELETE /kyc-records/{id}` | `remove` |
+| `delete` | `SCOPE_kyc-records:delete` / `SCOPE_kyc-records:delete-own` | `DELETE /kyc-records/{id}` | `remove` |
 | `submit` | `SCOPE_kyc-records:submit` / `SCOPE_kyc-records:submit-own` | `GET /kyc-records/individual/{individualId}` | `createIndividualRecord` |
 | `submit` | `SCOPE_kyc-records:submit` / `SCOPE_kyc-records:submit-own` | `POST /kyc-records/new` | `createNew` |
 | `submit` | `SCOPE_kyc-records:submit` / `SCOPE_kyc-records:submit-own` | `GET /kyc-records/organisation/{organisationId}` | `createOrganisationRecord` |

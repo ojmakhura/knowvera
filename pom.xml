@@ -155,11 +155,15 @@
                 <version>1.0.1.Final</version>
                 <scope>provided</scope>
             </dependency> -->
+            <!-- S3 client for document storage (any S3-compatible server: SeaweedFS, Garage, AWS);
+                 also manages the AWS SDK version -->
             <dependency>
-                <groupId>io.minio</groupId>
-                <artifactId>minio</artifactId>
-                <version>9.0.0</version>
-            </dependency>
+                <groupId>io.awspring.cloud</groupId>
+                <artifactId>spring-cloud-aws-dependencies</artifactId>
+                <version>4.2.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency> 
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>

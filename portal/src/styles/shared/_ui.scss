@@ -310,6 +310,18 @@ $emerald-hover: #009c69;
 	}
 }
 
+/// Destructive action (delete): outlined in the error colour, filled on hover.
+@mixin button-danger {
+	@include button;
+	border-color: var(--error);
+	background: transparent;
+	color: var(--error);
+
+	&:hover:not(:disabled) {
+		background: var(--error-container);
+	}
+}
+
 /// Small uppercase tinted button ("Add number").
 @mixin button-subtle {
 	@include button;

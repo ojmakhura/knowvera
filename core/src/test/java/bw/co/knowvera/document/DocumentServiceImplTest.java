@@ -596,6 +596,9 @@ class DocumentServiceImplTest {
 
         document.setExpectedInformation(Map.of("firstName", "John"));
         document.setExtractedInformation(Map.of("firstName", "John"));
+        confirmType(document);
+        // Automatic verification is off by default (app.verification.auto-verify)
+        org.springframework.test.util.ReflectionTestUtils.setField(service, "autoVerify", true);
 
         DocumentDTO dto = new DocumentDTO();
 
@@ -609,6 +612,42 @@ class DocumentServiceImplTest {
         service.verifyData(id.toString(), "tester");
 
         assertEquals(DocumentVerificationStatus.VERIFIED, document.getVerificationStatus());
+    }
+
+    @Test
+    void verifyDataSendsAPassingDocumentToManualReviewByDefault() throws Exception {
+        UUID id = UUID.randomUUID();
+        Document document = verifyReadyDocument(id);
+
+        ExpectedField field = newExpectedField("firstName", "firstName", TargetEntity.INDIVIDUAL, true, true);
+        field.setExactMatch(true);
+        VerificationDataConfig config = newVerificationConfig(document.getDocumentType(), field);
+        document.getDocumentType().setExpectedFields(List.of(field));
+
+        document.setExpectedInformation(Map.of("firstName", "John"));
+        document.setExtractedInformation(Map.of("firstName", "John"));
+        confirmType(document);
+
+        DocumentDTO dto = new DocumentDTO();
+
+        when(documentRepository.findById(id)).thenReturn(Optional.of(document));
+        when(verificationDataConfigRepository.findByDocumentTypeId(document.getDocumentType().getId()))
+                .thenReturn(List.of(config));
+        when(stringMatcher.calculateFilteredSimilarity(any(), any())).thenReturn(0.95);
+        when(documentRepository.save(document)).thenReturn(document);
+        when(documentMapper.toDocumentDTO(document)).thenReturn(dto);
+
+        service.verifyData(id.toString(), "tester");
+
+        assertEquals(DocumentVerificationStatus.MANUAL_REVIEW, document.getVerificationStatus());
+    }
+
+    /** The checks automatic verification requires: the document is of the expected type. */
+    private static void confirmType(Document document) {
+        bw.co.knowvera.document.DocumentValidationResults results = new bw.co.knowvera.document.DocumentValidationResults();
+        results.setTypeMatch(true);
+        results.setMatch(true);
+        document.setValidationResults(results);
     }
 
     @Test

@@ -2022,6 +2022,9 @@
                 "name": "delete"
               },
               {
+                "name": "delete-own"
+              },
+              {
                 "name": "submit"
               },
               {
@@ -3666,6 +3669,18 @@
               "resources": "[\"kyc-records\"]",
               "scopes": "[\"delete\"]",
               "applyPolicies": "[\"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "kyc-records-delete-own-permission",
+            "description": "Remove a record or one of its parts (own records only) (Kyc Record)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"kyc-records\"]",
+              "scopes": "[\"delete-own\"]",
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
             }
           },
           {

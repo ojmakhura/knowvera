@@ -6,7 +6,7 @@ drafts for the four Novu workflows and the JSON contracts between the API, Rabbi
 ```
 publisher (API / core)                 RabbitMQ                          webservice                Novu
 ──────────────────────   ── direct exchange ─► durable queue ──►  NovuQueueProcessor  ── trigger ──►  workflow
-convertAndSend(payload)     x.novu-…-queue        q.novu-…        @RabbitListener          (workflowId) ├ in-app
+ConfirmedPublisher.publish  x.novu-…-queue        q.novu-…        @RabbitListener          (workflowId) ├ in-app
                                                                   Map<String,String>                    └ email
 portals ── GET /novu/config ──► { subscriberId, subscriberHash } ── @novu/js Inbox (HMAC-secured)
 ```
@@ -35,7 +35,11 @@ Settings row exists.
 ## Setting up Novu
 
 1. In the Novu dashboard (one environment per Knowvera environment), create the four workflows
-   with exactly the ids above (or set `NOVU_*_NOVU_ID` to the ids you choose).
+   with exactly the ids above, or point the API at the ids you have. Novu derives a workflow's id
+   from its name when it is created ("New User" → `new-user`) and it cannot be renamed later, so
+   it is usually easier to set the API's ids:
+   `NOVU_NEW_USER_NOVU_ID`, `NOVU_NEW_ORG_USER_NOVU_ID`, `NOVU_NEW_ORG_CLIENT_REQUEST_NOVU_ID`,
+   `NOVU_NEW_KYC_RECORD_NOVU_ID`. They must exist in the environment `NOVU_API_KEY` belongs to.
 2. For each workflow, paste the payload schema from `workflows/<id>.json`, add the steps listed
    there, and paste `templates/<id>.email.html` as the email body. Mark `novu-new-user`,
    `novu-new-org-user` and `novu-new-org-client-request` *critical*, so subscriber preferences cannot
@@ -45,8 +49,14 @@ Settings row exists.
 3. Connect an email provider to the environment and an in-app (Inbox) channel.
 4. Enable **HMAC encryption** for the Inbox (the API already signs subscriber ids, see below).
 5. Configure the API: `NOVU_API_KEY` (the environment's secret key), `NOVU_BASE_URL`
-   (`https://api.novu.co`, or `https://eu.api.novu.co` for the EU region). Configure the portals:
-   `novuApplicationIdentifier`, `novuApi`, `novuWebSocket` in `env.json`.
+   (`https://api.novu.co`, `https://eu.api.novu.co` for the EU region, or a self-hosted Novu's API
+   URL). Keep `.env` and `env.sh` on the same Novu: a key sent to the wrong server is refused.
+   Configure the portals: `novuApplicationIdentifier`, `novuApi`, `novuWebSocket` in `env.json`.
+
+   A self-hosted Novu behind a self-signed certificate: the certificate's *subject alternative
+   names* must include the Novu host names (Java ignores the common name, so `CN=*.example.com`
+   alone is not enough), and the API's JVM must trust it (e.g.
+   `keytool -importcert -cacerts -alias … -file cert.crt`, then restart the API).
 6. Test each workflow from the dashboard with the `examplePayload` from its JSON, or with the
    trigger request below.
 
@@ -59,13 +69,26 @@ it, creating a user without a password fails with 503 and the account is rolled 
 
 How each notification gets from an HTTP request to Novu (class.method).
 
-**Common tail.** Publishers call `rabbitTemplate.convertAndSend(exchange, routingKey, Map<String,String>)`;
-the shared `JacksonJsonMessageConverter` (`RabbitMQConfig`) gives every message a stable message id.
-`NovuQueueProcessor.process…Queue(payload, messageId)` → `trigger(workflowId, payload, messageId)`:
-a message without `email` is dropped with a warning; otherwise `triggerRequest(...)` builds the
-trigger (subscriber inline, `transactionId` = message id) and `novuSdk.trigger().body(…).call()`
-sends it. On failure `novuListenerContainerFactory` (`NovuQueueConfig`) retries with back-off, then
-`RepublishMessageRecoverer` moves the message to `<queue>.dlq` on `x.novu-dead-letter`.
+**Common tail.**
+
+- *Publishing.* Publishers call `ConfirmedPublisher.publish(exchange, routingKey, Map<String,String>)`
+  (core). It gives the message one id, used as its AMQP `message_id`, its publisher-confirm
+  correlation id and later Novu's `transactionId`, and publishes through the shared `RabbitTemplate`
+  (`RabbitMQConfig`: JSON converter, `mandatory`). The broker confirms every publish
+  (`spring.rabbitmq.publisher-confirm-type: correlated`) and returns unroutable ones
+  (`publisher-returns`); a rejected, unconfirmed or unroutable message is logged with its id. The
+  publish does not wait for the broker: the HTTP request has already succeeded.
+- *Consuming.* `novuListenerContainerFactory` (`NovuQueueConfig`) runs 3 consumers per queue (up to
+  10, `NOVU_CONSUMERS` / `NOVU_MAX_CONSUMERS`), each holding one message (prefetch 1), so a message
+  waiting between retries does not hold up the rest of its queue. Order is not kept.
+  `NovuQueueProcessor.process…Queue(payload, messageId)` → `trigger(workflowId, payload, messageId)`:
+  a message without `email` is dropped with a warning; otherwise `triggerRequest(...)` builds the
+  trigger (subscriber inline, `transactionId` = message id) and `novuSdk.trigger().body(…).call()`
+  sends it.
+- *Failing.* Each failed attempt logs `Novu trigger of <workflow> (message <id>) at <base-url>
+  failed: <Novu's reply>`. The message is retried 3 more times after 2 s, 6 s and 18 s
+  (`app.novu.retry.*`), then `RepublishMessageRecoverer` moves it to `<queue>.dlq` on
+  `x.novu-dead-letter`, with the error in its headers. See *Failed notifications* below.
 
 **1. Client request invitation (`novu-new-org-client-request`)**
 
@@ -81,7 +104,7 @@ POST /client-requests                                   ClientRequestApiImpl.sav
        │   └ per id: clientRequestRepository.findById (deleted → skipped) → buildPayload
        │      → recipientOf: the individual's emailAddress and full name, or the organisation's
        │        contactEmailAddress and name (none → skipped with a warning)
-       └ convertAndSend(x.novu-new-org-client-request-queue, …) → processNewOrgClientRequestQueue → trigger
+       └ ConfirmedPublisher.publish(x.novu-new-org-client-request-queue, …) → processNewOrgClientRequestQueue → trigger
 ```
 
 The requests are reloaded in their own transaction because the caller's entities belong to a
@@ -124,6 +147,93 @@ POST /individuals (new individual, hasUser = true, no existing user)  Individual
 `NovuAuthService.generateSubscriberHash(email)` → `{ subscriberId, subscriberHash }` → the
 portals' `@novu/js` Inbox (not mounted yet, issue 13).
 
+## Failed notifications: dead letters and re-drive
+
+A notification that fails every attempt waits in its dead-letter queue until it is moved back:
+
+| Queue | Dead-letter queue (on `x.novu-dead-letter`, same routing key) |
+|---|---|
+| `q.novu-new-user` | `q.novu-new-user.dlq` |
+| `q.novu-new-org-user` | `q.novu-new-org-user.dlq` |
+| `q.novu-new-org-client-request` | `q.novu-new-org-client-request.dlq` |
+| `q.novu-new-kyc-record` | `q.novu-new-kyc-record.dlq` |
+
+**1. Find the cause.** The API log has one warning per attempt with Novu's reply:
+
+```
+WARN … NovuQueueProcessor : Novu trigger of new-user (message bf545219-…) at https://novu-api.example.com failed: …
+```
+
+The dead letter carries the last error in `x-exception-message` (RabbitMQ management UI → the
+`.dlq` queue → *Get messages*), with `x-original-exchange` and `x-original-routingKey`.
+
+| Error | Cause | Fix |
+|---|---|---|
+| `422 … "message":"workflow_not_found"` | No workflow with that id in the key's environment | Create it, or set `NOVU_*_NOVU_ID` (Setting up Novu, step 1) |
+| `401` / `403` | Wrong `NOVU_API_KEY`, or a key sent to another Novu (`NOVU_BASE_URL`) | Use the secret key of the environment at `NOVU_BASE_URL` |
+| `SSLHandshakeException: No subject alternative DNS name matching …` | The certificate does not name the Novu host | Reissue it with the host (or `*.example.com`) as a SAN, trust it (step 5) |
+| `SSLHandshakeException: PKIX path building failed` | The JVM does not trust the certificate | Import it into the JVM's trust store, restart the API |
+| `ConnectException`, `UnknownHostException`, timeouts | Novu is down or unreachable | Start it / fix `NOVU_BASE_URL` |
+
+A trigger Novu accepts is not retried, even when the workflow then sends nothing (no steps, no
+email provider): check the workflow's activity feed in the Novu dashboard for those.
+
+**2. Fix it, then re-drive.** Nothing moves dead letters back by itself. With the API:
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8085/novu/dead-letters
+curl -s -X POST -H "Authorization: Bearer $TOKEN" "http://localhost:8085/novu/dead-letters/q.novu-new-user/redrive?max=100"
+```
+
+| Endpoint | Permission | Answer |
+|---|---|---|
+| `GET /novu/dead-letters` | `novu:view` | `{"q.novu-new-user": 1, "q.novu-new-org-user": 3, …}`: messages in each `.dlq`, by queue |
+| `POST /novu/dead-letters/{queue}/redrive?max=100` | `novu:edit` | `{"queue": "q.novu-new-user", "redriven": 1, "remaining": 0}` |
+
+- `{queue}` is the main queue's name (`q.novu-new-user`, …); an unknown one is 404. `max` is
+  1–1000 (default 100); call again for more.
+- `novu:view` and `novu:edit` belong to PLATFORM_ADMIN (and SUPER_ADMIN, DEVELOPER); `novu:view`
+  also to AUDITOR and the roles above it (`keycloak/ROLE_MATRIX.md`). After adding them, re-import
+  the realm and sign in again, or the calls are 403.
+- Each re-drive is audited (`@Audit`, entity `NOTIFICATION`).
+
+How a re-drive works (`NovuDeadLetterService`):
+
+```
+POST /novu/dead-letters/{queue}/redrive         NovuDeadLetterController.redriveDeadLetters
+ └ NovuDeadLetterService.redrive(queue, max)
+    └ rabbitTemplate.execute(channel →
+       repeat up to max:
+         channel.basicGet(<queue>.dlq, autoAck = false)        nothing left → stop
+         copy = same body, properties and message_id, without the x-exception-* / x-original-* headers
+         ConfirmedPublisher.publishAndWait(<queue's exchange>, <routing key>, copy, 10 s)
+           ├ confirmed and routed → channel.basicAck   (the dead letter is removed)
+           └ otherwise            → channel.basicNack(requeue) and stop (it stays dead-lettered))
+```
+
+- At-least-once: a dead letter is removed only after its copy is safely on the main queue; if the
+  API stops halfway, the unacknowledged message returns to the `.dlq`.
+- The copy keeps its `message_id`, which is Novu's `transactionId`, so a notification Novu had
+  in fact accepted before the failure is not sent twice.
+- Re-driven messages go through the same retries: if the cause is not fixed they end up back in
+  the `.dlq`.
+
+Without the API, the RabbitMQ management UI can move them: open the `.dlq` queue and use *Move
+messages* to its main queue (needs the `rabbitmq_shovel` and `rabbitmq_shovel_management` plugins). That keeps the
+failure headers on the message, which is harmless.
+
+Settings:
+
+| Property (environment variable) | Default | Meaning |
+|---|---|---|
+| `app.novu.retry.max-retries` (`NOVU_RETRY_MAX_RETRIES`) | 3 | Attempts after the first |
+| `app.novu.retry.initial-interval` (`NOVU_RETRY_INITIAL_INTERVAL`) | 2s | First wait |
+| `app.novu.retry.multiplier` (`NOVU_RETRY_MULTIPLIER`) | 3 | Each wait is this times the previous |
+| `app.novu.retry.max-interval` (`NOVU_RETRY_MAX_INTERVAL`) | 30s | Longest wait |
+| `app.novu.consumers.concurrency` (`NOVU_CONSUMERS`) | 3 | Consumers per queue |
+| `app.novu.consumers.max-concurrency` (`NOVU_MAX_CONSUMERS`) | 10 | Most consumers per queue under load |
+| `app.novu.queue.deadLetterExchange` (`NOVU_DEAD_LETTER_EXCHANGE`) | `x.novu-dead-letter` | Exchange of the `.dlq` queues |
+
 ## JSON contracts
 
 ### 1. RabbitMQ message (publisher → queue)
@@ -151,8 +261,9 @@ The other workflows add their own fields; see `payloadSchema` in each workflow f
 - Strings only; dates already formatted for reading (`"19 October 2026"`), enums as readable labels.
 - Never: passwords, identity numbers, screening/risk results, document contents. The client request
   link token is the one secret allowed, and only in the email step of `novu-new-org-client-request`.
-- Idempotency: `NovuQueueProcessor` sends the AMQP message id (set by the message converter) as the
-  trigger's `transactionId`, so a retried trigger Novu already accepted is not delivered twice.
+- Idempotency: `NovuQueueProcessor` sends the AMQP message id (set by `ConfirmedPublisher`) as the
+  trigger's `transactionId`, so a retried or re-driven trigger Novu already accepted is not
+  delivered twice.
   `"locale"` (`"en"`) is still *to add*.
 
 ### 2. Novu trigger (NovuQueueProcessor → `POST /v1/events/trigger`)
@@ -279,3 +390,15 @@ Ordered by impact. Fixed items are marked **Fixed** with what changed.
     before the new requests were committed.
     **Fixed:** only ids and tokens leave the caller; after the commit the requests are reloaded in a
     read-only transaction on `virtualThreadExecutor` (see *Message flow*, path 1).
+16. **Publishes were not confirmed.** No publisher confirms, `mandatory` flag or returns callback: a
+    message lost on the way, or not routable to any queue, vanished without a log.
+    **Fixed:** confirms and returns are on, all Novu publishers use `ConfirmedPublisher`, and
+    rejected, unconfirmed or unroutable messages are logged with their message id
+    (`RabbitMQConfig` covers the other publishers too).
+17. **One failing message stalled its queue.** One consumer per queue, retries waiting in the
+    consumer thread: messages behind a failing one waited about 26 s each.
+    **Fixed:** 3–10 consumers per queue, prefetch 1.
+18. **Nothing drained the dead-letter queues.**
+    **Fixed:** `GET /novu/dead-letters` and `POST /novu/dead-letters/{queue}/redrive` (see *Failed
+    notifications*). Each failed attempt now logs Novu's reply, which the retry and dead-letter
+    steps did not show.

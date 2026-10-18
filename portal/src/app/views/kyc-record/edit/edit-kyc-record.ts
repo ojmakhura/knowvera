@@ -109,8 +109,8 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
   individualApiStore = inject(IndividualApiStore);
   organisationApiStore = inject(OrganisationApiStore);
 
-  indKycDocuments = linkedSignal(() => this.settingsApiStore.data().indKycDocuments);
-  orgKycDocuments = linkedSignal(() => this.settingsApiStore.data().orgKycDocuments);
+  indKycDocuments = linkedSignal(() => this.settingsApiStore.documentRequirements().indKycDocuments);
+  orgKycDocuments = linkedSignal(() => this.settingsApiStore.documentRequirements().orgKycDocuments);
 
   myRecords = linkedSignal(() => this.kycRecordApiStore.data());
 
@@ -332,7 +332,7 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.individualApiStore.reset();
     this.organisationApiStore.reset();
-    this.settingsApiStore.getAll();
+    this.settingsApiStore.getDocumentRequirements();
     // this.kycRecordApiStore.findMyCurrentIndividualRecord();
     // this.kycRecordApiStore.findMyCurrentOrganisationRecord();
     this.kycRecordApiStore.findMyRecords();
