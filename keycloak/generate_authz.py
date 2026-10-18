@@ -190,7 +190,7 @@ COMPOSITES = {
 # route guard requires its role.
 PORTAL_ROLES = {
     "admin-portal": ("ADMIN_PORTAL_USER", "STAFF", "May use the back-office admin portal"),
-    "knowvera-web": ("PORTAL_USER", "CUSTOMER", "May use the customer portal"),
+    "knowvera-user-portal": ("PORTAL_USER", "CUSTOMER", "May use the customer portal"),
 }
 
 
@@ -797,13 +797,11 @@ public final class RoleAssignmentRules {{
 # the generator owns the parts below and leaves the rest as exported.
 # --------------------------------------------------------------------------
 TEST_REALM_FILE = ROOT / "webservice/src/test/resources/test-realm.json"
-REGISTRATION_CLIENT = "knowvera-registration"
 PORTAL_CLIENTS = list(PORTAL_ROLES)
 # Resolved from the environment when Keycloak imports the realm at start-up (--import-realm)
-CLIENT_SECRETS = {CLIENT_ID: "${API_CLIENT_SECRET}", REGISTRATION_CLIENT: "${REGISTRATION_CLIENT_SECRET}"}
-# KeycloakService.createRegistrationKeycloak() uses this service account to create users, reset
-# passwords, map roles and manage Keycloak Organizations (manage-realm: no narrower role exists).
-REGISTRATION_SERVICE_ACCOUNT_ROLES = ["manage-users", "manage-realm"]
+CLIENT_SECRETS = {CLIENT_ID: "${API_CLIENT_SECRET}"}
+# The API service account creates users, resets passwords, maps roles and manages organizations.
+API_SERVICE_ACCOUNT_ROLES = ["manage-users", "manage-realm"]
 TEST_SECRET = "test-secret"
 TEST_PASSWORD = "Test-Passw0rd!"  # meets PASSWORD_POLICY
 SAMPLE_PASSWORD = "ChangeMe-2026!"  # temporary: Keycloak asks for a new one at first login
@@ -899,11 +897,28 @@ def build_realm(realm, authz, test=False):
             portal["redirectUris"] = ["*"]
 
     users = realm.setdefault("users", [])
+    obsolete_admin_clients = []
+    remaining_users = []
     for user in users:
         if user.get("username") == f"service-account-{CLIENT_ID}":
             user.setdefault("clientRoles", {})[CLIENT_ID] = ["uma_protection"]
-        if user.get("username") == f"service-account-{REGISTRATION_CLIENT}":
-            user.setdefault("clientRoles", {})["realm-management"] = list(REGISTRATION_SERVICE_ACCOUNT_ROLES)
+            realm_management_roles = user.setdefault("clientRoles", {}).setdefault("realm-management", [])
+            user["clientRoles"]["realm-management"] = list(
+                dict.fromkeys([*realm_management_roles, *API_SERVICE_ACCOUNT_ROLES]))
+            remaining_users.append(user)
+        elif (user.get("serviceAccountClientId")
+              and set(API_SERVICE_ACCOUNT_ROLES) <= set(user.get("clientRoles", {}).get("realm-management", []))):
+            obsolete_admin_clients.append(user["serviceAccountClientId"])
+        else:
+            remaining_users.append(user)
+    users = remaining_users
+    realm["users"] = users
+
+    # The API client now owns the admin service account as well as authorization services.
+    realm["clients"] = [client for client in realm["clients"]
+                        if client["clientId"] not in obsolete_admin_clients]
+    for client_id in obsolete_admin_clients:
+        roles.get("client", {}).pop(client_id, None)
 
     # Sample users, one per role. In the deployable realm the password must be changed at
     # first login; the test realm uses a fixed password.

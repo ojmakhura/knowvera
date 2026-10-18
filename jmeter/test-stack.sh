@@ -41,10 +41,8 @@ up() {
         . "$ROOT/.env"
         PORT=$API_PORT
         REALM=$TEST_REALM
-        CLIENT_ID=knowvera-api  # app.authz.client / client-secret
-        CLIENT_SECRET=$TEST_CLIENT_SECRET
-        REGISTRATION_CLIENT=knowvera-registration
-        REGISTRATION_CLIENT_SECRET=$TEST_CLIENT_SECRET
+        API_CLIENT=knowvera-api
+        API_CLIENT_SECRET=$TEST_CLIENT_SECRET
         DATABASE_URL="${DATABASE_URL%/*}/$TEST_DATABASE"
         SPRING_RABBITMQ_VIRTUAL_HOST=$TEST_VHOST
         SPRING_DATA_REDIS_DATABASE=$TEST_REDIS_DATABASE

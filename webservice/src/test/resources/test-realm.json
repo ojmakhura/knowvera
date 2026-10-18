@@ -95,7 +95,7 @@
         "composite": true,
         "composites": {
           "client": {
-            "knowvera-web": [
+            "knowvera-user-portal": [
               "PORTAL_USER"
             ]
           }
@@ -579,19 +579,9 @@
       "security-admin-console": [],
       "admin-cli": [],
       "account-console": [],
-      "knowvera-registration": [
+      "knowvera-user-portal": [
         {
-          "id": "8db50e0d-d95f-4de1-9c9a-b8b28d6251df",
-          "name": "uma_protection",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "1f8b97e4-2625-4b5a-81bd-8186a7b754cf",
-          "attributes": {}
-        }
-      ],
-      "knowvera-web": [
-        {
-          "id": "77caaabb-1ca2-5269-9fed-8158b216c9c0",
+          "id": "e50e7a50-baf8-5d71-ba66-b0c552cb54d7",
           "name": "PORTAL_USER",
           "description": "May use the customer portal",
           "composite": false,
@@ -784,33 +774,12 @@
       "clientRoles": {
         "knowvera-api": [
           "uma_protection"
+        ],
+        "realm-management": [
+          "manage-realm",
+          "manage-users"
         ]
       }
-    },
-    {
-      "id": "69e641da-9e2f-41e0-877d-8248a5e59bb9",
-      "username": "service-account-knowvera-registration",
-      "emailVerified": false,
-      "enabled": true,
-      "createdTimestamp": 1778665324972,
-      "totp": false,
-      "serviceAccountClientId": "knowvera-registration",
-      "disableableCredentialTypes": [],
-      "requiredActions": [],
-      "realmRoles": [
-        "default-roles-knowvera"
-      ],
-      "clientRoles": {
-        "realm-management": [
-          "manage-users",
-          "manage-realm"
-        ],
-        "knowvera-registration": [
-          "uma_protection"
-        ]
-      },
-      "notBefore": 0,
-      "groups": []
     },
     {
       "id": "8db6efc5-c034-57ac-91dd-27b0f9f6ba7c",
@@ -4525,78 +4494,8 @@
       }
     },
     {
-      "id": "1f8b97e4-2625-4b5a-81bd-8186a7b754cf",
-      "clientId": "knowvera-registration",
-      "name": "knowvera Registration Client",
-      "description": "",
-      "rootUrl": "",
-      "adminUrl": "",
-      "baseUrl": "",
-      "surrogateAuthRequired": false,
-      "enabled": true,
-      "alwaysDisplayInConsole": false,
-      "clientAuthenticatorType": "client-secret",
-      "secret": "test-secret",
-      "redirectUris": [
-        "/*"
-      ],
-      "webOrigins": [
-        "/*"
-      ],
-      "notBefore": 0,
-      "bearerOnly": false,
-      "consentRequired": false,
-      "standardFlowEnabled": true,
-      "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false,
-      "serviceAccountsEnabled": true,
-      "authorizationServicesEnabled": true,
-      "publicClient": false,
-      "frontchannelLogout": true,
-      "protocol": "openid-connect",
-      "attributes": {
-        "realm_client": "false",
-        "oidc.ciba.grant.enabled": "false",
-        "client.secret.creation.time": "1778665324",
-        "backchannel.logout.session.required": "true",
-        "standard.token.exchange.enabled": "false",
-        "oauth2.device.authorization.grant.enabled": "false",
-        "backchannel.logout.revoke.offline.tokens": "false",
-        "dpop.bound.access.tokens": "false"
-      },
-      "authenticationFlowBindingOverrides": {},
-      "fullScopeAllowed": true,
-      "nodeReRegistrationTimeout": -1,
-      "defaultClientScopes": [
-        "web-origins",
-        "service_account",
-        "acr",
-        "roles",
-        "profile",
-        "basic",
-        "email"
-      ],
-      "optionalClientScopes": [
-        "identityNo",
-        "address",
-        "phone",
-        "offline_access",
-        "organization",
-        "microprofile-jwt",
-        "branch"
-      ],
-      "authorizationSettings": {
-        "allowRemoteResourceManagement": true,
-        "policyEnforcementMode": "ENFORCING",
-        "resources": [],
-        "policies": [],
-        "scopes": [],
-        "decisionStrategy": "UNANIMOUS"
-      }
-    },
-    {
       "id": "b0edaf1e-2c2d-4d18-98c6-1ea824614cea",
-      "clientId": "knowvera-web",
+      "clientId": "knowvera-user-portal",
       "name": "Knowvera KYC Web Client",
       "description": "",
       "rootUrl": "http://localhost:4300",
@@ -4656,7 +4555,7 @@
       ],
       "protocolMappers": [
         {
-          "id": "2d2ab8e9-efb1-5015-a159-fb20f7b161dd",
+          "id": "64c2bf1b-698f-543c-b751-c3ae8698bf31",
           "name": "knowvera-api audience",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-audience-mapper",

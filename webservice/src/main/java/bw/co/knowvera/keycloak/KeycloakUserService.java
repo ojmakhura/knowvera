@@ -272,7 +272,7 @@ public class KeycloakUserService {
                     .ifPresent(ids -> dto.setOrganisationRegistrationNo(ids.get(0)));
         }
 
-        keycloakService.withRegistrationRealm(realm -> {
+        keycloakService.withApiRealm(realm -> {
             // Fetch organizations for the user using realm-aware
             if (StringUtils.isBlank(dto.getOrganisationId())) {
                 realm.organizations().members().getOrganizations(dto.getUserId())
@@ -454,7 +454,7 @@ public class KeycloakUserService {
      */
     private UserDTO create(UserDTO user) {
 
-        return keycloakService.withRegistrationRealm(realm -> {
+        return keycloakService.withApiRealm(realm -> {
 
             List<RoleRepresentation> roles = user.getRoles().stream().map(role -> realmRole(realm, role)).toList();
             Optional<String> keycloakOrganisation = keycloakOrganisationId(user.getOrganisationId());
@@ -497,14 +497,14 @@ public class KeycloakUserService {
     // -------------------- CRUD OPERATIONS --------------------
 
     public UserDTO findByUsername(String username) {
-        return keycloakService.withRegistrationRealm(realm -> {
+        return keycloakService.withApiRealm(realm -> {
             List<UserRepresentation> users = realm.users().search(username, true);
             return CollectionUtils.isEmpty(users) ? null : toUserDTO(users.get(0));
         });
     }
 
     public UserDTO findByEmail(String email) {
-        return keycloakService.withRegistrationRealm(realm -> {
+        return keycloakService.withApiRealm(realm -> {
             List<UserRepresentation> users = realm.users().searchByEmail(email, true);
             return CollectionUtils.isEmpty(users) ? null : toUserDTO(users.get(0));
         });
@@ -519,13 +519,13 @@ public class KeycloakUserService {
 
     /** The user's realm roles, including those inherited through composite roles. */
     public Set<String> findEffectiveRealmRoles(String userId) {
-        return keycloakService.withRegistrationRealm(realm -> realm.users().get(userId).roles().realmLevel()
+        return keycloakService.withApiRealm(realm -> realm.users().get(userId).roles().realmLevel()
                 .listEffective().stream().map(RoleRepresentation::getName).collect(Collectors.toSet()));
     }
 
     /** Names of the realm's roles that can be assigned, sorted (built-in roles left out). */
     public SortedSet<String> findRealmRoleNames() {
-        return keycloakService.withRegistrationRealm(realm -> realm.roles().list().stream()
+        return keycloakService.withApiRealm(realm -> realm.roles().list().stream()
                 .map(RoleRepresentation::getName).filter(KeycloakUserService::isManagedRole)
                 .collect(Collectors.toCollection(TreeSet::new)));
     }
@@ -535,7 +535,7 @@ public class KeycloakUserService {
         if (StringUtils.isBlank(clientId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "clientId is required");
         }
-        return keycloakService.withRegistrationRealm(realm -> {
+        return keycloakService.withApiRealm(realm -> {
             List<ClientRepresentation> clients = realm.clients().findByClientId(clientId);
             if (clients.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown client " + clientId);
@@ -549,7 +549,7 @@ public class KeycloakUserService {
 
     /** The realm roles assigned to the user directly (as {@link UserDTO#getRoles()} shows them). */
     public Set<String> findDirectRealmRoles(String userId) {
-        return keycloakService.withRegistrationRealm(realm -> existingUser(realm, userId).roles().realmLevel()
+        return keycloakService.withApiRealm(realm -> existingUser(realm, userId).roles().realmLevel()
                 .listAll().stream().map(RoleRepresentation::getName).filter(KeycloakUserService::isManagedRole)
                 .collect(Collectors.toCollection(LinkedHashSet::new)));
     }
@@ -582,7 +582,7 @@ public class KeycloakUserService {
         if (StringUtils.isBlank(userId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId is required");
         }
-        return userCache().get(userId, id -> keycloakService.withRegistrationRealm(realm -> {
+        return userCache().get(userId, id -> keycloakService.withApiRealm(realm -> {
             try {
                 return toUserDTO(realm.users().get(id).toRepresentation());
             } catch (NotFoundException e) {
@@ -625,7 +625,7 @@ public class KeycloakUserService {
      */
     public void updateUser(UserDTO user) {
         userCache().evict(user.getUserId());
-        keycloakService.withRegistrationRealm(realm -> {
+        keycloakService.withApiRealm(realm -> {
             UserResource userResource = existingUser(realm, user.getUserId());
             UserRepresentation rep = userResource.toRepresentation();
             String previousOrganisation = rep.getAttributes() == null ? null
@@ -694,7 +694,7 @@ public class KeycloakUserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password must be at least " + minPasswordLength + " characters");
         }
 
-        keycloakService.withRegistrationRealm(realm -> {
+        keycloakService.withApiRealm(realm -> {
             existingUser(realm, userId)
                     .resetPassword(createCredential(CredentialRepresentation.PASSWORD, temporaryPassword, true));
             return Boolean.TRUE;
@@ -705,7 +705,7 @@ public class KeycloakUserService {
     // -------------------- SEARCH / LIST --------------------
 
     public List<UserDTO> search(String criteria) {
-        return keycloakService.withRegistrationRealm(realm -> {
+        return keycloakService.withApiRealm(realm -> {
             List<UserRepresentation> reps;
             if (StringUtils.isBlank(criteria)) {
                 reps = readAll((first, max) -> realm.users().list(first, max));
@@ -717,16 +717,16 @@ public class KeycloakUserService {
     }
 
     public List<UserDTO> searchByAttributes(String criteria) {
-        return keycloakService.withRegistrationRealm(realm -> toUserDTOs(searchAttributes(realm, criteria)));
+        return keycloakService.withApiRealm(realm -> toUserDTOs(searchAttributes(realm, criteria)));
     }
 
     public Collection<UserDTO> getUsersByRealmRoles(Set<String> roles) {
-        return keycloakService.withRegistrationRealm(realm -> collectUsersByRoles(realm.roles(), roles));
+        return keycloakService.withApiRealm(realm -> collectUsersByRoles(realm.roles(), roles));
     }
 
     /** Users holding any of the roles of the client with this clientId (e.g. "admin-portal"). */
     public Collection<UserDTO> getUsersByClientRoles(String clientId, Set<String> roles) {
-        return keycloakService.withRegistrationRealm(realm -> {
+        return keycloakService.withApiRealm(realm -> {
             List<ClientRepresentation> clients = realm.clients().findByClientId(clientId);
             if (clients.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown client " + clientId);
@@ -760,7 +760,7 @@ public class KeycloakUserService {
         if (StringUtils.isBlank(identityNo))
             return null;
 
-        return keycloakService.withRegistrationRealm(realm -> {
+        return keycloakService.withApiRealm(realm -> {
             List<UserRepresentation> users = searchAttributes(realm, "identityNo:" + identityNo);
 
             UserRepresentation userRep = users.stream()
@@ -782,7 +782,7 @@ public class KeycloakUserService {
         if (StringUtils.isBlank(email))
             return null;
 
-        return keycloakService.withRegistrationRealm(realm -> {
+        return keycloakService.withApiRealm(realm -> {
             // Search users by email
             List<UserRepresentation> users = realm.users().searchByEmail(email, true);
 
@@ -803,7 +803,7 @@ public class KeycloakUserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "clientId, userId and roles are required");
         }
 
-        return keycloakService.withRegistrationRealm(realm -> {
+        return keycloakService.withApiRealm(realm -> {
             List<ClientRepresentation> clients = realm.clients().findByClientId(clientId);
             if (clients.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown client " + clientId);
@@ -834,7 +834,7 @@ public class KeycloakUserService {
     /** Adds ({@code action > 0}) or removes a realm role: 400 for an unknown role, 404 for an unknown user. */
     public boolean updateUserRoles(String userId, String roleName, int action) {
         userCache().evict(userId);
-        return keycloakService.withRegistrationRealm(realm -> {
+        return keycloakService.withApiRealm(realm -> {
             RoleRepresentation roleRep = realmRole(realm, roleName);
             RoleScopeResource roleScopeResource = existingUser(realm, userId).roles().realmLevel();
 
@@ -854,7 +854,7 @@ public class KeycloakUserService {
      * @return
      */
     public Collection<UserDTO> findAll() {
-        return keycloakService.withRegistrationRealm(
+        return keycloakService.withApiRealm(
                 realm -> toUserDTOs(readAll((first, max) -> realm.users().list(first, max))));
     }
 
@@ -869,7 +869,7 @@ public class KeycloakUserService {
         if (StringUtils.isBlank(branchId))
             return Collections.emptyList();
 
-        return keycloakService.withRegistrationRealm(realm -> {
+        return keycloakService.withApiRealm(realm -> {
             List<UserRepresentation> users = searchAttributes(realm, "branchId:" + branchId);
 
             List<UserRepresentation> branchUsers = users.stream()
@@ -898,7 +898,7 @@ public class KeycloakUserService {
         if (StringUtils.isBlank(organisationId))
             return Collections.emptyList();
 
-        return keycloakService.withRegistrationRealm(realm -> {
+        return keycloakService.withApiRealm(realm -> {
             List<UserRepresentation> users = searchAttributes(realm, "organisationId:" + organisationId);
             List<UserRepresentation> orgUsers = users.stream()
                     .filter(rep -> {

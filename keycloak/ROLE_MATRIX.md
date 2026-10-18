@@ -8,7 +8,7 @@ Roles are hierarchical: a role has everything the roles it includes have (Keyclo
 
 | Role | Abbrev. | Includes | Description |
 |---|---|---|---|
-| `CUSTOMER` | CUS | `PORTAL_USER` (knowvera-web client role) | Base role of every external user: signs in to the portal, own records only |
+| `CUSTOMER` | CUS | `PORTAL_USER` (knowvera-user-portal client role) | Base role of every external user: signs in to the portal, own records only |
 | `APPLICANT` | APP | `CUSTOMER` | Individual applying for KYC: own profile, KYC application and documents |
 | `ORG_USER` | OU | `CUSTOMER` | Member of a client organisation: its client requests and KYC cases |
 | `ORG_ADMIN` | OA | `ORG_USER` | Administrator of a client organisation: also its users, branches and billing |

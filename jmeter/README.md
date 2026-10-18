@@ -28,9 +28,9 @@ Sample users (password `Test-Passw0rd!`):
 
 | User | Role | Signs in through |
 |---|---|---|
-| `applicant` | `APPLICANT` | knowvera-web |
-| `org.user` | `ORG_USER` | knowvera-web |
-| `org.admin` | `ORG_ADMIN` | knowvera-web |
+| `applicant` | `APPLICANT` | knowvera-user-portal |
+| `org.user` | `ORG_USER` | knowvera-user-portal |
+| `org.admin` | `ORG_ADMIN` | knowvera-user-portal |
 | `kyc.analyst` | `KYC_ANALYST` | admin-portal |
 | `kyc.reviewer` | `KYC_REVIEWER` | admin-portal |
 | `kyc.approver` | `KYC_APPROVER` | admin-portal |

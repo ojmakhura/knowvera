@@ -72,7 +72,7 @@ def check(status, body, what):
 
 
 def seed_applicant():
-    token, subject = sign_in("applicant", "knowvera-web")
+    token, subject = sign_in("applicant", "knowvera-user-portal")
     if call("GET", f"{API}/individuals/me", token)[0] == 200:
         print("applicant: profile already present")
         return
@@ -82,7 +82,7 @@ def seed_applicant():
 
 
 def seed_org_admin():
-    token, subject = sign_in("org.admin", "knowvera-web")
+    token, subject = sign_in("org.admin", "knowvera-user-portal")
     if call("GET", f"{API}/organisations/mine", token)[0] == 200:
         print("org.admin: organisation already linked")
         return

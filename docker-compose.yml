@@ -77,10 +77,6 @@ services:
       SEND_MESSAGE_URL: ${SEND_MESSAGE_URL:-}
       SOURCE_EMAIL: ${SOURCE_EMAIL:-}
 
-      # --- Registration client ---
-      REGISTRATION_CLIENT: ${REGISTRATION_CLIENT:-knowvera-registration}
-      REGISTRATION_CLIENT_SECRET: ${REGISTRATION_CLIENT_SECRET:-secret}
-
       # --- Resource-based authorization (Keycloak policy enforcer) ---
       AUTHZ_ENABLED: ${AUTHZ_ENABLED:-true}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost:4300}

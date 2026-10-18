@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Access to the Keycloak admin API as the registration client's service account. One admin
+ * Access to the Keycloak admin API as the API client's service account. One admin
  * client is shared by all requests: it is thread-safe and refreshes its own token, so calls do
  * not each pay for a new HTTP client and a token request.
  */
@@ -35,11 +35,11 @@ public class KeycloakService {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String issuerUri;
 
-    @Value("${app.registration.client}")
-    private String registrationClient;
+    @Value("${app.authz.client}")
+    private String apiClient;
 
-    @Value("${app.registration.client-secret}")
-    private String registrationClientSecret;
+    @Value("${app.authz.client-secret}")
+    private String apiClientSecret;
 
     private volatile Keycloak keycloak;
 
@@ -59,8 +59,8 @@ public class KeycloakService {
                     keycloak = KeycloakBuilder.builder()
                             .serverUrl(issuerUri.substring(0, issuerUri.indexOf("/realms")))
                             .realm(realmName())
-                            .clientId(registrationClient)
-                            .clientSecret(registrationClientSecret)
+                            .clientId(apiClient)
+                            .clientSecret(apiClientSecret)
                             .grantType(OAuth2Constants.CLIENT_CREDENTIALS)
                             .build();
                 }
@@ -87,16 +87,14 @@ public class KeycloakService {
        ===================================================== */
 
     /**
-     * Runs {@code fn} against the application realm as the registration service account.
+     * Runs {@code fn} against the application realm as the API service account.
      */
-    public <T> T withRegistrationRealm(Function<RealmResource, T> fn) {
+    public <T> T withApiRealm(Function<RealmResource, T> fn) {
         try {
             return fn.apply(keycloak().realm(realmName()));
         } catch (ForbiddenException e) {
-            // Not the caller's fault: the service account lacks admin rights (or the wrong client is configured)
             LOGGER.error("Keycloak refused an admin call for client '{}' in realm '{}': its service account needs the "
-                    + "realm-management roles manage-users and manage-realm (app.registration.client must be the "
-                    + "registration client, not the API client)", registrationClient, realmName());
+                    + "realm-management roles manage-users and manage-realm", apiClient, realmName());
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "The user directory is not available. Please contact the administrator.", e);
         }
@@ -108,7 +106,7 @@ public class KeycloakService {
 
     // Single organization by ID (returns a result)
     public <T> T withOrganization(String orgId, Function<OrganizationResource, T> fn) {
-        return withRegistrationRealm(realm -> {
+        return withApiRealm(realm -> {
             OrganizationResource org = realm.organizations().get(orgId);
             return fn.apply(org);
         });
@@ -124,7 +122,7 @@ public class KeycloakService {
 
     // All organizations (returns a result)
     public <T> T withOrganizations(Function<OrganizationsResource, T> fn) {
-        return withRegistrationRealm(realm -> fn.apply(realm.organizations()));
+        return withApiRealm(realm -> fn.apply(realm.organizations()));
     }
 
     // All organizations (void)
