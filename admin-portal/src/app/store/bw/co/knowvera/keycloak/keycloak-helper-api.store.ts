@@ -9,13 +9,21 @@ import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { KeycloakHelperApi } from '@app/services/bw/co/knowvera/keycloak/keycloak-helper-api';
 
-export type KeycloakHelperApiState = AppState<any, any> & {};
+export type KeycloakHelperApiState = {
+  permissions: string[];
+  realmRoles: string[];
+  clientRoles: string[];
+  loading: boolean;
+  success: boolean;
+  messages: string[];
+  loaderMessage: string;
+  error: boolean;
+};
 
 const initialState: KeycloakHelperApiState = {
-  data: null,
-  dataList: [],
-  dataPage: new Page<any>(),
-  searchCriteria: new SearchObject<any>(),
+  permissions: [],
+  clientRoles: [],
+  realmRoles: [],
   loading: false,
   success: false,
   messages: [],
@@ -41,7 +49,7 @@ export const KeycloakHelperApiStore = signalStore(
                 patchState(
                   store, 
                   {
-                    dataList: response, 
+                    clientRoles: response, 
                     loading: false, 
                     success: true, 
                     messages: ['Success!!'],
@@ -73,7 +81,7 @@ export const KeycloakHelperApiStore = signalStore(
                 patchState(
                   store, 
                   {
-                    dataList: response, 
+                    realmRoles: response, 
                     loading: false, 
                     success: true, 
                     messages: ['Success!!'],
@@ -105,7 +113,7 @@ export const KeycloakHelperApiStore = signalStore(
                 patchState(
                   store, 
                   {
-                    dataList: response, 
+                    permissions: response, 
                     loading: false, 
                     success: true, 
                     messages: ['Success!!'],

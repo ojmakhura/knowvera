@@ -27,7 +27,7 @@
     }
 
     <nav class="nav-menu">
-      @for (item of menuService.items(); track item.routerLink) {
+      @for (item of menuItems(); track item.routerLink) {
         <a
           class="nav-item"
           [routerLink]="item.routerLink"
@@ -70,8 +70,8 @@
         <button mat-icon-button class="icon-btn max-md:hidden!">
           <mat-icon>help</mat-icon>
         </button>
-        @if (menuService.mode() === 'normal') {
-          <button mat-icon-button class="icon-btn max-md:hidden!" routerLink="/settings">
+        @if (menuService.mode() === 'normal' && settingsLink(); as link) {
+          <button mat-icon-button class="icon-btn max-md:hidden!" routerLink="link">
             <mat-icon>settings</mat-icon>
           </button>
         }
@@ -81,14 +81,14 @@
         @if (accountMenuOpen()) {
           <div class="account-menu" role="menu" (click)="$event.stopPropagation()">
             <div class="account-menu-head">
-              <span class="menu-avatar">{{ userInitials }}</span>
+              <span class="menu-avatar">{{ userInitials() }}</span>
               <div>
-                <p class="menu-name">{{ userDisplayName }}</p>
-                <p class="menu-email">{{ userEmail }}</p>
+                <p class="menu-name">{{ userDisplayName() }}</p>
+                <p class="menu-email">{{ userEmail() }}</p>
               </div>
             </div>
             <hr class="menu-divider" />
-            <a class="menu-item" [href]="profileUrl" (click)="closeAccountMenu()">
+            <a class="menu-item" [href]="profileUrl()" (click)="closeAccountMenu()">
               <mat-icon>account_circle</mat-icon>
               <span>Profile</span>
             </a>

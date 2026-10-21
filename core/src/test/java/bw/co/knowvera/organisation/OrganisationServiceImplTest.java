@@ -47,6 +47,8 @@ class OrganisationServiceImplTest {
     @Mock
     private OrganisationMapper organisationMapper;
     @Mock
+    private OrganisationListQueries organisationListQueries;
+    @Mock
     private ClientRequestRepository clientRequestRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -59,7 +61,8 @@ class OrganisationServiceImplTest {
                 organisationRepository,
                 organisationMapper,
                 clientRequestRepository,
-                passwordEncoder);
+                passwordEncoder,
+                organisationListQueries);
     }
 
     @Test
@@ -117,12 +120,12 @@ class OrganisationServiceImplTest {
 
     @Test
     void getAllMapsAllEntities() throws Exception {
-        List<Organisation> entities = List.of(Organisation.Factory.newInstance());
         List<OrganisationListDTO> expected = List.of(new OrganisationListDTO("ORG", "Acme", "REG-1", GeneralStatus.ACTIVE,
             bw.co.knowvera.kyc.KycComplianceStatus.CURRENT));
 
-        when(organisationRepository.findAll()).thenReturn(entities);
-        when(organisationMapper.toOrganisationListDTOCollection(entities)).thenReturn(expected);
+        when(organisationListQueries.search(org.mockito.ArgumentMatchers.isNull(),
+                org.mockito.ArgumentMatchers.any(org.springframework.data.domain.Sort.class)))
+                .thenReturn(expected);
 
         List<OrganisationListDTO> actual = service.getAll();
 
@@ -130,8 +133,17 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void getAllWithPagingCurrentlyReturnsNull() throws Exception {
-        assertNull(service.getAll(0, 10));
+    void getAllWithPagingReturnsProjectedResults() throws Exception {
+        OrganisationListDTO mapped = new OrganisationListDTO("ORG", "Acme", "REG-1", GeneralStatus.ACTIVE,
+                KycComplianceStatus.CURRENT);
+        Page<OrganisationListDTO> page = new PageImpl<>(List.of(mapped));
+        when(organisationListQueries.search(org.mockito.ArgumentMatchers.isNull(),
+                org.mockito.ArgumentMatchers.any(org.springframework.data.domain.Pageable.class))).thenReturn(page);
+
+        Page<OrganisationListDTO> actual = service.getAll(0, 10);
+
+        assertEquals(1, actual.getContent().size());
+        assertSame(mapped, actual.getContent().get(0));
     }
 
     @Test
@@ -161,12 +173,11 @@ class OrganisationServiceImplTest {
         OrganisationSearchCriteria criteria = new OrganisationSearchCriteria();
         criteria.setName("Acme");
 
-        List<Organisation> entities = List.of(Organisation.Factory.newInstance());
         List<OrganisationListDTO> expected = List.of(new OrganisationListDTO("ORG", "Acme", "REG-1", GeneralStatus.ACTIVE,
             bw.co.knowvera.kyc.KycComplianceStatus.CURRENT));
 
-        when(organisationRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Organisation>>any())).thenReturn(entities);
-        when(organisationMapper.toOrganisationListDTOCollection(entities)).thenReturn(expected);
+        when(organisationListQueries.search(org.mockito.ArgumentMatchers.<Specification<Organisation>>any(),
+                org.mockito.ArgumentMatchers.any(org.springframework.data.domain.Sort.class))).thenReturn(expected);
 
         List<OrganisationListDTO> actual = service.search(criteria, Set.of(new PropertySearchOrder("name", SortOrder.ASC)));
 
@@ -182,13 +193,12 @@ class OrganisationServiceImplTest {
         criteria.setPageNumber(0);
         criteria.setPageSize(5);
 
-        Organisation entity = Organisation.Factory.newInstance();
-        Page<Organisation> page = new PageImpl<>(List.of(entity));
         OrganisationListDTO mapped = new OrganisationListDTO("ORG", "Acme", "REG-1", GeneralStatus.ACTIVE,
             bw.co.knowvera.kyc.KycComplianceStatus.CURRENT);
+        Page<OrganisationListDTO> page = new PageImpl<>(List.of(mapped));
 
-        when(organisationRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Organisation>>any(), any(org.springframework.data.domain.Pageable.class))).thenReturn(page);
-        when(organisationMapper.toOrganisationListDTO(entity)).thenReturn(mapped);
+        when(organisationListQueries.search(org.mockito.ArgumentMatchers.<Specification<Organisation>>any(),
+                any(org.springframework.data.domain.Pageable.class))).thenReturn(page);
 
         Page<OrganisationListDTO> actual = service.search(criteria);
 
@@ -203,8 +213,8 @@ class OrganisationServiceImplTest {
         criteria.setPageNumber(-1);
         criteria.setPageSize(0);
 
-        when(organisationRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Organisation>>any(), any(org.springframework.data.domain.Pageable.class)))
-                .thenReturn(Page.empty());
+        when(organisationListQueries.search(org.mockito.ArgumentMatchers.<Specification<Organisation>>any(),
+                any(org.springframework.data.domain.Pageable.class))).thenReturn(Page.empty());
 
         Page<OrganisationListDTO> actual = service.search(criteria);
 
@@ -221,13 +231,12 @@ class OrganisationServiceImplTest {
         criteria.setStatus(GeneralStatus.ACTIVE);
         criteria.setIsClient(Boolean.TRUE);
 
-        List<Organisation> entities = List.of(Organisation.Factory.newInstance());
-        when(organisationRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Organisation>>any()))
+        when(organisationListQueries.search(org.mockito.ArgumentMatchers.<Specification<Organisation>>any(),
+                org.mockito.ArgumentMatchers.any(org.springframework.data.domain.Sort.class)))
                 .thenAnswer(invocation -> {
                     evaluateSpecification(invocation.getArgument(0));
-                    return entities;
+                    return List.of();
                 });
-        when(organisationMapper.toOrganisationListDTOCollection(entities)).thenReturn(List.of());
 
         List<OrganisationListDTO> actual = service.search(criteria, Set.of());
 

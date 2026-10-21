@@ -270,7 +270,7 @@ Realm and client role names, and the caller's own permissions
 |---|---|---|---|
 | `self` | – | `GET /keycloak/permissions` | `getUserPermissions` |
 | `list` | `SCOPE_keycloak:list` | `GET /keycloak/client-roles` | `getClientRoles` |
-| `list` | `SCOPE_keycloak:list` | `GET /keycloak/real-roles` | `getRealmRoles` |
+| `list` | `SCOPE_keycloak:list` | `GET /keycloak/realm-roles` | `getRealmRoles` |
 
 ### `kyc-field-groups`
 

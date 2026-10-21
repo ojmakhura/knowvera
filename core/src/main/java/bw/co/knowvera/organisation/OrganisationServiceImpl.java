@@ -40,16 +40,19 @@ public class OrganisationServiceImpl
     private final OrganisationRepository organisationRepository;
     private final ClientRequestRepository clientRequestRepository;
     private final PasswordEncoder passwordEncoder;
+    private final OrganisationListQueries organisationListQueries;
 
 
     public OrganisationServiceImpl(OrganisationRepository organisationRepository, OrganisationMapper organisationMapper,
-            ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder) {
+            ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder,
+            OrganisationListQueries organisationListQueries) {
         super( organisationRepository, organisationMapper);
         this.organisationRepository = organisationRepository;
         // TODO Auto-generated constructor stub
 
         this.clientRequestRepository = clientRequestRepository;
         this.passwordEncoder = passwordEncoder;
+        this.organisationListQueries = organisationListQueries;
     }
 
     /**
@@ -73,8 +76,7 @@ public class OrganisationServiceImpl
     protected List<OrganisationListDTO> handleGetAll()
             throws Exception {
 
-        List<Organisation> orgs = organisationRepository.findAll();
-        return organisationMapper.toOrganisationListDTOCollection(orgs);
+        return organisationListQueries.search(null, Sort.unsorted());
 
     }
 
@@ -86,7 +88,7 @@ public class OrganisationServiceImpl
     protected Page<OrganisationListDTO> handleGetAll(Integer pageNumber, Integer pageSize)
             throws Exception {
 
-        return null;
+        return organisationListQueries.search(null, PageRequest.of(pageNumber, pageSize));
     }
 
     /**
@@ -178,9 +180,7 @@ public class OrganisationServiceImpl
 
         Specification<Organisation> spec = createSpecification(criteria);
 
-        List<Organisation> orgs = organisationRepository.findAll(spec);
-
-        return organisationMapper.toOrganisationListDTOCollection(orgs);
+        return organisationListQueries.search(spec, Sort.unsorted());
 
     }
 
@@ -201,9 +201,7 @@ public class OrganisationServiceImpl
                 Sort.by(Direction.ASC, "name") // Default sorting
         );
 
-        Page<Organisation> orgs = organisationRepository.findAll(spec, pageable);
-
-        return orgs.map(organisation -> organisationMapper.toOrganisationListDTO(organisation));
+        return organisationListQueries.search(spec, pageable);
     }
 
     @Override

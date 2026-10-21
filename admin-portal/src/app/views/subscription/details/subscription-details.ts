@@ -159,11 +159,11 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   backToSubscriptions(): void {
-    this.router.navigate(['/subscription']);
+    this.router.navigate(['/subscriptions']);
   }
 
   openRenew(): void {
-    this.router.navigate(['/subscription', this.subscription().id || this.id, 'edit']);
+    this.router.navigate(['/subscriptions', this.subscription().id || this.id, 'edit']);
   }
 
   openInvoice(invoice: KycInvoiceDTO): void {
@@ -171,7 +171,7 @@ export class SubscriptionDetails implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.router.navigate(['/invoice', invoice.id]);
+    this.router.navigate(['/invoices', invoice.id]);
   }
 
   printView(): void {

@@ -10,7 +10,7 @@ export const routes: Routes = [
       import('./views/document/document.routes').then((module) => module.documentRoutes),
   },
   {
-    path: 'document/type',
+    path: 'document-types',
     canActivate: [AuthenticationGuard],
     loadChildren: () =>
       import('./views/document/type/document-type.routes').then(
@@ -18,7 +18,7 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'organisation',
+    path: 'organisations',
     canActivate: [AuthenticationGuard],
     loadChildren: () =>
       import('./views/organisation/organisation.routes').then(
@@ -26,13 +26,13 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'individual',
+    path: 'individuals',
     canActivate: [AuthenticationGuard],
     loadChildren: () =>
       import('./views/individual/individual.routes').then((module) => module.individualRoutes),
   },
   {
-    path: 'subscription',
+    path: 'subscriptions',
     canActivate: [AuthenticationGuard],
     loadChildren: () =>
       import('./views/subscription/subscription.routes').then(
@@ -40,13 +40,13 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'sequence',
+    path: 'sequences',
     canActivate: [AuthenticationGuard],
     loadChildren: () =>
       import('./views/sequence/sequence.routes').then((module) => module.sequenceRoutes),
   },
   {
-    path: 'invoice',
+    path: 's',
     canActivate: [AuthenticationGuard],
     loadChildren: () =>
       import('./views/invoice/invoice.routes').then((module) => module.invoiceRoutes),
@@ -64,7 +64,7 @@ export const routes: Routes = [
       import('./views/records/records.routes').then((module) => module.recordsRoutes),
   },
   {
-    path: 'client-request',
+    path: 'client-requests',
     canActivate: [AuthenticationGuard],
     loadChildren: () =>
       import('./views/request/request.routes').then((module) => module.requestRoutes),

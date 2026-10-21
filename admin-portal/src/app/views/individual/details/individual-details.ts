@@ -86,7 +86,7 @@ export class IndividualDetails implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {}
 
   openEdit(): void {
-    this.router.navigate(['/individual', this.individual().id || this.id, 'edit']);
+    this.router.navigate(['/individuals', this.individual().id || this.id, 'edit']);
   }
 
   fullName(): string {

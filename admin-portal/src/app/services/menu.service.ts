@@ -32,6 +32,6 @@ export class MenuService {
   );
 
   exitSettings(): void {
-    this.router.navigateByUrl('/organisation');
+    this.router.navigateByUrl('/organisations');
   }
 }

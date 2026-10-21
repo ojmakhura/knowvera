@@ -182,7 +182,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   cancel(): void {
-    this.router.navigate(['/organisation']);
+    this.router.navigate(['/organisations']);
   }
 
   toggleIsClient(event: any): void {

@@ -240,7 +240,7 @@ export class InvoiceEdit implements OnInit {
         this.saveRequested.set(false);
 
         if (!this.id && !this.route.snapshot.queryParamMap.get('id')) {
-          this.router.navigate(['/', 'invoice', savedInvoice.id, 'edit']);
+          this.router.navigate(['/', 'invoices', savedInvoice.id, 'edit']);
         }
       }
     });
@@ -319,7 +319,7 @@ export class InvoiceEdit implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/', 'invoice']);
+    this.router.navigate(['/', 'invoices']);
   }
 
   periodLabel(value: TimePeriod): string {

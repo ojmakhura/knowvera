@@ -187,15 +187,15 @@ export class Invoices implements OnInit {
   }
 
   openCreate(): void {
-    this.router.navigate(['/', 'invoice', 'edit']);
+    this.router.navigate(['/', 'invoices', 'edit']);
   }
 
   openDetails(id: string): void {
-    this.router.navigate(['/', 'invoice', id]);
+    this.router.navigate(['/', 'invoices', id]);
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['/', 'invoice', id, 'edit']);
+    this.router.navigate(['/', 'invoices', id, 'edit']);
   }
 
   formatDate(value: Date | string | null | undefined): string {

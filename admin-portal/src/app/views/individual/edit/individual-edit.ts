@@ -400,7 +400,7 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
       if (this.success() && !this.loading()) {
         this.isSaving.set(false);
         this.router.navigate([
-          '/individual',
+          '/individuals',
           this.individual().id || this.editIndividualSignal().id,
         ]);
       }
@@ -431,11 +431,11 @@ export class IndividualEdit implements OnInit, AfterViewInit, OnDestroy {
     const targetId = this.editIndividualSignal().id || this.id;
 
     if (targetId) {
-      this.router.navigate(['/individual', targetId]);
+      this.router.navigate(['/individuals', targetId]);
       return;
     }
 
-    this.router.navigate(['/individual']);
+    this.router.navigate(['/individuals']);
   }
 
   addPhoneNumber(): void {

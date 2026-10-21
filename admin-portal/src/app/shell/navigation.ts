@@ -1,85 +1,127 @@
-// export const menuItems: any[] = [
-//     {
-//         routerLink: "/organisation",
-//         titleKey: "organisation.title",
-//         icon: "business"
-//     },
-//     {
-//         routerLink: "/individual",
-//         titleKey: "individual.title",
-//         icon: "person"
-//     },
-//     {
-//         routerLink: "/records",
-//         titleKey: "kyc.record.title",
-//         icon: "verified_user"
-//     },
-//     // {
-//     //     routerLink: "/user",
-//     //     titleKey: "users.title",
-//     //     icon: "group"
-//     // },
-//     {
-//         routerLink: "/subscription",
-//         titleKey: "kyc.subscription.title",
-//         icon: "subscriptions"
-//     },
-//     {
-//         routerLink: "/invoice",
-//         titleKey: "invoice.title",
-//         icon: "receipt_long"
-//     },
-//     {
-//         routerLink: "/client-request",
-//         titleKey: "client.request.title",
-//         icon: "assignment"
-//     },
-//     {
-//         routerLink: "/documents",
-//         titleKey: "documents.title",
-//         icon: "description"
-//     },
-//     {
-//         routerLink: "/document/type",
-//         titleKey: "document.type.title",
-//         icon: "category"
-//     },
-//     {
-//         routerLink: "/sequence",
-//         titleKey: "sequence.title",
-//         icon: "timeline"
-//     },
-//     {
-//         routerLink: "/settings",
-//         titleKey: "settings.title",
-//         icon: "settings"
-//     },
-// ];
 export interface ShellMenuItem {
   routerLink: string;
   titleKey: string;
+  label: string;
+  /** Permission scopes (any one is enough) that unlock the item; empty means every signed-in user. */
+  permissions: string[];
   icon: string;
   exact?: boolean;
 }
 
 export const menuItems: ShellMenuItem[] = [
-  { routerLink: '/organisation', titleKey: 'organisation.title', icon: 'business' },
-  { routerLink: '/individual', titleKey: 'individual.title', icon: 'person' },
-  { routerLink: '/records', titleKey: 'kyc.record.title', icon: 'verified_user' },
-  { routerLink: '/subscription', titleKey: 'kyc.subscription.title', icon: 'subscriptions' },
-  { routerLink: '/invoice', titleKey: 'invoice.title', icon: 'receipt_long' },
-  { routerLink: '/client-request', titleKey: 'client.request.title', icon: 'assignment' },
-  { routerLink: '/documents', titleKey: 'documents.title', icon: 'description' },
-  { routerLink: '/document/type', titleKey: 'document.type.title', icon: 'category' },
-  { routerLink: '/sequence', titleKey: 'sequence.title', icon: 'timeline' },
+  {
+    routerLink: '/organisations',
+    titleKey: 'organisation.title',
+    icon: 'business',
+    permissions: ['organisations:list'],
+    label: 'Organisations',
+  },
+  {
+    routerLink: '/individuals',
+    titleKey: 'individual.title',
+    icon: 'person',
+    permissions: ['individuals:list'],
+    label: 'Individuals',
+  },
+  {
+    routerLink: '/records',
+    titleKey: 'kyc.record.title',
+    icon: 'verified_user',
+    permissions: ['kyc-records:list'],
+    label: 'KYC Records',
+  },
+  {
+    routerLink: '/subscriptions',
+    titleKey: 'kyc.subscription.title',
+    icon: 'subscriptions',
+    permissions: ['subscriptions:list'],
+    label: 'Subscriptions',
+  },
+  {
+    routerLink: '/invoices',
+    titleKey: 'invoice.title',
+    icon: 'receipt_long',
+    permissions: ['invoices:list'],
+    label: 'Invoices',
+  },
+  {
+    routerLink: '/client-requests',
+    titleKey: 'client.request.title',
+    icon: 'assignment',
+    permissions: ['client-requests:list'],
+    label: 'Client Requests',
+  },
+  {
+    routerLink: '/documents',
+    titleKey: 'documents.title',
+    icon: 'description',
+    permissions: ['documents:list'],
+    label: 'Documents',
+  },
+  {
+    routerLink: '/document-types',
+    titleKey: 'document.type.title',
+    icon: 'category',
+    permissions: ['document-types:list'],
+    label: 'Document Types',
+  },
+  {
+    routerLink: '/sequences',
+    titleKey: 'sequence.title',
+    icon: 'timeline',
+    permissions: ['sequences:list'],
+    label: 'Sequences',
+  },
 ];
 
 export const settingsMenuItems: ShellMenuItem[] = [
-  { routerLink: '/settings/identity', titleKey: 'settings.platformIdentity.title', icon: 'branding_watermark' },
-  { routerLink: '/settings/metrics', titleKey: 'settings.operationalMetrics.title', icon: 'analytics' },
-  { routerLink: '/settings/documents', titleKey: 'settings.documentRequirements.title', icon: 'topic' },
-  { routerLink: '/settings/field-groups', titleKey: 'settings.fieldGroups.title', icon: 'account_tree' },
-  { routerLink: '/settings/tool-selectors', titleKey: 'settings.toolSelectors.title', icon: 'settings_input_component' },
-  { routerLink: '/settings/templates', titleKey: 'settings.templates.title', icon: 'description' },
-  { routerLink: '/settings/financials', titleKey: 'settings.financials.title', icon: 'payments' },
+  {
+    routerLink: '/settings/identity',
+    titleKey: 'settings.platformIdentity.title',
+    icon: 'branding_watermark',
+    permissions: [],
+    label: 'Platform Identity',
+  },
+  {
+    routerLink: '/settings/metrics',
+    titleKey: 'settings.operationalMetrics.title',
+    icon: 'analytics',
+    permissions: [],
+    label: 'Operational Metrics',
+  },
+  {
+    routerLink: '/settings/documents',
+    titleKey: 'settings.documentRequirements.title',
+    icon: 'topic',
+    permissions: [],
+    label: 'Document Requirements',
+  },
+  {
+    routerLink: '/settings/field-groups',
+    titleKey: 'settings.fieldGroups.title',
+    icon: 'account_tree',
+    permissions: [],
+    label: 'FIend Groups',
+  },
+  {
+    routerLink: '/settings/tool-selectors',
+    titleKey: 'settings.toolSelectors.title',
+    icon: 'settings_input_component',
+    permissions: [],
+    label: 'Tool Selectors',
+  },
+  {
+    routerLink: '/settings/templates',
+    titleKey: 'settings.templates.title',
+    icon: 'description',
+    permissions: [],
+    label: 'Templates',
+  },
+  {
+    routerLink: '/settings/financials',
+    titleKey: 'settings.financials.title',
+    icon: 'payments',
+    permissions: [],
+    label: 'Financials',
+  },
 ];

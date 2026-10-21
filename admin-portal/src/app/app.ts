@@ -8,6 +8,7 @@ import { Shell } from './shell';
 import { TranslateModule } from '@ngx-translate/core';
 import { SettingsApiStore } from './store/bw/co/knowvera/settings/settings-api.store';
 import { NovuService } from './services/novu.service';
+import { KeycloakHelperApiStore } from './store/bw/co/knowvera/keycloak/keycloak-helper-api.store';
 
 @Component({
   selector: 'app-root',
@@ -24,6 +25,7 @@ export class App implements AfterViewInit {
   private keycloak = inject(Keycloak);
   settingsApiStore = inject(SettingsApiStore);
   novuService = inject(NovuService);
+  readonly keycloakHelperApiStore = inject(KeycloakHelperApiStore);
 
   constructor() {
     // Translation service is initialized automatically via constructor
@@ -67,6 +69,9 @@ export class App implements AfterViewInit {
 
   ngAfterViewInit(): void {
     if(this.keycloak.authenticated) {
+      this.keycloakHelperApiStore.getClientRoles({ clientId: this.keycloak.clientId ?? '' });
+      this.keycloakHelperApiStore.getRealmRoles();
+      this.keycloakHelperApiStore.getUserPermissions();
       this.novuService.loadConfigs().subscribe({
         next: (settings) => {
           this.appEnvState.setNovuConfig(settings);

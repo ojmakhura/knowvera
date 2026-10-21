@@ -157,7 +157,7 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
   }
 
   cancel(): void {
-    this.router.navigate(['/sequence']);
+    this.router.navigate(['/sequences']);
   }
 
   openAddPartDialog(): void {

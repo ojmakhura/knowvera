@@ -179,7 +179,7 @@ export class Individuals implements OnInit {
   }
 
   createNewIndividual(): void {
-    this.router.navigate(['/individual', 'edit']);
+    this.router.navigate(['/individuals', 'edit']);
   }
 
   statusLabel(status: string | null | undefined): string {
@@ -239,11 +239,11 @@ export class Individuals implements OnInit {
   }
 
   openDetails(id: string): void {
-    this.router.navigate(['/individual', id]);
+    this.router.navigate(['/individuals', id]);
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['/individual', id, 'edit']);
+    this.router.navigate(['/individuals', id, 'edit']);
   }
 
   initialsOf(name: string | null | undefined): string {

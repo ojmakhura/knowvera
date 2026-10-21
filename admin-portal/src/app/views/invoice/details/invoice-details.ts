@@ -94,7 +94,7 @@ export class InvoiceDetails implements OnInit {
   }
 
   backToInvoices(): void {
-    this.router.navigate(['/invoice']);
+    this.router.navigate(['/invoices']);
   }
 
   openEdit(): void {
@@ -104,7 +104,7 @@ export class InvoiceDetails implements OnInit {
       return;
     }
 
-    this.router.navigate(['/invoice', id, 'edit']);
+    this.router.navigate(['/invoices', id, 'edit']);
   }
 
   printView(): void {

@@ -1,11 +1,9 @@
 // src/app/@core/services/theme.service.ts
-import { Injectable, signal, effect } from '@angular/core';
+import { Service, signal, effect } from '@angular/core';
 
 export type ThemeMode = 'light' | 'dark';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class ThemeService {
   public currentTheme = signal<ThemeMode>(this.getInitialTheme());
 

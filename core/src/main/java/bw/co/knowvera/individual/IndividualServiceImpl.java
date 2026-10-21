@@ -52,15 +52,18 @@ public class IndividualServiceImpl
     private final ClientRequestRepository clientRequestRepository;
     private final PasswordEncoder passwordEncoder;
     private final SettingsService settingsService;
+    private final IndividualListQueries individualListQueries;
 
     public IndividualServiceImpl(IndividualRepository individualRepository, SettingsService settingsService,
-            IndividualMapper individualMapper, ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder) {
+            IndividualMapper individualMapper, ClientRequestRepository clientRequestRepository,
+            PasswordEncoder passwordEncoder, IndividualListQueries individualListQueries) {
         super(individualRepository, individualMapper);
         // TODO Auto-generated constructor stub
 
         this.clientRequestRepository = clientRequestRepository;
         this.passwordEncoder = passwordEncoder;
         this.settingsService = settingsService;
+        this.individualListQueries = individualListQueries;
     }
 
     /**
@@ -82,7 +85,7 @@ public class IndividualServiceImpl
     protected List<IndividualListDTO> handleGetAll()
             throws Exception {
 
-        return individualMapper.toIndividualListDTOCollection(individualRepository.findAll());
+        return individualListQueries.search(null, Sort.unsorted());
     }
 
     /**
@@ -92,10 +95,7 @@ public class IndividualServiceImpl
     protected Page<IndividualListDTO> handleGetAll(Integer pageNumber, Integer pageSize)
             throws Exception {
 
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
-        Page<Individual> individuals = individualRepository.findAll(pageRequest);
-
-        return individuals.map(individual -> individualMapper.toIndividualListDTO(individual));
+        return individualListQueries.search(null, PageRequest.of(pageNumber, pageSize));
     }
 
     /**
@@ -190,9 +190,7 @@ public class IndividualServiceImpl
 
         Specification<Individual> spec = createSpecification(criteria);
 
-        return individualMapper.toIndividualListDTOCollection(
-                spec == null ? individualRepository.findAll(Sort.by(Sort.Direction.ASC, "surname"))
-                        : individualRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "surname")));
+        return individualListQueries.search(spec, Sort.by(Sort.Direction.ASC, "surname"));
     }
 
     /**
@@ -206,10 +204,7 @@ public class IndividualServiceImpl
         Specification<Individual> spec = createSpecification(criteria.getCriteria());
 
         PageRequest pageRequest = PageRequest.of(criteria.getPageNumber(), criteria.getPageSize());
-        Page<Individual> individuals = spec == null ? individualRepository.findAll(pageRequest)
-                : individualRepository.findAll(spec, pageRequest);
-
-        return individuals.map(individual -> individualMapper.toIndividualListDTO(individual));
+        return individualListQueries.search(spec, pageRequest);
     }
 
     @Override

@@ -291,11 +291,11 @@ export class Records implements OnInit {
     }
 
     if (row.target === TargetEntity.ORGANISATION) {
-      this.router.navigate(['/', 'organisation', row.targetId]);
+      this.router.navigate(['/', 'organisations', row.targetId]);
       return;
     }
 
-    this.router.navigate(['/', 'individual', row.targetId]);
+    this.router.navigate(['/', 'individuals', row.targetId]);
   }
 
   deleteRecord(row: KycRecordDTO): void {

@@ -645,7 +645,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.router.navigate(['/subscription', subscription.id]);
+    this.router.navigate(['/subscriptions', subscription.id]);
   }
 
   subscriptionStatusClass(status: KycSubsciptionStatus | string | null | undefined): string {

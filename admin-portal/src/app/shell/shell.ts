@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, ElementRef, HostListener, inject, linkedSignal, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Title } from '@angular/platform-browser';
 import { Route, Router, RouterModule, RouterOutlet, Routes } from '@angular/router';
@@ -11,6 +11,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { Loader } from '@app/@shared/loader/loader';
 import { MenuService } from '@app/services/menu.service';
 import { toast, NgxSonnerToaster } from 'ngx-sonner';
+import { KeycloakHelperApiStore } from '@app/store/bw/co/knowvera/keycloak/keycloak-helper-api.store';
+import { settingsMenuItems, ShellMenuItem } from './navigation';
 
 @Component({
   selector: 'app-shell',
@@ -37,8 +39,17 @@ export class Shell implements OnInit {
   protected menuService = inject(MenuService);
   readonly appEnvState = inject(AppEnvStore);
   profile = this.appEnvState.profile;
+  readonly keycloakHelperApiStore = inject(KeycloakHelperApiStore);
 
   availableLanguages = this.translationService.getAvailableLanguages();
+  permissions = computed(() => this.keycloakHelperApiStore.permissions() ?? []);
+
+  /** The current menu (main or settings), limited to the pages the user's permissions allow. */
+  readonly menuItems = computed(() => this.menuService.items().filter((item) => canAccess(item, this.permissions())));
+  /** First settings page the user may open; null hides the Settings links. */
+  readonly settingsLink = computed(
+    () => settingsMenuItems.find((item) => canAccess(item, this.permissions()))?.routerLink ?? null,
+  );
 
   protected readonly toast = toast;
 
@@ -49,6 +60,36 @@ export class Shell implements OnInit {
       children: routes,
     };
   }
+
+  userDisplayName = linkedSignal(() => {
+    const userProfile = this.profile();
+    if (!userProfile) return 'Compliance Officer';
+    const fullName = `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim();
+    return fullName || userProfile.username || 'Compliance Officer';
+  });
+
+  readonly profileUrl = linkedSignal(() => this.appEnvState.accountUri() || '/settings');
+
+  readonly title = computed(() => {
+    return this.titleService.getTitle();
+  });
+
+  readonly currentLanguage = computed(() => {
+    return this.translationService.getCurrentLanguage();
+  });
+
+  readonly userEmail = computed(() => {
+    return this.profile()?.email || this.profile()?.username || '-';
+  });
+
+  readonly userInitials = computed(() => {
+    const userProfile = this.profile();
+    if (!userProfile) return 'CO';
+    const first = userProfile.firstName?.[0] || '';
+    const last = userProfile.lastName?.[0] || '';
+    const initials = `${first}${last}`.toUpperCase();
+    return initials || userProfile.username?.slice(0, 2).toUpperCase() || 'CO';
+  });
 
   ngOnInit(): void {
   }
@@ -66,30 +107,6 @@ export class Shell implements OnInit {
 
   closeAccountMenu(): void {
     this.accountMenuOpen.set(false);
-  }
-
-  get userDisplayName(): string {
-    const userProfile = this.profile();
-    if (!userProfile) return 'Compliance Officer';
-    const fullName = `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim();
-    return fullName || userProfile.username || 'Compliance Officer';
-  }
-
-  get userEmail(): string {
-    return this.profile()?.email || this.profile()?.username || 'admin@vault-tech.io';
-  }
-
-  get userInitials(): string {
-    const userProfile = this.profile();
-    if (!userProfile) return 'CO';
-    const first = userProfile.firstName?.[0] || '';
-    const last = userProfile.lastName?.[0] || '';
-    const initials = `${first}${last}`.toUpperCase();
-    return initials || userProfile.username?.slice(0, 2).toUpperCase() || 'CO';
-  }
-
-  get profileUrl(): string {
-    return this.appEnvState.accountUri() || '/settings';
   }
 
   @HostListener('document:click', ['$event'])
@@ -114,15 +131,15 @@ export class Shell implements OnInit {
     }
   }
 
-  get title(): string {
-    return this.titleService.getTitle();
-  }
-
-  get currentLanguage(): string {
-    return this.translationService.getCurrentLanguage();
-  }
-
   changeLanguage(lang: string): void {
     this.translationService.setLanguage(lang);
   }
+}
+
+/** Whether a user holding the `granted` permission scopes may see the menu item. */
+export function canAccess(item: ShellMenuItem, granted: readonly string[]): boolean {
+  return (
+    item.permissions.length === 0 ||
+    item.permissions.some((permission) => granted.includes(permission))
+  );
 }

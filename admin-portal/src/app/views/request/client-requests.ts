@@ -182,7 +182,7 @@ export class ClientRequests implements OnInit {
   }
 
   createRequest(): void {
-    this.router.navigate(['client-request', 'edit']);
+    this.router.navigate(['client-requests', 'edit']);
   }
 
   openDetails(id: string | null | undefined): void {
@@ -190,7 +190,7 @@ export class ClientRequests implements OnInit {
       return;
     }
 
-    this.router.navigate(['client-request', id]);
+    this.router.navigate(['client-requests', id]);
   }
 
   openEdit(id: string | null | undefined): void {
@@ -198,7 +198,7 @@ export class ClientRequests implements OnInit {
       return;
     }
 
-    this.router.navigate(['client-request', id, 'edit']);
+    this.router.navigate(['client-requests', id, 'edit']);
   }
 
   statusLabel(status: ClientRequestStatus | null | undefined): string {

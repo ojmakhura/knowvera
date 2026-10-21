@@ -48,6 +48,8 @@ class IndividualServiceImplTest {
     @Mock
     private IndividualMapper individualMapper;
     @Mock
+    private IndividualListQueries individualListQueries;
+    @Mock
     private ClientRequestRepository clientRequestRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -66,7 +68,8 @@ class IndividualServiceImplTest {
             settingsService,
                 individualMapper,
                 clientRequestRepository,
-                passwordEncoder);
+                passwordEncoder,
+                individualListQueries);
         org.springframework.test.util.ReflectionTestUtils.setField(service, "requestSessionTtl",
                 java.time.Duration.ofHours(24));
     }
@@ -135,12 +138,10 @@ class IndividualServiceImplTest {
 
     @Test
     void getAllMapsRepositoryResults() throws Exception {
-        List<Individual> entities = List.of(Individual.Factory.newInstance());
         List<IndividualListDTO> expected = List.of(new IndividualListDTO("Full Name", "OMANG-1", IndividualIdentityType.OMANG,
             bw.co.knowvera.kyc.KycComplianceStatus.CURRENT, Sex.MALE));
 
-        when(individualRepository.findAll()).thenReturn(entities);
-        when(individualMapper.toIndividualListDTOCollection(entities)).thenReturn(expected);
+        when(individualListQueries.search(null, Sort.unsorted())).thenReturn(expected);
 
         List<IndividualListDTO> actual = service.getAll();
 
@@ -149,13 +150,11 @@ class IndividualServiceImplTest {
 
     @Test
     void getAllWithPagingMapsPageItems() throws Exception {
-        Individual entity = Individual.Factory.newInstance();
-        Page<Individual> page = new PageImpl<>(List.of(entity));
         IndividualListDTO mapped = new IndividualListDTO("Full Name", "OMANG-1", IndividualIdentityType.OMANG,
             bw.co.knowvera.kyc.KycComplianceStatus.CURRENT, Sex.MALE);
+        Page<IndividualListDTO> page = new PageImpl<>(List.of(mapped));
 
-        when(individualRepository.findAll(PageRequest.of(0, 5))).thenReturn(page);
-        when(individualMapper.toIndividualListDTO(entity)).thenReturn(mapped);
+        when(individualListQueries.search(null, PageRequest.of(0, 5))).thenReturn(page);
 
         Page<IndividualListDTO> actual = service.getAll(0, 5);
 
@@ -200,13 +199,11 @@ class IndividualServiceImplTest {
         IndividualSearchCriteria criteria = new IndividualSearchCriteria();
         criteria.setFirstName("Jo");
 
-        List<Individual> entities = List.of(Individual.Factory.newInstance());
         List<IndividualListDTO> expected = List.of(new IndividualListDTO("Full Name", "OMANG-2", IndividualIdentityType.OMANG,
             bw.co.knowvera.kyc.KycComplianceStatus.CURRENT, Sex.MALE));
 
-        when(individualRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Individual>>any(), any(Sort.class)))
-                .thenReturn(entities);
-        when(individualMapper.toIndividualListDTOCollection(entities)).thenReturn(expected);
+        when(individualListQueries.search(org.mockito.ArgumentMatchers.<Specification<Individual>>any(), any(Sort.class)))
+                .thenReturn(expected);
 
         List<IndividualListDTO> actual = service.search(criteria, Set.of(new PropertySearchOrder("surname", SortOrder.ASC)));
 
@@ -223,14 +220,12 @@ class IndividualServiceImplTest {
         criteria.setPageNumber(0);
         criteria.setPageSize(10);
 
-        Individual entity = Individual.Factory.newInstance();
-        Page<Individual> page = new PageImpl<>(List.of(entity));
         IndividualListDTO mapped = new IndividualListDTO("Full Name", "OMANG-2", IndividualIdentityType.OMANG,
             bw.co.knowvera.kyc.KycComplianceStatus.CURRENT, Sex.MALE);
+        Page<IndividualListDTO> page = new PageImpl<>(List.of(mapped));
 
-        when(individualRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Individual>>any(), any(PageRequest.class)))
-                .thenReturn(page);
-        when(individualMapper.toIndividualListDTO(entity)).thenReturn(mapped);
+        when(individualListQueries.search(org.mockito.ArgumentMatchers.<Specification<Individual>>any(),
+                any(PageRequest.class))).thenReturn(page);
 
         Page<IndividualListDTO> actual = service.search(criteria);
 
@@ -247,13 +242,11 @@ class IndividualServiceImplTest {
         criteria.setMiddleName("M");
         criteria.setIdentityNo("OMANG-9");
 
-        List<Individual> entities = List.of(Individual.Factory.newInstance());
-        when(individualRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Individual>>any(), any(Sort.class)))
+        when(individualListQueries.search(org.mockito.ArgumentMatchers.<Specification<Individual>>any(), any(Sort.class)))
                 .thenAnswer(invocation -> {
                     evaluateSpecification(invocation.getArgument(0));
-                    return entities;
+                    return List.of();
                 });
-        when(individualMapper.toIndividualListDTOCollection(entities)).thenReturn(List.of());
 
         List<IndividualListDTO> actual = service.search(criteria, Set.of());
 

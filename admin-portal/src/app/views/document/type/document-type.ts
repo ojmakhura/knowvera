@@ -181,10 +181,10 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
   }
 
   openCreate(): void {
-    this.router.navigate(['/', 'document', 'type', 'edit']);
+    this.router.navigate(['/', 'document-types', 'edit']);
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['/', 'document', 'type', id, 'edit']);
+    this.router.navigate(['/', 'document-types', id, 'edit']);
   }
 }

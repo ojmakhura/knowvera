@@ -1,14 +1,12 @@
 // Synchronised with the webservice by scripts/sync_angular_services.py. CAN EDIT
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { AuditLogCriteria } from '@models/bw/co/knowvera/audit/audit-log-criteria';
 import { AuditLogDTO } from '@models/bw/co/knowvera/audit/audit-log-dto';
 import { Page } from '@models/page.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class AuditLogApi {
 
   protected path = '/audit-logs';

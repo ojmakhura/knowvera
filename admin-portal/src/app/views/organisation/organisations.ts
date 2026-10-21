@@ -243,15 +243,15 @@ export class Organisations implements OnInit, OnDestroy {
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['organisation', id, 'edit']);
+    this.router.navigate(['organisations', id, 'edit']);
   }
 
   openDetails(id: string): void {
-    this.router.navigate(['organisation', id]);
+    this.router.navigate(['organisations', id]);
   }
 
   createNewOrganisation(): void {
-    this.router.navigate(['organisation', 'edit']);
+    this.router.navigate(['organisations', 'edit']);
   }
 
   onSearchSubmit(): void {

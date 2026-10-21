@@ -223,15 +223,15 @@ export class Subscriptions implements OnInit {
   }
 
   openCreate(): void {
-    this.router.navigate(['/', 'subscription', 'edit']);
+    this.router.navigate(['/', 'subscriptions', 'edit']);
   }
 
   openDetails(id: string): void {
-    this.router.navigate(['/', 'subscription', id]);
+    this.router.navigate(['/', 'subscriptions', id]);
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['/', 'subscription', id, 'edit']);
+    this.router.navigate(['/', 'subscriptions', id, 'edit']);
   }
 
   ownerOf(row: KycSubscriptionDTO): string {

@@ -1,13 +1,11 @@
 // Synchronised with the webservice by scripts/sync_angular_services.py. CAN EDIT
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { GroupFieldValueDTO } from '@models/bw/co/knowvera/kyc/fields/group-field-value-dto';
 import { KycReportSectionDTO } from '@models/bw/co/knowvera/kyc/fields/kyc-report-section-dto';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class KycReportSectionApi {
 
   protected path = '/kyc-report-sections';

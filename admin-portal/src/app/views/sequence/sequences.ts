@@ -190,11 +190,11 @@ export class Sequences implements OnInit, OnDestroy {
   }
 
   openCreate(): void {
-    this.router.navigate(['/', 'sequence', 'edit']);
+    this.router.navigate(['/', 'sequences', 'edit']);
   }
 
   openEdit(id: string): void {
-    this.router.navigate(['/', 'sequence', id, 'edit']);
+    this.router.navigate(['/', 'sequences', id, 'edit']);
   }
 
   showingLabel(): string {
