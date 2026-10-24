@@ -9902,7 +9902,9 @@
   <andromdaservice:Service xmi:id="_y-SLYM1wEfGvhvuw9SyrZg" base_Class="_19_0_4_90e0298_1773210175972_209720_10126">
     <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheConfig(cacheNames = &quot;clientContacts&quot;)</andromda_additionalAnnotations>
   </andromdaservice:Service>
-  <andromdaservice:Service xmi:id="_y-SLYc1wEfGvhvuw9SyrZg" base_Class="_19_0_4_90e0298_1787946794617_471320_11738"/>
+  <andromdaservice:Service xmi:id="_y-SLYc1wEfGvhvuw9SyrZg" base_Class="_19_0_4_90e0298_1787946794617_471320_11738">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheConfig(cacheNames = &quot;kycReportSections&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:Service>
   <andromdaservice:Service xmi:id="_y-SLYs1wEfGvhvuw9SyrZg" base_Class="_19_0_4_90e0298_1763968053217_908766_8114">
     <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheConfig(cacheNames = &quot;kycRecords&quot;)</andromda_additionalAnnotations>
   </andromdaservice:Service>
@@ -9949,30 +9951,30 @@
     <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheConfig(cacheNames = &quot;employmentRecords&quot;)</andromda_additionalAnnotations>
   </andromdaservice:Service>
   <andromdaservice:Service xmi:id="_y-TZgc1wEfGvhvuw9SyrZg" base_Class="_19_0_4_90e0298_1763968050791_232152_7390">
-    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheConfig(cacheNames = &quot;indviduals&quot;)</andromda_additionalAnnotations>
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheConfig(cacheNames = &quot;individuals&quot;)</andromda_additionalAnnotations>
   </andromdaservice:Service>
   <andromdaservice:ServiceOperation xmi:id="_y-TZgs1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1773210176121_865447_10313"/>
   <andromdaservice:ServiceOperation xmi:id="_y-TZg81wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968055992_469925_9406"/>
   <andromdaservice:ServiceOperation xmi:id="_y-TZhM1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968055120_799203_8870"/>
   <andromdaservice:ServiceOperation xmi:id="_y-TZhc1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968055117_469996_8808"/>
   <andromdaservice:ServiceOperation xmi:id="_y-TZhs1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1765187825462_496973_9036">
-    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(allEntries = true)</andromda_additionalAnnotations>
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
   </andromdaservice:ServiceOperation>
   <andromdaservice:ServiceOperation xmi:id="_y-TZh81wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968055111_533628_8693">
-    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(allEntries = true)</andromda_additionalAnnotations>
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
   </andromdaservice:ServiceOperation>
   <andromdaservice:ServiceOperation xmi:id="_y-TZiM1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1765187384328_546689_9015">
-    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(allEntries = true)</andromda_additionalAnnotations>
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
   </andromdaservice:ServiceOperation>
   <andromdaservice:ServiceOperation xmi:id="_y-UAkM1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1785179421429_337570_11540">
     <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'one'&quot;)</andromda_additionalAnnotations>
   </andromdaservice:ServiceOperation>
   <andromdaservice:ServiceOperation xmi:id="_y-UAkc1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968055111_824449_8696"/>
   <andromdaservice:ServiceOperation xmi:id="_y-UAks1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968055111_214202_8698">
-    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(allEntries = true)</andromda_additionalAnnotations>
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
   </andromdaservice:ServiceOperation>
   <andromdaservice:ServiceOperation xmi:id="_y-UAk81wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968055111_533480_8692">
-    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(allEntries = true)</andromda_additionalAnnotations>
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
   </andromdaservice:ServiceOperation>
   <andromdaservice:ServiceOperation xmi:id="_y-UAlM1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968055111_820931_8694">
     <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
@@ -9981,10 +9983,10 @@
   <andromdaservice:ServiceOperation xmi:id="_y-UAls1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968056013_152481_9892"/>
   <andromdaservice:ServiceOperation xmi:id="_y-UAl81wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968056009_211282_9821"/>
   <andromdaservice:ServiceOperation xmi:id="_y-UAmM1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1790858627102_367040_11905">
-    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'list:' + #id&quot;)</andromda_additionalAnnotations>
   </andromdaservice:ServiceOperation>
   <andromdaservice:ServiceOperation xmi:id="_y-UAmc1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1790860497432_314410_11940">
-    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'keycloak:' + #keycloakId&quot;)</andromda_additionalAnnotations>
   </andromdaservice:ServiceOperation>
   <andromdaservice:ServiceOperation xmi:id="_y-UAms1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968054326_213342_8470"/>
   <andromdaservice:ServiceOperation xmi:id="_y-UAm81wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968054326_71413_8466"/>
@@ -9993,15 +9995,288 @@
     <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
   </andromdaservice:ServiceOperation>
   <andromdaservice:ServiceOperation xmi:id="_y-UAns1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968055999_502595_9509">
-    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documentTypes&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;expectedFields&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;, &quot;verificationDataConfigurations&quot;}, allEntries = true)</andromda_additionalAnnotations>
   </andromdaservice:ServiceOperation>
   <andromdaservice:ServiceOperation xmi:id="_y-UAn81wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968055999_125089_9513"/>
   <andromdaservice:ServiceOperation xmi:id="_y-UAoM1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968055999_73885_9510">
-    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documentTypes&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;expectedFields&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;, &quot;verificationDataConfigurations&quot;}, allEntries = true)</andromda_additionalAnnotations>
   </andromdaservice:ServiceOperation>
   <andromdaservice:ServiceOperation xmi:id="_y-UAoc1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968053216_118819_8079"/>
   <andromdaservice:ServiceOperation xmi:id="_y-UAos1wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968055996_534305_9453"/>
   <andromdaservice:ServiceOperation xmi:id="_y-UAo81wEfGvhvuw9SyrZg" base_Operation="_19_0_4_90e0298_1763968053216_528708_8083"/>
+  <andromdaservice:ServiceOperation xmi:id="_kv4be53fb6103a485a8fc233a3fc45f3b3" base_Operation="_19_0_4_90e0298_1773210176121_614784_10308">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv728a77f3cf6b40da926485d819c4693d" base_Operation="_19_0_4_90e0298_1773210176121_275718_10309">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;clientContacts&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv22636826dc1642348f9244b5b36a3b11" base_Operation="_19_0_4_90e0298_1773210176121_609891_10310">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;clientContacts&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv315f94f7c7394e87a51d5dbe75aa87ea" base_Operation="_19_0_4_90e0298_1773210176121_510371_10311">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv57972e75913c473b9c0bda19679f523f" base_Operation="_19_0_4_90e0298_1787946920897_740652_11776">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvaac7eba07dd648cb94ea8b5a6e3149c0" base_Operation="_19_0_4_90e0298_1787946920898_42727_11777">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;kycReportSections&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvfcd0cba0523a4da2873e1f13856ff6a9" base_Operation="_19_0_4_90e0298_1787946920898_153320_11778">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;kycReportSections&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv8b13b4612c1b4c93bfe6fe66a48eb8fd" base_Operation="_19_0_4_90e0298_1787947157579_876012_11791">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;kycReportSections&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv199793daff724a99b5997e8b2d7eb160" base_Operation="_19_0_4_90e0298_1788287973358_431478_11846">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;kycReportSections&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv176bb3d106a143af92ec1153693274ae" base_Operation="_19_0_4_90e0298_1763968055992_68121_9401">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv553fc4f39f4c40baae7442a4b50b8882" base_Operation="_19_0_4_90e0298_1763968055992_790075_9402">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv25a6978e4ea74063ad517e4cd339e87b" base_Operation="_19_0_4_90e0298_1763968055992_97589_9403">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv6d4a0fbb9bd74cb1aae60df5edf7b453" base_Operation="_19_0_4_90e0298_1763968055992_33167_9404">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv94522d6bcdaa42ff8ddb45fce8f286cc" base_Operation="_19_0_4_90e0298_1767110800443_105848_9435">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv12e86901a8dd47d59a3db6cb74fd94a8" base_Operation="_19_0_4_90e0298_1770438185947_780821_9625">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv660e5163991b451b973119d420bd2522" base_Operation="_19_0_4_90e0298_1772182766014_399459_10303">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kva9e83cfcf23547b79f90a9449b2a246c" base_Operation="_19_0_4_90e0298_1773657746068_760649_10655">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv1247e0ef71ad4cd7b286d9ae55cc78af" base_Operation="_19_0_4_90e0298_1773663869211_471424_10709">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv7b6fc123db8342f09ac1f1337b199492" base_Operation="_19_0_4_90e0298_1775315587767_748872_10744">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kva635f8bec83a4d2087831087d03f8d13" base_Operation="_19_0_4_90e0298_1778098292746_875554_11255">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv137ee18eb0eb43219438ce7e13920426" base_Operation="_19_0_4_90e0298_1778755029808_685628_11733">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvca5b385b967142268d350ded71f36fec" base_Operation="_19_0_4_90e0298_1763968055120_830933_8865">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvba778d730a874674b4acf70ba0ec70e8" base_Operation="_19_0_4_90e0298_1763968055120_587307_8866">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;invoices&quot;, &quot;subscriptions&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv07f6cec3644548ed846d7494a3e301c4" base_Operation="_19_0_4_90e0298_1763968055120_215608_8867">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;invoices&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvc02cf79e8b0348348a8a09777bf5a9a8" base_Operation="_19_0_4_90e0298_1763968055120_939447_8868">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv1b420c5bf1094879b245668f4670f073" base_Operation="_19_0_4_90e0298_1763968055120_51024_8872">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;invoices&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv6642e8ad5aa342758d303a261ba4a68a" base_Operation="_19_0_4_90e0298_1763968055120_601697_8873">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;invoices&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvf6dd83be56e3495582eedc5236426d26" base_Operation="_19_0_4_90e0298_1763968055116_385207_8803">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv34849ffcb26f486f914b6b22f0a64a24" base_Operation="_19_0_4_90e0298_1763968055116_773416_8804">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;subscriptions&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvb9522527ddaf420593daa6cb2f646f6e" base_Operation="_19_0_4_90e0298_1763968055116_936718_8805">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv093d17c6fa804964827bf459c10cd296" base_Operation="_19_0_4_90e0298_1763968055117_921833_8806">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv19400a1df62a46b6abe36780f8229698" base_Operation="_19_0_4_90e0298_1777399762127_734816_11050">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv8329830070c14423bacbbc86e613262f" base_Operation="_19_0_4_90e0298_1777399762127_71328_11051">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycFieldGroups&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv0b9e0db5034e431b99c67f71d13cfb46" base_Operation="_19_0_4_90e0298_1777399762127_896817_11052">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycFieldGroups&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv06a1d6f32d61474bb4481d53d8847a35" base_Operation="_19_0_4_90e0298_1777715882492_8847_11165">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycFieldGroups&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv01a2a0d5a04b48788cb395253db7e48a" base_Operation="_19_0_4_90e0298_1763968055110_55653_8691">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv739fef3c1af546ecaa0af75e6b0609e4" base_Operation="_19_0_4_90e0298_1786915220642_704030_12133">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv23153f47870d4a3584fe7d3f60341d4d" base_Operation="_19_0_4_90e0298_1786915220642_974393_12134">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv03731bbc6d1143aeb0023e63aba60313" base_Operation="_19_0_4_90e0298_1786915220642_666026_12135">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvac77a66b1b644e2883d0badc808a8734" base_Operation="_19_0_4_90e0298_1786915220642_136459_12136">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv4cc335816344432dbe3dcbfc745932ab" base_Operation="_19_0_4_90e0298_1786915220642_374809_12137">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv23ae69a76e864f2082d0aa5b2f3aba31" base_Operation="_19_0_4_90e0298_1786915220642_839291_12138">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv6d985bcf5edb44389924e74b54b55e3a" base_Operation="_19_0_4_90e0298_1786915220642_856724_12139">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv2f70a2fe383d4f699f618674980b1cf7" base_Operation="_19_0_4_90e0298_1787483885109_125777_11696">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvd865a86e7557474a97336a1d7e4e8f4f" base_Operation="_19_0_4_90e0298_1787484085725_667200_11713">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv558ad89883284e368174c76f8006dd80" base_Operation="_19_0_4_90e0298_1763968056013_58088_9887">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvc9765c78b1164dea9311e156f1372087" base_Operation="_19_0_4_90e0298_1763968056013_195472_9888">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvf2c02bd4e4914271bf58b24ab0fc78a1" base_Operation="_19_0_4_90e0298_1763968056013_312116_9889">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv0d61f09bc5984e57b619f42c9343439e" base_Operation="_19_0_4_90e0298_1763968056013_263514_9890">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvae502e79350a48c995edf8de04cfc7d8" base_Operation="_19_0_4_90e0298_1763968056014_330333_9897">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvbd8bcfa4afb4458ab6d0768c744a49a2" base_Operation="_19_0_4_90e0298_1767077512754_428134_9415">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv04b634d0fe254876b8a98e31d26c0d61" base_Operation="_19_0_4_90e0298_1769159961379_352173_9480">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kva9304a09486d41059318dab4028d66d2" base_Operation="_19_0_4_90e0298_1769715255593_163932_9603">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv611697c1a8a242a8aa294688b60496bf" base_Operation="_19_0_4_90e0298_1765811642610_302446_9217">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv4b119260a0a545a6a344c80617316b51" base_Operation="_19_0_4_90e0298_1765811642610_679045_9218">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;organisationDocuments&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kva59d9bcb9e7347ffa2e22758b59523fc" base_Operation="_19_0_4_90e0298_1765811642610_223674_9219">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;organisationDocuments&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvabad5e6d67394622a86dac2cf8b57aff" base_Operation="_19_0_4_90e0298_1765811642610_158745_9220">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvac7dc1f928644986b2363b9bcb9062eb" base_Operation="_19_0_4_90e0298_1763968056009_502435_9816">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv3028a384e5de495a8c026d3f7fadb566" base_Operation="_19_0_4_90e0298_1763968056009_336668_9817">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv33d54bf7dff04d48bfd16769438167d6" base_Operation="_19_0_4_90e0298_1763968056009_456226_9818">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvc035b91a868f4096a4457077f4557c3c" base_Operation="_19_0_4_90e0298_1763968056009_505202_9819">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv938c947bf9fe4566b352901a21af75a8" base_Operation="_19_0_4_90e0298_1763968054326_649084_8464">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv7ef875f0261a4f1d8b185119751dac79" base_Operation="_19_0_4_90e0298_1763968054326_392681_8465">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv4456f19ea7804e1aa7161e1ca73a0b0d" base_Operation="_19_0_4_90e0298_1763968054326_997465_8467">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv89389729bf864d7c9912ee16b265b3ee" base_Operation="_19_0_4_90e0298_1763968054326_828224_8468">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvb7bb83b25c28490381d055720c2213bb" base_Operation="_19_0_4_90e0298_1778817216145_591955_11409">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv3b71edaaad784f68ae989330ff2abb01" base_Operation="_19_0_4_90e0298_1763968054321_445175_8383">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kva6b804b881fd4016afffd8475549fc32" base_Operation="_19_0_4_90e0298_1763968054321_699862_8384">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv0e747e72503e41e582676d7727ef26ca" base_Operation="_19_0_4_90e0298_1763968054321_252122_8385">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvfdf6e6f73af04545b76d144228a0efaf" base_Operation="_19_0_4_90e0298_1763968054321_280695_8386">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv99940d8b2d554b35ae84a8aa59c145f1" base_Operation="_19_0_4_90e0298_1763968054321_500813_8390">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv199b49e9ec06448fa610c7b3539d4dfd" base_Operation="_19_0_4_90e0298_1774704583675_839349_10773">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kve2e83027fef346c8871406321bd5e5d0" base_Operation="_19_0_4_90e0298_1775306577404_136398_10728">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv3611ef0c1cdb4388ae85d211436e431f" base_Operation="_19_0_4_90e0298_1777201488807_980689_10899">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv393c3b00059d46b186c569ec6e66a038" base_Operation="_19_0_4_90e0298_1775050160942_391164_11528">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv1770f11a4bbf4d7fbe491401078c5a68" base_Operation="_19_0_4_90e0298_1775050160943_607101_11529">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documentTypes&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;expectedFields&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;, &quot;verificationDataConfigurations&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kva698336a53dd478a87fa544ecce53555" base_Operation="_19_0_4_90e0298_1775050160943_735767_11530">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documentTypes&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;expectedFields&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;, &quot;verificationDataConfigurations&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv99ceb033ef004072bbeab87f4d672595" base_Operation="_19_0_4_90e0298_1763968055999_23839_9508">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvb4eb32b938e44895b2ed035971327831" base_Operation="_19_0_4_90e0298_1777061824235_179212_10933">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documentTypes&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;expectedFields&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;, &quot;verificationDataConfigurations&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv04406a53987c4ceaad5e09054d0bc02a" base_Operation="_19_0_4_90e0298_1775049603815_395615_10784">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvbc3cba6750f948a39dd72553dd673454" base_Operation="_19_0_4_90e0298_1775049603815_230732_10785">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documentTypes&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;, &quot;verificationDataConfigurations&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv8fceb741a6cf483294d56923ded7a378" base_Operation="_19_0_4_90e0298_1775049603815_676084_10786">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documentTypes&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;, &quot;verificationDataConfigurations&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv547f270971354036bdece835d668512f" base_Operation="_19_0_4_90e0298_1763968055996_5977_9448">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv693a6cfa03304f3eaa9811137c64fdd3" base_Operation="_19_0_4_90e0298_1763968055996_523227_9449">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv5a9628e224794e97a545c91f1bb99651" base_Operation="_19_0_4_90e0298_1763968055996_951018_9450">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv27ba06df571b4022b249d40bd299c1b3" base_Operation="_19_0_4_90e0298_1763968055996_562109_9451">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvea01c8855dd54cb9a63287fd91c6d2f2" base_Operation="_19_0_4_90e0298_1763968053215_653026_8077">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;#id&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvbe7da09a1df544abac558996ae7f4264" base_Operation="_19_0_4_90e0298_1763968053216_566711_8078">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Cacheable(key = &quot;'all'&quot;)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kvf0bf8e876c49421ab1d5cfb73a609ebb" base_Operation="_19_0_4_90e0298_1763968053216_447106_8080">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv41161a2151f24569805b8e936c7b44f2" base_Operation="_19_0_4_90e0298_1763968053216_758662_8081">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.Caching(evict = { @org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true, beforeInvocation = true) }, put = { @org.springframework.cache.annotation.CachePut(key = &quot;#result.id&quot;, unless = &quot;#result == null&quot;) })</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
+  <andromdaservice:ServiceOperation xmi:id="_kv98589d3de90d49f3b1a93c60685b9461" base_Operation="_19_0_4_90e0298_1778817043561_576008_11380">
+    <andromda_additionalAnnotations>org.springframework.cache.annotation.CacheEvict(cacheNames = {&quot;branches&quot;, &quot;clientRequests&quot;, &quot;documents&quot;, &quot;employmentRecords&quot;, &quot;individuals&quot;, &quot;invoices&quot;, &quot;kycRecords&quot;, &quot;organisations&quot;, &quot;settings&quot;, &quot;subscriptions&quot;}, allEntries = true)</andromda_additionalAnnotations>
+  </andromdaservice:ServiceOperation>
   <andromdacommon:Enumeration xmi:id="_y-UnoM1wEfGvhvuw9SyrZg" base_Class="_19_0_4_90e0298_1763968049409_239714_7125"/>
   <andromdacommon:ValueObject xmi:id="_y-Unoc1wEfGvhvuw9SyrZg" base_Class="_19_0_4_90e0298_1775822677326_388429_10900"/>
   <andromdacommon:ValueObject xmi:id="_y-Unos1wEfGvhvuw9SyrZg" base_Class="_19_0_4_90e0298_1775822029980_21507_10826"/>

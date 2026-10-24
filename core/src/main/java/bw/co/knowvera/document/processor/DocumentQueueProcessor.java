@@ -17,10 +17,7 @@ import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.document.DocumentService;
 import bw.co.knowvera.storage.ObjectStorageService;
 import bw.co.knowvera.properties.RabbitProperties;
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class DocumentQueueProcessor {
 
     private final static Logger log = LoggerFactory.getLogger(DocumentQueueProcessor.class);
@@ -30,6 +27,19 @@ public class DocumentQueueProcessor {
     private final ObjectStorageService storageService;
     private final RabbitTemplate rabbitTemplate;
     private final RabbitProperties rabbitProperties;
+
+    public DocumentQueueProcessor(
+            DocumentProcessorService documentProcessorService,
+            DocumentService documentService,
+            ObjectStorageService storageService,
+            RabbitTemplate rabbitTemplate,
+            RabbitProperties rabbitProperties) {
+        this.documentProcessorService = documentProcessorService;
+        this.documentService = documentService;
+        this.storageService = storageService;
+        this.rabbitTemplate = rabbitTemplate;
+        this.rabbitProperties = rabbitProperties;
+    }
 
     @RabbitListener(queues = "${app.rabbitmq.textExtractionQueue}")
     public void handleDocumentProcessing(QueueObject queueObject) {

@@ -1,6 +1,5 @@
 import { EventEmitter, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatRadioChange } from '@angular/material/radio';
@@ -30,7 +29,7 @@ describe('FancyTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FancyTableComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [FancyTableComponent, TranslateModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FancyTableComponent<Row>);

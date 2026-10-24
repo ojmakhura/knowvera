@@ -97,7 +97,7 @@ describe('IndividualDetails', () => {
     component.openDocumentDetails({ id: 'doc-1' } as any);
     component.openDocumentEdit({ id: 'doc-2' } as any);
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/individual', 'ind-1', 'edit']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/individuals', 'ind-1', 'edit']);
     expect(navigateSpy).toHaveBeenCalledWith(['/documents', 'doc-1']);
     expect(navigateSpy).toHaveBeenCalledWith(['/documents', 'doc-2', 'edit']);
   });

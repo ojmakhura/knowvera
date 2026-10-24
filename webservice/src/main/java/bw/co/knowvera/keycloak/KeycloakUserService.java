@@ -49,6 +49,7 @@ import bw.co.knowvera.organisation.client.ClientRequestService;
 import bw.co.knowvera.settings.SettingsDTO;
 import bw.co.knowvera.settings.SettingsService;
 import bw.co.knowvera.user.UserDTO;
+import tools.jackson.core.type.TypeReference;
 
 @Component
 public class KeycloakUserService {
@@ -97,6 +98,14 @@ public class KeycloakUserService {
     private String newOrgUserQueueRoutingKey;
 
     private final KeycloakService keycloakService;
+    /** Keycloak admin API results, shared by every instance (Caffeine, then Redis); see app.keycloak.cache.* */
+    private final KeycloakCache keycloakCache;
+    private final KeycloakCacheProperties cacheProperties;
+
+    private static final TypeReference<UserDTO> USER = new TypeReference<>() { };
+    private static final TypeReference<LinkedHashSet<String>> ROLE_SET = new TypeReference<>() { };
+    private static final TypeReference<TreeSet<String>> SORTED_NAMES = new TypeReference<>() { };
+    private static final TypeReference<String> TEXT = new TypeReference<>() { };
     private final KeycloakOrganisationService keycloakOrganisationService;
     private final BranchService branchService;
     private final IndividualService individualService;
@@ -109,8 +118,10 @@ public class KeycloakUserService {
             IndividualService individualService, OrganisationService organisationService,
             ClientRequestService clientRequestService,
             KeycloakOrganisationService keycloakOrganisationService, SettingsService settingsService,
-            ConfirmedPublisher publisher) {
+            ConfirmedPublisher publisher, KeycloakCache keycloakCache, KeycloakCacheProperties cacheProperties) {
         this.keycloakService = keycloakService;
+        this.keycloakCache = keycloakCache;
+        this.cacheProperties = cacheProperties;
         this.keycloakOrganisationService = keycloakOrganisationService;
         this.branchService = branchService;
         this.individualService = individualService;
@@ -170,21 +181,6 @@ public class KeycloakUserService {
     /** Users whose attributes exactly match {@code query} ("key:value"), all pages. */
     private List<UserRepresentation> searchAttributes(RealmResource realm, String query) {
         return readAll((first, max) -> realm.users().searchByAttributes(first, max, null, true, false, query));
-    }
-
-    /**
-     * A copy that shares nothing with the original, so cached accounts cannot be changed by callers.
-     */
-    static UserDTO copyOf(UserDTO user) {
-        UserDTO copy = new UserDTO(user);
-        copy.setPassword(null);
-        copy.setRoles(user.getRoles() == null ? null : new LinkedHashSet<>(user.getRoles()));
-        copy.setRealmRoles(user.getRealmRoles() == null ? null : new ArrayList<>(user.getRealmRoles()));
-        copy.setApiRoles(user.getApiRoles() == null ? null : new ArrayList<>(user.getApiRoles()));
-        copy.setUserPortalRoles(user.getUserPortalRoles() == null ? null : new ArrayList<>(user.getUserPortalRoles()));
-        copy.setAdminPortalRoles(user.getAdminPortalRoles() == null ? null : new ArrayList<>(user.getAdminPortalRoles()));
-        copy.setKeycloakOrganisation(user.getKeycloakOrganisation() == null ? null : new HashMap<>(user.getKeycloakOrganisation()));
-        return copy;
     }
 
     /**
@@ -419,14 +415,18 @@ public class KeycloakUserService {
         if (StringUtils.isBlank(organisation.getRegistrationNo())) {
             return Optional.empty();
         }
-        OrganisationDTO keycloakOrganisation = keycloakOrganisationService
-                .findByRegistrationNo(organisation.getRegistrationNo());
-        if (keycloakOrganisation == null) {
+        // Only found Organizations are cached, so an organisation that becomes a client is seen at once
+        String keycloakOrganisationId = keycloakCache.get("organisation:" + organisation.getRegistrationNo(),
+                cacheProperties.organisationTtl(), TEXT, () -> {
+                    OrganisationDTO found = keycloakOrganisationService.findByRegistrationNo(organisation.getRegistrationNo());
+                    return found == null ? null : found.getId();
+                });
+        if (keycloakOrganisationId == null) {
             LOGGER.debug("Organisation {} is not a Keycloak Organization; users are linked by attribute only",
                     organisation.getRegistrationNo());
             return Optional.empty();
         }
-        return Optional.of(keycloakOrganisation.getId());
+        return Optional.of(keycloakOrganisationId);
     }
 
     private RoleRepresentation realmRole(RealmResource realm, String roleName) {
@@ -519,15 +519,18 @@ public class KeycloakUserService {
 
     /** The user's realm roles, including those inherited through composite roles. */
     public Set<String> findEffectiveRealmRoles(String userId) {
-        return keycloakService.withApiRealm(realm -> realm.users().get(userId).roles().realmLevel()
-                .listEffective().stream().map(RoleRepresentation::getName).collect(Collectors.toSet()));
+        return keycloakCache.get(effectiveRolesKey(userId), cacheProperties.userTtl(), ROLE_SET,
+                () -> keycloakService.withApiRealm(realm -> realm.users().get(userId).roles().realmLevel()
+                        .listEffective().stream().map(RoleRepresentation::getName)
+                        .collect(Collectors.toCollection(LinkedHashSet::new))));
     }
 
     /** Names of the realm's roles that can be assigned, sorted (built-in roles left out). */
     public SortedSet<String> findRealmRoleNames() {
-        return keycloakService.withApiRealm(realm -> realm.roles().list().stream()
-                .map(RoleRepresentation::getName).filter(KeycloakUserService::isManagedRole)
-                .collect(Collectors.toCollection(TreeSet::new)));
+        return keycloakCache.get("roles:realm", cacheProperties.roleTtl(), SORTED_NAMES,
+                () -> keycloakService.withApiRealm(realm -> realm.roles().list().stream()
+                        .map(RoleRepresentation::getName).filter(KeycloakUserService::isManagedRole)
+                        .collect(Collectors.toCollection(TreeSet::new))));
     }
 
     /** Names of the roles of the client with this clientId (e.g. "admin-portal"), sorted; 400 for an unknown client. */
@@ -535,16 +538,17 @@ public class KeycloakUserService {
         if (StringUtils.isBlank(clientId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "clientId is required");
         }
-        return keycloakService.withApiRealm(realm -> {
-            List<ClientRepresentation> clients = realm.clients().findByClientId(clientId);
-            if (clients.isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown client " + clientId);
-            }
-            // clients().get() takes the client's internal id, not its clientId
-            return realm.clients().get(clients.get(0).getId()).roles().list().stream()
-                    .map(RoleRepresentation::getName)
-                    .collect(Collectors.toCollection(TreeSet::new));
-        });
+        return keycloakCache.get("roles:client:" + clientId, cacheProperties.roleTtl(), SORTED_NAMES,
+                () -> keycloakService.withApiRealm(realm -> {
+                    List<ClientRepresentation> clients = realm.clients().findByClientId(clientId);
+                    if (clients.isEmpty()) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown client " + clientId);
+                    }
+                    // clients().get() takes the client's internal id, not its clientId
+                    return realm.clients().get(clients.get(0).getId()).roles().list().stream()
+                            .map(RoleRepresentation::getName)
+                            .collect(Collectors.toCollection(TreeSet::new));
+                }));
     }
 
     /** The realm roles assigned to the user directly (as {@link UserDTO#getRoles()} shows them). */
@@ -554,27 +558,19 @@ public class KeycloakUserService {
                 .collect(Collectors.toCollection(LinkedHashSet::new)));
     }
 
-    /**
-     * Accounts by id, kept for app.keycloak.user-cache-ttl: endpoints resolve the caller's account
-     * on each call. Changes made through this service evict the user's entry.
-     */
-    @Value("${app.keycloak.user-cache-ttl:60s}")
-    private Duration userCacheTtl;
+    private static String userKey(String userId) {
+        return "user:" + userId;
+    }
 
-    private volatile ExpiringCache<String, UserDTO> userCache;
+    private static String effectiveRolesKey(String userId) {
+        return "user:" + userId + ":effective-roles";
+    }
 
-    private ExpiringCache<String, UserDTO> userCache() {
-        ExpiringCache<String, UserDTO> cache = userCache;
-        if (cache == null) {
-            synchronized (this) {
-                if (userCache == null) {
-                    userCache = new ExpiringCache<>(userCacheTtl == null ? Duration.ZERO : userCacheTtl,
-                            KeycloakUserService::copyOf);
-                }
-                cache = userCache;
-            }
+    /** Forgets what is cached about the user, after a change made through this service. */
+    private void evictUser(String userId) {
+        if (StringUtils.isNotBlank(userId)) {
+            keycloakCache.evict(userKey(userId), effectiveRolesKey(userId));
         }
-        return cache;
     }
 
     /** The account with this id; 404 when there is none. */
@@ -582,13 +578,14 @@ public class KeycloakUserService {
         if (StringUtils.isBlank(userId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId is required");
         }
-        return userCache().get(userId, id -> keycloakService.withApiRealm(realm -> {
-            try {
-                return toUserDTO(realm.users().get(id).toRepresentation());
-            } catch (NotFoundException e) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-            }
-        }));
+        return keycloakCache.get(userKey(userId), cacheProperties.userTtl(), USER,
+                () -> keycloakService.withApiRealm(realm -> {
+                    try {
+                        return toUserDTO(realm.users().get(userId).toRepresentation());
+                    } catch (NotFoundException e) {
+                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+                    }
+                }));
     }
 
     /**
@@ -624,7 +621,7 @@ public class KeycloakUserService {
      * they are. The password is never changed here.
      */
     public void updateUser(UserDTO user) {
-        userCache().evict(user.getUserId());
+        evictUser(user.getUserId());
         keycloakService.withApiRealm(realm -> {
             UserResource userResource = existingUser(realm, user.getUserId());
             UserRepresentation rep = userResource.toRepresentation();
@@ -823,7 +820,7 @@ public class KeycloakUserService {
 
             UserResource userResource = existingUser(realm, userId);
             UserRepresentation userRep = userResource.toRepresentation();
-            userCache().evict(userId);
+            evictUser(userId);
             // clientLevel() takes the client's internal id, not its clientId
             userResource.roles().clientLevel(clientUuid).add(roleReps);
 
@@ -833,7 +830,7 @@ public class KeycloakUserService {
 
     /** Adds ({@code action > 0}) or removes a realm role: 400 for an unknown role, 404 for an unknown user. */
     public boolean updateUserRoles(String userId, String roleName, int action) {
-        userCache().evict(userId);
+        evictUser(userId);
         return keycloakService.withApiRealm(realm -> {
             RoleRepresentation roleRep = realmRole(realm, roleName);
             RoleScopeResource roleScopeResource = existingUser(realm, userId).roles().realmLevel();

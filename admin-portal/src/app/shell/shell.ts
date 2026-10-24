@@ -13,6 +13,7 @@ import { MenuService } from '@app/services/menu.service';
 import { toast, NgxSonnerToaster } from 'ngx-sonner';
 import { KeycloakHelperApiStore } from '@app/store/bw/co/knowvera/keycloak/keycloak-helper-api.store';
 import { settingsMenuItems, ShellMenuItem } from './navigation';
+import { hasAnyPermission } from '@app/auth/permissions';
 
 @Component({
   selector: 'app-shell',
@@ -45,7 +46,12 @@ export class Shell implements OnInit {
   permissions = computed(() => this.keycloakHelperApiStore.permissions() ?? []);
 
   /** The current menu (main or settings), limited to the pages the user's permissions allow. */
-  readonly menuItems = computed(() => this.menuService.items().filter((item) => canAccess(item, this.permissions())));
+  // Empty until permissions load, so the unfiltered menu never flashes on start-up.
+  readonly menuItems = computed(() =>
+    this.keycloakHelperApiStore.permissionsLoaded()
+      ? this.menuService.items().filter((item) => canAccess(item, this.permissions()))
+      : [],
+  );
   /** First settings page the user may open; null hides the Settings links. */
   readonly settingsLink = computed(
     () => settingsMenuItems.find((item) => canAccess(item, this.permissions()))?.routerLink ?? null,
@@ -138,8 +144,6 @@ export class Shell implements OnInit {
 
 /** Whether a user holding the `granted` permission scopes may see the menu item. */
 export function canAccess(item: ShellMenuItem, granted: readonly string[]): boolean {
-  return (
-    item.permissions.length === 0 ||
-    item.permissions.some((permission) => granted.includes(permission))
-  );
+  // Same rule as the route guard, so a menu item and its page always agree
+  return hasAnyPermission(granted, item.permissions);
 }

@@ -33,8 +33,6 @@ import bw.co.knowvera.settings.SettingsDTO;
 import bw.co.knowvera.settings.SettingsService;
 import bw.co.knowvera.settings.Tool;
 import bw.co.knowvera.settings.ToolSelectorDTO;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
@@ -54,11 +52,13 @@ import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
-@Slf4j
-@RequiredArgsConstructor
 public class DocumentProcessorService {
+
+    private static final Logger log = LoggerFactory.getLogger(DocumentProcessorService.class);
 
     /**
      * Whether automated checks may mark a document VERIFIED on their own. Off by default: an
@@ -85,6 +85,25 @@ public class DocumentProcessorService {
     private final UniversalStringMatcher stringMatcher;
     private final SettingsService settingsService;
     private final GeminiService geminiService;
+
+    public DocumentProcessorService(
+            KycRecordRepository kycRecordRepository,
+            RabbitTemplate rabbitTemplate,
+            RabbitProperties rabbitProperties,
+            DocumentService documentService,
+            JsonMapper jsonMapper,
+            UniversalStringMatcher stringMatcher,
+            SettingsService settingsService,
+            GeminiService geminiService) {
+        this.kycRecordRepository = kycRecordRepository;
+        this.rabbitTemplate = rabbitTemplate;
+        this.rabbitProperties = rabbitProperties;
+        this.documentService = documentService;
+        this.jsonMapper = jsonMapper;
+        this.stringMatcher = stringMatcher;
+        this.settingsService = settingsService;
+        this.geminiService = geminiService;
+    }
 
     @Async("virtualThreadExecutor")
     public CompletableFuture<String> extractText(byte[] pdfBytes) {

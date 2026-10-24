@@ -19,8 +19,13 @@ import org.springframework.web.server.ResponseStatusException;
 import jakarta.annotation.PreDestroy;
 import jakarta.ws.rs.ForbiddenException;
 
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Access to the Keycloak admin API as the API client's service account. One admin
@@ -93,12 +98,49 @@ public class KeycloakService {
         try {
             return fn.apply(keycloak().realm(realmName()));
         } catch (ForbiddenException e) {
-            LOGGER.error("Keycloak refused an admin call for client '{}' in realm '{}': its service account needs the "
-                    + "realm-management roles manage-users and manage-realm", apiClient, realmName());
+            LOGGER.error("Keycloak refused {} for client '{}' in realm '{}' (403). The service account's token has the "
+                    + "realm-management roles {}; the API needs {}. Roles granted in Keycloak apply once the API "
+                    + "gets a new token (restart it, or wait for the token to expire).",
+                    callerOperation(), apiClient, realmName(), tokenRealmManagementRoles(), REQUIRED_ROLES);
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                     "The user directory is not available. Please contact the administrator.", e);
         }
     }
+
+    /** realm-management roles the API's service account needs (keycloak/generate_authz.py, API_SERVICE_ACCOUNT_ROLES). */
+    static final List<String> REQUIRED_ROLES = List.of("manage-users", "manage-realm", "view-clients");
+
+    /** The application method that made the refused call, e.g. KeycloakUserService.findClientRoleNames. */
+    private static String callerOperation() {
+        return StackWalker.getInstance().walk(frames -> frames
+                .filter(f -> f.getClassName().startsWith("bw.co.knowvera.")
+                        && !f.getClassName().startsWith(KeycloakService.class.getName()))
+                .map(f -> f.getClassName().substring(f.getClassName().lastIndexOf('.') + 1).replaceAll("\\$.*", "")
+                        + "." + f.getMethodName().replaceAll("^lambda\\$|\\$\\d+$", ""))
+                .findFirst())
+                .orElse("an admin call");
+    }
+
+    /** The realm-management roles in the admin client's current access token (names only, for the log). */
+    private String tokenRealmManagementRoles() {
+        try {
+            String token = keycloak().tokenManager().getAccessTokenString();
+            return realmManagementRoles(token).toString();
+        } catch (RuntimeException e) {
+            return "unknown (" + e.getMessage() + ")";
+        }
+    }
+
+    static List<String> realmManagementRoles(String accessToken) {
+        String[] parts = accessToken.split("\\.");
+        JsonNode claims = JSON.readTree(Base64.getUrlDecoder().decode(parts[1]));
+        List<String> roles = new ArrayList<>();
+        claims.path("resource_access").path("realm-management").path("roles").forEach(r -> roles.add(r.asString()));
+        roles.sort(null);
+        return roles;
+    }
+
+    private static final JsonMapper JSON = JsonMapper.builder().build();
 
     /* =====================================================
        ============= ORGANIZATION HELPERS =================

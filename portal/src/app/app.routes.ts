@@ -46,42 +46,42 @@ export const routes: Routes = [
   },
   {
     path: 'kyc-record',
-    data: { title: 'KYC Record' },
+    data: { permissions: ['kyc-records:view'], title: 'KYC Record' },
     canActivate: [authGuard],
     loadComponent: () =>
       import('./views/kyc-record/kyc-record').then((m) => m.KycRecord),
   },
   {
     path: 'kyc-record/edit',
-    data: { title: 'Edit KYC Record' },
+    data: { permissions: ['kyc-records:edit'], title: 'Edit KYC Record' },
     canActivate: [authGuard],
     loadComponent: () =>
       import('./views/kyc-record/edit/edit-kyc-record').then((m) => m.EditKycRecord),
   },
   {
     path: 'kyc-record/:id',
-    data: { title: 'KYC Record' },
+    data: { permissions: ['kyc-records:view'], title: 'KYC Record' },
     canActivate: [authGuard],
     loadComponent: () =>
       import('./views/kyc-record/kyc-record').then((m) => m.KycRecord),
   },
   {
     path: 'organisation',
-    data: { title: 'My Organisation' },
+    data: { permissions: ['organisations:view'], title: 'My Organisation' },
     canActivate: [authGuard],
     loadComponent: () =>
       import('./views/organisation/details/organisation-details').then((m) => m.OrganisationDetails),
   },
   {
     path: 'organisation/edit',
-    data: { title: 'Edit Organisation' },
+    data: { permissions: ['organisations:edit'], title: 'Edit Organisation' },
     canActivate: [authGuard],
     loadComponent: () =>
       import('./views/organisation/edit/edit-organisation').then((m) => m.EditOrganisation),
   },
   {
     path: 'document/:id',
-    data: { title: 'Document Details' },
+    data: { permissions: ['documents:view'], title: 'Document Details' },
     canActivate: [authGuard],
     loadComponent: () =>
       import('./views/document/document-details').then((m) => m.DocumentDetails),
@@ -95,6 +95,7 @@ export const routes: Routes = [
   },
   {
     path: 'client-request',
+    data: { permissions: ['client-requests:list'] },
     canActivate: [authGuard],
     loadChildren: () =>
       import('./views/client-request/request.routes').then((module) => module.requestRoutes),

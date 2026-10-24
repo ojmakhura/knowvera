@@ -11,17 +11,25 @@ import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.document.DocumentService;
 import bw.co.knowvera.document.DocumentVerificationStatus;
 import bw.co.knowvera.properties.RabbitProperties;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @Service
-@Slf4j
-@RequiredArgsConstructor
 public class InformationConfirmationService {
+
+  private static final Logger log = LoggerFactory.getLogger(InformationConfirmationService.class);
 
   private final DocumentService documentService;
   private final RabbitTemplate rabbitTemplate;
   private final RabbitProperties rabbitProperties;
+
+  public InformationConfirmationService(
+      DocumentService documentService,
+      RabbitTemplate rabbitTemplate,
+      RabbitProperties rabbitProperties) {
+    this.documentService = documentService;
+    this.rabbitTemplate = rabbitTemplate;
+    this.rabbitProperties = rabbitProperties;
+  }
 
   @RabbitListener(queues = "${app.rabbitmq.informationConfirmationQueue}")
   public void handleInformationConfirmation(QueueObject queueObject) {

@@ -801,7 +801,8 @@ PORTAL_CLIENTS = list(PORTAL_ROLES)
 # Resolved from the environment when Keycloak imports the realm at start-up (--import-realm)
 CLIENT_SECRETS = {CLIENT_ID: "${API_CLIENT_SECRET}"}
 # The API service account creates users, resets passwords, maps roles and manages organizations.
-API_SERVICE_ACCOUNT_ROLES = ["manage-users", "manage-realm"]
+# view-clients: client lookups (client role names, client-role assignment, users by client role)
+API_SERVICE_ACCOUNT_ROLES = ["manage-users", "manage-realm", "view-clients"]
 TEST_SECRET = "test-secret"
 TEST_PASSWORD = "Test-Passw0rd!"  # meets PASSWORD_POLICY
 SAMPLE_PASSWORD = "ChangeMe-2026!"  # temporary: Keycloak asks for a new one at first login

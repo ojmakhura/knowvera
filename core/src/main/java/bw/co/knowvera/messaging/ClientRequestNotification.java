@@ -31,8 +31,8 @@ import bw.co.knowvera.organisation.client.ClientRequest;
 import bw.co.knowvera.organisation.client.ClientRequestRepository;
 import bw.co.knowvera.settings.Settings;
 import bw.co.knowvera.settings.SettingsRepository;
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * Queues the novu-new-org-client-request invitation (docs/novu/workflows) for new client
  * requests. The link carries the request's single-use token, so neither the token nor the link is
@@ -44,8 +44,9 @@ import lombok.extern.slf4j.Slf4j;
  * cannot load lazy associations there, and before the commit the new requests are not visible.
  */
 @Component
-@Slf4j
 public class ClientRequestNotification {
+
+  private static final Logger log = LoggerFactory.getLogger(ClientRequestNotification.class);
 
   private static final DateTimeFormatter EXPIRY_FORMAT = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH);
 

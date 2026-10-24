@@ -45,8 +45,6 @@ import bw.co.knowvera.document.DocumentServiceBase;
 import bw.co.knowvera.document.DocumentServiceException;
 import bw.co.knowvera.document.DocumentVerificationStatus;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
-
 import static org.junit.jupiter.api.DynamicTest.stream;
 
 import java.io.File;
@@ -76,6 +74,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @see bw.co.knowvera.document.DocumentService
@@ -83,9 +83,10 @@ import org.springframework.validation.annotation.Validated;
 @Service("documentService")
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 @Validated
-@Slf4j
 public class DocumentServiceImpl
         extends DocumentServiceBase {
+
+    private static final Logger log = LoggerFactory.getLogger(DocumentServiceImpl.class);
 
     private final VerificationDataConfigRepository verificationDataConfigRepository;
     private final OrganisationRepository organisationRepository;

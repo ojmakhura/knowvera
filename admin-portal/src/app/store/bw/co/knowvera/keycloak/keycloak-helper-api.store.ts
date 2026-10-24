@@ -11,6 +11,8 @@ import { KeycloakHelperApi } from '@app/services/bw/co/knowvera/keycloak/keycloa
 
 export type KeycloakHelperApiState = {
   permissions: string[];
+  /** True once getUserPermissions has finished, whether it succeeded or not. */
+  permissionsLoaded: boolean;
   realmRoles: string[];
   clientRoles: string[];
   loading: boolean;
@@ -22,6 +24,7 @@ export type KeycloakHelperApiState = {
 
 const initialState: KeycloakHelperApiState = {
   permissions: [],
+  permissionsLoaded: false,
   clientRoles: [],
   realmRoles: [],
   loading: false,
@@ -114,6 +117,7 @@ export const KeycloakHelperApiStore = signalStore(
                   store, 
                   {
                     permissions: response, 
+                    permissionsLoaded: true,
                     loading: false, 
                     success: true, 
                     messages: ['Success!!'],
@@ -125,6 +129,7 @@ export const KeycloakHelperApiStore = signalStore(
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
+                    permissionsLoaded: true,
                     loading: false, 
                     success: false,
                     error: true,

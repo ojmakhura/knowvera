@@ -23,25 +23,6 @@ import bw.co.knowvera.user.UserDTO;
 class KeycloakUserServiceHelpersTest {
 
     @Test
-    void copyOfSharesNoCollectionsAndDropsThePassword() {
-
-        UserDTO user = new UserDTO();
-        user.setUserId("u1");
-        user.setPassword("secret");
-        user.setRoles(new LinkedHashSet<>(Set.of("APPLICANT")));
-        user.setRealmRoles(new ArrayList<>(List.of("APPLICANT")));
-
-        UserDTO copy = KeycloakUserService.copyOf(user);
-        copy.getRoles().add("SUPER_ADMIN");
-        copy.getRealmRoles().add("SUPER_ADMIN");
-
-        assertEquals(Set.of("APPLICANT"), user.getRoles());
-        assertEquals(List.of("APPLICANT"), user.getRealmRoles());
-        assertEquals("u1", copy.getUserId());
-        assertNull(copy.getPassword());
-    }
-
-    @Test
     void readAllFollowsPagesPastTheFirstHundred() {
 
         List<Integer> all = IntStream.range(0, 250).boxed().toList();

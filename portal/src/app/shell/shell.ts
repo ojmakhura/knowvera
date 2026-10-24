@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,7 +8,8 @@ import { toast } from '@app/@shared/toast';
 
 import { AppEnvStore } from '@app/store/app-env.state';
 import { Loader } from '@app/@shared/loader/loader';
-import { mobileMenuItems, menuItems } from './navigation';
+import { PermissionService } from '@app/@core/services/permission.service';
+import { ShellMenuItem, mobileMenuItems, menuItems } from './navigation';
 
 @Component({
   selector: 'app-shell',
@@ -24,11 +25,35 @@ export class Shell {
   private readonly elementRef = inject(ElementRef<HTMLElement>);
   protected readonly toast = toast;
 
-  protected readonly menuItems = menuItems;
-  protected readonly mobileMenuItems = mobileMenuItems;
+  private readonly permissionService = inject(PermissionService);
   protected readonly accountMenuOpen = signal(false);
 
   protected readonly isLoggedIn = computed(() => this.appEnvState.isLoggedIn());
+
+  /** The menus, limited to the pages the signed-in user's permissions open (as the route guard checks). */
+  protected readonly menuItems = computed(() => this.visible(menuItems));
+  protected readonly mobileMenuItems = computed(() => this.visible(mobileMenuItems));
+
+  constructor() {
+    effect(() => {
+      if (this.isLoggedIn()) {
+        this.permissionService.load();
+      }
+    });
+  }
+
+  /**
+   * Signed out: the whole menu (the pages ask for sign-in). Signed in: items needing no permission
+   * at once, the others once the permissions have loaded and allow them, so nothing flashes away.
+   */
+  private visible(items: ShellMenuItem[]): ShellMenuItem[] {
+    if (!this.isLoggedIn()) {
+      return items;
+    }
+    const loaded = this.permissionService.loaded();
+    return items.filter((item) =>
+      item.permissions.length === 0 || (loaded && this.permissionService.has(item.permissions)));
+  }
 
   protected readonly userDisplayName = computed(() => {
     const profile = this.profile();

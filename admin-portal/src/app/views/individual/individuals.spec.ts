@@ -76,9 +76,9 @@ describe('Individuals', () => {
     component.openDetails('ind-1');
     component.openEdit('ind-2');
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/individual', 'edit']);
-    expect(navigateSpy).toHaveBeenCalledWith(['/individual', 'ind-1']);
-    expect(navigateSpy).toHaveBeenCalledWith(['/individual', 'ind-2', 'edit']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/individuals', 'edit']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/individuals', 'ind-1']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/individuals', 'ind-2', 'edit']);
   });
 
   it('should apply page navigation boundaries', () => {

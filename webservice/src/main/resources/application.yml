@@ -218,9 +218,25 @@ app:
     # off: passing documents go to MANUAL_REVIEW for a KYC reviewer
     auto-verify: ${DOCUMENT_AUTO_VERIFY:false}
   keycloak:
-    # How long user accounts looked up in Keycloak are reused (0s disables); changes made
-    # through the API evict the user at once
-    user-cache-ttl: ${KEYCLOAK_USER_CACHE_TTL:60s}
+    # Keycloak Authorization Services for the API client: the caller's permissions (SCOPE_*
+    # authorities), cached per token in the two-level cache (Caffeine, then Redis; AuthzCache)
+    authz:
+      server-url: ${AUTH_URL:http://localhost:8970}
+      realm: ${REALM:knowvera}
+      client-id: ${app.authz.client}
+      client-secret: ${app.authz.client-secret}
+      # Never past the token's expiry
+      permission-cache-ttl: ${AUTHZ_PERMISSION_CACHE_TTL:5m}
+      # In-process copy in front of Redis: how long, and how many entries
+      local-cache-ttl: ${AUTHZ_LOCAL_CACHE_TTL:1m}
+      local-cache-max-size: ${AUTHZ_LOCAL_CACHE_MAX_SIZE:10000}
+    # Keycloak admin API results (accounts, roles, Organizations) in the same two-level cache
+    # (KeycloakCache); 0s turns one off. Changes made through the API evict a user at once,
+    # changes made in the Keycloak console show after the TTL.
+    cache:
+      user-ttl: ${KEYCLOAK_USER_CACHE_TTL:1m}
+      role-ttl: ${KEYCLOAK_ROLE_CACHE_TTL:10m}
+      organisation-ttl: ${KEYCLOAK_ORGANISATION_CACHE_TTL:10m}
   users:
     # New accounts get no password: Keycloak emails a link to set one (needs the realm's SMTP
     # settings). How long that link stays valid:

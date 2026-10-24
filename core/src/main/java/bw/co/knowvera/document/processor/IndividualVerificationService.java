@@ -17,17 +17,25 @@ import bw.co.knowvera.kyc.KycRecord;
 import bw.co.knowvera.kyc.KycRecordDTO;
 import bw.co.knowvera.kyc.KycRecordRepository;
 import bw.co.knowvera.kyc.KycRecordService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @Service
-@Slf4j
-@RequiredArgsConstructor
 public class IndividualVerificationService {
+
+    private static final Logger log = LoggerFactory.getLogger(IndividualVerificationService.class);
 
     private final IndividualRepository individualRepository;
     private final KycRecordRepository kycRecordRepository;
     private final KycRecordService kycRecordService;
+
+    public IndividualVerificationService(
+            IndividualRepository individualRepository,
+            KycRecordRepository kycRecordRepository,
+            KycRecordService kycRecordService) {
+        this.individualRepository = individualRepository;
+        this.kycRecordRepository = kycRecordRepository;
+        this.kycRecordService = kycRecordService;
+    }
 
     @RabbitListener(queues = "${app.rabbitmq.individualVerificationQueue}")
     public void handleIndividualVerification(QueueObject queueObject) {

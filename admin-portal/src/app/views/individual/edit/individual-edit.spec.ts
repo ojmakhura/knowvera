@@ -101,7 +101,7 @@ describe('IndividualEdit', () => {
 
   it('should navigate correctly on cancel', () => {
     component.cancel();
-    expect(navigateSpy).toHaveBeenCalledWith(['/individual']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/individuals']);
 
     component.editIndividualSignal.update((value) => ({
       ...value,
@@ -109,7 +109,7 @@ describe('IndividualEdit', () => {
     }));
     component.cancel();
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/individual', 'ind-9']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/individuals', 'ind-9']);
   });
 
   it('should save and normalize date of birth', () => {

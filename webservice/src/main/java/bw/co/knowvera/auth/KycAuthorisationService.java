@@ -45,8 +45,6 @@ import bw.co.knowvera.organisation.client.ClientRequestService;
 import bw.co.knowvera.subscription.KycSubscriptionDTO;
 import bw.co.knowvera.subscription.KycSubscriptionService;
 import bw.co.knowvera.user.UserDTO;
-import lombok.RequiredArgsConstructor;
-
 /**
  * Record ownership checks, applied as an aspect to methods annotated with
  * {@link RequiresOwnership}. Runs right after @PreAuthorize (Keycloak permission check):

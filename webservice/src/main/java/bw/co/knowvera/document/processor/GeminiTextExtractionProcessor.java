@@ -18,8 +18,6 @@ import bw.co.knowvera.document.DocumentService;
 import bw.co.knowvera.extractor.GeminiExtractorService;
 import bw.co.knowvera.storage.ObjectStorageService;
 import bw.co.knowvera.properties.RabbitProperties;
-import lombok.RequiredArgsConstructor;
-
 @Service
 public class GeminiTextExtractionProcessor {
 

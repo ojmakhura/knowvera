@@ -260,7 +260,7 @@ describe('DocumentTypeComponent', () => {
     component.openCreate();
     component.openEdit('doc-99');
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/', 'document', 'type', 'edit']);
-    expect(navigateSpy).toHaveBeenCalledWith(['/', 'document', 'type', 'doc-99', 'edit']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/', 'document-types', 'edit']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/', 'document-types', 'doc-99', 'edit']);
   });
 });

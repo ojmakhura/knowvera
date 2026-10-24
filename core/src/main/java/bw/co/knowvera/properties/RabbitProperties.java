@@ -2,10 +2,7 @@ package bw.co.knowvera.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import lombok.AllArgsConstructor;
-
 @ConfigurationProperties(prefix = "app.rabbitmq")
-@AllArgsConstructor
 public class RabbitProperties {
 
     private final String host;
@@ -51,6 +48,77 @@ public class RabbitProperties {
     private final String individualVerificationQueueExchange;
     private final String individualVerificationQueue;
     private final String individualVerificationQueueRoutingKey;
+
+    public RabbitProperties(
+            String host,
+            int port,
+            String username,
+            String password,
+            String documentHandlerDeadLetterExchange,
+            String documentHandlerDeadLetterQueue,
+            String documentHandlerDeadLetterRoutingKey,
+            String textExtractionQueueExchange,
+            String textExtractionQueue,
+            String textExtractionQueueRoutingKey,
+            String geminiTextExtractionQueueExchange,
+            String geminiTextExtractionQueue,
+            String geminiTextExtractionQueueRoutingKey,
+            String documentConfirmationQueueExchange,
+            String documentConfirmationQueue,
+            String documentConfirmationQueueRoutingKey,
+            String textProcessingQueueExchange,
+            String textProcessingQueue,
+            String textProcessingQueueRoutingKey,
+            String informationConfirmationQueueExchange,
+            String informationConfirmationQueue,
+            String informationConfirmationQueueRoutingKey,
+            String textCleanupQueueExchange,
+            String textCleanupQueue,
+            String textCleanupQueueRoutingKey,
+            String kycVerificationQueueExchange,
+            String kycVerificationQueue,
+            String kycVerificationQueueRoutingKey,
+            String organisationVerificationQueueExchange,
+            String organisationVerificationQueue,
+            String organisationVerificationQueueRoutingKey,
+            String individualVerificationQueueExchange,
+            String individualVerificationQueue,
+            String individualVerificationQueueRoutingKey) {
+        this.host = host;
+        this.port = port;
+        this.username = username;
+        this.password = password;
+        this.documentHandlerDeadLetterExchange = documentHandlerDeadLetterExchange;
+        this.documentHandlerDeadLetterQueue = documentHandlerDeadLetterQueue;
+        this.documentHandlerDeadLetterRoutingKey = documentHandlerDeadLetterRoutingKey;
+        this.textExtractionQueueExchange = textExtractionQueueExchange;
+        this.textExtractionQueue = textExtractionQueue;
+        this.textExtractionQueueRoutingKey = textExtractionQueueRoutingKey;
+        this.geminiTextExtractionQueueExchange = geminiTextExtractionQueueExchange;
+        this.geminiTextExtractionQueue = geminiTextExtractionQueue;
+        this.geminiTextExtractionQueueRoutingKey = geminiTextExtractionQueueRoutingKey;
+        this.documentConfirmationQueueExchange = documentConfirmationQueueExchange;
+        this.documentConfirmationQueue = documentConfirmationQueue;
+        this.documentConfirmationQueueRoutingKey = documentConfirmationQueueRoutingKey;
+        this.textProcessingQueueExchange = textProcessingQueueExchange;
+        this.textProcessingQueue = textProcessingQueue;
+        this.textProcessingQueueRoutingKey = textProcessingQueueRoutingKey;
+        this.informationConfirmationQueueExchange = informationConfirmationQueueExchange;
+        this.informationConfirmationQueue = informationConfirmationQueue;
+        this.informationConfirmationQueueRoutingKey = informationConfirmationQueueRoutingKey;
+        this.textCleanupQueueExchange = textCleanupQueueExchange;
+        this.textCleanupQueue = textCleanupQueue;
+        this.textCleanupQueueRoutingKey = textCleanupQueueRoutingKey;
+        this.kycVerificationQueueExchange = kycVerificationQueueExchange;
+        this.kycVerificationQueue = kycVerificationQueue;
+        this.kycVerificationQueueRoutingKey = kycVerificationQueueRoutingKey;
+        this.organisationVerificationQueueExchange = organisationVerificationQueueExchange;
+        this.organisationVerificationQueue = organisationVerificationQueue;
+        this.organisationVerificationQueueRoutingKey = organisationVerificationQueueRoutingKey;
+        this.individualVerificationQueueExchange = individualVerificationQueueExchange;
+        this.individualVerificationQueue = individualVerificationQueue;
+        this.individualVerificationQueueRoutingKey = individualVerificationQueueRoutingKey;
+    }
 
     public String getHost() {
         return host;

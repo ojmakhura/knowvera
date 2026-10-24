@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { readStoredLanguage, storeLanguage } from './stored-language';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class TranslationService {
     this.translate.setDefaultLang('en');
     
     // Get browser language or use stored preference
-    const browserLang = localStorage.getItem('language') || this.translate.getBrowserLang() || 'en';
+    const browserLang = readStoredLanguage() || this.translate.getBrowserLang() || 'en';
     const lang = ['en', 'es', 'fr'].includes(browserLang) ? browserLang : 'en';
     
     this.translate.use(lang);
@@ -22,7 +23,7 @@ export class TranslationService {
 
   setLanguage(lang: string) {
     this.translate.use(lang);
-    localStorage.setItem('language', lang);
+    storeLanguage(lang);
   }
 
   getCurrentLanguage(): string {

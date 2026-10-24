@@ -53,11 +53,6 @@
             <artifactId>springdoc-openapi-starter-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
@@ -68,6 +63,11 @@
         <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-policy-enforcer</artifactId>
+        </dependency>
+        <!-- In-process cache in front of Redis (bw.co.knowvera.security.AuthzCache) -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
@@ -144,13 +144,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
+                    <!-- No annotation processors (Lombok was the only one) -->
+                    <proc>none</proc>
                 </configuration>
             </plugin>
             <plugin>

@@ -36,15 +36,11 @@ import bw.co.knowvera.settings.SettingsDTO;
 import bw.co.knowvera.settings.SettingsService;
 import bw.co.knowvera.settings.Tool;
 import bw.co.knowvera.settings.ToolSelectorDTO;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Service
-@Slf4j
 public class DocumentValidationService {
 
     private static final Logger log = LoggerFactory.getLogger(DocumentValidationService.class);

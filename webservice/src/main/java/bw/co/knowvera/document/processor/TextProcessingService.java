@@ -29,12 +29,9 @@ import bw.co.knowvera.extractor.LmStudioExtractorService;
 import bw.co.knowvera.gemini.GeminiService;
 import bw.co.knowvera.llm.Prompt;
 import bw.co.knowvera.llm.PromptMessage;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.json.JsonMapper;
 
 @Service
-@Slf4j
 public class TextProcessingService {
 
   private static final Logger log = LoggerFactory.getLogger(TextProcessingService.class);

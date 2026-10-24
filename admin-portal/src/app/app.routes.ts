@@ -46,7 +46,7 @@ export const routes: Routes = [
       import('./views/sequence/sequence.routes').then((module) => module.sequenceRoutes),
   },
   {
-    path: 's',
+    path: 'invoices',
     canActivate: [AuthenticationGuard],
     loadChildren: () =>
       import('./views/invoice/invoice.routes').then((module) => module.invoiceRoutes),

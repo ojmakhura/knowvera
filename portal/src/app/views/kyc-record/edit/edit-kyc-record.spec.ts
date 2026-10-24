@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import Keycloak from 'keycloak-js';
 import { TranslateService } from '@ngx-translate/core';
@@ -13,7 +12,7 @@ describe('EditKycRecord', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditKycRecord, NoopAnimationsModule],
+      imports: [EditKycRecord],
       providers: [
         provideRouter([]),
         {

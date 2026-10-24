@@ -6,15 +6,18 @@ import org.springframework.stereotype.Service;
 import bw.co.knowvera.QueueObject;
 import bw.co.knowvera.kyc.KycRecordDTO;
 import bw.co.knowvera.kyc.KycRecordService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @Service
-@Slf4j
-@RequiredArgsConstructor
 public class KycVerificationService {
 
+    private static final Logger log = LoggerFactory.getLogger(KycVerificationService.class);
+
     private final KycRecordService kycRecordService;
+
+    public KycVerificationService(KycRecordService kycRecordService) {
+        this.kycRecordService = kycRecordService;
+    }
 
     @RabbitListener(queues = "${app.rabbitmq.kycVerificationQueue}")
     public void handleKycVerification(QueueObject queueObject) {
