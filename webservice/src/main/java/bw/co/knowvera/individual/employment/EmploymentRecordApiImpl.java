@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
+import bw.co.knowvera.auth.RequiresOwnership;
 
 @RestController
 @Tag(name = "Individual Employment Records", description = "Operations related to individual employment records.")
@@ -36,6 +37,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     @Override
     @Operation(summary = "Find Employment Record by ID", description = "Find an employment record by its ID")
     @Audit(entity = "EMPLOYMENT_RECORD", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "employment-records:view", target = "EMPLOYMENT_RECORD", id = "#id")
     public ResponseEntity<EmploymentRecordDTO> findById(String id) throws Exception {
 
         logger.debug("Finding employment record with ID: {}", id);
@@ -45,6 +47,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     @Override
     @Operation(summary = "Find Employment Records by Individual ID", description = "Find all employment records for a given individual ID")
     @Audit(entity = "EMPLOYMENT_RECORD", eventLabel = "#individualId", logData = false)
+    @RequiresOwnership(scope = "employment-records:list", target = "INDIVIDUAL", id = "#individualId")
     public ResponseEntity<List<EmploymentRecordDTO>> findByIndividual(String individualId)
             throws Exception {
 
@@ -84,6 +87,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     @Override
     @Operation(summary = "Remove Employment Record", description = "Remove an employment record by its ID")
     @Audit(entity = "EMPLOYMENT_RECORD", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "employment-records:delete", target = "EMPLOYMENT_RECORD", id = "#id")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
         logger.debug("Removing employment record with ID: {}", id);
@@ -93,6 +97,7 @@ public class EmploymentRecordApiImpl implements EmploymentRecordApi {
     @Override
     @Operation(summary = "Save Employment Record", description = "Save an employment record. If the ID is not provided, a new record will be created.")
     @Audit(entity = "EMPLOYMENT_RECORD", eventLabel = "#result?.body?.id", logData = false)
+    @RequiresOwnership(scope = "employment-records:edit", target = "INDIVIDUAL", id = "#employmentRecord.individualId", record = "EMPLOYMENT_RECORD", recordId = "#employmentRecord.id")
     public ResponseEntity<EmploymentRecordDTO> save(EmploymentRecordDTO employmentRecord)
             throws Exception {
 

@@ -50,56 +50,7 @@ XMI_ID = "{http://www.omg.org/spec/XMI/20131001}id"
 # They were unprotected before the role redesign; each needs an ownership check (add
 # @RequiresOwnership to the operation in the model), after which it can leave this list.
 OWNER_BY_ROLE = {
-    "BranchApi.findById",
-    "BranchApi.findByOrganisation",
-    "BranchApi.findByOrganisationPaged",
-    "BranchApi.remove",
-    "BranchApi.save",
-    "ClientRequestApi.downloadRequestTemplate",
-    "ClientRequestApi.findByDocument",
-    "ClientRequestApi.findByDocumentPaged",
-    "ClientRequestApi.findByIndividual",
-    "ClientRequestApi.findByIndividualPaged",
-    "ClientRequestApi.findByStatus",
-    "ClientRequestApi.findByStatusPaged",
-    "ClientRequestApi.findUserReadyRequests",
-    "ClientRequestApi.findUserReadyRequestsPaged",
-    "ClientRequestApi.uploadRequests",
-    "ContactApi.findById",
-    "ContactApi.findByType",
-    "ContactApi.findByTypePaged",
-    "ContactApi.save",
-    "EmploymentRecordApi.findById",
-    "EmploymentRecordApi.findByIndividual",
-    "EmploymentRecordApi.remove",
-    "EmploymentRecordApi.save",
-    "KycInvoiceApi.findById",
-    "KycInvoiceApi.findByOrganisation",
-    "KycInvoiceApi.findByOrganisationPaged",
-    "KycInvoiceApi.findBySubscription",
-    "KycInvoiceApi.findBySubscriptionPaged",
-    "KycInvoiceApi.upload",
-    "KycSubscriptionApi.findById",
-    "KycSubscriptionApi.findByOrganisation",
-    "OrganisationApi.findByRegistrationNo",
-    "OrganisationApi.save",
-    "OrganisationDocumentApi.findById",
-    "OrganisationDocumentApi.findByOrganisation",
-    "OrganisationDocumentApi.findByOrganisationPaged",
-    "OrganisationDocumentApi.findByStatus",
-    "OrganisationDocumentApi.findByStatusPaged",
-    "OrganisationDocumentApi.remove",
-    "OrganisationDocumentApi.save",
     "UserApi.addRole",
-    "UserApi.findByBranchId",
-    "UserApi.findByBranchName",
-    "UserApi.findByClientRoles",
-    "UserApi.findByIdentityNo",
-    "UserApi.findByOrganisationId",
-    "UserApi.findByOrganisationName",
-    "UserApi.findByRealmRoles",
-    "UserApi.findUserById",
-    "UserApi.loadUsers",
     "UserApi.removeRole",
     "UserApi.saveUser",
     "UserApi.updateUserName",
@@ -114,6 +65,11 @@ CHECKED_IN_CODE = {
     "UserApi.removeRole": "UserAdministrationGuard",
     "UserApi.saveUser": "UserAdministrationGuard",
     "UserApi.updateUserName": "UserAdministrationGuard",
+}
+
+# Operations that return no record of anyone's, so "-own" holders need no ownership check
+NO_RECORD = {
+    "ClientRequestApi.downloadRequestTemplate": "the static request spreadsheet template",
 }
 
 # Saves whose body names the record's owner: the caller must also own the stored record
@@ -323,6 +279,9 @@ def plan():
                 new = either_authority(resource, scope)  # KycAuthorisationService checks ownership
             elif own_holders and label in CHECKED_IN_CODE:
                 notes["-own permission checked in code"].append(f"{label}: {CHECKED_IN_CODE[label]}")
+                new = either_authority(resource, scope)
+            elif own_holders and label in NO_RECORD:
+                notes["-own permission on an operation with no record to own"].append(f"{label}: {NO_RECORD[label]}")
                 new = either_authority(resource, scope)
             elif own_holders and label in OWNER_BY_ROLE:
                 notes["-own permission accepted without an ownership check (add @RequiresOwnership)"].append(

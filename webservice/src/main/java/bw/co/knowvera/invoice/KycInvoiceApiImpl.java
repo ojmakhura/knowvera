@@ -22,6 +22,7 @@ import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.logging.Audit;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import bw.co.knowvera.auth.RequiresOwnership;
 
 @RestController
 @Tag(name = "KYC Invoices", description = "Operations related to KYC invoices.")
@@ -37,6 +38,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     @Override
     @Operation(summary = "Find KYC Invoice by ID", description = "Find a KYC invoice by its ID")
     @Audit(entity = "KYC_INVOICE", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "invoices:view", target = "INVOICE", id = "#id")
     public ResponseEntity<KycInvoiceDTO> findById(String id) throws Exception {
 
         KycInvoiceDTO invoice = kycInvoiceService.findById(id);
@@ -111,6 +113,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     @Override
     @Operation(summary = "Upload KYC Invoice", description = "Upload a file for a KYC invoice")
     @Audit(entity = "KYC_INVOICE", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "invoices:submit", target = "INVOICE", id = "#id")
     public ResponseEntity<KycInvoiceDTO> upload(String id, UploadPurpose purpose, MultipartFile file)
             throws Exception {
         // TODO Auto-generated method stub
@@ -137,6 +140,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     @Override
     @Operation(summary = "Find KYC Invoices by Organisation", description = "Find all KYC invoices for a given organisation ID")
     @Audit(entity = "KYC_INVOICE", eventLabel = "#organisationId", logData = false)
+    @RequiresOwnership(scope = "invoices:list", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<List<KycInvoiceDTO>> findByOrganisation(String organisationId) throws Exception {
 
         List<KycInvoiceDTO> invoices = kycInvoiceService.findByOrganisation(organisationId);
@@ -147,6 +151,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     @Override
     @Operation(summary = "Find KYC Invoices by Subscription", description = "Find all KYC invoices for a given subscription ID")
     @Audit(entity = "KYC_INVOICE", eventLabel = "#subscriptionId", logData = false)
+    @RequiresOwnership(scope = "invoices:list", target = "SUBSCRIPTION", id = "#subscriptionId")
     public ResponseEntity<List<KycInvoiceDTO>> findBySubscription(String subscriptionId) throws Exception {
 
         List<KycInvoiceDTO> invoices = kycInvoiceService.findBySubscription(subscriptionId);
@@ -156,6 +161,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     @Override
     @Operation(summary = "Find KYC Invoices by Organisation Paged", description = "Find all KYC invoices for a given organisation ID with pagination")
     @Audit(entity = "KYC_INVOICE", eventLabel = "#organisationId", logData = false)
+    @RequiresOwnership(scope = "invoices:list", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<Page<KycInvoiceDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber,
             Integer pageSize) throws Exception {
 
@@ -167,6 +173,7 @@ public class KycInvoiceApiImpl implements KycInvoiceApi {
     @Override
     @Operation(summary = "Find KYC Invoices by Subscription Paged", description = "Find all KYC invoices for a given subscription ID with pagination")
     @Audit(entity = "KYC_INVOICE", eventLabel = "#subscriptionId", logData = false)
+    @RequiresOwnership(scope = "invoices:list", target = "SUBSCRIPTION", id = "#subscriptionId")
     public ResponseEntity<Page<KycInvoiceDTO>> findBySubscriptionPaged(String subscriptionId, Integer pageNumber,
             Integer pageSize) throws Exception {
 

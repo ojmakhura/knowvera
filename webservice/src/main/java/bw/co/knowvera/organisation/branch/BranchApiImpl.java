@@ -21,6 +21,7 @@ import bw.co.knowvera.organisation.OrganisationDTO;
 import bw.co.knowvera.organisation.OrganisationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import bw.co.knowvera.auth.RequiresOwnership;
 
 @RestController
 @Tag(name = "Branches", description = "Operations related to organisation branches.")
@@ -38,6 +39,7 @@ public class BranchApiImpl implements BranchApi {
     @Override
     @Operation(summary = "Find Branch by ID", description = "Find a branch by its ID")
     @Audit(entity = "BRANCH", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "organisation-branches:view", target = "BRANCH", id = "#id")
     public ResponseEntity<BranchDTO> findById(String id) {
 
         BranchDTO branch = branchService.findById(id);
@@ -57,6 +59,7 @@ public class BranchApiImpl implements BranchApi {
     @Override
     @Operation(summary = "Find Branches by Organisation", description = "Find branches for a specific organisation")
     @Audit(entity = "BRANCH", eventLabel = "#organisationId", logData = false)
+    @RequiresOwnership(scope = "organisation-branches:list", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<List<BranchDTO>> findByOrganisation(String organisationId) {
 
         OrganisationDTO org = orgService.findById(organisationId);
@@ -67,6 +70,7 @@ public class BranchApiImpl implements BranchApi {
     @Override
     @Operation(summary = "Find Branches by Organisation (Paged)", description = "Find branches for a specific organisation with pagination")
     @Audit(entity = "BRANCH", eventLabel = "#organisationId", logData = false)
+    @RequiresOwnership(scope = "organisation-branches:list", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<Page<BranchDTO>> findByOrganisationPaged(String organisationId, Integer pageNumber,
             Integer pageSize) {
 
@@ -100,6 +104,7 @@ public class BranchApiImpl implements BranchApi {
     @Override
     @Operation(summary = "Remove Branch", description = "Remove a branch by its ID")
     @Audit(entity = "BRANCH", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "organisation-branches:delete", target = "BRANCH", id = "#id")
     public ResponseEntity<Boolean> remove(String id) {
 
         return ResponseEntity.ok(branchService.remove(id));
@@ -108,6 +113,7 @@ public class BranchApiImpl implements BranchApi {
     @Override
     @Operation(summary = "Save Branch", description = "Save a branch")
     @Audit(entity = "BRANCH", eventLabel = "#branch.id", logData = false)
+    @RequiresOwnership(scope = "organisation-branches:edit", target = "ORGANISATION", id = "#branch.organisationId", record = "BRANCH", recordId = "#branch.id")
     public ResponseEntity<BranchDTO> save(BranchDTO branch) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

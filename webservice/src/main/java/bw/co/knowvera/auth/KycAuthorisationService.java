@@ -33,6 +33,8 @@ import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.document.DocumentService;
 import bw.co.knowvera.individual.IndividualDTO;
 import bw.co.knowvera.individual.IndividualService;
+import bw.co.knowvera.individual.employment.EmploymentRecordDTO;
+import bw.co.knowvera.individual.employment.EmploymentRecordService;
 import bw.co.knowvera.invoice.KycInvoiceDTO;
 import bw.co.knowvera.invoice.KycInvoiceService;
 import bw.co.knowvera.keycloak.KeycloakUserService;
@@ -40,7 +42,11 @@ import bw.co.knowvera.kyc.KycRecordDTO;
 import bw.co.knowvera.kyc.KycRecordService;
 import bw.co.knowvera.organisation.OrganisationDTO;
 import bw.co.knowvera.organisation.OrganisationService;
+import bw.co.knowvera.organisation.branch.BranchDTO;
+import bw.co.knowvera.organisation.branch.BranchService;
 import bw.co.knowvera.organisation.client.ClientRequestDTO;
+import bw.co.knowvera.organisation.document.OrganisationDocumentDTO;
+import bw.co.knowvera.organisation.document.OrganisationDocumentService;
 import bw.co.knowvera.organisation.client.ClientRequestService;
 import bw.co.knowvera.subscription.KycSubscriptionDTO;
 import bw.co.knowvera.subscription.KycSubscriptionService;
@@ -64,6 +70,12 @@ public class KycAuthorisationService implements Ordered {
     /** Suffix of the Keycloak scope that limits a permission to the caller's own records (OWN in generate_authz.py). */
     public static final String OWN_SUFFIX = "-own";
 
+    /** Record kinds for {@link RequiresOwnership#target()} that are not a TargetEntity. */
+    public static final String EMPLOYMENT_RECORD = "EMPLOYMENT_RECORD";
+    public static final String ORGANISATION_DOCUMENT = "ORGANISATION_DOCUMENT";
+    /** A Keycloak user: owned by the members of its organisation. */
+    public static final String USER = "USER";
+
     private final SpelExpressionParser parser = new SpelExpressionParser();
     private final ParameterNameDiscoverer parameterNames = new DefaultParameterNameDiscoverer();
 
@@ -75,11 +87,16 @@ public class KycAuthorisationService implements Ordered {
     private final ClientRequestService clientRequestService;
     private final KycInvoiceService invoiceService;
     private final KycSubscriptionService subscriptionService;
+    private final BranchService branchService;
+    private final EmploymentRecordService employmentRecordService;
+    private final OrganisationDocumentService organisationDocumentService;
 
     public KycAuthorisationService(@Lazy KycRecordService kycRecordService, @Lazy KeycloakUserService keycloakUserService,
             @Lazy IndividualService individualService, @Lazy OrganisationService organisationService,
             @Lazy DocumentService documentService, @Lazy ClientRequestService clientRequestService,
-            @Lazy KycInvoiceService invoiceService, @Lazy KycSubscriptionService subscriptionService) {
+            @Lazy KycInvoiceService invoiceService, @Lazy KycSubscriptionService subscriptionService,
+            @Lazy BranchService branchService, @Lazy EmploymentRecordService employmentRecordService,
+            @Lazy OrganisationDocumentService organisationDocumentService) {
         this.kycRecordService = kycRecordService;
         this.keycloakUserService = keycloakUserService;
         this.individualService = individualService;
@@ -88,6 +105,9 @@ public class KycAuthorisationService implements Ordered {
         this.clientRequestService = clientRequestService;
         this.invoiceService = invoiceService;
         this.subscriptionService = subscriptionService;
+        this.branchService = branchService;
+        this.employmentRecordService = employmentRecordService;
+        this.organisationDocumentService = organisationDocumentService;
     }
 
     @Override
@@ -115,7 +135,7 @@ public class KycAuthorisationService implements Ordered {
         EvaluationContext context = new MethodBasedEvaluationContext(
                 joinPoint.getTarget(), method, joinPoint.getArgs(), parameterNames);
 
-        TargetEntity target = resolveTarget(requiresOwnership.target(), context);
+        String target = resolveTarget(requiresOwnership.target(), context);
         Object id = parser.parseExpression(requiresOwnership.id()).getValue(context);
 
         if (target == null || id == null || !ownsStoredRecord(target, id.toString())) {
@@ -136,26 +156,32 @@ public class KycAuthorisationService implements Ordered {
         return joinPoint.proceed();
     }
 
-    private boolean ownsStoredRecord(TargetEntity record, String recordId) {
+    private boolean ownsStoredRecord(String record, String recordId) {
         try {
-            return record != null && isTargetRecordOwner(record, recordId);
+            return record != null && switch (record) {
+                case EMPLOYMENT_RECORD -> isEmploymentRecordOwnerMatch(recordId);
+                case ORGANISATION_DOCUMENT -> isOrganisationDocumentOwnerMatch(recordId);
+                case USER -> isUserOrganisationMatch(recordId);
+                default -> isTargetRecordOwner(TargetEntity.valueOf(record), recordId);
+            };
         } catch (Exception e) {
-            // Unknown id or lookup failure: not proven to be the caller's record
+            // Unknown id or kind, or lookup failure: not proven to be the caller's record
             return false;
         }
     }
 
-    private TargetEntity resolveTarget(String target, EvaluationContext context) {
+    /** The record kind: a TargetEntity name or one of the extra kinds above. */
+    private String resolveTarget(String target, EvaluationContext context) {
 
         if (!target.startsWith("#")) {
-            return TargetEntity.valueOf(target);
+            return target;
         }
 
         Object value = parser.parseExpression(target).getValue(context);
         if (value instanceof TargetEntity entity) {
-            return entity;
+            return entity.name();
         }
-        return value != null ? TargetEntity.valueOf(value.toString()) : null;
+        return value != null ? value.toString() : null;
     }
 
     private Set<String> currentAuthorities() {
@@ -326,6 +352,62 @@ public class KycAuthorisationService implements Ordered {
         return isOrganisationUserMatch(subscription.getOrganisationId());
     }
 
+    private Boolean isBranchOwnerMatch(String branchId) {
+
+        if(StringUtils.isBlank(branchId)) {
+            return false;
+        }
+
+        BranchDTO branch = branchService.findById(branchId);
+        if (branch == null || StringUtils.isBlank(branch.getId())) {
+            return false;
+        }
+
+        return isOrganisationUserMatch(branch.getOrganisationId());
+    }
+
+    private Boolean isEmploymentRecordOwnerMatch(String employmentRecordId) {
+
+        if(StringUtils.isBlank(employmentRecordId)) {
+            return false;
+        }
+
+        EmploymentRecordDTO employmentRecord = employmentRecordService.findById(employmentRecordId);
+        if (employmentRecord == null || StringUtils.isBlank(employmentRecord.getId())) {
+            return false;
+        }
+
+        return isIndividualMatch(employmentRecord.getIndividualId());
+    }
+
+    private Boolean isOrganisationDocumentOwnerMatch(String organisationDocumentId) {
+
+        if(StringUtils.isBlank(organisationDocumentId)) {
+            return false;
+        }
+
+        OrganisationDocumentDTO organisationDocument = organisationDocumentService.findById(organisationDocumentId);
+        if (organisationDocument == null || StringUtils.isBlank(organisationDocument.getId())) {
+            return false;
+        }
+
+        return isOrganisationUserMatch(organisationDocument.getOrganisationId());
+    }
+
+    private Boolean isUserOrganisationMatch(String userId) {
+
+        if(StringUtils.isBlank(userId)) {
+            return false;
+        }
+
+        UserDTO user = keycloakUserService.findUserById(userId);
+        if (user == null || StringUtils.isBlank(user.getUserId())) {
+            return false;
+        }
+
+        return isOrganisationUserMatch(user.getOrganisationId());
+    }
+
     private Boolean isDocumentOwnershipMatch(String documentId) {
         
         UserDTO user = getCurrentUser();
@@ -398,6 +480,7 @@ public class KycAuthorisationService implements Ordered {
             case KYC_RECORD -> isKycRecordOwnershipMatch(targetId);
             case INDIVIDUAL -> isIndividualMatch(targetId);
             case ORGANISATION -> isOrganisationUserMatch(targetId);
+            case BRANCH -> isBranchOwnerMatch(targetId);
             case DOCUMENT -> isDocumentOwnershipMatch(targetId);
             case CLIENT_REQUEST -> isClientRequestOwnershipMatch(targetId);
             case INVOICE -> isInvoiceOwnerMatch(targetId);

@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
+import bw.co.knowvera.auth.RequiresOwnership;
 
 @RestController
 @Tag(name = "Organisation Document", description = "Endpoints for managing organisation documents")
@@ -39,6 +40,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
 
     @Override
     @Operation(summary = "Find Organisation Document by ID", description = "Retrieve an organisation document by its ID")
+    @RequiresOwnership(scope = "organisation-document-types:view", target = "ORGANISATION_DOCUMENT", id = "#id")
     public ResponseEntity<OrganisationDocumentDTO> findById(String id) throws Exception {
 
         return ResponseEntity.ok(organisationDocumentService.findById(id));
@@ -46,6 +48,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
 
     @Override
     @Operation(summary = "Find Organisation Documents by Organisation ID", description = "Retrieve all organisation documents associated with a specific organisation ID")
+    @RequiresOwnership(scope = "organisation-document-types:list", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<List<OrganisationDocumentDTO>> findByOrganisation(String organisationId) throws Exception {
 
         return ResponseEntity.ok(organisationDocumentService.findByOrganisation(organisationId));
@@ -54,6 +57,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
 
     @Override
     @Operation(summary = "Find Organisation Documents by Organisation ID (Paged)", description = "Retrieve paged organisation documents associated with a specific organisation ID")
+    @RequiresOwnership(scope = "organisation-document-types:list", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<Page<OrganisationDocumentDTO>> findByOrganisationPaged(String organisationId,
             Integer pageNumber, Integer pageSize) throws Exception {
 
@@ -99,6 +103,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
     @Override
     @Operation(summary = "Remove Organisation Document", description = "Remove an organisation document by its ID")
     @Audit(entity = "ORGANISATION_DOCUMENT", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "organisation-document-types:delete", target = "ORGANISATION_DOCUMENT", id = "#id")
     public ResponseEntity<Boolean> remove(String id) throws Exception {
 
         return ResponseEntity.ok(organisationDocumentService.remove(id));
@@ -107,6 +112,7 @@ public class OrganisationDocumentApiImpl implements OrganisationDocumentApi {
     @Override
     @Operation(summary = "Save Organisation Document", description = "Save or update an organisation document")
     @Audit(entity = "ORGANISATION_DOCUMENT", eventLabel = "#result?.body?.id", logData = false)
+    @RequiresOwnership(scope = "organisation-document-types:edit", target = "ORGANISATION", id = "#clientRequest.organisationId", record = "ORGANISATION_DOCUMENT", recordId = "#clientRequest.id")
     public ResponseEntity<OrganisationDocumentDTO> save(OrganisationDocumentDTO clientRequest) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

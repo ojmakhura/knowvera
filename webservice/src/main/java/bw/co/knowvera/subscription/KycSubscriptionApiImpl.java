@@ -23,6 +23,7 @@ import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.logging.Audit;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import bw.co.knowvera.auth.RequiresOwnership;
 
 @RestController
 @Tag(name = "KYC Subscriptions", description = "Operations related to KYC subscriptions.")
@@ -40,6 +41,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     @Override
     @Operation(summary = "Find KYC Subscription by ID", description = "Find a KYC subscription by its ID")
     @Audit(entity = "KYC_SUBSCRIPTION", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "subscriptions:view", target = "SUBSCRIPTION", id = "#id")
     public ResponseEntity<KycSubscriptionDTO> findById(String id) throws Exception {
 
         logger.debug("Finding KYC subscription with ID: {}", id);
@@ -122,6 +124,7 @@ public class KycSubscriptionApiImpl implements KycSubscriptionApi {
     @Override
     @Operation(summary = "Find KYC Subscriptions by Organisation", description = "Find KYC subscriptions by organisation ID")
     @Audit(entity = "KYC_SUBSCRIPTION", eventLabel = "#organisationId", logData = false)
+    @RequiresOwnership(scope = "subscriptions:list", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<List<KycSubscriptionDTO>> findByOrganisation(String organisationId) throws Exception {
 
         logger.debug("Finding KYC subscriptions for organisation: {}", organisationId);
