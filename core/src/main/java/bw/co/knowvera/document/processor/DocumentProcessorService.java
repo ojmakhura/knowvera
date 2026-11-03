@@ -5,6 +5,7 @@ import java.io.IOException;
 import bw.co.knowvera.document.DocumentValidationResults;
 import bw.co.knowvera.document.DocumentVerificationStatus;
 import bw.co.knowvera.gemini.GeminiService;
+import bw.co.knowvera.settings.ProcessingTools;
 import bw.co.knowvera.kyc.KycRecord;
 import bw.co.knowvera.kyc.KycRecordRepository;
 
@@ -85,6 +86,7 @@ public class DocumentProcessorService {
     private final UniversalStringMatcher stringMatcher;
     private final SettingsService settingsService;
     private final GeminiService geminiService;
+    private final ProcessingTools processingTools;
 
     public DocumentProcessorService(
             KycRecordRepository kycRecordRepository,
@@ -94,7 +96,8 @@ public class DocumentProcessorService {
             JsonMapper jsonMapper,
             UniversalStringMatcher stringMatcher,
             SettingsService settingsService,
-            GeminiService geminiService) {
+            GeminiService geminiService,
+            ProcessingTools processingTools) {
         this.kycRecordRepository = kycRecordRepository;
         this.rabbitTemplate = rabbitTemplate;
         this.rabbitProperties = rabbitProperties;
@@ -103,6 +106,7 @@ public class DocumentProcessorService {
         this.stringMatcher = stringMatcher;
         this.settingsService = settingsService;
         this.geminiService = geminiService;
+        this.processingTools = processingTools;
     }
 
     @Async("virtualThreadExecutor")
@@ -125,13 +129,16 @@ public class DocumentProcessorService {
 
                     List<ToolSelectorDTO> textExtractionTools = settings.getTextExtractionTools();
 
-                    if (CollectionUtils.isEmpty(textExtractionTools)) {
+                    Tool extractionTool = processingTools.first(textExtractionTools);
+
+                    if (CollectionUtils.isEmpty(textExtractionTools) || extractionTool == null) {
+                        // Nothing configured, or only cloud tools while processing must stay local
                         return performOcr(document);
                     } else {
 
-                        if (textExtractionTools.get(0).getTool() == Tool.TESSERACT) {
+                        if (extractionTool == Tool.TESSERACT) {
                             return performOcr(document);
-                        } else if (textExtractionTools.get(0).getTool() == Tool.GEMINI) {
+                        } else if (extractionTool == Tool.GEMINI) {
                             try {
                                 return geminiExtraction(pdfBytes);
                             } catch (Exception ex) {

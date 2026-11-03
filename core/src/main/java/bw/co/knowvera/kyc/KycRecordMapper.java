@@ -65,10 +65,26 @@ public abstract class KycRecordMapper {
      * @return KycRecord
      */
     @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
+    @Mapping(target = "reviewedBy", ignore = true) // set by the service
+    @Mapping(target = "reviewedAt", ignore = true) // set by the service
+    @Mapping(target = "riskLevel", ignore = true) // set by the service
+    @Mapping(target = "riskFactors", ignore = true) // set by the service
+    @Mapping(target = "approvedBy", ignore = true) // set by the service
+    @Mapping(target = "approvedAt", ignore = true) // set by the service
     public abstract KycRecord kycRecordDTOToEntity(KycRecordDTO kycRecordDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
+    @Mapping(target = "reviewedBy", ignore = true) // set by the service
+    @Mapping(target = "reviewedAt", ignore = true) // set by the service
+    @Mapping(target = "riskLevel", ignore = true) // set by the service
+    @Mapping(target = "riskFactors", ignore = true) // set by the service
+    @Mapping(target = "approvedBy", ignore = true) // set by the service
+    @Mapping(target = "approvedAt", ignore = true) // set by the service
     public abstract void updateKycRecordFromKycRecordDTO(KycRecordDTO kycRecordDTO, @MappingTarget KycRecord entity);
 
     /**
@@ -100,6 +116,14 @@ public abstract class KycRecordMapper {
      * @return KycRecord
      */
     @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
+    @Mapping(target = "reviewedBy", ignore = true) // set by the service
+    @Mapping(target = "reviewedAt", ignore = true) // set by the service
+    @Mapping(target = "riskLevel", ignore = true) // set by the service
+    @Mapping(target = "riskFactors", ignore = true) // set by the service
+    @Mapping(target = "approvedBy", ignore = true) // set by the service
+    @Mapping(target = "approvedAt", ignore = true) // set by the service
     public abstract KycRecord kycRecordSummaryToEntity(KycRecordSummary kycRecordSummary);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -125,10 +149,26 @@ public abstract class KycRecordMapper {
      * @return KycRecord
      */
     @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
+    @Mapping(target = "reviewedBy", ignore = true) // set by the service
+    @Mapping(target = "reviewedAt", ignore = true) // set by the service
+    @Mapping(target = "riskLevel", ignore = true) // set by the service
+    @Mapping(target = "riskFactors", ignore = true) // set by the service
+    @Mapping(target = "approvedBy", ignore = true) // set by the service
+    @Mapping(target = "approvedAt", ignore = true) // set by the service
     public abstract KycRecord kycRecordListDTOToEntity(KycRecordListDTO kycRecordListDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
+    @Mapping(target = "reviewedBy", ignore = true) // set by the service
+    @Mapping(target = "reviewedAt", ignore = true) // set by the service
+    @Mapping(target = "riskLevel", ignore = true) // set by the service
+    @Mapping(target = "riskFactors", ignore = true) // set by the service
+    @Mapping(target = "approvedBy", ignore = true) // set by the service
+    @Mapping(target = "approvedAt", ignore = true) // set by the service
     public abstract void updateKycRecordFromKycRecordListDTO(KycRecordListDTO kycRecordListDTO, @MappingTarget KycRecord entity);
 
 }

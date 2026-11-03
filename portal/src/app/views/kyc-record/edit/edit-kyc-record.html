@@ -165,6 +165,88 @@
             }
           </div>
         </section>
+
+        <!-- Related parties: beneficial owners, managers, signatories and agents (Regulations r.7 to r.10, FI Act s.20(2)) -->
+        <section class="kv-card">
+          <div class="kv-card-header justify-between">
+            <div class="flex items-center gap-3">
+              <mat-icon class="kv-card-icon">groups</mat-icon>
+              <h2 class="kv-card-title">Owners, Managers &amp; Signatories</h2>
+            </div>
+            <button type="button" class="kv-btn-subtle" (click)="addRelatedParty()">Add person</button>
+          </div>
+          <p class="text-xs text-on-surface-variant mb-3">
+            List everyone who holds more than 10% of the shares or votes, the manager, authorised signatories and
+            anyone acting on the customer's behalf (with the reference of their Form A authority).
+          </p>
+
+          @for (party of formModel().relatedParties; track $index; let i = $index) {
+            <div class="kv-panel mb-3">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-name-' + i">Full name</label>
+                  <input [id]="'party-name-' + i" type="text" class="kv-input" [value]="party.name ?? ''"
+                    (input)="updateRelatedParty(i, 'name', $any($event.target).value)" />
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-role-' + i">Role</label>
+                  <select [id]="'party-role-' + i" class="kv-input"
+                    (change)="updateRelatedParty(i, 'role', $any($event.target).value)">
+                    <option value="">Select a role</option>
+                    @for (role of relatedPartyRoleOptions; track role) {
+                      <option [value]="role" [selected]="party.role === role">{{ 'related.party.role.' + role | translate }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-id-type-' + i">Identity type</label>
+                  <select [id]="'party-id-type-' + i" class="kv-input"
+                    (change)="updateRelatedParty(i, 'identityType', $any($event.target).value)">
+                    <option value="">Select</option>
+                    @for (type of identityTypeOptions; track type) {
+                      <option [value]="type" [selected]="party.identityType === type">{{ 'individual.identity.type.' + type | translate }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-id-' + i">Identity number</label>
+                  <input [id]="'party-id-' + i" type="text" class="kv-input" [value]="party.identityNo ?? ''"
+                    (input)="updateRelatedParty(i, 'identityNo', $any($event.target).value)" />
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-nationality-' + i">Nationality</label>
+                  <input [id]="'party-nationality-' + i" type="text" class="kv-input" [value]="party.nationality ?? ''"
+                    (input)="updateRelatedParty(i, 'nationality', $any($event.target).value)" />
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-ownership-' + i">Shares / votes held (%)</label>
+                  <input [id]="'party-ownership-' + i" type="number" min="0" max="100" step="0.01" class="kv-input"
+                    [value]="party.ownershipPercentage ?? ''"
+                    (input)="updateRelatedParty(i, 'ownershipPercentage', $any($event.target).value)" />
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-pep-' + i">Prominent influential person</label>
+                  <select [id]="'party-pep-' + i" class="kv-input"
+                    (change)="updateRelatedParty(i, 'pepStatus', $any($event.target).value)">
+                    @for (status of pepStatusOptions; track status) {
+                      <option [value]="status" [selected]="party.pepStatus === status">{{ 'pep.status.' + status | translate }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-authority-' + i">Form A authority reference</label>
+                  <input [id]="'party-authority-' + i" type="text" class="kv-input" [value]="party.authorityReference ?? ''"
+                    (input)="updateRelatedParty(i, 'authorityReference', $any($event.target).value)" />
+                </div>
+              </div>
+              <div class="flex justify-end mt-2">
+                <button type="button" class="kv-btn-subtle" (click)="removeRelatedParty(i)">Remove</button>
+              </div>
+            </div>
+          } @empty {
+            <p class="text-sm text-on-surface-variant">Nobody added yet.</p>
+          }
+        </section>
       </div>
 
       <!-- Source of Funds (mobile) -->

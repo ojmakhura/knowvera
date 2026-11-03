@@ -15,6 +15,9 @@ import { OwnerDetails } from '@app/models/bw/co/knowvera/kyc/owner-details';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { DeclarationDTO } from '@app/models/bw/co/knowvera/kyc/declaration-dto';
 import { SourceOfFunds } from '@app/models/bw/co/knowvera/source-of-funds';
+import { SourceOfWealth } from '@app/models/bw/co/knowvera/source-of-wealth';
+import { RelatedParty } from '@app/models/bw/co/knowvera/kyc/related-party';
+import { RelatedPartyRole } from '@app/models/bw/co/knowvera/kyc/related-party-role';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { VerificationSummaryEntry } from '@app/models/bw/co/knowvera/kyc/verification-summary-entry';
 import { EmploymentRecordDTO } from '@app/models/bw/co/knowvera/individual/employment/employment-record-dto';
@@ -56,6 +59,9 @@ class EditKycRecordValue {
   declaration: DeclarationDTO | any = null;
   sourceOfFunds: SourceOfFunds[] | any = [];
   sourceOfFundsDetails: string | any = null;
+  wealthSources: SourceOfWealth[] | any = [];
+  sourceOfWealthDetails: string | any = null;
+  relatedParties: RelatedParty[] = [];
   documents: DocumentDTO[] | any = [];
   files: File[] | any = [];
   documentsToUpload: QueuedDocumentUpload[] = [];
@@ -165,6 +171,7 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
   readonly targetEntityOptions = Object.values(TargetEntity);
   readonly kycStatusOptions = Object.values(KycComplianceStatus);
   readonly identityTypeOptions = Object.values(IndividualIdentityType);
+  readonly relatedPartyRoleOptions = Object.values(RelatedPartyRole);
   readonly sourceOfFundsOptions = Object.values(SourceOfFunds);
   // readonly verificationStatusOptions = Object.values(VerificationStatus);
 
@@ -201,6 +208,9 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       },
       sourceOfFunds: record.sourceOfFunds || [],
       sourceOfFundsDetails: record.sourceOfFundsDetails,
+      wealthSources: record.wealthSources || [],
+      sourceOfWealthDetails: record.sourceOfWealthDetails,
+      relatedParties: (record.relatedParties || []).map((party: RelatedParty) => ({ ...party })),
       documents: record.documents || [],
       dataVerificationSummaries: record.dataVerificationSummaries || [],
       employmentRecord: record.employmentRecord ? record.employmentRecord : new EmploymentRecordDTO(),
@@ -380,6 +390,31 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
   }
 
+  protected addRelatedParty(): void {
+    const party = new RelatedParty();
+    party.pepStatus = PepStatus.NOT_PEP;
+    this.formModel.update((value) => ({ ...value, relatedParties: [...(value.relatedParties || []), party] }));
+  }
+
+  protected removeRelatedParty(index: number): void {
+    this.formModel.update((value) => ({
+      ...value,
+      relatedParties: (value.relatedParties || []).filter((_: RelatedParty, i: number) => i !== index),
+    }));
+  }
+
+  protected updateRelatedParty(index: number, field: keyof RelatedParty, input: any): void {
+    let value = input === '' ? null : input;
+    if (field === 'ownershipPercentage' && value !== null) {
+      value = Number(value);
+    }
+    this.formModel.update((form) => ({
+      ...form,
+      relatedParties: (form.relatedParties || []).map((party: RelatedParty, i: number) =>
+        i === index ? { ...party, [field]: value } : party),
+    }));
+  }
+
   protected addSource(source: string): void {
     this.formModel.update((value) => ({
       ...value,
@@ -499,6 +534,8 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       declaration: formValue.declaration,
       sourceOfFunds: formValue.sourceOfFunds,
       sourceOfFundsDetails: formValue.sourceOfFundsDetails,
+      wealthSources: formValue.wealthSources,
+      sourceOfWealthDetails: formValue.sourceOfWealthDetails,
       documents: formValue.documents,
       createdAt: formValue.createdAt,
       createdBy: formValue.createdBy,
@@ -508,6 +545,16 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       dataVerificationSummaries: formValue.dataVerificationSummaries,
       recordSummary: formValue.recordSummary,
       kycReportSections: formValue.kycReportSections,
+      relatedParties: formValue.relatedParties,
+      // Closing, review, risk and approval are recorded by the server, which ignores these
+      closedAt: null,
+      retainUntil: null,
+      reviewedBy: null,
+      reviewedAt: null,
+      riskLevel: null,
+      riskFactors: [],
+      approvedBy: null,
+      approvedAt: null,
     }
 
     let files: File[] = formValue.documentsToUpload.map((doc) => doc.file);

@@ -14,5 +14,9 @@ export enum IndividualIdentityType {
     /** TODO: Model Documentation for Enumeration Literal RESIDENCE_PERMIT value "RESIDENCE_PERMIT": $literal.enumerationLiteralDisplay */
     RESIDENCE_PERMIT = "RESIDENCE_PERMIT",
     /** TODO: Model Documentation for Enumeration Literal BIRTH_CERTIFICATE value "BIRTH_CERTIFICATE": $literal.enumerationLiteralDisplay */
-    BIRTH_CERTIFICATE = "BIRTH_CERTIFICATE"
+    BIRTH_CERTIFICATE = "BIRTH_CERTIFICATE",
+    /** TODO: Model Documentation for Enumeration Literal REFUGEE_ID value "REFUGEE_ID": $literal.enumerationLiteralDisplay */
+    REFUGEE_ID = "REFUGEE_ID",
+    /** TODO: Model Documentation for Enumeration Literal DRIVERS_LICENCE value "DRIVERS_LICENCE": $literal.enumerationLiteralDisplay */
+    DRIVERS_LICENCE = "DRIVERS_LICENCE"
 }

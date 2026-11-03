@@ -63,10 +63,14 @@ public abstract class IndividualMapper {
     @Mapping(target = "branch", ignore = true)
     @Mapping(target = "employmentRecords", ignore = true)
     @Mapping(target = "documents", ignore = true)
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
     public abstract Individual individualDTOToEntity(IndividualDTO individualDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
     public abstract void updateIndividualFromIndividualDTO(IndividualDTO individualDTO, @MappingTarget Individual entity);
 
     /**
@@ -113,10 +117,14 @@ public abstract class IndividualMapper {
      * @return Individual
      */
     @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
     public abstract Individual individualListDTOToEntity(IndividualListDTO individualListDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
     public abstract void updateIndividualFromIndividualListDTO(IndividualListDTO individualListDTO, @MappingTarget Individual entity);
 
 }

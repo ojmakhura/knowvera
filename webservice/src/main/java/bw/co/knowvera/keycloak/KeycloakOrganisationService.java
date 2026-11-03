@@ -344,6 +344,6 @@ public class KeycloakOrganisationService {
         }
 
         return new OrganisationListDTO(id, code, name, registrationNo, status, contactEmailAddress, kycStatus, isClient,
-                keycloakId, "", "");
+                keycloakId, "", "", null);
     }
 }

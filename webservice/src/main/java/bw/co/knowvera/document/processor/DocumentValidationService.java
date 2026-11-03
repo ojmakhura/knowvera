@@ -1,5 +1,6 @@
 package bw.co.knowvera.document.processor;
 
+import bw.co.knowvera.settings.ProcessingTools;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -59,12 +60,13 @@ public class DocumentValidationService {
     private final RabbitProperties rabbitProperties;
     private final SettingsService settingsService;
     private final GeminiService geminiService;
+    private final ProcessingTools processingTools;
 
     public DocumentValidationService(OrganisationService organisationService, IndividualService individualService,
             DocumentService documentService, DocumentTypeService documentTypeService,
             LmStudioExtractorService lmStudioExtractorService, DocumentProcessorService documentProcessorService,
             KycRecordService kycRecordService, RabbitTemplate rabbitTemplate, RabbitProperties rabbitProperties,
-            SettingsService settingsService, GeminiService geminiService) {
+            SettingsService settingsService, GeminiService geminiService, ProcessingTools processingTools) {
 
         this.organisationService = organisationService;
         this.individualService = individualService;
@@ -77,6 +79,7 @@ public class DocumentValidationService {
         this.rabbitProperties = rabbitProperties;
         this.settingsService = settingsService;
         this.geminiService = geminiService;
+        this.processingTools = processingTools;
     }
 
     @RabbitListener(queues = "${app.rabbitmq.documentConfirmationQueue}")
@@ -95,11 +98,13 @@ public class DocumentValidationService {
             return;
         }
 
-        if(tools.get(0).getTool() == Tool.GEMINI) {
+        Tool tool = processingTools.first(tools);
+
+        if(tool == Tool.GEMINI) {
             log.info("Using Gemini for document confirmation for document ID: {}", queueObject.objectId());
             // Implement Gemini processing logic here
             geminiConfirmation(document);
-        } else if(tools.get(0).getTool() == Tool.LM_STUDIO) {
+        } else if(tool == Tool.LM_STUDIO) {
             log.info("Using LM Studio for document confirmation for document ID: {}", queueObject.objectId());
             lmStudioConfirmation(document);
         } else {

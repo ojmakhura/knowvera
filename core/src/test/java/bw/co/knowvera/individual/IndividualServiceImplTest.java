@@ -1,5 +1,11 @@
 package bw.co.knowvera.individual;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.never;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import bw.co.knowvera.kyc.KycRecordRepository;
+import bw.co.knowvera.retention.RecordRetention;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,6 +50,11 @@ import bw.co.knowvera.settings.SettingsService;
 class IndividualServiceImplTest {
 
     @Mock
+
+    private KycRecordRepository kycRecordRepository;
+
+
+    @Mock
     private IndividualRepository individualRepository;
     @Mock
     private IndividualMapper individualMapper;
@@ -69,7 +80,8 @@ class IndividualServiceImplTest {
                 individualMapper,
                 clientRequestRepository,
                 passwordEncoder,
-                individualListQueries);
+                individualListQueries,
+                new RecordRetention(20, kycRecordRepository));
         org.springframework.test.util.ReflectionTestUtils.setField(service, "requestSessionTtl",
                 java.time.Duration.ofHours(24));
     }
@@ -111,14 +123,44 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void removeDeletesFoundIndividual() throws Exception {
+    void removeClosesAnOpenIndividualInsteadOfDeletingIt() throws Exception {
         UUID id = UUID.randomUUID();
         Individual individual = Individual.Factory.newInstance();
 
         when(individualRepository.findById(id)).thenReturn(Optional.of(individual));
 
-        service.remove(id.toString());
+        assertTrue(service.remove(id.toString()));
 
+        assertNotNull(individual.getClosedAt());
+        assertEquals(LocalDate.now().plusYears(20), individual.getRetainUntil());
+        verify(individualRepository).save(individual);
+        verify(individualRepository, never()).delete(any(Individual.class));
+        verify(kycRecordRepository).findAll(any(Specification.class));
+    }
+
+    @Test
+    void removeKeepsAClosedIndividualUntilItsRetentionPeriodEnds() {
+        UUID id = UUID.randomUUID();
+        Individual individual = Individual.Factory.newInstance();
+        individual.setClosedAt(LocalDateTime.now().minusYears(1));
+        individual.setRetainUntil(LocalDate.now().plusYears(19));
+
+        when(individualRepository.findById(id)).thenReturn(Optional.of(individual));
+
+        assertThrows(IndividualServiceException.class, () -> service.remove(id.toString()));
+        verify(individualRepository, never()).delete(any(Individual.class));
+    }
+
+    @Test
+    void removeDeletesAClosedIndividualAfterItsRetentionPeriod() throws Exception {
+        UUID id = UUID.randomUUID();
+        Individual individual = Individual.Factory.newInstance();
+        individual.setClosedAt(LocalDateTime.now().minusYears(21));
+        individual.setRetainUntil(LocalDate.now().minusYears(1));
+
+        when(individualRepository.findById(id)).thenReturn(Optional.of(individual));
+
+        assertTrue(service.remove(id.toString()));
         verify(individualRepository).delete(individual);
     }
 

@@ -29,6 +29,9 @@ import {
 import { Loader } from '@app/@shared/loader/loader';
 import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
 import { LoaderState } from '@app/@shared/loader/loader.state';
+import { RiskLevel } from '@app/models/bw/co/knowvera/kyc/risk-level';
+import { swalFire } from '@app/@shared/swal';
+import { HasRolesDirective } from 'keycloak-angular';
 
 @Component({
   selector: 'app-record-details',
@@ -47,6 +50,7 @@ import { LoaderState } from '@app/@shared/loader/loader.state';
     MatTooltipModule,
     MatTabsModule,
     MatDialogModule,
+    HasRolesDirective,
   ],
 })
 export class RecordDetails implements OnInit {
@@ -74,6 +78,7 @@ export class RecordDetails implements OnInit {
   readonly KycComplianceStatus = KycComplianceStatus;
   readonly IndividualIdentityType = IndividualIdentityType;
   readonly SourceOfFunds = SourceOfFunds;
+  readonly RiskLevel = RiskLevel;
 
   selectedSectionTabIndex = signal(0);
   currentDocumentIndex = signal(0);
@@ -128,6 +133,49 @@ export class RecordDetails implements OnInit {
 
       if (this.currentReportSectionIndex() >= sections.length) {
         this.currentReportSectionIndex.set(sections.length - 1);
+      }
+    });
+  }
+
+  riskTone(): string {
+    switch (this.record()?.riskLevel) {
+      case RiskLevel.HIGH:
+        return 'is-danger';
+      case RiskLevel.MEDIUM:
+        return 'is-warning';
+      case RiskLevel.LOW:
+        return 'is-success';
+      default:
+        return 'is-info';
+    }
+  }
+
+  /**
+   * The approve / reject decision on a high-risk record (FI Act s.20(1)(d) and s.22). The API
+   * accepts the approval only from KYC approvers.
+   */
+  decide(approve: boolean): void {
+    const record = this.record();
+    if (!record?.id) {
+      return;
+    }
+
+    swalFire({
+      title: approve ? 'Approve high-risk customer' : 'Reject high-risk customer',
+      text: approve
+        ? 'You are giving the senior management approval the Financial Intelligence Act requires for this high-risk relationship.'
+        : 'The record will be marked as rejected.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: approve ? 'Approve' : 'Reject',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.kycRecordApiStore.updateStatus({
+          id: record.id,
+          status: approve ? KycComplianceStatus.CURRENT : KycComplianceStatus.DOCUMENT_VERIFICATION_FAILED,
+        });
       }
     });
   }
@@ -358,6 +406,10 @@ export class RecordDetails implements OnInit {
         return 'Residence Permit';
       case IndividualIdentityType.BIRTH_CERTIFICATE:
         return 'Birth Certificate';
+      case IndividualIdentityType.REFUGEE_ID:
+        return 'Refugee ID';
+      case IndividualIdentityType.DRIVERS_LICENCE:
+        return "Driver's Licence";
       default:
         return 'Unknown';
     }

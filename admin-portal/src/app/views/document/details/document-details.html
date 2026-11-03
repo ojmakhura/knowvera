@@ -109,6 +109,10 @@
       </div>
 
       <p class="dp-metric">{{ document().verificationStatus || 'UNVERIFIED' }}</p>
+      @if (document().verifiedBy) {
+        <!-- Who decided: a reviewer, or AI-AGENT for automated verification -->
+        <p class="dp-list-sub">by {{ document().verifiedBy }} · {{ document().verifiedAt | date:'medium' }}</p>
+      }
 
       <div class="mt-auto pt-4" *kaHasRoles="['KYC_REVIEWER']; checkRealm: true">
         <span class="kv-label">Set status</span>

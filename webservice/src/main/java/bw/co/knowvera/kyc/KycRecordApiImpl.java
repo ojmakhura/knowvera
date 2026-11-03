@@ -712,6 +712,16 @@ public class KycRecordApiImpl implements KycRecordApi {
             username = authentication.getName();
         }
 
+        // Making a high-risk record current is the senior management approval of FI Act s.20(1)(d)
+        // and s.22: only KYC approvers (and the roles that include it) may give it
+        if (kycStatus == KycComplianceStatus.CURRENT) {
+            KycRecordDTO current = kycRecordService.findById(id);
+            if (current != null && current.getRiskLevel() == RiskLevel.HIGH && !hasRole(authentication, KYC_APPROVER_ROLE)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "A high-risk KYC record can only be approved by a KYC approver");
+            }
+        }
+
         KycRecordDTO record = kycRecordService.updateStatus(id, kycStatus, username);
 
         return ResponseEntity.ok(record);
@@ -766,5 +776,14 @@ public class KycRecordApiImpl implements KycRecordApi {
             throws Exception {
         List<KycRecordSummary> summaries = kycRecordService.searchSummaries(criteria, Set.<PropertySearchOrder>of());
         return ResponseEntity.ok(summaries);
+    }
+
+    /** Realm role of whoever may approve high-risk customers (see keycloak/generate_authz.py). */
+    private static final String KYC_APPROVER_ROLE = "KYC_APPROVER";
+
+    private static boolean hasRole(Authentication authentication, String role) {
+        String authority = "ROLE_" + role;  // realm roles, see KeycloakRoleConverter
+        return authentication != null
+                && authentication.getAuthorities().stream().anyMatch(a -> authority.equals(a.getAuthority()));
     }
 }

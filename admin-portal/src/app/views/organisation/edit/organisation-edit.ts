@@ -21,6 +21,7 @@ import { OrganisationDomain } from '@app/models/bw/co/knowvera/organisation/orga
 import { OrganisationDTO } from '@app/models/bw/co/knowvera/organisation/organisation-dto';
 import { PhoneNumber } from '@app/models/bw/co/knowvera/phone-number';
 import { PhoneType } from '@app/models/bw/co/knowvera/phone-type';
+import { OrganisationLegalForm } from '@app/models/bw/co/knowvera/organisation/organisation-legal-form';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { swalFire } from '@app/@shared/swal';
@@ -42,6 +43,11 @@ export class EditOrganisationVarsForm {
   code: string | any = '';
   name: string | any = '';
   countryOfRegistration: string | any = null;
+  tradingName: string | any = '';
+  natureOfBusiness: string | any = '';
+  legalForm: OrganisationLegalForm | any = null;
+  taxNumber: string | any = '';
+  vatNumber: string | any = '';
   description: string | any = null;
   phoneNumbers: Array<PhoneNumber> = [];
   contactEmailAddress: string | any = null;
@@ -124,6 +130,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   generalStatuses = Object.values(GeneralStatus);
   kycComplianceStatuses = Object.values(KycComplianceStatus);
   phoneTypes = Object.values(PhoneType);
+  legalForms = Object.values(OrganisationLegalForm);
   readonly breadcrumbLabel = 'Organisations';
 
   loaderState = inject(LoaderState);
@@ -141,6 +148,10 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
           registrationNo: item.registrationNo ?? '',
           code: item.code ?? '',
           name: item.name ?? '',
+          tradingName: item.tradingName ?? '',
+          natureOfBusiness: item.natureOfBusiness ?? '',
+          taxNumber: item.taxNumber ?? '',
+          vatNumber: item.vatNumber ?? '',
           domains: (item.domains || []).map((domain: any) => ({ ...domain, name: domain.name ?? '' })),
         } as any);
       }
@@ -176,6 +187,10 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
     formData.registrationNo = formData.registrationNo || null;
     formData.code = formData.code || null;
     formData.name = formData.name || null;
+    formData.tradingName = formData.tradingName || null;
+    formData.natureOfBusiness = formData.natureOfBusiness || null;
+    formData.taxNumber = formData.taxNumber || null;
+    formData.vatNumber = formData.vatNumber || null;
     formData.domains = (formData.domains || []).map((domain) => ({ ...domain, name: domain.name || null }));
     this.loaderState.message.set('Saving organisation');
     this.organisationApiStore.save({ organisation: formData as any });

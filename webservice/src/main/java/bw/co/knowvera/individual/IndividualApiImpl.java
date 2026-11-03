@@ -140,7 +140,8 @@ public class IndividualApiImpl implements IndividualApi {
                         org.getIsClient(),
                         org.getKeycloakId(),
                         org.getPhysicalAddress(),
-                        org.getPostalAddress());
+                        org.getPostalAddress(),
+                        org.getClosedAt());
 
                 data.setOrganisation(o);
             }

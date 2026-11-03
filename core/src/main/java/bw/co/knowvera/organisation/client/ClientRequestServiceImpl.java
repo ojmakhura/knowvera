@@ -9,6 +9,7 @@
 package bw.co.knowvera.organisation.client;
 
 import java.time.Duration;
+import bw.co.knowvera.retention.RecordRetention;
 import bw.co.knowvera.utils.RequestTokens;
 import bw.co.knowvera.PhoneNumber;
 import bw.co.knowvera.PhoneType;
@@ -100,6 +101,7 @@ public class ClientRequestServiceImpl
     private final SequenceGeneratorRepository sequenceGeneratorRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
     private final OrganisationRepository organisationRepository;
+    private final RecordRetention recordRetention;
 
     public ClientRequestServiceImpl(ClientRequestRepository clientRequestRepository,
             ClientRequestMapper clientRequestMapper,PasswordEncoder passwordEncoder,
@@ -107,7 +109,8 @@ public class ClientRequestServiceImpl
             IndividualMapper individualMapper, OrganisationRepository organisationRepository,
             SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorService sequenceGeneratorService,
             DocumentRepository documentRepository, DocumentMapper documentMapper,
-            SettingsRepository settingsRepository, SettingsMapper settingsMapper) {
+            SettingsRepository settingsRepository, SettingsMapper settingsMapper,
+            RecordRetention recordRetention) {
         super(clientRequestRepository, clientRequestMapper, individualRepository,
                 individualMapper, documentRepository, documentMapper, settingsRepository,
                 settingsMapper);
@@ -117,6 +120,7 @@ public class ClientRequestServiceImpl
         this.sequenceGeneratorRepository = sequenceGeneratorRepository;
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.organisationRepository = organisationRepository;
+        this.recordRetention = recordRetention;
     }
 
     /**
@@ -501,7 +505,18 @@ public class ClientRequestServiceImpl
             savedIndividual.setModifiedBy(user);
         }
 
+        // A returning customer starts a new relationship on their retained records
+        boolean reopened = savedIndividual.getClosedAt() != null;
+        if (reopened) {
+            savedIndividual.setClosedAt(null);
+            savedIndividual.setRetainUntil(null);
+        }
+
         savedIndividual = individualRepository.save(savedIndividual);
+
+        if (reopened) {
+            recordRetention.reopenKycRecords(TargetEntity.INDIVIDUAL, savedIndividual.getId().toString());
+        }
 
         // Create client request
         ClientRequest clientRequest = new ClientRequest();

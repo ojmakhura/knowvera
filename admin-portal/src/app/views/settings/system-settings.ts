@@ -52,6 +52,9 @@ export class EditSettingsVarsForm {
   modifiedAt: Date | any = null;
   modifiedBy: string | any = null;
   kycDuration: number | any = null;
+  mediumRiskKycDuration: number | any = null;
+  highRiskKycDuration: number | any = null;
+  highRiskCountriesText: string = '';
   timeToAccountCreation: number | any = null;
   platformName: string | any = null;
   platformUrl: string | any = null;
@@ -416,6 +419,9 @@ export class SystemSettings {
       modifiedAt: settings.modifiedAt,
       modifiedBy: settings.modifiedBy,
       kycDuration: settings.kycDuration,
+      mediumRiskKycDuration: settings.mediumRiskKycDuration,
+      highRiskKycDuration: settings.highRiskKycDuration,
+      highRiskCountriesText: (settings.highRiskCountries || []).join(', '),
       selectedOrgDocument: null,
       organisationDocuments: settings.organisationDocuments || [],
       selectedKycOrgDocument: null,
@@ -706,6 +712,12 @@ export class SystemSettings {
     settings.modifiedBy = value.modifiedBy;
     settings.id = value.id;
     settings.kycDuration = value.kycDuration;
+    settings.mediumRiskKycDuration = value.mediumRiskKycDuration;
+    settings.highRiskKycDuration = value.highRiskKycDuration;
+    settings.highRiskCountries = (value.highRiskCountriesText || '')
+      .split(',')
+      .map((country: string) => country.trim())
+      .filter((country: string) => country.length > 0);
     settings.organisationDocuments = value.organisationDocuments || [];
     settings.individualDocuments = value.individualDocuments || [];
     settings.indKycDocuments = value.indKycDocuments || [];

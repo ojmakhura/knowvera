@@ -182,7 +182,8 @@ export class InvoiceEdit implements OnInit {
           kycStatus: '',
           keycloakId: '',
           physicalAddress: '',
-          postalAddress: ''
+          postalAddress: '',
+          closedAt: null
         }]);
       }
     });
@@ -218,7 +219,8 @@ export class InvoiceEdit implements OnInit {
         kycStatus: org.kycStatus,
         keycloakId: org.keycloakId,
         physicalAddress: org.physicalAddress,
-        postalAddress: org.postalAddress
+        postalAddress: org.postalAddress,
+        closedAt: org.closedAt
       }]);
     });
 

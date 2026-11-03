@@ -150,6 +150,6 @@ class KeycloakUserServiceHelpersTest {
     }
 
     private static OrganisationListDTO organisation(String id, String name) {
-        return new OrganisationListDTO(id, null, name, null, null, null, null, false, null, "", "");
+        return new OrganisationListDTO(id, null, name, null, null, null, null, false, null, "", "", null);
     }
 }

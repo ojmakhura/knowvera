@@ -1,5 +1,6 @@
 package bw.co.knowvera.organisation;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -51,7 +52,8 @@ public class OrganisationListQueries extends ListProjection<Organisation, Organi
                 root.get("isClient").alias("isClient"),
                 root.get("keycloakId").alias("keycloakId"),
                 root.get("postalAddress").alias("postalAddress"),
-                root.get("physicalAddress").alias("physicalAddress"));
+                root.get("physicalAddress").alias("physicalAddress"),
+                root.get("closedAt").alias("closedAt"));
     }
 
     @Override
@@ -67,6 +69,7 @@ public class OrganisationListQueries extends ListProjection<Organisation, Organi
                 row.get("isClient", Boolean.class),
                 row.get("keycloakId", String.class),
                 row.get("postalAddress", String.class),
-                row.get("physicalAddress", String.class));
+                row.get("physicalAddress", String.class),
+                row.get("closedAt", LocalDateTime.class));
     }
 }

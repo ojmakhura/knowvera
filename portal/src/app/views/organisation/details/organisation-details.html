@@ -13,6 +13,11 @@
       <div class="min-w-0 flex flex-col gap-3">
         <div class="flex flex-wrap items-center gap-3">
           <h1 class="kv-title">{{ organisation()?.name || 'Organisation Profile' }}</h1>
+          @if (organisation()?.closedAt) {
+            <span class="dp-pill is-info" title="Records kept until {{ organisation()?.retainUntil | date:'mediumDate' }} (Financial Intelligence Act s.32)">
+              Closed {{ organisation()?.closedAt | date:'mediumDate' }}
+            </span>
+          }
           @if (organisation()?.code) {
             <span class="dp-code">{{ organisation()?.code }}</span>
           }
@@ -84,6 +89,22 @@
             <div class="kv-field">
               <dt class="kv-label">Jurisdiction</dt>
               <dd class="kv-value">{{ organisation()?.countryOfRegistration || '-' }}</dd>
+            </div>
+            <div class="kv-field">
+              <dt class="kv-label">Trading Name</dt>
+              <dd class="kv-value">{{ organisation()?.tradingName || '-' }}</dd>
+            </div>
+            <div class="kv-field">
+              <dt class="kv-label">Legal Form</dt>
+              <dd class="kv-value">{{ organisation()?.legalForm ? ('organisation.legal.form.' + organisation()?.legalForm | translate) : '-' }}</dd>
+            </div>
+            <div class="kv-field">
+              <dt class="kv-label">Nature of Business</dt>
+              <dd class="kv-value">{{ organisation()?.natureOfBusiness || '-' }}</dd>
+            </div>
+            <div class="kv-field">
+              <dt class="kv-label">Tax / VAT Number</dt>
+              <dd class="kv-value dp-mono">{{ organisation()?.taxNumber || '-' }} / {{ organisation()?.vatNumber || '-' }}</dd>
             </div>
             <div class="kv-field">
               <dt class="kv-label">Incorporation Date</dt>

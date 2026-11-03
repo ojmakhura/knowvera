@@ -112,6 +112,8 @@ export class Records implements OnInit {
     { label: 'Passport', value: IndividualIdentityType.PASSPORT },
     { label: 'Residence Permit', value: IndividualIdentityType.RESIDENCE_PERMIT },
     { label: 'Birth Certificate', value: IndividualIdentityType.BIRTH_CERTIFICATE },
+    { label: 'Refugee ID', value: IndividualIdentityType.REFUGEE_ID },
+    { label: "Driver's Licence", value: IndividualIdentityType.DRIVERS_LICENCE },
   ];
 
   readonly statusOptions = [
@@ -305,11 +307,13 @@ export class Records implements OnInit {
     }
 
     swalFire({
-      title: 'Delete Record',
-      text: `Are you sure you want to delete "${row.ref || row.ownerDetails?.name || 'this record'}"? This cannot be undone.`,
+      // The server closes the record and keeps it for 20 years (Financial Intelligence Act s.32);
+      // a closed record can only be deleted once that period has passed
+      title: 'Close Record',
+      text: `Close "${row.ref || row.ownerDetails?.name || 'this record'}"? It will be kept for 20 years as the Financial Intelligence Act requires, and cannot be deleted until then.`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Delete',
+      confirmButtonText: 'Close record',
       cancelButtonText: 'Cancel',
       reverseButtons: true,
     }).then((result) => {
@@ -391,6 +395,10 @@ export class Records implements OnInit {
         return 'Residence Permit';
       case IndividualIdentityType.BIRTH_CERTIFICATE:
         return 'Birth Certificate';
+      case IndividualIdentityType.REFUGEE_ID:
+        return 'Refugee ID';
+      case IndividualIdentityType.DRIVERS_LICENCE:
+        return "Driver's Licence";
       default:
         return 'Unknown';
     }

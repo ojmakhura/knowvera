@@ -94,11 +94,31 @@
         <mat-card-content>
           <div class="form-row">
             <mat-form-field appearance="outline" class="vault-field">
-              <mat-label>KYC Duration (days)</mat-label>
+              <mat-label>KYC Duration (years)</mat-label>
               <input matInput type="number" [formField]="editSettingsSignalForm.kycDuration" />
               @if (editSettingsSignalForm.kycDuration().invalid() && editSettingsSignalForm.kycDuration().touched()) {
                 <mat-error>{{ 'kyc.duration.required' | translate }}</mat-error>
               }
+              <mat-hint>Review period for low-risk customers</mat-hint>
+            </mat-form-field>
+
+            <!-- Higher-risk customers are reviewed sooner (FI Act s.19, Regulations r.16) -->
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-label>Medium-risk KYC Duration (years)</mat-label>
+              <input matInput type="number" [formField]="editSettingsSignalForm.mediumRiskKycDuration" />
+              <mat-hint>Blank: 2 years, or the low-risk period if shorter</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-label>High-risk KYC Duration (years)</mat-label>
+              <input matInput type="number" [formField]="editSettingsSignalForm.highRiskKycDuration" />
+              <mat-hint>Blank: 1 year</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="vault-field">
+              <mat-label>High-risk Countries</mat-label>
+              <input matInput type="text" [formField]="editSettingsSignalForm.highRiskCountriesText" />
+              <mat-hint>Comma separated, e.g. the FATF call-for-action list. Customers from these are high risk.</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="vault-field">

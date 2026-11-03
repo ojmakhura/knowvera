@@ -1,5 +1,7 @@
 package bw.co.knowvera.organisation.client;
 
+import bw.co.knowvera.kyc.KycRecordRepository;
+import bw.co.knowvera.retention.RecordRetention;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -52,6 +54,11 @@ import bw.co.knowvera.organisation.client.ClientRequestStatus;
 class ClientRequestServiceImplTest {
 
     @Mock
+
+    private KycRecordRepository kycRecordRepository;
+
+
+    @Mock
     private ClientRequestRepository clientRequestRepository;
     @Mock
     private ClientRequestMapper clientRequestMapper;
@@ -95,7 +102,8 @@ class ClientRequestServiceImplTest {
                 documentRepository,
                 documentMapper,
                 settingsRepository,
-                settingsMapper);
+                settingsMapper,
+                new RecordRetention(20, kycRecordRepository));
     }
 
     @Test

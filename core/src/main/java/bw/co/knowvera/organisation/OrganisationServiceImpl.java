@@ -8,6 +8,8 @@
  */
 package bw.co.knowvera.organisation;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -27,8 +29,10 @@ import org.springframework.stereotype.Service;
 import bw.co.knowvera.GeneralStatus;
 import bw.co.knowvera.PropertySearchOrder;
 import bw.co.knowvera.SearchObject;
+import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.kyc.KycComplianceStatus;
 import bw.co.knowvera.organisation.client.ClientRequestRepository;
+import bw.co.knowvera.retention.RecordRetention;
 
 /**
  * @see bw.co.knowvera.organisation.OrganisationService
@@ -41,11 +45,12 @@ public class OrganisationServiceImpl
     private final ClientRequestRepository clientRequestRepository;
     private final PasswordEncoder passwordEncoder;
     private final OrganisationListQueries organisationListQueries;
+    private final RecordRetention recordRetention;
 
 
     public OrganisationServiceImpl(OrganisationRepository organisationRepository, OrganisationMapper organisationMapper,
             ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder,
-            OrganisationListQueries organisationListQueries) {
+            OrganisationListQueries organisationListQueries, RecordRetention recordRetention) {
         super( organisationRepository, organisationMapper);
         this.organisationRepository = organisationRepository;
         // TODO Auto-generated constructor stub
@@ -53,6 +58,7 @@ public class OrganisationServiceImpl
         this.clientRequestRepository = clientRequestRepository;
         this.passwordEncoder = passwordEncoder;
         this.organisationListQueries = organisationListQueries;
+        this.recordRetention = recordRetention;
     }
 
     /**
@@ -98,12 +104,29 @@ public class OrganisationServiceImpl
     protected boolean handleRemove(String id)
             throws Exception {
 
-        if(organisationRepository.existsById(UUID.fromString(id))) {
-            organisationRepository.deleteById(UUID.fromString(id));
-            return true;
-        }   
+        Organisation organisation = organisationRepository.findById(UUID.fromString(id)).orElse(null);
 
-        return false;
+        if (organisation == null) {
+            return false;
+        }
+
+        // Removing ends the relationship; the records are kept for the retention period
+        if (organisation.getClosedAt() == null) {
+            LocalDateTime closedAt = LocalDateTime.now();
+            organisation.setClosedAt(closedAt);
+            organisation.setRetainUntil(recordRetention.retainUntil(closedAt));
+            organisationRepository.save(organisation);
+            recordRetention.closeKycRecords(TargetEntity.ORGANISATION, id, closedAt);
+            return true;
+        }
+
+        if (!recordRetention.mayDelete(organisation.getRetainUntil(), LocalDate.now())) {
+            throw new OrganisationServiceException(
+                    recordRetention.retainedMessage("Organisation " + id, organisation.getRetainUntil()));
+        }
+
+        organisationRepository.delete(organisation);
+        return true;
     }
 
     /**
@@ -114,9 +137,18 @@ public class OrganisationServiceImpl
             throws Exception {
 
         Organisation orgEntity = organisationMapper.organisationDTOToEntity(organisation);
-        orgEntity = organisationRepository.save(orgEntity); 
 
-        return organisationMapper.toOrganisationDTO(orgEntity);
+        // Closing is not editable through save: keep what is stored
+        if (orgEntity.getId() != null) {
+            organisationRepository.findById(orgEntity.getId()).ifPresent(existing -> {
+                orgEntity.setClosedAt(existing.getClosedAt());
+                orgEntity.setRetainUntil(existing.getRetainUntil());
+            });
+        }
+
+        Organisation saved = organisationRepository.save(orgEntity);
+
+        return organisationMapper.toOrganisationDTO(saved);
     }
 
     private Specification<Organisation> createSpecification(OrganisationSearchCriteria criteria) {

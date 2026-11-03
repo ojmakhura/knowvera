@@ -23,7 +23,7 @@ class RedisCacheConfigTest {
     }
 
     private static OrganisationListDTO organisation(String id) {
-        return new OrganisationListDTO(id, "CODE", "Name", "REG-1", null, null, null, true, "kc-1", "", "");
+        return new OrganisationListDTO(id, "CODE", "Name", "REG-1", null, null, null, true, "kc-1", "", "", null);
     }
 
     @Test

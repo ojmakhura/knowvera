@@ -225,6 +225,8 @@ export class Dashboard implements OnInit {
         return 'Pending Action';
       case KycComplianceStatus.DOCUMENT_VERIFICATION_FAILED:
         return 'Document Review';
+      case KycComplianceStatus.PENDING_APPROVAL:
+        return 'Awaiting Approval';
       default:
         return 'In Review';
     }

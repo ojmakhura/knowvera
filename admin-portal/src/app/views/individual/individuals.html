@@ -143,6 +143,9 @@
               <td>{{ row.emailAddress || '—' }}</td>
               <td>
                 <span class="vs-status" [class]="statusClass(row.kycStatus)">{{ statusLabel(row.kycStatus) }}</span>
+                @if (row.closedAt) {
+                  <span class="vs-status">Closed</span>
+                }
               </td>
               <td>
                 <div class="vs-row-actions">

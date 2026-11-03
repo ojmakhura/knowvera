@@ -1,5 +1,11 @@
 package bw.co.knowvera.organisation;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.never;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import bw.co.knowvera.kyc.KycRecordRepository;
+import bw.co.knowvera.retention.RecordRetention;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -43,6 +49,11 @@ import bw.co.knowvera.organisation.client.ClientRequestRepository;
 class OrganisationServiceImplTest {
 
     @Mock
+
+    private KycRecordRepository kycRecordRepository;
+
+
+    @Mock
     private OrganisationRepository organisationRepository;
     @Mock
     private OrganisationMapper organisationMapper;
@@ -62,7 +73,8 @@ class OrganisationServiceImplTest {
                 organisationMapper,
                 clientRequestRepository,
                 passwordEncoder,
-                organisationListQueries);
+                organisationListQueries,
+                new RecordRetention(20, kycRecordRepository));
     }
 
     @Test
@@ -82,7 +94,7 @@ class OrganisationServiceImplTest {
     @Test
     void removeReturnsFalseWhenOrganisationDoesNotExist() throws Exception {
         UUID id = UUID.randomUUID();
-        when(organisationRepository.existsById(id)).thenReturn(false);
+        when(organisationRepository.findById(id)).thenReturn(Optional.empty());
 
         boolean removed = service.remove(id.toString());
 
@@ -90,14 +102,45 @@ class OrganisationServiceImplTest {
     }
 
     @Test
-    void removeDeletesWhenOrganisationExists() throws Exception {
+    void removeClosesAnOpenOrganisationInsteadOfDeletingIt() throws Exception {
         UUID id = UUID.randomUUID();
-        when(organisationRepository.existsById(id)).thenReturn(true);
+        Organisation organisation = Organisation.Factory.newInstance();
 
-        boolean removed = service.remove(id.toString());
+        when(organisationRepository.findById(id)).thenReturn(Optional.of(organisation));
 
-        assertTrue(removed);
-        verify(organisationRepository).deleteById(id);
+        assertTrue(service.remove(id.toString()));
+
+        assertNotNull(organisation.getClosedAt());
+        assertEquals(LocalDate.now().plusYears(20), organisation.getRetainUntil());
+        verify(organisationRepository).save(organisation);
+        verify(organisationRepository, never()).delete(any(Organisation.class));
+        verify(kycRecordRepository).findAll(any(Specification.class));
+    }
+
+    @Test
+    void removeKeepsAClosedOrganisationUntilItsRetentionPeriodEnds() {
+        UUID id = UUID.randomUUID();
+        Organisation organisation = Organisation.Factory.newInstance();
+        organisation.setClosedAt(LocalDateTime.now().minusYears(1));
+        organisation.setRetainUntil(LocalDate.now().plusYears(19));
+
+        when(organisationRepository.findById(id)).thenReturn(Optional.of(organisation));
+
+        assertThrows(OrganisationServiceException.class, () -> service.remove(id.toString()));
+        verify(organisationRepository, never()).delete(any(Organisation.class));
+    }
+
+    @Test
+    void removeDeletesAClosedOrganisationAfterItsRetentionPeriod() throws Exception {
+        UUID id = UUID.randomUUID();
+        Organisation organisation = Organisation.Factory.newInstance();
+        organisation.setClosedAt(LocalDateTime.now().minusYears(21));
+        organisation.setRetainUntil(LocalDate.now().minusYears(1));
+
+        when(organisationRepository.findById(id)).thenReturn(Optional.of(organisation));
+
+        assertTrue(service.remove(id.toString()));
+        verify(organisationRepository).delete(organisation);
     }
 
     @Test

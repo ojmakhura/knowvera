@@ -54,11 +54,10 @@ public class UniversalStringMatcher {
 
     public double calculateFilteredSimilarity(String shortStr, String longStr) {
 
-        if(StringUtils.isNotBlank(shortStr) && StringUtils.isBlank(longStr)) {
+        if(StringUtils.isBlank(shortStr) && StringUtils.isBlank(longStr)) {
             return 1.0;
-        } else if(StringUtils.isBlank(shortStr) && StringUtils.isBlank(longStr)) {
-            return 1.0;
-        } else if(StringUtils.isBlank(shortStr) && StringUtils.isNotBlank(longStr)) {
+        } else if(StringUtils.isBlank(shortStr) || StringUtils.isBlank(longStr)) {
+            // A value compared with nothing is not a match, whichever side is blank
             return 0.0;
         }
 

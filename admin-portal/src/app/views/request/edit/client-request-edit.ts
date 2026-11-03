@@ -180,6 +180,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
         userCreated: individual.userCreated,
         physicalAddress: individual.physicalAddress,
         postalAddress: individual.postalAddress,
+        closedAt: individual.closedAt,
       }
 
       this.targetIndividualList.set([{
@@ -212,6 +213,7 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
         keycloakId: organisation.keycloakId,
         postalAddress: organisation.postalAddress,
         physicalAddress: organisation.physicalAddress,
+        closedAt: organisation.closedAt,
       }
 
       this.targetOrganisationList.set([{

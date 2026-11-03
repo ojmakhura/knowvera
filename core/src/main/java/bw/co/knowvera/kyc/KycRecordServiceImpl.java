@@ -46,6 +46,7 @@ import bw.co.knowvera.kyc.fields.KycReportSectionRepository;
 import bw.co.knowvera.kyc.fields.ValueData;
 import bw.co.knowvera.organisation.Organisation;
 import bw.co.knowvera.organisation.OrganisationRepository;
+import bw.co.knowvera.retention.RecordRetention;
 import bw.co.knowvera.sequence.SequenceGenerator;
 import bw.co.knowvera.sequence.SequenceGeneratorRepository;
 import bw.co.knowvera.sequence.SequenceGeneratorService;
@@ -68,6 +69,9 @@ public class KycRecordServiceImpl
 
     private static final String SEQUENCE_NAME = "KYC_RECORD_REF";
 
+    /** The user automated verification runs as (see KycVerificationService). */
+    private static final String AUTOMATED_USER = "AI-AGENT";
+
     private final IndividualRepository individualRepository;
     private final OrganisationRepository organisationRepository;
     private final SettingsRepository settingsRepository;
@@ -76,6 +80,8 @@ public class KycRecordServiceImpl
     private final SequenceGeneratorRepository sequenceGeneratorRepository;
     private final SequenceGeneratorService sequenceGeneratorService;
     private final KycReportSectionRepository kycReportSectionRepository;
+    private final RecordRetention recordRetention;
+    private final RiskAssessor riskAssessor;
 
     public KycRecordServiceImpl(KycRecordRepository kycRecordRepository,
             KycRecordMapper kycRecordMapper,
@@ -85,7 +91,9 @@ public class KycRecordServiceImpl
             SequenceGeneratorRepository sequenceGeneratorRepository,
             SequenceGeneratorService sequenceGeneratorService,
             KycReportSectionRepository kycReportSectionRepository,
-            OrganisationRepository organisationRepository) {
+            OrganisationRepository organisationRepository,
+            RecordRetention recordRetention,
+            RiskAssessor riskAssessor) {
         super(kycRecordRepository, kycRecordMapper);
         // TODO Auto-generated constructor stub
         this.individualRepository = individualRepository;
@@ -96,6 +104,87 @@ public class KycRecordServiceImpl
         this.sequenceGeneratorRepository = sequenceGeneratorRepository;
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.kycReportSectionRepository = kycReportSectionRepository;
+        this.recordRetention = recordRetention;
+        this.riskAssessor = riskAssessor;
+    }
+
+    /**
+     * Closing and review are recorded by the service, never taken from a client: keep what is
+     * stored when an existing record is saved.
+     */
+    private void keepServerOwnedFields(KycRecord kycRecord) {
+
+        if (kycRecord.getId() == null) {
+            return;
+        }
+
+        kycRecordRepository.findById(kycRecord.getId()).ifPresent(existing -> {
+            kycRecord.setClosedAt(existing.getClosedAt());
+            kycRecord.setRetainUntil(existing.getRetainUntil());
+            kycRecord.setReviewedBy(existing.getReviewedBy());
+            kycRecord.setReviewedAt(existing.getReviewedAt());
+            kycRecord.setRiskLevel(existing.getRiskLevel());
+            kycRecord.setRiskFactors(existing.getRiskFactors());
+            kycRecord.setApprovedBy(existing.getApprovedBy());
+            kycRecord.setApprovedAt(existing.getApprovedAt());
+        });
+    }
+
+    /**
+     * Rates the customer's risk from the record and its owner, marks the beneficial owners among
+     * the related parties and brings the review date forward to match the risk. An approval no
+     * longer stands once the risk factors it was given for have changed.
+     */
+    private void assessRisk(KycRecord kycRecord, Settings settings) {
+
+        Individual individual = null;
+        Organisation organisation = null;
+
+        if (StringUtils.isNotBlank(kycRecord.getTargetId())) {
+            if (kycRecord.getTarget() == TargetEntity.INDIVIDUAL) {
+                individual = individualRepository.findById(UUID.fromString(kycRecord.getTargetId())).orElse(null);
+            } else if (kycRecord.getTarget() == TargetEntity.ORGANISATION) {
+                organisation = organisationRepository.findById(UUID.fromString(kycRecord.getTargetId())).orElse(null);
+            }
+        }
+
+        // Link related parties to their own individual records, whose KYC can then be followed
+        if (kycRecord.getRelatedParties() != null) {
+            for (RelatedParty party : kycRecord.getRelatedParties()) {
+                if (StringUtils.isBlank(party.getIndividualId()) && StringUtils.isNotBlank(party.getIdentityNo())
+                        && party.getIdentityType() != null) {
+                    individualRepository.findByIdentityNoAndIdentityType(party.getIdentityNo(), party.getIdentityType())
+                            .ifPresent(linked -> party.setIndividualId(linked.getId().toString()));
+                }
+            }
+        }
+
+        riskAssessor.markBeneficialOwners(kycRecord.getRelatedParties());
+        RiskAssessor.Assessment assessment = riskAssessor.assess(kycRecord, individual, organisation, settings);
+
+        if (kycRecord.getApprovedBy() != null && !Objects.equals(kycRecord.getRiskFactors(), assessment.factors())) {
+            kycRecord.setApprovedBy(null);
+            kycRecord.setApprovedAt(null);
+        }
+
+        kycRecord.setRiskLevel(assessment.level());
+        kycRecord.setRiskFactors(new ArrayList<>(assessment.factors()));
+
+        if (kycRecord.getUploadDate() != null) {
+            kycRecord.setExpiryDate(riskAssessor.expiryFor(kycRecord.getUploadDate(), kycRecord.getExpiryDate(),
+                    assessment.level(), settings));
+        }
+    }
+
+    /**
+     * The status of a record that has passed its checks: high-risk customers need a KYC
+     * approver's sign-off first (FI Act s.20(1)(d) and s.22: senior management approval).
+     */
+    private static KycComplianceStatus passedStatus(KycRecord kycRecord) {
+
+        return kycRecord.getRiskLevel() == RiskLevel.HIGH && kycRecord.getApprovedBy() == null
+                ? KycComplianceStatus.PENDING_APPROVAL
+                : KycComplianceStatus.CURRENT;
     }
 
     /**
@@ -125,6 +214,7 @@ public class KycRecordServiceImpl
 
         KycRecord kycRecordEntity = this.kycRecordMapper.kycRecordDTOToEntity(kycRecord);
         kycRecordEntity.setEmploymentRecord(null);
+        keepServerOwnedFields(kycRecordEntity);
 
         if (kycRecordEntity.getUploadDate() == null) {
             kycRecordEntity.setUploadDate(LocalDate.now());
@@ -136,6 +226,7 @@ public class KycRecordServiceImpl
         }
 
         this.checkRef(kycRecordEntity);
+        assessRisk(kycRecordEntity, settings);
 
         kycRecordEntity = this.kycRecordRepository.save(kycRecordEntity);
         updateOwnerStatus(kycRecordEntity);
@@ -150,13 +241,24 @@ public class KycRecordServiceImpl
     protected boolean handleRemove(String id)
             throws Exception {
 
-        if (!kycRecordRepository.existsById(UUID.fromString(id))) {
+        KycRecord kycRecord = kycRecordRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + id));
 
-            throw new KycRecordServiceException("KycRecord not found for id: " + id);
-
+        // Removing ends the relationship; the record is kept for the retention period
+        if (kycRecord.getClosedAt() == null) {
+            LocalDateTime closedAt = LocalDateTime.now();
+            kycRecord.setClosedAt(closedAt);
+            kycRecord.setRetainUntil(recordRetention.retainUntil(closedAt));
+            kycRecordRepository.save(kycRecord);
+            return true;
         }
 
-        kycRecordRepository.deleteById(UUID.fromString(id));
+        if (!recordRetention.mayDelete(kycRecord.getRetainUntil(), LocalDate.now())) {
+            throw new KycRecordServiceException(
+                    recordRetention.retainedMessage("KYC record " + id, kycRecord.getRetainUntil()));
+        }
+
+        kycRecordRepository.delete(kycRecord);
         return true;
 
     }
@@ -388,7 +490,10 @@ public class KycRecordServiceImpl
         record.setCreatedBy(user);
         record.setUploadDate(LocalDate.now());
         record.setKycStatus(KycComplianceStatus.INCOMPLETE);
-        record.setExpiryDate(record.getUploadDate().plusDays(settings.getKycDuration()));
+        int kycDuration = settings.getKycDuration() != null ? settings.getKycDuration() : 2; // Default to 2 years if
+                                                                                             // not set
+        record.setExpiryDate(record.getUploadDate().plusYears(kycDuration));
+        assessRisk(record, settings);
 
         record = this.kycRecordRepository.save(record);
         updateOwnerStatus(record);
@@ -527,6 +632,7 @@ public class KycRecordServiceImpl
         }
 
         KycRecord kycRecord = this.kycRecordMapper.kycRecordDTOToEntity(record);
+        keepServerOwnedFields(kycRecord);
         Collection<Document> docs = kycRecord.getDocuments();
         kycRecord.setDocuments(new ArrayList<>()); // Detach documents to avoid persistence issues, we'll handle them
                                                    // after saving the KYC record
@@ -535,10 +641,13 @@ public class KycRecordServiceImpl
             kycRecord.setUploadDate(LocalDate.now());
         }
 
-        if (kycRecord.getExpiryDate() == null) {
-            Settings settings = this.settingsRepository.findAll().stream().findFirst()
-                    .orElseThrow(() -> new Exception("Settings not found"));
+        // Settings are only required to work out a missing expiry date; risk is assessed without them
+        Settings settings = this.settingsRepository.findAll().stream().findFirst().orElse(null);
 
+        if (kycRecord.getExpiryDate() == null) {
+            if (settings == null) {
+                throw new Exception("Settings not found");
+            }
             int kycDuration = settings.getKycDuration() != null ? settings.getKycDuration() : 2; // Default to 2 years
                                                                                                  // if
                                                                                                  // not set
@@ -547,6 +656,7 @@ public class KycRecordServiceImpl
         }
 
         this.checkRef(kycRecord);
+        assessRisk(kycRecord, settings);
 
         kycRecord = this.kycRecordRepository.save(kycRecord);
         updateOwnerStatus(kycRecord);
@@ -719,7 +829,7 @@ public class KycRecordServiceImpl
                                 .allMatch(summary -> summary.verificationStatus() == DataVerificationStatus.VERIFIED);
 
                         if (allValid) {
-                            kycRecord.setKycStatus(KycComplianceStatus.CURRENT);
+                            kycRecord.setKycStatus(passedStatus(kycRecord));
                         } else {
 
                             boolean hasUnverified = kycRecord.getDataVerificationSummaries().stream()
@@ -810,6 +920,8 @@ public class KycRecordServiceImpl
 
         KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + id));
+
+        assessRisk(kycRecord, settings);
 
         // Clean up existing report sections to avoid duplication when regenerating the
         // report
@@ -935,7 +1047,7 @@ public class KycRecordServiceImpl
         kycRecord.setModifiedBy(user);
 
         if (allDocsVerified) {
-            kycRecord.setKycStatus(KycComplianceStatus.CURRENT);
+            kycRecord.setKycStatus(passedStatus(kycRecord));
         } else {
 
             if (hasRejectedDocuments) {
@@ -960,6 +1072,23 @@ public class KycRecordServiceImpl
         kycRecord.setKycStatus(kycStatus);
         kycRecord.setModifiedAt(LocalDateTime.now());
         kycRecord.setModifiedBy(user);
+
+        boolean person = StringUtils.isNotBlank(user) && !AUTOMATED_USER.equals(user);
+
+        // A person setting the status is the reviewer who made the decision
+        if (person) {
+            kycRecord.setReviewedBy(user);
+            kycRecord.setReviewedAt(kycRecord.getModifiedAt());
+        }
+
+        // Making a high-risk record current is the approval; the API lets only KYC approvers do it
+        if (kycStatus == KycComplianceStatus.CURRENT && kycRecord.getRiskLevel() == RiskLevel.HIGH) {
+            if (!person) {
+                throw new KycRecordServiceException("A high-risk KYC record needs a KYC approver's sign-off");
+            }
+            kycRecord.setApprovedBy(user);
+            kycRecord.setApprovedAt(kycRecord.getModifiedAt());
+        }
 
         kycRecord = this.kycRecordRepository.save(kycRecord);
         updateOwnerStatus(kycRecord);

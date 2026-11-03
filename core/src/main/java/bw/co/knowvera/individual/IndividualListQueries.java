@@ -1,5 +1,6 @@
 package bw.co.knowvera.individual;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -52,7 +53,8 @@ public class IndividualListQueries extends ListProjection<Individual, Individual
                 root.get("pepStatus").alias("pepStatus"),
                 root.get("userCreated").alias("userCreated"),
                 root.get("physicalAddress").alias("physicalAddress"),
-                root.get("postalAddress").alias("postalAddress"));
+                root.get("postalAddress").alias("postalAddress"),
+                root.get("closedAt").alias("closedAt"));
     }
 
     @Override
@@ -69,6 +71,7 @@ public class IndividualListQueries extends ListProjection<Individual, Individual
                 row.get("pepStatus", PepStatus.class),
                 row.get("userCreated", Boolean.class),
                 row.get("physicalAddress", String.class),
-                row.get("postalAddress", String.class));
+                row.get("postalAddress", String.class),
+                row.get("closedAt", LocalDateTime.class));
     }
 }

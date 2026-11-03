@@ -1,5 +1,8 @@
 package bw.co.knowvera.kyc;
 
+import bw.co.knowvera.kyc.KycComplianceStatus;
+import static org.mockito.Mockito.never;
+import bw.co.knowvera.retention.RecordRetention;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -88,7 +91,9 @@ class KycRecordServiceImplTest {
             sequenceGeneratorRepository,
             sequenceGeneratorService,
             kycReportSectionRepository,
-            organisationRepository);
+            organisationRepository,
+            new RecordRetention(20, kycRecordRepository),
+            new RiskAssessor());
         
     }
 
@@ -154,20 +159,141 @@ class KycRecordServiceImplTest {
     }
 
     @Test
-    void removeDeletesByIdWhenRecordExists() throws Exception {
+    void removeClosesAnOpenRecordInsteadOfDeletingIt() throws Exception {
         UUID id = UUID.randomUUID();
-        when(kycRecordRepository.existsById(id)).thenReturn(true);
+        KycRecord record = KycRecord.Factory.newInstance();
 
-        boolean removed = service.remove(id.toString());
+        when(kycRecordRepository.findById(id)).thenReturn(Optional.of(record));
 
-        assertTrue(removed);
-        verify(kycRecordRepository).deleteById(id);
+        assertTrue(service.remove(id.toString()));
+
+        assertNotNull(record.getClosedAt());
+        assertEquals(LocalDate.now().plusYears(20), record.getRetainUntil());
+        verify(kycRecordRepository).save(record);
+        verify(kycRecordRepository, never()).delete(any(KycRecord.class));
+    }
+
+    @Test
+    void removeKeepsAClosedRecordUntilItsRetentionPeriodEnds() {
+        UUID id = UUID.randomUUID();
+        KycRecord record = KycRecord.Factory.newInstance();
+        record.setClosedAt(LocalDateTime.now().minusYears(1));
+        record.setRetainUntil(LocalDate.now().plusYears(19));
+
+        when(kycRecordRepository.findById(id)).thenReturn(Optional.of(record));
+
+        assertThrows(KycRecordServiceException.class, () -> service.remove(id.toString()));
+        verify(kycRecordRepository, never()).delete(any(KycRecord.class));
+    }
+
+    @Test
+    void removeDeletesAClosedRecordAfterItsRetentionPeriod() throws Exception {
+        UUID id = UUID.randomUUID();
+        KycRecord record = KycRecord.Factory.newInstance();
+        record.setClosedAt(LocalDateTime.now().minusYears(21));
+        record.setRetainUntil(LocalDate.now().minusYears(1));
+
+        when(kycRecordRepository.findById(id)).thenReturn(Optional.of(record));
+
+        assertTrue(service.remove(id.toString()));
+        verify(kycRecordRepository).delete(record);
+    }
+
+    @Test
+    void updateStatusRecordsAPersonAsTheReviewer() throws Exception {
+        UUID id = UUID.randomUUID();
+        KycRecord record = newKycRecord(TargetEntity.INDIVIDUAL, UUID.randomUUID());
+        record.setId(id);
+
+        when(kycRecordRepository.findById(id)).thenReturn(Optional.of(record));
+        when(kycRecordRepository.save(record)).thenReturn(record);
+
+        service.updateStatus(id.toString(), KycComplianceStatus.CURRENT, "compliance.officer");
+
+        assertEquals("compliance.officer", record.getReviewedBy());
+        assertNotNull(record.getReviewedAt());
+    }
+
+    @Test
+    void updateStatusByAutomatedVerificationIsNotAReview() throws Exception {
+        UUID id = UUID.randomUUID();
+        KycRecord record = newKycRecord(TargetEntity.INDIVIDUAL, UUID.randomUUID());
+        record.setId(id);
+
+        when(kycRecordRepository.findById(id)).thenReturn(Optional.of(record));
+        when(kycRecordRepository.save(record)).thenReturn(record);
+
+        service.updateStatus(id.toString(), KycComplianceStatus.CURRENT, "AI-AGENT");
+
+        assertNull(record.getReviewedBy());
+    }
+
+    @Test
+    void updateStatusByAPersonApprovesAHighRiskRecord() throws Exception {
+        UUID id = UUID.randomUUID();
+        KycRecord record = newKycRecord(TargetEntity.INDIVIDUAL, UUID.randomUUID());
+        record.setId(id);
+        record.setRiskLevel(RiskLevel.HIGH);
+
+        when(kycRecordRepository.findById(id)).thenReturn(Optional.of(record));
+        when(kycRecordRepository.save(record)).thenReturn(record);
+
+        service.updateStatus(id.toString(), KycComplianceStatus.CURRENT, "kyc.approver");
+
+        assertEquals(KycComplianceStatus.CURRENT, record.getKycStatus());
+        assertEquals("kyc.approver", record.getApprovedBy());
+        assertNotNull(record.getApprovedAt());
+    }
+
+    @Test
+    void automatedVerificationCannotApproveAHighRiskRecord() {
+        UUID id = UUID.randomUUID();
+        KycRecord record = newKycRecord(TargetEntity.INDIVIDUAL, UUID.randomUUID());
+        record.setId(id);
+        record.setRiskLevel(RiskLevel.HIGH);
+
+        when(kycRecordRepository.findById(id)).thenReturn(Optional.of(record));
+
+        assertThrows(KycRecordServiceException.class,
+                () -> service.updateStatus(id.toString(), KycComplianceStatus.CURRENT, "AI-AGENT"));
+        assertNull(record.getApprovedBy());
+    }
+
+    @Test
+    void saveKeepsTheStoredClosingAndReview() throws Exception {
+        UUID id = UUID.randomUUID();
+        KycRecord stored = newKycRecord(TargetEntity.INDIVIDUAL, UUID.randomUUID());
+        stored.setId(id);
+        stored.setClosedAt(LocalDateTime.now().minusDays(1));
+        stored.setRetainUntil(LocalDate.now().plusYears(20));
+        stored.setReviewedBy("compliance.officer");
+
+        KycRecord incoming = newKycRecord(TargetEntity.INDIVIDUAL, UUID.randomUUID());
+        incoming.setId(id);
+        incoming.setRef("KYC-1");
+        KycRecordDTO dto = new KycRecordDTO();
+        dto.setKycStatus(KycComplianceStatus.INCOMPLETE);
+        dto.setTarget(TargetEntity.INDIVIDUAL);
+        dto.setTargetId(incoming.getTargetId());
+        dto.setSourceOfFunds(List.of(SourceOfFunds.SALARY));
+        dto.setOwnerDetails(new OwnerDetails());
+
+        when(settingsRepository.findAll()).thenReturn(List.of(Settings.Factory.newInstance()));
+        when(kycRecordMapper.kycRecordDTOToEntity(dto)).thenReturn(incoming);
+        when(kycRecordRepository.findById(id)).thenReturn(Optional.of(stored));
+        when(kycRecordRepository.save(incoming)).thenReturn(incoming);
+
+        service.save(dto);
+
+        assertEquals(stored.getClosedAt(), incoming.getClosedAt());
+        assertEquals(stored.getRetainUntil(), incoming.getRetainUntil());
+        assertEquals("compliance.officer", incoming.getReviewedBy());
     }
 
     @Test
     void removeThrowsWhenRecordMissing() {
         UUID id = UUID.randomUUID();
-        when(kycRecordRepository.existsById(id)).thenReturn(false);
+        when(kycRecordRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(KycRecordServiceException.class, () -> service.remove(id.toString()));
     }
@@ -385,7 +511,7 @@ class KycRecordServiceImplTest {
     void createTargetRecordBuildsAndPersistsNewRecord() throws Exception {
         UUID ownerId = UUID.randomUUID();
         Settings settings = Settings.Factory.newInstance();
-        settings.setKycDuration(30);
+        settings.setKycDuration(3);
 
         KycRecord saved = newKycRecord(TargetEntity.INDIVIDUAL, ownerId);
         saved.setId(UUID.randomUUID());
@@ -403,6 +529,11 @@ class KycRecordServiceImplTest {
         KycRecordDTO result = service.createTargetRecord(ownerId.toString(), TargetEntity.INDIVIDUAL, "maker");
 
         assertSame(expected, result);
+
+        ArgumentCaptor<KycRecord> captor = ArgumentCaptor.forClass(KycRecord.class);
+        verify(kycRecordRepository).save(captor.capture());
+        // KYC duration is in years, matching save and createNew
+        assertEquals(LocalDate.now().plusYears(3), captor.getValue().getExpiryDate());
     }
 
     @Test

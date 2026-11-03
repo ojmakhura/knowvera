@@ -26,6 +26,9 @@
             >
               {{ record().kycStatus || 'UNKNOWN' }}
             </span>
+            @if (record().closedAt) {
+              <span class="dp-pill is-info" translate>record.closed</span>
+            }
           }
         </div>
 
@@ -159,7 +162,7 @@
         </section>
 
         <!-- Compliance summary -->
-        @if (record().sourceOfFunds?.length || record().declaration) {
+        @if (record().sourceOfFunds?.length || record().wealthSources?.length || record().relatedParties?.length || record().declaration) {
           <section class="kv-card">
             <div class="kv-card-header dp-head">
               <span class="dp-icon-tile is-success"><mat-icon>fact_check</mat-icon></span>
@@ -183,6 +186,20 @@
               </div>
             }
 
+            @if (record().wealthSources?.length) {
+              <div class="kv-field mb-4">
+                <p class="kv-label" translate>wealth.sources</p>
+                <div class="flex flex-wrap gap-2">
+                  @for (source of record().wealthSources; track source) {
+                    <span class="kv-tag">{{ 'source.of.wealth.' + source | translate }}</span>
+                  }
+                </div>
+                @if (record().sourceOfWealthDetails) {
+                  <p class="text-sm text-on-surface-variant mt-2" [innerHTML]="record().sourceOfWealthDetails"></p>
+                }
+              </div>
+            }
+
             @if (record().declaration) {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div class="kv-panel kv-field">
@@ -200,6 +217,43 @@
                   }
                 </div>
               </div>
+            }
+
+            @if (record().relatedParties?.length) {
+              <div class="kv-field mt-3">
+                <p class="kv-label">Owners, Managers &amp; Signatories</p>
+                <ul class="flex flex-col gap-1.5">
+                  @for (party of record().relatedParties; track $index) {
+                    <li class="text-sm text-on-surface-variant">
+                      <span class="text-on-surface font-medium">{{ party.name || '—' }}</span>
+                      · {{ party.role ? ('related.party.role.' + party.role | translate) : '—' }}
+                      @if (party.ownershipPercentage != null) { · {{ party.ownershipPercentage }}% }
+                      @if (party.beneficialOwner) { <span class="kv-tag ml-1">Beneficial owner</span> }
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+
+            <!-- Who collected and who decided (Financial Intelligence Act s.31) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+              <div class="kv-panel kv-field">
+                <p class="kv-label" translate>collected.by</p>
+                <p class="kv-value">{{ record().createdBy || '—' }}</p>
+              </div>
+              <div class="kv-panel kv-field">
+                <p class="kv-label" translate>reviewed.by</p>
+                <p class="kv-value">{{ record().reviewedBy || '—' }}</p>
+                @if (record().reviewedAt) {
+                  <p class="text-xs text-on-surface-variant">{{ record().reviewedAt | date:'medium' }}</p>
+                }
+              </div>
+            </div>
+
+            @if (record().closedAt) {
+              <p class="text-sm text-on-surface-variant mt-3">
+                {{ 'record.closed.notice' | translate: { closedAt: (record().closedAt | date:'mediumDate'), retainUntil: (record().retainUntil | date:'mediumDate') } }}
+              </p>
             }
           </section>
         }

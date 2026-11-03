@@ -1,5 +1,6 @@
 package bw.co.knowvera.document.processor;
 
+import bw.co.knowvera.settings.ProcessingTools;
 import java.util.List;
 
 import bw.co.knowvera.properties.RabbitProperties;
@@ -47,10 +48,12 @@ public class TextProcessingService {
   private final RabbitProperties rabbitProperties;
   private final GeminiService geminiService;
   private final SettingsService settingsService;
+  private final ProcessingTools processingTools;
 
   public TextProcessingService(DocumentService documentService, LmStudioExtractorService lmStudioExtractorService,
       JsonMapper jsonMapper, DocumentProcessorService documentProcessorService, RabbitTemplate rabbitTemplate,
-      RabbitProperties rabbitProperties, GeminiService geminiService, SettingsService settingsService) {
+      RabbitProperties rabbitProperties, GeminiService geminiService, SettingsService settingsService,
+      ProcessingTools processingTools) {
     this.documentService = documentService;
     this.lmStudioExtractorService = lmStudioExtractorService;
     this.jsonMapper = jsonMapper;
@@ -59,6 +62,7 @@ public class TextProcessingService {
     this.rabbitProperties = rabbitProperties;
     this.geminiService = geminiService;
     this.settingsService = settingsService;
+    this.processingTools = processingTools;
   }
 
   private final String initialPrompt = """
@@ -109,11 +113,13 @@ public class TextProcessingService {
         return;
       }
 
-      if (textProcessingTools.get(0).getTool() == Tool.LM_STUDIO) {
+      Tool processingTool = processingTools.first(textProcessingTools);
+
+      if (processingTool == Tool.LM_STUDIO) {
 
         lmStudioProcessor(document, extractedText);
 
-      } else if (textProcessingTools.get(0).getTool() == Tool.GEMINI) {
+      } else if (processingTool == Tool.GEMINI) {
 
         geminiProcessor(document, extractedText);
 
@@ -259,9 +265,11 @@ public class TextProcessingService {
       SettingsDTO settings = settingsService.loadSettings();
       List<ToolSelectorDTO> textCleanupTools = settings.getTextCleanupTools();
 
-      if (textCleanupTools.get(0).getTool() == Tool.LM_STUDIO) {
+      Tool cleanupTool = processingTools.first(textCleanupTools);
+
+      if (cleanupTool == Tool.LM_STUDIO) {
         lmStudioProcessorForCleanup(document, finalPrompt);
-      } else if (textCleanupTools.get(0).getTool() == Tool.GEMINI) {
+      } else if (cleanupTool == Tool.GEMINI) {
         geminiProcessorForCleanup(document, finalPrompt);
       } else {
         log.warn("No valid text cleanup tool configured for document ID: {}", queueObject.objectId());

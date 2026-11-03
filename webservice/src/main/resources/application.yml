@@ -217,6 +217,13 @@ app:
     # Automated checks may mark documents VERIFIED on their own (type match and data score);
     # off: passing documents go to MANUAL_REVIEW for a KYC reviewer
     auto-verify: ${DOCUMENT_AUTO_VERIFY:false}
+  processing:
+    # Documents never leave the deployment: cloud tools (Gemini) are skipped even when configured,
+    # text extraction falls back to OCR (Data Protection Act 2024 ss.74-76, transfers outside Botswana)
+    local-only: ${PROCESSING_LOCAL_ONLY:false}
+  retention:
+    # Years a closed relationship's records are kept (Financial Intelligence Act 2022 s.32)
+    years: ${RECORD_RETENTION_YEARS:20}
   keycloak:
     # Keycloak Authorization Services for the API client: the caller's permissions (SCOPE_*
     # authorities), cached per token in the two-level cache (Caffeine, then Redis; AuthzCache)
