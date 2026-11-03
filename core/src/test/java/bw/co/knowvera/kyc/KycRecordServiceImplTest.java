@@ -1,7 +1,10 @@
 package bw.co.knowvera.kyc;
 
+import bw.co.knowvera.screening.ScreeningHitRepository;
+import bw.co.knowvera.screening.ScreeningService;
 import bw.co.knowvera.kyc.KycComplianceStatus;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.atLeastOnce;
 import bw.co.knowvera.retention.RecordRetention;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -61,6 +64,16 @@ import bw.co.knowvera.user.UserDTO;
 class KycRecordServiceImplTest {
 
     @Mock
+
+    private ScreeningHitRepository screeningHitRepository;
+
+
+    @Mock
+
+    private ScreeningService screeningService;
+
+
+    @Mock
     private KycRecordRepository kycRecordRepository;
     @Mock
     private KycRecordMapper kycRecordMapper;
@@ -93,7 +106,9 @@ class KycRecordServiceImplTest {
             kycReportSectionRepository,
             organisationRepository,
             new RecordRetention(20, kycRecordRepository),
-            new RiskAssessor());
+            new RiskAssessor(),
+            screeningHitRepository,
+            screeningService);
         
     }
 
@@ -530,10 +545,11 @@ class KycRecordServiceImplTest {
 
         assertSame(expected, result);
 
+        // Saved, then saved again once screened and rated
         ArgumentCaptor<KycRecord> captor = ArgumentCaptor.forClass(KycRecord.class);
-        verify(kycRecordRepository).save(captor.capture());
+        verify(kycRecordRepository, atLeastOnce()).save(captor.capture());
         // KYC duration is in years, matching save and createNew
-        assertEquals(LocalDate.now().plusYears(3), captor.getValue().getExpiryDate());
+        assertEquals(LocalDate.now().plusYears(3), captor.getAllValues().get(0).getExpiryDate());
     }
 
     @Test

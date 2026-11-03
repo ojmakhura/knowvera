@@ -18,6 +18,8 @@ import bw.co.knowvera.individual.IndividualIdentityType;
 import bw.co.knowvera.individual.PepStatus;
 import bw.co.knowvera.organisation.Organisation;
 import bw.co.knowvera.organisation.OrganisationLegalForm;
+import bw.co.knowvera.screening.ScreeningHit;
+import bw.co.knowvera.screening.ScreeningHitStatus;
 import bw.co.knowvera.settings.Settings;
 
 /**
@@ -76,11 +78,23 @@ public class RiskAssessor {
     /**
      * @param individual the record's owner when it is an individual, otherwise null
      * @param organisation the record's owner when it is an organisation, otherwise null
+     * @param hits the record's sanctions screening hits
      */
-    public Assessment assess(KycRecord record, Individual individual, Organisation organisation, Settings settings) {
+    public Assessment assess(KycRecord record, Individual individual, Organisation organisation, Settings settings,
+            Collection<ScreeningHit> hits) {
 
         Factors factors = new Factors();
         Set<String> highRiskCountries = highRiskCountries(settings);
+
+        for (ScreeningHit hit : hits == null ? List.<ScreeningHit>of() : hits) {
+            if (hit.getStatus() == ScreeningHitStatus.CONFIRMED) {
+                factors.add(RiskLevel.HIGH, "Confirmed sanctions list match: " + hit.getSubjectName() + " is "
+                        + hit.getEntryReference() + " (FI Act s.27: no business relationship is permitted)");
+            } else if (hit.getStatus() == ScreeningHitStatus.PENDING) {
+                factors.add(RiskLevel.HIGH, "Potential sanctions list match awaiting review: " + hit.getSubjectName()
+                        + " / " + hit.getEntryReference());
+            }
+        }
 
         if (Boolean.TRUE.equals(record.getSanctionsMatch())) {
             factors.add(RiskLevel.HIGH, "Declared sanctions match: no business relationship is permitted with a designated person (FI Act s.27)");

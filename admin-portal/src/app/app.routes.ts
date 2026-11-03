@@ -58,6 +58,13 @@ export const routes: Routes = [
       import('./views/records/records.routes').then((module) => module.recordsRoutes),
   },
   {
+    // Sanctions screening and suspicious transaction cases
+    path: 'compliance',
+    canActivate: [AuthenticationGuard],
+    loadChildren: () =>
+      import('./views/compliance/compliance.routes').then((module) => module.complianceRoutes),
+  },
+  {
     path: 'kyc',
     canActivate: [AuthenticationGuard],
     loadChildren: () =>

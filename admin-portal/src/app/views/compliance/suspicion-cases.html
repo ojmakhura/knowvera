@@ -1,0 +1,57 @@
+<div class="kv-page">
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/compliance/suspicion-cases">Suspicion Cases</a>
+    </nav>
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">Suspicion Cases</h1>
+        <p class="kv-subtitle">
+          Confidential. Report to the FIA within 5 working days of the suspicion arising; never let the customer know (FI Act s.46).
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <section class="vs-results">
+    <div class="vs-results-head">
+      <h2 class="vs-results-title">Active Cases</h2>
+      <span class="vs-count">{{ cases().length }}</span>
+    </div>
+    <div class="vs-table-wrap">
+      <table class="vs-table">
+        <thead>
+          <tr>
+            <th>Case</th>
+            <th>Subject</th>
+            <th>Cause</th>
+            <th>Status</th>
+            <th>Report due</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (suspicion of cases(); track suspicion.id) {
+            <tr>
+              <td><a class="dp-mono" [routerLink]="['/compliance/suspicion-cases', suspicion.id]">{{ suspicion.ref }}</a></td>
+              <td>{{ suspicion.subjectName }}</td>
+              <td>{{ 'suspicion.trigger.' + suspicion.cause | translate }}</td>
+              <td><span class="vs-status">{{ 'suspicion.case.status.' + suspicion.status | translate }}</span></td>
+              <td>
+                {{ suspicion.reportDeadline | date: 'mediumDate' }}
+                @if (daysLeft(suspicion); as days) {
+                  <span class="dp-list-sub" [class.text-error]="days < 1">
+                    · {{ days < 0 ? 'overdue by ' + (-days) + ' day(s)' : days + ' day(s) left' }}
+                  </span>
+                } @else if (daysLeft(suspicion) === 0) {
+                  <span class="dp-list-sub text-error">· due today</span>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="dp-list-sub">No active cases.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -746,6 +746,35 @@
       ]
     },
     {
+      "name": "screening",
+      "displayName": "Screening",
+      "type": "urn:knowvera-api:resources:screening",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/screening/hits/pending",
+        "/screening/hits/{id}/review",
+        "/screening/lists",
+        "/screening/lists/update",
+        "/screening/records/{kycRecordId}/hits",
+        "/screening/records/{kycRecordId}/screen"
+      ],
+      "scopes": [
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "verify"
+        },
+        {
+          "name": "review"
+        }
+      ]
+    },
+    {
       "name": "sequences",
       "displayName": "Sequence Generator",
       "type": "urn:knowvera-api:resources:sequences",
@@ -848,6 +877,41 @@
         },
         {
           "name": "delete"
+        }
+      ]
+    },
+    {
+      "name": "suspicion-cases",
+      "displayName": "Suspicion Case",
+      "type": "urn:knowvera-api:resources:suspicion-cases",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/suspicion-cases",
+        "/suspicion-cases/active",
+        "/suspicion-cases/by-record/{kycRecordId}",
+        "/suspicion-cases/{id}",
+        "/suspicion-cases/{id}/close",
+        "/suspicion-cases/{id}/draft-report",
+        "/suspicion-cases/{id}/escalate",
+        "/suspicion-cases/{id}/notes",
+        "/suspicion-cases/{id}/report"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "review"
+        },
+        {
+          "name": "export"
         }
       ]
     },
@@ -2647,6 +2711,54 @@
       }
     },
     {
+      "name": "screening-list-permission",
+      "description": "List, page or search records (Screening)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"screening\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "screening-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Screening)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"screening\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"screening-analyst-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "screening-verify-permission",
+      "description": "Run automated checks: extraction, analysis, data verification, screening (Screening)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"screening\"]",
+        "scopes": "[\"verify\"]",
+        "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "screening-review-permission",
+      "description": "Change the review/decision status of a case, document or request (Screening)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"screening\"]",
+        "scopes": "[\"review\"]",
+        "applyPolicies": "[\"screening-analyst-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
       "name": "sequences-view-permission",
       "description": "Read a single record (Sequence Generator)",
       "type": "scope",
@@ -2824,6 +2936,66 @@
         "resources": "[\"subscriptions\"]",
         "scopes": "[\"delete\"]",
         "applyPolicies": "[\"finance-officer-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "suspicion-cases-view-permission",
+      "description": "Read a single record (Suspicion Case)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"suspicion-cases\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"auditor-policy\", \"compliance-officer-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "suspicion-cases-list-permission",
+      "description": "List, page or search records (Suspicion Case)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"suspicion-cases\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"auditor-policy\", \"compliance-officer-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "suspicion-cases-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Suspicion Case)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"suspicion-cases\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "suspicion-cases-review-permission",
+      "description": "Change the review/decision status of a case, document or request (Suspicion Case)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"suspicion-cases\"]",
+        "scopes": "[\"review\"]",
+        "applyPolicies": "[\"mlro-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "suspicion-cases-export-permission",
+      "description": "Download files and generate reports (Suspicion Case)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"suspicion-cases\"]",
+        "scopes": "[\"export\"]",
+        "applyPolicies": "[\"auditor-policy\", \"mlro-policy\", \"super-admin-policy\"]"
       }
     },
     {

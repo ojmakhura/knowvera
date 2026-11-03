@@ -79,9 +79,11 @@ RESOURCES = {
     "organisation-branches":       "Organisation branches",
     "organisation-document-types": "Documents an organisation requires",
     "organisations":               "Organisations (KYC subjects and clients)",
+    "screening":                   "Sanctions list screening of KYC subjects and review of potential matches",
     "sequences":                   "Reference number sequences",
     "settings":                    "Platform settings",
     "subscriptions":               "Subscriptions",
+    "suspicion-cases":             "Suspicious transaction cases and reports to the FIA (confidential: no tipping off)",
     "users":                       "User accounts and their roles",
     "verification-data-configs":   "Reference: data verification configuration",
 }
@@ -105,6 +107,15 @@ ENDPOINT_SCOPES = {
     "UserApi.changePassword": "manage",
     # Moves failed notifications from a Novu dead-letter queue back to be sent again
     "NovuDeadLetterController.redriveDeadLetters": "edit",
+    # Screening a KYC record against the sanctions lists, and deciding on a potential match
+    "ScreeningApi.screenRecord": "verify",
+    "ScreeningApi.reviewHit": "review",
+    # Raising a suspicion is open to staff; deciding on it and reporting it to the FIA is the MLRO's
+    "SuspicionCaseApi.raise": "edit",
+    "SuspicionCaseApi.escalate": "review",
+    "SuspicionCaseApi.recordReport": "review",
+    "SuspicionCaseApi.close": "review",
+    "SuspicionCaseApi.draftReport": "export",
 }
 
 # --------------------------------------------------------------------------
@@ -298,6 +309,9 @@ GRANTS = {
         "employment-records": ("view", "list", "edit"),
         "contacts": ("view", "list", "edit"),
         "client-requests": READ,
+        "screening": ("list", "verify"),
+        # Any analyst may raise a suspicion (and add to it) without seeing other cases
+        "suspicion-cases": ("edit",),
     },
     "KYC_REVIEWER": {
         "kyc-records": ("review",),
@@ -313,6 +327,8 @@ GRANTS = {
         "individuals": ("view", "list", "verify"),
         "organisations": ("view", "list", "verify"),
         **grant(["employment-records", "contacts"], READ),
+        "screening": ("list", "verify", "review", "edit"),
+        "suspicion-cases": ("edit",),
     },
     "RISK_ANALYST": {
         "kyc-records": READ_EXPORT,
@@ -326,10 +342,12 @@ GRANTS = {
         "organisation-document-types": ("edit",),
         "client-requests": ("review",),
         "settings": ("list",),
+        "suspicion-cases": READ,
     },
-    # Escalations and regulatory reporting happen in the workflow; at API level the MLRO has
-    # everything the compliance officer has.
-    "MLRO": {},
+    # The MLRO decides on suspicions and reports them to the FIA (FI Act s.38-46)
+    "MLRO": {
+        "suspicion-cases": ("review", "export"),
+    },
     "CASE_MANAGER": {
         "client-requests": ("view", "list", "edit", "delete", "review", "import", "export"),
         "kyc-records": ("view", "list", "edit", "submit", "export"),
@@ -338,6 +356,7 @@ GRANTS = {
         **grant(["individuals", "organisations", "employment-records", "contacts"], ("view", "list", "edit")),
         "organisation-branches": READ,
         "users": READ,
+        "suspicion-cases": ("edit",),
     },
     "FINANCE_OFFICER": {
         "subscriptions": ("view", "list", "edit", "delete"),
@@ -354,6 +373,7 @@ GRANTS = {
         "organisation-branches": ALL,
         "organisation-document-types": ALL,
         "audit-logs": READ,
+        "screening": ("list", "edit"),  # refresh the sanctions lists
     },
     "SUPER_ADMIN": {"*": ALL},
     # Everything comes from SUPER_ADMIN, APPLICANT and ORG_ADMIN

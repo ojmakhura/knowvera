@@ -247,6 +247,70 @@
     </section>
 
     <!-- Documents & report -->
+    <!-- Sanctions screening and suspicion cases (FI Act s.27, s.38): staff only -->
+    @if (canSeeScreening() || canRaise() || canSeeCases()) {
+      <section class="kv-card kv-col-full">
+        <div class="kv-card-header dp-head">
+          <span class="dp-icon-tile"><mat-icon>policy</mat-icon></span>
+          <div class="dp-head-copy">
+            <h2 class="kv-card-title">Screening &amp; Suspicion</h2>
+            <p class="dp-head-sub">Sanctions list matches for the customer and its related parties; confidential suspicion cases</p>
+          </div>
+          <div class="dp-head-aside flex gap-2">
+            @if (canScreen()) {
+              <button type="button" class="kv-btn-secondary" (click)="rescreen()">
+                <mat-icon>sync</mat-icon>
+                Screen now
+              </button>
+            }
+            @if (canRaise()) {
+              <button type="button" class="kv-btn-secondary" (click)="raiseSuspicion()">
+                <mat-icon>report</mat-icon>
+                Raise suspicion
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (canSeeScreening()) {
+          <ul class="flex flex-col gap-2.5 mb-4">
+            @for (hit of hits(); track hit.id) {
+              <li class="dp-list-item">
+                <div class="min-w-0">
+                  <p class="dp-strong dp-small">{{ hit.subjectName }} ({{ hit.subjectRole }}) → {{ hit.entryName }}</p>
+                  <span class="dp-list-sub">
+                    {{ hit.entryReference }} · {{ (hit.score ?? 0) | percent: '1.0-0' }}
+                    @if (hit.reviewedBy) { · {{ hit.reviewedBy }}: {{ hit.reviewNotes }} }
+                  </span>
+                </div>
+                <span class="dp-pill" [ngClass]="hitTone(hit)">{{ 'screening.hit.status.' + hit.status | translate }}</span>
+                @if (hit.status === 'PENDING' && canReviewHits()) {
+                  <div class="flex gap-2">
+                    <button type="button" class="kv-btn-secondary" (click)="decideHit(hit, false)">False positive</button>
+                    <button type="button" class="kv-btn-primary" (click)="decideHit(hit, true)">Confirm</button>
+                  </div>
+                }
+              </li>
+            } @empty {
+              <li class="dp-list-sub">No sanctions list matches.</li>
+            }
+          </ul>
+        }
+
+        @if (canSeeCases() && cases().length) {
+          <p class="kv-label mb-2">Suspicion cases</p>
+          <ul class="flex flex-col gap-1.5">
+            @for (suspicion of cases(); track suspicion.id) {
+              <li class="dp-small">
+                <a class="dp-mono" [routerLink]="['/compliance/suspicion-cases', suspicion.id]">{{ suspicion.ref }}</a>
+                · {{ 'suspicion.case.status.' + suspicion.status | translate }} · report due {{ suspicion.reportDeadline | date: 'mediumDate' }}
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+
     <!-- Risk rating, approval and related parties (FI Act s.16(2), s.21, s.22; Regulations r.7) -->
     <section class="kv-card kv-col-full">
       <div class="kv-card-header dp-head">

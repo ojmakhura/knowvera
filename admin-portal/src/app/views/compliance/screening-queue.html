@@ -1,0 +1,96 @@
+<div class="kv-page">
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/compliance/screening">Sanctions Screening</a>
+    </nav>
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">Sanctions Screening</h1>
+        <p class="kv-subtitle">Customers and their related parties are screened against the UN Security Council Consolidated List (FI Act s.27).</p>
+      </div>
+      @if (canUpdateLists()) {
+        <div class="kv-actions">
+          <button type="button" class="kv-btn-primary" [disabled]="busy()" (click)="updateLists()">
+            <mat-icon>sync</mat-icon>
+            {{ busy() ? 'Updating…' : 'Update UN list now' }}
+          </button>
+        </div>
+      }
+    </div>
+  </header>
+
+  <section class="kv-card mb-6">
+    <div class="kv-card-header">
+      <mat-icon class="kv-card-icon">list_alt</mat-icon>
+      <h2 class="kv-card-title">Sanctions Lists</h2>
+    </div>
+    <div class="vs-table-wrap">
+      <table class="vs-table">
+        <thead>
+          <tr><th>List</th><th>Version</th><th>Entries</th><th>Imported</th></tr>
+        </thead>
+        <tbody>
+          @for (list of lists(); track list.source) {
+            <tr>
+              <td>{{ 'screening.list.source.' + list.source | translate }}</td>
+              <td class="dp-mono">{{ list.listVersion || '—' }}</td>
+              <td>{{ list.entryCount ?? 0 }}</td>
+              <td>{{ list.importedAt ? (list.importedAt | date: 'medium') : 'Never' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    @if (lists().length && !(lists()[0].entryCount)) {
+      <p class="text-sm text-on-surface-variant mt-3">No list loaded: customers are not being screened until the UN list is imported.</p>
+    }
+  </section>
+
+  <section class="vs-results">
+    <div class="vs-results-head">
+      <h2 class="vs-results-title">Potential Matches Awaiting Review</h2>
+      <span class="vs-count">{{ hits().length }}</span>
+    </div>
+    <div class="vs-table-wrap">
+      <table class="vs-table">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Listed as</th>
+            <th>Score</th>
+            <th>Found</th>
+            <th class="align-end">Decision</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (hit of hits(); track hit.id) {
+            <tr>
+              <td>
+                <p class="dp-strong">{{ hit.subjectName }}</p>
+                <p class="dp-list-sub">{{ hit.subjectRole }} · <a [routerLink]="['/records', hit.kycRecordId]">KYC record</a></p>
+              </td>
+              <td>
+                <p>{{ hit.entryName }}</p>
+                <p class="dp-list-sub dp-mono">{{ hit.entryReference }}</p>
+              </td>
+              <td>{{ (hit.score ?? 0) | percent: '1.0-0' }}</td>
+              <td>{{ hit.createdAt | date: 'mediumDate' }}</td>
+              <td class="align-end">
+                @if (canReview()) {
+                  <div class="flex justify-end gap-2">
+                    <button type="button" class="kv-btn-secondary" (click)="decide(hit, false)">False positive</button>
+                    <button type="button" class="kv-btn-primary" (click)="decide(hit, true)">Confirm</button>
+                  </div>
+                } @else {
+                  <span class="dp-list-sub">Awaiting a screening analyst</span>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="dp-list-sub">No potential matches waiting.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

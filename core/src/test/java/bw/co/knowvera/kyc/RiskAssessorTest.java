@@ -50,7 +50,7 @@ class RiskAssessorTest {
 
     @Test
     void aResidentSalariedCitizenIsLowRisk() {
-        RiskAssessor.Assessment assessment = assessor.assess(record(), motswana(), null, Settings.Factory.newInstance());
+        RiskAssessor.Assessment assessment = assessor.assess(record(), motswana(), null, Settings.Factory.newInstance(), List.of());
 
         assertEquals(RiskLevel.LOW, assessment.level());
         assertTrue(assessment.factors().isEmpty());
@@ -61,7 +61,7 @@ class RiskAssessorTest {
         Individual individual = motswana();
         individual.setPepStatus(PepStatus.PEP_RELATIVE);
 
-        assertEquals(RiskLevel.HIGH, assessor.assess(record(), individual, null, Settings.Factory.newInstance()).level());
+        assertEquals(RiskLevel.HIGH, assessor.assess(record(), individual, null, Settings.Factory.newInstance(), List.of()).level());
     }
 
     @Test
@@ -69,7 +69,7 @@ class RiskAssessorTest {
         KycRecord record = record();
         record.setSanctionsMatch(true);
 
-        assertEquals(RiskLevel.HIGH, assessor.assess(record, motswana(), null, Settings.Factory.newInstance()).level());
+        assertEquals(RiskLevel.HIGH, assessor.assess(record, motswana(), null, Settings.Factory.newInstance(), List.of()).level());
     }
 
     @Test
@@ -78,10 +78,10 @@ class RiskAssessorTest {
         individual.setNationality("Zimbabwe");
         Settings settings = Settings.Factory.newInstance();
 
-        assertEquals(RiskLevel.MEDIUM, assessor.assess(record(), individual, null, settings).level());
+        assertEquals(RiskLevel.MEDIUM, assessor.assess(record(), individual, null, settings, List.of()).level());
 
         settings.setHighRiskCountries(List.of("Zimbabwe"));
-        assertEquals(RiskLevel.HIGH, assessor.assess(record(), individual, null, settings).level());
+        assertEquals(RiskLevel.HIGH, assessor.assess(record(), individual, null, settings, List.of()).level());
     }
 
     @Test
@@ -89,10 +89,10 @@ class RiskAssessorTest {
         KycRecord record = record();
         record.setSourceOfFunds(List.of(SourceOfFunds.GIFTS));
 
-        assertEquals(RiskLevel.MEDIUM, assessor.assess(record, motswana(), null, Settings.Factory.newInstance()).level());
+        assertEquals(RiskLevel.MEDIUM, assessor.assess(record, motswana(), null, Settings.Factory.newInstance(), List.of()).level());
 
         record.setSourceOfFundsDetails("Wedding gift from parents");
-        assertEquals(RiskLevel.LOW, assessor.assess(record, motswana(), null, Settings.Factory.newInstance()).level());
+        assertEquals(RiskLevel.LOW, assessor.assess(record, motswana(), null, Settings.Factory.newInstance(), List.of()).level());
     }
 
     @Test
@@ -115,11 +115,11 @@ class RiskAssessorTest {
         organisation.setLegalForm(OrganisationLegalForm.PRIVATE_COMPANY);
         KycRecord record = record();
 
-        assertEquals(RiskLevel.MEDIUM, assessor.assess(record, null, organisation, Settings.Factory.newInstance()).level());
+        assertEquals(RiskLevel.MEDIUM, assessor.assess(record, null, organisation, Settings.Factory.newInstance(), List.of()).level());
 
         record.getRelatedParties().add(party(RelatedPartyRole.SHAREHOLDER, 60.0));
         assessor.markBeneficialOwners(record.getRelatedParties());
-        assertEquals(RiskLevel.LOW, assessor.assess(record, null, organisation, Settings.Factory.newInstance()).level());
+        assertEquals(RiskLevel.LOW, assessor.assess(record, null, organisation, Settings.Factory.newInstance(), List.of()).level());
     }
 
     @Test
@@ -132,7 +132,7 @@ class RiskAssessorTest {
         record.getRelatedParties().add(owner);
         assessor.markBeneficialOwners(record.getRelatedParties());
 
-        assertEquals(RiskLevel.HIGH, assessor.assess(record, null, organisation, Settings.Factory.newInstance()).level());
+        assertEquals(RiskLevel.HIGH, assessor.assess(record, null, organisation, Settings.Factory.newInstance(), List.of()).level());
     }
 
     @Test
@@ -141,10 +141,10 @@ class RiskAssessorTest {
         RelatedParty agent = party(RelatedPartyRole.AGENT, null);
         record.getRelatedParties().add(agent);
 
-        assertEquals(RiskLevel.MEDIUM, assessor.assess(record, motswana(), null, Settings.Factory.newInstance()).level());
+        assertEquals(RiskLevel.MEDIUM, assessor.assess(record, motswana(), null, Settings.Factory.newInstance(), List.of()).level());
 
         agent.setAuthorityReference("Form A signed 2026-10-01");
-        assertEquals(RiskLevel.LOW, assessor.assess(record, motswana(), null, Settings.Factory.newInstance()).level());
+        assertEquals(RiskLevel.LOW, assessor.assess(record, motswana(), null, Settings.Factory.newInstance(), List.of()).level());
     }
 
     @Test

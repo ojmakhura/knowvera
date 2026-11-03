@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.apache.commons.lang3.Strings;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -47,6 +48,10 @@ import bw.co.knowvera.kyc.fields.ValueData;
 import bw.co.knowvera.organisation.Organisation;
 import bw.co.knowvera.organisation.OrganisationRepository;
 import bw.co.knowvera.retention.RecordRetention;
+import bw.co.knowvera.screening.ScreeningHit;
+import bw.co.knowvera.screening.ScreeningHitRepository;
+import bw.co.knowvera.screening.ScreeningHitStatus;
+import bw.co.knowvera.screening.ScreeningService;
 import bw.co.knowvera.sequence.SequenceGenerator;
 import bw.co.knowvera.sequence.SequenceGeneratorRepository;
 import bw.co.knowvera.sequence.SequenceGeneratorService;
@@ -67,6 +72,8 @@ import jakarta.validation.Valid;
 public class KycRecordServiceImpl
         extends KycRecordServiceBase {
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KycRecordServiceImpl.class);
+
     private static final String SEQUENCE_NAME = "KYC_RECORD_REF";
 
     /** The user automated verification runs as (see KycVerificationService). */
@@ -82,6 +89,8 @@ public class KycRecordServiceImpl
     private final KycReportSectionRepository kycReportSectionRepository;
     private final RecordRetention recordRetention;
     private final RiskAssessor riskAssessor;
+    private final ScreeningHitRepository screeningHitRepository;
+    private final ScreeningService screeningService;
 
     public KycRecordServiceImpl(KycRecordRepository kycRecordRepository,
             KycRecordMapper kycRecordMapper,
@@ -93,7 +102,9 @@ public class KycRecordServiceImpl
             KycReportSectionRepository kycReportSectionRepository,
             OrganisationRepository organisationRepository,
             RecordRetention recordRetention,
-            RiskAssessor riskAssessor) {
+            RiskAssessor riskAssessor,
+            ScreeningHitRepository screeningHitRepository,
+            @Lazy ScreeningService screeningService) {
         super(kycRecordRepository, kycRecordMapper);
         // TODO Auto-generated constructor stub
         this.individualRepository = individualRepository;
@@ -106,6 +117,32 @@ public class KycRecordServiceImpl
         this.kycReportSectionRepository = kycReportSectionRepository;
         this.recordRetention = recordRetention;
         this.riskAssessor = riskAssessor;
+        this.screeningHitRepository = screeningHitRepository;
+        this.screeningService = screeningService;
+    }
+
+    private List<ScreeningHit> hitsOf(KycRecord kycRecord) {
+
+        if (kycRecord.getId() == null) {
+            return List.of();
+        }
+        String id = kycRecord.getId().toString();
+        return screeningHitRepository.findAll((root, query, builder) -> builder.equal(root.get("kycRecordId"), id));
+    }
+
+    /**
+     * Screens a saved record against the sanctions lists (FI Act s.27) and rates its risk again
+     * with the result. Screening problems are logged, never block the record.
+     */
+    private KycRecord screenAndAssess(KycRecord kycRecord, Settings settings) {
+
+        try {
+            screeningService.screenRecord(kycRecord.getId().toString());
+        } catch (Exception e) {
+            logger.error("Sanctions screening failed for KYC record {}", kycRecord.getId(), e);
+        }
+        assessRisk(kycRecord, settings);
+        return this.kycRecordRepository.save(kycRecord);
     }
 
     /**
@@ -160,7 +197,8 @@ public class KycRecordServiceImpl
         }
 
         riskAssessor.markBeneficialOwners(kycRecord.getRelatedParties());
-        RiskAssessor.Assessment assessment = riskAssessor.assess(kycRecord, individual, organisation, settings);
+        RiskAssessor.Assessment assessment = riskAssessor.assess(kycRecord, individual, organisation, settings,
+                hitsOf(kycRecord));
 
         if (kycRecord.getApprovedBy() != null && !Objects.equals(kycRecord.getRiskFactors(), assessment.factors())) {
             kycRecord.setApprovedBy(null);
@@ -229,6 +267,7 @@ public class KycRecordServiceImpl
         assessRisk(kycRecordEntity, settings);
 
         kycRecordEntity = this.kycRecordRepository.save(kycRecordEntity);
+        kycRecordEntity = screenAndAssess(kycRecordEntity, settings);
         updateOwnerStatus(kycRecordEntity);
 
         return this.kycRecordMapper.toKycRecordDTO(kycRecordEntity);
@@ -496,6 +535,7 @@ public class KycRecordServiceImpl
         assessRisk(record, settings);
 
         record = this.kycRecordRepository.save(record);
+        record = screenAndAssess(record, settings);
         updateOwnerStatus(record);
 
         return this.kycRecordMapper.toKycRecordDTO(record);
@@ -659,6 +699,7 @@ public class KycRecordServiceImpl
         assessRisk(kycRecord, settings);
 
         kycRecord = this.kycRecordRepository.save(kycRecord);
+        kycRecord = screenAndAssess(kycRecord, settings);
         updateOwnerStatus(kycRecord);
         if (docs != null && docs.size() > 0) {
             for (Document doc : docs) {
@@ -921,6 +962,11 @@ public class KycRecordServiceImpl
         KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + id));
 
+        try {
+            screeningService.screenRecord(id);
+        } catch (Exception e) {
+            logger.error("Sanctions screening failed for KYC record {}", id, e);
+        }
         assessRisk(kycRecord, settings);
 
         // Clean up existing report sections to avoid duplication when regenerating the
@@ -1079,6 +1125,17 @@ public class KycRecordServiceImpl
         if (person) {
             kycRecord.setReviewedBy(user);
             kycRecord.setReviewedAt(kycRecord.getModifiedAt());
+        }
+
+        if (kycStatus == KycComplianceStatus.CURRENT) {
+            List<ScreeningHit> hits = hitsOf(kycRecord);
+            if (hits.stream().anyMatch(hit -> hit.getStatus() == ScreeningHitStatus.CONFIRMED)) {
+                throw new KycRecordServiceException(
+                        "A confirmed sanctions match: no business relationship is permitted with a designated person (FI Act s.27)");
+            }
+            if (hits.stream().anyMatch(hit -> hit.getStatus() == ScreeningHitStatus.PENDING)) {
+                throw new KycRecordServiceException("Potential sanctions matches must be reviewed first");
+            }
         }
 
         // Making a high-risk record current is the approval; the API lets only KYC approvers do it

@@ -224,6 +224,14 @@ app:
   retention:
     # Years a closed relationship's records are kept (Financial Intelligence Act 2022 s.32)
     years: ${RECORD_RETENTION_YEARS:20}
+  screening:
+    # UN Security Council Consolidated List (FI Act s.27), refreshed daily; open KYC records are
+    # screened again against every new version
+    un-list-url: ${UN_SANCTIONS_LIST_URL:https://scsanctions.un.org/resources/xml/en/consolidated.xml}
+    un-list-cron: ${UN_SANCTIONS_LIST_CRON:0 0 3 * * *}
+    scheduled-update: ${UN_SANCTIONS_LIST_SCHEDULED:true}
+    # Name similarity (0-1) from which a name is a potential match for a screening analyst
+    match-threshold: ${SANCTIONS_MATCH_THRESHOLD:0.85}
   keycloak:
     # Keycloak Authorization Services for the API client: the caller's permissions (SCOPE_*
     # authorities), cached per token in the two-level cache (Caffeine, then Redis; AuthzCache)

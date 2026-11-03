@@ -7,7 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
-import { ChangeDetectionStrategy, Component, effect, inject, Input, linkedSignal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, Input, linkedSignal, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
@@ -32,6 +32,17 @@ import { LoaderState } from '@app/@shared/loader/loader.state';
 import { RiskLevel } from '@app/models/bw/co/knowvera/kyc/risk-level';
 import { swalFire } from '@app/@shared/swal';
 import { HasRolesDirective } from 'keycloak-angular';
+import { toast } from 'ngx-sonner';
+import { Observable } from 'rxjs';
+import { hasAnyPermission } from '@app/auth/permissions';
+import { getErrormessage } from '@app/store/app-state';
+import { KeycloakHelperApiStore } from '@app/store/bw/co/knowvera/keycloak/keycloak-helper-api.store';
+import { ScreeningApi } from '@app/services/bw/co/knowvera/screening/screening-api';
+import { ScreeningHitDTO } from '@app/models/bw/co/knowvera/screening/screening-hit-dto';
+import { ScreeningHitStatus } from '@app/models/bw/co/knowvera/screening/screening-hit-status';
+import { SuspicionCaseApi } from '@app/services/bw/co/knowvera/suspicion/suspicion-case-api';
+import { SuspicionCaseDTO } from '@app/models/bw/co/knowvera/suspicion/suspicion-case-dto';
+import { SuspicionTrigger } from '@app/models/bw/co/knowvera/suspicion/suspicion-trigger';
 
 @Component({
   selector: 'app-record-details',
@@ -79,6 +90,20 @@ export class RecordDetails implements OnInit {
   readonly IndividualIdentityType = IndividualIdentityType;
   readonly SourceOfFunds = SourceOfFunds;
   readonly RiskLevel = RiskLevel;
+
+  // Sanctions screening and suspicion cases (FI Act s.27, s.38): staff only, never the customer
+  private readonly screeningApi = inject(ScreeningApi);
+  private readonly suspicionCaseApi = inject(SuspicionCaseApi);
+  private readonly permissionStore = inject(KeycloakHelperApiStore);
+  private readonly recordId = signal<string | null>(null);
+  readonly hits = signal<ScreeningHitDTO[]>([]);
+  readonly cases = signal<SuspicionCaseDTO[]>([]);
+  private readonly permissions = computed(() => this.permissionStore.permissions() ?? []);
+  readonly canSeeScreening = computed(() => hasAnyPermission(this.permissions(), ['screening:list']));
+  readonly canScreen = computed(() => hasAnyPermission(this.permissions(), ['screening:verify']));
+  readonly canReviewHits = computed(() => hasAnyPermission(this.permissions(), ['screening:review']));
+  readonly canSeeCases = computed(() => hasAnyPermission(this.permissions(), ['suspicion-cases:list']));
+  readonly canRaise = computed(() => hasAnyPermission(this.permissions(), ['suspicion-cases:edit']));
 
   selectedSectionTabIndex = signal(0);
   currentDocumentIndex = signal(0);
@@ -192,6 +217,115 @@ export class RecordDetails implements OnInit {
 
     this.loaderState.message.set('Loading KYC record');
     this.kycRecordApiStore.findById({ id: recordId });
+    this.recordId.set(recordId);
+  }
+
+  /** The record's screening hits and cases, once the user's permissions say they may see them. */
+  private readonly loadCompliance = effect(() => {
+    const id = this.recordId();
+    if (!id || !this.permissionStore.permissionsLoaded()) {
+      return;
+    }
+    if (this.canSeeScreening()) {
+      this.screeningApi.findHitsByRecord(id).subscribe({ next: (hits) => this.hits.set(hits ?? []) });
+    }
+    if (this.canSeeCases()) {
+      this.suspicionCaseApi.findByRecord(id).subscribe({ next: (cases) => this.cases.set(cases ?? []) });
+    }
+  });
+
+  hitTone(hit: ScreeningHitDTO): string {
+    switch (hit.status) {
+      case ScreeningHitStatus.CONFIRMED:
+        return 'is-danger';
+      case ScreeningHitStatus.PENDING:
+        return 'is-warning';
+      default:
+        return 'is-success';
+    }
+  }
+
+  rescreen(): void {
+    const id = this.recordId();
+    if (!id) {
+      return;
+    }
+    this.screeningApi.screenRecord(id).subscribe({
+      next: (hits) => {
+        this.hits.set(hits ?? []);
+        toast.success('Screened against the sanctions lists');
+      },
+      error: (error) => toast.error(getErrormessage(error)),
+    });
+  }
+
+  /** A decision on a potential match, with the reasons that justify it. */
+  decideHit(hit: ScreeningHitDTO, confirm: boolean): void {
+    this.withText(
+      confirm ? 'Confirm sanctions match' : 'Clear as false positive',
+      confirm
+        ? 'A confirmed match blocks the relationship (FI Act s.27) and raises a suspicion case for the MLRO.'
+        : 'Explain why this is not the listed person or entity.',
+      confirm ? 'Confirm match' : 'Clear',
+      (notes) => this.screeningApi.reviewHit(hit.id, confirm ? ScreeningHitStatus.CONFIRMED : ScreeningHitStatus.FALSE_POSITIVE, notes),
+      () => this.reloadCompliance(),
+    );
+  }
+
+  /** Any staff member may raise a suspicion; only the MLRO sees and decides on the cases. */
+  raiseSuspicion(): void {
+    const id = this.recordId();
+    this.withText(
+      'Raise a suspicion',
+      'Confidential: the customer must not learn of it (FI Act s.46). Describe what is suspicious.',
+      'Raise',
+      (grounds) => {
+        const suspicion = new SuspicionCaseDTO();
+        suspicion.kycRecordId = id;
+        suspicion.cause = SuspicionTrigger.UNUSUAL_ACTIVITY;
+        suspicion.grounds = grounds;
+        return this.suspicionCaseApi.raise(suspicion);
+      },
+      () => this.reloadCompliance(),
+    );
+  }
+
+  private reloadCompliance(): void {
+    const id = this.recordId();
+    if (!id) {
+      return;
+    }
+    if (this.canSeeScreening()) {
+      this.screeningApi.findHitsByRecord(id).subscribe({ next: (hits) => this.hits.set(hits ?? []) });
+    }
+    if (this.canSeeCases()) {
+      this.suspicionCaseApi.findByRecord(id).subscribe({ next: (cases) => this.cases.set(cases ?? []) });
+    }
+    // Risk and status follow the decision once the record is verified again
+    this.kycRecordApiStore.findById({ id });
+  }
+
+  private withText(title: string, text: string, confirm: string, send: (value: string) => Observable<any>, done: () => void): void {
+    swalFire({
+      title,
+      text,
+      input: 'textarea',
+      inputValidator: (value: string) => (!value || !value.trim() ? 'This is required' : null),
+      showCancelButton: true,
+      confirmButtonText: confirm,
+      reverseButtons: true,
+    }).then((result: any) => {
+      if (!result.isConfirmed) {
+        return;
+      }
+      send(result.value.trim()).subscribe({
+        next: () => {
+          toast.success('Saved');
+          done();
+        },
+        error: (error: any) => toast.error(getErrormessage(error)),
+      });
+    });
   }
 
   backToRecords(): void {

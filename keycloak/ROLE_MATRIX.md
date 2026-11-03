@@ -71,9 +71,11 @@ Owner-scoped roles (CUSTOMER, APPLICANT, ORG_USER, ORG_ADMIN) are granted `<scop
 | `organisation-branches` | – | – | own: view, list | own: view, list, edit, delete | – | – | – | – | – | – | view, list | view, list | view, list | view, list | – | **all** | **all** | **all**; own: view, list, edit, delete |
 | `organisation-document-types` | – | – | own: view, list | own: view, list, edit, delete | – | – | – | – | – | – | view, list | view, list, edit | view, list, edit | – | – | **all** | **all** | **all**; own: view, list, edit, delete |
 | `organisations` | – | own: view, edit | own: view, list | own: view, list, edit | – | view, list, verify | view, list, verify | view, list, verify | view, list, verify | view, list | view, list | view, list, verify | view, list, verify | view, list, edit | view, list | – | **all** | **all**; own: view, list, edit |
+| `screening` | – | – | – | – | – | list, verify | list, verify | list, verify | **all** | – | list | **all** | **all** | – | – | list, edit | **all** | **all** |
 | `sequences` | – | – | – | – | – | – | – | – | – | – | view, list | view, list | view, list | – | – | **all** | **all** | **all** |
 | `settings` | view | view | view | view | view | view | view | view | view | view | view, list | view, list | view, list | view | view | **all** | **all** | **all** |
 | `subscriptions` | – | – | – | own: view, list | – | – | – | – | – | – | view, list | view, list | view, list | – | **all** | – | **all** | **all**; own: view, list |
+| `suspicion-cases` | – | – | – | – | – | edit | edit | edit | edit | – | view, list, export | view, list, edit, export | **all** | edit | – | – | **all** | **all** |
 | `users` | – | – | – | own: view, list, edit, manage | – | – | – | – | – | – | view, list | view, list | view, list | view, list | – | **all** | **all** | **all**; own: view, list, edit, manage |
 | `verification-data-configs` | view | view | view | view | view | view | view | view | view | view | view | **all** | **all** | view | view | **all** | **all** | **all** |
 
@@ -398,6 +400,19 @@ Organisations (KYC subjects and clients)
 | `delete` | `SCOPE_organisations:delete` | `DELETE /organisations/{id}` | `remove` |
 | `verify` | `SCOPE_organisations:verify` | `GET /organisations/{id}/verification` | `verifyOrganisation` |
 
+### `screening`
+
+Sanctions list screening of KYC subjects and review of potential matches
+
+| Scope | Authority | Endpoint | Method |
+|---|---|---|---|
+| `list` | `SCOPE_screening:list` | `GET /screening/hits/pending` | `findPendingHits` |
+| `list` | `SCOPE_screening:list` | `GET /screening/lists` | `getListStatus` |
+| `list` | `SCOPE_screening:list` | `GET /screening/records/{kycRecordId}/hits` | `findHitsByRecord` |
+| `edit` | `SCOPE_screening:edit` | `POST /screening/lists/update` | `updateSanctionsList` |
+| `verify` | `SCOPE_screening:verify` | `POST /screening/records/{kycRecordId}/screen` | `screenRecord` |
+| `review` | `SCOPE_screening:review` | `POST /screening/hits/{id}/review` | `reviewHit` |
+
 ### `sequences`
 
 Reference number sequences
@@ -459,6 +474,22 @@ Subscriptions
 | `list` | `SCOPE_subscriptions:list` / `SCOPE_subscriptions:list-own` | `POST /subscriptions/search/paged` | `pagedSearch` |
 | `edit` | `SCOPE_subscriptions:edit` | `POST /subscriptions` | `save` |
 | `delete` | `SCOPE_subscriptions:delete` | `DELETE /subscriptions/{id}` | `remove` |
+
+### `suspicion-cases`
+
+Suspicious transaction cases and reports to the FIA (confidential: no tipping off)
+
+| Scope | Authority | Endpoint | Method |
+|---|---|---|---|
+| `view` | `SCOPE_suspicion-cases:view` | `GET /suspicion-cases/{id}` | `findById` |
+| `list` | `SCOPE_suspicion-cases:list` | `GET /suspicion-cases/active` | `findActive` |
+| `list` | `SCOPE_suspicion-cases:list` | `GET /suspicion-cases/by-record/{kycRecordId}` | `findByRecord` |
+| `edit` | `SCOPE_suspicion-cases:edit` | `POST /suspicion-cases` | `raise` |
+| `edit` | `SCOPE_suspicion-cases:edit` | `POST /suspicion-cases/{id}/notes` | `addNote` |
+| `review` | `SCOPE_suspicion-cases:review` | `POST /suspicion-cases/{id}/close` | `close` |
+| `review` | `SCOPE_suspicion-cases:review` | `POST /suspicion-cases/{id}/escalate` | `escalate` |
+| `review` | `SCOPE_suspicion-cases:review` | `POST /suspicion-cases/{id}/report` | `recordReport` |
+| `export` | `SCOPE_suspicion-cases:export` | `GET /suspicion-cases/{id}/draft-report` | `draftReport` |
 
 ### `users`
 

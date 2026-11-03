@@ -1,0 +1,81 @@
+<div class="kv-page">
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/compliance/suspicion-cases">Suspicion Cases</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">{{ suspicion()?.ref }}</span>
+    </nav>
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">{{ suspicion()?.subjectName || 'Suspicion case' }}</h1>
+        <p class="kv-subtitle">Confidential: disclosing the suspicion or a report to the customer is an offence (FI Act s.46).</p>
+      </div>
+      <div class="kv-actions">
+        @if (canExport()) {
+          <button type="button" class="kv-btn-secondary" (click)="downloadDraft()">
+            <mat-icon>description</mat-icon>
+            Draft Form C
+          </button>
+        }
+        @if (canNote() && !closed()) {
+          <button type="button" class="kv-btn-secondary" (click)="addNote()">
+            <mat-icon>note_add</mat-icon>
+            Add note
+          </button>
+        }
+        @if (canDecide() && !closed()) {
+          @if (suspicion()?.status === 'OPEN') {
+            <button type="button" class="kv-btn-secondary" (click)="escalate()">Escalate</button>
+          }
+          @if (suspicion()?.status !== 'REPORTED') {
+            <button type="button" class="kv-btn-primary" (click)="recordReport()">Record FIA report</button>
+          }
+          <button type="button" class="kv-btn-secondary" (click)="close()">Close</button>
+        }
+      </div>
+    </div>
+  </header>
+
+  @if (suspicion(); as s) {
+    <div class="kv-layout-stretch">
+      <section class="kv-card kv-col-main">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">report</mat-icon>
+          <h2 class="kv-card-title">Grounds for Suspicion</h2>
+        </div>
+        <p class="text-sm whitespace-pre-line">{{ s.grounds }}</p>
+
+        <div class="kv-card-header mt-6">
+          <mat-icon class="kv-card-icon">history</mat-icon>
+          <h2 class="kv-card-title">Case History</h2>
+        </div>
+        <ul class="flex flex-col gap-2">
+          @for (note of s.notes; track $index) {
+            <li class="text-sm text-on-surface-variant">{{ note }}</li>
+          }
+        </ul>
+      </section>
+
+      <aside class="kv-card kv-col-side">
+        <dl class="flex flex-col gap-3">
+          <div><dt class="kv-label">Case</dt><dd class="dp-mono">{{ s.ref }}</dd></div>
+          <div><dt class="kv-label">Status</dt><dd>{{ 'suspicion.case.status.' + s.status | translate }}</dd></div>
+          <div><dt class="kv-label">Cause</dt><dd>{{ 'suspicion.trigger.' + s.cause | translate }}</dd></div>
+          <div><dt class="kv-label">Suspicion arose</dt><dd>{{ s.suspicionDate | date: 'mediumDate' }}</dd></div>
+          <div><dt class="kv-label">Report due</dt><dd>{{ s.reportDeadline | date: 'mediumDate' }}</dd></div>
+          @if (s.fiaReference) {
+            <div><dt class="kv-label">FIA reference</dt><dd class="dp-mono">{{ s.fiaReference }}</dd></div>
+            <div><dt class="kv-label">Reported</dt><dd>{{ s.reportedAt | date: 'medium' }}</dd></div>
+          }
+          @if (s.outcome) {
+            <div><dt class="kv-label">Outcome</dt><dd>{{ s.outcome }}</dd></div>
+          }
+          @if (s.kycRecordId) {
+            <div><dt class="kv-label">KYC record</dt><dd><a [routerLink]="['/records', s.kycRecordId]">Open record</a></dd></div>
+          }
+          <div><dt class="kv-label">Raised by</dt><dd>{{ s.createdBy }} · {{ s.createdAt | date: 'medium' }}</dd></div>
+        </dl>
+      </aside>
+    </div>
+  }
+</div>

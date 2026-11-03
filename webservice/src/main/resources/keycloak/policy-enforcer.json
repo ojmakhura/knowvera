@@ -2394,6 +2394,78 @@
       ]
     },
     {
+      "name": "screening",
+      "path": "/screening/hits/pending",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "screening",
+      "path": "/screening/hits/{id}/review",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "review"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "screening",
+      "path": "/screening/lists",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "screening",
+      "path": "/screening/lists/update",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "screening",
+      "path": "/screening/records/{kycRecordId}/hits",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "screening",
+      "path": "/screening/records/{kycRecordId}/screen",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "verify"
+          ]
+        }
+      ]
+    },
+    {
       "name": "sequences",
       "path": "/sequences",
       "methods": [
@@ -2816,6 +2888,114 @@
             "view-own"
           ],
           "scopes-enforcement-mode": "ANY"
+        }
+      ]
+    },
+    {
+      "name": "suspicion-cases",
+      "path": "/suspicion-cases",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "suspicion-cases",
+      "path": "/suspicion-cases/active",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "suspicion-cases",
+      "path": "/suspicion-cases/by-record/{kycRecordId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "suspicion-cases",
+      "path": "/suspicion-cases/{id}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "suspicion-cases",
+      "path": "/suspicion-cases/{id}/close",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "review"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "suspicion-cases",
+      "path": "/suspicion-cases/{id}/draft-report",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "export"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "suspicion-cases",
+      "path": "/suspicion-cases/{id}/escalate",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "review"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "suspicion-cases",
+      "path": "/suspicion-cases/{id}/notes",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "suspicion-cases",
+      "path": "/suspicion-cases/{id}/report",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "review"
+          ]
         }
       ]
     },
