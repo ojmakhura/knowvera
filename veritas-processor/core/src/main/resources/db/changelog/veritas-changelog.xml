@@ -1,0 +1,95 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="
+                        http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="veritas-1-profiles" author="ojmakhura">
+        <createTable tableName="veritas_profile">
+            <column name="id" type="UUID"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="code" type="VARCHAR(100)"><constraints nullable="false"/></column>
+            <column name="version" type="INT"><constraints nullable="false"/></column>
+            <column name="name" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="description" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE"><constraints nullable="false"/></column>
+            <column name="created_by" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint tableName="veritas_profile" columnNames="code, version" constraintName="uk_veritas_profile_code_version"/>
+
+        <createTable tableName="veritas_profile_step">
+            <column name="id" type="UUID"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="profile_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_veritas_step_profile" referencedTableName="veritas_profile" referencedColumnNames="id"/>
+            </column>
+            <column name="position" type="INT"><constraints nullable="false"/></column>
+            <column name="step_type" type="VARCHAR(40)"><constraints nullable="false"/></column>
+            <column name="model" type="VARCHAR(255)"/>
+            <column name="system_prompt" type="TEXT"/>
+            <column name="user_prompt" type="TEXT"/>
+        </createTable>
+
+        <createTable tableName="veritas_profile_step_provider">
+            <column name="step_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_veritas_provider_step" referencedTableName="veritas_profile_step" referencedColumnNames="id"/>
+            </column>
+            <column name="position" type="INT"><constraints nullable="false"/></column>
+            <column name="provider" type="VARCHAR(40)"><constraints nullable="false"/></column>
+        </createTable>
+        <addPrimaryKey tableName="veritas_profile_step_provider" columnNames="step_id, position"/>
+
+        <createTable tableName="veritas_profile_step_option">
+            <column name="step_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_veritas_option_step" referencedTableName="veritas_profile_step" referencedColumnNames="id"/>
+            </column>
+            <column name="option_key" type="VARCHAR(100)"><constraints nullable="false"/></column>
+            <column name="option_value" type="VARCHAR(1000)"/>
+        </createTable>
+        <addPrimaryKey tableName="veritas_profile_step_option" columnNames="step_id, option_key"/>
+    </changeSet>
+
+    <changeSet id="veritas-1-jobs" author="ojmakhura">
+        <createTable tableName="veritas_job">
+            <column name="id" type="VARCHAR(64)"><constraints primaryKey="true" nullable="false"/></column>
+            <column name="correlation_id" type="VARCHAR(255)"/>
+            <column name="profile_code" type="VARCHAR(100)"><constraints nullable="false"/></column>
+            <column name="profile_version" type="INT"/>
+            <column name="status" type="VARCHAR(20)"><constraints nullable="false"/></column>
+            <column name="started_at" type="TIMESTAMP WITH TIME ZONE"><constraints nullable="false"/></column>
+            <column name="finished_at" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="request_json" type="TEXT"/>
+            <column name="result_text" type="TEXT"/>
+            <column name="fields_json" type="TEXT"/>
+            <column name="classification_json" type="TEXT"/>
+            <column name="error" type="TEXT"/>
+        </createTable>
+        <createIndex tableName="veritas_job" indexName="ix_veritas_job_correlation">
+            <column name="correlation_id"/>
+        </createIndex>
+
+        <createTable tableName="veritas_job_step">
+            <column name="job_id" type="VARCHAR(64)">
+                <constraints nullable="false" foreignKeyName="fk_veritas_job_step_job" referencedTableName="veritas_job" referencedColumnNames="id"/>
+            </column>
+            <column name="position" type="INT"><constraints nullable="false"/></column>
+            <column name="step_type" type="VARCHAR(40)"><constraints nullable="false"/></column>
+            <column name="status" type="VARCHAR(20)"><constraints nullable="false"/></column>
+            <column name="provider" type="VARCHAR(40)"/>
+            <column name="model" type="VARCHAR(255)"/>
+            <column name="duration_ms" type="BIGINT"><constraints nullable="false"/></column>
+            <column name="failures" type="TEXT"/>
+        </createTable>
+        <addPrimaryKey tableName="veritas_job_step" columnNames="job_id, position"/>
+    </changeSet>
+
+    <changeSet id="veritas-2-job-owner-and-age" author="ojmakhura">
+        <!-- Who submitted a job through the API (null: from the queue); only they read it -->
+        <addColumn tableName="veritas_job">
+            <column name="submitted_by" type="VARCHAR(255)"/>
+        </addColumn>
+        <!-- The stale job sweep and the retention purge look jobs up by age -->
+        <createIndex tableName="veritas_job" indexName="ix_veritas_job_started_at">
+            <column name="started_at"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

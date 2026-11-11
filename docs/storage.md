@@ -17,7 +17,7 @@ presigned URLs, so both Garage and SeaweedFS support everything the API does.
 
 ## Configuration
 
-`webservice/src/main/resources/application.yml`:
+`knowvera-api/webservice/src/main/resources/application.yml`:
 
 ```yaml
 spring:

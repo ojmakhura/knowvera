@@ -1,0 +1,169 @@
+package bw.co.knowvera.kyc;
+
+import bw.co.knowvera.KeyValue;
+import bw.co.knowvera.document.DocumentMapper;
+import bw.co.knowvera.individual.IndividualMapper;
+import bw.co.knowvera.individual.IndividualRepository;
+import bw.co.knowvera.individual.employment.EmploymentRecordMapper;
+import bw.co.knowvera.kyc.fields.KycReportSectionMapper;
+import bw.co.knowvera.utils.MappingUtils;
+import bw.co.knowvera.kyc.KycRecord;
+import bw.co.knowvera.kyc.KycRecordDTO;
+import bw.co.knowvera.kyc.KycRecordListDTO;
+import bw.co.knowvera.kyc.KycRecordSummary;
+
+import java.util.Collection;
+import java.util.List;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.InheritInverseConfiguration;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+
+@Mapper(
+    componentModel = "spring",
+    uses = {
+        DocumentMapper.class,
+        EmploymentRecordMapper.class,
+        IndividualRepository.class,
+        IndividualMapper.class,
+        KycReportSectionMapper.class,
+        MappingUtils.class    
+    }
+)
+public abstract class KycRecordMapper {   
+    
+    /**
+     * Converts this entity to an object of type {@link KycRecordDTO}.
+     * @param entity
+     * @return KycRecordDTO
+     */
+    @Mapping(source = "documents", target = "documents")
+    @Mapping(source = "employmentRecord", target = "employmentRecord")
+    // @Mapping(source = "kycVerification", target = "kycVerification")
+    @Mapping(source = "pepStatus", target = "declaration.pepStatus")
+    @Mapping(source = "pepDetails", target = "declaration.pepDetails")
+    @Mapping(source = "sanctionsMatch", target = "declaration.sanctionsMatch")
+    @Mapping(source = "sanctionsDetails", target = "declaration.sanctionsDetails")
+    public abstract KycRecordDTO toKycRecordDTO(KycRecord entity);
+
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link KycRecordDTO}.
+     * @param entities
+     * @return Collection<KycRecordDTO>     */
+    public abstract List<KycRecordDTO> toKycRecordDTOCollection(Collection<KycRecord> entities);
+
+    /**
+     * Converts an instance of type {@link KycRecordDTO} to this DAO's entity.
+     * @param kycRecordDTO
+     * @return KycRecord
+     */
+    @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
+    @Mapping(target = "reviewedBy", ignore = true) // set by the service
+    @Mapping(target = "reviewedAt", ignore = true) // set by the service
+    @Mapping(target = "riskLevel", ignore = true) // set by the service
+    @Mapping(target = "riskFactors", ignore = true) // set by the service
+    @Mapping(target = "approvedBy", ignore = true) // set by the service
+    @Mapping(target = "approvedAt", ignore = true) // set by the service
+    public abstract KycRecord kycRecordDTOToEntity(KycRecordDTO kycRecordDTO);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
+    @Mapping(target = "reviewedBy", ignore = true) // set by the service
+    @Mapping(target = "reviewedAt", ignore = true) // set by the service
+    @Mapping(target = "riskLevel", ignore = true) // set by the service
+    @Mapping(target = "riskFactors", ignore = true) // set by the service
+    @Mapping(target = "approvedBy", ignore = true) // set by the service
+    @Mapping(target = "approvedAt", ignore = true) // set by the service
+    public abstract void updateKycRecordFromKycRecordDTO(KycRecordDTO kycRecordDTO, @MappingTarget KycRecord entity);
+
+    /**
+     * Converts this entity to an object of type {@link KycRecordSummary}.
+     * @param entity
+     * @return KycRecordSummary
+     */
+    @Mapping(target = "documents", expression = "java(mapDocumentsToKeyValueList(entity))")
+    public abstract KycRecordSummary toKycRecordSummary(KycRecord entity);
+
+    protected List<KeyValue> mapDocumentsToKeyValueList(KycRecord entity) {
+        if (entity == null || entity.getDocuments() == null) {
+            return null;
+        }
+        return entity.getDocuments().stream()
+                .map(doc -> new KeyValue(doc.getFileName(), doc.getVerificationStatus() != null ? doc.getVerificationStatus().value() : null))
+                .toList();
+    }
+
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link KycRecordSummary}.
+     * @param entities
+     * @return Collection<KycRecordSummary>     */
+    public abstract List<KycRecordSummary> toKycRecordSummaryCollection(Collection<KycRecord> entities);
+
+    /**
+     * Converts an instance of type {@link KycRecordSummary} to this DAO's entity.
+     * @param kycRecordSummary
+     * @return KycRecord
+     */
+    @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
+    @Mapping(target = "reviewedBy", ignore = true) // set by the service
+    @Mapping(target = "reviewedAt", ignore = true) // set by the service
+    @Mapping(target = "riskLevel", ignore = true) // set by the service
+    @Mapping(target = "riskFactors", ignore = true) // set by the service
+    @Mapping(target = "approvedBy", ignore = true) // set by the service
+    @Mapping(target = "approvedAt", ignore = true) // set by the service
+    public abstract KycRecord kycRecordSummaryToEntity(KycRecordSummary kycRecordSummary);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @InheritInverseConfiguration
+    public abstract void updateKycRecordFromKycRecordSummary(KycRecordSummary kycRecordSummary, @MappingTarget KycRecord entity);
+
+    /**
+     * Converts this entity to an object of type {@link KycRecordListDTO}.
+     * @param entity
+     * @return KycRecordListDTO
+     */
+    public abstract KycRecordListDTO toKycRecordListDTO(KycRecord entity);
+
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link KycRecordListDTO}.
+     * @param entities
+     * @return Collection<KycRecordListDTO>     */
+    public abstract List<KycRecordListDTO> toKycRecordListDTOCollection(Collection<KycRecord> entities);
+
+    /**
+     * Converts an instance of type {@link KycRecordListDTO} to this DAO's entity.
+     * @param kycRecordListDTO
+     * @return KycRecord
+     */
+    @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
+    @Mapping(target = "reviewedBy", ignore = true) // set by the service
+    @Mapping(target = "reviewedAt", ignore = true) // set by the service
+    @Mapping(target = "riskLevel", ignore = true) // set by the service
+    @Mapping(target = "riskFactors", ignore = true) // set by the service
+    @Mapping(target = "approvedBy", ignore = true) // set by the service
+    @Mapping(target = "approvedAt", ignore = true) // set by the service
+    public abstract KycRecord kycRecordListDTOToEntity(KycRecordListDTO kycRecordListDTO);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
+    @Mapping(target = "reviewedBy", ignore = true) // set by the service
+    @Mapping(target = "reviewedAt", ignore = true) // set by the service
+    @Mapping(target = "riskLevel", ignore = true) // set by the service
+    @Mapping(target = "riskFactors", ignore = true) // set by the service
+    @Mapping(target = "approvedBy", ignore = true) // set by the service
+    @Mapping(target = "approvedAt", ignore = true) // set by the service
+    public abstract void updateKycRecordFromKycRecordListDTO(KycRecordListDTO kycRecordListDTO, @MappingTarget KycRecord entity);
+
+}

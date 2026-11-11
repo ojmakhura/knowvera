@@ -38,7 +38,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
 import { VerificationDataConfigDTO } from '@app/models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
 // import { ToastrService } from 'ngx-toastr';
-import { PromptMessage } from '@app/models/bw/co/knowvera/llm/prompt-message';
 import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
@@ -65,13 +64,12 @@ export class EditDocumentTypeVarsForm {
   code: string | any = '';
   name: string | any = '';
   description: string | any = null;
+  processingProfileCode: string | any = '';
   expires: boolean | any = false;
   expiryField: KeyField | any = null;
   expiryPeriod: TimePeriod | any;
 expiresIn: number | any;
   expectedFields: Array<ExpectedFieldDTO> = [];
-  validationPrompts: Array<PromptMessage> = [];
-  textExtractionPrompts: Array<PromptMessage> = [];
   verificationDataConfigs: VerificationDataConfigDTO[] = [];
 }
 
@@ -101,7 +99,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   @Input() id: string = '';
   protected readonly keyFieldOptions = Object.values(KeyField);
   protected readonly timePeriodOptions = Object.values(TimePeriod);
-  protected readonly promptRoleOptions = ['system', 'user', 'assistant'];
   // protected readonly verificationTagOptions = Object.values(VerificationTag);
   protected readonly expectedFieldIndex = signal(0);
   protected readonly verificationDataConfigIndex = signal(0);
@@ -343,54 +340,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     this.expectedFieldIndex.update((index) => Math.min(this.expectedFieldCount() - 1, index + 1));
   }
 
-  createNewValidationPrompts(): PromptMessage {
-    return new PromptMessage();
-  }
-
-  validationPromptsAdd() {
-    this.editDocumentTypeSignal.update((value) => ({
-      ...value,
-      validationPrompts: [...value.validationPrompts, this.createNewValidationPrompts()],
-    }));
-  }
-
-  validationPromptsRemove(i: number, selected: PromptMessage) {
-    swalFire({
-      title: 'Are you sure?',
-      text: `This will remove the prompt with role "${selected.role}" from the validation prompts list.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, remove it!',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.editDocumentTypeSignal.update((value) => {
-          const validationPrompts = value.validationPrompts.filter(
-            (_: any, index: number) => index !== i,
-          );
-
-          return {
-            ...value,
-            validationPrompts: validationPrompts,
-          };
-        });
-      }
-    });
-  }
-
-  createNewTextExtractionPrompts(): PromptMessage {
-    return new PromptMessage();
-  }
-
-  textExtractionPromptsAdd() {
-    this.editDocumentTypeSignal.update((value) => ({
-      ...value,
-      textExtractionPrompts: [
-        ...value.textExtractionPrompts,
-        this.createNewTextExtractionPrompts(),
-      ],
-    }));
-  }
-
   createNewVerificationDataConfig(): VerificationDataConfigDTO {
     const config = new VerificationDataConfigDTO();
     config.documentTypeId = this.editDocumentTypeSignal().id;
@@ -570,51 +519,13 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   //   });
   // }
 
-  textExtractionPromptsRemove(i: number, selected: PromptMessage) {
-    swalFire({
-      title: 'Are you sure?',
-      text: `This will remove the prompt with role "${selected.role}" from the text extraction prompts list.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, remove it!',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.editDocumentTypeSignal.update((value) => {
-          const textExtractionPrompts = value.textExtractionPrompts.filter(
-            (_: any, index: number) => index !== i,
-          );
-
-          return {
-            ...value,
-            textExtractionPrompts: textExtractionPrompts,
-          };
-        });
-      }
-    });
-  }
-
-  updateTextExtractionPrompt(index: number, field: keyof PromptMessage, value: any): void {
-    this.editDocumentTypeSignal.update((state) => ({
-      ...state,
-      textExtractionPrompts: state.textExtractionPrompts.map((item, itemIndex) => {
-        if (itemIndex !== index) {
-          return item;
-        }
-
-        return {
-          ...item,
-          [field]: value,
-        };
-      }),
-    }));
-  }
-
   updateDocumentTypeSignal(documentType: DocumentTypeDTO): EditDocumentTypeVarsForm {
     return {
       code: documentType.code ?? '',
       createdAt: documentType.createdAt,
       createdBy: documentType.createdBy,
       description: documentType.description,
+      processingProfileCode: documentType.processingProfileCode ?? '',
       expires: documentType.expires,
       expiryField: documentType.expiryField,
       expiresIn: documentType.expiresIn,
@@ -624,8 +535,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       modifiedBy: documentType.modifiedBy,
       name: documentType.name ?? '',
       expectedFields: documentType.expectedFields || [],
-      textExtractionPrompts: documentType.textExtractionPrompts || [],
-      validationPrompts: documentType.validationPrompts || [],
       verificationDataConfigs: (documentType.verificationDataConfigs || []).map((config: VerificationDataConfigDTO) => ({
         ...config,
         name: config.name ?? '',
@@ -640,6 +549,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.createdAt = formData.createdAt;
     docType.createdBy = formData.createdBy;
     docType.description = formData.description;
+    docType.processingProfileCode = formData.processingProfileCode?.trim() || null;
     docType.expires = formData.expires;
     docType.expiryField = formData.expiryField;
     docType.expiryPeriod = formData.expiryPeriod;
@@ -649,8 +559,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.modifiedBy = formData.modifiedBy;
     docType.name = formData.name || null;
     docType.expectedFields = formData.expectedFields || [];
-    docType.textExtractionPrompts = formData.textExtractionPrompts || [];
-    docType.validationPrompts = formData.validationPrompts || [];
     docType.verificationDataConfigs = (formData.verificationDataConfigs || []).map((config) => ({
       ...config,
       name: config.name || null,

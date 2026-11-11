@@ -1,0 +1,22 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>bw.co.roguesystems</groupId>
+        <artifactId>veritas-processor</artifactId>
+        <version>0.0.1</version>
+    </parent>
+    <artifactId>veritas-processor-common</artifactId>
+    <packaging>jar</packaging>
+    <name>Veritas Processor Common</name>
+    <description>Contracts shared with the callers: job requests and results, profiles and the messaging topology.</description>
+    <dependencies>
+        <!-- Only for VeritasTopology; callers that use it bring their own spring-amqp -->
+        <dependency>
+            <groupId>org.springframework.amqp</groupId>
+            <artifactId>spring-amqp</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>

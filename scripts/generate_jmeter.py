@@ -11,7 +11,7 @@ Writes:
   jmeter/knowvera-load.jmx            read-heavy journeys of staff, applicants and organisations
 
 Both plans sign in through Keycloak's password grant with the sample users of
-webservice/src/test/resources/test-realm.json, so they run against a Keycloak with that realm
+knowvera-api/webservice/src/test/resources/test-realm.json, so they run against a Keycloak with that realm
 (the deployable realm disables the password grant on the portals). Only read (GET) endpoints are
 called on the "allowed" side, so the authorization plan does not change data; writes are only
 called where they must be refused. The JMX uses elements available from JMeter 2.13 to 5.x.
@@ -32,7 +32,7 @@ import sync_angular_services as ng  # noqa: E402
 import update_preauthorize as up  # noqa: E402
 
 OUT = ROOT / "jmeter"
-COMMON = ROOT / "common/target/src/main/java"
+COMMON = ROOT / "knowvera-api/common/src/main/java"
 
 PROPERTIES = [
     ("protocol", "http", "API protocol"),

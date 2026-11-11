@@ -1,0 +1,379 @@
+package bw.co.knowvera.individual;
+
+import org.springframework.beans.factory.annotation.Value;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import bw.co.knowvera.utils.RequestTokens;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import bw.co.knowvera.PropertySearchOrder;
+import bw.co.knowvera.SearchObject;
+import bw.co.knowvera.TargetEntity;
+import bw.co.knowvera.document.Document;
+import bw.co.knowvera.document.DocumentVerificationStatus;
+import bw.co.knowvera.document.type.DocumentTypeDTO;
+import bw.co.knowvera.kyc.KycComplianceStatus;
+import bw.co.knowvera.organisation.client.ClientRequest;
+import bw.co.knowvera.organisation.client.ClientRequestRepository;
+import bw.co.knowvera.retention.RecordRetention;
+import bw.co.knowvera.settings.SettingsDTO;
+import bw.co.knowvera.settings.SettingsService;
+
+/**
+ * @see bw.co.knowvera.individual.IndividualService
+ */
+@Service("individualService")
+public class IndividualServiceImpl
+        extends IndividualServiceBase {
+
+    /** Lifetime of the identity confirmation token (see ClientRequestServiceImpl). */
+    @Value("${app.request-token-session-ttl:24h}")
+    private Duration requestSessionTtl;
+
+    private final ClientRequestRepository clientRequestRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final SettingsService settingsService;
+    private final IndividualListQueries individualListQueries;
+    private final RecordRetention recordRetention;
+
+    public IndividualServiceImpl(IndividualRepository individualRepository, SettingsService settingsService,
+            IndividualMapper individualMapper, ClientRequestRepository clientRequestRepository,
+            PasswordEncoder passwordEncoder, IndividualListQueries individualListQueries,
+            RecordRetention recordRetention) {
+        super(individualRepository, individualMapper);
+        // TODO Auto-generated constructor stub
+
+        this.clientRequestRepository = clientRequestRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.settingsService = settingsService;
+        this.individualListQueries = individualListQueries;
+        this.recordRetention = recordRetention;
+    }
+
+    /**
+     * @see bw.co.knowvera.individual.IndividualService#findById(String)
+     */
+    @Override
+    protected IndividualDTO handleFindById(String id)
+            throws Exception {
+
+        Individual individual = individualRepository.getReferenceById(UUID.fromString(id));
+
+        return individualMapper.toIndividualDTO(individual);
+    }
+
+    /**
+     * @see bw.co.knowvera.individual.IndividualService#getAll()
+     */
+    @Override
+    protected List<IndividualListDTO> handleGetAll()
+            throws Exception {
+
+        return individualListQueries.search(null, Sort.unsorted());
+    }
+
+    /**
+     * @see bw.co.knowvera.individual.IndividualService#getAll(Integer, Integer)
+     */
+    @Override
+    protected Page<IndividualListDTO> handleGetAll(Integer pageNumber, Integer pageSize)
+            throws Exception {
+
+        return individualListQueries.search(null, PageRequest.of(pageNumber, pageSize));
+    }
+
+    /**
+     * @see bw.co.knowvera.individual.IndividualService#remove(String)
+     */
+    @Override
+    protected boolean handleRemove(String id)
+            throws Exception {
+
+        Individual individual = individualRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new IndividualServiceException("Individual not found with id: " + id));
+
+        // Removing ends the relationship; the records are kept for the retention period
+        if (individual.getClosedAt() == null) {
+            LocalDateTime closedAt = LocalDateTime.now();
+            individual.setClosedAt(closedAt);
+            individual.setRetainUntil(recordRetention.retainUntil(closedAt));
+            individualRepository.save(individual);
+            recordRetention.closeKycRecords(TargetEntity.INDIVIDUAL, id, closedAt);
+            return true;
+        }
+
+        if (!recordRetention.mayDelete(individual.getRetainUntil(), LocalDate.now())) {
+            throw new IndividualServiceException(
+                    recordRetention.retainedMessage("Individual " + id, individual.getRetainUntil()));
+        }
+
+        individualRepository.delete(individual);
+        return true;
+    }
+
+    /**
+     * @see bw.co.knowvera.individual.IndividualService#save(IndividualDTO)
+     */
+    @Override
+    protected IndividualDTO handleSave(IndividualDTO individual)
+            throws Exception {
+
+        Individual entity = individualMapper.individualDTOToEntity(individual);
+
+        // Closing is not editable through save: keep what is stored
+        if (entity.getId() != null) {
+            individualRepository.findById(entity.getId()).ifPresent(existing -> {
+                entity.setClosedAt(existing.getClosedAt());
+                entity.setRetainUntil(existing.getRetainUntil());
+            });
+        }
+
+        Individual saved = individualRepository.save(entity);
+
+        return individualMapper.toIndividualDTO(saved);
+    }
+
+    private Specification<Individual> createSpecification(IndividualSearchCriteria criteria) {
+
+        Specification<Individual> spec = ((root, query, builder) -> builder.conjunction());
+
+        if (StringUtils.isNotBlank(criteria.getEmailAddress())) {
+
+            Specification<Individual> tmp = ((root, query, builder) -> builder.like(builder.lower(root.get("email")),
+                    "%" + criteria.getEmailAddress().toLowerCase() + "%"));
+            spec = spec == null ? tmp : spec.and(tmp);
+
+        }
+
+        if (StringUtils.isNotBlank(criteria.getFirstName())) {
+
+            Specification<Individual> tmp = ((root, query, builder) -> builder
+                    .like(builder.lower(root.get("firstName")), "%" + criteria.getFirstName().toLowerCase() + "%"));
+            spec = spec == null ? tmp : spec.and(tmp);
+
+        }
+
+        if (StringUtils.isNotBlank(criteria.getSurname())) {
+
+            Specification<Individual> tmp = ((root, query, builder) -> builder.like(builder.lower(root.get("surname")),
+                    "%" + criteria.getSurname().toLowerCase() + "%"));
+            spec = spec == null ? tmp : spec.and(tmp);
+
+        }
+
+        if (StringUtils.isNotBlank(criteria.getMiddleName())) {
+
+            Specification<Individual> tmp = ((root, query, builder) -> builder
+                    .like(builder.lower(root.get("middleName")), "%" + criteria.getMiddleName().toLowerCase() + "%"));
+            spec = spec == null ? tmp : spec.and(tmp);
+
+        }
+
+        if (StringUtils.isNotBlank(criteria.getIdentityNo())) {
+
+            Specification<Individual> tmp = ((root, query, builder) -> builder
+                    .equal(builder.lower(root.get("identityNo")), criteria.getIdentityNo().toLowerCase()));
+            spec = spec == null ? tmp : spec.and(tmp);
+
+        }
+
+        if(criteria.getKycStatus() != null) {
+
+            Specification<Individual> tmp = ((root, query, builder) -> builder
+                    .equal(root.get("kycStatus"), criteria.getKycStatus()));
+            spec = spec == null ? tmp : spec.and(tmp);
+
+        }
+
+        return spec;
+    }
+
+    /**
+     * @see bw.co.knowvera.individual.IndividualService#search(String)
+     */
+    @Override
+    protected List<IndividualListDTO> handleSearch(IndividualSearchCriteria criteria,
+            Set<PropertySearchOrder> orderings)
+            throws Exception {
+
+        Specification<Individual> spec = createSpecification(criteria);
+
+        return individualListQueries.search(spec, Sort.by(Sort.Direction.ASC, "surname"));
+    }
+
+    /**
+     * @see bw.co.knowvera.individual.IndividualService#search(Integer, Integer,
+     *      String)
+     */
+    @Override
+    protected Page<IndividualListDTO> handleSearch(SearchObject<IndividualSearchCriteria> criteria)
+            throws Exception {
+
+        Specification<Individual> spec = createSpecification(criteria.getCriteria());
+
+        PageRequest pageRequest = PageRequest.of(criteria.getPageNumber(), criteria.getPageSize());
+        return individualListQueries.search(spec, pageRequest);
+    }
+
+    @Override
+    protected List<IndividualListDTO> handleGetOrganisationClients(String organisationId) throws Exception {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'handleGetOrganisationClients'");
+    }
+
+    @Override
+    protected Page<IndividualListDTO> handleGetOrganisationClients(String organisationId, Integer pageNumber,
+            Integer pageSize) throws Exception {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'handleGetOrganisationClients'");
+    }
+
+    @Override
+    protected IndividualDTO handleFindByIdentityNoAndIdentityType(String identityNo,
+            IndividualIdentityType identityType)
+            throws Exception {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'handleFindByIdentityNoAndIdentityType'");
+    }
+
+    @Override
+    protected Long handleCountByPepStatus(PepStatus pepStatus) throws Exception {
+
+        return this.individualRepository.countByPepStatus(pepStatus).orElse(0L);
+    }
+
+    @Override
+    protected Long handleCount() throws Exception {
+        // TODO Auto-generated method stub
+        return this.individualRepository.count();
+    }
+
+    @Override
+    protected Long handleCountByKycStatus(KycComplianceStatus kycStatus) throws Exception {
+
+        return this.individualRepository.countByKycStatus(kycStatus).orElse(0L);
+    }
+
+    @Override
+    protected Long handleCountByEmploymentStatus(EmploymentStatus employmentStatus) throws Exception {
+
+        return this.individualRepository.countByEmploymentStatus(employmentStatus).orElse(0L);
+    }
+
+    @Override
+    protected Long handleCountBySex(Sex sex) throws Exception {
+
+        return this.individualRepository.countBySex(sex).orElse(0L);
+    }
+
+    @Override
+    protected IndividualDTO handleLoadRequestIndividual(String requestId, String identityConfirmationToken,
+            String identityNo) throws Exception {
+
+        ClientRequest clientRequest = clientRequestRepository.findById(UUID.fromString(requestId))
+                .orElseThrow(() -> new IndividualServiceException("ClientRequest not found"));
+
+        if (StringUtils.isBlank(identityConfirmationToken)) {
+            // The portal only has a token after confirm-token succeeded
+            throw new IndividualServiceException("No identity confirmation token: the registration link was not confirmed");
+        }
+
+        String token = clientRequest.getIdentityConfirmationToken();
+
+        boolean matches = token != null && passwordEncoder.matches(identityConfirmationToken, token);
+
+        System.out.println("*******************************************************************");
+        System.out.println(matches);
+        System.out.println(identityConfirmationToken);
+        System.out.println(requestSessionTtl);
+        System.out.println(clientRequest.getCreatedAt());
+        System.out.println(RequestTokens.isExpired(identityConfirmationToken, requestSessionTtl, clientRequest.getCreatedAt()));
+        System.out.println("*******************************************************************");
+
+        if (!matches || RequestTokens.isExpired(identityConfirmationToken, requestSessionTtl, clientRequest.getCreatedAt())) {
+            throw new IndividualServiceException("Invalid or expired confirmation token");
+        }
+
+        Individual individual = individualRepository.findByIdentityNo(identityNo)
+                .orElseThrow(() -> new Exception("Individual not found for identityNo: " + identityNo));
+
+        if (individual == null) {
+            throw new IndividualServiceException("Individual not found with identityNo: " + identityNo);
+        }
+
+        if (!individual.getId().equals(UUID.fromString(clientRequest.getTargetId()))) {
+
+            throw new IndividualServiceException("Individual does not match ClientRequest target");
+        }
+
+        return individualMapper.toIndividualDTO(individual);
+    }
+
+    @Override
+    protected IndividualDTO handleFindByUserId(String userId) throws Exception {
+
+        Individual individual = individualRepository.findByUserId(userId)
+                .orElseThrow(() -> new IndividualServiceException("Individual not found for userId: " + userId));
+        return individualMapper.toIndividualDTO(individual);
+    }
+
+    @Override
+    protected IndividualDTO handleVerifyIndividual(String id, String user) throws Exception {
+
+        Individual individual = individualRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new IndividualServiceException("Individual not found with id: " + id));
+
+        List<SettingsDTO> allSettings = settingsService.getAll();
+
+        SettingsDTO settings = allSettings.stream().findFirst().get();
+        List<DocumentTypeDTO> types = settings.getIndividualDocuments();
+
+        // Find latest document of each type and check if they are all verified
+        boolean allVerified = true;
+
+        // Create a map of document type to latest document of that type from the individual's documents
+        Map<String, Document> latestDocuments = new HashMap<>();
+        for (DocumentTypeDTO type : types) {
+            Document doc = individual.getDocuments().stream()
+                    .filter(d -> d.getDocumentType() != null && d.getDocumentType().getId() != null
+                            && d.getDocumentType().getId().toString().equals(type.getId()))
+                    .max(Comparator.comparing(Document::getCreatedAt,
+                            Comparator.nullsFirst(Comparator.naturalOrder())))
+                    .orElse(null);
+
+            
+            if(doc != null) {
+                latestDocuments.put(type.getId(), doc);
+            }
+        }
+
+        // Every required document type must be present, and its latest upload verified
+        allVerified = latestDocuments.size() == types.size() && latestDocuments.values().stream()
+                .allMatch(d -> d.getVerificationStatus() == DocumentVerificationStatus.VERIFIED);
+
+        // if(allVerified) {
+        //     individual.setKycStatus(KycComplianceStatus.COMPLIANT);
+        // } else {
+        //     individual.setKycStatus(KycComplianceStatus.NON_COMPLIANT);
+        // }
+
+        return individualMapper.toIndividualDTO(individual);
+    }
+
+}

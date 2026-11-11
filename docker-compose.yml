@@ -68,10 +68,6 @@ services:
       ADMIN_WEB_URL: ${ADMIN_WEB_URL:-http://localhost:4200}
       MIN_PASSWORD_LENGTH: ${MIN_PASSWORD_LENGTH:-12}
 
-      # --- Tesseract OCR ---
-      TESSDATA_PREFIX: ${TESSDATA_PREFIX:-/usr/share/tesseract-ocr/4/tessdata}
-      TESSDATA_LANGS: ${TESSDATA_LANGS:-eng}
-
       # --- Communication service ---
       COMM_SERVICE_URL: ${COMM_SERVICE_URL:-}
       SEND_MESSAGE_URL: ${SEND_MESSAGE_URL:-}
@@ -82,45 +78,21 @@ services:
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost:4300}
       JWT_AUDIENCES: ${JWT_AUDIENCES:-knowvera-api}
       DOCUMENT_AUTO_VERIFY: ${DOCUMENT_AUTO_VERIFY:-false}
+
+      # --- Document processing (veritas-processor) ---
+      PROCESSING_DEFAULT_PROFILE: ${PROCESSING_DEFAULT_PROFILE:-default}
+      VERITAS_URL: ${VERITAS_URL:-http://veritas-processor:8086}
+      VERITAS_SEED_PROFILES: ${VERITAS_SEED_PROFILES:-false}
+      # What the removed pipeline's LM_STUDIO tool meant, for VERITAS_SEED_PROFILES
+      LLM_ID: ${LLM_ID:-ollama}
       AUTHZ_PERMISSION_AUTHORITIES: ${AUTHZ_PERMISSION_AUTHORITIES:-true}
       API_CLIENT: ${API_CLIENT:-knowvera-api}
       API_CLIENT_SECRET: ${API_CLIENT_SECRET:-secret}
 
-      # --- LLM / AI providers ---
-      LLM_ID: ${LLM_ID:-ollama}
-      LLM_MODEL: ${LLM_MODEL:-gemma4}
-      LMSTUDIO_BASE_URL: ${LMSTUDIO_BASE_URL:-http://localhost:1234}
-      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://localhost:11434}
-      OLLAMA_MODEL: ${OLLAMA_MODEL:-gemma4}
-      GEMINI_BASE_URL: ${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com}
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.0-flash}
-      GEMINI_PROJECT_ID: ${GEMINI_PROJECT_ID:-central-kyc}
-      GEMINI_LOCATION: ${GEMINI_LOCATION:-us-central1}
-      GCP_CREDENTIALS_FILE: ${GCP_CREDENTIALS_FILE:-/path/to/credentials.json}
-
       # --- RabbitMQ exchanges / queues / routing keys ---
-      DOCUMENT_HANDLER_DEAD_LETTER_EXCHANGE: ${DOCUMENT_HANDLER_DEAD_LETTER_EXCHANGE:-x.document-dispatch-failure}
-      DOCUMENT_HANDLER_DEAD_LETTER_QUEUE: ${DOCUMENT_HANDLER_DEAD_LETTER_QUEUE:-q.fall-back-document-dispatch}
-      DOCUMENT_HANDLER_DEAD_LETTER_ROUTING_KEY: ${DOCUMENT_HANDLER_DEAD_LETTER_ROUTING_KEY:-document-fall-back}
-      TEXT_EXTRACTION_QUEUE_EXCHANGE: ${TEXT_EXTRACTION_QUEUE_EXCHANGE:-x.text-extraction-queue}
-      TEXT_EXTRACTION_QUEUE: ${TEXT_EXTRACTION_QUEUE:-q.text-extraction}
-      TEXT_EXTRACTION_QUEUE_ROUTING_KEY: ${TEXT_EXTRACTION_QUEUE_ROUTING_KEY:-text-extraction}
-      GEMINI_TEXT_EXTRACTION_QUEUE_EXCHANGE: ${GEMINI_TEXT_EXTRACTION_QUEUE_EXCHANGE:-x.gemini-text-extraction-queue}
-      GEMINI_TEXT_EXTRACTION_QUEUE: ${GEMINI_TEXT_EXTRACTION_QUEUE:-q.gemini-text-extraction}
-      GEMINI_TEXT_EXTRACTION_QUEUE_ROUTING_KEY: ${GEMINI_TEXT_EXTRACTION_QUEUE_ROUTING_KEY:-gemini-text-extraction}
-      DOCUMENT_CONFIRMATION_QUEUE_EXCHANGE: ${DOCUMENT_CONFIRMATION_QUEUE_EXCHANGE:-x.document-confirmation-queue}
-      DOCUMENT_CONFIRMATION_QUEUE: ${DOCUMENT_CONFIRMATION_QUEUE:-q.document-confirmation}
-      DOCUMENT_CONFIRMATION_QUEUE_ROUTING_KEY: ${DOCUMENT_CONFIRMATION_QUEUE_ROUTING_KEY:-document-confirmation}
-      TEXT_PROCESSING_QUEUE_EXCHANGE: ${TEXT_PROCESSING_QUEUE_EXCHANGE:-x.text-processing-queue}
-      TEXT_PROCESSING_QUEUE: ${TEXT_PROCESSING_QUEUE:-q.text-processing}
-      TEXT_PROCESSING_QUEUE_ROUTING_KEY: ${TEXT_PROCESSING_QUEUE_ROUTING_KEY:-text-processing}
       INFORMATION_CONFIRMATION_QUEUE_EXCHANGE: ${INFORMATION_CONFIRMATION_QUEUE_EXCHANGE:-x.information-confirmation-queue}
       INFORMATION_CONFIRMATION_QUEUE: ${INFORMATION_CONFIRMATION_QUEUE:-q.information-confirmation}
       INFORMATION_CONFIRMATION_QUEUE_ROUTING_KEY: ${INFORMATION_CONFIRMATION_QUEUE_ROUTING_KEY:-information-confirmation}
-      TEXT_CLEANUP_QUEUE_EXCHANGE: ${TEXT_CLEANUP_QUEUE_EXCHANGE:-x.text-cleanup-queue}
-      TEXT_CLEANUP_QUEUE: ${TEXT_CLEANUP_QUEUE:-q.text-cleanup}
-      TEXT_CLEANUP_QUEUE_ROUTING_KEY: ${TEXT_CLEANUP_QUEUE_ROUTING_KEY:-text-cleanup}
       KYC_VERIFICATION_QUEUE_EXCHANGE: ${KYC_VERIFICATION_QUEUE_EXCHANGE:-x.kyc-verification-queue}
       KYC_VERIFICATION_QUEUE: ${KYC_VERIFICATION_QUEUE:-q.kyc-verification}
       KYC_VERIFICATION_QUEUE_ROUTING_KEY: ${KYC_VERIFICATION_QUEUE_ROUTING_KEY:-kyc-verification}
@@ -162,7 +134,65 @@ services:
     networks:
       - knowvera
 
-
+  # ---------------------------------------------------------------------------
+  # veritas-processor - document AI processing (built from ./veritas-processor/Dockerfile)
+  # ---------------------------------------------------------------------------
+  veritas-processor:
+    image: ${VERITAS_IMAGE_NAME:-veritas-processor}:latest
+    ports:
+      - "${VERITAS_PORT:-8086}:8086"
+    environment:
+      VERITAS_PORT: 8086
+      # --- Its own database (profiles and job history) ---
+      VERITAS_DATABASE_URL: ${VERITAS_DATABASE_URL:-jdbc:postgresql://postgres:5432/veritas}
+      VERITAS_DB_USERNAME: ${VERITAS_DB_USERNAME:-veritas}
+      VERITAS_DB_PASSWORD: ${VERITAS_DB_PASSWORD:-veritas}
+      # --- RabbitMQ (jobs and results: x.veritas) ---
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      # --- Keycloak (tokens for veritas-processor) ---
+      AUTH_URL: ${AUTH_URL:-http://keycloak:8970}
+      REALM: ${REALM:-knowvera}
+      VERITAS_CLIENT_ID: ${VERITAS_CLIENT_ID:-veritas-processor}
+      VERITAS_JWT_AUDIENCES: ${VERITAS_JWT_AUDIENCES:-veritas-processor}
+      # --- Document storage (read access to the knowvera bucket) ---
+      S3_ENDPOINT: ${S3_ENDPOINT:-${MINIO_URL:-}}
+      S3_REGION: ${S3_REGION:-garage}
+      S3_ACCESS_KEY: ${VERITAS_S3_ACCESS_KEY:-${S3_ACCESS_KEY:-${MINIO_ACCESS_KEY:-}}}
+      S3_SECRET_KEY: ${VERITAS_S3_SECRET_KEY:-${S3_SECRET_KEY:-${MINIO_SECRET_KEY:-}}}
+      S3_BUCKET: ${S3_BUCKET:-${MINIO_BUCKET:-knowvera}}
+      # --- Providers ---
+      VERITAS_LOCAL_ONLY: ${VERITAS_LOCAL_ONLY:-${PROCESSING_LOCAL_ONLY:-false}}
+      TESSDATA_PREFIX: ${TESSDATA_PREFIX:-/usr/share/tesseract-ocr/5/tessdata}
+      TESSDATA_LANGS: ${TESSDATA_LANGS:-eng}
+      LLM_MODEL: ${LLM_MODEL:-gemma4}
+      LMSTUDIO_BASE_URL: ${LMSTUDIO_BASE_URL:-http://localhost:1234}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://localhost:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-gemma4}
+      GEMINI_PROJECT_ID: ${GEMINI_PROJECT_ID:-central-kyc}
+      GEMINI_LOCATION: ${GEMINI_LOCATION:-us-central1}
+      SPRING_AI_VERTEX_MODEL: ${SPRING_AI_VERTEX_MODEL:-gemini-2.5-flash}
+      VERITAS_JOB_CONCURRENCY: ${VERITAS_JOB_CONCURRENCY:-1-4}
+      OLLAMA_NUM_CTX: ${OLLAMA_NUM_CTX:-8192}
+      LLM_READ_TIMEOUT: ${LLM_READ_TIMEOUT:-5m}
+      # --- Job history and limits ---
+      # How long jobs (document text and fields included) are kept, e.g. 90d; empty: forever
+      VERITAS_JOB_RETENTION: ${VERITAS_JOB_RETENTION:-}
+      VERITAS_MAX_FILE_SIZE: ${VERITAS_MAX_FILE_SIZE:-25MB}
+      VERITAS_MAX_PAGES: ${VERITAS_MAX_PAGES:-50}
+      # The API documentation needs no sign-in: off unless asked for
+      VERITAS_API_DOCS: ${VERITAS_API_DOCS:-false}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.veritas.rule=Host(`${VERITAS_HOST:-veritas.localhost}`)"
+      - "traefik.http.routers.veritas.entrypoints=web"
+      - "traefik.http.services.veritas.loadbalancer.server.port=8086"
+      - "traefik.http.services.veritas.loadbalancer.healthcheck.path=/actuator/health"
+      - "traefik.http.services.veritas.loadbalancer.healthcheck.interval=30s"
+    networks:
+      - knowvera
 
 networks:
   knowvera:

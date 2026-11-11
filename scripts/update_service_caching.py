@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Writes Spring cache annotations for the core services into the UML model (both
-mda/src/main/uml/knowvera.uml and knowvera.xml), as andromda_additionalAnnotations tagged values:
+Writes Spring cache annotations onto the core services (the *ServiceBase classes under
+knowvera-api/core/src/main/java):
 
   service class   @CacheConfig(cacheNames = "<cache>")
   findById(id)    @Cacheable(key = "#id")
@@ -17,26 +17,24 @@ embed this entity's DTO (read from the DTO classes), caches whose findById adds 
 (ENRICHED_FROM), and, for entities the service writes directly through other repositories (read from
 the ServiceImpls), those entities' caches. The relation is followed transitively.
 
-Run after changing services, DTOs or repositories, then `make build_mda`:
+Run after changing services, DTOs or repositories:
 
-  python3 scripts/update_service_caching.py            dry run, prints the plan
-  python3 scripts/update_service_caching.py --apply    writes both model files
+  python3 scripts/update_service_caching.py            dry run, prints the plan and the files it would change
+  python3 scripts/update_service_caching.py --apply    rewrites the cache annotations of the *ServiceBase classes
 """
 
 import glob
 import re
 import sys
-import uuid
-import xml.etree.ElementTree as ET
 from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-MODELS = [ROOT / "mda/src/main/uml/knowvera.uml", ROOT / "mda/src/main/uml/knowvera.xml"]
-XMI_ID = "{http://www.omg.org/spec/XMI/20131001}id"
+CORE = ROOT / "knowvera-api/core/src/main/java"
 CACHE_PKG = "org.springframework.cache.annotation."
+CACHE_ANNOTATIONS = ("CacheConfig", "Cacheable", "CacheEvict", "CachePut", "Caching")
 
-# Cache of each service (kept from the model where it existed). Services left out are not cached:
+# Cache of each service. Services left out are not cached:
 # sequence values change on every use and other services update them directly.
 CACHES = {
     "BranchService": "branches",
@@ -63,7 +61,6 @@ ENTITY_CACHE_ALIASES = {
     "GroupField": "kycFieldGroups",
     "GroupFieldValue": "kycReportSections",
     "SalaryRange": "settings",
-    "ToolSelector": "settings",
     "Declaration": "kycRecords",
 }
 
@@ -98,8 +95,7 @@ def dto_entity(dto):
 def embedded_in():
     """cache -> caches holding a copy of its data (DTO embedding and findById enrichment)."""
     holders = defaultdict(set)
-    for f in glob.glob(str(ROOT / "common/target/src/main/java/**/*.java"), recursive=True) + \
-            glob.glob(str(ROOT / "common/src/main/java/**/*.java"), recursive=True):
+    for f in glob.glob(str(ROOT / "knowvera-api/common/src/main/java/**/*.java"), recursive=True):
         text = Path(f).read_text()
         m = re.search(r"public (?:abstract )?(?:class|record) (\w+DTO)\b", text)
         if not m:
@@ -124,7 +120,7 @@ def embedded_in():
 def direct_writes():
     """service -> caches of other entities it saves or deletes through their repositories."""
     writes = defaultdict(set)
-    for f in glob.glob(str(ROOT / "core/src/main/java/**/*ServiceImpl.java"), recursive=True):
+    for f in glob.glob(str(CORE / "**/*ServiceImpl.java"), recursive=True):
         text = Path(f).read_text()
         service = Path(f).stem.replace("Impl", "")
         repositories = {m.group(2): m.group(1) for m in re.finditer(r"(\w+)Repository\s+(\w+)\s*[;,)=]", text)}
@@ -148,9 +144,9 @@ def closure(start, holders):
 
 
 def return_types():
-    """(service, operation, param names) -> return type, from the generated service interfaces."""
+    """(service, operation, param names) -> return type, from the service interfaces."""
     types = {}
-    for f in glob.glob(str(ROOT / "core/target/src/main/java/**/*Service.java"), recursive=True):
+    for f in glob.glob(str(CORE / "**/*Service.java"), recursive=True):
         text = Path(f).read_text()
         m = re.search(r"public interface (\w+Service)\b", text)
         if not m:
@@ -161,19 +157,30 @@ def return_types():
     return types
 
 
-def operations(model):
-    """[(op id, service, operation, in-parameter names)] of the Service classes, from the EMF export."""
-    root = ET.parse(model).getroot()
-    ids = {e.get(XMI_ID): e for e in root.iter() if e.get(XMI_ID)}
-    services = [ids[e.get("base_Class")] for e in root.iter()
-                if e.tag.endswith("}Service") and e.get("base_Class") in ids]
-    ops, classes = [], {}
-    for cls in services:
-        classes[cls.get("name")] = cls.get(XMI_ID)
-        for op in cls.findall("ownedOperation"):
-            params = tuple(p.get("name") for p in op.findall("ownedParameter") if p.get("direction") != "return")
-            ops.append((op.get(XMI_ID), cls.get("name"), op.get("name"), params))
-    return ops, classes
+SIGNATURE = re.compile(r"^[ \t]*public\s+(?!abstract\b)(?!class\b)[\w<>?,. \[\]]+?\s+(\w+)\(([^)]*)\)", re.M)
+
+
+def param_names(params):
+    return tuple(p.strip().split()[-1] for p in params.split(",") if p.strip())
+
+
+def service_bases():
+    """{service: *ServiceBase file} for the core services."""
+    bases = {}
+    for f in sorted(CORE.rglob("*ServiceBase.java")):
+        m = re.search(r"^public abstract class (\w+Service)Base\b", f.read_text(), re.M)
+        if m:
+            bases[m.group(1)] = f
+    return bases
+
+
+def operations(bases):
+    """[(service, operation, in-parameter names)]: the public operations of each *ServiceBase."""
+    ops = []
+    for service, f in bases.items():
+        for m in SIGNATURE.finditer(f.read_text()):
+            ops.append((service, m.group(1), param_names(m.group(2))))
+    return ops
 
 
 def caches_list(caches):
@@ -184,15 +191,15 @@ def plan():
     holders = embedded_in()
     writes = direct_writes()
     types = return_types()
-    ops, classes = operations(MODELS[0])
+    bases = service_bases()
 
     class_annotations = {}
-    for service, class_id in classes.items():
+    for service in bases:
         cache = CACHES.get(service)
-        class_annotations[class_id] = (service, [f'{CACHE_PKG}CacheConfig(cacheNames = "{cache}")'] if cache else [])
+        class_annotations[service] = [f'{CACHE_PKG}CacheConfig(cacheNames = "{cache}")'] if cache else []
 
     op_annotations = {}
-    for op_id, service, name, params in ops:
+    for service, name, params in operations(bases):
         cache = CACHES.get(service)
         annotations = []
         if cache:
@@ -213,75 +220,81 @@ def plan():
                     f'key = "#result.id", unless = "#result == null") }})')
             else:
                 annotations.append(f"{CACHE_PKG}CacheEvict(cacheNames = {{{caches_list(evict)}}}, allEntries = true)")
-        op_annotations[op_id] = (f"{service}.{name}({', '.join(params)})", annotations)
-    return class_annotations, op_annotations, holders, writes
+        op_annotations[(service, name, params)] = (f"{service}.{name}({', '.join(params)})", annotations)
+    return bases, class_annotations, op_annotations, holders, writes
 
 
-# --------------------------------------------------------------------------- model editing
+# --------------------------------------------------------------------------- source editing
 
-def escape(value, magicdraw):
-    value = value.replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")
-    return value.replace("'", "&#39;") if magicdraw else value
-
-
-def set_annotations(text, element_suffix, base_attr, base_id, annotations, magicdraw, new_elements):
-    """Replace the cache annotations of the stereotype application for base_id; True if text changed."""
-    tag_rx = re.compile(r"([ \t]*)<([\w:]*" + element_suffix + r")\b[^>]*\b" + base_attr + r"=(['\"])"
-                        + re.escape(base_id) + r"\3[^>]*?(/?)>")
-    m = tag_rx.search(text)
-    indent = "\t" if magicdraw else "  "
-    child_indent = indent * 2
-    children = "".join(f"\n{child_indent}<andromda_additionalAnnotations>{escape(a, magicdraw)}</andromda_additionalAnnotations>"
-                       for a in annotations)
-    if not m:
-        if not annotations:
-            return text
-        prefix = "andromda_service" if magicdraw else "andromdaservice"
-        q = "'" if magicdraw else '"'
-        new_id = (f"_19_0_4_kv_{uuid.uuid4().hex[:12]}_{len(new_elements)}" if magicdraw
-                  else "_kv" + uuid.uuid4().hex)
-        new_elements.append(f"{indent}<{prefix}:{element_suffix} xmi:id={q}{new_id}{q} {base_attr}={q}{base_id}{q}>"
-                            f"{children}\n{indent}</{prefix}:{element_suffix}>\n")
-        return text
-    element = m.group(2)
-    if m.group(4) == "/":
-        body, end = "", m.end()
-        open_tag = re.sub(r"\s*/>$", ">", m.group(0))
-    else:
-        close = text.index(f"</{element}>", m.end())
-        body, end = text[m.end():close], close + len(f"</{element}>")
-        open_tag = m.group(0)
-    kept = [c for c in re.findall(r"<andromda_additionalAnnotations>([^<]*)</andromda_additionalAnnotations>", body)
-            if not c.startswith(CACHE_PKG)]
-    others = re.sub(r"\s*<andromda_additionalAnnotations>[^<]*</andromda_additionalAnnotations>", "", body).strip()
-    kept_xml = "".join(f"\n{child_indent}<andromda_additionalAnnotations>{c}</andromda_additionalAnnotations>" for c in kept)
-    inner = (f"\n{child_indent}{others}" if others else "") + kept_xml + children
-    replacement = (f"{open_tag}{inner}\n{m.group(1)}</{element}>" if inner
-                   else re.sub(r">$", "/>", open_tag))
-    return text[:m.start()] + replacement + text[end:]
+def java(annotation):
+    """org.springframework.cache.annotation.X(...) -> @X(...)"""
+    return "@" + annotation.replace(CACHE_PKG, "")
 
 
-def apply(class_annotations, op_annotations):
-    for model in MODELS:
-        magicdraw = model.suffix == ".xml"
-        text = model.read_text()
-        new_elements = []
-        for class_id, (_, annotations) in class_annotations.items():
-            text = set_annotations(text, "Service", "base_Class", class_id, annotations, magicdraw, new_elements)
-        for op_id, (_, annotations) in op_annotations.items():
-            text = set_annotations(text, "ServiceOperation", "base_Operation", op_id, annotations, magicdraw, new_elements)
-        if new_elements:
-            # Next to the existing ServiceOperation applications
-            prefix = "andromda_service" if magicdraw else "andromdaservice"
-            last = list(re.finditer(r"<" + prefix + r":ServiceOperation\b[^>]*?(?:/>|>.*?</" + prefix
-                                    + r":ServiceOperation>)\n", text, re.S))[-1]
-            text = text[:last.end()] + "".join(new_elements) + text[last.end():]
-        model.write_text(text)
-        print(f"Updated {model.relative_to(ROOT)} ({len(new_elements)} new ServiceOperation stereotypes)")
+def annotation_block(lines, index):
+    """Index of the first annotation line above lines[index] (stops at javadoc, blank lines and members)."""
+    start = index
+    while start > 0:
+        above = lines[start - 1].strip()
+        if not above or above.endswith(("*/", "}", ";", "{")):
+            break
+        start -= 1
+    return start
+
+
+def set_annotations(lines, index, annotations):
+    """Replace the cache annotations directly above lines[index] with annotations."""
+    start = annotation_block(lines, index)
+    indent = re.match(r"[ \t]*", lines[index]).group(0)
+    kept = [l for l in lines[start:index] if not re.match(r"\s*@(" + "|".join(CACHE_ANNOTATIONS) + r")\b", l)]
+    lines[start:index] = kept + [indent + java(a) for a in annotations]
+
+
+def fix_imports(text):
+    """Import exactly the cache annotations the class uses, in sorted position."""
+    used = {a for a in CACHE_ANNOTATIONS if re.search(r"@" + a + r"\b", text)}
+    lines = [l for l in text.split("\n")
+             if not re.fullmatch(r"import " + re.escape(CACHE_PKG) + r"(\w+);", l.strip())]
+    imports = [i for i, l in enumerate(lines) if l.startswith("import ") and not l.startswith("import static ")]
+    for name in sorted(used):
+        statement = f"import {CACHE_PKG}{name};"
+        position = next((i for i in imports if lines[i] > statement), imports[-1] + 1)
+        lines.insert(position, statement)
+        imports = [i for i, l in enumerate(lines) if l.startswith("import ") and not l.startswith("import static ")]
+    return "\n".join(lines)
+
+
+def rewrite(path, service, class_annotations, op_annotations):
+    raw = open(path, newline="").read()
+    newline = "\r\n" if "\r\n" in raw else "\n"
+    lines = raw.replace("\r\n", "\n").split("\n")
+    # bottom up, so earlier line numbers stay valid
+    for index in reversed(range(len(lines))):
+        m = SIGNATURE.match(lines[index])
+        if m and (service, m.group(1), param_names(m.group(2))) in op_annotations:
+            set_annotations(lines, index, op_annotations[(service, m.group(1), param_names(m.group(2)))][1])
+        elif re.match(r"public abstract class " + service + r"Base\b", lines[index]):
+            set_annotations(lines, index, class_annotations[service])
+    text = fix_imports("\n".join(lines)).replace("\n", newline)
+    return raw, text
+
+
+def apply(bases, class_annotations, op_annotations, write):
+    changed = []
+    for service, path in bases.items():
+        raw, text = rewrite(path, service, class_annotations, op_annotations)
+        if text != raw:
+            changed.append(path)
+            if write:
+                open(path, "w", newline="").write(text)
+    verb = "Updated" if write else "Would update"
+    for path in changed:
+        print(f"{verb} {path.relative_to(ROOT)}")
+    print(f"{len(changed)} of {len(bases)} service classes {'updated' if write else 'to update'}")
 
 
 def main():
-    class_annotations, op_annotations, holders, writes = plan()
+    bases, class_annotations, op_annotations, holders, writes = plan()
     if "--apply" not in sys.argv:
         print("Caches holding copies of another cache's data:")
         for cache in sorted(holders):
@@ -297,8 +310,7 @@ def main():
         for label, annotations in sorted(op_annotations.values()):
             for a in annotations:
                 print(f"  {label:70} {a.replace(CACHE_PKG, '')[:150]}")
-        return
-    apply(class_annotations, op_annotations)
+    apply(bases, class_annotations, op_annotations, "--apply" in sys.argv)
 
 
 if __name__ == "__main__":

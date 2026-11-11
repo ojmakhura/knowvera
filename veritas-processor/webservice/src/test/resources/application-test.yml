@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:veritas;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false
+  cloud:
+    aws:
+      credentials:
+        access-key: test
+        secret-key: test
+veritas:
+  jobs:
+    # No waiting for servers that are not there
+    attempts: 1
+  ollama:
+    # Nothing listens here: Ollama steps fail fast
+    base-url: http://localhost:9
+  lm-studio:
+    base-url: http://localhost:9
+management:
+  health:
+    # No broker in the tests
+    rabbit:
+      enabled: false

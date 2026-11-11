@@ -27,8 +27,7 @@ describe('EditDocumentTypeVarsForm', () => {
     expect(form.name).toBe('');
     expect(form.expires).toBe(false);
     expect(form.expectedFields).toEqual([]);
-    expect(form.validationPrompts).toEqual([]);
-    expect(form.textExtractionPrompts).toEqual([]);
+    expect(form.processingProfileCode).toBe('');
     expect(form.verificationDataConfigs).toEqual([]);
   });
 });

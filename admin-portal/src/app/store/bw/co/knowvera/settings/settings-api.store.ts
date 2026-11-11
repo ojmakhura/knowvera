@@ -16,7 +16,6 @@ import { FinancialSettings } from '@app/models/bw/co/knowvera/settings/financial
 import { OperationalMetrics } from '@app/models/bw/co/knowvera/settings/operational-metrics';
 import { PlatformIdentity } from '@app/models/bw/co/knowvera/settings/platform-identity';
 import { SettingsFieldGroups } from '@app/models/bw/co/knowvera/settings/settings-field-groups';
-import { SettingsToolSelectors } from '@app/models/bw/co/knowvera/settings/settings-tool-selectors';
 import { TemplateMappings } from '@app/models/bw/co/knowvera/settings/template-mappings';
 import { SalaryRangeDTO } from '@app/models/bw/co/knowvera/settings/salary-range-dto';
 
@@ -26,7 +25,6 @@ export type SettingsApiState = AppState<SettingsDTO, SettingsDTO> & {
   financialSettings: FinancialSettings;
   operationalMetrics: OperationalMetrics;
   settingsFieldGroups: SettingsFieldGroups;
-  settingsToolSelectors: SettingsToolSelectors;
   templateMappings: TemplateMappings;
 };
 
@@ -39,7 +37,6 @@ const initialState: SettingsApiState = {
   financialSettings: new FinancialSettings(),
   operationalMetrics: new OperationalMetrics(),
   settingsFieldGroups: new SettingsFieldGroups(),
-  settingsToolSelectors: new SettingsToolSelectors(),
   templateMappings: new TemplateMappings(),
   searchCriteria: new SearchObject<any>(),
   loading: false,
@@ -594,42 +591,6 @@ export const SettingsApiStore = signalStore(
           );
         }),
       ),
-      getSettingsToolSelectors: rxMethod<void>(
-        switchMap(() => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return settingsApi.getSettingsToolSelectors().pipe(
-            tapResponse({
-              next: (response: SettingsToolSelectors) => {
-                const message = 'Tool selectors loaded successfully!!';
-                
-                patchState(
-                  store, 
-                  {
-                    settingsToolSelectors: response,
-                    loading: false, 
-                    success: true, 
-                    messages: [message],
-                    error: false,
-                  }
-                );
-              },
-              error: (error: any) => {
-                const message = getErrormessage(error);
-                
-                patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
-                    success: false,
-                    error: true,
-                    messages: [message], 
-                  }
-                );
-              },
-            }),
-          );
-        }),
-      ),
       getTemplateMappings: rxMethod<void>(
         switchMap(() => {
           patchState(store, { loading: true, loaderMessage: 'Loading ...' });
@@ -858,42 +819,6 @@ export const SettingsApiStore = signalStore(
                   store, 
                   {
                     settingsFieldGroups: response,
-                    loading: false, 
-                    success: true, 
-                    messages: [message],
-                    error: false,
-                  }
-                );
-              },
-              error: (error: any) => {
-                const message = getErrormessage(error);
-                
-                patchState(
-                  store, { 
-                    status: (error?.status || 0), 
-                    loading: false, 
-                    success: false,
-                    error: true,
-                    messages: [message], 
-                  }
-                );
-              },
-            }),
-          );
-        }),
-      ),
-      saveSettingsToolSelectors: rxMethod<{settingsToolSelectors: SettingsToolSelectors}>(
-        switchMap((data: {settingsToolSelectors: SettingsToolSelectors}) => {
-          patchState(store, { loading: true, loaderMessage: 'Loading ...' });
-          return settingsApi.saveSettingsToolSelectors(data.settingsToolSelectors, ).pipe(
-            tapResponse({
-              next: (response: SettingsToolSelectors) => {
-                const message = 'Tool selectors saved successfully!';
-                
-                patchState(
-                  store, 
-                  {
-                    settingsToolSelectors: response,
                     loading: false, 
                     success: true, 
                     messages: [message],

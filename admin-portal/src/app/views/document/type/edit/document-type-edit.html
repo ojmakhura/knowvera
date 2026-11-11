@@ -62,6 +62,14 @@
             </div>
 
             <div class="kv-field md:col-span-2">
+              <label class="kv-label" for="documentTypeProcessingProfileCode">Processing Profile Code</label>
+              <mat-form-field appearance="outline" class="vault-field">
+                <input id="documentTypeProcessingProfileCode" matInput type="text" placeholder="Leave blank to use the default profile"
+                  [formField]="editDocumentTypeSignalForm.processingProfileCode" />
+              </mat-form-field>
+            </div>
+
+            <div class="kv-field md:col-span-2">
               <label class="kv-label" for="documentTypeDescription">Description</label>
               <mat-form-field appearance="outline" class="vault-field vault-textarea">
                 <textarea id="documentTypeDescription" matInput rows="4"
@@ -318,85 +326,6 @@
             </div>
           </mat-tab>
 
-          <!-- Validation Prompts -->
-          <mat-tab label="Validation Prompts">
-            <div class="py-6 kv-stack-md">
-              <div class="flex items-center justify-between gap-3">
-                <h3 class="kv-card-title">Validation Prompts</h3>
-                <button type="button" class="kv-btn-subtle" (click)="validationPromptsAdd()">
-                  <mat-icon>add</mat-icon>
-                  Add Prompt
-                </button>
-              </div>
-
-              @for (prompt of editDocumentTypeSignalForm.validationPrompts; track trackByIndex($index); let index = $index) {
-                <article class="kv-panel grid grid-cols-1 md:grid-cols-[12rem_1fr_auto] gap-4 items-start">
-                  <div class="kv-field">
-                    <span class="kv-label">Role</span>
-                    <mat-form-field appearance="outline" class="vault-field">
-                      <mat-select [formField]="prompt.role" aria-label="Role">
-                        @for (role of promptRoleOptions; track role) {
-                          <mat-option [value]="role">{{ role }}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                  <div class="kv-field">
-                    <span class="kv-label">Base Instruction</span>
-                    <mat-form-field appearance="outline" class="vault-field vault-textarea">
-                      <textarea matInput rows="5" aria-label="Base instruction" [formField]="prompt.content"></textarea>
-                    </mat-form-field>
-                  </div>
-                  <button type="button" class="kv-icon-btn-danger md:mt-5" matTooltip="Delete validation prompt" aria-label="Delete validation prompt"
-                    (click)="validationPromptsRemove(index, prompt().value())">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </article>
-              } @empty {
-                <p class="text-sm text-on-surface-variant italic py-2">No validation prompts configured yet.</p>
-              }
-            </div>
-          </mat-tab>
-
-          <!-- Extraction Prompts -->
-          <mat-tab label="Extraction Prompts">
-            <div class="py-6 kv-stack-md">
-              <div class="flex items-center justify-between gap-3">
-                <h3 class="kv-card-title" translate>extraction.prompts</h3>
-                <button type="button" class="kv-btn-subtle" (click)="textExtractionPromptsAdd()">
-                  <mat-icon>add</mat-icon>
-                  Add Rule
-                </button>
-              </div>
-
-              @for (prompt of editDocumentTypeSignalForm.textExtractionPrompts; track trackByIndex($index); let index = $index) {
-                <article class="kv-panel grid grid-cols-1 md:grid-cols-[12rem_1fr_auto] gap-4 items-start">
-                  <div class="kv-field">
-                    <span class="kv-label">Role</span>
-                    <mat-form-field appearance="outline" class="vault-field">
-                      <mat-select [formField]="prompt.role" aria-label="Role">
-                        @for (role of promptRoleOptions; track role) {
-                          <mat-option [value]="role">{{ role }}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                  <div class="kv-field">
-                    <span class="kv-label">Base Instruction</span>
-                    <mat-form-field appearance="outline" class="vault-field vault-textarea">
-                      <textarea matInput rows="5" aria-label="Base instruction" [formField]="prompt.content"></textarea>
-                    </mat-form-field>
-                  </div>
-                  <button type="button" class="kv-icon-btn-danger md:mt-5" matTooltip="Delete extraction rule" aria-label="Delete extraction rule"
-                    (click)="textExtractionPromptsRemove(index, prompt().value())">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </article>
-              } @empty {
-                <p class="text-sm text-on-surface-variant italic py-2">No extraction prompts configured yet.</p>
-              }
-            </div>
-          </mat-tab>
         </mat-tab-group>
       </section>
     }

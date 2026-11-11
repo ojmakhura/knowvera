@@ -3,8 +3,8 @@
 Bring the Angular API services of the portal and admin-portal in line with the REST
 controllers of the webservice module.
 
-The services under <app>/src/app/services are generated once by the andromda-angular
-cartridge ("CAN EDIT") and then maintained by hand, so they drift when the model changes.
+The services under <app>/src/app/services are maintained by hand ("CAN EDIT"), so they drift
+when the REST API changes.
 This script compares every service with its Java *Api interface and:
   - updates the base path (protected path = '...');
   - rewrites the path part of each `${this.path}...` URL of an existing method to the Java
@@ -26,7 +26,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-JAVA_DIRS = [ROOT / "webservice/target/src/main/java", ROOT / "webservice/src/main/java"]
+JAVA_DIRS = [ROOT / "knowvera-api/webservice/src/main/java"]
 APPS = ["portal", "admin-portal"]
 
 # TS method name -> Java method name, for TS names that differ from the API but are in use

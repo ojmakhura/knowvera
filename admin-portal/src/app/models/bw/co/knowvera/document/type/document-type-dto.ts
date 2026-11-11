@@ -2,7 +2,6 @@ import {AuditableDTO} from '@models/bw/co/knowvera/auditable-dto';
 
 import {ExpectedFieldDTO} from '@models/bw/co/knowvera/document/type/field/expected-field-dto';
 import {VerificationDataConfigDTO} from '@models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
-import {PromptMessage} from '@models/bw/co/knowvera/llm/prompt-message';
 import {TimePeriod} from '@models/bw/co/knowvera/time-period';
 
 export class DocumentTypeDTO extends AuditableDTO {
@@ -14,9 +13,7 @@ export class DocumentTypeDTO extends AuditableDTO {
     
     expectedFields: Array<ExpectedFieldDTO> | any;
     
-    validationPrompts: Array<PromptMessage> | any;
-    
-    textExtractionPrompts: Array<PromptMessage> | any;
+    processingProfileCode: string | any;
     
     verificationDataConfigs: Array<VerificationDataConfigDTO> | any;
     
@@ -38,8 +35,7 @@ export class DocumentTypeDTO extends AuditableDTO {
         this.name = null;
         this.description = null;
         this.expectedFields = [];
-        this.validationPrompts = [];
-        this.textExtractionPrompts = [];
+        this.processingProfileCode = null;
         this.verificationDataConfigs = [];
         this.expires = false;
         this.expiryField = null;

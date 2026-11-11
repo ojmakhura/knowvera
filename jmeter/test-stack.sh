@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # A second API instance for the JMeter plans, using the existing services kept apart from dev:
 #   - Keycloak: realm "knowvera-test" (results/test-stack/knowvera-test-realm.json, a copy of
-#     webservice/src/test/resources/test-realm.json; import it once in the admin console)
+#     knowvera-api/webservice/src/test/resources/test-realm.json; import it once in the admin console)
 #   - Postgres: database "knowvera_test" on the dev server (the API creates the schema)
 #   - RabbitMQ: vhost "knowvera-test";  Redis: database 1
 # Everything else comes from .env.
@@ -49,7 +49,7 @@ up() {
         # The plans send hundreds of requests per user per minute; keep the per-IP public limit
         RATE_LIMIT=100000
         set +a
-        exec java -jar "$ROOT/webservice/target/knowvera-webservice.jar"
+        exec java -jar "$ROOT/knowvera-api/webservice/target/knowvera-webservice.jar"
     ) >"$STATE/api.log" 2>&1 &
     echo $! >"$STATE/api.pid"
 

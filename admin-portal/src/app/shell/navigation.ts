@@ -118,13 +118,6 @@ export const settingsMenuItems: ShellMenuItem[] = [
     label: 'FIend Groups',
   },
   {
-    routerLink: '/settings/tool-selectors',
-    titleKey: 'settings.toolSelectors.title',
-    icon: 'settings_input_component',
-    permissions: ['settings:list'],
-    label: 'Tool Selectors',
-  },
-  {
     routerLink: '/settings/templates',
     titleKey: 'settings.templates.title',
     icon: 'description',

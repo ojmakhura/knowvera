@@ -439,7 +439,6 @@ Platform settings
 | `view` | `SCOPE_settings:view` | `GET /settings/operational-metrics` | `getOperationalMetrics` |
 | `view` | `SCOPE_settings:view` | `GET /settings/platform-identity` | `getPlatformIdentity` |
 | `view` | `SCOPE_settings:view` | `GET /settings/template-mappings` | `getTemplateMappings` |
-| `view` | `SCOPE_settings:view` | `GET /settings/tool-selectors` | `getSettingsToolSelectors` |
 | `view` | `SCOPE_settings:view` | `GET /settings/{id}` | `findById` |
 | `list` | `SCOPE_settings:list` | `GET /settings` | `getAll` |
 | `list` | `SCOPE_settings:list` | `GET /settings/paged` | `getAllPaged` |
@@ -454,7 +453,6 @@ Platform settings
 | `edit` | `SCOPE_settings:edit` | `POST /settings/platform-identity` | `savePlatformIdentity` |
 | `edit` | `SCOPE_settings:edit` | `POST /settings/salary-ranges` | `saveSalaryRange` |
 | `edit` | `SCOPE_settings:edit` | `POST /settings/template-mappings` | `saveTemplateMappings` |
-| `edit` | `SCOPE_settings:edit` | `POST /settings/tool-selectors` | `saveSettingsToolSelectors` |
 | `delete` | `SCOPE_settings:delete` | `DELETE /settings/detach-document-type/{documentTypeId}` | `detachDocumentType` |
 | `delete` | `SCOPE_settings:delete` | `DELETE /settings/salary-ranges/{salaryRangeId}` | `removeSalaryRange` |
 | `delete` | `SCOPE_settings:delete` | `DELETE /settings/{id}` | `remove` |

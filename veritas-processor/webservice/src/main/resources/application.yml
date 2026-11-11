@@ -1,0 +1,128 @@
+server:
+  port: ${VERITAS_PORT:8086}
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:native}
+spring:
+  application:
+    name: veritas-processor
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    # Its own database: profiles and job history, nothing of the callers'
+    url: ${VERITAS_DATABASE_URL:jdbc:postgresql://localhost/veritas}
+    username: ${VERITAS_DB_USERNAME:veritas}
+    password: ${VERITAS_DB_PASSWORD:veritas}
+    hikari:
+      maximum-pool-size: ${VERITAS_DB_POOL_SIZE:10}
+  jpa:
+    open-in-view: false
+    hibernate:
+      # The schema is Liquibase's (db/changelog/veritas-changelog.xml)
+      ddl-auto: none
+  liquibase:
+    change-log: classpath:db/changelog/veritas-changelog.xml
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        default-requeue-rejected: false
+        # Jobs take minutes: a consumer holds one at a time, the rest stay queued for other consumers
+        prefetch: 1
+  cloud:
+    aws:
+      # Read access to the bucket the callers upload documents to (the same S3_* settings as knowvera-api)
+      credentials:
+        access-key: ${S3_ACCESS_KEY}
+        secret-key: ${S3_SECRET_KEY}
+      region:
+        static: ${S3_REGION:garage}
+      s3:
+        path-style-access-enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH_URL:http://localhost:8970}/realms/${REALM:knowvera}
+          # Only tokens meant for the processor (callers' clients add it with an audience mapper)
+          audiences: ${VERITAS_JWT_AUDIENCES:veritas-processor}
+  ai:
+    model:
+      chat: ${VERITAS_MODEL_CHAT:google-genai}
+    google:
+      genai:
+        # Gemini on Vertex AI (Google Cloud credentials); the client is only created when a step uses Gemini
+        vertex-ai: true
+        project-id: ${GEMINI_PROJECT_ID:central-kyc}
+        location: ${GEMINI_LOCATION:us-central1}
+        chat:
+          # A step's model and options override these
+          model: ${SPRING_AI_VERTEX_MODEL:gemini-2.5-flash}
+          # Extraction must give the same answer for the same document
+          temperature: 0
+springdoc:
+  # The API documentation needs no sign-in: turn it off where the port is reachable from outside
+  api-docs:
+    enabled: ${VERITAS_API_DOCS:true}
+  swagger-ui:
+    enabled: ${VERITAS_API_DOCS:true}
+    path: /swagger-ui.html
+logging:
+  pattern:
+    # The job a log line belongs to
+    correlation: "[%X{jobId:-}] "
+management:
+  endpoint:
+    health:
+      show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: ${ACTUATOR_EXPOSURE:health,info}
+veritas:
+  # Never send documents out of the deployment (Gemini steps fall back to their next provider)
+  local-only: ${VERITAS_LOCAL_ONLY:${PROCESSING_LOCAL_ONLY:false}}
+  storage:
+    endpoint: ${S3_ENDPOINT:${MINIO_URL:}}
+    bucket: ${S3_BUCKET:${MINIO_BUCKET:knowvera}}
+  tesseract:
+    datapath: ${TESSDATA_PREFIX:/usr/share/tesseract-ocr/5/tessdata}
+    languages: ${TESSDATA_LANGS:eng}
+  # Models used when a step names none (the legacy pipeline sent LLM_MODEL to both servers)
+  lm-studio:
+    base-url: ${LMSTUDIO_BASE_URL:http://localhost:1234}
+    model: ${LLM_MODEL:gemma4}
+    connect-timeout: ${LLM_CONNECT_TIMEOUT:10s}
+    # A model that has not answered by then fails the attempt; the step tries its next provider
+    read-timeout: ${LLM_READ_TIMEOUT:5m}
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    model: ${LLM_MODEL:${OLLAMA_MODEL:gemma4}}
+    connect-timeout: ${LLM_CONNECT_TIMEOUT:10s}
+    read-timeout: ${LLM_READ_TIMEOUT:5m}
+    # Context window in tokens (a step's numCtx option overrides it). Ollama cuts a longer prompt
+    # short without saying so; the provider refuses one instead
+    num-ctx: ${OLLAMA_NUM_CTX:8192}
+  security:
+    client-id: ${VERITAS_CLIENT_ID:veritas-processor}
+  jobs:
+    # Jobs processed at once (min-max consumers)
+    concurrency: ${VERITAS_JOB_CONCURRENCY:1-4}
+    # A step whose providers were unreachable, timed out or failed is tried again (the delay doubles)
+    attempts: ${VERITAS_JOB_ATTEMPTS:3}
+    retry-delay: ${VERITAS_JOB_RETRY_DELAY:5s}
+    # A job still running after this long was interrupted: it is failed and its caller told
+    stale-after: ${VERITAS_JOB_STALE_AFTER:2h}
+    # How long the job history (document text and fields included) is kept, e.g. 90d; empty: forever
+    retention: ${VERITAS_JOB_RETENTION:}
+    maintenance-interval: ${VERITAS_JOB_MAINTENANCE_INTERVAL:10m}
+  limits:
+    max-file-size: ${VERITAS_MAX_FILE_SIZE:25MB}
+    # Pages of a PDF read or rendered for OCR
+    max-pages: ${VERITAS_MAX_PAGES:50}
+    # Fewer characters per page and a PDF's text layer is not its text (a scan with a stamp): OCR runs
+    min-text-chars-per-page: ${VERITAS_MIN_TEXT_CHARS_PER_PAGE:50}
+  bootstrap:
+    default-profile: ${VERITAS_BOOTSTRAP_DEFAULT_PROFILE:true}

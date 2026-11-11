@@ -1,0 +1,136 @@
+package bw.co.knowvera.subscription;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.RestController;
+
+import bw.co.knowvera.AuditTracker;
+import bw.co.knowvera.PropertySearchOrder;
+import bw.co.knowvera.SearchObject;
+import bw.co.knowvera.logging.Audit;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import bw.co.knowvera.auth.RequiresOwnership;
+
+@RestController
+@Tag(name = "KYC Subscriptions", description = "Operations related to KYC subscriptions.")
+public class KycSubscriptionApiImpl implements KycSubscriptionApi {
+
+    private static final Logger logger = LoggerFactory.getLogger(KycSubscriptionApi.class);
+    private final KycSubscriptionService kycSubscriptionService;
+    // private final KeycloakOrganisationService keycloakOrganisationService;
+
+    public KycSubscriptionApiImpl(KycSubscriptionService kycSubscriptionService) {
+
+        this.kycSubscriptionService = kycSubscriptionService;
+    }
+
+    @Override
+    @Operation(summary = "Find KYC Subscription by ID", description = "Find a KYC subscription by its ID")
+    @Audit(entity = "KYC_SUBSCRIPTION", eventLabel = "#id", logData = false)
+    @RequiresOwnership(scope = "subscriptions:view", target = "SUBSCRIPTION", id = "#id")
+    public ResponseEntity<KycSubscriptionDTO> findById(String id) throws Exception {
+
+        logger.debug("Finding KYC subscription with ID: {}", id);
+
+        KycSubscriptionDTO subscription = kycSubscriptionService.findById(id);
+        return ResponseEntity.ok(subscription);
+    }
+
+    @Override
+    @Operation(summary = "Get All KYC Subscriptions", description = "Retrieve all KYC subscriptions")
+    @Audit(entity = "KYC_SUBSCRIPTION", logData = false)
+    public ResponseEntity<List<KycSubscriptionDTO>> getAll() throws Exception {
+
+        logger.debug("Retrieving all KYC subscriptions");
+
+        List<KycSubscriptionDTO> subscriptions = kycSubscriptionService.getAll();
+        return ResponseEntity.ok(subscriptions);
+    }
+
+    @Override
+    @Operation(summary = "Get All KYC Subscriptions Paged", description = "Retrieve all KYC subscriptions with pagination")
+    @Audit(entity = "KYC_SUBSCRIPTION", logData = false)
+    public ResponseEntity<Page<KycSubscriptionDTO>> getAllPaged(Integer pageNumber, Integer pageSize) throws Exception {
+
+        logger.debug("Retrieving KYC subscriptions page: {}, size: {}", pageNumber, pageSize);
+        Page<KycSubscriptionDTO> page = kycSubscriptionService.getAll(pageNumber, pageSize);
+        return ResponseEntity.ok(page);
+    }
+
+    @Override
+    @Operation(summary = "Paged Search KYC Subscriptions", description = "Search KYC subscriptions with pagination")
+    @Audit(entity = "KYC_SUBSCRIPTION", logData = false)
+    public ResponseEntity<Page<KycSubscriptionDTO>> pagedSearch(SearchObject<SubscriptionSearchCriteria> criteria)
+            throws Exception {
+
+        logger.debug("Performing paged search for KYC subscriptions with criteria: {}", criteria);
+        Page<KycSubscriptionDTO> page = kycSubscriptionService.search(criteria);
+
+        return ResponseEntity.ok(page);
+
+    }
+
+    @Override
+    @Operation(summary = "Remove KYC Subscription", description = "Remove a KYC subscription by its ID")
+    @Audit(entity = "KYC_SUBSCRIPTION", eventLabel = "#id", logData = false)
+    public ResponseEntity<Boolean> remove(String id) throws Exception {
+
+        logger.debug("Removing KYC subscription with ID: {}", id);
+        return ResponseEntity.ok(kycSubscriptionService.remove(id));
+    }
+
+    @Override
+    @Operation(summary = "Save KYC Subscription", description = "Save a KYC subscription")
+    @Audit(entity = "KYC_SUBSCRIPTION", eventLabel = "#subscription.id", logData = true)
+    public ResponseEntity<KycSubscriptionDTO> save(KycSubscriptionDTO subscription) throws Exception {
+
+        logger.debug("Saving KYC subscription: {}", subscription);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuditTracker.auditTrail(subscription, authentication);
+
+        return ResponseEntity.ok(kycSubscriptionService.save(subscription));
+    }
+
+    @Override
+    @Operation(summary = "Search KYC Subscriptions", description = "Search KYC subscriptions based on criteria")
+    @Audit(entity = "KYC_SUBSCRIPTION", logData = false)
+    public ResponseEntity<List<KycSubscriptionDTO>> search(SearchObject<SubscriptionSearchCriteria> criteria)
+            throws Exception {
+
+        logger.debug("Searching KYC subscriptions with criteria: {}", criteria);
+        Set<PropertySearchOrder> sortOrders = new HashSet<>();
+        if (criteria.getSortings() != null) {
+            sortOrders.addAll(criteria.getSortings());
+        }
+
+        List<KycSubscriptionDTO> subscriptions = kycSubscriptionService.search(criteria.getCriteria(), sortOrders);
+        return ResponseEntity.ok(subscriptions);
+    }
+
+    @Override
+    @Operation(summary = "Find KYC Subscriptions by Organisation", description = "Find KYC subscriptions by organisation ID")
+    @Audit(entity = "KYC_SUBSCRIPTION", eventLabel = "#organisationId", logData = false)
+    @RequiresOwnership(scope = "subscriptions:list", target = "ORGANISATION", id = "#organisationId")
+    public ResponseEntity<List<KycSubscriptionDTO>> findByOrganisation(String organisationId) throws Exception {
+
+        logger.debug("Finding KYC subscriptions for organisation: {}", organisationId);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = "anonymousUser";
+        if (authentication != null) {
+
+            username = authentication.getName();
+        }
+        List<KycSubscriptionDTO> subscriptions = kycSubscriptionService.findByOrganisation(organisationId, username);
+        return ResponseEntity.ok(subscriptions);
+    }
+}

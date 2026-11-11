@@ -1,0 +1,117 @@
+package bw.co.knowvera.sequence;
+
+import bw.co.knowvera.logging.Audit;
+import jakarta.validation.Valid;
+import java.util.Collection;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
+
+import bw.co.knowvera.sequence.SequenceGeneratorApi;
+import bw.co.knowvera.sequence.SequenceGeneratorDTO;
+import bw.co.knowvera.sequence.SequenceGeneratorService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@RestController
+@Tag(name = "Sequence Generators", description = "Operations related to sequence generators.")
+public class SequenceGeneratorApiImpl implements SequenceGeneratorApi {
+
+    private static final Logger logger = LoggerFactory.getLogger(SequenceGeneratorApiImpl.class);
+        protected final SequenceGeneratorService sequenceGeneratorService;
+    
+    public SequenceGeneratorApiImpl(
+        SequenceGeneratorService sequenceGeneratorService    ) {
+        
+        this.sequenceGeneratorService = sequenceGeneratorService;
+    }
+
+    @Override
+    @Operation(summary = "Find Sequence Generator by ID", description = "Find a sequence generator by its ID")
+    public ResponseEntity<SequenceGeneratorDTO> findById(String id) throws Exception {
+        try {
+            return ResponseEntity.ok(this.getSequenceGeneratorService().findById(id));
+        } catch (Exception e) {
+
+            logger.error("An error occurred while processing the request", e);
+            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+        } 
+    }
+
+
+    @Override
+    @Operation(summary = "Find Sequence Generator by Name", description = "Find a sequence generator by its name")
+    public ResponseEntity<SequenceGeneratorDTO> findByName(String name) throws Exception {
+        try {
+            return ResponseEntity.ok(this.getSequenceGeneratorService().findByName(name));
+        } catch (Exception e) {
+
+            logger.error("An error occurred while processing the request", e);
+            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+        } 
+    }
+
+
+    @Override
+    @Operation(summary = "Get All Sequence Generators", description = "Retrieve all sequence generators")
+    public ResponseEntity<List<SequenceGeneratorDTO>> getAll() throws Exception {
+        try {
+            return ResponseEntity.ok(this.getSequenceGeneratorService().getAll());
+        } catch (Exception e) {
+
+            logger.error("An error occurred while processing the request", e);
+            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+        } 
+    }
+
+
+    @Override
+    @Operation(summary = "Remove Sequence Generator", description = "Remove a sequence generator by its ID")
+    @Audit(entity = "SEQUENCE", eventLabel = "#id", logData = false)
+    public ResponseEntity<Boolean> remove(String id) throws Exception {
+        try {
+            return ResponseEntity.ok(this.getSequenceGeneratorService().remove(id));
+        } catch (Exception e) {
+
+            logger.error("An error occurred while processing the request", e);
+            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+        } 
+    }
+
+    @Override
+    @Operation(summary = "Save Sequence Generator", description = "Save a sequence generator")
+    @Audit(entity = "SEQUENCE", eventLabel = "#result?.body?.id", logData = false)
+    public ResponseEntity<SequenceGeneratorDTO> save(@Valid SequenceGeneratorDTO sequenceGenerator) throws Exception {
+        try {
+            return ResponseEntity.ok(this.getSequenceGeneratorService().save(sequenceGenerator));
+        } catch (Exception e) {
+
+            logger.error("An error occurred while processing the request", e);
+            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+        } 
+    }
+
+    @Override
+    @Operation(summary = "Search Sequence Generators", description = "Search sequence generators based on criteria")
+    public ResponseEntity<List<SequenceGeneratorDTO>> search(String criteria) throws Exception {
+        try {
+            return ResponseEntity.ok(this.getSequenceGeneratorService().search(criteria));
+        } catch (Exception e) {
+
+            logger.error("An error occurred while processing the request", e);
+            throw e.getCause() != null ? new Exception(e.getCause()) : e;
+        } 
+    }
+    
+    /**
+     * Gets the reference to <code>$serviceRef.daoName</code>.
+     * @return sequenceGeneratorService
+     */
+    protected SequenceGeneratorService getSequenceGeneratorService()
+    {
+        return this.sequenceGeneratorService;
+    }
+}

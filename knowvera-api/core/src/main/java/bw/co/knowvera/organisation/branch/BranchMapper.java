@@ -1,0 +1,56 @@
+package bw.co.knowvera.organisation.branch;
+
+import bw.co.knowvera.document.DocumentMapper;
+import bw.co.knowvera.individual.IndividualMapper;
+import bw.co.knowvera.organisation.OrganisationMapper;
+import bw.co.knowvera.utils.MappingUtils;
+
+import java.util.Collection;
+import java.util.List;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.InheritInverseConfiguration;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+
+@Mapper(
+    componentModel = "spring",
+    uses = {
+        DocumentMapper.class,
+        IndividualMapper.class,
+        OrganisationMapper.class,
+        MappingUtils.class
+    }
+)
+public abstract class BranchMapper {   
+    
+    /**
+     * Converts this entity to an object of type {@link BranchDTO}.
+     * @param entity
+     * @return BranchDTO
+     */
+    // WARNING! No conversion for target.organisation (can't convert source.getOrganisation():bw.co.knowvera.organisation.Organisation to java.lang.String)
+    @Mapping(target = "organisation", source = "organisation.name")
+    @Mapping(target = "organisationId", source = "organisation.id")
+    public abstract BranchDTO toBranchDTO(Branch entity);
+
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link BranchDTO}.
+     * @param entities
+     * @return Collection<BranchDTO>     */
+    public abstract List<BranchDTO> toBranchDTOCollection(Collection<Branch> entities);
+
+    /**
+     * Converts an instance of type {@link BranchDTO} to this DAO's entity.
+     * @param branchDTO
+     * @return Branch
+     */
+    @InheritInverseConfiguration
+    public abstract Branch branchDTOToEntity(BranchDTO branchDTO);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @InheritInverseConfiguration
+    public abstract void updateBranchFromBranchDTO(BranchDTO branchDTO, @MappingTarget Branch entity);
+
+}

@@ -52,7 +52,7 @@ export class SearchDocumentTypesVarsForm {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocumentTypeComponent implements OnInit, OnDestroy {
-  displayedColumns: string[] = ['code', 'name', 'description', 'fields', 'prompts', 'actions'];
+  displayedColumns: string[] = ['code', 'name', 'description', 'fields', 'profile', 'actions'];
 
   searchDocumentTypesVarsForm: SearchDocumentTypesVarsForm = new SearchDocumentTypesVarsForm();
   searchDocumentTypesSignal = signal(this.searchDocumentTypesVarsForm);
@@ -174,10 +174,6 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
 
   fieldCount(documentType: DocumentTypeDTO): number {
     return documentType.expectedFields?.length || 0;
-  }
-
-  promptCount(documentType: DocumentTypeDTO): number {
-    return (documentType.validationPrompts?.length || 0) + (documentType.textExtractionPrompts?.length || 0);
   }
 
   openCreate(): void {

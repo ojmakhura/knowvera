@@ -85,7 +85,7 @@
             <th class="align-center">Code</th>
             <th>Description</th>
             <th class="align-center">Fields</th>
-            <th class="align-center">Prompts</th>
+            <th class="align-center">Profile</th>
             <th class="align-end">Actions</th>
           </tr>
         </thead>
@@ -106,7 +106,7 @@
               <td class="align-center"><span class="kv-tag uppercase">{{ row.code || 'Unassigned' }}</span></td>
               <td class="description-cell">{{ row.description || '—' }}</td>
               <td class="align-center vs-mono">{{ fieldCount(row) }}</td>
-              <td class="align-center vs-mono">{{ promptCount(row) }}</td>
+              <td class="align-center vs-mono">{{ row.processingProfileCode || 'Default' }}</td>
               <td>
                 <div class="vs-row-actions">
                   <button type="button" class="vs-action" matTooltip="Edit document type" aria-label="Edit document type"

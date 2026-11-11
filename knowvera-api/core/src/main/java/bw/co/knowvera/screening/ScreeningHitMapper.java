@@ -1,0 +1,41 @@
+package bw.co.knowvera.screening;
+
+import java.util.Collection;
+import java.util.List;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.InheritInverseConfiguration;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+
+@Mapper(
+    componentModel = "spring"
+)
+public abstract class ScreeningHitMapper {
+    
+    /**
+     * Converts this entity to an object of type {@link ScreeningHitDTO}.
+     * @param entity
+     * @return ScreeningHitDTO
+     */
+    public abstract ScreeningHitDTO toScreeningHitDTO(ScreeningHit entity);
+
+     /**
+     * Converts this DAO's entity to a Collection of instances of type {@link ScreeningHitDTO}.
+     * @param entities
+     * @return Collection<ScreeningHitDTO>     */
+    public abstract List<ScreeningHitDTO> toScreeningHitDTOCollection(Collection<ScreeningHit> entities);
+
+    /**
+     * Converts an instance of type {@link ScreeningHitDTO} to this DAO's entity.
+     * @param screeningHitDTO
+     * @return ScreeningHit
+     */
+    @InheritInverseConfiguration
+    public abstract ScreeningHit screeningHitDTOToEntity(ScreeningHitDTO screeningHitDTO);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @InheritInverseConfiguration
+    public abstract void updateScreeningHitFromScreeningHitDTO(ScreeningHitDTO screeningHitDTO, @MappingTarget ScreeningHit entity);
+
+}

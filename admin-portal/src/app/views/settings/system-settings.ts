@@ -12,7 +12,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatTableModule } from '@angular/material/table';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { forkJoin } from 'rxjs';
@@ -38,9 +37,6 @@ import { KycFieldGroupDTO } from '@app/models/bw/co/knowvera/settings/kyc/kyc-fi
 import { AddKycFieldGroupDialog } from './add-kyc-field-group-dialog/add-kyc-field-group-dialog';
 import { KycFieldGroupApi } from '@app/services/bw/co/knowvera/settings/kyc/kyc-field-group-api';
 import { GroupFieldDTO } from '@app/models/bw/co/knowvera/settings/kyc/group-field-dto';
-import { ToolSelectorDTO } from '@app/models/bw/co/knowvera/settings/tool-selector-dto';
-import { Tool } from '@app/models/bw/co/knowvera/settings/tool';
-import { AddToolSelectorDialog } from './add-tool-selector-dialog/add-tool-selector-dialog';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { MatButtonToggleGroup, MatButtonToggleModule } from '@angular/material/button-toggle';
 import { toast } from 'ngx-sonner';
@@ -95,17 +91,7 @@ export class EditSettingsVarsForm {
   maxDataVerificationFailureThreshold: number | any = null;
   organisationKycFieldGroups: Array<KycFieldGroupDTO> = [];
   individualKycFieldGroups: Array<KycFieldGroupDTO> = [];
-  textExtractionTools: Array<ToolSelectorDTO> = [];
-  documentConfirmationTools: Array<ToolSelectorDTO> = [];
-  textProcessingTools: Array<ToolSelectorDTO> = [];
-  textCleanupTools: Array<ToolSelectorDTO> = [];
 }
-
-type ToolSelectorTarget =
-  | 'textExtractionTools'
-  | 'documentConfirmationTools'
-  | 'textProcessingTools'
-  | 'textCleanupTools';
 
 @Component({
   selector: 'app-system-settings',
@@ -125,7 +111,6 @@ type ToolSelectorTarget =
     MatSelectModule,
     MatSliderModule,
     MatTableModule,
-    MatTabsModule,
     MatDialogModule,
     MatCheckboxModule,
     FormField,
@@ -150,7 +135,6 @@ export class SystemSettings {
   readonly availableTemplates = signal<DocumentDTO[]>([]);
   readonly documentTypePurpose = DocumentTypePurpose;
   readonly targetEntity = TargetEntity;
-  readonly toolOptions = Object.values(Tool);
   protected readonly toast = toast;
 
   readonly salaryRangeColumns = ['label', 'min', 'max', 'active', 'actions'];
@@ -357,11 +341,7 @@ export class SystemSettings {
         settings.kycPortalLink ||
         settings.organisationDocuments?.length ||
         settings.individualDocuments?.length ||
-        settings.salaryRanges?.length ||
-        settings.textExtractionTools?.length ||
-        settings.documentConfirmationTools?.length ||
-        settings.textProcessingTools?.length ||
-        settings.textCleanupTools?.length),
+        settings.salaryRanges?.length),
     );
   }
 
@@ -462,10 +442,6 @@ export class SystemSettings {
       maxDataVerificationFailureThreshold: settings.maxDataVerificationFailureThreshold,
       organisationKycFieldGroups: settings.organisationKycFieldGroups || [],
       individualKycFieldGroups: settings.individualKycFieldGroups || [],
-      textExtractionTools: this.normalizeToolSelectors(settings.textExtractionTools),
-      documentConfirmationTools: this.normalizeToolSelectors(settings.documentConfirmationTools),
-      textProcessingTools: this.normalizeToolSelectors(settings.textProcessingTools),
-      textCleanupTools: this.normalizeToolSelectors(settings.textCleanupTools),
     });
 
     this.refreshKycExpectedFieldOptions(settings.indKycDocuments || [], settings.orgKycDocuments || []);
@@ -741,10 +717,6 @@ export class SystemSettings {
     settings.documentDurationLimit = this.asNumber(value.documentDurationLimit);
     settings.dataVerificationThreshold = this.asNumber(value.dataVerificationThreshold);
     settings.maxDataVerificationFailureThreshold = this.asNumber(value.maxDataVerificationFailureThreshold);
-    settings.textExtractionTools = this.normalizeToolSelectors(value.textExtractionTools);
-    settings.documentConfirmationTools = this.normalizeToolSelectors(value.documentConfirmationTools);
-    settings.textProcessingTools = this.normalizeToolSelectors(value.textProcessingTools);
-    settings.textCleanupTools = this.normalizeToolSelectors(value.textCleanupTools);
     settings.individualKycFieldGroups = this.normalizeKycGroups(
       value.individualKycFieldGroups,
       this.settings.individualKycFieldGroups,
@@ -759,102 +731,6 @@ export class SystemSettings {
     );
 
     return settings;
-  }
-
-  openAddToolSelectorDialog(target: ToolSelectorTarget): void {
-    this.dialog.open(AddToolSelectorDialog, {
-      width: 'min(96vw, 520px)',
-      maxWidth: '100vw',
-      data: {
-        title: `Add ${this.toolSelectorLabelFor(target)}`,
-        toolOptions: this.toolOptions,
-      },
-    }).afterClosed().subscribe((result: ToolSelectorDTO | null) => {
-      if (!result) {
-        return;
-      }
-
-      this.applyToolSelectorChange(target, (items) => [...items, result]);
-    });
-  }
-
-  removeToolSelector(target: ToolSelectorTarget, index: number): void {
-    this.applyToolSelectorChange(
-      target,
-      (items) => items.filter((_: ToolSelectorDTO, i: number) => i !== index),
-    );
-  }
-
-  moveToolSelectorUp(target: ToolSelectorTarget, index: number): void {
-    if (index <= 0) {
-      return;
-    }
-
-    this.applyToolSelectorChange(target, (items) => {
-      const reordered = [...items];
-      [reordered[index - 1], reordered[index]] = [reordered[index], reordered[index - 1]];
-      return reordered;
-    });
-  }
-
-  moveToolSelectorDown(target: ToolSelectorTarget, index: number): void {
-    this.applyToolSelectorChange(target, (items) => {
-      if (index >= items.length - 1) {
-        return items;
-      }
-
-      const reordered = [...items];
-      [reordered[index], reordered[index + 1]] = [reordered[index + 1], reordered[index]];
-      return reordered;
-    });
-  }
-
-  private normalizeToolSelectors(tools: ToolSelectorDTO[] | null | undefined): ToolSelectorDTO[] {
-    return (tools || []).map((tool, index) => {
-      const normalized = new ToolSelectorDTO();
-      normalized.id = tool?.id ?? null;
-      normalized.tool = tool?.tool ?? null;
-      normalized.position = index + 1;
-      return normalized;
-    });
-  }
-
-  private applyToolSelectorChange(
-    target: ToolSelectorTarget,
-    update: (items: ToolSelectorDTO[]) => ToolSelectorDTO[],
-  ): void {
-    let nextItems: ToolSelectorDTO[] = [];
-
-    this.editSettingsSignal.update((value) => {
-      const current = this.normalizeToolSelectors(value[target] || []);
-      nextItems = this.normalizeToolSelectors(update(current));
-      return {
-        ...value,
-        [target]: nextItems,
-      } as EditSettingsVarsForm;
-    });
-
-    this.persistToolSelectorChanges();
-  }
-
-  private persistToolSelectorChanges(): void {
-    const settings = this.getSettings(this.editSettingsSignal());
-    this.loading.set(true);
-    this.loaderMessage.set('Saving settings');
-    this.settingsApiStore.save({ settings });
-  }
-
-  private toolSelectorLabelFor(target: ToolSelectorTarget): string {
-    switch (target) {
-      case 'textExtractionTools':
-        return 'Text Extraction Tool';
-      case 'documentConfirmationTools':
-        return 'Document Confirmation Tool';
-      case 'textProcessingTools':
-        return 'Text Processing Tool';
-      case 'textCleanupTools':
-        return 'Text Cleanup Tool';
-    }
   }
 
   private buildKycFieldGroups(

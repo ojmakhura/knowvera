@@ -3,7 +3,6 @@ import {AuditableDTO} from '@models/bw/co/knowvera/auditable-dto';
 import {DocumentDTO} from '@models/bw/co/knowvera/document/document-dto';
 import {KycFieldGroupDTO} from '@models/bw/co/knowvera/settings/kyc/kyc-field-group-dto';
 import {DocumentTypeDTO} from '@models/bw/co/knowvera/document/type/document-type-dto';
-import {ToolSelectorDTO} from '@models/bw/co/knowvera/settings/tool-selector-dto';
 import {SalaryRangeDTO} from '@models/bw/co/knowvera/settings/salary-range-dto';
 
 export class SettingsDTO extends AuditableDTO {
@@ -34,10 +33,6 @@ export class SettingsDTO extends AuditableDTO {
     maxDataVerificationFailureThreshold: number | any;
     individualKycFieldGroups: Array<KycFieldGroupDTO> | any;
     organisationKycFieldGroups: Array<KycFieldGroupDTO> | any;
-    textExtractionTools: Array<ToolSelectorDTO> | any = [];
-    documentConfirmationTools: Array<ToolSelectorDTO> | any = [];
-    textProcessingTools: Array<ToolSelectorDTO> | any = [];
-    textCleanupTools: Array<ToolSelectorDTO> | any = [];
     mediumRiskKycDuration: number | any;
     highRiskKycDuration: number | any;
     highRiskCountries: Array<string> | any;
@@ -70,10 +65,6 @@ export class SettingsDTO extends AuditableDTO {
         this.maxDataVerificationFailureThreshold = null;
         this.individualKycFieldGroups = [];
         this.organisationKycFieldGroups = [];
-        this.textExtractionTools = [];
-        this.documentConfirmationTools = [];
-        this.textProcessingTools = [];
-        this.textCleanupTools = [];
         this.mediumRiskKycDuration = null;
         this.highRiskKycDuration = null;
         this.highRiskCountries = [];

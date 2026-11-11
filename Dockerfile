@@ -1,18 +1,10 @@
-# Dockerfile for Native Image
-FROM eclipse-temurin:21-jre-jammy
-
-# Install Tesseract OCR
-RUN apt-get update && \
-    apt-get install -y tesseract-ocr tesseract-ocr-eng libtesseract-dev libleptonica-dev && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set Tesseract data path
-ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4/tessdata
+# knowvera-api (knowvera-api/webservice): document processing runs in veritas-processor
+FROM eclipse-temurin:25-jre-jammy
 
 RUN mkdir -p /app
 WORKDIR /app
 
-ARG WAR_FILE=webservice/target/knowvera-webservice*.jar
+ARG WAR_FILE=knowvera-api/webservice/target/knowvera-webservice*.jar
 COPY ${WAR_FILE} knowvera-webservice.jar
 COPY knowvera_start.sh knowvera_start.sh
 
