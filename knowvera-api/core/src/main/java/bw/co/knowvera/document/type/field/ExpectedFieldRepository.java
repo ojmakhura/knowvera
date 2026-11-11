@@ -11,53 +11,13 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ExpectedFieldRepository extends JpaRepository<ExpectedField, UUID>, JpaSpecificationExecutor<ExpectedField> {
 
-    @Query(
-        value = """
-            SELECT NEW bw.co.knowvera.document.type.field.ExpectedFieldDTO(
-            CAST(f.id as string), f.createdBy, f.createdAt, f.modifiedBy, f.modifiedAt,
-            f.field, f.mandatory, f.format, CAST(d.id as string), d.name, f.matchTo,
-            f.targetType, f.many, f.fieldType, f.fieldLabel, f.exactMatch)
-            FROM ExpectedField f
-            LEFT JOIN f.documentType d
-           WHERE d.id IN :documentTypeIds
-        """
-    )
-    java.util.List<bw.co.knowvera.document.type.field.ExpectedFieldDTO> findDtoByDocumentTypeId(java.util.List<java.util.UUID> documentTypeIds);
+    // The definition of a field (label, type, format, many, mandatory) is not a column: the fields
+    // are loaded as entities, which get it when they load (ExpectedFieldDefinitionListener)
 
-    @Query(
-        value = """
-            SELECT NEW bw.co.knowvera.document.type.field.ExpectedFieldDTO(
-            CAST(f.id as string), f.createdBy, f.createdAt, f.modifiedBy, f.modifiedAt,
-            f.field, f.mandatory, f.format, CAST(d.id as string), d.name, f.matchTo,
-            f.targetType, f.many, f.fieldType, f.fieldLabel, f.exactMatch)
-            FROM ExpectedField f
-            LEFT JOIN f.documentType d
-           WHERE d.id IN :documentTypeIds
-        """
-    )
-    Page<ExpectedFieldDTO> findDtoByDocumentTypeId(java.util.List<java.util.UUID> documentTypeIds, Pageable pageable);
+    @Query("SELECT f FROM ExpectedField f WHERE f.documentType.id IN :documentTypeIds")
+    java.util.List<ExpectedField> findByDocumentTypeIds(java.util.List<java.util.UUID> documentTypeIds);
 
-    @Query(
-        value = """
-            SELECT NEW bw.co.knowvera.document.type.field.ExpectedFieldDTO(
-            CAST(f.id as string), f.createdBy, f.createdAt, f.modifiedBy, f.modifiedAt,
-            f.field, f.mandatory, f.format, CAST(d.id as string), d.name, f.matchTo,
-            f.targetType, f.many, f.fieldType, f.fieldLabel, f.exactMatch)
-            FROM ExpectedField f
-            LEFT JOIN f.documentType d
-            WHERE f.id = :id
-        """
-    )
-    Optional<bw.co.knowvera.document.type.field.ExpectedFieldDTO> findDtoById(java.util.UUID id);
-
-    @Query(
-        value = """
-            SELECT  COUNT(f.id)
-            FROM ExpectedField f
-            LEFT JOIN f.documentType d
-           WHERE d.id = :documentTypeId
-        """
-    )
-    Optional<bw.co.knowvera.document.type.field.ExpectedFieldDTO> countByDocumentTypeId(java.util.UUID documentTypeId);
+    @Query("SELECT f FROM ExpectedField f WHERE f.documentType.id IN :documentTypeIds")
+    Page<ExpectedField> findByDocumentTypeIds(java.util.List<java.util.UUID> documentTypeIds, Pageable pageable);
 
 }

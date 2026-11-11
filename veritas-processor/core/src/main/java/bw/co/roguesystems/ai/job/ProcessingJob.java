@@ -12,6 +12,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
@@ -21,7 +22,9 @@ import jakarta.persistence.Table;
  * outputs, so any extraction can be traced back to how it was produced.
  */
 @Entity
-@Table(name = "veritas_job")
+@Table(name = "veritas_job", indexes = {
+        @Index(name = "ix_veritas_job_correlation", columnList = "correlation_id"),
+        @Index(name = "ix_veritas_job_started_at", columnList = "started_at") })
 public class ProcessingJob {
 
     @Id
@@ -52,19 +55,19 @@ public class ProcessingJob {
     private Instant finishedAt;
 
     /** The request, without its text, as JSON. */
-    @Column(name = "request_json")
+    @Column(name = "request_json", columnDefinition = "TEXT")
     private String requestJson;
 
-    @Column(name = "result_text")
+    @Column(name = "result_text", columnDefinition = "TEXT")
     private String text;
 
-    @Column(name = "fields_json")
+    @Column(name = "fields_json", columnDefinition = "TEXT")
     private String fieldsJson;
 
-    @Column(name = "classification_json")
+    @Column(name = "classification_json", columnDefinition = "TEXT")
     private String classificationJson;
 
-    @Column(name = "error")
+    @Column(name = "error", columnDefinition = "TEXT")
     private String error;
 
     @ElementCollection(fetch = FetchType.EAGER)

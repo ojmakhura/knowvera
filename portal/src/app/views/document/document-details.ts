@@ -3,6 +3,8 @@ import Keycloak from 'keycloak-js';
 import { JsonPipe, KeyValuePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, OnInit, signal, AfterViewInit, OnDestroy, effect, inject, linkedSignal } from '@angular/core';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
+import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
+import { DocumentAnalyticsStatus } from '@app/models/bw/co/knowvera/document/document-analytics-status';
 import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/document-verification-status';
 import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
 import { swalFire } from '@app/@shared/swal-loader';
@@ -147,7 +149,9 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
 
   }
 
-  ngOnDestroy(): void { }
+  ngOnDestroy(): void {
+    this.stopFollowingAnalysis();
+  }
 
   get statusIcon(): string {
     switch (this.document()?.verificationStatus) {
@@ -316,11 +320,89 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  // Analysis runs in the background (veritas-processor): asking for it only queues the document,
+  // and the results arrive later. The page keeps reloading the document quietly until they are in.
+  private readonly documentApi = inject(DocumentApi);
+  private analysisPoll: ReturnType<typeof setInterval> | undefined;
+  protected readonly analysisPending = signal(false);
+
+  /** Where the document is in its analysis, in words. */
+  protected readonly analysisSummary = computed(() => {
+    if (this.analysisPending()) {
+      return 'Analysis is running in the background. This page updates when the results arrive.';
+    }
+    switch (this.document()?.analyticsStatus) {
+      case DocumentAnalyticsStatus.TEXT_EXTRACTION_COMPLETE:
+      case DocumentAnalyticsStatus.TEXT_CLEANUP_COMPLETE:
+        return 'The text has been read. The fields are being extracted.';
+      case DocumentAnalyticsStatus.INFORMATION_EXTRACTION_COMPLETE:
+        return 'The fields have been extracted. The document type is being confirmed.';
+      case DocumentAnalyticsStatus.TYPE_CONFIRMATION_COMPLETE:
+        return 'The document type has been confirmed. The extracted information is being checked.';
+      case DocumentAnalyticsStatus.INFORMATION_CONFIRMATION_COMPLETE:
+        return 'Analysis complete.';
+      default:
+        return 'This document has not been analysed yet.';
+    }
+  });
+
   analyseDocument(): void {
     const documentId = this.document()?.id;
     if (!documentId) return;
 
     this.documentApiStore.analyseDocument({ id: documentId });
+    this.followAnalysis(documentId);
+  }
+
+  /**
+   * Reloads the document every few seconds, without the loader or notifications, until its
+   * results have stopped changing or three minutes have passed.
+   */
+  private followAnalysis(documentId: string): void {
+    this.stopFollowingAnalysis();
+    this.analysisPending.set(true);
+    const before = this.analysisFingerprint(this.document());
+    let polls = 0;
+    let lastSeen = before;
+    let unchanged = 0;
+
+    this.analysisPoll = setInterval(() => {
+      polls++;
+      this.documentApi.findById(documentId).subscribe({
+        next: (document: any) => {
+          if (!document) return;
+          this.document.set(document);
+          const now = this.analysisFingerprint(document);
+          unchanged = now === lastSeen ? unchanged + 1 : 0;
+          lastSeen = now;
+          if (now !== before && unchanged >= 2) {
+            this.stopFollowingAnalysis();
+          }
+        },
+        error: () => this.stopFollowingAnalysis(),
+      });
+      if (polls >= 36) {
+        this.stopFollowingAnalysis();
+      }
+    }, 5000);
+  }
+
+  /** What analysis changes on a document, as one comparable value. */
+  private analysisFingerprint(document: any): string {
+    return JSON.stringify([
+      document?.modifiedAt,
+      document?.analyticsStatus,
+      document?.extractedInformation,
+      document?.validationResults,
+    ]);
+  }
+
+  private stopFollowingAnalysis(): void {
+    if (this.analysisPoll) {
+      clearInterval(this.analysisPoll);
+      this.analysisPoll = undefined;
+    }
+    this.analysisPending.set(false);
   }
 
   verifyData(): void {

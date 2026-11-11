@@ -67,7 +67,8 @@ public class ExpectedFieldServiceImpl
             Integer pageSize) throws Exception {
 
         List<UUID> documentTypeUUIDs = documentTypeIds.stream().map(UUID::fromString).toList();
-        return this.expectedFieldRepository.findDtoByDocumentTypeId(documentTypeUUIDs, PageRequest.of(pageNumber, pageSize));
+        return this.expectedFieldRepository.findByDocumentTypeIds(documentTypeUUIDs, PageRequest.of(pageNumber, pageSize))
+                .map(this.expectedFieldMapper::toExpectedFieldDTO);
     }
 
     @Override
@@ -75,7 +76,8 @@ public class ExpectedFieldServiceImpl
 
         List<UUID> documentTypeUUIDs = documentTypeIds.stream().map(UUID::fromString).toList();
 
-        return this.expectedFieldRepository.findDtoByDocumentTypeId(documentTypeUUIDs);
+        return this.expectedFieldMapper.toExpectedFieldDTOCollection(
+                this.expectedFieldRepository.findByDocumentTypeIds(documentTypeUUIDs));
     }
 
 }

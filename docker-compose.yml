@@ -82,9 +82,6 @@ services:
       # --- Document processing (veritas-processor) ---
       PROCESSING_DEFAULT_PROFILE: ${PROCESSING_DEFAULT_PROFILE:-default}
       VERITAS_URL: ${VERITAS_URL:-http://veritas-processor:8086}
-      VERITAS_SEED_PROFILES: ${VERITAS_SEED_PROFILES:-false}
-      # What the removed pipeline's LM_STUDIO tool meant, for VERITAS_SEED_PROFILES
-      LLM_ID: ${LLM_ID:-ollama}
       AUTHZ_PERMISSION_AUTHORITIES: ${AUTHZ_PERMISSION_AUTHORITIES:-true}
       API_CLIENT: ${API_CLIENT:-knowvera-api}
       API_CLIENT_SECRET: ${API_CLIENT_SECRET:-secret}
@@ -147,6 +144,8 @@ services:
       VERITAS_DATABASE_URL: ${VERITAS_DATABASE_URL:-jdbc:postgresql://postgres:5432/veritas}
       VERITAS_DB_USERNAME: ${VERITAS_DB_USERNAME:-veritas}
       VERITAS_DB_PASSWORD: ${VERITAS_DB_PASSWORD:-veritas}
+      # Hibernate makes the tables; true also runs the Liquibase changelog, after Hibernate
+      VERITAS_LIQUIBASE: ${VERITAS_LIQUIBASE:-false}
       # --- RabbitMQ (jobs and results: x.veritas) ---
       RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
       RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}

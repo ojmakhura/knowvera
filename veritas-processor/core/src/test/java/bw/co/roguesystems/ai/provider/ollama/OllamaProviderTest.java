@@ -33,7 +33,7 @@ class OllamaProviderTest {
     private HttpServer server;
     private int status = 200;
     private String answer = "{\"model\": \"gemma4:latest\", \"message\": {\"role\": \"assistant\", \"content\": \"hello\"}, "
-            + "\"done_reason\": \"stop\"}";
+            + "\"done\": true, \"done_reason\": \"stop\", \"prompt_eval_count\": 12, \"eval_count\": 3}";
     private long answerDelayMillis;
 
     @BeforeEach

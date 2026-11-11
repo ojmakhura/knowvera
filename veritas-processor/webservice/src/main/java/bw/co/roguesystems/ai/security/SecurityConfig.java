@@ -21,8 +21,8 @@ import org.springframework.security.web.SecurityFilterChain;
  * Bearer tokens from Keycloak. Access comes from the roles of the processor's client
  * (resource_access.&lt;veritas.security.client-id&gt;.roles):
  * <ul>
- * <li>profiles-view: read profiles</li>
- * <li>profiles-admin: read and save profiles</li>
+ * <li>profiles-view: read profiles and schemas</li>
+ * <li>profiles-admin: read and save profiles and schemas</li>
  * <li>jobs-submit: submit jobs and read their results</li>
  * </ul>
  */
@@ -46,6 +46,8 @@ public class SecurityConfig {
                                 "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/profiles/**").hasAnyRole(PROFILES_VIEW, PROFILES_ADMIN)
                         .requestMatchers("/profiles/**").hasRole(PROFILES_ADMIN)
+                        .requestMatchers(HttpMethod.GET, "/schemas/**").hasAnyRole(PROFILES_VIEW, PROFILES_ADMIN)
+                        .requestMatchers("/schemas/**").hasRole(PROFILES_ADMIN)
                         .requestMatchers("/jobs/**").hasRole(JOBS_SUBMIT)
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(resourceServer -> resourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(converter)));

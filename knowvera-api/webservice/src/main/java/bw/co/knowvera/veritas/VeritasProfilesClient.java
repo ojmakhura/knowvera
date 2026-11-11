@@ -9,13 +9,16 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.jspecify.annotations.Nullable;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import bw.co.roguesystems.ai.profile.ProcessingProfileDTO;
 import bw.co.roguesystems.ai.profile.ProfileSummary;
+import bw.co.roguesystems.ai.schema.ExtractionSchemaDTO;
 
 /**
- * veritas-processor's profile API, called with this API's own client credentials (the
+ * veritas-processor's profile and schema API, called with this API's own client credentials (the
  * service account of app.authz.client needs the veritas-processor client role profiles-admin, and
  * veritas-processor in its token audience).
  */
@@ -53,6 +56,22 @@ public class VeritasProfilesClient {
     public ProcessingProfileDTO save(String code, ProcessingProfileDTO profile) {
         return api.put().uri("/profiles/{code}", code).headers(h -> h.setBearerAuth(token()))
                 .contentType(MediaType.APPLICATION_JSON).body(profile).retrieve().body(ProcessingProfileDTO.class);
+    }
+
+    /** The latest version of a schema, or null when there is none. */
+    public @Nullable ExtractionSchemaDTO schema(String code) {
+        try {
+            return api.get().uri("/schemas/{code}", code).headers(h -> h.setBearerAuth(token())).retrieve()
+                    .body(ExtractionSchemaDTO.class);
+        } catch (HttpClientErrorException.NotFound e) {
+            return null;
+        }
+    }
+
+    /** Saves the schema as the next version of {@code code} (unchanged schemas keep their version). */
+    public ExtractionSchemaDTO saveSchema(String code, ExtractionSchemaDTO schema) {
+        return api.put().uri("/schemas/{code}", code).headers(h -> h.setBearerAuth(token()))
+                .contentType(MediaType.APPLICATION_JSON).body(schema).retrieve().body(ExtractionSchemaDTO.class);
     }
 
     private synchronized String token() {

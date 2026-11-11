@@ -8,6 +8,8 @@ import bw.co.knowvera.document.type.DocumentType;
 import bw.co.knowvera.document.type.verification.VerificationDataConfig;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Transient;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -32,6 +34,7 @@ import org.hibernate.annotations.UuidGenerator;
  * TODO: Model Documentation for ExpectedField
  */
 @Entity
+@EntityListeners(ExpectedFieldDefinitionListener.class)
 @Table(
     name = "EXPECTED_FIELD", uniqueConstraints = {
         @UniqueConstraint(
@@ -105,7 +108,8 @@ public class ExpectedField
     }
 
 
-    @Column(name = "MANDATORY", unique = false, nullable = true, insertable = true, updatable = true)
+    // Kept in veritas-processor (FieldDefinitionSource), not in a column here
+    @Transient
     private Boolean mandatory = Boolean.valueOf(false);
 
     /**
@@ -127,7 +131,8 @@ public class ExpectedField
     }
 
 
-    @Column(name = "FORMAT", unique = false, nullable = true, insertable = true, updatable = true)
+    // Kept in veritas-processor (FieldDefinitionSource), not in a column here
+    @Transient
     private String format;
 
     /**
@@ -194,7 +199,8 @@ public class ExpectedField
     }
 
 
-    @Column(name = "MANY", unique = false, nullable = true, insertable = true, updatable = true)
+    // Kept in veritas-processor (FieldDefinitionSource), not in a column here
+    @Transient
     private Boolean many = Boolean.valueOf(false);
 
     /**
@@ -216,8 +222,8 @@ public class ExpectedField
     }
 
 
-    @Column(name = "FIELD_TYPE", unique = false, nullable = false, insertable = true, updatable = true)
-    @Enumerated(EnumType.STRING)
+    // Kept in veritas-processor (FieldDefinitionSource), not in a column here
+    @Transient
     private ExpectedFieldType fieldType;
 
     /**
@@ -239,7 +245,8 @@ public class ExpectedField
     }
 
 
-    @Column(name = "FIELD_LABEL", unique = false, nullable = true, insertable = true, updatable = true)
+    // Kept in veritas-processor (FieldDefinitionSource), not in a column here
+    @Transient
     private String fieldLabel;
 
     /**

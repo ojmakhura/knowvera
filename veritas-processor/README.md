@@ -26,7 +26,10 @@ A profile is a named list of steps, run in this order (each optional):
 A step tries its providers in order; the first result wins. When none can and one of them was
 unreachable, timed out or failed itself, the step is tried again after a wait
 (`VERITAS_JOB_ATTEMPTS`, `VERITAS_JOB_RETRY_DELAY`). With `VERITAS_LOCAL_ONLY=true` cloud providers
-(Gemini) are skipped. Prompts are templates with `{{documentType}}`, `{{fields}}`,
+(Gemini) are skipped. The language models are all called through Spring AI (`ChatModelProvider`):
+a provider class only builds its model and adds what it alone has, so options, schemas, cut-off
+answers and failures are handled the same way for each. Spring AI's own retries are off. Prompts
+are templates with `{{documentType}}`, `{{fields}}`,
 `{{candidateTypes}}` and `{{text}}` (wrapped in `<document>` delimiters, with an untrusted-content
 notice added to the system prompt); a step without prompts uses `DefaultPrompts`.
 
@@ -37,7 +40,7 @@ Step options (checked when the profile is saved):
 | `temperature`, `topP`, `topK` | language models | sampling; the temperature is 0 unless set |
 | `numCtx` | Ollama | context window in tokens (default `OLLAMA_NUM_CTX`, 8192). A prompt that does not fit fails the attempt: Ollama would otherwise cut it short silently |
 | `maxTokens` | language models | longest answer; an answer cut off at the limit fails the attempt |
-| `structuredOutput` | field extraction, classification | `true`/`false`: hold the answer to a JSON schema (Ollama `format`, LM Studio `response_format`; Gemini is asked for JSON). On for field extraction, and for classification with the default prompts |
+| `structuredOutput` | field extraction, classification | `true`/`false`: hold the answer to a JSON schema (Ollama `format`, LM Studio `response_format`; Gemini is asked for JSON). A model may ignore it (Ollama 0.20 with gemma4 does): the prompt still gives the shape and the answer is read leniently. On for field extraction, and for classification with the default prompts |
 | `ocrLanguages`, `ocrDpi` | text extraction | Tesseract languages (`eng+tsn`) and rendering resolution |
 
 The classification's `score` and `match` are worked out by the processor from the signal scores
@@ -50,6 +53,22 @@ stamp), so OCR runs.
 
 Saving a profile (`PUT /profiles/{code}`) adds a version; versions never change and every job
 records the version it ran with. The `default` profile is created on first start.
+
+## Schemas
+
+A schema is a named set of fields to extract from text: a code, a name (a label) and its fields
+(`FieldSpec`: name, label, type, format, many, mandatory). A schema is not tied to what the text
+is: any job can name it, for a stored document or for text the job brings itself (`fromStep`
+`FIELD_EXTRACTION` with `text`), and several kinds of text can share one. Schemas are configured
+here, through `/schemas` (`GET /schemas`, `GET /schemas/{code}`, `GET /schemas/{code}/versions`,
+`PUT /schemas/{code}`; the `profiles-view` and `profiles-admin` roles). Saving a schema adds a
+version; a save that changes nothing keeps the version.
+
+A job names the schema to extract with in `schemaCode` (fields given in `fields` win). What the
+text is belongs to the job, not the schema: for classification the job gives the expected type's
+name in `documentType` and the types to choose from in `candidateTypes`, each with its name and
+either its fields or the `schemaCode` that holds them. A job whose own schema does not exist
+fails; a candidate type whose schema does not exist stays a candidate, without fields.
 
 ## Jobs
 
@@ -70,7 +89,10 @@ Metrics (`/actuator/prometheus` when exposed): `veritas.step` (timer; step, prov
 ## Setup
 
 1. **Database**: create a `veritas` database and user (`VERITAS_DATABASE_URL`, `VERITAS_DB_USERNAME`,
-   `VERITAS_DB_PASSWORD`); Liquibase creates the tables.
+   `VERITAS_DB_PASSWORD`). Hibernate creates and updates the tables from the entities
+   (`VERITAS_DDL_AUTO`, default `update`). Liquibase is off by default: `VERITAS_LIQUIBASE=true`
+   runs the changelog once Hibernate has initialised, marking the change sets for what Hibernate
+   already made as run and applying the others.
 2. **Storage**: read access to the knowvera bucket (`S3_*`, or `VERITAS_S3_ACCESS_KEY`/`SECRET_KEY`
    in docker-compose for a read-only key).
 3. **Keycloak** (realm `knowvera`): `keycloak/generate_authz.py` writes into `knowvera-realm.json`
@@ -78,7 +100,7 @@ Metrics (`/actuator/prometheus` when exposed): `veritas.step` (timer; step, prov
    - the client `veritas-processor` (no sign-in flows) with client roles `profiles-view`,
      `profiles-admin` and `jobs-submit`;
    - a `veritas-processor` audience mapper on `knowvera-api`, whose service account gets
-     `profiles-admin` (for the profile seeding).
+     `profiles-admin` (it saves its schemas).
 
    Keycloak imports the realm only when it does not exist yet (`--import-realm`); on a running
    Keycloak, import `knowvera-realm.json` through the admin console (Realm settings → Partial
@@ -96,17 +118,18 @@ confirmation through its own KYC rules (`DocumentConfirmationService`), after wh
 confirmation and verification continue in knowvera-api. A document type names its profile in
 `processingProfileCode` (blank: `PROCESSING_DEFAULT_PROFILE`).
 
-Fields are sent typed (`FieldSpec`: name, label, type, format, many, mandatory, from the document
-type's expected fields) and come back normalised to their type: every requested field present
-(null when not found), numbers and booleans as JSON values, ISO dates, lists for `many` fields.
+The fields to extract are configured in veritas-processor. knowvera-api keeps one schema per
+document type there, under the type's code (`VeritasJobFactory.schemaCode`): a job names that
+schema, and gives the document types classification chooses from by name, each with its schema.
+The extracted fields come back normalised to their type: every field of the schema present (null
+when not found), numbers and booleans as JSON values, ISO dates, lists for `many` fields.
 
-**Migrating an existing installation**: the in-process pipeline that came before is gone, but its
-settings are still in the database (Hibernate does not drop columns). Start knowvera-api once with
-`VERITAS_SEED_PROFILES=true` (and `LLM_ID` as before): it saves the `default` profile from the old
-tool selectors, a `doctype-*` profile for every document type that had its own prompts, and links
-the document types. The old columns and tables (`DOCUMENT_TYPE.VALIDATION_PROMPTS`,
-`TEXT_EXTRACTION_PROMPTS`, `TOOL_SELECTOR` and the `SETTINGS2*_TOOLS` tables) can be dropped after
-that.
+knowvera-api keeps no processing settings of its own: the steps, models and prompts are profiles
+here, and the definition of every field to extract (label, type, format, many, mandatory) is in
+the document type's schema here and read from it (`VeritasFieldDefinitions`, cached for
+`VERITAS_SCHEMA_CACHE`). Its expected fields keep a field's name and what the value is matched
+against. Saving expected fields there saves their definitions to the schema first, so the save
+fails when veritas-processor cannot be reached.
 
 ## Build
 

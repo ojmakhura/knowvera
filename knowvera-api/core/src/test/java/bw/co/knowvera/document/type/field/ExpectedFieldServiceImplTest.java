@@ -51,16 +51,18 @@ class ExpectedFieldServiceImplTest {
     }
 
     @Test
-    void findByDocumentTypeWithPagingConvertsIdsAndDelegates() throws Exception {
+    void findByDocumentTypeWithPagingConvertsIdsAndMapsTheFields() throws Exception {
         UUID typeId = UUID.randomUUID();
-        Page<ExpectedFieldDTO> expected = new PageImpl<>(List.of(new ExpectedFieldDTO()));
+        ExpectedField entity = new ExpectedField();
+        ExpectedFieldDTO dto = new ExpectedFieldDTO();
 
-        when(expectedFieldRepository.findDtoByDocumentTypeId(List.of(typeId), org.springframework.data.domain.PageRequest.of(1, 10)))
-                .thenReturn(expected);
+        when(expectedFieldRepository.findByDocumentTypeIds(List.of(typeId), org.springframework.data.domain.PageRequest.of(1, 10)))
+                .thenReturn(new PageImpl<>(List.of(entity)));
+        when(expectedFieldMapper.toExpectedFieldDTO(entity)).thenReturn(dto);
 
         Page<ExpectedFieldDTO> actual = service.findByDocumentType(List.of(typeId.toString()), 1, 10);
 
-        assertSame(expected, actual);
+        assertSame(dto, actual.getContent().getFirst());
     }
 
     @Test
@@ -108,32 +110,28 @@ class ExpectedFieldServiceImplTest {
     }
 
     @Test
-    void findByDocumentTypeWithoutPagingConvertsIdsAndDelegates() throws Exception {
+    void findByDocumentTypeWithoutPagingConvertsIdsAndMapsTheFields() throws Exception {
         UUID typeId1 = UUID.randomUUID();
         UUID typeId2 = UUID.randomUUID();
+        List<ExpectedField> entities = List.of(new ExpectedField(), new ExpectedField());
         List<ExpectedFieldDTO> expected = List.of(new ExpectedFieldDTO(), new ExpectedFieldDTO());
 
-        when(expectedFieldRepository.findDtoByDocumentTypeId(List.of(typeId1, typeId2)))
-                .thenReturn(expected);
+        when(expectedFieldRepository.findByDocumentTypeIds(List.of(typeId1, typeId2))).thenReturn(entities);
+        when(expectedFieldMapper.toExpectedFieldDTOCollection(entities)).thenReturn(expected);
 
         List<ExpectedFieldDTO> actual = service.findByDocumentType(List.of(typeId1.toString(), typeId2.toString()));
 
         assertSame(expected, actual);
-        verify(expectedFieldRepository).findDtoByDocumentTypeId(List.of(typeId1, typeId2));
     }
 
     @Test
     void findByDocumentTypeWithoutPagingReturnsEmptyListWhenNoResults() throws Exception {
         UUID typeId = UUID.randomUUID();
-        List<ExpectedFieldDTO> expected = new ArrayList<>();
 
-        when(expectedFieldRepository.findDtoByDocumentTypeId(List.of(typeId)))
-                .thenReturn(expected);
+        when(expectedFieldRepository.findByDocumentTypeIds(List.of(typeId))).thenReturn(List.of());
+        when(expectedFieldMapper.toExpectedFieldDTOCollection(List.of())).thenReturn(new ArrayList<>());
 
-        List<ExpectedFieldDTO> actual = service.findByDocumentType(List.of(typeId.toString()));
-
-        assertTrue(actual.isEmpty());
-        verify(expectedFieldRepository).findDtoByDocumentTypeId(List.of(typeId));
+        assertTrue(service.findByDocumentType(List.of(typeId.toString())).isEmpty());
     }
 
     @Test

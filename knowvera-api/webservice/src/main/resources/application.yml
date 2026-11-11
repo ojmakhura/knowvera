@@ -164,14 +164,11 @@ app:
     # The profile for document types that name none:
     default-profile: ${PROCESSING_DEFAULT_PROFILE:default}
   veritas:
-    # veritas-processor's API (profiles)
+    # veritas-processor's API: the schemas, which hold the definitions of the fields to
+    # extract (this client's service account needs the veritas-processor role profiles-admin)
     base-url: ${VERITAS_URL:http://localhost:8086}
-    # One-off migration: save profiles from the removed pipeline's tool selectors and document type
-    # prompts (still in the database), and link the document types to them. Needs this client's
-    # service account to have the veritas-processor role profiles-admin (keycloak/generate_authz.py).
-    seed-profiles: ${VERITAS_SEED_PROFILES:false}
-    # What the removed pipeline's LM_STUDIO tool meant (LLM_ID: ollama or lmstudio), for the seeding
-    legacy-llm-id: ${LLM_ID:ollama}
+    # How long a schema read from veritas-processor is reused
+    schema-cache: ${VERITAS_SCHEMA_CACHE:60s}
   retention:
     # Years a closed relationship's records are kept (Financial Intelligence Act 2022 s.32)
     years: ${RECORD_RETENTION_YEARS:20}

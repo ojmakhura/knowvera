@@ -8,7 +8,7 @@ package bw.co.roguesystems.ai.schema;
  * @param type      the kind of value (null: STRING)
  * @param format    expected format, e.g. "YYYY-MM-DD" or "9 digits" (null: the type's own)
  * @param many      whether the field holds a list of values (absent: false)
- * @param mandatory whether the document type requires it (absent: false)
+ * @param mandatory whether the text is expected to hold it (absent: false)
  */
 public record FieldSpec(String name, String label, FieldType type, String format, Boolean many, Boolean mandatory) {
 

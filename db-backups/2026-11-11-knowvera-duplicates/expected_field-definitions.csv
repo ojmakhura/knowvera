@@ -1,0 +1,94 @@
+id,document_type_fk,field,field_label,field_type,format,many,mandatory
+f4a830cb-3edb-459a-9bd6-7e3fd1949df4,1e74bd81-4bbf-48f4-9e74-f4647689fb95,certifiedBy,Certified By,STRING,,f,f
+26312717-f8f7-4187-9b8e-d34f880bd18b,1e74bd81-4bbf-48f4-9e74-f4647689fb95,certifiedOn,Certified On,DATE,"dd MMM yyyy, convert it to MM/dd/yyyy",f,f
+42c179ea-6144-49b4-a62f-b0677e0b33be,1e74bd81-4bbf-48f4-9e74-f4647689fb95,dateOfBirth,Date of Birth,DATE,"",f,t
+4f46e1dd-ed1d-4874-9a32-06e207ab7bbe,1e74bd81-4bbf-48f4-9e74-f4647689fb95,expiryDate,Date of Expiry,DATE,"The date is in the form dd/MM/yyyy, you should convert it to mm/DD/yyyy",f,f
+0e146be7-9521-440b-8e45-cd0b928fa81f,1e74bd81-4bbf-48f4-9e74-f4647689fb95,firstName,First Name,STRING,,f,t
+c2e13037-bd04-4ed2-bf71-2f85c90fabee,1e74bd81-4bbf-48f4-9e74-f4647689fb95,identityNo,ID Number,STRING,^\d{4}[12]\d{4}$,f,t
+47e597ce-8bdb-42c0-a15d-e1cbcb03cbe9,1e74bd81-4bbf-48f4-9e74-f4647689fb95,middleName,Middle Name,STRING,,f,f
+7629d30d-4435-4dab-a8a7-0e1bfe748ed1,1e74bd81-4bbf-48f4-9e74-f4647689fb95,nationality,Nationality,STRING,,f,f
+97a06b57-7a9a-43ed-b4e4-4eaa2e7d88d8,1e74bd81-4bbf-48f4-9e74-f4647689fb95,placeOfBirth,Place of Birth,STRING,,f,f
+602658a4-d205-4818-90fc-0795b2414807,1e74bd81-4bbf-48f4-9e74-f4647689fb95,sex,Sex,STRING,"If it is M, set it for MALE
+if it is F, set it for FEMALE
+Otherwise set it to UNSPECIFIED",f,f
+17620988-0ede-4432-bcc4-0e3c8e0e4001,1e74bd81-4bbf-48f4-9e74-f4647689fb95,surname,Surname,STRING,,f,t
+774853cc-f1cb-44d7-9896-d8f8a05a88c6,2518f214-e4d5-49ac-8165-42f20d25c126,documentDate,Document Date,DATE,,f,t
+6a719766-74e7-48af-b5c8-d2c157c4ed59,2518f214-e4d5-49ac-8165-42f20d25c126,employmentPosition,Position,STRING,,f,t
+89b3e37a-3a91-4a8b-a274-365d68040eea,2518f214-e4d5-49ac-8165-42f20d25c126,individualFirstName,First Name,STRING,,f,t
+feb11b93-6810-4433-a3df-c3a734d7b3ff,2518f214-e4d5-49ac-8165-42f20d25c126,individualHonorificTitle,Honorific Title,STRING,,f,f
+b59c1fa1-b5a1-480a-90ae-a2bc8ae1241c,2518f214-e4d5-49ac-8165-42f20d25c126,individualIdentityNo,Identity Number,STRING,,f,t
+71bb10f5-dab5-40c6-a31d-419a5b193d74,2518f214-e4d5-49ac-8165-42f20d25c126,individualMiddleNames,Middle Name(s),STRING,,f,f
+376bfb39-7074-497b-944e-b7626a876935,2518f214-e4d5-49ac-8165-42f20d25c126,individualPhysicalAddress,Individual Physical Address,STRING,,f,t
+0fb48c29-b508-4576-988c-5d07ec139be4,2518f214-e4d5-49ac-8165-42f20d25c126,individualPostalAddress,Individual Postal Address,STRING,,f,t
+e59faad8-8776-468b-9993-6cb97bef3e92,2518f214-e4d5-49ac-8165-42f20d25c126,individualSurname,Surname,STRING,,f,t
+7966215b-65ec-4f74-a770-61d84c37d23c,2518f214-e4d5-49ac-8165-42f20d25c126,organisationContactPerson,Contact Person,STRING,,f,t
+d30436b9-d4aa-4749-acc2-d9999ab5e5f2,2518f214-e4d5-49ac-8165-42f20d25c126,organisationName,Company Name,STRING,,f,t
+81778242-b320-4bad-9392-0b0905c91c21,2518f214-e4d5-49ac-8165-42f20d25c126,organisationNameAbbreviation,Abbreviation,STRING,,f,f
+bb06da94-e45a-4e2a-ae39-298154ea3c0b,2518f214-e4d5-49ac-8165-42f20d25c126,organisationPhoneNumber,Company Phone Number(s),STRING,,f,f
+740b3da5-4d3b-4b85-97cf-9c59ef6f0781,2518f214-e4d5-49ac-8165-42f20d25c126,organisationPhysicalAddress,Company Physical Address,STRING,,f,t
+8ba4a930-4736-4388-a947-b2895b666b1c,2518f214-e4d5-49ac-8165-42f20d25c126,organisationPostalAddress,Company Postal Address,STRING,,f,f
+75f6f0e8-7956-4046-bb56-f7e13afb517a,5f28bc30-e520-4eb0-ad77-aec9baa6bf04,deliverdToCustomerNo,Delivered To (Customer No.),STRING,,f,f
+5da4ee4d-52f0-4b52-891d-3c04d2509316,5f28bc30-e520-4eb0-ad77-aec9baa6bf04,deliveredToCustomer,Delivered To (Customer Name),STRING,,f,t
+788efc3f-74ee-48f1-92f0-8359aea14f6a,5f28bc30-e520-4eb0-ad77-aec9baa6bf04,deliveryBarcode,File Folder,STRING,May be called referenceNo,f,t
+8a0a73a5-db52-456c-bc2f-bbaabbf48182,5f28bc30-e520-4eb0-ad77-aec9baa6bf04,deliveryNoteNo,Delivery Note,STRING,,f,t
+15050004-4a98-486f-b060-9bca877e1c82,5f28bc30-e520-4eb0-ad77-aec9baa6bf04,salesOrderDate,Date,DATE,,f,t
+282f3c62-d27f-4ab0-a432-963701addc93,5f28bc30-e520-4eb0-ad77-aec9baa6bf04,salesOrderNo,Sales Order,STRING,,f,t
+736dd0ec-4e3b-4475-9f51-88ffe4d5d65c,5f28bc30-e520-4eb0-ad77-aec9baa6bf04,soldToCustomerNo,Sold To (Customer Number),STRING,,f,t
+c600aa4e-65e6-4cb2-985e-67262b9e6a2d,5f28bc30-e520-4eb0-ad77-aec9baa6bf04,soldToOrganisation,Sold To (Organisation Name),STRING,,f,t
+d7044b74-91de-43fc-a5e6-7750d459ccf3,6af44353-9cbb-43f9-86ab-3e162e17f284,tst2,Test 2,STRING,gdfgd,f,t
+0c60d032-5e2c-4906-adaa-cbdb52a501d6,8aaa8396-8d29-4fc4-896d-5a19f4f7f363,companyName,Company Name,STRING,,f,t
+9a4aa879-d014-4e1b-beef-a16ee34ad8d6,8aaa8396-8d29-4fc4-896d-5a19f4f7f363,companyType,Company Type,STRING,,f,f
+5b0b33cf-01a5-4022-a1e7-87447e602751,8aaa8396-8d29-4fc4-896d-5a19f4f7f363,directors,Directors,OBJECT,"[{
+   name: string,
+   residentialAddress: string,
+   postalAddress: string,
+   appointmentDate: date
+}]",t,f
+f65d6e9c-2182-433b-b865-e5e79b388f64,8aaa8396-8d29-4fc4-896d-5a19f4f7f363,incorporationDate,Incorporation Date,STRING,,f,t
+17e306c1-bf74-46c2-87bc-ba288280f5d7,8aaa8396-8d29-4fc4-896d-5a19f4f7f363,placeOfBusiness,Principal Place of Business,STRING,,f,t
+fcb23919-c274-4e26-b6db-14a175a20a08,8aaa8396-8d29-4fc4-896d-5a19f4f7f363,postalAddress,Postal Address,STRING,,f,t
+b851a568-db1f-4d18-bcc1-c88db2f8ff8b,8aaa8396-8d29-4fc4-896d-5a19f4f7f363,registrationDate,Registration Date,DATE,,f,t
+940ab744-db1f-41d9-8e32-0de6d39f042d,8aaa8396-8d29-4fc4-896d-5a19f4f7f363,uin,UIN,STRING,,f,t
+a40c19d1-3d87-43aa-90bd-7546970bcd8b,bb7e6bca-364b-43af-9797-d339772c4c3d,accountName,Account Name,STRING,,f,f
+1340d54b-75e0-4b64-8b8b-38d4d5171941,bb7e6bca-364b-43af-9797-d339772c4c3d,accountNumber,Account Number,STRING,,f,t
+265ea47d-51fe-4476-a933-3a8483e24f81,bb7e6bca-364b-43af-9797-d339772c4c3d,accountOpeningDate,Account Opening Date,DATE,,f,f
+8dd97189-d4ed-47ef-a573-be7c44d889b1,bb7e6bca-364b-43af-9797-d339772c4c3d,bankName,Bank Name,STRING,,f,t
+4ec6730e-f26f-4ab8-b4ab-75be4c717d08,bb7e6bca-364b-43af-9797-d339772c4c3d,branchCode,Branch Code,STRING,,f,f
+eebe7ca1-e8eb-4bcd-850d-ffb43adab149,bb7e6bca-364b-43af-9797-d339772c4c3d,branchName,Branch Name,STRING,,f,f
+c1e5d5d1-8e5b-4975-bc0a-33b699f67ef7,bb7e6bca-364b-43af-9797-d339772c4c3d,documentDate,Document Date,DATE,,f,f
+efac63c8-5d7a-44b3-a444-40d86a73ca85,bb7e6bca-364b-43af-9797-d339772c4c3d,firstName,First Name,STRING,,f,t
+93093555-7c43-42da-a206-024c4737e744,bb7e6bca-364b-43af-9797-d339772c4c3d,middleNames,Middle Name,STRING,,f,f
+432703d2-fad7-4e69-a374-7af36805ed1f,bb7e6bca-364b-43af-9797-d339772c4c3d,organisationAccountNumber,Account Number,STRING,,f,f
+c348a00a-5880-45f8-93ab-c628ac16ab37,bb7e6bca-364b-43af-9797-d339772c4c3d,organisationName,Organisation Account Name,STRING,,f,t
+3bde63f8-ed27-498b-ba1c-826bb9fe08b5,bb7e6bca-364b-43af-9797-d339772c4c3d,surname,Surname,STRING,,f,t
+f8117459-3a69-43f8-91e0-d345016c8dae,bb7e6bca-364b-43af-9797-d339772c4c3d,swiftCode,SWIFT Code,STRING,,f,f
+ca4d608c-e953-40d2-8caa-ea16623ee1f0,ea11c272-801b-4738-bbd7-7b189ff0bb55,companyName,Company Name,STRING,,f,t
+0f044209-e8e2-4e3e-915f-5ee02b9c5909,ea11c272-801b-4738-bbd7-7b189ff0bb55,companyStatus,Company Status,STRING,,f,f
+d6b5eaa0-2550-4cea-8168-ce84ccd53a69,ea11c272-801b-4738-bbd7-7b189ff0bb55,companyType,Company Type,STRING,,f,f
+8fbd105f-2563-456f-8588-83862124bbb3,ea11c272-801b-4738-bbd7-7b189ff0bb55,directors,Directors,OBJECT,"[{
+  name: string,
+  residentialAddress: string,
+  postalAddress: string,
+  appointmentDate: date
+}]",t,f
+e8ecc83a-c1ae-49be-938c-017e71ced295,ea11c272-801b-4738-bbd7-7b189ff0bb55,documentDate,Document Date,DATE,,f,f
+c9c7a9f2-d93b-4e59-9ad3-b67fc5fd86ce,ea11c272-801b-4738-bbd7-7b189ff0bb55,exempt,Exempt,STRING,Yes or No,f,f
+0ea3121b-9e22-4a61-96af-81862360cacf,ea11c272-801b-4738-bbd7-7b189ff0bb55,hasConstitution,Have own constitution?,STRING,,f,f
+adbf992b-d4fb-4a46-ba87-1d5ba7869d10,ea11c272-801b-4738-bbd7-7b189ff0bb55,incorporationDate,Incorporation Date,DATE,,f,t
+69903654-3065-4966-b33f-ceb08805fe0c,ea11c272-801b-4738-bbd7-7b189ff0bb55,physicalAddress,Principal Place of Business,STRING,,f,t
+0e47546a-1caf-421d-88ae-2acedd67945a,ea11c272-801b-4738-bbd7-7b189ff0bb55,postalAddress,Postal Address,STRING,,f,t
+0fa427b5-f335-4d12-991e-e70946ab7924,ea11c272-801b-4738-bbd7-7b189ff0bb55,secretaries,Secretaries,STRING,"[{
+  name: string,
+  uin: string,
+  registeredOfficeAddress: string,
+  appointmentDate: date
+}]",t,f
+689870a0-0c5a-48e3-9b45-9a70489d441a,ea11c272-801b-4738-bbd7-7b189ff0bb55,shareholders,Shareholders,OBJECT,"[{
+  name: string,
+  residentialAddress: string,
+  postalAddress: string,
+  appointmentDate: date,
+  numberOfShares: number
+}]",t,f
+7edad572-8562-4857-b720-42a47cb13994,ea11c272-801b-4738-bbd7-7b189ff0bb55,totalShares,Total Shares,NUMBER,,f,f
+ab5b362d-d23e-43b0-8a45-0e9ea05b6449,ea11c272-801b-4738-bbd7-7b189ff0bb55,uin,UIN,STRING,,f,t

@@ -7,12 +7,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import bw.co.roguesystems.ai.profile.ProfileNotFoundException;
+import bw.co.roguesystems.ai.schema.SchemaNotFoundException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
     @ExceptionHandler(ProfileNotFoundException.class)
     public ProblemDetail notFound(ProfileNotFoundException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    @ExceptionHandler(SchemaNotFoundException.class)
+    public ProblemDetail notFound(SchemaNotFoundException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
     }
 

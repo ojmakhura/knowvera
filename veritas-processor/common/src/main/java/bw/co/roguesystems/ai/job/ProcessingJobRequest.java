@@ -16,14 +16,17 @@ import bw.co.roguesystems.ai.schema.FieldSpec;
  * @param profileCode    the profile to run (its latest version)
  * @param document       the file; may be null when {@code text} is given and the job starts
  *                       after text extraction
- * @param documentType   the document type the caller expects
- * @param fields         the fields to extract
- * @param candidateTypes the types the classification step chooses from
+ * @param documentType   the type the caller expects the text to be, for the classification step
+ * @param fields         the fields to extract (null or empty: those of {@code schemaCode})
+ * @param candidateTypes the types the classification step chooses from, each with its fields or
+ *                       the schema that holds them
  * @param fromStep       the first step to run (null: the profile's first); a step after text
  *                       extraction needs {@code text}, without it the whole profile runs on
  *                       {@code document}
  * @param text           text to start from, when {@code fromStep} comes after text extraction
  * @param attributes     free-form values the caller wants back on the result
+ * @param schemaCode     the schema that holds the fields to extract (its latest version); null
+ *                       when {@code fields} are given
  */
 public record ProcessingJobRequest(
         String jobId,
@@ -35,17 +38,32 @@ public record ProcessingJobRequest(
         List<DocumentTypeSpec> candidateTypes,
         StepType fromStep,
         String text,
-        Map<String, String> attributes) {
+        Map<String, String> attributes,
+        String schemaCode) {
+
+    /** A job that carries its fields and candidate types itself. */
+    public ProcessingJobRequest(String jobId, String correlationId, String profileCode, DocumentRef document,
+            String documentType, List<FieldSpec> fields, List<DocumentTypeSpec> candidateTypes, StepType fromStep,
+            String text, Map<String, String> attributes) {
+        this(jobId, correlationId, profileCode, document, documentType, fields, candidateTypes, fromStep, text,
+                attributes, null);
+    }
+
+    /** This job with the fields and candidate types its schemas hold. */
+    public ProcessingJobRequest withSchemaFields(List<FieldSpec> newFields, List<DocumentTypeSpec> newCandidateTypes) {
+        return new ProcessingJobRequest(jobId, correlationId, profileCode, document, documentType, newFields,
+                newCandidateTypes, fromStep, text, attributes, schemaCode);
+    }
 
     /** This job under another id. */
     public ProcessingJobRequest withJobId(String newJobId) {
         return new ProcessingJobRequest(newJobId, correlationId, profileCode, document, documentType, fields,
-                candidateTypes, fromStep, text, attributes);
+                candidateTypes, fromStep, text, attributes, schemaCode);
     }
 
     /** This job without its text (e.g. to store the request next to a result that holds the text). */
     public ProcessingJobRequest withoutText() {
         return new ProcessingJobRequest(jobId, correlationId, profileCode, document, documentType, fields,
-                candidateTypes, fromStep, null, attributes);
+                candidateTypes, fromStep, null, attributes, schemaCode);
     }
 }

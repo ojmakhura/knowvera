@@ -20,6 +20,7 @@ import bw.co.knowvera.document.type.field.ExpectedFieldDTO;
 import bw.co.knowvera.document.type.field.ExpectedFieldType;
 import bw.co.roguesystems.ai.job.ProcessingJobRequest;
 import bw.co.roguesystems.ai.profile.StepType;
+import bw.co.roguesystems.ai.schema.DocumentTypeSpec;
 import bw.co.roguesystems.ai.schema.FieldSpec;
 import bw.co.roguesystems.ai.schema.FieldType;
 
@@ -48,6 +49,7 @@ class VeritasJobFactoryTest {
     private static DocumentTypeDTO type(String name, String profile, ExpectedFieldDTO... fields) {
         DocumentTypeDTO type = new DocumentTypeDTO();
         type.setId(name + "-id");
+        type.setCode(name.toUpperCase());
         type.setName(name);
         type.setProcessingProfileCode(profile);
         type.setExpectedFields(List.of(fields));
@@ -79,9 +81,10 @@ class VeritasJobFactoryTest {
         assertEquals("Omang", job.documentType());
         assertEquals("KYC_RECORD/1/omang.pdf", job.document().objectKey());
         assertEquals("application/pdf", job.document().contentType());
-        assertEquals(List.of(new FieldSpec("idNumber", null, FieldType.STRING, null, false, true),
-                new FieldSpec("dateOfBirth", null, FieldType.STRING, "YYYY-MM-DD", false, false)), job.fields());
-        assertEquals(List.of("Omang", "Payslip"), job.candidateTypes().stream().map(t -> t.name()).toList());
+        assertNull(job.fields(), "the fields to extract are the schema's");
+        assertEquals("OMANG", job.schemaCode());
+        assertEquals(List.of(new DocumentTypeSpec("Omang", null, "OMANG"), new DocumentTypeSpec("Payslip", null, "PAYSLIP")),
+                job.candidateTypes());
         assertNull(job.fromStep());
         assertNull(job.text(), "a job from the file does not carry the stored text");
         assertEquals(Map.of(), job.attributes());
@@ -100,6 +103,15 @@ class VeritasJobFactoryTest {
         assertEquals(StepType.FIELD_EXTRACTION, job.fromStep());
         assertEquals("stored text", job.text());
         assertTrue(job.jobId().length() <= 64);
+    }
+
+    @Test
+    void aSchemaCodeHoldsOnlyWhatVeritasAccepts() {
+        DocumentTypeDTO type = type("Delivery note", null);
+        type.setCode(" PR DEL/NT ");
+        assertEquals("PR_DEL_NT", VeritasJobFactory.schemaCode(type));
+        type.setCode(null);
+        assertEquals("Delivery_note-id", VeritasJobFactory.schemaCode(type));
     }
 
     @Test

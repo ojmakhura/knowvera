@@ -52,6 +52,9 @@ import { VerificationDataConfigApiStore } from '@app/store/bw/co/knowvera/docume
 import { VerificationDataConfigApi } from '@app/services/bw/co/knowvera/document/type/verification/verification-data-config-api';
 import { TimePeriod } from '@app/models/bw/co/knowvera/time-period';
 import { LoaderState } from '@app/@shared/loader/loader.state';
+import { DocumentTypeApi } from '@app/services/bw/co/knowvera/document/type/document-type-api';
+import { ProcessingProfile } from '@app/models/bw/co/knowvera/document/type/processing-profile';
+import { ExtractionSchema, ExtractionSchemaField } from '@app/models/bw/co/knowvera/document/type/extraction-schema';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -146,7 +149,57 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
   loaderState = inject(LoaderState);
 
+  // Processing is veritas-processor's: its profiles say how a document is processed, and its schema
+  // holds the fields extracted from this type's documents. The expected fields here say what the
+  // extracted values are matched against.
+  private readonly documentTypeApi = inject(DocumentTypeApi);
+  protected readonly processingProfiles = signal<ProcessingProfile[]>([]);
+  /** The profiles could not be read: the profile is typed in as a code instead of picked. */
+  protected readonly processingProfilesUnavailable = signal(false);
+  protected readonly extractionSchema = signal<ExtractionSchema | null>(null);
+  protected readonly extractionSchemaUnavailable = signal(false);
+  private extractionSchemaLoadedFor = '';
+
+  /** The chosen profile when the list does not hold it (removed, or typed in earlier). */
+  protected readonly unknownProcessingProfile = computed(() => {
+    const code = (this.editDocumentTypeSignal().processingProfileCode ?? '').trim();
+    return code && !this.processingProfiles().some((profile) => profile.code === code) ? code : '';
+  });
+
+  /** Fields veritas-processor extracts for this type that have no expected field (no matching rule) here. */
+  protected readonly unmatchedSchemaFields = computed<ExtractionSchemaField[]>(() => {
+    const expected = new Set(
+      this.editDocumentTypeSignal().expectedFields.map((field) => (field.field ?? '').trim().toLowerCase()),
+    );
+    return (this.extractionSchema()?.fields ?? []).filter(
+      (field) => !expected.has((field.name ?? '').trim().toLowerCase()),
+    );
+  });
+
   constructor() {
+    this.documentTypeApi.processingProfiles().subscribe({
+      next: (profiles) => this.processingProfiles.set(profiles ?? []),
+      error: () => this.processingProfilesUnavailable.set(true),
+    });
+
+    effect(() => {
+      // Reloaded after every save: saving expected fields changes the schema
+      const documentType = this.documentTypeApiStore.data();
+      const id = this.editDocumentTypeSignal().id;
+      const key = `${id}:${documentType?.modifiedAt ?? ''}:${this.editDocumentTypeSignal().expectedFields.length}`;
+      if (!id || key === this.extractionSchemaLoadedFor) {
+        return;
+      }
+      this.extractionSchemaLoadedFor = key;
+      this.documentTypeApi.extractionSchema(id).subscribe({
+        next: (schema) => {
+          this.extractionSchema.set(schema ?? null);
+          this.extractionSchemaUnavailable.set(false);
+        },
+        error: () => this.extractionSchemaUnavailable.set(true),
+      });
+    });
+
     effect(() => {
       this.loaderState.isLoading.set(this.loading());
     });
@@ -221,13 +274,25 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     return field;
   }
 
-  expectedFieldsAdd() {
+  /** Opens the expected field dialog for a field veritas-processor already extracts, to give it a matching rule. */
+  expectedFieldsAddFromSchema(schemaField: ExtractionSchemaField): void {
+    const field = this.createNewExpectedFields();
+    field.field = schemaField.name;
+    field.fieldLabel = schemaField.label;
+    field.fieldType = schemaField.type;
+    field.format = schemaField.format;
+    field.many = schemaField.many;
+    field.mandatory = schemaField.mandatory;
+    this.expectedFieldsAdd(field);
+  }
+
+  expectedFieldsAdd(preset?: ExpectedFieldDTO) {
     const dialogRef = this.dialog.open(ExpectedFieldDialogComponent, {
       width: '760px',
       maxWidth: '95vw',
       data: {
         title: 'Add Expected Field',
-        field: this.createNewExpectedFields(),
+        field: preset ?? this.createNewExpectedFields(),
       },
     });
 

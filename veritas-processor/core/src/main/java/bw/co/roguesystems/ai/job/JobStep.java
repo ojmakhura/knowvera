@@ -33,7 +33,7 @@ public class JobStep {
     private long durationMs;
 
     /** One line per failed provider attempt. */
-    @Column(name = "failures")
+    @Column(name = "failures", columnDefinition = "TEXT")
     private String failures;
 
     protected JobStep() {

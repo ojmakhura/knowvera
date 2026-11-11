@@ -830,7 +830,7 @@ VERITAS_ROLES = {
     "profiles-admin": "Read and save the processing profiles",
     "jobs-submit": "Submit processing jobs over the API and read their results",
 }
-# The API's service account saves profiles when seeding them (app.veritas.seed-profiles); its
+# The API's service account saves the document schemas in veritas-processor (VeritasSchemaSync); its
 # jobs go over RabbitMQ and need no role
 API_VERITAS_ROLES = ["profiles-admin"]
 TEST_SECRET = "test-secret"

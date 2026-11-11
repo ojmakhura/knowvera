@@ -49,22 +49,43 @@ public class VeritasJobFactory {
                 : type.getProcessingProfileCode();
         boolean fromText = fromStep != null && fromStep != StepType.TEXT_EXTRACTION;
 
+        // The fields to extract are kept in veritas-processor's schemas, which know nothing of document
+        // types: the job names the type's schema, and gives the types classification chooses from by
+        // name, each with the schema that holds its fields
         return new ProcessingJobRequest(
                 UUID.randomUUID().toString(),
                 document.getId(),
                 profile,
                 new DocumentRef(document.getUrl(), contentType(document), document.getFileName()),
                 type == null ? document.getDocumentType() : type.getName(),
-                type == null ? List.of() : fields(type.getExpectedFields()),
+                null,
                 documentTypeService.getAll().stream()
-                        .map(candidate -> new DocumentTypeSpec(candidate.getName(), fields(candidate.getExpectedFields())))
+                        .map(candidate -> new DocumentTypeSpec(candidate.getName(), null, schemaCode(candidate)))
                         .toList(),
                 fromStep,
                 fromText ? document.getFileContent() : null,
-                Map.of());
+                Map.of(),
+                type == null ? null : schemaCode(type));
     }
 
-    static List<FieldSpec> fields(@Nullable List<ExpectedFieldDTO> expectedFields) {
+    /**
+     * The code of the schema this API keeps for a document type in veritas-processor: the type's code (its id when
+     * it has none), with what a schema code cannot hold replaced.
+     */
+    public static @Nullable String schemaCode(DocumentTypeDTO type) {
+        return schemaCode(type.getCode(), type.getId());
+    }
+
+    /** The schema code of the document type with this code and id. */
+    public static @Nullable String schemaCode(@Nullable String typeCode, @Nullable String typeId) {
+        String code = StringUtils.defaultIfBlank(typeCode, typeId);
+        if (StringUtils.isBlank(code)) {
+            return null;
+        }
+        return StringUtils.left(code.trim().replaceAll("[^A-Za-z0-9_-]", "_").replaceAll("^[_-]+", ""), 100);
+    }
+
+    public static List<FieldSpec> fields(@Nullable List<ExpectedFieldDTO> expectedFields) {
         if (expectedFields == null) {
             return List.of();
         }

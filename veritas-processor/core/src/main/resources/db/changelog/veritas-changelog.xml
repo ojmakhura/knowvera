@@ -6,6 +6,8 @@
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
     <changeSet id="veritas-1-profiles" author="ojmakhura">
+        <!-- Hibernate may have made this already (ddl-auto: update) -->
+        <preConditions onFail="MARK_RAN"><not><tableExists tableName="veritas_profile"/></not></preConditions>
         <createTable tableName="veritas_profile">
             <column name="id" type="UUID"><constraints primaryKey="true" nullable="false"/></column>
             <column name="code" type="VARCHAR(100)"><constraints nullable="false"/></column>
@@ -49,6 +51,8 @@
     </changeSet>
 
     <changeSet id="veritas-1-jobs" author="ojmakhura">
+        <!-- Hibernate may have made this already (ddl-auto: update) -->
+        <preConditions onFail="MARK_RAN"><not><tableExists tableName="veritas_job"/></not></preConditions>
         <createTable tableName="veritas_job">
             <column name="id" type="VARCHAR(64)"><constraints primaryKey="true" nullable="false"/></column>
             <column name="correlation_id" type="VARCHAR(255)"/>
@@ -83,6 +87,8 @@
     </changeSet>
 
     <changeSet id="veritas-2-job-owner-and-age" author="ojmakhura">
+        <!-- Hibernate may have made this already (ddl-auto: update) -->
+        <preConditions onFail="MARK_RAN"><not><columnExists tableName="veritas_job" columnName="submitted_by"/></not></preConditions>
         <!-- Who submitted a job through the API (null: from the queue); only they read it -->
         <addColumn tableName="veritas_job">
             <column name="submitted_by" type="VARCHAR(255)"/>
@@ -91,5 +97,35 @@
         <createIndex tableName="veritas_job" indexName="ix_veritas_job_started_at">
             <column name="started_at"/>
         </createIndex>
+    </changeSet>
+
+    <changeSet id="veritas-3-schemas" author="ojmakhura">
+        <!-- Hibernate may have made this already (ddl-auto: update) -->
+        <preConditions onFail="MARK_RAN"><not><tableExists tableName="veritas_schema"/></not></preConditions>
+        <!-- The fields to extract from each kind of document; versions are never changed -->
+        <createTable tableName="veritas_schema">
+            <column name="id" type="UUID"><constraints nullable="false" primaryKey="true" primaryKeyName="veritas_schema_pkey"/></column>
+            <column name="code" type="VARCHAR(100)"><constraints nullable="false"/></column>
+            <column name="version" type="INT"><constraints nullable="false"/></column>
+            <column name="name" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="description" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE"><constraints nullable="false"/></column>
+            <column name="created_by" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint tableName="veritas_schema" columnNames="code, version" constraintName="uk_veritas_schema_code_version"/>
+
+        <createTable tableName="veritas_schema_field">
+            <column name="schema_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_veritas_field_schema" referencedTableName="veritas_schema" referencedColumnNames="id"/>
+            </column>
+            <column name="position" type="INT"><constraints nullable="false"/></column>
+            <column name="name" type="VARCHAR(255)"><constraints nullable="false"/></column>
+            <column name="label" type="VARCHAR(255)"/>
+            <column name="field_type" type="VARCHAR(20)"><constraints nullable="false"/></column>
+            <column name="format" type="VARCHAR(255)"/>
+            <column name="many" type="BOOLEAN"><constraints nullable="false"/></column>
+            <column name="mandatory" type="BOOLEAN"><constraints nullable="false"/></column>
+        </createTable>
+        <addPrimaryKey tableName="veritas_schema_field" columnNames="schema_id, position"/>
     </changeSet>
 </databaseChangeLog>

@@ -45,10 +45,10 @@ public class ProcessingStep {
     @Column(name = "model")
     private String model;
 
-    @Column(name = "system_prompt")
+    @Column(name = "system_prompt", columnDefinition = "TEXT")
     private String systemPrompt;
 
-    @Column(name = "user_prompt")
+    @Column(name = "user_prompt", columnDefinition = "TEXT")
     private String userPrompt;
 
     @ElementCollection(fetch = FetchType.EAGER)

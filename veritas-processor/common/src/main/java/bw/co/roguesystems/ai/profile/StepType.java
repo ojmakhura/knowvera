@@ -10,6 +10,6 @@ public enum StepType {
     TEXT_CLEANUP,
     /** Text to the requested fields, as JSON. */
     FIELD_EXTRACTION,
-    /** Which document type the text is, scored against the candidate types. */
+    /** Which of the candidate types the text is, scored against their fields. */
     CLASSIFICATION
 }

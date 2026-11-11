@@ -138,4 +138,36 @@ class VeritasProcessorApplicationTests {
                 .content(PROFILE.replace("\"0.1\"", "\"warm\"")))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void savingASchemaAddsAVersionOnlyWhenItsFieldsChange() throws Exception {
+        String schema = """
+                {"name": "National ID", "fields": [{"name": "idNumber", "type": "STRING", "mandatory": true},
+                 {"name": "dateOfBirth", "type": "DATE", "format": "dd/MM/yyyy"}]}""";
+        mvc.perform(put("/schemas/NID").with(role("profiles-admin")).contentType(MediaType.APPLICATION_JSON)
+                .content(schema)).andExpect(status().isOk()).andExpect(jsonPath("$.version").value(1));
+        mvc.perform(put("/schemas/NID").with(role("profiles-admin")).contentType(MediaType.APPLICATION_JSON)
+                .content(schema)).andExpect(status().isOk()).andExpect(jsonPath("$.version").value(1));
+        mvc.perform(put("/schemas/NID").with(role("profiles-admin")).contentType(MediaType.APPLICATION_JSON)
+                .content(schema.replace("dateOfBirth", "birthDate")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.version").value(2));
+
+        mvc.perform(get("/schemas/NID").with(role("profiles-view"))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.fields[1].name").value("birthDate"))
+                .andExpect(jsonPath("$.fields[0].mandatory").value(true));
+        mvc.perform(get("/schemas/NID/versions/1").with(role("profiles-view")))
+                .andExpect(jsonPath("$.fields[1].name").value("dateOfBirth"));
+        mvc.perform(get("/schemas").with(role("profiles-view")))
+                .andExpect(jsonPath("$[?(@.code == 'NID')].version").value(2));
+    }
+
+    @Test
+    void invalidSchemasAreBadRequestsAndOnlyAdminsSaveThem() throws Exception {
+        mvc.perform(put("/schemas/DUP").with(role("profiles-admin")).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\": \"Dup\", \"fields\": [{\"name\": \"a\"}, {\"name\": \"A\"}]}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(put("/schemas/X").with(role("profiles-view")).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\": \"X\"}")).andExpect(status().isForbidden());
+        mvc.perform(get("/schemas/missing").with(role("profiles-view"))).andExpect(status().isNotFound());
+    }
 }

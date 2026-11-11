@@ -11,7 +11,7 @@
     <div class="kv-page-header">
       <div>
         <h1 class="kv-title">{{ editDocumentTypeSignal().id ? 'Edit Document Type' : 'New Document Type' }}</h1>
-        <p class="kv-subtitle">Configure metadata, data fields, and AI validation logic.</p>
+        <p class="kv-subtitle">Configure metadata, the processing profile, and the fields to extract and match.</p>
       </div>
       <div class="kv-actions">
         <button type="button" class="kv-btn-secondary" (click)="discardChanges()">Cancel</button>
@@ -22,6 +22,10 @@
       </div>
     </div>
   </header>
+
+  @if (error() && messages()[0]) {
+    <p class="kv-error mb-4" role="alert">{{ messages()[0] }}</p>
+  }
 
   <form id="document-type-edit-form" [formRoot]="editDocumentTypeSignalForm">
     <div class="kv-layout">
@@ -62,11 +66,31 @@
             </div>
 
             <div class="kv-field md:col-span-2">
-              <label class="kv-label" for="documentTypeProcessingProfileCode">Processing Profile Code</label>
+              <label class="kv-label" for="documentTypeProcessingProfileCode">Processing Profile</label>
               <mat-form-field appearance="outline" class="vault-field">
-                <input id="documentTypeProcessingProfileCode" matInput type="text" placeholder="Leave blank to use the default profile"
-                  [formField]="editDocumentTypeSignalForm.processingProfileCode" />
+                @if (processingProfilesUnavailable()) {
+                  <input id="documentTypeProcessingProfileCode" matInput type="text" placeholder="Leave blank to use the default profile"
+                    [formField]="editDocumentTypeSignalForm.processingProfileCode" />
+                } @else {
+                  <mat-select id="documentTypeProcessingProfileCode" placeholder="Default profile"
+                    [formField]="editDocumentTypeSignalForm.processingProfileCode">
+                    <mat-option value="">Default profile</mat-option>
+                    @for (profile of processingProfiles(); track profile.code) {
+                      <mat-option [value]="profile.code">{{ profile.name }} ({{ profile.code }}, version {{ profile.version }})</mat-option>
+                    }
+                    @if (unknownProcessingProfile()) {
+                      <mat-option [value]="unknownProcessingProfile()">{{ unknownProcessingProfile() }} (not found)</mat-option>
+                    }
+                  </mat-select>
+                }
               </mat-form-field>
+              @if (processingProfilesUnavailable()) {
+                <p class="text-sm text-on-surface-variant mt-1">The profiles could not be read from veritas-processor. Enter a profile code, or leave blank for the default profile.</p>
+              } @else if (unknownProcessingProfile()) {
+                <p class="kv-error" role="alert">veritas-processor has no profile "{{ unknownProcessingProfile() }}": documents of this type will fail to process until another profile is chosen.</p>
+              } @else {
+                <p class="text-sm text-on-surface-variant mt-1">How veritas-processor reads documents of this type: its steps, models and prompts.</p>
+              }
             </div>
 
             <div class="kv-field md:col-span-2">
@@ -193,6 +217,34 @@
                   Add Field
                 </button>
               </div>
+
+              <p class="text-sm text-on-surface-variant mb-4">
+                veritas-processor extracts these fields from a document of this type; the matching rules (match to, target, exact match) say what each extracted value is checked against here. A field's label, type, format, many and mandatory settings are saved in veritas-processor.
+                @if (extractionSchema(); as schema) {
+                  <span class="kv-tag ml-1">Schema {{ schema.code }} · version {{ schema.version }}</span>
+                }
+              </p>
+
+              @if (extractionSchemaUnavailable()) {
+                <p class="kv-error mb-4" role="alert">The schema could not be read from veritas-processor. Field settings shown here may be incomplete, and saving fields will fail until it can be reached.</p>
+              }
+
+              @if (unmatchedSchemaFields().length > 0) {
+                <section class="kv-panel mb-4" aria-label="Extracted fields without a matching rule">
+                  <h4 class="kv-label mb-2">Extracted but not matched</h4>
+                  <p class="text-sm text-on-surface-variant mb-3">These fields were added to the schema in veritas-processor. They are extracted, but nothing is checked against them until they get a matching rule.</p>
+                  <ul class="flex flex-wrap gap-2">
+                    @for (schemaField of unmatchedSchemaFields(); track schemaField.name) {
+                      <li>
+                        <button type="button" class="kv-btn-subtle" matTooltip="Add a matching rule for this field" (click)="expectedFieldsAddFromSchema(schemaField)">
+                          <mat-icon>add</mat-icon>
+                          {{ schemaField.label || schemaField.name }}
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                </section>
+              }
 
               @if (expectedFieldCount() > 0) {
                 <div class="flex items-center justify-between gap-3 mb-4" role="group" aria-label="Expected field navigation">

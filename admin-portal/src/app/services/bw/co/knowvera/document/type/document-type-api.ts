@@ -6,6 +6,8 @@ import { HttpClient } from '@angular/common/http';
 import { Page } from '@models/page.model';
 import { SearchObject } from '@models/search-object';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
+import { ProcessingProfile } from '@app/models/bw/co/knowvera/document/type/processing-profile';
+import { ExtractionSchema } from '@app/models/bw/co/knowvera/document/type/extraction-schema';
 
 @Service()
 export class DocumentTypeApi {
@@ -52,5 +54,17 @@ export class DocumentTypeApi {
     public addExpectedField(documentTypeId: string | any, expectedFields: ExpectedFieldDTO[] | any): Observable<DocumentTypeDTO | any> {
 
         return this.http.post<DocumentTypeDTO | any>(`${this.path}/${documentTypeId}/expected-field`, expectedFields);
+    }
+
+    /** The processing profiles of veritas-processor a document type can use. */
+    public processingProfiles(): Observable<ProcessingProfile[]> {
+
+        return this.http.get<ProcessingProfile[]>(`${this.path}/processing/profiles`);
+    }
+
+    /** The veritas-processor schema of the document type's fields (null when it has none yet). */
+    public extractionSchema(documentTypeId: string | any): Observable<ExtractionSchema | null> {
+
+        return this.http.get<ExtractionSchema | null>(`${this.path}/${documentTypeId}/extraction-schema`);
     }
 }

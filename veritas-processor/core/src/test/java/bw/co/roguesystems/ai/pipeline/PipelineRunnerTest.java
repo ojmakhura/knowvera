@@ -36,7 +36,12 @@ import bw.co.roguesystems.ai.provider.ProviderException;
 import bw.co.roguesystems.ai.provider.ProviderRegistry;
 import bw.co.roguesystems.ai.provider.TextExtractionProvider;
 import bw.co.roguesystems.ai.schema.DocumentRef;
+import bw.co.roguesystems.ai.schema.DocumentTypeSpec;
+import bw.co.roguesystems.ai.schema.ExtractionSchema;
+import bw.co.roguesystems.ai.schema.ExtractionSchemaService;
 import bw.co.roguesystems.ai.schema.FieldSpec;
+import bw.co.roguesystems.ai.schema.SchemaField;
+import bw.co.roguesystems.ai.schema.SchemaNotFoundException;
 import bw.co.roguesystems.ai.schema.FieldType;
 import bw.co.roguesystems.ai.storage.DocumentStore;
 import tools.jackson.databind.json.JsonMapper;
@@ -44,6 +49,7 @@ import tools.jackson.databind.json.JsonMapper;
 class PipelineRunnerTest {
 
     private final ProcessingProfileService profiles = mock(ProcessingProfileService.class);
+    private final ExtractionSchemaService schemas = mock(ExtractionSchemaService.class);
     private final ProcessingJobService jobs = mock(ProcessingJobService.class);
     private final DocumentStore store = mock(DocumentStore.class);
     private final VeritasProperties properties = new VeritasProperties();
@@ -67,7 +73,7 @@ class PipelineRunnerTest {
         LlmProvider geminiLlm = new FakeLlm(ProviderType.GEMINI);
         ProviderRegistry registry = new ProviderRegistry(List.of(pdfText, tesseract), List.of(ollama, geminiLlm),
                 properties);
-        runner = new PipelineRunner(profiles, jobs, registry, store, new PromptRenderer(jsonMapper), jsonMapper, properties);
+        runner = new PipelineRunner(profiles, schemas, jobs, registry, store, new PromptRenderer(jsonMapper), jsonMapper, properties);
         when(store.read(any())).thenReturn(new DocumentFile("%PDF-1.7".getBytes(), "application/pdf", "id.pdf"));
     }
 
@@ -115,6 +121,51 @@ class PipelineRunnerTest {
         assertThat(result.steps().getFirst().provider()).isEqualTo(ProviderType.TESSERACT);
         assertThat(result.steps().getFirst().failures()).singleElement().asString().startsWith("PDF_TEXT:");
         verify(jobs).finish(result);
+    }
+
+    private void schema(String code, String name, String... fieldNames) {
+        ExtractionSchema schema = new ExtractionSchema();
+        schema.setCode(code);
+        schema.setVersion(1);
+        schema.setName(name);
+        for (String fieldName : fieldNames) {
+            schema.getFields().add(new SchemaField(FieldSpec.text(fieldName)));
+        }
+        when(schemas.latest(code)).thenReturn(schema);
+    }
+
+    @Test
+    void aJobThatNamesASchemaExtractsTheSchemasFields() {
+        profile(step(StepType.FIELD_EXTRACTION, ProviderType.OLLAMA), step(StepType.CLASSIFICATION, ProviderType.GEMINI));
+        schema("NID", "National ID", "idNumber", "surname");
+        schema("PSPT", "Any label", "passportNumber");
+        when(schemas.latest("MISSING")).thenThrow(new SchemaNotFoundException("MISSING"));
+        gemini = "{\"detectedType\":\"National ID\",\"signalScores\":{\"idNumber\":1,\"surname\":1}}";
+
+        ProcessingJobResult result = runner.run(new ProcessingJobRequest("job-1", "doc-1", "default", null,
+                "National ID", null,
+                List.of(new DocumentTypeSpec("National ID", null, "NID"), new DocumentTypeSpec("Passport", null, "PSPT"),
+                        new DocumentTypeSpec("Permit", null, "MISSING")),
+                StepType.FIELD_EXTRACTION, "ID 123", Map.of(), "NID"));
+
+        assertThat(result.status()).isEqualTo(JobStatus.COMPLETED);
+        assertThat(result.fields()).containsOnlyKeys("idNumber", "surname");
+        assertThat(result.classification().match()).isTrue();
+        assertThat(llmCalls.getLast().systemPrompt() + llmCalls.getLast().userPrompt()).contains("National ID")
+                .contains("Passport").contains("Permit").doesNotContain("Any label")
+                .contains("passportNumber");
+    }
+
+    @Test
+    void aJobWhoseSchemaIsMissingFails() {
+        profile(step(StepType.FIELD_EXTRACTION, ProviderType.OLLAMA));
+        when(schemas.latest("NOPE")).thenThrow(new SchemaNotFoundException("NOPE"));
+
+        ProcessingJobResult result = runner.run(new ProcessingJobRequest("job-1", "doc-1", "default", null, null, null,
+                null, StepType.FIELD_EXTRACTION, "ID 123", Map.of(), "NOPE"));
+
+        assertThat(result.status()).isEqualTo(JobStatus.FAILED);
+        assertThat(result.error()).contains("No schema with code 'NOPE'");
     }
 
     @Test

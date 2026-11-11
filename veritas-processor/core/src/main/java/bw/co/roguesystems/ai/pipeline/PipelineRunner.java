@@ -20,6 +20,10 @@ import bw.co.roguesystems.ai.job.StepStatus;
 import bw.co.roguesystems.ai.profile.DefaultPrompts;
 import bw.co.roguesystems.ai.profile.ProcessingProfile;
 import bw.co.roguesystems.ai.profile.ProcessingProfileService;
+import bw.co.roguesystems.ai.schema.ExtractionSchemaService;
+import bw.co.roguesystems.ai.schema.DocumentTypeSpec;
+import bw.co.roguesystems.ai.schema.FieldSpec;
+import bw.co.roguesystems.ai.schema.SchemaNotFoundException;
 import bw.co.roguesystems.ai.profile.ProcessingStep;
 import bw.co.roguesystems.ai.profile.ProviderType;
 import bw.co.roguesystems.ai.profile.StepType;
@@ -50,6 +54,7 @@ public class PipelineRunner {
     private static final Logger log = LoggerFactory.getLogger(PipelineRunner.class);
 
     private final ProcessingProfileService profiles;
+    private final ExtractionSchemaService schemas;
     private final ProcessingJobService jobs;
     private final ProviderRegistry providers;
     private final DocumentStore documentStore;
@@ -57,10 +62,12 @@ public class PipelineRunner {
     private final JsonMapper jsonMapper;
     private final VeritasProperties.Jobs settings;
 
-    public PipelineRunner(ProcessingProfileService profiles, ProcessingJobService jobs, ProviderRegistry providers,
-            DocumentStore documentStore, PromptRenderer prompts, JsonMapper jsonMapper, VeritasProperties properties) {
+    public PipelineRunner(ProcessingProfileService profiles, ExtractionSchemaService schemas, ProcessingJobService jobs,
+            ProviderRegistry providers, DocumentStore documentStore, PromptRenderer prompts, JsonMapper jsonMapper,
+            VeritasProperties properties) {
         this.settings = properties.getJobs();
         this.profiles = profiles;
+        this.schemas = schemas;
         this.jobs = jobs;
         this.providers = providers;
         this.documentStore = documentStore;
@@ -85,14 +92,16 @@ public class PipelineRunner {
         }
     }
 
-    private ProcessingJobResult process(ProcessingJobRequest request, String submittedBy) {
-        jobs.start(request, submittedBy);
+    private ProcessingJobResult process(ProcessingJobRequest submitted, String submittedBy) {
+        jobs.start(submitted, submittedBy);
 
         ProcessingProfile profile;
+        ProcessingJobRequest request;
         try {
-            profile = profiles.latest(request.profileCode());
+            profile = profiles.latest(submitted.profileCode());
+            request = withSchemas(submitted);
         } catch (RuntimeException e) {
-            return finish(request, null, JobStatus.FAILED, new StepContext(request, () -> null), List.of(),
+            return finish(submitted, null, JobStatus.FAILED, new StepContext(submitted, () -> null), List.of(),
                     e.getMessage());
         }
 
@@ -116,6 +125,42 @@ public class PipelineRunner {
             }
         }
         return finish(request, profile, JobStatus.COMPLETED, context, results, null);
+    }
+
+    /**
+     * The job with the fields its schemas hold: the fields to extract, when the job names a schema
+     * and gives none itself, and the fields of every candidate type that names a schema. A
+     * candidate whose schema does not exist is still a candidate, without fields.
+     */
+    private ProcessingJobRequest withSchemas(ProcessingJobRequest request) {
+        List<FieldSpec> fields = request.fields();
+        if (hasText(request.schemaCode()) && (fields == null || fields.isEmpty())) {
+            fields = schemas.latest(request.schemaCode()).fieldSpecs();
+        }
+        List<DocumentTypeSpec> candidateTypes = request.candidateTypes();
+        if (candidateTypes != null && candidateTypes.stream().anyMatch(type -> hasText(type.schemaCode()))) {
+            candidateTypes = candidateTypes.stream().map(type -> withSchema(type, request.jobId())).toList();
+        }
+        return fields == request.fields() && candidateTypes == request.candidateTypes() ? request
+                : request.withSchemaFields(fields, candidateTypes);
+    }
+
+    private DocumentTypeSpec withSchema(DocumentTypeSpec type, String jobId) {
+        if (!hasText(type.schemaCode()) || (type.fields() != null && !type.fields().isEmpty())) {
+            return type;
+        }
+        try {
+            return new DocumentTypeSpec(type.name(), schemas.latest(type.schemaCode()).fieldSpecs(), type.schemaCode());
+        } catch (SchemaNotFoundException e) {
+            // One unknown schema must not stop every job: classification still has the type's name
+            log.warn("Job {} names the schema '{}' for the candidate type {}, which does not exist", jobId,
+                    type.schemaCode(), type.name());
+            return type;
+        }
+    }
+
+    private static boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 
     /**

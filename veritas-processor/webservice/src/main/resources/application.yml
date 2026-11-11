@@ -17,10 +17,11 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      # The schema is Liquibase's (db/changelog/veritas-changelog.xml)
-      ddl-auto: none
+      # Hibernate makes and updates the tables from the entities
+      ddl-auto: ${VERITAS_DDL_AUTO:update}
   liquibase:
-    change-log: classpath:db/changelog/veritas-changelog.xml
+    # Not at startup, before Hibernate: see veritas.liquibase
+    enabled: false
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
@@ -49,6 +50,9 @@ spring:
           # Only tokens meant for the processor (callers' clients add it with an audience mapper)
           audiences: ${VERITAS_JWT_AUDIENCES:veritas-processor}
   ai:
+    # Spring AI's own retries are off: the pipeline tries a failed step again (veritas.jobs.attempts)
+    retry:
+      max-attempts: 0
     model:
       chat: ${VERITAS_MODEL_CHAT:google-genai}
     google:
@@ -82,6 +86,11 @@ management:
       exposure:
         include: ${ACTUATOR_EXPOSURE:health,info}
 veritas:
+  liquibase:
+    # Off by default. When on, the changelog runs once Hibernate has initialised: change sets for
+    # what Hibernate already made are marked as run, the others are applied
+    enabled: ${VERITAS_LIQUIBASE:false}
+    change-log: classpath:db/changelog/veritas-changelog.xml
   # Never send documents out of the deployment (Gemini steps fall back to their next provider)
   local-only: ${VERITAS_LOCAL_ONLY:${PROCESSING_LOCAL_ONLY:false}}
   storage:
@@ -94,8 +103,8 @@ veritas:
   lm-studio:
     base-url: ${LMSTUDIO_BASE_URL:http://localhost:1234}
     model: ${LLM_MODEL:gemma4}
-    connect-timeout: ${LLM_CONNECT_TIMEOUT:10s}
-    # A model that has not answered by then fails the attempt; the step tries its next provider
+    # A model that has not answered by then fails the attempt; the step tries its next provider.
+    # LM Studio's client has this one timeout for a whole call, connecting included
     read-timeout: ${LLM_READ_TIMEOUT:5m}
   ollama:
     base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
