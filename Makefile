@@ -100,8 +100,36 @@ push_api_image:
 
 
 ###
+## Versions
+## make versions                         -> show current versions
+## make set_api_version VERSION=1.2.0    -> knowvera-api (all its maven modules)
+## make set_portal_version VERSION=1.2.0
+## make set_admin_version VERSION=1.2.0
+## make set_versions VERSION=1.2.0       -> backend + both portals
+###
+check_version:
+	@test -n "$(VERSION)" || (echo "VERSION is required, e.g. make $(MAKECMDGOALS) VERSION=1.2.0" && exit 1)
+
+versions:
+	@echo "api:          $(API_VERSION)"
+	@echo "veritas:      $(VERITAS_VERSION)"
+	@echo "portal:       $$(node -p "require('./portal/package.json').version")"
+	@echo "admin-portal: $$(node -p "require('./admin-portal/package.json').version")"
+
+set_api_version: check_version
+	$(MVN_API) versions:set -DnewVersion=$(VERSION) -DprocessAllModules=true -DgenerateBackupPoms=false
+
+set_portal_version: check_version
+	cd portal && npm version $(VERSION) --no-git-tag-version --allow-same-version
+
+set_admin_version: check_version
+	cd admin-portal && npm version $(VERSION) --no-git-tag-version --allow-same-version
+
+set_versions: set_api_version set_portal_version set_admin_version
+
+###
 ## Run the local api and web
-###    
+###
 run_module_local:
 	. ./.env && cd ${module} && mvn spring-boot:run
 	
