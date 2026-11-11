@@ -4,30 +4,29 @@ import { AuthenticationGuard } from '@app/auth/authentication.guard';
 export const documentRoutes: Routes = [
   {
     path: '',
+    canActivate: [AuthenticationGuard],
+    data: { permissions: ['documents:list'] },
     loadComponent: () =>
       import('./documents').then((module) => module.Documents),
   },
   {
     path: 'edit',
     canActivate: [AuthenticationGuard],
+    data: { permissions: ['documents:edit'] },
     loadComponent: () =>
       import('./edit/document-edit').then((module) => module.DocumentEdit),
   },
   {
-    path: 'edit/:id',
+    path: ':id/edit',
     canActivate: [AuthenticationGuard],
+    data: { permissions: ['documents:edit'] },
     loadComponent: () =>
       import('./edit/document-edit').then((module) => module.DocumentEdit),
   },
   {
-    path: 'details',
+    path: ':id',
     canActivate: [AuthenticationGuard],
-    loadComponent: () =>
-      import('./details/document-details').then((module) => module.DocumentDetails),
-  },
-  {
-    path: 'details/:id',
-    canActivate: [AuthenticationGuard],
+    data: { permissions: ['documents:view'] },
     loadComponent: () =>
       import('./details/document-details').then((module) => module.DocumentDetails),
   },

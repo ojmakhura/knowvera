@@ -71,6 +71,7 @@ RESOURCES = {
     "expected-fields":             "Reference: fields expected on a document type",
     "individuals":                 "Individuals (KYC subjects)",
     "invoices":                    "Invoices",
+    "keycloak":                    "Realm and client role names, and the caller's own permissions",
     "kyc-field-groups":            "Reference: KYC field groups",
     "kyc-records":                 "KYC cases",
     "kyc-report-sections":         "Sections of a KYC report",
@@ -78,9 +79,11 @@ RESOURCES = {
     "organisation-branches":       "Organisation branches",
     "organisation-document-types": "Documents an organisation requires",
     "organisations":               "Organisations (KYC subjects and clients)",
+    "screening":                   "Sanctions list screening of KYC subjects and review of potential matches",
     "sequences":                   "Reference number sequences",
     "settings":                    "Platform settings",
     "subscriptions":               "Subscriptions",
+    "suspicion-cases":             "Suspicious transaction cases and reports to the FIA (confidential: no tipping off)",
     "users":                       "User accounts and their roles",
     "verification-data-configs":   "Reference: data verification configuration",
 }
@@ -102,6 +105,17 @@ PUBLIC_INFRASTRUCTURE = ["/swagger-ui/**", "/v3/**", "/actuator/health", "/actua
 ENDPOINT_SCOPES = {
     # Administrative password reset of any user; users change their own password in Keycloak
     "UserApi.changePassword": "manage",
+    # Moves failed notifications from a Novu dead-letter queue back to be sent again
+    "NovuDeadLetterController.redriveDeadLetters": "edit",
+    # Screening a KYC record against the sanctions lists, and deciding on a potential match
+    "ScreeningApi.screenRecord": "verify",
+    "ScreeningApi.reviewHit": "review",
+    # Raising a suspicion is open to staff; deciding on it and reporting it to the FIA is the MLRO's
+    "SuspicionCaseApi.raise": "edit",
+    "SuspicionCaseApi.escalate": "review",
+    "SuspicionCaseApi.recordReport": "review",
+    "SuspicionCaseApi.close": "review",
+    "SuspicionCaseApi.draftReport": "export",
 }
 
 # --------------------------------------------------------------------------
@@ -124,7 +138,7 @@ SCOPES = {
 # Method name rules, first match wins. HTTP method rules follow in classify().
 SCOPE_RULES = [
     # Only endpoints that act on the caller and take no user / record id as input
-    ("self",   r"^(findMy|loadMe$|loadMyOrganisation$|getNovuConfig$)"),
+    ("self",   r"^(findMy|loadMe$|loadMyOrganisation$|getNovuConfig$|getUserPermissions$)"),
     ("manage", r"^(add|remove)(Client)?Roles?$"),
     ("import", r"^upload(Requests|Template)$"),
     ("export", r"^(download|generateKycReport$)"),
@@ -187,7 +201,7 @@ COMPOSITES = {
 # route guard requires its role.
 PORTAL_ROLES = {
     "admin-portal": ("ADMIN_PORTAL_USER", "STAFF", "May use the back-office admin portal"),
-    "knowvera-web": ("PORTAL_USER", "CUSTOMER", "May use the customer portal"),
+    "knowvera-user-portal": ("PORTAL_USER", "CUSTOMER", "May use the customer portal"),
 }
 
 
@@ -229,7 +243,7 @@ READ_EXPORT = ("view", "list", "export")
 
 REFERENCE = ["document-types", "expected-fields", "kyc-field-groups", "verification-data-configs"]
 # Shared reference data: nobody owns it, so owner-scoped roles get the plain scopes there
-REFERENCE_RESOURCES = set(REFERENCE) | {"settings"}
+REFERENCE_RESOURCES = set(REFERENCE) | {"settings", "keycloak"}
 
 # Roles limited to their own records: the external tree. Keycloak grants them "<scope>-own"
 # instead of "<scope>" (except on REFERENCE_RESOURCES); @RequiresOwnership lets "<scope>"
@@ -255,7 +269,7 @@ GRANTS = {
         "individuals": ("view", "edit"),
         "employment-records": ("view", "list", "edit", "delete"),
         "contacts": ("view", "edit"),
-        "kyc-records": ("view", "edit", "submit"),
+        "kyc-records": ("view", "edit", "delete", "submit"),
         "documents": ("view", "edit", "delete", "submit", "export"),
         "organisations": ("view", "edit"),
         "client-requests": ("view",),
@@ -266,7 +280,7 @@ GRANTS = {
         "organisation-document-types": READ,
         "client-requests": ("view", "list", "edit", "import", "export"),
         "individuals": READ,
-        "kyc-records": ("view", "list", "edit", "submit", "export"),
+        "kyc-records": ("view", "list", "edit", "delete", "submit", "export"),
         "documents": ("view", "list", "edit", "submit", "export"),
         "contacts": ("view", "list", "edit"),
     },
@@ -275,6 +289,7 @@ GRANTS = {
         "organisation-branches": ("edit", "delete"),
         "organisation-document-types": ("edit", "delete"),
         "users": ("view", "list", "edit", "manage"),
+        "keycloak": ("list",),  # role names for assigning roles
         "client-requests": ("delete", "review"),
         "documents": ("delete",),
         "subscriptions": READ,
@@ -294,6 +309,9 @@ GRANTS = {
         "employment-records": ("view", "list", "edit"),
         "contacts": ("view", "list", "edit"),
         "client-requests": READ,
+        "screening": ("list", "verify"),
+        # Any analyst may raise a suspicion (and add to it) without seeing other cases
+        "suspicion-cases": ("edit",),
     },
     "KYC_REVIEWER": {
         "kyc-records": ("review",),
@@ -309,6 +327,8 @@ GRANTS = {
         "individuals": ("view", "list", "verify"),
         "organisations": ("view", "list", "verify"),
         **grant(["employment-records", "contacts"], READ),
+        "screening": ("list", "verify", "review", "edit"),
+        "suspicion-cases": ("edit",),
     },
     "RISK_ANALYST": {
         "kyc-records": READ_EXPORT,
@@ -322,10 +342,12 @@ GRANTS = {
         "organisation-document-types": ("edit",),
         "client-requests": ("review",),
         "settings": ("list",),
+        "suspicion-cases": READ,
     },
-    # Escalations and regulatory reporting happen in the workflow; at API level the MLRO has
-    # everything the compliance officer has.
-    "MLRO": {},
+    # The MLRO decides on suspicions and reports them to the FIA (FI Act s.38-46)
+    "MLRO": {
+        "suspicion-cases": ("review", "export"),
+    },
     "CASE_MANAGER": {
         "client-requests": ("view", "list", "edit", "delete", "review", "import", "export"),
         "kyc-records": ("view", "list", "edit", "submit", "export"),
@@ -334,6 +356,7 @@ GRANTS = {
         **grant(["individuals", "organisations", "employment-records", "contacts"], ("view", "list", "edit")),
         "organisation-branches": READ,
         "users": READ,
+        "suspicion-cases": ("edit",),
     },
     "FINANCE_OFFICER": {
         "subscriptions": ("view", "list", "edit", "delete"),
@@ -345,9 +368,12 @@ GRANTS = {
         "sequences": ALL,
         **grant(REFERENCE, ALL),
         "users": ALL,
+        "keycloak": ("list",),
+        "novu": ("view", "edit"),  # dead-letter counts and re-drive
         "organisation-branches": ALL,
         "organisation-document-types": ALL,
         "audit-logs": READ,
+        "screening": ("list", "edit"),  # refresh the sanctions lists
     },
     "SUPER_ADMIN": {"*": ALL},
     # Everything comes from SUPER_ADMIN, APPLICANT and ORG_ADMIN
@@ -791,13 +817,12 @@ public final class RoleAssignmentRules {{
 # the generator owns the parts below and leaves the rest as exported.
 # --------------------------------------------------------------------------
 TEST_REALM_FILE = ROOT / "webservice/src/test/resources/test-realm.json"
-REGISTRATION_CLIENT = "knowvera-registration"
 PORTAL_CLIENTS = list(PORTAL_ROLES)
 # Resolved from the environment when Keycloak imports the realm at start-up (--import-realm)
-CLIENT_SECRETS = {CLIENT_ID: "${API_CLIENT_SECRET}", REGISTRATION_CLIENT: "${REGISTRATION_CLIENT_SECRET}"}
-# KeycloakService.createRegistrationKeycloak() uses this service account to create users, reset
-# passwords, map roles and manage Keycloak Organizations (manage-realm: no narrower role exists).
-REGISTRATION_SERVICE_ACCOUNT_ROLES = ["manage-users", "manage-realm"]
+CLIENT_SECRETS = {CLIENT_ID: "${API_CLIENT_SECRET}"}
+# The API service account creates users, resets passwords, maps roles and manages organizations.
+# view-clients: client lookups (client role names, client-role assignment, users by client role)
+API_SERVICE_ACCOUNT_ROLES = ["manage-users", "manage-realm", "view-clients"]
 TEST_SECRET = "test-secret"
 TEST_PASSWORD = "Test-Passw0rd!"  # meets PASSWORD_POLICY
 SAMPLE_PASSWORD = "ChangeMe-2026!"  # temporary: Keycloak asks for a new one at first login
@@ -893,11 +918,28 @@ def build_realm(realm, authz, test=False):
             portal["redirectUris"] = ["*"]
 
     users = realm.setdefault("users", [])
+    obsolete_admin_clients = []
+    remaining_users = []
     for user in users:
         if user.get("username") == f"service-account-{CLIENT_ID}":
             user.setdefault("clientRoles", {})[CLIENT_ID] = ["uma_protection"]
-        if user.get("username") == f"service-account-{REGISTRATION_CLIENT}":
-            user.setdefault("clientRoles", {})["realm-management"] = list(REGISTRATION_SERVICE_ACCOUNT_ROLES)
+            realm_management_roles = user.setdefault("clientRoles", {}).setdefault("realm-management", [])
+            user["clientRoles"]["realm-management"] = list(
+                dict.fromkeys([*realm_management_roles, *API_SERVICE_ACCOUNT_ROLES]))
+            remaining_users.append(user)
+        elif (user.get("serviceAccountClientId")
+              and set(API_SERVICE_ACCOUNT_ROLES) <= set(user.get("clientRoles", {}).get("realm-management", []))):
+            obsolete_admin_clients.append(user["serviceAccountClientId"])
+        else:
+            remaining_users.append(user)
+    users = remaining_users
+    realm["users"] = users
+
+    # The API client now owns the admin service account as well as authorization services.
+    realm["clients"] = [client for client in realm["clients"]
+                        if client["clientId"] not in obsolete_admin_clients]
+    for client_id in obsolete_admin_clients:
+        roles.get("client", {}).pop(client_id, None)
 
     # Sample users, one per role. In the deployable realm the password must be changed at
     # first login; the test realm uses a fixed password.

@@ -14,7 +14,6 @@ import { KycRecordSearchCriteria } from '@app/models/bw/co/knowvera/kyc/kyc-reco
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { KycRecordListDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-list-dto';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
-import { toast } from 'ngx-sonner';
 import { KycRecordSummary } from '@app/models/bw/co/knowvera/kyc/kyc-record-summary';
 
 export type KycRecordApiState = AppState<KycRecordDTO, KycRecordDTO> & {
@@ -51,7 +50,6 @@ export const KycRecordApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const kycRecordApi = inject(KycRecordApi);
-    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -63,7 +61,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   data: response,
                   loading: false,
@@ -74,7 +72,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -94,7 +92,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   data: response,
                   loading: false,
@@ -105,7 +103,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -125,7 +123,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   data: response,
                   loading: false,
@@ -136,7 +134,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -156,7 +154,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -167,7 +165,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -189,7 +187,7 @@ export const KycRecordApiStore = signalStore(
               tapResponse({
                 next: (response: Page<KycRecordListDTO>) => {
                   const message = `Success!!`;
-                  toastr.success(message);
+                  
                   patchState(store, {
                     dataPage: response,
                     loading: false,
@@ -200,7 +198,7 @@ export const KycRecordApiStore = signalStore(
                 },
                 error: (error: any) => {
                   const message = getErrormessage(error);
-                  toastr.error(message);
+                  
                   patchState(store, {
                     status: error?.status || 0,
                     loading: false,
@@ -220,7 +218,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -231,7 +229,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -257,7 +255,7 @@ export const KycRecordApiStore = signalStore(
               tapResponse({
                 next: (response: Page<KycRecordListDTO>) => {
                   const message = `Success!!`;
-                  toastr.success(message);
+                  
                   patchState(store, {
                     dataPage: response,
                     loading: false,
@@ -268,7 +266,7 @@ export const KycRecordApiStore = signalStore(
                 },
                 error: (error: any) => {
                   const message = getErrormessage(error);
-                  toastr.error(message);
+                  
                   patchState(store, {
                     status: error?.status || 0,
                     loading: false,
@@ -288,7 +286,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -299,7 +297,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -319,7 +317,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -330,7 +328,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -360,7 +358,7 @@ export const KycRecordApiStore = signalStore(
               tapResponse({
                 next: (response: Page<KycRecordListDTO>) => {
                   const message = `Success!!`;
-                  toastr.success(message);
+                  
                   patchState(store, {
                     dataPage: response,
                     loading: false,
@@ -371,7 +369,7 @@ export const KycRecordApiStore = signalStore(
                 },
                 error: (error: any) => {
                   const message = getErrormessage(error);
-                  toastr.error(message);
+                  
                   patchState(store, {
                     status: error?.status || 0,
                     loading: false,
@@ -391,7 +389,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -402,7 +400,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -422,7 +420,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycRecordListDTO>) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   dataPage: response,
                   loading: false,
@@ -433,7 +431,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -453,7 +451,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycRecordListDTO>) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   dataPage: response,
                   loading: false,
@@ -464,7 +462,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -484,7 +482,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: boolean) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   data: response,
                   loading: false,
@@ -495,7 +493,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -515,7 +513,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   data: response,
                   loading: false,
@@ -526,7 +524,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -546,7 +544,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -557,7 +555,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -577,7 +575,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   currentOrganisationRecord: response,
                   loading: false,
@@ -588,7 +586,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -608,7 +606,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   currentIndividualRecord: response,
                   loading: false,
@@ -619,7 +617,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -639,7 +637,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   dataList: response,
                   loading: false,
@@ -650,7 +648,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -671,7 +669,7 @@ export const KycRecordApiStore = signalStore(
               next: (response: KycRecordDTO) => {
                 console.log('Create new record response:', response);
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   data: response,
                   loading: false,
@@ -683,7 +681,7 @@ export const KycRecordApiStore = signalStore(
               error: (error: any) => {
                 console.log('Create new record error:', error);
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -703,7 +701,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycRecordListDTO>) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(store, {
                   dataPage: response,
                   loading: false,
@@ -714,7 +712,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -734,7 +732,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordDTO) => {
                 const message = 'Record files updated successfully!!';
-                toastr.success(message);
+                
                 patchState(store, {
                   data: response,
                   loading: false,
@@ -745,7 +743,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -765,7 +763,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordDTO) => {
                 const message = 'Record file removed successfully!!';
-                toastr.success(message);
+                
                 patchState(store, {
                   data: response,
                   loading: false,
@@ -776,7 +774,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -796,7 +794,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordDTO) => {
                 const message = 'Verifications run successfully!!';
-                toastr.success(message);
+                
                 patchState(store, {
                   data: response,
                   loading: false,
@@ -807,7 +805,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -827,7 +825,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordDTO) => {
                 const message = 'KYC report generated successfully!!';
-                toastr.success(message);
+                
                 patchState(store, {
                   data: response,
                   loading: false,
@@ -838,7 +836,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -858,7 +856,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordDTO) => {
                 const message = 'KYC record status updated successfully!!';
-                toastr.success(message);
+                
                 patchState(store, {
                   data: response,
                   loading: false,
@@ -869,7 +867,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -889,7 +887,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordSummary[]) => {
                 const message = 'Client individual summaries fetched successfully!!';
-                toastr.success(message);
+                
                 patchState(store, {
                   individualSummaries: response,
                   loading: false,
@@ -900,7 +898,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -920,7 +918,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycRecordSummary>) => {
                 const message = 'Client individual summaries (paged) fetched successfully!!';
-                toastr.success(message);
+                
                 patchState(store, {
                   individualSummariesPaged: response,
                   loading: false,
@@ -931,7 +929,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -951,7 +949,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordSummary[]) => {
                 const message = 'Client organisation summaries fetched successfully!!';
-                toastr.success(message);
+                
                 patchState(store, {
                   organisationSummaries: response,
                   loading: false,
@@ -962,7 +960,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -982,7 +980,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycRecordSummary>) => {
                 const message = 'Client organisation summaries (paged) fetched successfully!!';
-                toastr.success(message);
+                
                 patchState(store, {
                   organisationSummariesPaged: response,
                   loading: false,
@@ -993,7 +991,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -1013,7 +1011,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordSummary) => {
                 const message = 'Summary fetched successfully!!';
-                toastr.success(message);
+                
                 patchState(store, {
                   summary: response,
                   loading: false,
@@ -1024,7 +1022,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -1044,7 +1042,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordSummary[]) => {
                 const message = 'Summaries fetched successfully!!';
-                toastr.success(message);
+                
                 patchState(store, {
                   summaries: response,
                   loading: false,
@@ -1055,7 +1053,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,
@@ -1075,7 +1073,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: Page<KycRecordSummary>) => {
                 const message = 'Paged summaries fetched successfully!!';
-                toastr.success(message);
+                
                 patchState(store, {
                   pagedSummaries: response,
                   loading: false,
@@ -1086,7 +1084,7 @@ export const KycRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   status: error?.status || 0,
                   loading: false,

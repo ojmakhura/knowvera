@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { finalize } from 'rxjs';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { swalFire } from '@app/@shared/swal-loader';
 import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.store';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api';
+import { KycRecordApi } from '@app/services/bw/co/knowvera/kyc/kyc-record-api';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { Loader } from '@app/@shared/loader/loader';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
@@ -30,9 +32,11 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
   settingsApiStore = inject(SettingsApiStore);
   kycRecordApiStore = inject(KycRecordApiStore);
   documentApi = inject(DocumentApi);
+  private kycRecordApi = inject(KycRecordApi);
+  private router = inject(Router);
 
-  indKycDocuments = linkedSignal(() => this.settingsApiStore.data().indKycDocuments);
-  orgKycDocuments = linkedSignal(() => this.settingsApiStore.data().orgKycDocuments);
+  indKycDocuments = linkedSignal(() => this.settingsApiStore.documentRequirements().indKycDocuments);
+  orgKycDocuments = linkedSignal(() => this.settingsApiStore.documentRequirements().orgKycDocuments);
 
   myRecords = linkedSignal(() => this.kycRecordApiStore.data());
 
@@ -41,6 +45,7 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
   selectedDocumentIndex = signal(0);
   showUploadForm = signal(false);
   selectedAnalysisTab = signal<'report' | 'documents'>('report');
+  deleting = signal(false);
 
   availableDocumentTypes = computed(() => {
     const record = this.record();
@@ -83,7 +88,7 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.settingsApiStore.getAll();
+    this.settingsApiStore.getDocumentRequirements();
 
     this.route.queryParams.subscribe(params => {
       const target = params['target'] as TargetEntity;
@@ -175,6 +180,40 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
         console.error('Download failed:', error);
         alert('Failed to download document');
       },
+    });
+  }
+
+  deleteRecord(): void {
+    const record = this.record();
+    if (!record?.id) return;
+
+    swalFire({
+      title: 'Delete KYC record?',
+      text: `Record "${record.ref || record.id}" will be permanently deleted. This cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel',
+      focusCancel: true,
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+
+      // Called directly rather than through the store: the store's remove() overwrites `data` with the
+      // boolean response, which would blank this page before we navigate away.
+      this.deleting.set(true);
+      this.kycRecordApi
+        .remove(record.id)
+        .pipe(finalize(() => this.deleting.set(false)))
+        .subscribe({
+          next: () => {
+            this.toaster.success('KYC record deleted');
+            this.router.navigate(['/dashboard']);
+          },
+          error: (error) => {
+            const message = error?.error?.message || error?.message || 'Failed to delete the KYC record';
+            this.toaster.error(message);
+          },
+        });
     });
   }
 

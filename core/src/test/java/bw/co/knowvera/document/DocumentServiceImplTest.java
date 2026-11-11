@@ -1,6 +1,8 @@
 package bw.co.knowvera.document;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -9,6 +11,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -35,6 +38,7 @@ import bw.co.knowvera.PropertySearchOrder;
 import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.SortOrder;
 import bw.co.knowvera.TargetEntity;
+import bw.co.knowvera.TimePeriod;
 import bw.co.knowvera.document.type.DocumentTypeMapper;
 import bw.co.knowvera.document.type.DocumentTypeRepository;
 import bw.co.knowvera.document.DocumentMapper;
@@ -596,19 +600,245 @@ class DocumentServiceImplTest {
 
         document.setExpectedInformation(Map.of("firstName", "John"));
         document.setExtractedInformation(Map.of("firstName", "John"));
+        confirmType(document);
+        // Automatic verification is off by default (app.verification.auto-verify)
+        org.springframework.test.util.ReflectionTestUtils.setField(service, "autoVerify", true);
 
         DocumentDTO dto = new DocumentDTO();
 
         when(documentRepository.findById(id)).thenReturn(Optional.of(document));
         when(verificationDataConfigRepository.findByDocumentTypeId(document.getDocumentType().getId()))
                 .thenReturn(List.of(config));
-        when(stringMatcher.calculateFilteredSimilarity(any(), any())).thenReturn(0.95);
         when(documentRepository.save(document)).thenReturn(document);
         when(documentMapper.toDocumentDTO(document)).thenReturn(dto);
 
         service.verifyData(id.toString(), "tester");
 
         assertEquals(DocumentVerificationStatus.VERIFIED, document.getVerificationStatus());
+    }
+
+    @Test
+    void verifyDataSendsAPassingDocumentToManualReviewByDefault() throws Exception {
+        UUID id = UUID.randomUUID();
+        Document document = verifyReadyDocument(id);
+
+        ExpectedField field = newExpectedField("firstName", "firstName", TargetEntity.INDIVIDUAL, true, true);
+        field.setExactMatch(true);
+        VerificationDataConfig config = newVerificationConfig(document.getDocumentType(), field);
+        document.getDocumentType().setExpectedFields(List.of(field));
+
+        document.setExpectedInformation(Map.of("firstName", "John"));
+        document.setExtractedInformation(Map.of("firstName", "John"));
+        confirmType(document);
+
+        DocumentDTO dto = new DocumentDTO();
+
+        when(documentRepository.findById(id)).thenReturn(Optional.of(document));
+        when(verificationDataConfigRepository.findByDocumentTypeId(document.getDocumentType().getId()))
+                .thenReturn(List.of(config));
+        when(documentRepository.save(document)).thenReturn(document);
+        when(documentMapper.toDocumentDTO(document)).thenReturn(dto);
+
+        service.verifyData(id.toString(), "tester");
+
+        assertEquals(DocumentVerificationStatus.MANUAL_REVIEW, document.getVerificationStatus());
+    }
+
+    @Test
+    void verifyDataRejectsMandatoryFieldWithNothingOnRecordToCompareAgainst() throws Exception {
+        UUID id = UUID.randomUUID();
+        Document document = verifyReadyDocument(id);
+
+        ExpectedField field = newExpectedField("firstName", "firstName", TargetEntity.INDIVIDUAL, true, false);
+        VerificationDataConfig config = newVerificationConfig(document.getDocumentType(), field);
+        document.getDocumentType().setExpectedFields(List.of(field));
+
+        document.setExpectedInformation(Map.of());
+        document.setExtractedInformation(Map.of("firstName", "John"));
+
+        when(documentRepository.findById(id)).thenReturn(Optional.of(document));
+        when(verificationDataConfigRepository.findByDocumentTypeId(document.getDocumentType().getId()))
+                .thenReturn(List.of(config));
+        when(documentRepository.save(document)).thenReturn(document);
+        when(documentMapper.toDocumentDTO(document)).thenReturn(new DocumentDTO());
+
+        service.verifyData(id.toString(), "tester");
+
+        assertEquals(DocumentVerificationStatus.REJECTED, document.getVerificationStatus());
+    }
+
+    @Test
+    void verifyDataLeavesOptionalFieldWithNothingOnRecordOutOfScoring() throws Exception {
+        UUID id = UUID.randomUUID();
+        Document document = verifyReadyDocument(id);
+
+        ExpectedField firstName = newExpectedField("firstName", "firstName", TargetEntity.INDIVIDUAL, true, true);
+        ExpectedField middleName = newExpectedField("middleName", "middleName", TargetEntity.INDIVIDUAL, false, false);
+        VerificationDataConfig config = newVerificationConfig(document.getDocumentType(), firstName, middleName);
+        document.getDocumentType().setExpectedFields(List.of(firstName, middleName));
+
+        document.setExpectedInformation(Map.of("firstName", "John"));
+        document.setExtractedInformation(Map.of("firstName", "John", "middleName", "Kabo"));
+
+        when(documentRepository.findById(id)).thenReturn(Optional.of(document));
+        when(verificationDataConfigRepository.findByDocumentTypeId(document.getDocumentType().getId()))
+                .thenReturn(List.of(config));
+        when(documentRepository.save(document)).thenReturn(document);
+        when(documentMapper.toDocumentDTO(document)).thenReturn(new DocumentDTO());
+
+        service.verifyData(id.toString(), "tester");
+
+        DataVerification verification = document.getDataVerifications().iterator().next();
+        assertEquals(1, verification.getKeyFieldMatches().size());
+        assertEquals("firstName", verification.getKeyFieldMatches().get(0).getKeyField());
+        assertEquals(DocumentVerificationStatus.MANUAL_REVIEW, document.getVerificationStatus());
+    }
+
+    @Test
+    void verifyDataMatchesIdentityNumbersExactlyIgnoringFormatting() throws Exception {
+        UUID id = UUID.randomUUID();
+        Document document = verifyReadyDocument(id);
+
+        // Not configured as exact: identity numbers are matched exactly regardless
+        ExpectedField field = newExpectedField("idNumber", "identityNo", TargetEntity.INDIVIDUAL, true, false);
+        VerificationDataConfig config = newVerificationConfig(document.getDocumentType(), field);
+        document.getDocumentType().setExpectedFields(List.of(field));
+
+        document.setExpectedInformation(Map.of("idNumber", "123456789"));
+        document.setExtractedInformation(Map.of("idNumber", "123 456-789"));
+
+        when(documentRepository.findById(id)).thenReturn(Optional.of(document));
+        when(verificationDataConfigRepository.findByDocumentTypeId(document.getDocumentType().getId()))
+                .thenReturn(List.of(config));
+        when(documentRepository.save(document)).thenReturn(document);
+        when(documentMapper.toDocumentDTO(document)).thenReturn(new DocumentDTO());
+
+        service.verifyData(id.toString(), "tester");
+
+        DataVerification verification = document.getDataVerifications().iterator().next();
+        assertEquals(DataVerificationStatus.VERIFIED, verification.getVerificationStatus());
+        verify(stringMatcher, never()).calculateFilteredSimilarity(any(), any());
+    }
+
+    @Test
+    void verifyDataRejectsIdentityNumberThatDiffersByOneDigit() throws Exception {
+        UUID id = UUID.randomUUID();
+        Document document = verifyReadyDocument(id);
+
+        ExpectedField field = newExpectedField("idNumber", "identityNo", TargetEntity.INDIVIDUAL, true, false);
+        VerificationDataConfig config = newVerificationConfig(document.getDocumentType(), field);
+        document.getDocumentType().setExpectedFields(List.of(field));
+
+        document.setExpectedInformation(Map.of("idNumber", "123456789"));
+        document.setExtractedInformation(Map.of("idNumber", "123456780"));
+
+        when(documentRepository.findById(id)).thenReturn(Optional.of(document));
+        when(verificationDataConfigRepository.findByDocumentTypeId(document.getDocumentType().getId()))
+                .thenReturn(List.of(config));
+        when(documentRepository.save(document)).thenReturn(document);
+        when(documentMapper.toDocumentDTO(document)).thenReturn(new DocumentDTO());
+
+        service.verifyData(id.toString(), "tester");
+
+        assertEquals(DocumentVerificationStatus.REJECTED, document.getVerificationStatus());
+    }
+
+    @Test
+    void verifyDataRejectsExpiredProofOfAddress() throws Exception {
+        UUID id = UUID.randomUUID();
+        Document document = verifyReadyDocument(id);
+
+        ExpectedField name = newExpectedField("accountHolder", "firstName", TargetEntity.INDIVIDUAL, true, true);
+        ExpectedField billDate = newExpectedField("billDate", null, TargetEntity.INDIVIDUAL, false, false);
+        VerificationDataConfig config = newVerificationConfig(document.getDocumentType(), name);
+        DocumentType type = document.getDocumentType();
+        type.setExpectedFields(List.of(name, billDate));
+        expiresAfter(type, billDate, 3, TimePeriod.MONTH);
+
+        document.setExpectedInformation(Map.of("accountHolder", "John"));
+        document.setExtractedInformation(Map.of("accountHolder", "John",
+                "billDate", LocalDate.now().minusMonths(4).toString()));
+
+        when(documentRepository.findById(id)).thenReturn(Optional.of(document));
+        when(verificationDataConfigRepository.findByDocumentTypeId(type.getId())).thenReturn(List.of(config));
+        when(documentRepository.save(document)).thenReturn(document);
+        when(documentMapper.toDocumentDTO(document)).thenReturn(new DocumentDTO());
+
+        service.verifyData(id.toString(), "tester");
+
+        assertEquals(DocumentVerificationStatus.REJECTED, document.getVerificationStatus());
+    }
+
+    @Test
+    void checkDocumentValidityAcceptsRecentDocument() {
+        ExpectedField billDate = newExpectedField("billDate", null, TargetEntity.INDIVIDUAL, false, false);
+        DocumentType type = newDocumentTypeWithExpectedFields(billDate);
+        expiresAfter(type, billDate, 3, TimePeriod.MONTH);
+
+        LocalDate today = LocalDate.of(2026, 11, 3);
+        assertNull(service.checkDocumentValidity(type, Map.of("billDate", "15/09/2026"), today));
+    }
+
+    @Test
+    void checkDocumentValidityFailsDocumentOlderThanItsValidity() {
+        ExpectedField billDate = newExpectedField("billDate", null, TargetEntity.INDIVIDUAL, false, false);
+        DocumentType type = newDocumentTypeWithExpectedFields(billDate);
+        expiresAfter(type, billDate, 3, TimePeriod.MONTH);
+
+        LocalDate today = LocalDate.of(2026, 11, 3);
+        DataVerification result = service.checkDocumentValidity(type, Map.of("billDate", "2026-07-31"), today);
+
+        assertEquals(DataVerificationStatus.VERIFICATION_FAILED, result.getVerificationStatus());
+        assertTrue(result.getHasMandatoryFields());
+    }
+
+    @Test
+    void checkDocumentValidityTreatsDateAsExpiryDateWhenNoValidityPeriodIsSet() {
+        ExpectedField expiry = newExpectedField("dateOfExpiry", null, TargetEntity.INDIVIDUAL, false, false);
+        DocumentType type = newDocumentTypeWithExpectedFields(expiry);
+        type.setExpires(true);
+        type.setExpiryField(expiry);
+
+        LocalDate today = LocalDate.of(2026, 11, 3);
+
+        assertNull(service.checkDocumentValidity(type, Map.of("dateOfExpiry", "15 March 2030"), today));
+        assertEquals(DataVerificationStatus.VERIFICATION_FAILED,
+                service.checkDocumentValidity(type, Map.of("dateOfExpiry", "01/10/2026"), today)
+                        .getVerificationStatus());
+    }
+
+    @Test
+    void checkDocumentValiditySendsUnreadableDateToManualReview() {
+        ExpectedField billDate = newExpectedField("billDate", null, TargetEntity.INDIVIDUAL, false, false);
+        DocumentType type = newDocumentTypeWithExpectedFields(billDate);
+        expiresAfter(type, billDate, 3, TimePeriod.MONTH);
+
+        DataVerification result = service.checkDocumentValidity(type, Map.of("billDate", "last month"),
+                LocalDate.of(2026, 11, 3));
+
+        assertEquals(DataVerificationStatus.UNVERIFIED, result.getVerificationStatus());
+    }
+
+    @Test
+    void checkDocumentValiditySkipsDocumentTypesThatDoNotExpire() {
+        DocumentType type = newDocumentTypeWithExpectedFields();
+
+        assertNull(service.checkDocumentValidity(type, Map.of(), LocalDate.of(2026, 11, 3)));
+    }
+
+    private static void expiresAfter(DocumentType type, ExpectedField dateField, int amount, TimePeriod period) {
+        type.setExpires(true);
+        type.setExpiryField(dateField);
+        type.setExpiresIn(amount);
+        type.setExpiryPeriod(period);
+    }
+
+    /** The checks automatic verification requires: the document is of the expected type. */
+    private static void confirmType(Document document) {
+        bw.co.knowvera.document.DocumentValidationResults results = new bw.co.knowvera.document.DocumentValidationResults();
+        results.setTypeMatch(true);
+        results.setMatch(true);
+        document.setValidationResults(results);
     }
 
     @Test
@@ -634,6 +864,26 @@ class DocumentServiceImplTest {
 
         assertSame(dto, result);
         assertEquals(DocumentVerificationStatus.REJECTED, document.getVerificationStatus());
+    }
+
+    @Test
+    void updateVerificationStatusRecordsWhoMadeTheDecision() throws Exception {
+        UUID id = UUID.randomUUID();
+        Document document = newDocument(TargetEntity.SUBSCRIPTION, UUID.randomUUID(), newDocumentTypeWithExpectedFields());
+        document.setId(id);
+
+        when(documentRepository.findById(id)).thenReturn(Optional.of(document));
+        when(documentRepository.save(document)).thenReturn(document);
+        when(documentMapper.toDocumentDTO(document)).thenReturn(new DocumentDTO());
+
+        service.updateVerificationStatus(id.toString(), DocumentVerificationStatus.VERIFIED, "approver");
+        assertEquals("approver", document.getVerifiedBy());
+        assertNotNull(document.getVerifiedAt());
+
+        // Sent back for review: nobody has decided yet
+        service.updateVerificationStatus(id.toString(), DocumentVerificationStatus.MANUAL_REVIEW, "approver");
+        assertNull(document.getVerifiedBy());
+        assertNull(document.getVerifiedAt());
     }
 
     @Test

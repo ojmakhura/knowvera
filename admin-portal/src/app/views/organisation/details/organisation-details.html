@@ -10,6 +10,11 @@
 
       <div class="kv-row">
         <h1 class="org-title">{{ organisation().name || 'Organisation' }}</h1>
+        @if (organisation().closedAt) {
+          <span class="dp-pill is-info" title="Records kept until {{ organisation().retainUntil | date:'mediumDate' }} (Financial Intelligence Act s.32)">
+            Closed {{ organisation().closedAt | date:'mediumDate' }}
+          </span>
+        }
         @if (organisation().code) {
           <span class="dp-code">{{ organisation().code }}</span>
         }
@@ -42,7 +47,7 @@
         <mat-icon>file_download</mat-icon>
         Export Record
       </button>
-      <button type="button" class="dp-btn-outline is-primary-text" [routerLink]="['/organisation/edit', organisation().id || id]">
+      <button type="button" class="dp-btn-outline is-primary-text" [routerLink]="['/organisation', organisation().id || id, 'edit']">
         <mat-icon>edit</mat-icon>
         Edit Organisation
       </button>
@@ -82,6 +87,26 @@
             <mat-icon>public</mat-icon>
             {{ organisation().countryOfRegistration || 'Not available' }}
           </dd>
+        </div>
+        <div>
+          <dt class="org-label">Trading Name</dt>
+          <dd class="org-value">{{ organisation().tradingName || 'Not available' }}</dd>
+        </div>
+        <div>
+          <dt class="org-label">Legal Form</dt>
+          <dd class="org-value">{{ organisation().legalForm ? ('organisation.legal.form.' + organisation().legalForm | translate) : 'Not available' }}</dd>
+        </div>
+        <div>
+          <dt class="org-label">Nature of Business</dt>
+          <dd class="org-value">{{ organisation().natureOfBusiness || 'Not available' }}</dd>
+        </div>
+        <div>
+          <dt class="org-label">Tax Number (BURS TIN)</dt>
+          <dd class="org-value dp-mono">{{ organisation().taxNumber || 'Not available' }}</dd>
+        </div>
+        <div>
+          <dt class="org-label">VAT Number</dt>
+          <dd class="org-value dp-mono">{{ organisation().vatNumber || 'Not available' }}</dd>
         </div>
         <div>
           <dt class="org-label">Entity Code</dt>
@@ -141,7 +166,7 @@
         </ul>
       </div>
 
-      <button type="button" class="dp-dashed-btn" [routerLink]="['/organisation/edit', organisation().id || id]">
+      <button type="button" class="dp-dashed-btn" [routerLink]="['/organisation', organisation().id || id, 'edit']">
         <mat-icon>add</mat-icon>
         Add Domain
       </button>

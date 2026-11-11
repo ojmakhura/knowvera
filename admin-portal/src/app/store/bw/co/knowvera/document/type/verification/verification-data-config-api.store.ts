@@ -9,7 +9,6 @@ import { SearchObject } from '@models/search-object';
 import { Page } from '@models/page.model';
 import { VerificationDataConfigDTO } from '@app/models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
 import { VerificationDataConfigApi } from '@app/services/bw/co/knowvera/document/type/verification/verification-data-config-api';
-import { toast } from 'ngx-sonner';
 
 export type VerificationDataConfigApiState = AppState<any, any> & {};
 
@@ -30,7 +29,6 @@ export const VerificationDataConfigApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const verificationDataConfigApi = inject(VerificationDataConfigApi);
-    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -42,7 +40,7 @@ export const VerificationDataConfigApiStore = signalStore(
             tapResponse({
               next: (response: VerificationDataConfigDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -56,7 +54,7 @@ export const VerificationDataConfigApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -78,7 +76,7 @@ export const VerificationDataConfigApiStore = signalStore(
             tapResponse({
               next: (response: boolean) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -92,7 +90,7 @@ export const VerificationDataConfigApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -114,7 +112,7 @@ export const VerificationDataConfigApiStore = signalStore(
             tapResponse({
               next: (response: VerificationDataConfigDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -128,7 +126,7 @@ export const VerificationDataConfigApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 

@@ -12,7 +12,6 @@ import { ClientRequestApi } from '@app/services/bw/co/knowvera/organisation/clie
 import { ClientRequestSearchCriteria } from '@app/models/bw/co/knowvera/organisation/client/client-request-search-criteria';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
-import { toast } from 'ngx-sonner';
 
 export type ClientRequestApiState = AppState<ClientRequestDTO, ClientRequestDTO> & {
   individualsRequests: ClientRequestDTO[];
@@ -48,7 +47,6 @@ export const ClientRequestApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const clientRequestApi = inject(ClientRequestApi);
-    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -92,7 +90,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -106,7 +104,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -128,7 +126,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -142,7 +140,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -164,7 +162,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -178,7 +176,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -200,7 +198,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -214,7 +212,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -236,7 +234,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -250,7 +248,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -272,7 +270,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -286,7 +284,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -308,7 +306,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -322,7 +320,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -344,7 +342,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -358,7 +356,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -380,7 +378,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -394,7 +392,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -416,7 +414,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -430,7 +428,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -452,7 +450,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: Page<ClientRequestDTO>) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -466,7 +464,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -488,7 +486,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -502,7 +500,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -524,7 +522,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -538,7 +536,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -560,7 +558,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -574,7 +572,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -596,7 +594,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -610,7 +608,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -632,7 +630,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -646,7 +644,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -668,7 +666,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -682,7 +680,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -704,7 +702,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -718,7 +716,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -740,7 +738,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: boolean | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -754,7 +752,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -776,7 +774,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -790,7 +788,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -812,7 +810,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -826,7 +824,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -848,7 +846,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -862,7 +860,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -884,7 +882,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -898,7 +896,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -924,7 +922,7 @@ export const ClientRequestApiStore = signalStore(
                 let split = response.split('|');
 
                 const message = 'Registration token confirmed!!';
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -940,7 +938,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -965,7 +963,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -979,7 +977,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -1001,7 +999,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -1015,7 +1013,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -1037,7 +1035,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: ClientRequestDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -1051,7 +1049,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -1073,7 +1071,7 @@ export const ClientRequestApiStore = signalStore(
             tapResponse({
               next: (response: Page<ClientRequestDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -1087,7 +1085,7 @@ export const ClientRequestApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                   status: (error?.status || 0),

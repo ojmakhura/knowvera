@@ -15,9 +15,17 @@ export class NovuService {
         return this.http.get<any>(`${this.path}/config`);
     }
 
-    // configs = httpResource<any>(() => `${this.path}/config`);
-
     loadConfigs(): Observable<any> {
         return this.http.get<any>(`${this.path}/config`);
+    }
+
+    getDeadLetterCounts(): Observable<any> {
+
+        return this.http.get<any>("${this.path}/dead-letters");
+    }
+
+    redriveDeadLetters(queue: string): Observable<any> {
+
+        return this.http.post<any>(`${this.path}/dead-letters/${queue}/redrive`, {});
     }
 }

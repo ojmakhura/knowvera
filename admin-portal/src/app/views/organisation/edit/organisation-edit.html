@@ -103,6 +103,41 @@
             </label>
           </div>
         </div>
+        <!-- Financial Intelligence Regulations r.7: legal form, business and tax details -->
+        <div class="kv-form-grid mt-4">
+          <div class="kv-field">
+            <label class="kv-label" for="organisationTradingName">Trading Name</label>
+            <input id="organisationTradingName" type="text" [formField]="editOrganisationFormSignalForm.tradingName"
+              class="kv-input" />
+          </div>
+
+          <div class="kv-field">
+            <label class="kv-label" for="organisationLegalForm">Legal Form</label>
+            <select id="organisationLegalForm" [formField]="editOrganisationFormSignalForm.legalForm" class="kv-input">
+              @for (legalForm of legalForms; track legalForm) {
+              <option [value]="legalForm" translate>organisation.legal.form.{{ legalForm }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="kv-field md:col-span-2">
+            <label class="kv-label" for="organisationNatureOfBusiness">Nature of Business</label>
+            <input id="organisationNatureOfBusiness" type="text"
+              [formField]="editOrganisationFormSignalForm.natureOfBusiness" class="kv-input" />
+          </div>
+
+          <div class="kv-field">
+            <label class="kv-label" for="organisationTaxNumber">Tax Number (BURS TIN)</label>
+            <input id="organisationTaxNumber" type="text" [formField]="editOrganisationFormSignalForm.taxNumber"
+              class="kv-input" />
+          </div>
+
+          <div class="kv-field">
+            <label class="kv-label" for="organisationVatNumber">VAT Number</label>
+            <input id="organisationVatNumber" type="text" [formField]="editOrganisationFormSignalForm.vatNumber"
+              class="kv-input" />
+          </div>
+        </div>
       </section>
 
       <!-- Operational Status -->

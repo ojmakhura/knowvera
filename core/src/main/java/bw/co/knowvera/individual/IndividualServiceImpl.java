@@ -10,8 +10,11 @@ package bw.co.knowvera.individual;
 
 import org.springframework.beans.factory.annotation.Value;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import bw.co.knowvera.utils.RequestTokens;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,12 +32,14 @@ import org.springframework.stereotype.Service;
 
 import bw.co.knowvera.PropertySearchOrder;
 import bw.co.knowvera.SearchObject;
+import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.document.Document;
 import bw.co.knowvera.document.DocumentVerificationStatus;
 import bw.co.knowvera.document.type.DocumentTypeDTO;
 import bw.co.knowvera.kyc.KycComplianceStatus;
 import bw.co.knowvera.organisation.client.ClientRequest;
 import bw.co.knowvera.organisation.client.ClientRequestRepository;
+import bw.co.knowvera.retention.RecordRetention;
 import bw.co.knowvera.settings.SettingsDTO;
 import bw.co.knowvera.settings.SettingsService;
 
@@ -52,15 +57,21 @@ public class IndividualServiceImpl
     private final ClientRequestRepository clientRequestRepository;
     private final PasswordEncoder passwordEncoder;
     private final SettingsService settingsService;
+    private final IndividualListQueries individualListQueries;
+    private final RecordRetention recordRetention;
 
     public IndividualServiceImpl(IndividualRepository individualRepository, SettingsService settingsService,
-            IndividualMapper individualMapper, ClientRequestRepository clientRequestRepository, PasswordEncoder passwordEncoder) {
+            IndividualMapper individualMapper, ClientRequestRepository clientRequestRepository,
+            PasswordEncoder passwordEncoder, IndividualListQueries individualListQueries,
+            RecordRetention recordRetention) {
         super(individualRepository, individualMapper);
         // TODO Auto-generated constructor stub
 
         this.clientRequestRepository = clientRequestRepository;
         this.passwordEncoder = passwordEncoder;
         this.settingsService = settingsService;
+        this.individualListQueries = individualListQueries;
+        this.recordRetention = recordRetention;
     }
 
     /**
@@ -82,7 +93,7 @@ public class IndividualServiceImpl
     protected List<IndividualListDTO> handleGetAll()
             throws Exception {
 
-        return individualMapper.toIndividualListDTOCollection(individualRepository.findAll());
+        return individualListQueries.search(null, Sort.unsorted());
     }
 
     /**
@@ -92,10 +103,7 @@ public class IndividualServiceImpl
     protected Page<IndividualListDTO> handleGetAll(Integer pageNumber, Integer pageSize)
             throws Exception {
 
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
-        Page<Individual> individuals = individualRepository.findAll(pageRequest);
-
-        return individuals.map(individual -> individualMapper.toIndividualListDTO(individual));
+        return individualListQueries.search(null, PageRequest.of(pageNumber, pageSize));
     }
 
     /**
@@ -107,6 +115,21 @@ public class IndividualServiceImpl
 
         Individual individual = individualRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new IndividualServiceException("Individual not found with id: " + id));
+
+        // Removing ends the relationship; the records are kept for the retention period
+        if (individual.getClosedAt() == null) {
+            LocalDateTime closedAt = LocalDateTime.now();
+            individual.setClosedAt(closedAt);
+            individual.setRetainUntil(recordRetention.retainUntil(closedAt));
+            individualRepository.save(individual);
+            recordRetention.closeKycRecords(TargetEntity.INDIVIDUAL, id, closedAt);
+            return true;
+        }
+
+        if (!recordRetention.mayDelete(individual.getRetainUntil(), LocalDate.now())) {
+            throw new IndividualServiceException(
+                    recordRetention.retainedMessage("Individual " + id, individual.getRetainUntil()));
+        }
 
         individualRepository.delete(individual);
         return true;
@@ -120,9 +143,18 @@ public class IndividualServiceImpl
             throws Exception {
 
         Individual entity = individualMapper.individualDTOToEntity(individual);
-        entity = individualRepository.save(entity);
 
-        return individualMapper.toIndividualDTO(entity);
+        // Closing is not editable through save: keep what is stored
+        if (entity.getId() != null) {
+            individualRepository.findById(entity.getId()).ifPresent(existing -> {
+                entity.setClosedAt(existing.getClosedAt());
+                entity.setRetainUntil(existing.getRetainUntil());
+            });
+        }
+
+        Individual saved = individualRepository.save(entity);
+
+        return individualMapper.toIndividualDTO(saved);
     }
 
     private Specification<Individual> createSpecification(IndividualSearchCriteria criteria) {
@@ -190,9 +222,7 @@ public class IndividualServiceImpl
 
         Specification<Individual> spec = createSpecification(criteria);
 
-        return individualMapper.toIndividualListDTOCollection(
-                spec == null ? individualRepository.findAll(Sort.by(Sort.Direction.ASC, "surname"))
-                        : individualRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "surname")));
+        return individualListQueries.search(spec, Sort.by(Sort.Direction.ASC, "surname"));
     }
 
     /**
@@ -206,10 +236,7 @@ public class IndividualServiceImpl
         Specification<Individual> spec = createSpecification(criteria.getCriteria());
 
         PageRequest pageRequest = PageRequest.of(criteria.getPageNumber(), criteria.getPageSize());
-        Page<Individual> individuals = spec == null ? individualRepository.findAll(pageRequest)
-                : individualRepository.findAll(spec, pageRequest);
-
-        return individuals.map(individual -> individualMapper.toIndividualListDTO(individual));
+        return individualListQueries.search(spec, pageRequest);
     }
 
     @Override
@@ -270,11 +297,24 @@ public class IndividualServiceImpl
         ClientRequest clientRequest = clientRequestRepository.findById(UUID.fromString(requestId))
                 .orElseThrow(() -> new IndividualServiceException("ClientRequest not found"));
 
+        if (StringUtils.isBlank(identityConfirmationToken)) {
+            // The portal only has a token after confirm-token succeeded
+            throw new IndividualServiceException("No identity confirmation token: the registration link was not confirmed");
+        }
+
         String token = clientRequest.getIdentityConfirmationToken();
 
         boolean matches = token != null && passwordEncoder.matches(identityConfirmationToken, token);
 
-        if (!matches || RequestTokens.isExpired(identityConfirmationToken, requestSessionTtl, clientRequest.getModifiedAt())) {
+        System.out.println("*******************************************************************");
+        System.out.println(matches);
+        System.out.println(identityConfirmationToken);
+        System.out.println(requestSessionTtl);
+        System.out.println(clientRequest.getCreatedAt());
+        System.out.println(RequestTokens.isExpired(identityConfirmationToken, requestSessionTtl, clientRequest.getCreatedAt()));
+        System.out.println("*******************************************************************");
+
+        if (!matches || RequestTokens.isExpired(identityConfirmationToken, requestSessionTtl, clientRequest.getCreatedAt())) {
             throw new IndividualServiceException("Invalid or expired confirmation token");
         }
 
@@ -319,8 +359,10 @@ public class IndividualServiceImpl
         Map<String, Document> latestDocuments = new HashMap<>();
         for (DocumentTypeDTO type : types) {
             Document doc = individual.getDocuments().stream()
-                    .filter(d -> d.getDocumentType().equals(type.getName()))
-                    .max((d1, d2) -> d1.getCreatedAt().compareTo(d2.getCreatedAt()))
+                    .filter(d -> d.getDocumentType() != null && d.getDocumentType().getId() != null
+                            && d.getDocumentType().getId().toString().equals(type.getId()))
+                    .max(Comparator.comparing(Document::getCreatedAt,
+                            Comparator.nullsFirst(Comparator.naturalOrder())))
                     .orElse(null);
 
             
@@ -329,7 +371,8 @@ public class IndividualServiceImpl
             }
         }
 
-        allVerified = latestDocuments.values().stream()
+        // Every required document type must be present, and its latest upload verified
+        allVerified = latestDocuments.size() == types.size() && latestDocuments.values().stream()
                 .allMatch(d -> d.getVerificationStatus() == DocumentVerificationStatus.VERIFIED);
 
         // if(allVerified) {

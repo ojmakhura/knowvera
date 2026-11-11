@@ -81,10 +81,6 @@ export COMM_SERVICE_URL=
 export SEND_MESSAGE_URL=
 export SOURCE_EMAIL=
 
-# --- Registration client ---
-export REGISTRATION_CLIENT=knowvera-registration
-export REGISTRATION_CLIENT_SECRET=secret
-
 # --- Resource-based authorization (Keycloak policy enforcer) ---
 export AUTHZ_ENABLED=true
 export AUTHZ_PERMISSION_AUTHORITIES=true

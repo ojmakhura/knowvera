@@ -11,6 +11,11 @@
       <div class="min-w-0 kv-stack-sm">
         <div class="kv-row">
           <h1 class="kv-title">{{ fullName() }}</h1>
+          @if (individual().closedAt) {
+            <span class="dp-pill is-info" title="Records kept until {{ formatDate(individual().retainUntil) }} (Financial Intelligence Act s.32)">
+              Closed {{ formatDate(individual().closedAt) }}
+            </span>
+          }
           @if (individual().identityNo) {
             <span class="dp-code">{{ individual().identityNo }}</span>
           }
@@ -221,6 +226,9 @@
                 <td>
                   <p class="dp-strong">{{ record.employer?.name || record.name || 'Unknown Employer' }}</p>
                   <p class="dp-list-sub">{{ (record.positions || []).join(', ') || 'Not specified' }}</p>
+                  @if (record.businessNature || record.businessLocation) {
+                    <p class="dp-list-sub">{{ record.businessNature }}{{ record.businessNature && record.businessLocation ? ' · ' : '' }}{{ record.businessLocation }}</p>
+                  }
                 </td>
                 <td class="dp-muted">
                   {{ formatDate(record.employmentStart) }} - {{ record.employmentEnd ? formatDate(record.employmentEnd) : 'Present' }}

@@ -21,9 +21,11 @@ import { OrganisationDomain } from '@app/models/bw/co/knowvera/organisation/orga
 import { OrganisationDTO } from '@app/models/bw/co/knowvera/organisation/organisation-dto';
 import { PhoneNumber } from '@app/models/bw/co/knowvera/phone-number';
 import { PhoneType } from '@app/models/bw/co/knowvera/phone-type';
+import { OrganisationLegalForm } from '@app/models/bw/co/knowvera/organisation/organisation-legal-form';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { swalFire } from '@app/@shared/swal';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 // import { ToastrService } from 'ngx-toastr';
 
 export class EditOrganisationVarsForm {
@@ -35,10 +37,17 @@ export class EditOrganisationVarsForm {
   isClient: boolean | any = null;
   status: GeneralStatus | any = null;
   kycStatus: KycComplianceStatus | any = null;
-  registrationNo: string | any = null;
-  code: string | any = null;
-  name: string | any = null;
+  // Native text inputs bound with [formField] must start as '' — signal forms treats a null
+  // model value on <input type="text"> as numeric and rejects non-numeric input.
+  registrationNo: string | any = '';
+  code: string | any = '';
+  name: string | any = '';
   countryOfRegistration: string | any = null;
+  tradingName: string | any = '';
+  natureOfBusiness: string | any = '';
+  legalForm: OrganisationLegalForm | any = null;
+  taxNumber: string | any = '';
+  vatNumber: string | any = '';
   description: string | any = null;
   phoneNumbers: Array<PhoneNumber> = [];
   contactEmailAddress: string | any = null;
@@ -121,13 +130,30 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   generalStatuses = Object.values(GeneralStatus);
   kycComplianceStatuses = Object.values(KycComplianceStatus);
   phoneTypes = Object.values(PhoneType);
+  legalForms = Object.values(OrganisationLegalForm);
   readonly breadcrumbLabel = 'Organisations';
+
+  loaderState = inject(LoaderState);
 
   constructor() {
     effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
+    effect(() => {
       const item = this.organisationApiStore.data();
       if (item && item.id) {
-        this.editOrganisationFormSignal.set(item as any);
+        this.editOrganisationFormSignal.set({
+          ...item,
+          registrationNo: item.registrationNo ?? '',
+          code: item.code ?? '',
+          name: item.name ?? '',
+          tradingName: item.tradingName ?? '',
+          natureOfBusiness: item.natureOfBusiness ?? '',
+          taxNumber: item.taxNumber ?? '',
+          vatNumber: item.vatNumber ?? '',
+          domains: (item.domains || []).map((domain: any) => ({ ...domain, name: domain.name ?? '' })),
+        } as any);
       }
     });
 
@@ -147,6 +173,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.organisationApiStore.reset();
     if (this.id) {
+      this.loaderState.message.set('Loading organisation');
       this.organisationApiStore.findById({ id: this.id });
     }
   }
@@ -156,12 +183,21 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {}
 
   saveOrganisation(): void {
-    const formData = this.editOrganisationFormSignal();
+    const formData = { ...this.editOrganisationFormSignal() };
+    formData.registrationNo = formData.registrationNo || null;
+    formData.code = formData.code || null;
+    formData.name = formData.name || null;
+    formData.tradingName = formData.tradingName || null;
+    formData.natureOfBusiness = formData.natureOfBusiness || null;
+    formData.taxNumber = formData.taxNumber || null;
+    formData.vatNumber = formData.vatNumber || null;
+    formData.domains = (formData.domains || []).map((domain) => ({ ...domain, name: domain.name || null }));
+    this.loaderState.message.set('Saving organisation');
     this.organisationApiStore.save({ organisation: formData as any });
   }
 
   cancel(): void {
-    this.router.navigate(['/organisation']);
+    this.router.navigate(['/organisations']);
   }
 
   toggleIsClient(event: any): void {

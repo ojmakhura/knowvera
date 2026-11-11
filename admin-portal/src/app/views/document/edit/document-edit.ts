@@ -24,6 +24,7 @@ import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api'
 import { TranslateModule } from '@ngx-translate/core';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { DocumentAnalyticsStatus } from '@app/models/bw/co/knowvera/document/document-analytics-status';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 class EditDocumentForm {
   id: string | any = null;
@@ -101,7 +102,13 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
   DocumentVerificationStatusT: any = DocumentVerificationStatus;
   DocumentVerificationStatusOptions = Object.keys(this.DocumentVerificationStatusT);
 
+  loaderState = inject(LoaderState);
+
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
     effect(() => {
       const current = this.document();
       this.documentTypeOptions();
@@ -117,7 +124,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
       if (this.isSaving() && this.success() && !this.loading()) {
         this.isSaving.set(false);
         // this.toaster.success(this.messages()?.[0] || 'Document saved');
-        this.router.navigate(['/documents/details', this.editDocumentSignal().id]);
+        this.router.navigate(['/documents', this.editDocumentSignal().id]);
       }
 
       if (this.isSaving() && this.error() && !this.loading()) {
@@ -183,6 +190,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
     payload.verificationStatus = value.verificationStatus || DocumentVerificationStatus.UNVERIFIED;
 
     this.isSaving.set(true);
+    this.loaderState.message.set('Saving document');
     this.documentApiStore.save({ document: payload });
   }
 
@@ -201,7 +209,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
     const id = this.editDocumentSignal().id;
 
     if (id) {
-      this.router.navigate(['/documents/details', id]);
+      this.router.navigate(['/documents', id]);
       return;
     }
 
@@ -292,6 +300,7 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
   private loadDocumentFromRoute(): void {
 
     this.lastLoadedId = this.id;
+    this.loaderState.message.set('Loading document');
     this.documentApiStore.findById({ id: this.id });
   }
 

@@ -11,7 +11,6 @@ import { IndividualListDTO } from '@app/models/bw/co/knowvera/individual/individ
 import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
 import { IndividualApi } from '@app/services/bw/co/knowvera/individual/individual-api';
 import { IndividualSearchCriteria } from '@app/models/bw/co/knowvera/individual/individual-search-criteria';
-import { toast } from 'ngx-sonner';
 
 export type IndividualApiState = AppState<IndividualDTO, IndividualListDTO> & {
   registrationIndividualLoaded: boolean;
@@ -35,7 +34,6 @@ export const IndividualApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const individualApi = inject(IndividualApi);
-    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -47,7 +45,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualDTO | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -61,7 +59,7 @@ export const IndividualApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -83,7 +81,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualListDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -97,7 +95,7 @@ export const IndividualApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -119,7 +117,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: Page<IndividualListDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -133,7 +131,7 @@ export const IndividualApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -155,7 +153,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualListDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -169,7 +167,7 @@ export const IndividualApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -191,7 +189,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: Page<IndividualListDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -205,7 +203,7 @@ export const IndividualApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -227,7 +225,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: Page<IndividualListDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -241,7 +239,7 @@ export const IndividualApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -263,7 +261,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: boolean | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -277,7 +275,7 @@ export const IndividualApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -299,7 +297,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -313,7 +311,7 @@ export const IndividualApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -335,7 +333,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualListDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -349,7 +347,7 @@ export const IndividualApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -371,7 +369,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualDTO) => {
                 const message = 'Client request individual successfully loaded!!';
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -386,7 +384,7 @@ export const IndividualApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -409,7 +407,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualDTO) => {
                 const message = 'Client individual successfully loaded!!';
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -423,7 +421,7 @@ export const IndividualApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),

@@ -8,6 +8,8 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
 import { Title } from '@angular/platform-browser';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 describe('Shell', () => {
   let component: Shell;
@@ -50,6 +52,9 @@ describe('Shell', () => {
         { provide: AppEnvStore, useValue: appEnvStoreMock },
         { provide: BreakpointObserver, useValue: breakpointObserverMock },
         { provide: Title, useValue: titleMock },
+        // The signed-in shell loads the user's permissions (KeycloakHelperApiStore)
+        provideHttpClient(),
+        provideHttpClientTesting(),
       ]
     }).compileComponents();
 
@@ -62,14 +67,32 @@ describe('Shell', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render top bar', () => {
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.topbar')).toBeTruthy();
+  /** The shell as a signed-in user sees it (the top bar and main area exist only then). */
+  function signedIn(): HTMLElement {
+    keycloakMock.authenticated = true;
+    const signedInFixture = TestBed.createComponent(Shell);
+    signedInFixture.detectChanges();
+    return signedInFixture.nativeElement as HTMLElement;
+  }
+
+  afterEach(() => {
+    keycloakMock.authenticated = false;
   });
 
-  it('should render main content area', () => {
+  it('should render top bar when signed in', () => {
+    expect(signedIn().querySelector('.top-header')).toBeTruthy();
+  });
+
+  it('should render main content area when signed in', () => {
+    const main = signedIn().querySelector('main.content-body');
+    expect(main).toBeTruthy();
+    expect(main?.querySelector('router-outlet')).toBeTruthy();
+  });
+
+  it('should not render the top bar or main area when unauthenticated', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.shell-main')).toBeTruthy();
+    expect(compiled.querySelector('.top-header')).toBeNull();
+    expect(compiled.querySelector('main.content-body')).toBeNull();
   });
 
   it('should render login screen when unauthenticated', () => {

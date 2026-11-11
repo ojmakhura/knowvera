@@ -431,6 +431,26 @@
       ]
     },
     {
+      "name": "keycloak",
+      "displayName": "Keycloak Helper",
+      "type": "urn:knowvera-api:resources:keycloak",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/keycloak/client-roles",
+        "/keycloak/permissions",
+        "/keycloak/realm-roles"
+      ],
+      "scopes": [
+        {
+          "name": "self"
+        },
+        {
+          "name": "list"
+        }
+      ]
+    },
+    {
       "name": "kyc-field-groups",
       "displayName": "Kyc Field Group",
       "type": "urn:knowvera-api:resources:kyc-field-groups",
@@ -521,6 +541,9 @@
           "name": "delete"
         },
         {
+          "name": "delete-own"
+        },
+        {
           "name": "submit"
         },
         {
@@ -571,11 +594,19 @@
       "ownerManagedAccess": false,
       "attributes": {},
       "uris": [
-        "/novu/config"
+        "/novu/config",
+        "/novu/dead-letters",
+        "/novu/dead-letters/{queue}/redrive"
       ],
       "scopes": [
         {
           "name": "self"
+        },
+        {
+          "name": "view"
+        },
+        {
+          "name": "edit"
         }
       ]
     },
@@ -715,6 +746,35 @@
       ]
     },
     {
+      "name": "screening",
+      "displayName": "Screening",
+      "type": "urn:knowvera-api:resources:screening",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/screening/hits/pending",
+        "/screening/hits/{id}/review",
+        "/screening/lists",
+        "/screening/lists/update",
+        "/screening/records/{kycRecordId}/hits",
+        "/screening/records/{kycRecordId}/screen"
+      ],
+      "scopes": [
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "verify"
+        },
+        {
+          "name": "review"
+        }
+      ]
+    },
+    {
       "name": "sequences",
       "displayName": "Sequence Generator",
       "type": "urn:knowvera-api:resources:sequences",
@@ -817,6 +877,41 @@
         },
         {
           "name": "delete"
+        }
+      ]
+    },
+    {
+      "name": "suspicion-cases",
+      "displayName": "Suspicion Case",
+      "type": "urn:knowvera-api:resources:suspicion-cases",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/suspicion-cases",
+        "/suspicion-cases/active",
+        "/suspicion-cases/by-record/{kycRecordId}",
+        "/suspicion-cases/{id}",
+        "/suspicion-cases/{id}/close",
+        "/suspicion-cases/{id}/draft-report",
+        "/suspicion-cases/{id}/escalate",
+        "/suspicion-cases/{id}/notes",
+        "/suspicion-cases/{id}/report"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
+        },
+        {
+          "name": "review"
+        },
+        {
+          "name": "export"
         }
       ]
     },
@@ -1992,6 +2087,30 @@
       }
     },
     {
+      "name": "keycloak-self-permission",
+      "description": "Read or change the caller's own data (my records, my profile) (Keycloak Helper)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"keycloak\"]",
+        "scopes": "[\"self\"]",
+        "applyPolicies": "[\"authenticated-policy\"]"
+      }
+    },
+    {
+      "name": "keycloak-list-permission",
+      "description": "List, page or search records (Keycloak Helper)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"keycloak\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"org-admin-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
       "name": "kyc-field-groups-view-permission",
       "description": "Read a single record (Kyc Field Group)",
       "type": "scope",
@@ -2136,6 +2255,18 @@
       }
     },
     {
+      "name": "kyc-records-delete-own-permission",
+      "description": "Remove a record or one of its parts (own records only) (Kyc Record)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"kyc-records\"]",
+        "scopes": "[\"delete-own\"]",
+        "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
+      }
+    },
+    {
       "name": "kyc-records-submit-permission",
       "description": "Start a KYC application or attach evidence to one (Kyc Record)",
       "type": "scope",
@@ -2253,6 +2384,30 @@
         "resources": "[\"novu\"]",
         "scopes": "[\"self\"]",
         "applyPolicies": "[\"authenticated-policy\"]"
+      }
+    },
+    {
+      "name": "novu-view-permission",
+      "description": "Read a single record (Novu Auth)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"novu\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "novu-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Novu Auth)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"novu\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
       }
     },
     {
@@ -2556,6 +2711,54 @@
       }
     },
     {
+      "name": "screening-list-permission",
+      "description": "List, page or search records (Screening)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"screening\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "screening-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Screening)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"screening\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"screening-analyst-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "screening-verify-permission",
+      "description": "Run automated checks: extraction, analysis, data verification, screening (Screening)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"screening\"]",
+        "scopes": "[\"verify\"]",
+        "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "screening-review-permission",
+      "description": "Change the review/decision status of a case, document or request (Screening)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"screening\"]",
+        "scopes": "[\"review\"]",
+        "applyPolicies": "[\"screening-analyst-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
       "name": "sequences-view-permission",
       "description": "Read a single record (Sequence Generator)",
       "type": "scope",
@@ -2733,6 +2936,66 @@
         "resources": "[\"subscriptions\"]",
         "scopes": "[\"delete\"]",
         "applyPolicies": "[\"finance-officer-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "suspicion-cases-view-permission",
+      "description": "Read a single record (Suspicion Case)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"suspicion-cases\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"auditor-policy\", \"compliance-officer-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "suspicion-cases-list-permission",
+      "description": "List, page or search records (Suspicion Case)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"suspicion-cases\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"auditor-policy\", \"compliance-officer-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "suspicion-cases-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Suspicion Case)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"suspicion-cases\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"case-manager-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "suspicion-cases-review-permission",
+      "description": "Change the review/decision status of a case, document or request (Suspicion Case)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"suspicion-cases\"]",
+        "scopes": "[\"review\"]",
+        "applyPolicies": "[\"mlro-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "suspicion-cases-export-permission",
+      "description": "Download files and generate reports (Suspicion Case)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"suspicion-cases\"]",
+        "scopes": "[\"export\"]",
+        "applyPolicies": "[\"auditor-policy\", \"mlro-policy\", \"super-admin-policy\"]"
       }
     },
     {

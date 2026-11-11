@@ -105,6 +105,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Find Client Requests by Individual", description = "Find client requests by individual ID")
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#individualId", logData = false)
+    @RequiresOwnership(scope = "client-requests:list", target = "INDIVIDUAL", id = "#individualId")
     public ResponseEntity<List<ClientRequestDTO>> findByIndividual(String individualId) throws Exception {
 
         List<ClientRequestDTO> requests = clientRequestService.findByIndividual(individualId);
@@ -114,6 +115,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Find Client Requests by Individual (Paged)", description = "Find client requests by individual ID with pagination")
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#individualId", logData = false)
+    @RequiresOwnership(scope = "client-requests:list", target = "INDIVIDUAL", id = "#individualId")
     public ResponseEntity<Page<ClientRequestDTO>> findByIndividualPaged(String individualId, Integer pageNumber,
             Integer pageSize) throws Exception {
 
@@ -240,6 +242,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Find Client Requests by Document", description = "Find client requests by document ID")
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#documentId", logData = false)
+    @RequiresOwnership(scope = "client-requests:list", target = "DOCUMENT", id = "#documentId")
     public ResponseEntity<List<ClientRequestDTO>> findByDocument(String documentId) throws Exception {
 
         List<ClientRequestDTO> requests = clientRequestService.findByDocument(documentId);
@@ -249,6 +252,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Find Client Requests by Document (Paged)", description = "Find client requests by document ID with pagination")
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#documentId", logData = false)
+    @RequiresOwnership(scope = "client-requests:list", target = "DOCUMENT", id = "#documentId")
     public ResponseEntity<Page<ClientRequestDTO>> findByDocumentPaged(String documentId, Integer pageNumber,
             Integer pageSize) throws Exception {
 
@@ -269,6 +273,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Upload Client Requests", description = "Upload client requests from a file")
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#file.getOriginalFilename()", logData = false)
+    @RequiresOwnership(scope = "client-requests:import", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<Page<ClientRequestDTO>> uploadRequests(MultipartFile file, String organisationId,
             TargetEntity target) throws Exception {
 

@@ -15,7 +15,7 @@
     </a>
 
     <nav class="nav-menu">
-      @for (item of menuItems; track item.routerLink) {
+      @for (item of menuItems(); track item.routerLink) {
         <a
           class="nav-item"
           [routerLink]="item.routerLink"
@@ -109,7 +109,7 @@
 
   @if (isLoggedIn()) {
     <nav class="bottom-nav md:hidden!" aria-label="Bottom navigation">
-      @for (item of mobileMenuItems; track item.routerLink) {
+      @for (item of mobileMenuItems(); track item.routerLink) {
         <a
           class="bottom-nav-item"
           [routerLink]="item.routerLink"

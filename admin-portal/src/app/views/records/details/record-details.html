@@ -24,6 +24,9 @@
             <mat-icon class="icon-fill">verified</mat-icon>
             KYC {{ kycStatusDisplay() }}
           </span>
+          @if (record()?.closedAt) {
+            <span class="dp-pill is-info" translate>record.closed</span>
+          }
           <span class="dp-mono-meta">{{ createdSummary() }}</span>
         </div>
       </div>
@@ -201,10 +204,183 @@
           </div>
           <mat-icon class="dp-pending">account_balance_wallet</mat-icon>
         </li>
+        <li class="dp-list-item">
+          <div class="min-w-0">
+            <p class="dp-strong dp-small">
+              {{ 'wealth.sources' | translate }}:
+              @for (source of record()?.wealthSources || []; track source; let last = $last) {
+                {{ 'source.of.wealth.' + source | translate }}{{ last ? '' : ', ' }}
+              } @empty {
+                —
+              }
+            </p>
+            @if (record()?.sourceOfWealthDetails) {
+              <span class="dp-list-sub" [innerHTML]="record()?.sourceOfWealthDetails"></span>
+            }
+          </div>
+          <mat-icon class="dp-pending">savings</mat-icon>
+        </li>
+        <!-- Who collected and who decided (Financial Intelligence Act s.31) -->
+        <li class="dp-list-item">
+          <div class="min-w-0">
+            <p class="dp-strong dp-small">{{ 'collected.by' | translate }}: {{ record()?.createdBy || '—' }}</p>
+            <span class="dp-list-sub">
+              {{ 'reviewed.by' | translate }}: {{ record()?.reviewedBy || '—' }}
+              @if (record()?.reviewedAt) {
+                ({{ record()?.reviewedAt | date:'medium' }})
+              }
+            </span>
+          </div>
+          <mat-icon class="dp-pending">how_to_reg</mat-icon>
+        </li>
+        @if (record()?.closedAt) {
+          <li class="dp-list-item is-warning">
+            <div class="min-w-0">
+              <span class="dp-list-sub">
+                {{ 'record.closed.notice' | translate: { closedAt: (record()?.closedAt | date:'mediumDate'), retainUntil: (record()?.retainUntil | date:'mediumDate') } }}
+              </span>
+            </div>
+            <mat-icon class="dp-pending">inventory_2</mat-icon>
+          </li>
+        }
       </ul>
     </section>
 
     <!-- Documents & report -->
+    <!-- Sanctions screening and suspicion cases (FI Act s.27, s.38): staff only -->
+    @if (canSeeScreening() || canRaise() || canSeeCases()) {
+      <section class="kv-card kv-col-full">
+        <div class="kv-card-header dp-head">
+          <span class="dp-icon-tile"><mat-icon>policy</mat-icon></span>
+          <div class="dp-head-copy">
+            <h2 class="kv-card-title">Screening &amp; Suspicion</h2>
+            <p class="dp-head-sub">Sanctions list matches for the customer and its related parties; confidential suspicion cases</p>
+          </div>
+          <div class="dp-head-aside flex gap-2">
+            @if (canScreen()) {
+              <button type="button" class="kv-btn-secondary" (click)="rescreen()">
+                <mat-icon>sync</mat-icon>
+                Screen now
+              </button>
+            }
+            @if (canRaise()) {
+              <button type="button" class="kv-btn-secondary" (click)="raiseSuspicion()">
+                <mat-icon>report</mat-icon>
+                Raise suspicion
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (canSeeScreening()) {
+          <ul class="flex flex-col gap-2.5 mb-4">
+            @for (hit of hits(); track hit.id) {
+              <li class="dp-list-item">
+                <div class="min-w-0">
+                  <p class="dp-strong dp-small">{{ hit.subjectName }} ({{ hit.subjectRole }}) → {{ hit.entryName }}</p>
+                  <span class="dp-list-sub">
+                    {{ hit.entryReference }} · {{ (hit.score ?? 0) | percent: '1.0-0' }}
+                    @if (hit.reviewedBy) { · {{ hit.reviewedBy }}: {{ hit.reviewNotes }} }
+                  </span>
+                </div>
+                <span class="dp-pill" [ngClass]="hitTone(hit)">{{ 'screening.hit.status.' + hit.status | translate }}</span>
+                @if (hit.status === 'PENDING' && canReviewHits()) {
+                  <div class="flex gap-2">
+                    <button type="button" class="kv-btn-secondary" (click)="decideHit(hit, false)">False positive</button>
+                    <button type="button" class="kv-btn-primary" (click)="decideHit(hit, true)">Confirm</button>
+                  </div>
+                }
+              </li>
+            } @empty {
+              <li class="dp-list-sub">No sanctions list matches.</li>
+            }
+          </ul>
+        }
+
+        @if (canSeeCases() && cases().length) {
+          <p class="kv-label mb-2">Suspicion cases</p>
+          <ul class="flex flex-col gap-1.5">
+            @for (suspicion of cases(); track suspicion.id) {
+              <li class="dp-small">
+                <a class="dp-mono" [routerLink]="['/compliance/suspicion-cases', suspicion.id]">{{ suspicion.ref }}</a>
+                · {{ 'suspicion.case.status.' + suspicion.status | translate }} · report due {{ suspicion.reportDeadline | date: 'mediumDate' }}
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+
+    <!-- Risk rating, approval and related parties (FI Act s.16(2), s.21, s.22; Regulations r.7) -->
+    <section class="kv-card kv-col-full">
+      <div class="kv-card-header dp-head">
+        <span class="dp-icon-tile"><mat-icon>shield</mat-icon></span>
+        <div class="dp-head-copy">
+          <h2 class="kv-card-title">Risk &amp; Ownership</h2>
+          <p class="dp-head-sub">Customer risk rating, approval and the people who own, control or act for the customer</p>
+        </div>
+        <span class="dp-pill dp-head-aside" [ngClass]="riskTone()">
+          {{ record()?.riskLevel ? ('risk.level.' + record()?.riskLevel | translate) + ' risk' : 'Not assessed' }}
+        </span>
+      </div>
+
+      @if (record()?.riskFactors?.length) {
+        <ul class="flex flex-col gap-1.5 mb-4">
+          @for (factor of record()?.riskFactors; track $index) {
+            <li class="dp-list-sub">{{ factor }}</li>
+          }
+        </ul>
+      }
+
+      @if (record()?.approvedBy) {
+        <p class="dp-small mb-4">Approved by <strong>{{ record()?.approvedBy }}</strong> · {{ record()?.approvedAt | date:'medium' }}</p>
+      } @else if (record()?.kycStatus === KycComplianceStatus.PENDING_APPROVAL) {
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+          <span class="dp-small">This high-risk customer needs a KYC approver's sign-off.</span>
+          <ng-container *kaHasRoles="['KYC_APPROVER']; checkRealm: true">
+            <button type="button" mat-flat-button [disabled]="loading()" (click)="decide(true)">Approve</button>
+            <button type="button" mat-stroked-button [disabled]="loading()" (click)="decide(false)">Reject</button>
+          </ng-container>
+        </div>
+      }
+
+      @if (record()?.relatedParties?.length) {
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left dp-list-sub">
+                <th class="py-2 pr-3">Name</th>
+                <th class="py-2 pr-3">Role</th>
+                <th class="py-2 pr-3">Identity</th>
+                <th class="py-2 pr-3">Ownership</th>
+                <th class="py-2 pr-3">PIP</th>
+                <th class="py-2 pr-3">Authority</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (party of record()?.relatedParties; track $index) {
+                <tr class="border-t border-outline-variant/40">
+                  <td class="py-2 pr-3">
+                    {{ party.name || '—' }}
+                    @if (party.beneficialOwner) {
+                      <span class="dp-pill is-info ml-1">Beneficial owner</span>
+                    }
+                  </td>
+                  <td class="py-2 pr-3">{{ party.role ? ('related.party.role.' + party.role | translate) : '—' }}</td>
+                  <td class="py-2 pr-3 dp-mono">{{ party.identityNo || '—' }}</td>
+                  <td class="py-2 pr-3">{{ party.ownershipPercentage != null ? party.ownershipPercentage + '%' : '—' }}</td>
+                  <td class="py-2 pr-3">{{ party.pepStatus && party.pepStatus !== 'NOT_PEP' ? party.pepStatus : 'No' }}</td>
+                  <td class="py-2 pr-3">{{ party.authorityReference || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else if (record()?.target === TargetEntity.ORGANISATION) {
+        <p class="dp-list-sub">No related parties recorded. Organisations must identify everyone holding more than 10%, their managers and signatories.</p>
+      }
+    </section>
+
     <section class="kv-card dp-tabs kv-col-full">
       <mat-tab-group [selectedIndex]="selectedSectionTabIndex()" (selectedIndexChange)="setSectionTab($event)" animationDuration="150ms">
         <mat-tab label="Documents">

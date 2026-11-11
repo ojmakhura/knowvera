@@ -7,6 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch-dto';
@@ -45,6 +46,7 @@ import { toast } from '@app/@shared/toast';
   standalone: true,
   imports: [
     CommonModule,
+    TranslateModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,

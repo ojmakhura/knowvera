@@ -1,68 +1,47 @@
 import {AuditableDTO} from '@models/bw/co/knowvera/auditable-dto';
 
-import {KycFieldGroupDTO} from '@models/bw/co/knowvera/settings/kyc/kyc-field-group-dto';
 import {DocumentDTO} from '@models/bw/co/knowvera/document/document-dto';
+import {KycFieldGroupDTO} from '@models/bw/co/knowvera/settings/kyc/kyc-field-group-dto';
 import {DocumentTypeDTO} from '@models/bw/co/knowvera/document/type/document-type-dto';
+import {ToolSelectorDTO} from '@models/bw/co/knowvera/settings/tool-selector-dto';
 import {SalaryRangeDTO} from '@models/bw/co/knowvera/settings/salary-range-dto';
-import { ToolSelectorDTO } from './tool-selector-dto';
 
 export class SettingsDTO extends AuditableDTO {
+
     kycDuration: number | any;
-    
     organisationDocuments: Array<DocumentTypeDTO> | any;
-    
     individualDocuments: Array<DocumentTypeDTO> | any;
-    
     indKycDocuments: Array<DocumentTypeDTO> | any;
-    
     orgKycDocuments: Array<DocumentTypeDTO> | any;
-    
-
     invoiceDocumentType: DocumentTypeDTO | any;
-
     invoiceTemplate: DocumentDTO | any;
-
     invoiceTemplateType: DocumentTypeDTO | any;
-
     quotationDocumentType: DocumentTypeDTO | any;
-
     quotationTemplateType: DocumentTypeDTO | any;
-
     quotationTemplate: DocumentDTO | any;
-
     clientRequestFileType: DocumentTypeDTO | any;
     salaryRanges: Array<SalaryRangeDTO> | any;
-    
     platformName: string | any;
-    
     platformUrl: string | any;
-    
     supportContact: string | any;
-    
     kycPortalLink: string | any;
-    
     organisationAdminRole: string | any;
-    
     normalUserRole: string | any;
-    
     timeToAccountCreation: number | any;
-    
     vat: number | any;
-    
     documentDurationLimit: number | any;
-    
     dataVerificationThreshold: number | any;
-    
     maxDataVerificationFailureThreshold: number | any;
-    
     individualKycFieldGroups: Array<KycFieldGroupDTO> | any;
-    
     organisationKycFieldGroups: Array<KycFieldGroupDTO> | any;
     textExtractionTools: Array<ToolSelectorDTO> | any = [];
     documentConfirmationTools: Array<ToolSelectorDTO> | any = [];
     textProcessingTools: Array<ToolSelectorDTO> | any = [];
     textCleanupTools: Array<ToolSelectorDTO> | any = [];
-    
+    mediumRiskKycDuration: number | any;
+    highRiskKycDuration: number | any;
+    highRiskCountries: Array<string> | any;
+
     constructor() {
         super();
         this.kycDuration = null;
@@ -95,5 +74,8 @@ export class SettingsDTO extends AuditableDTO {
         this.documentConfirmationTools = [];
         this.textProcessingTools = [];
         this.textCleanupTools = [];
+        this.mediumRiskKycDuration = null;
+        this.highRiskKycDuration = null;
+        this.highRiskCountries = [];
     }
 }

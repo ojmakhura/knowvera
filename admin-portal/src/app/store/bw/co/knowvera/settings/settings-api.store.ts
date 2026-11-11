@@ -19,7 +19,6 @@ import { SettingsFieldGroups } from '@app/models/bw/co/knowvera/settings/setting
 import { SettingsToolSelectors } from '@app/models/bw/co/knowvera/settings/settings-tool-selectors';
 import { TemplateMappings } from '@app/models/bw/co/knowvera/settings/template-mappings';
 import { SalaryRangeDTO } from '@app/models/bw/co/knowvera/settings/salary-range-dto';
-import { toast } from 'ngx-sonner';
 
 export type SettingsApiState = AppState<SettingsDTO, SettingsDTO> & {
   platformIdentity: PlatformIdentity;
@@ -51,11 +50,10 @@ const initialState: SettingsApiState = {
 };
 
 export const SettingsApiStore = signalStore(
-  { providedIn: 'root' },
+  { providedIn: 'root' }, 
   withState(initialState),
   withMethods((store: any) => {
     const settingsApi = inject(SettingsApi);
-    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -67,7 +65,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: SettingsDTO) => {
                 const message = `Settings loaded.`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -81,7 +79,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -111,7 +109,7 @@ export const SettingsApiStore = signalStore(
                   );
                 }
                 const message = `Settings loaded.`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -125,7 +123,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -147,7 +145,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: Page<SettingsDTO>) => {
                 const message = `Settings loaded successfully!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -161,7 +159,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -183,7 +181,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: Page<SettingsDTO>) => {
                 const message = `Settings searched successfully!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -197,7 +195,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -219,7 +217,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: boolean) => {
                 const message = `Settings removed successfully!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -233,7 +231,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -255,7 +253,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: SettingsDTO) => {
                 const message = `Settings saved successfully!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -269,7 +267,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -291,7 +289,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: SettingsDTO[]) => {
                 const message = `Settings searched successfully!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -305,7 +303,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -327,7 +325,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: SettingsDTO) => {
                 const message = `Template uploaded successfully!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -341,7 +339,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -363,7 +361,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: SettingsDTO) => {
                 const message = 'Document type attached successfully!';
-                toastr.success(message);
+                
                 patchState(store, {
                   data: response,
                   loading: false,
@@ -374,7 +372,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   loading: false,
                   success: false,
@@ -393,7 +391,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: SettingsDTO) => {
                 const message = 'Document type detached successfully!';
-                toastr.success(message);
+                
                 patchState(store, {
                   data: response,
                   loading: false,
@@ -404,7 +402,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(store, {
                   loading: false,
                   success: false,
@@ -423,7 +421,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: DocumentRequirements) => {
                 const message = 'Document requirements loaded successfully!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -437,7 +435,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -459,7 +457,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: FinancialSettings) => {
                 const message = 'Financial Settings Loaded Successfully!!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -473,7 +471,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -495,7 +493,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: OperationalMetrics) => {
                 const message = 'Operational metrics loaded successfully!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -509,7 +507,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -531,7 +529,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: PlatformIdentity) => {
                 const message = 'Platform identity loaded successfully!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -545,7 +543,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -567,7 +565,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: SettingsFieldGroups) => {
                 const message = 'Settings field groups loaded successfully!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -581,7 +579,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -603,7 +601,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: SettingsToolSelectors) => {
                 const message = 'Tool selectors loaded successfully!!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -617,7 +615,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -639,7 +637,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: TemplateMappings) => {
                 const message = 'Template mapping loaded successfully!!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -653,7 +651,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -675,7 +673,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: SettingsDTO) => {
                 const message = 'Settings loaded successfully!!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -689,7 +687,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -711,7 +709,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: DocumentRequirements) => {
                 const message = 'Document requirements saved successfully!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -725,7 +723,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -747,7 +745,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: FinancialSettings) => {
                 const message = 'Financial Settings Saved Successfully!!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -761,7 +759,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -783,7 +781,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: OperationalMetrics) => {
                 const message = 'Operational metrics saved successfully!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -797,7 +795,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -819,7 +817,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: PlatformIdentity) => {
                 const message = 'Platform identity saved successfully!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -833,7 +831,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -855,7 +853,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: SettingsFieldGroups) => {
                 const message = 'Settings field groups saved successfully!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -869,7 +867,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -891,7 +889,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: SettingsToolSelectors) => {
                 const message = 'Tool selectors saved successfully!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -905,7 +903,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -927,7 +925,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: TemplateMappings) => {
                 const message = 'Template mapping saved successfully!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -941,7 +939,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -963,7 +961,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: FinancialSettings) => {
                 const message = 'Salary range saved successfully!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -977,7 +975,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 
@@ -999,7 +997,7 @@ export const SettingsApiStore = signalStore(
             tapResponse({
               next: (response: FinancialSettings) => {
                 const message = 'Salary range removed successfully!';
-                toastr.success(message);
+                
                 patchState(
                   store, 
                   {
@@ -1013,7 +1011,7 @@ export const SettingsApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, { 
                     status: (error?.status || 0), 

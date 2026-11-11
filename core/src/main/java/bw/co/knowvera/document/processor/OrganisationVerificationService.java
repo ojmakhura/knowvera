@@ -8,15 +8,18 @@ import org.springframework.stereotype.Service;
 import bw.co.knowvera.QueueObject;
 import bw.co.knowvera.organisation.Organisation;
 import bw.co.knowvera.organisation.OrganisationRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @Service
-@Slf4j
-@RequiredArgsConstructor
 public class OrganisationVerificationService {
 
+    private static final Logger log = LoggerFactory.getLogger(OrganisationVerificationService.class);
+
     private final OrganisationRepository organisationRepository;
+
+    public OrganisationVerificationService(OrganisationRepository organisationRepository) {
+        this.organisationRepository = organisationRepository;
+    }
 
     @RabbitListener(queues = "${app.rabbitmq.organisationVerificationQueue}")
     public void handleOrganisationVerification(QueueObject queueObject) {

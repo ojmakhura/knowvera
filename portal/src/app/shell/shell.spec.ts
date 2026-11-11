@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import Keycloak from 'keycloak-js';
 
 import { Shell } from './shell';
@@ -13,6 +15,8 @@ describe('Shell', () => {
       imports: [Shell],
       providers: [
         provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
         {
           provide: Keycloak,
           useValue: {

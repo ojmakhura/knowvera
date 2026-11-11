@@ -18,7 +18,7 @@
           class="kv-btn-secondary">
           Cancel
         </button>
-        <button type="submit" form="individual-edit-form" [disabled]="loading()"
+        <button type="submit" form="individual-edit-form" [disabled]="editIndividualSignalForm().invalid()"
           class="kv-btn-primary">
           <mat-icon>save</mat-icon>
           Save Changes
@@ -124,9 +124,12 @@
 
           <div class="kv-field">
             <label class="kv-label" for="dateOfBirth" translate>date.of.birth</label>
-            <input id="dateOfBirth" [matDatepicker]="dobPicker" [formField]="editIndividualSignalForm.dateOfBirth"
-              class="kv-input" />
-            <mat-datepicker #dobPicker></mat-datepicker>
+            <div class="date-input">
+              <input id="dateOfBirth" placeholder="DD/MM/YYYY" [matDatepicker]="dobPicker"
+                [formField]="editIndividualSignalForm.dateOfBirth" class="kv-input" />
+              <mat-datepicker-toggle class="date-toggle" [for]="dobPicker"></mat-datepicker-toggle>
+              <mat-datepicker #dobPicker></mat-datepicker>
+            </div>
             @if (editIndividualSignalForm.dateOfBirth().touched()) {
               @for (error of editIndividualSignalForm.dateOfBirth().errors(); track $index) {
                 <p class="kv-error" translate>{{ error.message }}</p>

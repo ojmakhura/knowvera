@@ -15,6 +15,11 @@
 				<div class="min-w-0 flex flex-col gap-3">
 					<div class="flex flex-wrap items-center gap-3">
 						<h1 class="kv-title">{{ fullName() }}</h1>
+						@if (individual().closedAt) {
+							<span class="dp-pill is-info" title="Records kept until {{ individual().retainUntil | date:'mediumDate' }} (Financial Intelligence Act s.32)">
+								Closed {{ individual().closedAt | date:'mediumDate' }}
+							</span>
+						}
 						<span class="dp-code">ID: {{ individual().id || 'Pending' }}</span>
 						<span class="dp-entity-pill">
 							<mat-icon>person</mat-icon>
@@ -161,6 +166,9 @@
 								<div class="min-w-0">
 									<p class="dp-strong text-sm">{{ record.employer?.name || record.name || 'Employment record' }}</p>
 									<p class="dp-list-sub">{{ record.positions?.[0] || 'Position not recorded' }}</p>
+									@if (record.businessNature || record.businessLocation) {
+										<p class="dp-list-sub">{{ record.businessNature }}{{ record.businessNature && record.businessLocation ? ' · ' : '' }}{{ record.businessLocation }}</p>
+									}
 									<p class="dp-list-sub dp-inline-icon">
 										<mat-icon>calendar_month</mat-icon>
 										{{ record.employmentStart ? (record.employmentStart | date:'MMM y') : 'Unknown start' }}

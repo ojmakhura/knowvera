@@ -224,10 +224,14 @@ public abstract class DocumentMapper {
      * @return Document
      */
     @InheritInverseConfiguration
+    @Mapping(target = "verifiedBy", ignore = true) // set by the service
+    @Mapping(target = "verifiedAt", ignore = true) // set by the service
     public abstract Document documentDTOToEntity(DocumentDTO documentDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
+    @Mapping(target = "verifiedBy", ignore = true) // set by the service
+    @Mapping(target = "verifiedAt", ignore = true) // set by the service
     public abstract void updateDocumentFromDocumentDTO(DocumentDTO documentDTO, @MappingTarget Document entity);
 
     /**
@@ -259,10 +263,14 @@ public abstract class DocumentMapper {
      * @return Document
      */
     @InheritInverseConfiguration
+    @Mapping(target = "verifiedBy", ignore = true) // set by the service
+    @Mapping(target = "verifiedAt", ignore = true) // set by the service
     public abstract Document documentListDTOToEntity(DocumentListDTO documentListDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @InheritInverseConfiguration
+    @Mapping(target = "verifiedBy", ignore = true) // set by the service
+    @Mapping(target = "verifiedAt", ignore = true) // set by the service
     public abstract void updateDocumentFromDocumentListDTO(DocumentListDTO documentListDTO,
             @MappingTarget Document entity);
 

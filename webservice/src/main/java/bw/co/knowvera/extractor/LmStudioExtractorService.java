@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import bw.co.knowvera.llm.LmStudioResponse;
 import bw.co.knowvera.llm.OllamaResponse;
 import bw.co.knowvera.llm.Prompt;
-import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.json.JsonMapper;
 
 @Service

@@ -25,11 +25,19 @@ spring:
   threads:
     virtual:
       enabled: true
+  datasource:
+    # URL, username and password: DATABASE_URL, DB_USERNAME, DB_PASSWORD (core-application.properties)
+    driver-class-name: ${DRIVER_CLASS:org.postgresql.Driver}
   jpa:
-    show-sql: ${SHOW_SQL:false }
+    database-platform: ${DB_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}
+    show-sql: ${SHOW_SQL:false}
     properties:
       hibernate:
         format_sql: true
+        # ddl-auto=update re-creates named unique constraints at every start by default; only
+        # create the missing ones
+        schema_update:
+          unique_constraint_strategy: RECREATE_QUIETLY
   servlet:
     multipart:
       enabled: true
@@ -52,6 +60,23 @@ spring:
     port: ${RABBITMQ_PORT:5672} 
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
+    # The broker confirms every publish and returns unroutable ones, so lost messages are logged
+    # (RabbitMQConfig, ConfirmedPublisher) instead of disappearing
+    publisher-confirm-type: correlated
+    publisher-returns: true
+  cloud:
+    aws:
+      # Document storage (S3). The MINIO_* variables still work as fallbacks.
+      credentials:
+        access-key: ${S3_ACCESS_KEY}
+        secret-key: ${S3_SECRET_KEY}
+      region:
+        # Must match the server: Garage's s3_region (default "garage"); SeaweedFS accepts any
+        static: ${S3_REGION:garage}
+      s3:
+        # The endpoint is storage.s3.endpoint (set only when given; an empty one fails here)
+        # Self-hosted servers expect http://host/bucket/key URLs
+        path-style-access-enabled: true
   liquibase:
     enabled: false
   security:
@@ -71,7 +96,7 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD}
-      timeout: 100
+      timeout: ${REDIS_TIMEOUT:100}
       lettuce:
         pool:
           max-active: 16
@@ -177,20 +202,56 @@ rate-limiting:
   tokens: ${RATE_LIMIT:2000}
   # Requests per minute per IP address for calls without a token (public endpoints)
   public-tokens: ${PUBLIC_RATE_LIMIT:30}
-minio:
-    url: ${MINIO_URL:http://localhost:9000}
-    access-key: ${MINIO_ACCESS_KEY:minio}
-    secret-key: ${MINIO_SECRET_KEY:minio123}
-    bucket-name: ${MINIO_BUCKET:knowvera}
+# Document storage: the bucket on an external S3-compatible server (SeaweedFS, Garage, AWS S3).
+# The client itself is configured under spring.cloud.aws (Spring Cloud AWS).
+storage:
+  s3:
+    # The server's S3 API, e.g. https://s3.example.com; blank: AWS S3 itself
+    endpoint: ${S3_ENDPOINT:${MINIO_URL:}}
+    bucket: ${S3_BUCKET:${MINIO_BUCKET:knowvera}}
+    # Create the bucket on first upload. Garage keys need --create-bucket for this; otherwise
+    # create the bucket on the server and turn this off.
+    create-bucket: ${S3_CREATE_BUCKET:true}
 app:
   verification:
     # Automated checks may mark documents VERIFIED on their own (type match and data score);
     # off: passing documents go to MANUAL_REVIEW for a KYC reviewer
     auto-verify: ${DOCUMENT_AUTO_VERIFY:false}
+  processing:
+    # Documents never leave the deployment: cloud tools (Gemini) are skipped even when configured,
+    # text extraction falls back to OCR (Data Protection Act 2024 ss.74-76, transfers outside Botswana)
+    local-only: ${PROCESSING_LOCAL_ONLY:false}
+  retention:
+    # Years a closed relationship's records are kept (Financial Intelligence Act 2022 s.32)
+    years: ${RECORD_RETENTION_YEARS:20}
+  screening:
+    # UN Security Council Consolidated List (FI Act s.27), refreshed daily; open KYC records are
+    # screened again against every new version
+    un-list-url: ${UN_SANCTIONS_LIST_URL:https://scsanctions.un.org/resources/xml/en/consolidated.xml}
+    un-list-cron: ${UN_SANCTIONS_LIST_CRON:0 0 3 * * *}
+    scheduled-update: ${UN_SANCTIONS_LIST_SCHEDULED:true}
+    # Name similarity (0-1) from which a name is a potential match for a screening analyst
+    match-threshold: ${SANCTIONS_MATCH_THRESHOLD:0.85}
   keycloak:
-    # How long user accounts looked up in Keycloak are reused (0s disables); changes made
-    # through the API evict the user at once
-    user-cache-ttl: ${KEYCLOAK_USER_CACHE_TTL:60s}
+    # Keycloak Authorization Services for the API client: the caller's permissions (SCOPE_*
+    # authorities), cached per token in the two-level cache (Caffeine, then Redis; AuthzCache)
+    authz:
+      server-url: ${AUTH_URL:http://localhost:8970}
+      realm: ${REALM:knowvera}
+      client-id: ${app.authz.client}
+      client-secret: ${app.authz.client-secret}
+      # Never past the token's expiry
+      permission-cache-ttl: ${AUTHZ_PERMISSION_CACHE_TTL:5m}
+      # In-process copy in front of Redis: how long, and how many entries
+      local-cache-ttl: ${AUTHZ_LOCAL_CACHE_TTL:1m}
+      local-cache-max-size: ${AUTHZ_LOCAL_CACHE_MAX_SIZE:10000}
+    # Keycloak admin API results (accounts, roles, Organizations) in the same two-level cache
+    # (KeycloakCache); 0s turns one off. Changes made through the API evict a user at once,
+    # changes made in the Keycloak console show after the TTL.
+    cache:
+      user-ttl: ${KEYCLOAK_USER_CACHE_TTL:1m}
+      role-ttl: ${KEYCLOAK_ROLE_CACHE_TTL:10m}
+      organisation-ttl: ${KEYCLOAK_ORGANISATION_CACHE_TTL:10m}
   users:
     # New accounts get no password: Keycloak emails a link to set one (needs the realm's SMTP
     # settings). How long that link stays valid:
@@ -239,22 +300,19 @@ app:
     model: ${OLLAMA_MODEL:gemma4}
   gemini:
     base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
-    api-key: ${GEMINI_API_KEY:}
+    api-key: ${GEMINI_KEY:${GEMINI_API_KEY:}}
     model: ${GEMINI_MODEL:gemini-2.0-flash}
     project-id: ${GEMINI_PROJECT_ID:knowvera-kyc}
     location: ${GEMINI_LOCATION:us-central1}
     credentials-path: ${GCP_CREDENTIALS_FILE:/path/to/credentials.json}
-  registration:
-    client: ${REGISTRATION_CLIENT:knowvera-registration}
-    client-secret: ${REGISTRATION_CLIENT_SECRET:secret}
   # Keycloak resource-based authorization (policy enforcer) for the knowvera-api client
   authz:
     # Policy enforcer filter: Keycloak decides per path + HTTP method
     enabled: ${AUTHZ_ENABLED:true}
     # Keycloak permissions as authorities, e.g. @PreAuthorize("hasAuthority('SCOPE_organisations:view')")
     permission-authorities: ${AUTHZ_PERMISSION_AUTHORITIES:true}
-    client: ${CLIENT_ID:knowvera-api}
-    client-secret: ${CLIENT_SECRET:secret}
+    client: ${API_CLIENT:${CLIENT_ID:knowvera-api}}
+    client-secret: ${API_CLIENT_SECRET:${CLIENT_SECRET:secret}}
     # Generated by keycloak/generate_authz.py
     enforcer-config: ${AUTHZ_ENFORCER_CONFIG:keycloak/policy-enforcer.json}
   rabbitmq:
@@ -302,7 +360,20 @@ app:
   novu:
     api-key: ${NOVU_API_KEY:}
     base-url: ${NOVU_BASE_URL:https://api.novu.co}
+    # Failed triggers are retried with back-off, then moved to the dead-letter queues
+    # (<queue>.dlq on the dead-letter exchange) instead of being dropped
+    retry:
+      max-retries: ${NOVU_RETRY_MAX_RETRIES:3}
+      initial-interval: ${NOVU_RETRY_INITIAL_INTERVAL:2s}
+      multiplier: ${NOVU_RETRY_MULTIPLIER:3}
+      max-interval: ${NOVU_RETRY_MAX_INTERVAL:30s}
+    # Consumers per Novu queue, each prefetching one message, so a message waiting between retries
+    # does not hold up the rest of its queue
+    consumers:
+      concurrency: ${NOVU_CONSUMERS:3}
+      max-concurrency: ${NOVU_MAX_CONSUMERS:10}
     queue:
+      deadLetterExchange: ${NOVU_DEAD_LETTER_EXCHANGE:x.novu-dead-letter}
       newUserNovuId: ${NOVU_NEW_USER_NOVU_ID:novu-new-user}
       newUserQueueExchange: ${NOVU_NEW_USER_QUEUE_EXCHANGE:x.novu-new-user-queue}
       newUserQueue: ${NOVU_NEW_USER_QUEUE:q.novu-new-user}

@@ -5,36 +5,32 @@ export const requestRoutes: Routes = [
   {
     path: '',
     canActivate: [AuthenticationGuard],
+    data: { permissions: ['client-requests:list'] },
     loadComponent: () =>
       import('./client-requests').then((module) => module.ClientRequests),
   },
   {
     path: 'edit',
     canActivate: [AuthenticationGuard],
+    data: { permissions: ['client-requests:edit'] },
     loadComponent: () =>
       import('./edit/client-request-edit').then(
         (module) => module.ClientRequestEdit
       ),
   },
   {
-    path: 'edit/:id',
+    path: ':id/edit',
     canActivate: [AuthenticationGuard],
+    data: { permissions: ['client-requests:edit'] },
     loadComponent: () =>
       import('./edit/client-request-edit').then(
         (module) => module.ClientRequestEdit
       ),
   },
   {
-    path: 'details',
+    path: ':id',
     canActivate: [AuthenticationGuard],
-    loadComponent: () =>
-      import('./details/client-request-details').then(
-        (module) => module.ClientRequestDetails
-      ),
-  },
-  {
-    path: 'details/:id',
-    canActivate: [AuthenticationGuard],
+    data: { permissions: ['client-requests:view'] },
     loadComponent: () =>
       import('./details/client-request-details').then(
         (module) => module.ClientRequestDetails

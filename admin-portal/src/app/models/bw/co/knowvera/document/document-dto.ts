@@ -1,55 +1,39 @@
 import {AuditableDTO} from '@models/bw/co/knowvera/auditable-dto';
 
-import {DocumentValidationResults} from '@models/bw/co/knowvera/document/document-validation-results';
-import {DataVerification} from '@models/bw/co/knowvera/document/data-verification';
-import {DocumentVerificationStatus} from '@models/bw/co/knowvera/document/document-verification-status';
-import {DataComparisons} from '@models/bw/co/knowvera/document/data-comparisons';
-import {VerificationDataConfigDTO} from '@models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
 import {TargetEntity} from '@models/bw/co/knowvera/target-entity';
+import {DocumentVerificationStatus} from '@models/bw/co/knowvera/document/document-verification-status';
+import {VerificationDataConfigDTO} from '@models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
 import {PromptMessage} from '@models/bw/co/knowvera/llm/prompt-message';
 import {DocumentAnalyticsStatus} from '@models/bw/co/knowvera/document/document-analytics-status';
+import {DataVerification} from '@models/bw/co/knowvera/document/data-verification';
+import {DocumentValidationResults} from '@models/bw/co/knowvera/document/document-validation-results';
+import {DataComparisons} from '@models/bw/co/knowvera/document/data-comparisons';
 
 export class DocumentDTO extends AuditableDTO {
-    target: TargetEntity | any;
-    
-    documentTypeId: string | any;
-    
-    documentType: string | any;
-    
-    url: string | any;
-    
-    targetId: string | any;
-    
-    metadata: any | any;
-    
-    fileName: string | any;
-    
-    fileContent: string | any;
-    
-    extractedInformation: any | any;
-    
-    expectedFields: any | any;
-    
 
+    target: TargetEntity | any;
+    documentTypeId: string | any;
+    documentType: string | any;
+    url: string | any;
+    targetId: string | any;
+    metadata: any | any;
+    fileName: string | any;
+    fileContent: string | any;
+    extractedInformation: any | any;
+    expectedFields: any | any;
     validationResults: DocumentValidationResults | any;
     verificationStatus: DocumentVerificationStatus | any = DocumentVerificationStatus.UNVERIFIED;
-    
     validationPrompts: Array<PromptMessage> | any;
-    
     textExtractionPrompts: Array<PromptMessage> | any;
-    
     targetLabel: string | any;
-    
     expectedInformation: any | any;
-    
     analyticsStatus: DocumentAnalyticsStatus | any = DocumentAnalyticsStatus.INITIALISED;
-    
     dataVerifications: Array<DataVerification> | any;
-    
     dataComparisons: Array<DataComparisons> = [];
-    
     verificationDataConfigs: Array<VerificationDataConfigDTO> | any;
-    
+    verifiedBy: string | any;
+    verifiedAt: Date | any;
+
     constructor() {
         super();
         this.target = null;
@@ -72,5 +56,7 @@ export class DocumentDTO extends AuditableDTO {
         this.dataVerifications = [];
         this.dataComparisons = [];
         this.verificationDataConfigs = [];
+        this.verifiedBy = null;
+        this.verifiedAt = null;
     }
 }

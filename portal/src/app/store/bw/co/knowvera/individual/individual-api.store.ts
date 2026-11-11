@@ -47,7 +47,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualDTO | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -83,7 +83,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualListDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -119,7 +119,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: Page<IndividualListDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -155,7 +155,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualListDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -191,7 +191,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: Page<IndividualListDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -227,7 +227,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: Page<IndividualListDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -263,7 +263,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: boolean | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -299,7 +299,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualDTO) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -335,7 +335,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualListDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -371,7 +371,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualDTO) => {
                 const message = 'Client request individual successfully loaded!!';
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -409,7 +409,7 @@ export const IndividualApiStore = signalStore(
             tapResponse({
               next: (response: IndividualDTO) => {
                 const message = 'Client individual successfully loaded!!';
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {

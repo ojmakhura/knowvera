@@ -45,18 +45,19 @@ import bw.co.knowvera.document.DocumentServiceBase;
 import bw.co.knowvera.document.DocumentServiceException;
 import bw.co.knowvera.document.DocumentVerificationStatus;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
-
 import static org.junit.jupiter.api.DynamicTest.stream;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -76,6 +77,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @see bw.co.knowvera.document.DocumentService
@@ -83,9 +86,10 @@ import org.springframework.validation.annotation.Validated;
 @Service("documentService")
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 @Validated
-@Slf4j
 public class DocumentServiceImpl
         extends DocumentServiceBase {
+
+    private static final Logger log = LoggerFactory.getLogger(DocumentServiceImpl.class);
 
     private final VerificationDataConfigRepository verificationDataConfigRepository;
     private final OrganisationRepository organisationRepository;
@@ -152,6 +156,15 @@ public class DocumentServiceImpl
         Document entity = documentMapper.documentDTOToEntity(document);
 
         boolean isNew = entity.getId() == null;
+
+        // The decision maker is recorded by the service, never taken from a client
+        if (!isNew) {
+            Document existing = documentRepository.findById(entity.getId()).orElse(null);
+            if (existing != null) {
+                entity.setVerifiedBy(existing.getVerifiedBy());
+                entity.setVerifiedAt(existing.getVerifiedAt());
+            }
+        }
 
         extractExpectedInformation(entity);
         entity = documentRepository.save(entity);
@@ -712,13 +725,30 @@ public class DocumentServiceImpl
                     }
                 }
 
+                boolean mandatory = Boolean.TRUE.equals(mandatoryMap.get(expectedField.getField()));
+
+                // A field matched to the customer's record needs a value there; any other field
+                // needs a value on the document. Without one it cannot be verified: fail it when
+                // mandatory, otherwise leave it out of scoring
+                boolean nothingToVerify = StringUtils.isNotBlank(expectedField.getMatchTo())
+                        ? StringUtils.isBlank(expected)
+                        : StringUtils.isBlank(extracted);
+
+                if (nothingToVerify && !mandatory) {
+                    continue;
+                }
+
                 boolean continueProcessing = continueProcessing(expectedField,
                         expected,
                         extracted);
 
                 match.setExpectedValue(expected);
                 match.setExtractedValue(extracted);
-                if (continueProcessing) {
+                if (continueProcessing && (StringUtils.isBlank(expectedField.getMatchTo())
+                        || usesExactMatch(expectedField))) {
+                    // Present on the document, or identical once formatting is ignored
+                    match.setSimilarity(1.0);
+                } else if (continueProcessing) {
                     match.setSimilarity(stringMatcher.calculateFilteredSimilarity(extracted, expected));
                 } else {
                     match.setSimilarity(0.0);
@@ -836,6 +866,11 @@ public class DocumentServiceImpl
                 docType.getExpectedFields(),
                 document.getExpectedInformation(), document.getExtractedInformation());
 
+        DataVerification validityCheck = checkDocumentValidity(docType, document.getExtractedInformation(), LocalDate.now());
+        if (validityCheck != null) {
+            verifications.add(validityCheck);
+        }
+
         document.setDataVerifications(verifications);
 
         if (document.getVerificationStatus() != DocumentVerificationStatus.REJECTED) {
@@ -872,6 +907,7 @@ public class DocumentServiceImpl
 
         document.setModifiedAt(LocalDateTime.now());
         document.setModifiedBy(user);
+        recordDecision(document, user);
         extractExpectedInformation(document);
         document = documentRepository.save(document);
 
@@ -933,65 +969,133 @@ public class DocumentServiceImpl
     // }
     // }
 
-    private boolean continueProcessing(ExpectedField expectedField, String expected, Object extracted) {
+    private static final List<DateTimeFormatter> DOCUMENT_DATE_FORMATS = List.of(
+            DateTimeFormatter.ISO_LOCAL_DATE,
+            DateTimeFormatter.ofPattern("d/M/uuuu"),
+            DateTimeFormatter.ofPattern("d-M-uuuu"),
+            DateTimeFormatter.ofPattern("d.M.uuuu"),
+            DateTimeFormatter.ofPattern("d MMM uuuu", Locale.ENGLISH),
+            DateTimeFormatter.ofPattern("d MMMM uuuu", Locale.ENGLISH));
 
-        // if (StringUtils.isBlank(expected) && keyField != KeyField.DOCUMENT_DATE) {
+    /**
+     * Checks that a document which expires is still valid, e.g. a utility bill used as proof of
+     * address must be recent. The document type's expiry field holds the document's date: with
+     * {@code expiresIn}/{@code expiryPeriod} set the document is valid for that long from that
+     * date, otherwise the date is itself the expiry date (as printed on an Omang or passport).
+     *
+     * @return a failed verification when the document has expired, an unverified one (for manual
+     *         review) when its date cannot be read, or null when it is valid or does not expire
+     */
+    DataVerification checkDocumentValidity(DocumentType docType, Map extractedInformation, LocalDate today) {
 
-        // return true;
-        // }
-
-        boolean isExpectedString = expected instanceof String;
-        boolean isExtractedString = extracted instanceof String;
-
-        String extractedStr = extracted != null ? extracted.toString().toLowerCase() : "";
-
-        if (expectedField.getExactMatch() != null && expectedField.getExactMatch()) {
-            String tmp = "";
-            if(extracted != null) {
-                tmp = extractedStr.toString().toLowerCase();
-            }
-            if(expected == null) {
-                return true;
-            }
-
-            return expected.toLowerCase().equals(tmp);
-
-        } else {
-
-            double score = stringMatcher.calculateFilteredSimilarity(extractedStr, expected == null ? expected : expected.toString().toLowerCase());
-            return score >= 0.8;
+        if (!Boolean.TRUE.equals(docType.getExpires()) || docType.getExpiryField() == null) {
+            return null;
         }
 
-        // switch (keyField) {
-        // case INDIVIDUAL_IDENTITY_NO, ORGANISATION_REGISTRATION_NO:
-        // if (isExpectedString && isExtractedString) {
+        DataVerification verification = new DataVerification();
+        verification.setVerificationDataName("Document validity");
+        verification.setHasMandatoryFields(true);
+        verification.setScore(0.0);
+        verification.setKeyFieldMatches(new ArrayList<>());
 
-        // return expectedStr.equals(extractedStr);
-        // }
-        // break;
+        ExpectedField expiryField = docType.getExpiryField();
+        Object value = extractedInformation == null ? null : extractedInformation.get(expiryField.getField());
+        LocalDate documentDate = parseDocumentDate(value, expiryField.getFormat());
 
-        // case INDIVIDUAL_FIRST_NAME, INDIVIDUAL_SURNAME, ORGANISATION_NAME:
-        // if (isExpectedString && isExtractedString) {
-        // double score = stringMatcher.calculateFilteredSimilarity(expectedStr,
-        // extractedStr);
-        // boolean satisfactoryScore = score >= 0.8;
-        // return satisfactoryScore;
-        // }
-        // break;
+        if (documentDate == null) {
+            verification.setVerificationStatus(DataVerificationStatus.UNVERIFIED);
+            verification.setVerificationReport("Could not read the document date from field "
+                    + expiryField.getField() + ": " + value);
+            return verification;
+        }
 
-        // case DOCUMENT_DATE:
+        LocalDate expiryDate = documentDate;
+        Integer expiresIn = docType.getExpiresIn();
+        if (expiresIn != null && expiresIn > 0 && docType.getExpiryPeriod() != null) {
+            expiryDate = switch (docType.getExpiryPeriod()) {
+                case WEEK -> documentDate.plusWeeks(expiresIn);
+                case MONTH -> documentDate.plusMonths(expiresIn);
+                case YEAR -> documentDate.plusYears(expiresIn);
+            };
+        }
 
-        // LocalDate documentDate = LocalDate.parse(extractedStr);
+        if (!expiryDate.isAfter(today)) {
+            verification.setVerificationStatus(DataVerificationStatus.VERIFICATION_FAILED);
+            verification.setVerificationReport("Document expired on " + expiryDate + ".");
+            return verification;
+        }
 
-        // LocalDate expiryDate = documentDate.plusMonths(3);
+        return null;
+    }
 
-        // return LocalDate.now().isBefore(expiryDate);
+    private static LocalDate parseDocumentDate(Object value, String format) {
 
-        // default:
-        // break;
-        // }
+        if (value instanceof LocalDate date) {
+            return date;
+        }
 
-        // return true;
+        if (value == null || StringUtils.isBlank(value.toString())) {
+            return null;
+        }
+
+        String text = value.toString().trim();
+        List<DateTimeFormatter> formats = new ArrayList<>();
+
+        if (StringUtils.isNotBlank(format)) {
+            try {
+                formats.add(DateTimeFormatter.ofPattern(format, Locale.ENGLISH));
+            } catch (IllegalArgumentException e) {
+                log.warn("Ignoring invalid date format {}", format);
+            }
+        }
+        formats.addAll(DOCUMENT_DATE_FORMATS);
+
+        for (DateTimeFormatter formatter : formats) {
+            try {
+                return LocalDate.parse(text, formatter);
+            } catch (DateTimeParseException e) {
+                // Try the next format
+            }
+        }
+
+        return null;
+    }
+
+    /** Customer record attributes that identify a person or organisation and must match exactly. */
+    private static final Set<String> IDENTIFIER_FIELDS = Set.of("identityno", "registrationno");
+
+    private boolean continueProcessing(ExpectedField expectedField, String expected, Object extracted) {
+
+        String extractedStr = extracted != null ? extracted.toString() : "";
+
+        // Fields not matched to the customer's record only have to be present on the document
+        if (StringUtils.isBlank(expectedField.getMatchTo())) {
+            return StringUtils.isNotBlank(extractedStr);
+        }
+
+        // Nothing on the customer's record to verify against
+        if (StringUtils.isBlank(expected)) {
+            return false;
+        }
+
+        if (usesExactMatch(expectedField)) {
+            return normaliseForExactMatch(expected).equals(normaliseForExactMatch(extractedStr));
+        }
+
+        double score = stringMatcher.calculateFilteredSimilarity(extractedStr.toLowerCase(), expected.toLowerCase());
+        return score >= 0.8;
+    }
+
+    /** Identifiers always match exactly, whatever the field is configured with. */
+    private static boolean usesExactMatch(ExpectedField expectedField) {
+        return Boolean.TRUE.equals(expectedField.getExactMatch())
+                || (expectedField.getMatchTo() != null
+                        && IDENTIFIER_FIELDS.contains(expectedField.getMatchTo().trim().toLowerCase()));
+    }
+
+    /** Ignores case, spacing and punctuation, so "123 456-789" matches "123456789". */
+    private static String normaliseForExactMatch(String value) {
+        return value.toLowerCase().replaceAll("[^\\p{L}\\p{N}]", "");
     }
 
     @Override
@@ -1005,8 +1109,26 @@ public class DocumentServiceImpl
         extractExpectedInformation(document);
         document.setModifiedAt(LocalDateTime.now());
         document.setModifiedBy(user);
+        recordDecision(document, user);
         document = documentRepository.save(document);
 
         return documentMapper.toDocumentDTO(document);
+    }
+
+    /**
+     * Records who verified or rejected the document (a person, or AI-AGENT for automated
+     * checks); a document awaiting a decision has no decision maker.
+     */
+    private static void recordDecision(Document document, String user) {
+
+        DocumentVerificationStatus status = document.getVerificationStatus();
+
+        if (status == DocumentVerificationStatus.VERIFIED || status == DocumentVerificationStatus.REJECTED) {
+            document.setVerifiedBy(user);
+            document.setVerifiedAt(document.getModifiedAt());
+        } else {
+            document.setVerifiedBy(null);
+            document.setVerifiedAt(null);
+        }
     }
 }

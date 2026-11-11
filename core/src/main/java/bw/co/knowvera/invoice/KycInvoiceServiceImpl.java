@@ -20,7 +20,6 @@ import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -45,12 +44,6 @@ import bw.co.knowvera.subscription.KycSubsciptionStatus;
 import bw.co.knowvera.subscription.KycSubscription;
 import bw.co.knowvera.subscription.KycSubscriptionMapper;
 import bw.co.knowvera.subscription.KycSubscriptionRepository;
-import bw.co.knowvera.invoice.InvoiceSearchCriteria;
-import bw.co.knowvera.invoice.KycInvoice;
-import bw.co.knowvera.invoice.KycInvoiceDTO;
-import bw.co.knowvera.invoice.KycInvoiceRepository;
-import bw.co.knowvera.invoice.KycInvoiceServiceBase;
-import bw.co.knowvera.invoice.UploadPurpose;
 
 /**
  * @see bw.co.knowvera.invoice.KycInvoiceService

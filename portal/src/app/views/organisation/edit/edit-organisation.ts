@@ -21,6 +21,7 @@ import { applyEach, email, form, FormField, required } from "@angular/forms/sign
 import { OrganisationApiStore } from "@app/store/bw/co/knowvera/organisation/organisation-api.store";
 import { Router } from "@angular/router";
 import { PhoneType } from "@app/models/bw/co/knowvera/phone-type";
+import { OrganisationLegalForm } from "@app/models/bw/co/knowvera/organisation/organisation-legal-form";
 import { swalFire } from "@app/@shared/swal-loader";
 import { AppEnvStore } from "@app/store/app-env.state";
 import { toast } from '@app/@shared/toast';
@@ -38,6 +39,11 @@ export class EditOrganisationVarsForm {
   code: string | any = null;
   name: string | any = null;
   countryOfRegistration: string | any = null;
+  tradingName: string | any = null;
+  natureOfBusiness: string | any = null;
+  legalForm: OrganisationLegalForm | any = null;
+  taxNumber: string | any = null;
+  vatNumber: string | any = null;
   description: string | any = null;
   phoneNumbers: Array<PhoneNumber> = [];
   contactEmailAddress: string | any = null;
@@ -128,6 +134,7 @@ export class EditOrganisation implements OnInit, AfterViewInit, OnDestroy {
   generalStatuses = Object.values(GeneralStatus);
   kycComplianceStatuses = Object.values(KycComplianceStatus);
   phoneTypes = Object.values(PhoneType);
+  legalForms = Object.values(OrganisationLegalForm);
 
   appEnvStore = inject(AppEnvStore);
 

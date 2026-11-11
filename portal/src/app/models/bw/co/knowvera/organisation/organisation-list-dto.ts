@@ -3,28 +3,20 @@ import {KycComplianceStatus} from '@models/bw/co/knowvera/kyc/kyc-compliance-sta
 import {GeneralStatus} from '@models/bw/co/knowvera/general-status';
 
 export class OrganisationListDTO {
+
     id: string | any;
-    
     code: string | any;
-    
     name: string | any;
-    
     registrationNo: string | any;
-    
     status: GeneralStatus | any;
-    
     contactEmailAddress: string | any;
-    
     kycStatus: KycComplianceStatus | any;
-    
     isClient: boolean | any = false;
-    
     keycloakId: string | any;
-    
     postalAddress: string | any;
-    
     physicalAddress: string | any;
-    
+    closedAt: Date | any;
+
     constructor() {
         this.id = null;
         this.code = null;
@@ -37,5 +29,6 @@ export class OrganisationListDTO {
         this.keycloakId = null;
         this.postalAddress = null;
         this.physicalAddress = null;
+        this.closedAt = null;
     }
 }

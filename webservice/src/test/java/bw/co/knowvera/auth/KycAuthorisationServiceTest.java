@@ -23,14 +23,21 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.document.DocumentService;
+import bw.co.knowvera.individual.IndividualDTO;
 import bw.co.knowvera.individual.IndividualService;
+import bw.co.knowvera.individual.employment.EmploymentRecordDTO;
+import bw.co.knowvera.individual.employment.EmploymentRecordService;
 import bw.co.knowvera.invoice.KycInvoiceService;
 import bw.co.knowvera.keycloak.KeycloakUserService;
 import bw.co.knowvera.kyc.KycRecordDTO;
 import bw.co.knowvera.kyc.KycRecordService;
 import bw.co.knowvera.organisation.OrganisationDTO;
 import bw.co.knowvera.organisation.OrganisationService;
+import bw.co.knowvera.organisation.branch.BranchDTO;
+import bw.co.knowvera.organisation.branch.BranchService;
 import bw.co.knowvera.organisation.client.ClientRequestService;
+import bw.co.knowvera.organisation.document.OrganisationDocumentDTO;
+import bw.co.knowvera.organisation.document.OrganisationDocumentService;
 import bw.co.knowvera.subscription.KycSubscriptionService;
 import bw.co.knowvera.user.UserDTO;
 
@@ -53,19 +60,49 @@ class KycAuthorisationServiceTest {
         public String save(KycRecordDTO record) {
             return "saved " + record.getId();
         }
+
+        @RequiresOwnership(scope = "organisation-branches:edit", target = "BRANCH", id = "#id")
+        public String removeBranch(String id) {
+            return "removed " + id;
+        }
+
+        @RequiresOwnership(scope = "employment-records:view", target = "EMPLOYMENT_RECORD", id = "#id")
+        public String loadEmploymentRecord(String id) {
+            return "loaded " + id;
+        }
+
+        @RequiresOwnership(scope = "organisation-document-types:delete", target = "ORGANISATION_DOCUMENT", id = "#id")
+        public String removeOrganisationDocument(String id) {
+            return "removed " + id;
+        }
+
+        @RequiresOwnership(scope = "users:view", target = "USER", id = "#userId")
+        public String loadUser(String userId) {
+            return "loaded " + userId;
+        }
+
+        @RequiresOwnership(scope = "organisations:view", target = "NOT_A_KIND", id = "#id")
+        public String loadUnknownKind(String id) {
+            return "loaded " + id;
+        }
     }
 
     private final KeycloakUserService keycloakUserService = mock(KeycloakUserService.class);
     private final OrganisationService organisationService = mock(OrganisationService.class);
     private final KycRecordService kycRecordService = mock(KycRecordService.class);
+    private final IndividualService individualService = mock(IndividualService.class);
+    private final BranchService branchService = mock(BranchService.class);
+    private final EmploymentRecordService employmentRecordService = mock(EmploymentRecordService.class);
+    private final OrganisationDocumentService organisationDocumentService = mock(OrganisationDocumentService.class);
     private OrganisationController controller;
 
     @BeforeEach
     void setUp() {
         KycAuthorisationService aspect = new KycAuthorisationService(kycRecordService,
-                keycloakUserService, mock(IndividualService.class), organisationService,
+                keycloakUserService, individualService, organisationService,
                 mock(DocumentService.class), mock(ClientRequestService.class),
-                mock(KycInvoiceService.class), mock(KycSubscriptionService.class));
+                mock(KycInvoiceService.class), mock(KycSubscriptionService.class),
+                branchService, employmentRecordService, organisationDocumentService);
 
         AspectJProxyFactory factory = new AspectJProxyFactory(new OrganisationController());
         factory.setProxyTargetClass(true);
@@ -160,5 +197,86 @@ class KycAuthorisationServiceTest {
         assertEquals("loaded org-1", controller.loadTarget(TargetEntity.ORGANISATION, "org-1"));
         assertThrows(AuthorizationDeniedException.class,
                 () -> controller.loadTarget(TargetEntity.ORGANISATION, "org-2"));
+    }
+
+    private static BranchDTO branch(String id, String organisationId) {
+        BranchDTO branch = new BranchDTO();
+        branch.setId(id);
+        branch.setOrganisationId(organisationId);
+        return branch;
+    }
+
+    @Test
+    void branchIsOwnedThroughItsOrganisation() {
+        authenticate("ROLE_ORG_ADMIN", "SCOPE_organisation-branches:edit-own");
+        when(branchService.findById("mine")).thenReturn(branch("mine", "org-1"));
+        when(branchService.findById("theirs")).thenReturn(branch("theirs", "org-2"));
+
+        assertEquals("removed mine", controller.removeBranch("mine"));
+        assertThrows(AuthorizationDeniedException.class, () -> controller.removeBranch("theirs"));
+    }
+
+    @Test
+    void employmentRecordIsOwnedByItsIndividual() {
+        authenticate("ROLE_APPLICANT", "SCOPE_employment-records:view-own");
+        IndividualDTO me = new IndividualDTO();
+        me.setId("individual-1");
+        when(individualService.findByUserId("user-1")).thenReturn(me);
+        when(individualService.findById(any())).thenAnswer(invocation -> {
+            IndividualDTO individual = new IndividualDTO();
+            individual.setId(invocation.getArgument(0));
+            return individual;
+        });
+        EmploymentRecordDTO mine = new EmploymentRecordDTO();
+        mine.setId("mine");
+        mine.setIndividualId("individual-1");
+        EmploymentRecordDTO theirs = new EmploymentRecordDTO();
+        theirs.setId("theirs");
+        theirs.setIndividualId("individual-2");
+        when(employmentRecordService.findById("mine")).thenReturn(mine);
+        when(employmentRecordService.findById("theirs")).thenReturn(theirs);
+
+        assertEquals("loaded mine", controller.loadEmploymentRecord("mine"));
+        assertThrows(AuthorizationDeniedException.class, () -> controller.loadEmploymentRecord("theirs"));
+    }
+
+    @Test
+    void organisationDocumentIsOwnedThroughItsOrganisation() {
+        authenticate("ROLE_ORG_ADMIN", "SCOPE_organisation-document-types:delete-own");
+        OrganisationDocumentDTO mine = new OrganisationDocumentDTO();
+        mine.setId("mine");
+        mine.setOrganisationId("org-1");
+        OrganisationDocumentDTO theirs = new OrganisationDocumentDTO();
+        theirs.setId("theirs");
+        theirs.setOrganisationId("org-2");
+        when(organisationDocumentService.findById("mine")).thenReturn(mine);
+        when(organisationDocumentService.findById("theirs")).thenReturn(theirs);
+
+        assertEquals("removed mine", controller.removeOrganisationDocument("mine"));
+        assertThrows(AuthorizationDeniedException.class, () -> controller.removeOrganisationDocument("theirs"));
+    }
+
+    @Test
+    void userIsOwnedByTheMembersOfItsOrganisation() {
+        authenticate("ROLE_ORG_ADMIN", "SCOPE_users:view-own");
+        UserDTO colleague = new UserDTO();
+        colleague.setUserId("user-2");
+        colleague.setOrganisationId("org-1");
+        UserDTO stranger = new UserDTO();
+        stranger.setUserId("user-3");
+        stranger.setOrganisationId("org-2");
+        when(keycloakUserService.findUserById("user-2")).thenReturn(colleague);
+        when(keycloakUserService.findUserById("user-3")).thenReturn(stranger);
+
+        assertEquals("loaded user-2", controller.loadUser("user-2"));
+        assertThrows(AuthorizationDeniedException.class, () -> controller.loadUser("user-3"));
+        assertThrows(AuthorizationDeniedException.class, () -> controller.loadUser("missing"));
+    }
+
+    @Test
+    void unknownRecordKindIsDenied() {
+        authenticate("ROLE_ORG_ADMIN", "SCOPE_organisations:view-own");
+
+        assertThrows(AuthorizationDeniedException.class, () -> controller.loadUnknownKind("org-1"));
     }
 }

@@ -59,6 +59,36 @@
 						</mat-select>
 					</mat-form-field>
 
+					<!-- Financial Intelligence Regulations r.7: legal form, business and tax details -->
+					<mat-form-field class="vault-field" appearance="outline">
+						<mat-label>Trading Name</mat-label>
+						<input matInput [formField]="editForm.tradingName" />
+					</mat-form-field>
+
+					<mat-form-field class="vault-field" appearance="outline">
+						<mat-label>Legal Form</mat-label>
+						<mat-select [formField]="editForm.legalForm">
+							@for (legalForm of legalForms; track legalForm) {
+								<mat-option [value]="legalForm">{{ 'organisation.legal.form.' + legalForm | translate }}</mat-option>
+							}
+						</mat-select>
+					</mat-form-field>
+
+					<mat-form-field class="vault-field md:col-span-2" appearance="outline">
+						<mat-label>Nature of Business</mat-label>
+						<input matInput [formField]="editForm.natureOfBusiness" />
+					</mat-form-field>
+
+					<mat-form-field class="vault-field" appearance="outline">
+						<mat-label>Tax Number (BURS TIN)</mat-label>
+						<input matInput [formField]="editForm.taxNumber" />
+					</mat-form-field>
+
+					<mat-form-field class="vault-field" appearance="outline">
+						<mat-label>VAT Number</mat-label>
+						<input matInput [formField]="editForm.vatNumber" />
+					</mat-form-field>
+
 					<div class="md:col-span-2 flex items-center justify-between gap-3 bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant/50" aria-label="Client status">
 						<div>
 							<p class="text-sm font-medium text-on-surface">Client Status</p>

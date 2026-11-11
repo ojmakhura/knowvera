@@ -8,7 +8,7 @@ Roles are hierarchical: a role has everything the roles it includes have (Keyclo
 
 | Role | Abbrev. | Includes | Description |
 |---|---|---|---|
-| `CUSTOMER` | CUS | `PORTAL_USER` (knowvera-web client role) | Base role of every external user: signs in to the portal, own records only |
+| `CUSTOMER` | CUS | `PORTAL_USER` (knowvera-user-portal client role) | Base role of every external user: signs in to the portal, own records only |
 | `APPLICANT` | APP | `CUSTOMER` | Individual applying for KYC: own profile, KYC application and documents |
 | `ORG_USER` | OU | `CUSTOMER` | Member of a client organisation: its client requests and KYC cases |
 | `ORG_ADMIN` | OA | `ORG_USER` | Administrator of a client organisation: also its users, branches and billing |
@@ -63,16 +63,19 @@ Owner-scoped roles (CUSTOMER, APPLICANT, ORG_USER, ORG_ADMIN) are granted `<scop
 | `expected-fields` | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | **all** | **all** | view, list | view, list | **all** | **all** | **all** |
 | `individuals` | – | own: view, edit | own: view, list | own: view, list | – | view, list, edit, verify | view, list, edit, verify | view, list, edit, verify | view, list, verify | view, list | view, list | view, list, edit, verify | view, list, edit, verify | view, list, edit | – | – | **all** | **all**; own: view, list, edit |
 | `invoices` | – | – | – | own: view, list, submit | – | – | – | – | – | – | view, list | view, list | view, list | – | **all** | – | **all** | **all**; own: view, list, submit |
+| `keycloak` | – | – | – | **all** | – | – | – | – | – | – | **all** | **all** | **all** | – | – | **all** | **all** | **all** |
 | `kyc-field-groups` | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | **all** | **all** | view, list | view, list | **all** | **all** | **all** |
-| `kyc-records` | – | own: view, edit, submit | own: view, list, edit, submit, export | own: view, list, edit, submit, export | – | view, list, edit, submit, verify, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, verify, review, export | view, list, verify | view, list, export | view, list, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, export | – | – | **all** | **all**; own: view, list, edit, submit, export |
+| `kyc-records` | – | own: view, edit, delete, submit | own: view, list, edit, delete, submit, export | own: view, list, edit, delete, submit, export | – | view, list, edit, submit, verify, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, verify, review, export | view, list, verify | view, list, export | view, list, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, export | – | – | **all** | **all**; own: view, list, edit, delete, submit, export |
 | `kyc-report-sections` | – | – | – | – | – | view, edit | view, edit | view, edit | view, edit | view, edit | view | view, edit | view, edit | view | – | – | **all** | **all** |
-| `novu` | self | self | self | self | self | self | self | self | self | self | self | self | self | self | self | self | self | self |
+| `novu` | – | – | – | – | – | – | – | – | – | – | view | view | view | – | – | **all** | **all** | **all** |
 | `organisation-branches` | – | – | own: view, list | own: view, list, edit, delete | – | – | – | – | – | – | view, list | view, list | view, list | view, list | – | **all** | **all** | **all**; own: view, list, edit, delete |
 | `organisation-document-types` | – | – | own: view, list | own: view, list, edit, delete | – | – | – | – | – | – | view, list | view, list, edit | view, list, edit | – | – | **all** | **all** | **all**; own: view, list, edit, delete |
 | `organisations` | – | own: view, edit | own: view, list | own: view, list, edit | – | view, list, verify | view, list, verify | view, list, verify | view, list, verify | view, list | view, list | view, list, verify | view, list, verify | view, list, edit | view, list | – | **all** | **all**; own: view, list, edit |
+| `screening` | – | – | – | – | – | list, verify | list, verify | list, verify | **all** | – | list | **all** | **all** | – | – | list, edit | **all** | **all** |
 | `sequences` | – | – | – | – | – | – | – | – | – | – | view, list | view, list | view, list | – | – | **all** | **all** | **all** |
 | `settings` | view | view | view | view | view | view | view | view | view | view | view, list | view, list | view, list | view | view | **all** | **all** | **all** |
 | `subscriptions` | – | – | – | own: view, list | – | – | – | – | – | – | view, list | view, list | view, list | – | **all** | – | **all** | **all**; own: view, list |
+| `suspicion-cases` | – | – | – | – | – | edit | edit | edit | edit | – | view, list, export | view, list, edit, export | **all** | edit | – | – | **all** | **all** |
 | `users` | – | – | – | own: view, list, edit, manage | – | – | – | – | – | – | view, list | view, list | view, list | view, list | – | **all** | **all** | **all**; own: view, list, edit, manage |
 | `verification-data-configs` | view | view | view | view | view | view | view | view | view | view | view | **all** | **all** | view | view | **all** | **all** | **all** |
 
@@ -261,6 +264,16 @@ Invoices
 | `delete` | `SCOPE_invoices:delete` | `DELETE /invoices/{id}` | `remove` |
 | `submit` | `SCOPE_invoices:submit` / `SCOPE_invoices:submit-own` | `POST /invoices/{id}/upload` | `upload` |
 
+### `keycloak`
+
+Realm and client role names, and the caller's own permissions
+
+| Scope | Authority | Endpoint | Method |
+|---|---|---|---|
+| `self` | – | `GET /keycloak/permissions` | `getUserPermissions` |
+| `list` | `SCOPE_keycloak:list` | `GET /keycloak/client-roles` | `getClientRoles` |
+| `list` | `SCOPE_keycloak:list` | `GET /keycloak/realm-roles` | `getRealmRoles` |
+
 ### `kyc-field-groups`
 
 Reference: KYC field groups
@@ -302,7 +315,7 @@ KYC cases
 | `list` | `SCOPE_kyc-records:list` / `SCOPE_kyc-records:list-own` | `POST /kyc-records/search/summaries` | `searchSummaries` |
 | `list` | `SCOPE_kyc-records:list` / `SCOPE_kyc-records:list-own` | `POST /kyc-records/search/summaries/paged` | `pagedSearchSummaries` |
 | `edit` | `SCOPE_kyc-records:edit` / `SCOPE_kyc-records:edit-own` | `POST /kyc-records` | `save` |
-| `delete` | `SCOPE_kyc-records:delete` | `DELETE /kyc-records/{id}` | `remove` |
+| `delete` | `SCOPE_kyc-records:delete` / `SCOPE_kyc-records:delete-own` | `DELETE /kyc-records/{id}` | `remove` |
 | `submit` | `SCOPE_kyc-records:submit` / `SCOPE_kyc-records:submit-own` | `GET /kyc-records/individual/{individualId}` | `createIndividualRecord` |
 | `submit` | `SCOPE_kyc-records:submit` / `SCOPE_kyc-records:submit-own` | `POST /kyc-records/new` | `createNew` |
 | `submit` | `SCOPE_kyc-records:submit` / `SCOPE_kyc-records:submit-own` | `GET /kyc-records/organisation/{organisationId}` | `createOrganisationRecord` |
@@ -331,6 +344,8 @@ Notification service configuration
 | Scope | Authority | Endpoint | Method |
 |---|---|---|---|
 | `self` | – | `GET /novu/config` | `getNovuConfig` |
+| `view` | `SCOPE_novu:view` | `GET /novu/dead-letters` | `getDeadLetterCounts` |
+| `edit` | `SCOPE_novu:edit` | `POST /novu/dead-letters/{queue}/redrive` | `redriveDeadLetters` |
 
 ### `organisation-branches`
 
@@ -384,6 +399,19 @@ Organisations (KYC subjects and clients)
 | `edit` | `SCOPE_organisations:edit` / `SCOPE_organisations:edit-own` | `POST /organisations` | `save` |
 | `delete` | `SCOPE_organisations:delete` | `DELETE /organisations/{id}` | `remove` |
 | `verify` | `SCOPE_organisations:verify` | `GET /organisations/{id}/verification` | `verifyOrganisation` |
+
+### `screening`
+
+Sanctions list screening of KYC subjects and review of potential matches
+
+| Scope | Authority | Endpoint | Method |
+|---|---|---|---|
+| `list` | `SCOPE_screening:list` | `GET /screening/hits/pending` | `findPendingHits` |
+| `list` | `SCOPE_screening:list` | `GET /screening/lists` | `getListStatus` |
+| `list` | `SCOPE_screening:list` | `GET /screening/records/{kycRecordId}/hits` | `findHitsByRecord` |
+| `edit` | `SCOPE_screening:edit` | `POST /screening/lists/update` | `updateSanctionsList` |
+| `verify` | `SCOPE_screening:verify` | `POST /screening/records/{kycRecordId}/screen` | `screenRecord` |
+| `review` | `SCOPE_screening:review` | `POST /screening/hits/{id}/review` | `reviewHit` |
 
 ### `sequences`
 
@@ -446,6 +474,22 @@ Subscriptions
 | `list` | `SCOPE_subscriptions:list` / `SCOPE_subscriptions:list-own` | `POST /subscriptions/search/paged` | `pagedSearch` |
 | `edit` | `SCOPE_subscriptions:edit` | `POST /subscriptions` | `save` |
 | `delete` | `SCOPE_subscriptions:delete` | `DELETE /subscriptions/{id}` | `remove` |
+
+### `suspicion-cases`
+
+Suspicious transaction cases and reports to the FIA (confidential: no tipping off)
+
+| Scope | Authority | Endpoint | Method |
+|---|---|---|---|
+| `view` | `SCOPE_suspicion-cases:view` | `GET /suspicion-cases/{id}` | `findById` |
+| `list` | `SCOPE_suspicion-cases:list` | `GET /suspicion-cases/active` | `findActive` |
+| `list` | `SCOPE_suspicion-cases:list` | `GET /suspicion-cases/by-record/{kycRecordId}` | `findByRecord` |
+| `edit` | `SCOPE_suspicion-cases:edit` | `POST /suspicion-cases` | `raise` |
+| `edit` | `SCOPE_suspicion-cases:edit` | `POST /suspicion-cases/{id}/notes` | `addNote` |
+| `review` | `SCOPE_suspicion-cases:review` | `POST /suspicion-cases/{id}/close` | `close` |
+| `review` | `SCOPE_suspicion-cases:review` | `POST /suspicion-cases/{id}/escalate` | `escalate` |
+| `review` | `SCOPE_suspicion-cases:review` | `POST /suspicion-cases/{id}/report` | `recordReport` |
+| `export` | `SCOPE_suspicion-cases:export` | `GET /suspicion-cases/{id}/draft-report` | `draftReport` |
 
 ### `users`
 

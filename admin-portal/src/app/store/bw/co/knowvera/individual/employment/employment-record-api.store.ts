@@ -9,7 +9,6 @@ import { SearchObject } from '@app/models/search-object';
 import { Page } from '@app/models/page.model';
 import { EmploymentRecordDTO } from '@app/models/bw/co/knowvera/individual/employment/employment-record-dto';
 import { EmploymentRecordApi } from '@app/services/bw/co/knowvera/individual/employment/employment-record-api';
-import { toast } from 'ngx-sonner';
 
 export type EmploymentRecordApiState = AppState<EmploymentRecordDTO, any> & {};
 
@@ -30,7 +29,6 @@ export const EmploymentRecordApiStore = signalStore(
   withState(initialState),
   withMethods((store: any) => {
     const employmentRecordApi = inject(EmploymentRecordApi);
-    const toastr = toast;
     return {
       reset: () => {
         patchState(store, initialState);
@@ -42,7 +40,7 @@ export const EmploymentRecordApiStore = signalStore(
             tapResponse({
               next: (response: EmploymentRecordDTO | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -56,7 +54,7 @@ export const EmploymentRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -78,7 +76,7 @@ export const EmploymentRecordApiStore = signalStore(
             tapResponse({
               next: (response: EmploymentRecordDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -92,7 +90,7 @@ export const EmploymentRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -114,7 +112,7 @@ export const EmploymentRecordApiStore = signalStore(
             tapResponse({
               next: (response: EmploymentRecordDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -128,7 +126,7 @@ export const EmploymentRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -150,7 +148,7 @@ export const EmploymentRecordApiStore = signalStore(
             tapResponse({
               next: (response: Page<EmploymentRecordDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -164,7 +162,7 @@ export const EmploymentRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -186,7 +184,7 @@ export const EmploymentRecordApiStore = signalStore(
             tapResponse({
               next: (response: Page<EmploymentRecordDTO> | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -200,7 +198,7 @@ export const EmploymentRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -222,7 +220,7 @@ export const EmploymentRecordApiStore = signalStore(
             tapResponse({
               next: (response: boolean | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -236,7 +234,7 @@ export const EmploymentRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -258,7 +256,7 @@ export const EmploymentRecordApiStore = signalStore(
             tapResponse({
               next: (response: EmploymentRecordDTO | any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -272,7 +270,7 @@ export const EmploymentRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),
@@ -294,7 +292,7 @@ export const EmploymentRecordApiStore = signalStore(
             tapResponse({
               next: (response: EmploymentRecordDTO[] | any[]) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -308,7 +306,7 @@ export const EmploymentRecordApiStore = signalStore(
               },
               error: (error: any) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
+                
                 patchState(
                   store, {
                     status: (error?.status || 0),

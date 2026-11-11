@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { VerificationDataConfigDTO } from '@app/models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
@@ -12,7 +12,6 @@ import { DocumentTypeApiStore } from '@app/store/bw/co/knowvera/document/type/do
 import { ExpectedFieldApiStore } from '@app/store/bw/co/knowvera/document/type/field/expected-field-api.store';
 import { VerificationDataConfigApiStore } from '@app/store/bw/co/knowvera/document/type/verification/verification-data-config-api.store';
 import { TranslateModule } from '@ngx-translate/core';
-// import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import {
   DocumentTypeEdit,
@@ -24,8 +23,8 @@ describe('EditDocumentTypeVarsForm', () => {
   it('should initialize defaults', () => {
     const form = new EditDocumentTypeVarsForm();
 
-    expect(form.code).toBeNull();
-    expect(form.name).toBeNull();
+    expect(form.code).toBe('');
+    expect(form.name).toBe('');
     expect(form.expires).toBe(false);
     expect(form.expectedFields).toEqual([]);
     expect(form.validationPrompts).toEqual([]);
@@ -63,22 +62,17 @@ describe('DocumentTypeEdit', () => {
     })),
   };
 
-  const mockToastr = {
-    success: vi.fn(),
-    error: vi.fn(),
-  };
-
   const mockVerificationConfigApi = {
     remove: vi.fn(() => of(true)),
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DocumentTypeEdit, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [DocumentTypeEdit, TranslateModule.forRoot()],
       providers: [
+        provideRouter([]),
         { provide: DocumentTypeApiStore, useValue: mockDocumentTypeApiStore },
         { provide: MatDialog, useValue: mockDialog },
-        { provide: ToastrService, useValue: mockToastr },
         { provide: ExpectedFieldApiStore, useValue: {} },
         { provide: VerificationDataConfigApiStore, useValue: {} },
         { provide: VerificationDataConfigApi, useValue: mockVerificationConfigApi },
@@ -165,7 +159,7 @@ describe('DocumentTypeEdit', () => {
     component.updateField('name', 'Unsaved');
     component.discardChanges();
 
-    expect(component.editDocumentTypeSignal().name).toBeNull();
+    expect(component.editDocumentTypeSignal().name).toBe('');
   });
 
   it('should map and save document type', () => {
@@ -209,7 +203,7 @@ describe('ExpectedFieldDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ExpectedFieldDialogComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      imports: [ExpectedFieldDialogComponent, TranslateModule.forRoot()],
       providers: [
         {
           provide: MAT_DIALOG_DATA,

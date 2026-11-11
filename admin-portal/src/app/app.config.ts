@@ -4,7 +4,7 @@ import {
   inject,
   provideAppInitializer,
 } from '@angular/core';
-import { provideRouter, RouteReuseStrategy, withComponentInputBinding } from '@angular/router';
+import { PreloadAllModules, provideRouter, RouteReuseStrategy, withComponentInputBinding, withInMemoryScrolling, withPreloading, withViewTransitions } from '@angular/router';
 
 import { routes } from './app.routes';
 import {
@@ -16,11 +16,12 @@ import {
   withXhr,
 } from '@angular/common/http';
 import {
+  DateAdapter,
   MAT_DATE_FORMATS,
   MAT_DATE_LOCALE,
   MatDateFormats,
-  provideNativeDateAdapter,
 } from '@angular/material/core';
+import { AppDateAdapter } from './@shared/app-date-adapter';
 import { RouteReusableStrategy } from './@core/route-reusable-strategy';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { apiPrefixInterceptor } from './@core/http/api-prefix.interceptor';
@@ -146,7 +147,13 @@ export const initialiseApp = async () => {
     providers: [
       provideAppInitializer(initialiseEnv(env)),
       provideKeycloakAndInterceptor(env),
-      provideRouter(routes, withComponentInputBinding()),
+      provideRouter(
+        routes, 
+        withComponentInputBinding(),
+        withViewTransitions(),
+        withInMemoryScrolling(),
+        withPreloading(PreloadAllModules)
+      ),
       provideHttpClient(
         withXhr(),
         withInterceptorsFromDi(),
@@ -156,7 +163,7 @@ export const initialiseApp = async () => {
           includeBearerTokenInterceptor,
         ]),
       ),
-      provideNativeDateAdapter(),
+      { provide: DateAdapter, useClass: AppDateAdapter },
       importProvidersFrom(
         TranslateModule.forRoot({
           defaultLanguage: 'en',

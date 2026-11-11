@@ -49,7 +49,7 @@ import bw.co.knowvera.document.processor.DocumentQueueProcessor;
 import bw.co.knowvera.document.processor.GeminiTextExtractionProcessor;
 import bw.co.knowvera.document.processor.TextProcessingService;
 import bw.co.knowvera.logging.Audit;
-import bw.co.knowvera.minio.MinioService;
+import bw.co.knowvera.storage.ObjectStorageService;
 import bw.co.knowvera.properties.RabbitProperties;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -60,7 +60,7 @@ import jakarta.validation.Valid;
 public class DocumentApiImpl implements DocumentApi {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentApi.class);
-    private final MinioService minioService;
+    private final ObjectStorageService storageService;
     private final DocumentService documentService;
     private final DocumentProcessorService documentProcessor;
     private final DocumentQueueProcessor documentQueueProcessor;
@@ -71,13 +71,13 @@ public class DocumentApiImpl implements DocumentApi {
 
     private final CurrentCaller currentCaller;
 
-    public DocumentApiImpl(DocumentService documentService, RabbitTemplate rabbitTemplate, MinioService minioService,
+    public DocumentApiImpl(DocumentService documentService, RabbitTemplate rabbitTemplate, ObjectStorageService storageService,
             DocumentProcessorService documentProcessor, GeminiTextExtractionProcessor geminiTextExtractionProcessor,
             RabbitProperties rabbitProperties, DocumentQueueProcessor documentQueueProcessor, CurrentCaller currentCaller) {
         this.currentCaller = currentCaller;
 
         this.documentService = documentService;
-        this.minioService = minioService;
+        this.storageService = storageService;
         this.documentProcessor = documentProcessor;
         this.geminiTextExtractionProcessor = geminiTextExtractionProcessor;
         this.rabbitTemplate = rabbitTemplate;
@@ -150,10 +150,10 @@ public class DocumentApiImpl implements DocumentApi {
         String url = document.getUrl();
         if (StringUtils.isNotBlank(url) && removed) {
             try {
-                minioService.deleteFile(url);
+                storageService.deleteFile(url);
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new DocumentServiceException("Error deleting file from MinIO for document id: " + id);
+                throw new DocumentServiceException("Error deleting file from storage for document id: " + id);
             }
         }
         return ResponseEntity.ok(removed);
@@ -220,11 +220,11 @@ public class DocumentApiImpl implements DocumentApi {
         return filePath.toString();
     }
 
-    private String uploadToMinio(MultipartFile file, String fileName) throws Exception {
-        // Upload the file to MinIO
+    private String uploadToStorage(MultipartFile file, String fileName) throws Exception {
+        // Upload the file to storage
         try (InputStream inputStream = file.getInputStream()) {
 
-            String url = minioService.uploadFile(fileName, inputStream, file.getSize(), file.getContentType());
+            String url = storageService.uploadFile(fileName, inputStream, file.getSize(), file.getContentType());
             return url;
 
         } catch (IOException e) {
@@ -267,7 +267,7 @@ public class DocumentApiImpl implements DocumentApi {
 
         String filePath = constructFilePath(target, targetId, purpose, fileName);
         try {
-            document.setUrl(uploadToMinio(file, filePath));
+            document.setUrl(uploadToStorage(file, filePath));
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -289,10 +289,10 @@ public class DocumentApiImpl implements DocumentApi {
 
     }
 
-    private InputStreamResource downloadFromMinio(String url) throws Exception {
+    private InputStreamResource downloadFromStorage(String url) throws Exception {
 
-        // Download the file from MinIO
-        InputStream inputStream = minioService.downloadFile(url);
+        // Download the file from storage
+        InputStream inputStream = storageService.downloadFile(url);
         // Process the input stream as needed
         InputStreamResource resource = new InputStreamResource(inputStream);
         return resource;
@@ -308,7 +308,7 @@ public class DocumentApiImpl implements DocumentApi {
         DocumentDTO document = documentService.findById(id);
 
         try {
-            InputStreamResource data = downloadFromMinio(document.getUrl());
+            InputStreamResource data = downloadFromStorage(document.getUrl());
             ResponseEntity<InputStreamResource> response = ResponseEntity.status(HttpStatus.OK)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + document.getUrl() + "\"")
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
@@ -328,7 +328,7 @@ public class DocumentApiImpl implements DocumentApi {
     public ResponseEntity<InputStreamResource> downloadFileByUrl(@RequestParam String objectName) throws Exception {
 
         logger.debug("Downloading a document with url: {}", objectName);
-        InputStreamResource data = downloadFromMinio(objectName);
+        InputStreamResource data = downloadFromStorage(objectName);
         ResponseEntity<InputStreamResource> response = ResponseEntity.status(HttpStatus.OK)
                 // Built by ContentDisposition so the object name cannot break out of the header value
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
@@ -369,8 +369,8 @@ public class DocumentApiImpl implements DocumentApi {
             throw new IllegalArgumentException("Computed filePath is null or empty for document: " + id);
         }
 
-        // Upload to MinIO
-        String url = uploadToMinio(file, filePath);
+        // Upload to storage
+        String url = uploadToStorage(file, filePath);
         document.setUrl(url);
         document.setFileName(fileName);
 

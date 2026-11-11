@@ -6,7 +6,9 @@ import { LoaderState } from '@app/@shared/loader/loader.state';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 
 class PlatformIdentityModel {
-  platformName: string | any = null;
+  // Native text inputs bound with [formField] must start as '' — signal forms treats a null
+  // model value on <input type="text"> as numeric and rejects non-numeric input.
+  platformName: string | any = '';
   platformUrl: string | any = null;
   supportContact: string | any = null;
   kycPortalLink: string | any = null;
@@ -26,7 +28,7 @@ export class PlatformIdentity implements OnInit {
   platformIdentitySignal = linkedSignal(() => {
     let storeData = this.settingsApiStore.platformIdentity();
     let model = new PlatformIdentityModel();
-    model.platformName = storeData?.platformName ?? null;
+    model.platformName = storeData?.platformName ?? '';
     model.platformUrl = storeData?.platformUrl ?? null;
     model.supportContact = storeData?.supportContact ?? null;
     model.kycPortalLink = storeData?.kycPortalLink ?? null;
@@ -59,6 +61,8 @@ export class PlatformIdentity implements OnInit {
 
   save(): void {
       
-    this.settingsApiStore.savePlatformIdentity({ platformIdentity: this.platformIdentitySignal() });
+    const platformIdentity = { ...this.platformIdentitySignal() };
+    platformIdentity.platformName = platformIdentity.platformName || null;
+    this.settingsApiStore.savePlatformIdentity({ platformIdentity });
   }
 }

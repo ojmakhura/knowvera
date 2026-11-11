@@ -16,5 +16,7 @@ export enum KycComplianceStatus {
     /** TODO: Model Documentation for Enumeration Literal INCOMPLETE value "INCOMPLETE": $literal.enumerationLiteralDisplay */
     INCOMPLETE = "INCOMPLETE",
     /** TODO: Model Documentation for Enumeration Literal DOCUMENT_VERIFICATION_FAILED value "DOCUMENT_VERIFICATION_FAILED": $literal.enumerationLiteralDisplay */
-    DOCUMENT_VERIFICATION_FAILED = "DOCUMENT_VERIFICATION_FAILED"
+    DOCUMENT_VERIFICATION_FAILED = "DOCUMENT_VERIFICATION_FAILED",
+    /** TODO: Model Documentation for Enumeration Literal PENDING_APPROVAL value "PENDING_APPROVAL": $literal.enumerationLiteralDisplay */
+    PENDING_APPROVAL = "PENDING_APPROVAL"
 }

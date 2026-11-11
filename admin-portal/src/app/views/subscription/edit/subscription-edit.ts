@@ -26,6 +26,7 @@ import { Loader } from '@app/@shared/loader/loader';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import {provideNativeDateAdapter} from '@angular/material/core';
 import {MatDatepickerModule} from '@angular/material/datepicker';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 export class EditSubscriptionVarsForm {
   id: string | any = null;
@@ -36,7 +37,9 @@ export class EditSubscriptionVarsForm {
   status: KycSubsciptionStatus | any = null;
   organisation: OrganisationListDTO | any = null;
   organisationFilter: OrganisationListDTO | any = null;
-  ref: string | any = null;
+  // Native text inputs bound with [formField] must start as '' — signal forms treats a null
+  // model value on <input type="text"> as numeric and rejects non-numeric input.
+  ref: string | any = '';
   period: TimePeriod | any = null;
   startDate: Date | any = null;
   endDate: Date | any = null;
@@ -95,7 +98,13 @@ export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
   messages = linkedSignal(() => this.kycSubscriptionApiStore.messages());
   success = linkedSignal(() => this.kycSubscriptionApiStore.success());
 
+  loaderState = inject(LoaderState);
+
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
 
     this.kycSubscriptionApiStore.reset();
     
@@ -123,7 +132,7 @@ export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
             status: '',
             contactEmailAddress: ''
           } : null,
-          ref: subscription.ref,
+          ref: subscription.ref ?? '',
           startDate: subscription.startDate,
           endDate: subscription.endDate,
           amount: subscription.amount,
@@ -139,6 +148,7 @@ export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
 
     this.organisationApiStore.getAll();
     if (this.id) {
+      this.loaderState.message.set('Loading subscription');
       this.kycSubscriptionApiStore.findById({ id: this.id });
     }
   }
@@ -172,7 +182,7 @@ export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
 
     let subscription = new KycSubscriptionDTO();
     subscription.id = formValue.id;
-    subscription.ref = formValue.ref;
+    subscription.ref = formValue.ref || null;
     subscription.organisationName = formValue.organisation?.name;
     subscription.organisationId = formValue.organisation?.id;
     subscription.organisationCode = formValue.organisation?.code;
@@ -187,6 +197,7 @@ export class SubscriptionEdit implements OnInit, AfterViewInit, OnDestroy {
     subscription.modifiedBy = formValue.modifiedBy;
     subscription.modifiedAt = formValue.modifiedAt;
 
+    this.loaderState.message.set('Saving subscription');
     this.kycSubscriptionApiStore.save({ subscription });
   }
 

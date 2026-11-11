@@ -1,5 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { readStoredLanguage, storeLanguage } from '@app/@core/services/stored-language';
 
 export type Language = 'en' | 'es';
 
@@ -20,7 +21,7 @@ export class TranslationService {
   }
 
   private initializeLanguage(): void {
-    const savedLang = localStorage.getItem('language');
+    const savedLang = readStoredLanguage();
     const browserLang = this.translate.getBrowserLang();
     const initialLanguage = this.resolveLanguage(savedLang ?? browserLang);
 
@@ -34,7 +35,7 @@ export class TranslationService {
   setLanguage(lang: Language): void {
     this.translate.use(lang);
     this.currentLang.set(lang);
-    localStorage.setItem('language', lang);
+    storeLanguage(lang);
   }
 
   private resolveLanguage(candidate: string | undefined | null): Language {

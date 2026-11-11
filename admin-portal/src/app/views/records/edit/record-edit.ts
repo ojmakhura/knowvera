@@ -33,6 +33,9 @@ import { DeclarationDTO } from '@app/models/bw/co/knowvera/kyc/declaration-dto';
 import { PepStatus } from '@app/models/bw/co/knowvera/individual/pep-status';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { SourceOfFunds } from '@app/models/bw/co/knowvera/source-of-funds';
+import { SourceOfWealth } from '@app/models/bw/co/knowvera/source-of-wealth';
+import { RelatedParty } from '@app/models/bw/co/knowvera/kyc/related-party';
+import { RelatedPartyRole } from '@app/models/bw/co/knowvera/kyc/related-party-role';
 import { IndividualIdentityType } from '@app/models/bw/co/knowvera/individual/individual-identity-type';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
@@ -51,6 +54,7 @@ import { DocumentApi } from '@app/services/bw/co/knowvera/document/document-api'
 import { VerificationSummaryEntry } from '@app/models/bw/co/knowvera/kyc/verification-summary-entry';
 import { KycReportSectionDTO } from '@app/models/bw/co/knowvera/kyc/fields/kyc-report-section-dto';
 import 'quill/dist/quill.snow.css';
+import { LoaderState } from '@app/@shared/loader/loader.state';
 
 type QueuedDocumentUpload = {
   file: File;
@@ -63,7 +67,9 @@ export class EditRecordVarsForm {
   createdBy: string | any = null;
   modifiedAt: Date | any = null;
   modifiedBy: string | any = null;
-  ref: string | any = null;
+  // Native text inputs bound with [formField] must start as '' — signal forms treats a null
+  // model value on <input type="text"> as numeric and rejects non-numeric input.
+  ref: string | any = '';
   target: TargetEntity = TargetEntity.INDIVIDUAL;
   targetId: string | any = null;
   ownerDetails: OwnerDetails = new OwnerDetails();
@@ -74,6 +80,9 @@ export class EditRecordVarsForm {
   declaration: DeclarationDTO | any = null;
   sourceOfFunds: SourceOfFunds[] | any = [];
   sourceOfFundsDetails: string | any = null;
+  wealthSources: SourceOfWealth[] | any = [];
+  sourceOfWealthDetails: string | any = null;
+  relatedParties: RelatedParty[] = [];
   documents: DocumentDTO[] | any = [];
   files: File[] | any = [];
   documentsToUpload: QueuedDocumentUpload[] = [];
@@ -144,6 +153,8 @@ export class RecordEdit implements OnInit {
   readonly pepStatusOptions = Object.values(PepStatus);
   readonly kycStatusOptions = Object.values(KycComplianceStatus);
   readonly sourceOfFundsOptions = Object.values(SourceOfFunds);
+  readonly sourceOfWealthOptions = Object.values(SourceOfWealth);
+  readonly relatedPartyRoleOptions = Object.values(RelatedPartyRole);
   readonly identityTypeOptions = Object.values(IndividualIdentityType);
   readonly TargetEntity = TargetEntity;  // Export enum for template use
 
@@ -186,7 +197,13 @@ export class RecordEdit implements OnInit {
 
   @Input() id: string | null = null;
 
+  loaderState = inject(LoaderState);
+
   constructor() {
+    effect(() => {
+      this.loaderState.isLoading.set(this.loading());
+    });
+
     effect(() => {
       const settings = this.settingsApiStore.data();
       const target = this.editRecordSignal().target;
@@ -217,7 +234,7 @@ export class RecordEdit implements OnInit {
         createdBy: record.createdBy,
         modifiedAt: record.modifiedAt,
         modifiedBy: record.modifiedBy,
-        ref: record.ref,
+        ref: record.ref ?? '',
         target: record.target || TargetEntity.INDIVIDUAL,
         targetId: record.targetId,
         ownerDetails: record.ownerDetails,
@@ -227,12 +244,16 @@ export class RecordEdit implements OnInit {
         declaration: record.declaration || new DeclarationDTO(),
         sourceOfFunds: record.sourceOfFunds || [],
         sourceOfFundsDetails: record.sourceOfFundsDetails,
+        wealthSources: record.wealthSources || [],
+        sourceOfWealthDetails: record.sourceOfWealthDetails,
+        relatedParties: (record.relatedParties || []).map((party: RelatedParty) => ({ ...party })),
         documents: record.documents || [],
       }));
 
       this.setQuillContent('pepDetails', record.declaration?.pepDetails ?? null);
       this.setQuillContent('sanctionsDetails', record.declaration?.sanctionsDetails ?? null);
       this.setQuillContent('sourceOfFundsDetails', record.sourceOfFundsDetails ?? null);
+      this.setQuillContent('sourceOfWealthDetails', record.sourceOfWealthDetails ?? null);
 
     });
 
@@ -257,7 +278,7 @@ export class RecordEdit implements OnInit {
         this.saveRequested.set(false);
 
         if (!this.id && !this.route.snapshot.queryParamMap.get('id')) {
-          this.router.navigate(['/', 'records', 'edit', savedRecord.id]);
+          this.router.navigate(['/', 'records', savedRecord.id, 'edit']);
         }
       }
     });
@@ -274,12 +295,14 @@ export class RecordEdit implements OnInit {
 
   ngOnInit(): void {
     if (this.id) {
+      this.loaderState.message.set('Loading KYC record');
       this.kycRecordApiStore.findById({ id: this.id });
     }
 
     const routeId = this.route.snapshot.queryParamMap.get('id');
 
     if (routeId) {
+      this.loaderState.message.set('Loading KYC record');
       this.kycRecordApiStore.findById({ id: routeId });
     }
   }
@@ -297,7 +320,7 @@ export class RecordEdit implements OnInit {
 
     let record: KycRecordDTO = {
       id: this.editRecordSignal().id,
-      ref: this.editRecordSignal().ref,
+      ref: this.editRecordSignal().ref || null,
       target: this.editRecordSignal().target,
       targetId: this.editRecordSignal().targetId,
       ownerDetails: this.editRecordSignal().ownerDetails,
@@ -307,6 +330,8 @@ export class RecordEdit implements OnInit {
       declaration: this.editRecordSignal().declaration,
       sourceOfFunds: this.editRecordSignal().sourceOfFunds,
       sourceOfFundsDetails: this.editRecordSignal().sourceOfFundsDetails,
+      wealthSources: this.editRecordSignal().wealthSources,
+      sourceOfWealthDetails: this.editRecordSignal().sourceOfWealthDetails,
       documents: this.editRecordSignal().documents,
       createdAt: this.editRecordSignal().createdAt,
       createdBy: this.editRecordSignal().createdBy,
@@ -316,11 +341,22 @@ export class RecordEdit implements OnInit {
       dataVerificationSummaries: this.editRecordSignal().dataVerificationSummaries,
       recordSummary: this.editRecordSignal().recordSummary,
       kycReportSections: this.editRecordSignal().kycReportSections,
+      relatedParties: this.editRecordSignal().relatedParties,
+      // Closing, review, risk and approval are recorded by the server, which ignores these
+      closedAt: null,
+      retainUntil: null,
+      reviewedBy: null,
+      reviewedAt: null,
+      riskLevel: null,
+      riskFactors: [],
+      approvedBy: null,
+      approvedAt: null,
     }
 
     console.log('Saving record with data:', this.editRecordSignal());
 
     // this.saveRequested.set(true);
+    this.loaderState.message.set('Saving KYC record');
     this.kycRecordApiStore.save({
       kycRecord: record,
     });
@@ -350,6 +386,45 @@ export class RecordEdit implements OnInit {
     return (this.editRecordSignal().sourceOfFunds || []).includes(fund);
   }
 
+  addRelatedParty(): void {
+    const party = new RelatedParty();
+    party.pepStatus = PepStatus.NOT_PEP;
+    this.editRecordSignal.update((form) => ({ ...form, relatedParties: [...(form.relatedParties || []), party] }));
+  }
+
+  removeRelatedParty(index: number): void {
+    this.editRecordSignal.update((form) => ({
+      ...form,
+      relatedParties: (form.relatedParties || []).filter((_: RelatedParty, i: number) => i !== index),
+    }));
+  }
+
+  updateRelatedParty(index: number, field: keyof RelatedParty, value: any): void {
+    if (field === 'ownershipPercentage') {
+      value = value === '' || value === null ? null : Number(value);
+    }
+    this.editRecordSignal.update((form) => ({
+      ...form,
+      relatedParties: (form.relatedParties || []).map((party: RelatedParty, i: number) =>
+        i === index ? { ...party, [field]: value === '' ? null : value } : party),
+    }));
+  }
+
+  toggleWealthSource(source: SourceOfWealth): void {
+    const current: SourceOfWealth[] = this.editRecordSignal().wealthSources || [];
+
+    this.editRecordSignal.update((form) => ({
+      ...form,
+      wealthSources: current.includes(source)
+        ? current.filter((s) => s !== source)
+        : [...current, source],
+    }));
+  }
+
+  hasWealthSource(source: SourceOfWealth): boolean {
+    return (this.editRecordSignal().wealthSources || []).includes(source);
+  }
+
   pepStatusLabel(value: PepStatus): string {
     const labels: { [key in PepStatus]: string } = {
       [PepStatus.NOT_PEP]: 'Not PEP',
@@ -366,6 +441,8 @@ export class RecordEdit implements OnInit {
       [IndividualIdentityType.PASSPORT]: 'Passport',
       [IndividualIdentityType.RESIDENCE_PERMIT]: 'Residence Permit',
       [IndividualIdentityType.BIRTH_CERTIFICATE]: 'Birth Certificate',
+      [IndividualIdentityType.REFUGEE_ID]: 'Refugee ID',
+      [IndividualIdentityType.DRIVERS_LICENCE]: "Driver's Licence",
     };
     return labels[value] || value;
   }
@@ -377,6 +454,7 @@ export class RecordEdit implements OnInit {
       [KycComplianceStatus.ABSENT]: 'Absent',
       [KycComplianceStatus.INCOMPLETE]: 'Incomplete',
       [KycComplianceStatus.DOCUMENT_VERIFICATION_FAILED]: 'Rejected',
+      [KycComplianceStatus.PENDING_APPROVAL]: 'Awaiting Approval',
     };
     return labels[value] || value;
   }
@@ -517,6 +595,7 @@ export class RecordEdit implements OnInit {
     console.log('Uploading documents for record ID:', form.id);
     console.log('Documents to upload:', documents);
     console.log('Files to upload:', files);
+    this.loaderState.message.set('Uploading record documents');
     this.kycRecordApiStore.updateRecordFiles({ id: form.id, documents, files });
   }
 
@@ -591,7 +670,7 @@ export class RecordEdit implements OnInit {
   //     return;
   //   }
 
-  //   this.router.navigate(['/', 'documents', 'edit', document.id]);
+  //   this.router.navigate(['/', 'documents', document.id, 'edit']);
   // }
 
 
@@ -641,6 +720,8 @@ export class RecordEdit implements OnInit {
       this.updateDeclarationField(key as keyof DeclarationDTO, event.html);
     } else if (key === 'sourceOfFundsDetails') {
       this.editRecordSignal.update(form => ({ ...form, sourceOfFundsDetails: event.html }));
+    } else if (key === 'sourceOfWealthDetails') {
+      this.editRecordSignal.update(form => ({ ...form, sourceOfWealthDetails: event.html }));
     }
   }
 
@@ -649,6 +730,7 @@ export class RecordEdit implements OnInit {
     if (key === 'pepDetails') return s.declaration?.pepDetails ?? null;
     if (key === 'sanctionsDetails') return s.declaration?.sanctionsDetails ?? null;
     if (key === 'sourceOfFundsDetails') return s.sourceOfFundsDetails ?? null;
+    if (key === 'sourceOfWealthDetails') return s.sourceOfWealthDetails ?? null;
     return null;
   }
 

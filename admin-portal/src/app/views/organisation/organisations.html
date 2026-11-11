@@ -124,6 +124,9 @@
               <td class="align-center"><span class="kv-tag">{{ organisation.code || '—' }}</span></td>
               <td>
                 <span class="vs-status" [class]="kycTone(organisation.kycStatus)">{{ kycStatusLabel(organisation.kycStatus) }}</span>
+                @if (organisation.closedAt) {
+                  <span class="vs-status" translate>record.closed</span>
+                }
               </td>
               <td>
                 <span class="vs-status" [class]="clientTone(getClientStatus(organisation))">

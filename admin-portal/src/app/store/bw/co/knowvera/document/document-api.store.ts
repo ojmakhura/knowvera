@@ -47,7 +47,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -83,7 +83,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: any) => {
                 const message = `Success!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -119,7 +119,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: DocumentDTO[] | any[]) => {
                 const message = `${response.length || 'No'} document(s) found for the given document type!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -155,7 +155,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: DocumentDTO | any) => {
                 const message = `Document "${response?.fileName || 'unknown'}" loaded successfully!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -191,7 +191,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: DocumentDTO[] | any[]) => {
                 const message = `${response.length || 'No'} document(s) found for the given target!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -227,7 +227,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: DocumentDTO[] | any[]) => {
                 const message = `${response.length || 'No'} document(s) found!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -263,7 +263,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: Page<DocumentDTO> | any) => {
                 const message = `${response.content.length || 'No'} document(s) found!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -298,7 +298,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: boolean | any) => {
                 const message = `Document removed successfully!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -334,7 +334,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: DocumentDTO | any) => {
                 const message = `Document "${response?.fileName || 'unknown'}" saved successfully!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -370,7 +370,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: DocumentDTO[] | any[]) => {
                 const message = `${response.length || 'No'} document(s) found for the given criteria!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -406,7 +406,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: Page<DocumentDTO> | any) => {
                 const message = `${response.content.length || 'No'} document(s) found!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -420,7 +420,6 @@ export const DocumentApiStore = signalStore(
               },
               error: (error: HttpErrorResponse) => {
                 const message = getErrormessage(error);
-                toastr.error(message);
                 patchState(
                   store, {
                   status: (error?.status || 0),
@@ -442,7 +441,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: DocumentDTO | any) => {
                 const message = `Upload ${response?.fileName || 'document'} successful!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -478,7 +477,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: DocumentDTO) => {
                 const message = `Document "${response?.fileName || 'unknown'}" updated successfully!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -514,7 +513,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: DocumentDTO) => {
                 const message = `Document "${response?.fileName || 'unknown'}" analysis happening in the background!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -550,7 +549,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: DocumentDTO) => {
                 const message = `Background verification "${response?.fileName || 'unknown'}" triggered successfully!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -586,7 +585,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: DocumentDTO) => {
                 const message = `Document "${response?.fileName || 'unknown'}" verification status updated successfully!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {
@@ -622,7 +621,7 @@ export const DocumentApiStore = signalStore(
             tapResponse({
               next: (response: DocumentDTO) => {
                 const message = `Document "${response?.fileName || 'unknown'}" text extraction happening in the background!!`;
-                toastr.success(message);
+                
                 patchState(
                   store,
                   {

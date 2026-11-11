@@ -131,7 +131,8 @@ public class OrganisationApiImpl implements OrganisationApi {
                         orgDetails.getIsClient(),
                         orgDetails.getKeycloakId(),
                         orgDetails.getPhysicalAddress(),
-                        orgDetails.getPostalAddress());
+                        orgDetails.getPostalAddress(),
+                        orgDetails.getClosedAt());
 
                 // org.contactEmailAddress = orgDetails.getContactEmailAddress();
                 // org.registrationNo = orgDetails.getRegistrationNo();
@@ -146,6 +147,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     @Override
     @Operation(summary = "Save Organisation", description = "Save an organisation")
     @Audit(entity = "ORGANISATION", eventLabel = "#organisation.id", logData = true)
+    @RequiresOwnership(scope = "organisations:edit", target = "ORGANISATION", id = "#organisation.id")
     public ResponseEntity<OrganisationDTO> save(OrganisationDTO organisation) {
 
         logger.debug("Saving organisation: {}", organisation);

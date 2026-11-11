@@ -303,13 +303,14 @@
 
 .page-subtitle { color: var(--vault-on-surface-variant); margin: 4px 0 0 0; }
 
-/* Login screen (shown when the user is not authenticated) */
+/* Login screen (rendered instead of the app layout when the user is not authenticated) */
 .login-screen {
-  flex: 1;
   display: grid;
   place-items: center;
   min-height: 100vh;
-  padding: 2rem;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: 2rem 1rem;
   background:
     radial-gradient(circle at top right, rgb(214 227 255 / 0.32), transparent 24rem),
     linear-gradient(180deg, #fbfcfd 0%, var(--vault-surface) 15rem);

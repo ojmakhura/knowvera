@@ -21,6 +21,7 @@ import bw.co.knowvera.auth.UserAdministrationGuard;
 import bw.co.knowvera.keycloak.KeycloakUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import bw.co.knowvera.auth.RequiresOwnership;
 
 @RestController
 @Tag(name = "Users", description = "Operations related to users.")
@@ -96,6 +97,7 @@ public class UserApiImpl implements UserApi {
     @Override
     @Operation(summary = "Find User by ID", description = "Find a user by their ID")
     @Audit(entity = "USER", eventLabel = "#userId", logData = false)
+    @RequiresOwnership(scope = "users:view", target = "USER", id = "#userId")
     public ResponseEntity<UserDTO> findUserById(String userId) {
 
         logger.debug("Search user by Id " + userId);
@@ -127,17 +129,17 @@ public class UserApiImpl implements UserApi {
     @Override
     @Operation(summary = "Save User", description = "Save a user")
     @Audit(entity = "USER", eventLabel = "#result?.body?.userId", logData = false)
-    public ResponseEntity<UserDTO> saveUser(
-            UserDTO user) {
+    public ResponseEntity<UserDTO> saveUser(UserDTO user) {
 
         logger.debug("Save User " + user);
+        UserDTO savedUser = null;
 
         if (StringUtils.isBlank(user.getUserId())) {
             guard.checkCanCreateUserIn(user.getOrganisationId(), "users:edit");
             if (!user.getRoles().isEmpty()) {
                 guard.checkCanAssign(user.getRoles(), "users:manage");
             }
-            user = this.keycloakUserService.createUser(user);
+            savedUser = this.keycloakUserService.createUser(user);
         } else {
             guard.checkCanManageUser(user.getUserId(), "users:edit");
             // Non-empty roles replace the user's direct roles: every role added or removed must be assignable
@@ -150,12 +152,12 @@ public class UserApiImpl implements UserApi {
                     guard.checkCanAssign(changed, "users:manage");
                 }
             }
-            keycloakUserService.updateUser(user);
+            keycloakUserService.updateUser(savedUser);
         }
 
         // Never echo a password back
-        user.setPassword(null);
-        return ResponseEntity.ok(user);
+        savedUser.setPassword(null);
+        return ResponseEntity.ok(savedUser);
     }
 
     @Override
@@ -184,6 +186,7 @@ public class UserApiImpl implements UserApi {
     @Override
     @Operation(summary = "Find Users by Branch ID", description = "Find users by their branch ID")
     @Audit(entity = "USER", eventLabel = "#branchId", logData = false)
+    @RequiresOwnership(scope = "users:list", target = "BRANCH", id = "#branchId")
     public ResponseEntity<List<UserDTO>> findByBranchId(String branchId) {
 
         List<UserDTO> data = this.keycloakUserService.getBranchUsers(branchId).stream().toList();
@@ -202,6 +205,7 @@ public class UserApiImpl implements UserApi {
     @Override
     @Operation(summary = "Find Users by Organisation ID", description = "Find users by their organisation ID")
     @Audit(entity = "USER", eventLabel = "#organisationId", logData = false)
+    @RequiresOwnership(scope = "users:list", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<List<UserDTO>> findByOrganisationId(String organisationId) {
 
         List<UserDTO> data = this.keycloakUserService.getOrganisationUsers(organisationId).stream().toList();

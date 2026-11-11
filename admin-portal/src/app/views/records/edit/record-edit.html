@@ -236,6 +236,118 @@
               theme="snow"></quill-editor>
           </div>
         </section>
+
+        <!-- Source of Wealth: required for prominent influential persons (Financial Intelligence Act s.22) -->
+        <section class="kv-card">
+          <div class="kv-card-header">
+            <mat-icon class="kv-card-icon">savings</mat-icon>
+            <h2 class="kv-card-title">Source of Wealth</h2>
+          </div>
+
+          <div class="kv-field mb-4">
+            <span class="kv-label">How the customer's overall wealth was acquired</span>
+            <div class="flex flex-wrap gap-2">
+              @for (source of sourceOfWealthOptions; track source) {
+                <button type="button" class="kv-choice" [class.is-active]="hasWealthSource(source)" (click)="toggleWealthSource(source)" translate>
+                  source.of.wealth.{{ source }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="kv-field">
+            <span class="kv-label">Additional Details</span>
+            <quill-editor [style]="{ height: '200px' }"
+              (onEditorCreated)="onQuillEditorCreated('sourceOfWealthDetails', $event)"
+              (onContentChanged)="onQuillContentChanged('sourceOfWealthDetails', $event)"
+              theme="snow"></quill-editor>
+          </div>
+        </section>
+
+        <!-- Related parties: beneficial owners, managers, signatories and agents (Regulations r.7 to r.10, FI Act s.20(2)) -->
+        <section class="kv-card">
+          <div class="kv-card-header justify-between">
+            <div class="flex items-center gap-3">
+              <mat-icon class="kv-card-icon">groups</mat-icon>
+              <h2 class="kv-card-title">Related Parties</h2>
+            </div>
+            <button type="button" class="kv-btn-subtle" (click)="addRelatedParty()">Add party</button>
+          </div>
+          <p class="text-xs text-on-surface-variant mb-3">
+            Everyone holding more than 10%, the manager, authorised signatories and anyone acting for the customer (with their Form A authority).
+            Beneficial owners are worked out when the record is saved.
+          </p>
+
+          @for (party of editRecordSignal().relatedParties; track $index; let i = $index) {
+            <div class="kv-panel mb-3">
+              <div class="kv-form-grid">
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-name-' + i">Full name</label>
+                  <input [id]="'party-name-' + i" type="text" class="kv-input" [value]="party.name ?? ''"
+                    (input)="updateRelatedParty(i, 'name', $any($event.target).value)" />
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-role-' + i">Role</label>
+                  <select [id]="'party-role-' + i" class="kv-input" [value]="party.role ?? ''"
+                    (change)="updateRelatedParty(i, 'role', $any($event.target).value)">
+                    <option value="">Select a role</option>
+                    @for (role of relatedPartyRoleOptions; track role) {
+                      <option [value]="role" [selected]="party.role === role" translate>related.party.role.{{ role }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-id-type-' + i">Identity type</label>
+                  <select [id]="'party-id-type-' + i" class="kv-input"
+                    (change)="updateRelatedParty(i, 'identityType', $any($event.target).value)">
+                    <option value="">Select</option>
+                    @for (type of identityTypeOptions; track type) {
+                      <option [value]="type" [selected]="party.identityType === type">{{ identityTypeLabel(type) }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-id-' + i">Identity number</label>
+                  <input [id]="'party-id-' + i" type="text" class="kv-input" [value]="party.identityNo ?? ''"
+                    (input)="updateRelatedParty(i, 'identityNo', $any($event.target).value)" />
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-nationality-' + i">Nationality</label>
+                  <input [id]="'party-nationality-' + i" type="text" class="kv-input" [value]="party.nationality ?? ''"
+                    (input)="updateRelatedParty(i, 'nationality', $any($event.target).value)" />
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-ownership-' + i">Ownership / voting %</label>
+                  <input [id]="'party-ownership-' + i" type="number" min="0" max="100" step="0.01" class="kv-input"
+                    [value]="party.ownershipPercentage ?? ''"
+                    (input)="updateRelatedParty(i, 'ownershipPercentage', $any($event.target).value)" />
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-pep-' + i">Prominent influential person</label>
+                  <select [id]="'party-pep-' + i" class="kv-input"
+                    (change)="updateRelatedParty(i, 'pepStatus', $any($event.target).value)">
+                    @for (status of pepStatusOptions; track status) {
+                      <option [value]="status" [selected]="party.pepStatus === status">{{ pepStatusLabel(status) }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="kv-field">
+                  <label class="kv-label" [for]="'party-authority-' + i">Authority (Form A reference)</label>
+                  <input [id]="'party-authority-' + i" type="text" class="kv-input" [value]="party.authorityReference ?? ''"
+                    (input)="updateRelatedParty(i, 'authorityReference', $any($event.target).value)" />
+                </div>
+              </div>
+              <div class="flex items-center justify-between mt-2">
+                <span class="text-xs text-on-surface-variant">
+                  @if (party.beneficialOwner) { Beneficial owner }
+                </span>
+                <button type="button" class="kv-btn-subtle" (click)="removeRelatedParty(i)">Remove</button>
+              </div>
+            </div>
+          } @empty {
+            <p class="text-sm text-on-surface-variant">No related parties recorded.</p>
+          }
+        </section>
       </div>
 
       <!-- Side column -->
@@ -396,13 +508,13 @@
                     <mat-icon class="kv-card-icon text-emerald!">check_circle</mat-icon>
                   </div>
                   <div class="flex flex-wrap gap-1 justify-end">
-                    <button type="button" class="kv-icon-btn" matTooltip="View" aria-label="View document" [routerLink]="['/', 'documents', 'details', doc.id]">
+                    <button type="button" class="kv-icon-btn" matTooltip="View" aria-label="View document" [routerLink]="['/', 'documents', doc.id]">
                       <mat-icon>visibility</mat-icon>
                     </button>
                     <button type="button" class="kv-icon-btn" matTooltip="Download" aria-label="Download document" (click)="downloadDocument(doc)">
                       <mat-icon>download</mat-icon>
                     </button>
-                    <button type="button" class="kv-icon-btn" matTooltip="Edit" aria-label="Edit document" [routerLink]="['/', 'documents', 'edit', doc.id]">
+                    <button type="button" class="kv-icon-btn" matTooltip="Edit" aria-label="Edit document" [routerLink]="['/', 'documents', doc.id, 'edit']">
                       <mat-icon>edit</mat-icon>
                     </button>
                     <button type="button" class="kv-icon-btn-danger" matTooltip="Delete" aria-label="Delete document" (click)="deleteDocument(doc.id)">

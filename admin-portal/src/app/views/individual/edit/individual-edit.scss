@@ -23,3 +23,20 @@
 		height: auto;
 	}
 }
+
+// Native .kv-input with the datepicker toggle sitting inside its right edge.
+.date-input {
+	position: relative;
+
+	.kv-input {
+		padding-right: 2.75rem;
+	}
+
+	.date-toggle {
+		position: absolute;
+		top: 50%;
+		right: 0.125rem;
+		transform: translateY(-50%);
+		color: var(--on-surface-variant);
+	}
+}

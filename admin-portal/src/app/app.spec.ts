@@ -103,10 +103,18 @@ describe('App', () => {
     expect(compiled.querySelector('app-shell')).toBeTruthy();
   });
 
-  it('should load settings during construction', () => {
+  it('should load settings during construction when signed in', () => {
+    keycloakMock.authenticated = true;
     TestBed.createComponent(App);
 
     expect(settingsApiStoreMock.getAll).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not load settings before sign-in', () => {
+    keycloakMock.authenticated = false;
+    TestBed.createComponent(App);
+
+    expect(settingsApiStoreMock.getAll).not.toHaveBeenCalled();
   });
 
   it('should fetch env and profile when keycloak is ready and authenticated', async () => {

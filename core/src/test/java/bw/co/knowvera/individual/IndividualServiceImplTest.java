@@ -1,5 +1,11 @@
 package bw.co.knowvera.individual;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.never;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import bw.co.knowvera.kyc.KycRecordRepository;
+import bw.co.knowvera.retention.RecordRetention;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,9 +50,16 @@ import bw.co.knowvera.settings.SettingsService;
 class IndividualServiceImplTest {
 
     @Mock
+
+    private KycRecordRepository kycRecordRepository;
+
+
+    @Mock
     private IndividualRepository individualRepository;
     @Mock
     private IndividualMapper individualMapper;
+    @Mock
+    private IndividualListQueries individualListQueries;
     @Mock
     private ClientRequestRepository clientRequestRepository;
     @Mock
@@ -56,6 +69,9 @@ class IndividualServiceImplTest {
 
     private IndividualService service;
 
+    /** A token as RequestTokens issues it: random part and issue time, so it is not expired. */
+    private static final String TOKEN = "plain-token." + java.time.Instant.now().getEpochSecond();
+
     @BeforeEach
     void setUp() {
         service = new IndividualServiceImpl(
@@ -63,7 +79,11 @@ class IndividualServiceImplTest {
             settingsService,
                 individualMapper,
                 clientRequestRepository,
-                passwordEncoder);
+                passwordEncoder,
+                individualListQueries,
+                new RecordRetention(20, kycRecordRepository));
+        org.springframework.test.util.ReflectionTestUtils.setField(service, "requestSessionTtl",
+                java.time.Duration.ofHours(24));
     }
 
     @Test
@@ -79,11 +99,11 @@ class IndividualServiceImplTest {
         IndividualDTO expected = new IndividualDTO();
 
         when(clientRequestRepository.findById(requestId)).thenReturn(Optional.of(clientRequest));
-        when(passwordEncoder.matches("plain-token", "encoded-token")).thenReturn(true);
+        when(passwordEncoder.matches(TOKEN, "encoded-token")).thenReturn(true);
         when(individualRepository.findByIdentityNo("OMANG-1")).thenReturn(Optional.of(individual));
         when(individualMapper.toIndividualDTO(individual)).thenReturn(expected);
 
-        IndividualDTO actual = service.loadRequestIndividual(requestId.toString(), "plain-token", "OMANG-1");
+        IndividualDTO actual = service.loadRequestIndividual(requestId.toString(), TOKEN, "OMANG-1");
 
         assertSame(expected, actual);
     }
@@ -103,14 +123,44 @@ class IndividualServiceImplTest {
     }
 
     @Test
-    void removeDeletesFoundIndividual() throws Exception {
+    void removeClosesAnOpenIndividualInsteadOfDeletingIt() throws Exception {
         UUID id = UUID.randomUUID();
         Individual individual = Individual.Factory.newInstance();
 
         when(individualRepository.findById(id)).thenReturn(Optional.of(individual));
 
-        service.remove(id.toString());
+        assertTrue(service.remove(id.toString()));
 
+        assertNotNull(individual.getClosedAt());
+        assertEquals(LocalDate.now().plusYears(20), individual.getRetainUntil());
+        verify(individualRepository).save(individual);
+        verify(individualRepository, never()).delete(any(Individual.class));
+        verify(kycRecordRepository).findAll(any(Specification.class));
+    }
+
+    @Test
+    void removeKeepsAClosedIndividualUntilItsRetentionPeriodEnds() {
+        UUID id = UUID.randomUUID();
+        Individual individual = Individual.Factory.newInstance();
+        individual.setClosedAt(LocalDateTime.now().minusYears(1));
+        individual.setRetainUntil(LocalDate.now().plusYears(19));
+
+        when(individualRepository.findById(id)).thenReturn(Optional.of(individual));
+
+        assertThrows(IndividualServiceException.class, () -> service.remove(id.toString()));
+        verify(individualRepository, never()).delete(any(Individual.class));
+    }
+
+    @Test
+    void removeDeletesAClosedIndividualAfterItsRetentionPeriod() throws Exception {
+        UUID id = UUID.randomUUID();
+        Individual individual = Individual.Factory.newInstance();
+        individual.setClosedAt(LocalDateTime.now().minusYears(21));
+        individual.setRetainUntil(LocalDate.now().minusYears(1));
+
+        when(individualRepository.findById(id)).thenReturn(Optional.of(individual));
+
+        assertTrue(service.remove(id.toString()));
         verify(individualRepository).delete(individual);
     }
 
@@ -130,12 +180,10 @@ class IndividualServiceImplTest {
 
     @Test
     void getAllMapsRepositoryResults() throws Exception {
-        List<Individual> entities = List.of(Individual.Factory.newInstance());
         List<IndividualListDTO> expected = List.of(new IndividualListDTO("Full Name", "OMANG-1", IndividualIdentityType.OMANG,
             bw.co.knowvera.kyc.KycComplianceStatus.CURRENT, Sex.MALE));
 
-        when(individualRepository.findAll()).thenReturn(entities);
-        when(individualMapper.toIndividualListDTOCollection(entities)).thenReturn(expected);
+        when(individualListQueries.search(null, Sort.unsorted())).thenReturn(expected);
 
         List<IndividualListDTO> actual = service.getAll();
 
@@ -144,13 +192,11 @@ class IndividualServiceImplTest {
 
     @Test
     void getAllWithPagingMapsPageItems() throws Exception {
-        Individual entity = Individual.Factory.newInstance();
-        Page<Individual> page = new PageImpl<>(List.of(entity));
         IndividualListDTO mapped = new IndividualListDTO("Full Name", "OMANG-1", IndividualIdentityType.OMANG,
             bw.co.knowvera.kyc.KycComplianceStatus.CURRENT, Sex.MALE);
+        Page<IndividualListDTO> page = new PageImpl<>(List.of(mapped));
 
-        when(individualRepository.findAll(PageRequest.of(0, 5))).thenReturn(page);
-        when(individualMapper.toIndividualListDTO(entity)).thenReturn(mapped);
+        when(individualListQueries.search(null, PageRequest.of(0, 5))).thenReturn(page);
 
         Page<IndividualListDTO> actual = service.getAll(0, 5);
 
@@ -195,13 +241,11 @@ class IndividualServiceImplTest {
         IndividualSearchCriteria criteria = new IndividualSearchCriteria();
         criteria.setFirstName("Jo");
 
-        List<Individual> entities = List.of(Individual.Factory.newInstance());
         List<IndividualListDTO> expected = List.of(new IndividualListDTO("Full Name", "OMANG-2", IndividualIdentityType.OMANG,
             bw.co.knowvera.kyc.KycComplianceStatus.CURRENT, Sex.MALE));
 
-        when(individualRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Individual>>any(), any(Sort.class)))
-                .thenReturn(entities);
-        when(individualMapper.toIndividualListDTOCollection(entities)).thenReturn(expected);
+        when(individualListQueries.search(org.mockito.ArgumentMatchers.<Specification<Individual>>any(), any(Sort.class)))
+                .thenReturn(expected);
 
         List<IndividualListDTO> actual = service.search(criteria, Set.of(new PropertySearchOrder("surname", SortOrder.ASC)));
 
@@ -218,14 +262,12 @@ class IndividualServiceImplTest {
         criteria.setPageNumber(0);
         criteria.setPageSize(10);
 
-        Individual entity = Individual.Factory.newInstance();
-        Page<Individual> page = new PageImpl<>(List.of(entity));
         IndividualListDTO mapped = new IndividualListDTO("Full Name", "OMANG-2", IndividualIdentityType.OMANG,
             bw.co.knowvera.kyc.KycComplianceStatus.CURRENT, Sex.MALE);
+        Page<IndividualListDTO> page = new PageImpl<>(List.of(mapped));
 
-        when(individualRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Individual>>any(), any(PageRequest.class)))
-                .thenReturn(page);
-        when(individualMapper.toIndividualListDTO(entity)).thenReturn(mapped);
+        when(individualListQueries.search(org.mockito.ArgumentMatchers.<Specification<Individual>>any(),
+                any(PageRequest.class))).thenReturn(page);
 
         Page<IndividualListDTO> actual = service.search(criteria);
 
@@ -242,13 +284,11 @@ class IndividualServiceImplTest {
         criteria.setMiddleName("M");
         criteria.setIdentityNo("OMANG-9");
 
-        List<Individual> entities = List.of(Individual.Factory.newInstance());
-        when(individualRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Individual>>any(), any(Sort.class)))
+        when(individualListQueries.search(org.mockito.ArgumentMatchers.<Specification<Individual>>any(), any(Sort.class)))
                 .thenAnswer(invocation -> {
                     evaluateSpecification(invocation.getArgument(0));
-                    return entities;
+                    return List.of();
                 });
-        when(individualMapper.toIndividualListDTOCollection(entities)).thenReturn(List.of());
 
         List<IndividualListDTO> actual = service.search(criteria, Set.of());
 
@@ -334,11 +374,11 @@ class IndividualServiceImplTest {
         clientRequest.setTargetId(individualId.toString());
 
         when(clientRequestRepository.findById(requestId)).thenReturn(Optional.of(clientRequest));
-        when(passwordEncoder.matches("plain-token", "encoded-token")).thenReturn(true);
+        when(passwordEncoder.matches(TOKEN, "encoded-token")).thenReturn(true);
         when(individualRepository.findByIdentityNo("OMANG-1")).thenReturn(Optional.empty());
 
         assertThrows(Exception.class,
-                () -> service.loadRequestIndividual(requestId.toString(), "plain-token", "OMANG-1"));
+                () -> service.loadRequestIndividual(requestId.toString(), TOKEN, "OMANG-1"));
     }
 
     @Test
@@ -355,11 +395,11 @@ class IndividualServiceImplTest {
         individual.setId(otherIndividualId);
 
         when(clientRequestRepository.findById(requestId)).thenReturn(Optional.of(clientRequest));
-        when(passwordEncoder.matches("plain-token", "encoded-token")).thenReturn(true);
+        when(passwordEncoder.matches(TOKEN, "encoded-token")).thenReturn(true);
         when(individualRepository.findByIdentityNo("OMANG-1")).thenReturn(Optional.of(individual));
 
         assertThrows(IndividualServiceException.class,
-                () -> service.loadRequestIndividual(requestId.toString(), "plain-token", "OMANG-1"));
+                () -> service.loadRequestIndividual(requestId.toString(), TOKEN, "OMANG-1"));
     }
 
     @Test

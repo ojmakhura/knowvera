@@ -111,6 +111,8 @@ public abstract class OrganisationMapper {
     @Mapping(target = "kycSubscriptions", ignore = true)
     @Mapping(target = "organisationFields", expression = "java(toGroupFieldList(organisationDTO.getOrganisationFieldGroups()))")
     @Mapping(target = "individualFields", expression = "java(toGroupFieldList(organisationDTO.getIndividualFieldGroups()))")
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
     public abstract Organisation organisationDTOToEntity(OrganisationDTO organisationDTO);
 
     protected List<GroupField> toGroupFieldList(List<KycFieldGroupDTO> fieldGroups) {
@@ -140,6 +142,8 @@ public abstract class OrganisationMapper {
     @Mapping(target = "clientRequests", ignore = true)
     @Mapping(target = "kycInvoices", ignore = true)
     @Mapping(target = "kycSubscriptions", ignore = true)
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
     public abstract void updateOrganisationFromOrganisationDTO(OrganisationDTO organisationDTO, @MappingTarget Organisation entity);
 
     /**
@@ -161,6 +165,8 @@ public abstract class OrganisationMapper {
      * @return Organisation
      */
     @InheritInverseConfiguration
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
     public abstract Organisation organisationListDTOToEntity(OrganisationListDTO organisationListDTO);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -169,6 +175,8 @@ public abstract class OrganisationMapper {
     @Mapping(target = "clientRequests", ignore = true)
     @Mapping(target = "kycInvoices", ignore = true)
     @Mapping(target = "kycSubscriptions", ignore = true)
+    @Mapping(target = "closedAt", ignore = true) // set by the service
+    @Mapping(target = "retainUntil", ignore = true) // set by the service
     public abstract void updateOrganisationFromOrganisationListDTO(OrganisationListDTO organisationListDTO, @MappingTarget Organisation entity);
 
 }
