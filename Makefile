@@ -79,7 +79,7 @@ clean_module:
 	mvn -f ${module} clean
 	
 build_api_image: build_api
-	. ./.env && export API_IMAGE_VERSION=$(API_VERSION) && docker build -t $${API_IMAGE_NAME}:$${API_IMAGE_VERSION} . && docker tag $${API_IMAGE_NAME}:$${API_IMAGE_VERSION} $${API_IMAGE_NAME}:latest
+	. ./.env && export API_IMAGE_VERSION=$(API_VERSION) && docker build -t $${API_IMAGE_NAME}:$${API_IMAGE_VERSION} $(API) && docker tag $${API_IMAGE_NAME}:$${API_IMAGE_VERSION} $${API_IMAGE_NAME}:latest
 
 build_portal_image: build_portal_dist
 	. ./.env && export PORTAL_IMAGE_VERSION=$$(node -p "require('./portal/package.json').version") && docker build -t $${PORTAL_IMAGE_NAME}:$${PORTAL_IMAGE_VERSION} portal && docker tag $${PORTAL_IMAGE_NAME}:$${PORTAL_IMAGE_VERSION} $${PORTAL_IMAGE_NAME}:latest
