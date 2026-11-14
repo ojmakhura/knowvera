@@ -591,12 +591,25 @@ public class KeycloakUserService {
     /**
      * Creates an account. Without a password the user is emailed a link to set their own; a
      * given password is temporary. The returned user never carries the password.
+     * <p>
+     * A new user needs a realm role: a portal admits only users with its client role
+     * (ADMIN_PORTAL_USER, PORTAL_USER), which comes with the base roles STAFF and CUSTOMER that
+     * every assignable role includes. A user without one could sign in to neither portal.
      */
     public UserDTO createUser(UserDTO user) {
         if (StringUtils.isNotBlank(user.getUserId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId must be blank for a new user");
         }
+        requireRole(user);
         return create(user);
+    }
+
+    /** Refuses a new user without a realm role (see {@link #createUser}). */
+    static void requireRole(UserDTO user) {
+        if (user.getRoles() == null || user.getRoles().stream().noneMatch(StringUtils::isNotBlank)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "A new user needs at least one role: the role decides which portal the user can sign in to");
+        }
     }
 
     public UserDTO createRegistrationUser(UserDTO user) {

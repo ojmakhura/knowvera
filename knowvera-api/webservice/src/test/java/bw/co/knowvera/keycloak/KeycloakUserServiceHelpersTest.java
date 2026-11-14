@@ -23,6 +23,21 @@ import bw.co.knowvera.user.UserDTO;
 class KeycloakUserServiceHelpersTest {
 
     @Test
+    void aNewUserWithoutARoleIsRefused() {
+        UserDTO user = new UserDTO();
+        user.setRoles(new LinkedHashSet<>());
+        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> KeycloakUserService.requireRole(user));
+
+        user.setRoles(new LinkedHashSet<>(Set.of(" ")));
+        org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                () -> KeycloakUserService.requireRole(user));
+
+        user.setRoles(new LinkedHashSet<>(Set.of("KYC_ANALYST")));
+        KeycloakUserService.requireRole(user);
+    }
+
+    @Test
     void readAllFollowsPagesPastTheFirstHundred() {
 
         List<Integer> all = IntStream.range(0, 250).boxed().toList();
