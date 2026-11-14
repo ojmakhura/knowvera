@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -753,6 +754,89 @@ class KycRecordServiceImplTest {
         when(settingsRepository.findAll()).thenReturn(List.of());
 
         assertThrows(KycRecordServiceException.class, () -> service.generateKycReport(id.toString(), "reporter"));
+    }
+
+    @Test
+    void generateKycReportFillsSectionsFromTheLatestAnalysedDocumentAwaitingReview() throws Exception {
+        UUID recordId = UUID.randomUUID();
+        KycRecord record = newKycRecord(TargetEntity.INDIVIDUAL, UUID.randomUUID());
+        record.setId(recordId);
+
+        bw.co.knowvera.document.type.DocumentType letter = bw.co.knowvera.document.type.DocumentType.Factory.newInstance();
+        letter.setId(UUID.randomUUID());
+        bw.co.knowvera.document.type.field.ExpectedField firstName = expectedField(letter, "individualFirstName");
+        bw.co.knowvera.document.type.field.ExpectedField position = expectedField(letter, "employmentPosition");
+
+        // An older letter, and the current one waiting for a person's decision
+        Document older = analysedDocument(letter, "Old", "Clerk", LocalDateTime.now().minusDays(3));
+        older.setVerificationStatus(bw.co.knowvera.document.DocumentVerificationStatus.REJECTED);
+        Document current = analysedDocument(letter, "Neo", "Senior Analyst", LocalDateTime.now());
+        current.setVerificationStatus(bw.co.knowvera.document.DocumentVerificationStatus.MANUAL_REVIEW);
+        record.getDocuments().addAll(List.of(older, current));
+
+        bw.co.knowvera.settings.kyc.KycFieldGroup group = bw.co.knowvera.settings.kyc.KycFieldGroup.Factory.newInstance();
+        group.setLabel("Employment Information");
+        group.setPosition(1);
+        group.setGroupFields(new ArrayList<>(List.of(groupField(firstName, 1), groupField(position, 2))));
+        Settings settings = Settings.Factory.newInstance();
+        settings.setIndividualKycFieldGroups(new ArrayList<>(List.of(group)));
+
+        when(settingsRepository.findAll()).thenReturn(List.of(settings));
+        when(kycRecordRepository.findById(recordId)).thenReturn(Optional.of(record));
+        when(kycRecordRepository.save(record)).thenReturn(record);
+
+        service.generateKycReport(recordId.toString(), "reporter");
+
+        assertEquals(1, record.getKycReportSections().size());
+        List<bw.co.knowvera.kyc.fields.GroupFieldValue> values = record.getKycReportSections().get(0)
+                .getGroupFieldValues();
+        assertEquals(2, values.size());
+
+        // Checked against the record: the check's result
+        assertEquals("Neo", values.get(0).getData().getExtractedValue());
+        assertEquals("Neo", values.get(0).getData().getExpectedValue());
+        assertEquals(Boolean.TRUE, values.get(0).getData().getSuccess());
+        // In no check: what was read from the document
+        assertEquals("Senior Analyst", values.get(1).getData().getExtractedValue());
+
+        // The documents' own results are left as they were
+        assertEquals("Neo", current.getDataVerifications().iterator().next().getKeyFieldMatches().get(0)
+                .getExtractedValue());
+    }
+
+    private static bw.co.knowvera.document.type.field.ExpectedField expectedField(
+            bw.co.knowvera.document.type.DocumentType type, String field) {
+        bw.co.knowvera.document.type.field.ExpectedField expected = bw.co.knowvera.document.type.field.ExpectedField.Factory
+                .newInstance();
+        expected.setId(UUID.randomUUID());
+        expected.setField(field);
+        expected.setDocumentType(type);
+        return expected;
+    }
+
+    private static bw.co.knowvera.settings.kyc.GroupField groupField(
+            bw.co.knowvera.document.type.field.ExpectedField expected, int position) {
+        bw.co.knowvera.settings.kyc.GroupField field = bw.co.knowvera.settings.kyc.GroupField.Factory.newInstance();
+        field.setExpectedField(expected);
+        field.setPosition(position);
+        return field;
+    }
+
+    private static Document analysedDocument(bw.co.knowvera.document.type.DocumentType type, String firstName,
+            String position, LocalDateTime modifiedAt) {
+        Document document = Document.Factory.newInstance();
+        document.setId(UUID.randomUUID());
+        document.setDocumentType(type);
+        document.setModifiedAt(modifiedAt);
+        document.setExtractedInformation(new java.util.HashMap<>(Map.of(
+                "individualFirstName", firstName, "employmentPosition", position)));
+
+        bw.co.knowvera.document.DataVerification identity = new bw.co.knowvera.document.DataVerification();
+        identity.setVerificationDataName("individualIdentityVerified");
+        identity.setKeyFieldMatches(new ArrayList<>(List.of(new bw.co.knowvera.KeyFieldMatchResult(
+                "individualFirstName", firstName, firstName, 1.0, true, true))));
+        document.setDataVerifications(new ArrayList<>(List.of(identity)));
+        return document;
     }
 
     @Test

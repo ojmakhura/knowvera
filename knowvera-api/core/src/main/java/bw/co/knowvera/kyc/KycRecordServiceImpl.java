@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.apache.commons.lang3.Strings;
@@ -31,6 +32,7 @@ import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.document.DocumentRepository;
 import bw.co.knowvera.document.DocumentVerificationStatus;
 import bw.co.knowvera.document.type.DocumentType;
+import bw.co.knowvera.document.type.field.ExpectedField;
 import bw.co.knowvera.individual.Individual;
 import bw.co.knowvera.individual.IndividualRepository;
 import bw.co.knowvera.kyc.fields.GroupFieldValue;
@@ -989,54 +991,21 @@ public class KycRecordServiceImpl
                 ? settings.getIndividualKycFieldGroups()
                 : settings.getOrganisationKycFieldGroups();
 
-        List<DocumentVerificationStatus> documentVerificationStatuses = List.of(DocumentVerificationStatus.VERIFIED,
-                DocumentVerificationStatus.REJECTED);
+        // The report shows what the documents say, so every analysed document counts, including
+        // those still waiting for a person's decision: the report is what that person reviews.
+        // Of several documents of one type, the most recently changed one is used
+        Map<UUID, Document> documentMap = new HashMap<>();
+        if (kycRecord.getDocuments() != null) {
+            for (Document doc : kycRecord.getDocuments()) {
+                if (doc.getDocumentType() == null || !analysed(doc)) {
+                    continue;
+                }
+                documentMap.merge(doc.getDocumentType().getId(), doc,
+                        (current, candidate) -> lastChanged(candidate).isAfter(lastChanged(current)) ? candidate : current);
+            }
+        }
 
-        // Get all documents that have been verified or rejected, as only those should
-        // be
-        // included in the report
-        List<Document> completedDocuments = kycRecord.getDocuments().stream()
-                .filter(r -> documentVerificationStatuses.contains(r.getVerificationStatus()))
-                .toList();
-
-        // Create a map of document IDs to documents for easy lookup
-        Map<UUID, Document> documentMap = completedDocuments.stream()
-                .collect(Collectors.toMap(doc -> doc.getDocumentType().getId(), doc -> doc));
-
-        // Create a map of key field to match result for all completed documents, this
-        // will allow us to easily populate the report sections with the relevant data
-        Map<String, KeyFieldMatchResult> matchResultMap = completedDocuments.stream()
-                .flatMap(doc -> doc.getDataVerifications().stream())
-                .flatMap(verification -> verification.getKeyFieldMatches().stream())
-                .collect(Collectors.toMap(
-                        KeyFieldMatchResult::getKeyField,
-                        match -> match,
-                        (existing, replacement) -> {
-
-                            if (StringUtils.isNotBlank(replacement.getExtractedValue())) {
-
-                                existing.setExtractedValue(
-                                        existing.getExtractedValue() + ", " + replacement.getExtractedValue());
-                            }
-
-                            if (StringUtils.isNotBlank(replacement.getExpectedValue())) {
-
-                                existing.setExpectedValue(
-                                        existing.getExpectedValue() + ", " + replacement.getExpectedValue());
-                            }
-
-                            return existing;
-                        }));
-
-        /**
-         * Iterate through the field groups and their fields, for each field we check if
-         * there is a corresponding document that has been verified or rejected, if so
-         * we create a GroupFieldValue and populate it with the data from the match
-         * result
-         * and associate it with the report section. Finally we update the KYC record's
-         * status based on the verification results and save the record along with the
-         * generated report sections
-         */
+        // One section per field group, holding the value each field has on the document it comes from
         for (KycFieldGroup group : kycFieldGroups) {
 
             KycReportSection section = new KycReportSection();
@@ -1047,39 +1016,27 @@ public class KycRecordServiceImpl
 
             for (GroupField field : group.getGroupFields()) {
 
-                DocumentType documentType = field.getExpectedField().getDocumentType();
-                Document document = documentMap.get(documentType.getId());
-
-                if (document == null || document.getDataVerifications() == null
-                        || document.getDataVerifications().isEmpty()) {
-
+                ExpectedField expectedField = field.getExpectedField();
+                if (expectedField == null || expectedField.getDocumentType() == null) {
                     continue;
                 }
 
-                if (document != null) {
-
-                    KeyFieldMatchResult matchResult = matchResultMap.get(field.getExpectedField().getField());
-                    if (matchResult != null) {
-                        GroupFieldValue fieldValue = new GroupFieldValue();
-                        fieldValue.setExpectedField(field.getExpectedField());
-                        fieldValue.setPosition(field.getPosition());
-                        fieldValue.setKycReportSection(section);
-
-                        ValueData data = new ValueData();
-                        data.setSimilarity(matchResult.getSimilarity());
-                        data.setExpectedValue(matchResult.getExpectedValue());
-                        data.setExtractedValue(matchResult.getExtractedValue());
-                        data.setMandatory(matchResult.getMandatory());
-                        data.setSuccess(matchResult.getSuccess());
-
-                        fieldValue.setData(data);
-
-                        if (StringUtils.isNotBlank(data.getExpectedValue())
-                                || StringUtils.isNotBlank(data.getExtractedValue())) {
-                            section.getGroupFieldValues().add(fieldValue);
-                        }
-                    }
+                Document document = documentMap.get(expectedField.getDocumentType().getId());
+                if (document == null) {
+                    continue;
                 }
+
+                ValueData data = reportValue(document, expectedField);
+                if (StringUtils.isBlank(data.getExpectedValue()) && StringUtils.isBlank(data.getExtractedValue())) {
+                    continue;
+                }
+
+                GroupFieldValue fieldValue = new GroupFieldValue();
+                fieldValue.setExpectedField(expectedField);
+                fieldValue.setPosition(field.getPosition());
+                fieldValue.setKycReportSection(section);
+                fieldValue.setData(data);
+                section.getGroupFieldValues().add(fieldValue);
             }
 
             section.setKycRecord(kycRecord);
@@ -1104,6 +1061,61 @@ public class KycRecordServiceImpl
         updateOwnerStatus(kycRecord);
 
         return this.kycRecordMapper.toKycRecordDTO(kycRecord);
+    }
+
+    /** Whether processing has read anything from the document. */
+    private static boolean analysed(Document document) {
+        return MapUtils.isNotEmpty(document.getExtractedInformation())
+                || CollectionUtils.isNotEmpty(document.getDataVerifications());
+    }
+
+    private static LocalDateTime lastChanged(Document document) {
+        LocalDateTime changed = document.getModifiedAt() != null ? document.getModifiedAt() : document.getCreatedAt();
+        return changed != null ? changed : LocalDateTime.MIN;
+    }
+
+    /**
+     * A field's value for the report: the result of the check that compared it, preferring one
+     * that compared it with the customer's record, else just what was read from the document.
+     * Copies the values, so the document's own verification results are left as they are.
+     */
+    private static ValueData reportValue(Document document, ExpectedField expectedField) {
+
+        String fieldName = expectedField.getField();
+        KeyFieldMatchResult match = null;
+        if (document.getDataVerifications() != null) {
+            for (DataVerification verification : document.getDataVerifications()) {
+                if (verification.getKeyFieldMatches() == null) {
+                    continue;
+                }
+                for (KeyFieldMatchResult candidate : verification.getKeyFieldMatches()) {
+                    if (!Objects.equals(fieldName, candidate.getKeyField())) {
+                        continue;
+                    }
+                    if (match == null || (StringUtils.isBlank(match.getExpectedValue())
+                            && StringUtils.isNotBlank(candidate.getExpectedValue()))) {
+                        match = candidate;
+                    }
+                }
+            }
+        }
+
+        ValueData data = new ValueData();
+        if (match != null) {
+            data.setSimilarity(match.getSimilarity());
+            data.setExpectedValue(match.getExpectedValue());
+            data.setExtractedValue(match.getExtractedValue());
+            data.setMandatory(match.getMandatory());
+            data.setSuccess(match.getSuccess());
+            return data;
+        }
+
+        Object extracted = document.getExtractedInformation() != null
+                ? document.getExtractedInformation().get(fieldName)
+                : null;
+        data.setExtractedValue(extracted != null ? extracted.toString() : null);
+        data.setMandatory(expectedField.getMandatory());
+        return data;
     }
 
     @Override
