@@ -10,7 +10,7 @@ From ROLES, GRANTS, RESOURCES, PUBLIC_ENDPOINTS and the controllers of the webse
   - keycloak/knowvera-api-authz.json                    Authorization tab import for knowvera-api
   - keycloak/ROLE_MATRIX.md                             role / resource / scope matrix for review
   - knowvera-realm.json                                 the realm export, generated parts updated in place
-                                                        (incl. the veritas-processor client and its roles)
+                                                        (and the former veritas-processor client removed)
   - knowvera-api/webservice/src/test/resources/test-realm.json      the same realm for tests: test secrets, seed users
   - knowvera-api/webservice/src/main/resources/keycloak/policy-enforcer.json   policy enforcer paths
   - knowvera-api/webservice/.../config/PublicEndpoints.java         the permitAll matchers of SpringSecurityConfig
@@ -79,6 +79,7 @@ RESOURCES = {
     "novu":                        "Notification service configuration",
     "organisation-branches":       "Organisation branches",
     "organisation-document-types": "Documents an organisation requires",
+    "processing-profiles":         "Document processing profiles: steps, providers, models and prompts",
     "organisations":               "Organisations (KYC subjects and clients)",
     "screening":                   "Sanctions list screening of KYC subjects and review of potential matches",
     "sequences":                   "Reference number sequences",
@@ -117,11 +118,8 @@ ENDPOINT_SCOPES = {
     "SuspicionCaseApi.recordReport": "review",
     "SuspicionCaseApi.close": "review",
     "SuspicionCaseApi.draftReport": "export",
-    # What veritas-processor offers a document type (its profiles and data processors), and the
-    # data processor of one type: read with the document types themselves
+    # The processing profiles a document type can use: read with the document types themselves
     "ProcessingConfigApi.processingProfiles": "list",
-    "ProcessingConfigApi.dataProcessors": "list",
-    "ProcessingConfigApi.dataProcessor": "view",
     # The client hands the answers to a custom form over to the organisation that issued it
     "FormSubmissionApi.submit": "submit",
     # The forms on one KYC record: its owner reads them with the record, without the right to list
@@ -317,6 +315,7 @@ GRANTS = {
     "STAFF": {
         **grant(REFERENCE, READ),
         "settings": ("view",),
+        "processing-profiles": READ,
     },
     "KYC_ANALYST": {
         "kyc-records": ("view", "list", "edit", "submit", "verify", "export"),
@@ -392,6 +391,7 @@ GRANTS = {
         "novu": ("view", "edit"),  # dead-letter counts and re-drive
         "organisation-branches": ALL,
         "organisation-document-types": ALL,
+        "processing-profiles": ("edit",),  # profiles are versioned: a save adds a version, none is removed
         "forms": ALL,
         "form-submissions": READ,
         "audit-logs": READ,
@@ -845,17 +845,8 @@ CLIENT_SECRETS = {CLIENT_ID: "${API_CLIENT_SECRET}"}
 # The API service account creates users, resets passwords, maps roles and manages organizations.
 # view-clients: client lookups (client role names, client-role assignment, users by client role)
 API_SERVICE_ACCOUNT_ROLES = ["manage-users", "manage-realm", "view-clients"]
-# veritas-processor (../veritas-processor), the document processor: a resource server only (no
-# sign-in flows); its client roles grant access to its API
+# The client of the former veritas-processor service, now part of knowvera-api: removed from the realm
 VERITAS_CLIENT_ID = "veritas-processor"
-VERITAS_ROLES = {
-    "profiles-view": "Read the processing profiles",
-    "profiles-admin": "Read and save the processing profiles",
-    "jobs-submit": "Submit processing jobs over the API and read their results",
-}
-# The API's service account saves the data processors in veritas-processor (VeritasProcessorSync); its
-# jobs go over RabbitMQ and need no role
-API_VERITAS_ROLES = ["profiles-admin"]
 TEST_SECRET = "test-secret"
 TEST_PASSWORD = "Test-Passw0rd!"  # meets PASSWORD_POLICY
 SAMPLE_PASSWORD = "ChangeMe-2026!"  # temporary: Keycloak asks for a new one at first login
@@ -896,40 +887,15 @@ def audience_mapper(client_id, audience=CLIENT_ID):
     }
 
 
-def build_veritas_client(realm, clients, roles):
-    """The veritas-processor client and its roles, and the API's access to it."""
-    veritas = clients.get(VERITAS_CLIENT_ID)
-    if veritas is None:
-        veritas = {"id": sid("client", VERITAS_CLIENT_ID), "clientId": VERITAS_CLIENT_ID}
-        realm["clients"].append(veritas)
-        clients[VERITAS_CLIENT_ID] = veritas
-    veritas.update({
-        "name": "veritas-processor",
-        "description": "Document processor API (processing profiles and jobs)",
-        "enabled": True,
-        "protocol": "openid-connect",
-        "publicClient": False,
-        "bearerOnly": False,
-        "clientAuthenticatorType": "client-secret",
-        # Nobody signs in to it: it only accepts tokens issued to other clients
-        "standardFlowEnabled": False,
-        "implicitFlowEnabled": False,
-        "directAccessGrantsEnabled": False,
-        "serviceAccountsEnabled": False,
-        "authorizationServicesEnabled": False,
-        "fullScopeAllowed": False,
-        "redirectUris": [],
-        "webOrigins": [],
-    })
-    roles.setdefault("client", {})[VERITAS_CLIENT_ID] = [{
-        "id": sid("client-role", VERITAS_CLIENT_ID, name), "name": name, "description": description,
-        "composite": False, "clientRole": True, "containerId": veritas["id"], "attributes": {}}
-        for name, description in VERITAS_ROLES.items()]
-
-    # The API's service account calls veritas-processor: its tokens name it as audience
+def remove_veritas_client(realm, clients, roles):
+    """Document processing is part of knowvera-api now: the veritas-processor client, its roles, the
+    audience mapper that let the API call it, and the API's roles on it go."""
+    realm["clients"] = [c for c in realm["clients"] if c.get("clientId") != VERITAS_CLIENT_ID]
+    clients.pop(VERITAS_CLIENT_ID, None)
+    roles.setdefault("client", {}).pop(VERITAS_CLIENT_ID, None)
     api = clients[CLIENT_ID]
-    mapper = audience_mapper(CLIENT_ID, VERITAS_CLIENT_ID)
-    api["protocolMappers"] = [m for m in api.get("protocolMappers", []) if m["name"] != mapper["name"]] + [mapper]
+    api["protocolMappers"] = [m for m in api.get("protocolMappers", [])
+                              if m.get("config", {}).get("included.client.audience") != VERITAS_CLIENT_ID]
 
 
 def seed_username(role):
@@ -976,7 +942,7 @@ def build_realm(realm, authz, test=False):
     for client_id, secret in CLIENT_SECRETS.items():
         clients[client_id]["secret"] = TEST_SECRET if test else secret
 
-    build_veritas_client(realm, clients, roles)
+    remove_veritas_client(realm, clients, roles)
 
     for client_id in PORTAL_CLIENTS:
         portal = clients[client_id]
@@ -995,7 +961,7 @@ def build_realm(realm, authz, test=False):
     for user in users:
         if user.get("username") == f"service-account-{CLIENT_ID}":
             user.setdefault("clientRoles", {})[CLIENT_ID] = ["uma_protection"]
-            user["clientRoles"][VERITAS_CLIENT_ID] = list(API_VERITAS_ROLES)
+            user["clientRoles"].pop(VERITAS_CLIENT_ID, None)
             realm_management_roles = user.setdefault("clientRoles", {}).setdefault("realm-management", [])
             user["clientRoles"]["realm-management"] = list(
                 dict.fromkeys([*realm_management_roles, *API_SERVICE_ACCOUNT_ROLES]))

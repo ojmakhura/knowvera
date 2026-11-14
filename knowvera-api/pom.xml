@@ -39,7 +39,11 @@
         <okhttp.version>5.5.1</okhttp.version>
         <poi.version>6.0.0</poi.version>
         <jacoco.version>0.8.16</jacoco.version>
-        <veritas-processor.version>0.0.1</veritas-processor.version>
+        <!-- Document processing (OCR, document models) -->
+        <spring-ai.version>2.0.2</spring-ai.version>
+        <tess4j.version>5.21.0</tess4j.version>
+        <pdfbox.version>3.0.8</pdfbox.version>
+        <google-auth.version>1.57.0</google-auth.version>
     </properties>
 
     <dependencyManagement>
@@ -54,11 +58,39 @@
                 <artifactId>knowvera-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!-- Job and profile contracts of the document processor (../veritas-processor) -->
+            <!-- Document processing: document models (Gemini, Ollama, LM Studio), OCR and PDF text -->
             <dependency>
-                <groupId>bw.co.roguesystems</groupId>
-                <artifactId>veritas-processor-common</artifactId>
-                <version>${veritas-processor.version}</version>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.tess4j</groupId>
+                <artifactId>tess4j</artifactId>
+                <version>${tess4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox</artifactId>
+                <version>${pdfbox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.auth</groupId>
+                <artifactId>google-auth-library-oauth2-http</artifactId>
+                <version>${google-auth.version}</version>
+            </dependency>
+            <!-- Transitive libraries (Tesseract, PDFBox, ...) held at current releases -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.28.0</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.22.0</version>
             </dependency>
             <!-- S3 client for document storage (any S3-compatible server: SeaweedFS, Garage, AWS);
                  also manages the AWS SDK version -->

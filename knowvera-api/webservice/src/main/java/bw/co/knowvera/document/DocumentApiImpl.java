@@ -39,7 +39,7 @@ import bw.co.knowvera.SearchObject;
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.logging.Audit;
 import bw.co.knowvera.storage.ObjectStorageService;
-import bw.co.knowvera.veritas.DocumentProcessingDispatcher;
+import bw.co.knowvera.processing.DocumentProcessingDispatcher;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -482,7 +482,7 @@ public class DocumentApiImpl implements DocumentApi {
             throw new IllegalArgumentException("Document not found for id: " + id);
         }
 
-        // veritas-processor always works asynchronously: block is accepted for compatibility and ignored
+        // Processing always works asynchronously (a queued job): block is accepted for compatibility and ignored
         processingDispatcher.process(document);
 
         return ResponseEntity.ok(document);

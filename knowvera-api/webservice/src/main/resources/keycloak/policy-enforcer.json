@@ -627,18 +627,6 @@
     },
     {
       "name": "document-types",
-      "path": "/document-types/processing/data-processors",
-      "methods": [
-        {
-          "method": "GET",
-          "scopes": [
-            "list"
-          ]
-        }
-      ]
-    },
-    {
-      "name": "document-types",
       "path": "/document-types/processing/profiles",
       "methods": [
         {
@@ -683,18 +671,6 @@
             "delete"
           ]
         },
-        {
-          "method": "GET",
-          "scopes": [
-            "view"
-          ]
-        }
-      ]
-    },
-    {
-      "name": "document-types",
-      "path": "/document-types/{id}/data-processor",
-      "methods": [
         {
           "method": "GET",
           "scopes": [
@@ -2629,6 +2605,60 @@
           "method": "GET",
           "scopes": [
             "verify"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "processing-profiles",
+      "path": "/processing-profiles",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "processing-profiles",
+      "path": "/processing-profiles/{code}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        },
+        {
+          "method": "PUT",
+          "scopes": [
+            "edit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "processing-profiles",
+      "path": "/processing-profiles/{code}/versions",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "processing-profiles",
+      "path": "/processing-profiles/{code}/versions/{version}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
           ]
         }
       ]

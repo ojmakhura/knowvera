@@ -4,6 +4,7 @@ import bw.co.knowvera.AuditableDTO;
 import bw.co.knowvera.TimePeriod;
 import bw.co.knowvera.document.type.field.ExpectedFieldDTO;
 import bw.co.knowvera.document.type.verification.VerificationDataConfigDTO;
+import bw.co.knowvera.processing.llm.PromptMessage;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,18 +80,17 @@ public class DocumentTypeDTO
     @Nullable
     protected Integer verificationConfigCount;
     /**
-     * The veritas-processor profile that processes documents of this type (null: the default
-     * profile, app.processing.default-profile).
+     * The processing profile that processes documents of this type (null: the default profile,
+     * app.processing.default-profile).
      */
     @Nullable
     protected String processingProfileCode;
 
-    /**
-     * The veritas-processor data processor that defines what is done with documents of this type
-     * (its id there).
-     */
-    @Nullable
-    protected String dataProcessorId;
+    /** This type's own classification prompts (a system and a user message); empty: the profile's. */
+    protected List<PromptMessage> validationPrompts;
+
+    /** This type's own text extraction prompts; empty: the profile's. */
+    protected List<PromptMessage> textExtractionPrompts;
 
     /** Default Constructor with no properties */
     public DocumentTypeDTO()
@@ -166,7 +166,8 @@ public class DocumentTypeDTO
         this.expectedFieldCount = otherBean.getExpectedFieldCount();
         this.verificationConfigCount = otherBean.getVerificationConfigCount();
         this.processingProfileCode = otherBean.getProcessingProfileCode();
-        this.dataProcessorId = otherBean.getDataProcessorId();
+        this.validationPrompts = otherBean.getValidationPrompts();
+        this.textExtractionPrompts = otherBean.getTextExtractionPrompts();
     }
 
     /**
@@ -190,7 +191,8 @@ public class DocumentTypeDTO
             this.setExpectedFieldCount(otherBean.getExpectedFieldCount());
             this.setVerificationConfigCount(otherBean.getVerificationConfigCount());
             this.setProcessingProfileCode(otherBean.getProcessingProfileCode());
-            this.setDataProcessorId(otherBean.getDataProcessorId());
+            this.setValidationPrompts(otherBean.getValidationPrompts());
+            this.setTextExtractionPrompts(otherBean.getTextExtractionPrompts());
         }
     }
 
@@ -380,7 +382,7 @@ public class DocumentTypeDTO
     }
 
     /**
-     * The veritas-processor profile for documents of this type
+     * The processing profile for documents of this type
      * @return processingProfileCode String
      */
     public String getProcessingProfileCode()
@@ -397,20 +399,39 @@ public class DocumentTypeDTO
     }
 
     /**
-     * The veritas-processor data processor for documents of this type
-     * @return dataProcessorId String
+     * This type's own classification prompts
+     * @return validationPrompts List<PromptMessage>
      */
-    public String getDataProcessorId()
+    public List<PromptMessage> getValidationPrompts()
     {
-        return this.dataProcessorId;
+        if (this.validationPrompts == null)
+        {
+            this.validationPrompts = new ArrayList<PromptMessage>();
+        }
+        return this.validationPrompts;
+    }
+
+    public void setValidationPrompts(final List<PromptMessage> value)
+    {
+        this.validationPrompts = value;
     }
 
     /**
-     * @param value String
+     * This type's own text extraction prompts
+     * @return textExtractionPrompts List<PromptMessage>
      */
-    public void setDataProcessorId(final String value)
+    public List<PromptMessage> getTextExtractionPrompts()
     {
-        this.dataProcessorId = value;
+        if (this.textExtractionPrompts == null)
+        {
+            this.textExtractionPrompts = new ArrayList<PromptMessage>();
+        }
+        return this.textExtractionPrompts;
+    }
+
+    public void setTextExtractionPrompts(final List<PromptMessage> value)
+    {
+        this.textExtractionPrompts = value;
     }
 
     /**
@@ -485,7 +506,6 @@ public class DocumentTypeDTO
             .append(this.getExpectedFieldCount(), rhs.getExpectedFieldCount())
             .append(this.getVerificationConfigCount(), rhs.getVerificationConfigCount())
             .append(this.getProcessingProfileCode(), rhs.getProcessingProfileCode())
-            .append(this.getDataProcessorId(), rhs.getDataProcessorId())
             .isEquals();
     }
 
@@ -524,7 +544,6 @@ public class DocumentTypeDTO
             .append(this.getExpectedFieldCount(), myClass.getExpectedFieldCount())
             .append(this.getVerificationConfigCount(), myClass.getVerificationConfigCount())
             .append(this.getProcessingProfileCode(), myClass.getProcessingProfileCode())
-            .append(this.getDataProcessorId(), myClass.getDataProcessorId())
             .toComparison();
     }
 
@@ -549,7 +568,6 @@ public class DocumentTypeDTO
             .append(this.getExpectedFieldCount())
             .append(this.getVerificationConfigCount())
             .append(this.getProcessingProfileCode())
-            .append(this.getDataProcessorId())
             .toHashCode();
     }
 

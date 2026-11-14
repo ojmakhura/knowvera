@@ -73,6 +73,7 @@ Owner-scoped roles (CUSTOMER, APPLICANT, ORG_USER, ORG_ADMIN) are granted `<scop
 | `organisation-branches` | – | – | own: view, list | own: view, list, edit, delete | – | – | – | – | – | – | view, list | view, list | view, list | view, list | – | **all** | **all** | **all**; own: view, list, edit, delete |
 | `organisation-document-types` | – | – | own: view, list | own: view, list, edit, delete | – | – | – | – | – | – | view, list | view, list, edit | view, list, edit | – | – | **all** | **all** | **all**; own: view, list, edit, delete |
 | `organisations` | – | own: view, edit | own: view, list | own: view, list, edit | – | view, list, verify | view, list, verify | view, list, verify | view, list, verify | view, list | view, list | view, list, verify | view, list, verify | view, list, edit | view, list | – | **all** | **all**; own: view, list, edit |
+| `processing-profiles` | – | – | – | – | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | **all** | **all** | **all** |
 | `screening` | – | – | – | – | – | list, verify | list, verify | list, verify | **all** | – | list | **all** | **all** | – | – | list, edit | **all** | **all** |
 | `sequences` | – | – | – | – | – | – | – | – | – | – | view, list | view, list | view, list | – | – | **all** | **all** | **all** |
 | `settings` | view | view | view | view | view | view | view | view | view | view | view, list | view, list | view, list | view | view | **all** | **all** | **all** |
@@ -165,10 +166,8 @@ Reference: document types
 | Scope | Authority | Endpoint | Method |
 |---|---|---|---|
 | `view` | `SCOPE_document-types:view` | `GET /document-types/{id}` | `findById` |
-| `view` | `SCOPE_document-types:view` | `GET /document-types/{id}/data-processor` | `dataProcessor` |
 | `list` | `SCOPE_document-types:list` | `GET /document-types` | `getAll` |
 | `list` | `SCOPE_document-types:list` | `GET /document-types/paged` | `getAllPaged` |
-| `list` | `SCOPE_document-types:list` | `GET /document-types/processing/data-processors` | `dataProcessors` |
 | `list` | `SCOPE_document-types:list` | `GET /document-types/processing/profiles` | `processingProfiles` |
 | `list` | `SCOPE_document-types:list` | `GET /document-types/search` | `search` |
 | `list` | `SCOPE_document-types:list` | `GET /document-types/search/paged` | `pagedSearch` |
@@ -434,6 +433,18 @@ Organisations (KYC subjects and clients)
 | `edit` | `SCOPE_organisations:edit` / `SCOPE_organisations:edit-own` | `POST /organisations` | `save` |
 | `delete` | `SCOPE_organisations:delete` | `DELETE /organisations/{id}` | `remove` |
 | `verify` | `SCOPE_organisations:verify` | `GET /organisations/{id}/verification` | `verifyOrganisation` |
+
+### `processing-profiles`
+
+Document processing profiles: steps, providers, models and prompts
+
+| Scope | Authority | Endpoint | Method |
+|---|---|---|---|
+| `view` | `SCOPE_processing-profiles:view` | `GET /processing-profiles/{code}` | `findLatest` |
+| `view` | `SCOPE_processing-profiles:view` | `GET /processing-profiles/{code}/versions/{version}` | `findVersion` |
+| `list` | `SCOPE_processing-profiles:list` | `GET /processing-profiles` | `findAll` |
+| `list` | `SCOPE_processing-profiles:list` | `GET /processing-profiles/{code}/versions` | `findVersions` |
+| `edit` | `SCOPE_processing-profiles:edit` | `PUT /processing-profiles/{code}` | `save` |
 
 ### `screening`
 

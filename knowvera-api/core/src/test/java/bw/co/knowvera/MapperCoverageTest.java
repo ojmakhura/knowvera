@@ -33,6 +33,7 @@ import bw.co.knowvera.document.type.field.ExpectedField;
 import bw.co.knowvera.document.type.field.ExpectedFieldDTO;
 import bw.co.knowvera.document.type.verification.VerificationDataConfig;
 import bw.co.knowvera.document.type.verification.VerificationDataConfigDTO;
+import bw.co.knowvera.processing.llm.PromptMessage;
 import bw.co.knowvera.document.type.verification.VerificationDataConfigMapper;
 import bw.co.knowvera.document.type.verification.VerificationDataConfigRepository;
 import bw.co.knowvera.individual.EmploymentStatus;
@@ -360,10 +361,16 @@ class MapperCoverageTest {
         DocumentTypeDTO input = new DocumentTypeDTO();
         input.setCode("PPT");
         input.setName("Passport");
+        input.setValidationPrompts(List.of(new PromptMessage("system", "Is this a passport?")));
+        input.setTextExtractionPrompts(List.of(new PromptMessage("user", "Read the passport")));
 
         DocumentType entity = documentTypeMapper.documentTypeDTOToEntity(input);
         assertEquals("PPT", entity.getCode());
         assertEquals("Passport", entity.getName());
+        // A document type's own prompts go both ways (they replace the profile's for its documents)
+        assertEquals("Is this a passport?", entity.getValidationPrompts().getFirst().getContent());
+        assertEquals("Read the passport", entity.getTextExtractionPrompts().getFirst().getContent());
+        assertEquals("system", documentTypeMapper.toDocumentTypeDTO(entity).getValidationPrompts().getFirst().getRole());
     }
 
     @Test

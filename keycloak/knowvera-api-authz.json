@@ -174,12 +174,10 @@
       "uris": [
         "/document-types",
         "/document-types/paged",
-        "/document-types/processing/data-processors",
         "/document-types/processing/profiles",
         "/document-types/search",
         "/document-types/search/paged",
         "/document-types/{id}",
-        "/document-types/{id}/data-processor",
         "/document-types/{id}/expected-field"
       ],
       "scopes": [
@@ -843,6 +841,30 @@
         },
         {
           "name": "verify"
+        }
+      ]
+    },
+    {
+      "name": "processing-profiles",
+      "displayName": "Processing Profile",
+      "type": "urn:knowvera-api:resources:processing-profiles",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "uris": [
+        "/processing-profiles",
+        "/processing-profiles/{code}",
+        "/processing-profiles/{code}/versions",
+        "/processing-profiles/{code}/versions/{version}"
+      ],
+      "scopes": [
+        {
+          "name": "view"
+        },
+        {
+          "name": "list"
+        },
+        {
+          "name": "edit"
         }
       ]
     },
@@ -3060,6 +3082,42 @@
         "resources": "[\"organisations\"]",
         "scopes": "[\"verify\"]",
         "applyPolicies": "[\"kyc-analyst-policy\", \"screening-analyst-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "processing-profiles-view-permission",
+      "description": "Read a single record (Processing Profile)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"processing-profiles\"]",
+        "scopes": "[\"view\"]",
+        "applyPolicies": "[\"staff-policy\", \"auditor-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "processing-profiles-list-permission",
+      "description": "List, page or search records (Processing Profile)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"processing-profiles\"]",
+        "scopes": "[\"list\"]",
+        "applyPolicies": "[\"staff-policy\", \"auditor-policy\", \"super-admin-policy\"]"
+      }
+    },
+    {
+      "name": "processing-profiles-edit-permission",
+      "description": "Create or update a record (save is an upsert) (Processing Profile)",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "resources": "[\"processing-profiles\"]",
+        "scopes": "[\"edit\"]",
+        "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
       }
     },
     {

@@ -320,7 +320,7 @@ export class DocumentDetails implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // Analysis runs in the background (veritas-processor): asking for it only queues the document,
+  // Analysis runs in the background (a processing job): asking for it only queues the document,
   // and the results arrive later. The page keeps reloading the document quietly until they are in.
   private readonly documentApi = inject(DocumentApi);
   private analysisPoll: ReturnType<typeof setInterval> | undefined;

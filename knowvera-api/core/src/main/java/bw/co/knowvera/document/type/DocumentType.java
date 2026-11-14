@@ -7,6 +7,7 @@ import bw.co.knowvera.TimePeriod;
 import bw.co.knowvera.document.Document;
 import bw.co.knowvera.document.type.field.ExpectedField;
 import bw.co.knowvera.document.type.verification.VerificationDataConfig;
+import bw.co.knowvera.processing.llm.PromptMessage;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -171,8 +172,8 @@ public class DocumentType
 
 
     /**
-     * The veritas-processor profile that processes documents of this type (null: the default
-     * profile, app.processing.default-profile).
+     * The processing profile that processes documents of this type (null: the default profile,
+     * app.processing.default-profile).
      */
     @Column(name = "PROCESSING_PROFILE_CODE", unique = false, nullable = true, insertable = true, updatable = true, length = 100)
     private String processingProfileCode;
@@ -188,8 +189,8 @@ public class DocumentType
     }
 
     /**
-     * The veritas-processor data processor that defines what is done with documents of this type
-     * (its id there).
+     * The id of the data processor this type was linked to in the former veritas-processor database;
+     * read once by ProcessingDataMigration, then unused (to be dropped once the migration has run).
      */
     @Column(name = "DATA_PROCESSOR_ID", unique = false, nullable = true, insertable = true, updatable = true, length = 100)
     private String dataProcessorId;
@@ -202,6 +203,42 @@ public class DocumentType
     public void setDataProcessorId(String dataProcessorIdIn)
     {
         this.dataProcessorId = dataProcessorIdIn;
+    }
+
+    /**
+     * Prompts of this type's own that replace the profile's classification prompts for its documents
+     * (a system and a user message); empty: the profile's.
+     */
+    @Column(name = "VALIDATION_PROMPTS", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<PromptMessage> validationPrompts = new ArrayList<>();
+
+    public List<PromptMessage> getValidationPrompts()
+    {
+        return this.validationPrompts;
+    }
+
+    public void setValidationPrompts(List<PromptMessage> validationPromptsIn)
+    {
+        this.validationPrompts = validationPromptsIn;
+    }
+
+    /**
+     * Prompts of this type's own that replace the profile's text extraction prompts for its
+     * documents; empty: the profile's.
+     */
+    @Column(name = "TEXT_EXTRACTION_PROMPTS", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private List<PromptMessage> textExtractionPrompts = new ArrayList<>();
+
+    public List<PromptMessage> getTextExtractionPrompts()
+    {
+        return this.textExtractionPrompts;
+    }
+
+    public void setTextExtractionPrompts(List<PromptMessage> textExtractionPromptsIn)
+    {
+        this.textExtractionPrompts = textExtractionPromptsIn;
     }
 
     @Column(name = "EXPIRES_IN", unique = false, nullable = true, insertable = true, updatable = true)

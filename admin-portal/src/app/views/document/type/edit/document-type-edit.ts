@@ -54,7 +54,7 @@ import { TimePeriod } from '@app/models/bw/co/knowvera/time-period';
 import { LoaderState } from '@app/@shared/loader/loader.state';
 import { DocumentTypeApi } from '@app/services/bw/co/knowvera/document/type/document-type-api';
 import { ProcessingProfile } from '@app/models/bw/co/knowvera/document/type/processing-profile';
-import { DataProcessor, DataProcessorField } from '@app/models/bw/co/knowvera/document/type/data-processor';
+import { PromptMessage } from '@app/models/bw/co/knowvera/llm/prompt-message';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -68,13 +68,32 @@ export class EditDocumentTypeVarsForm {
   name: string | any = '';
   description: string | any = null;
   processingProfileCode: string | any = '';
-  dataProcessorId: string | any = '';
+  // This type's own prompts, each replacing the profile's when given ('' = the profile's)
+  validationSystemPrompt: string = '';
+  validationUserPrompt: string = '';
+  textExtractionSystemPrompt: string = '';
+  textExtractionUserPrompt: string = '';
   expires: boolean | any = false;
   expiryField: KeyField | any = null;
   expiryPeriod: TimePeriod | any;
 expiresIn: number | any;
   expectedFields: Array<ExpectedFieldDTO> = [];
   verificationDataConfigs: VerificationDataConfigDTO[] = [];
+}
+
+/** The content of the first prompt of this role ('' when there is none). */
+function prompt(messages: PromptMessage[] | null | undefined, role: string): string {
+  return messages?.find((message) => message?.role === role && message.content)?.content ?? '';
+}
+
+/** A system and a user prompt as messages, without the empty ones. */
+function prompts(system: string, user: string): PromptMessage[] {
+  return [
+    { role: 'system', content: system?.trim() ?? '' },
+    { role: 'user', content: user?.trim() ?? '' },
+  ]
+    .filter((message) => message.content)
+    .map((message) => Object.assign(new PromptMessage(), message));
 }
 
 @Component({
@@ -150,29 +169,12 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
   loaderState = inject(LoaderState);
 
-  // Processing is veritas-processor's: its profiles say how a document is processed, and the data
-  // processor this type is linked to holds the fields expected in its documents, with their
-  // definition. The expected fields here say what the extracted values are matched against.
+  // The processing profiles say how a document is processed; a document type may replace the
+  // profile's classification and text extraction prompts with its own.
   private readonly documentTypeApi = inject(DocumentTypeApi);
   protected readonly processingProfiles = signal<ProcessingProfile[]>([]);
   /** The profiles could not be read: the profile is typed in as a code instead of picked. */
   protected readonly processingProfilesUnavailable = signal(false);
-  protected readonly dataProcessor = signal<DataProcessor | null>(null);
-  protected readonly dataProcessorUnavailable = signal(false);
-  private dataProcessorLoadedFor = '';
-
-  /** The data processors a document type can be linked to. */
-  protected readonly dataProcessors = signal<DataProcessor[]>([]);
-  /** The data processors could not be read: the link is shown as it is and cannot be changed. */
-  protected readonly dataProcessorsUnavailable = signal(false);
-
-  /** The linked data processor's id when the list does not hold it (it was removed). */
-  protected readonly unknownDataProcessor = computed(() => {
-    const id = (this.editDocumentTypeSignal().dataProcessorId ?? '').trim();
-    return id && !this.dataProcessors().some((processor) => (processor.id ?? '').toLowerCase() === id.toLowerCase())
-      ? id
-      : '';
-  });
 
   /** The chosen profile when the list does not hold it (removed, or typed in earlier). */
   protected readonly unknownProcessingProfile = computed(() => {
@@ -180,43 +182,10 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     return code && !this.processingProfiles().some((profile) => profile.code === code) ? code : '';
   });
 
-  /** Fields of the data processor that have no expected field (no matching rule) here. */
-  protected readonly unmatchedProcessorFields = computed<DataProcessorField[]>(() => {
-    const expected = new Set(
-      this.editDocumentTypeSignal().expectedFields.map((field) => (field.field ?? '').trim().toLowerCase()),
-    );
-    return (this.dataProcessor()?.expectedFields ?? []).filter(
-      (field) => !expected.has((field.field ?? '').trim().toLowerCase()),
-    );
-  });
-
   constructor() {
-    this.documentTypeApi.dataProcessors().subscribe({
-      next: (processors) => this.dataProcessors.set(processors ?? []),
-      error: () => this.dataProcessorsUnavailable.set(true),
-    });
-
     this.documentTypeApi.processingProfiles().subscribe({
       next: (profiles) => this.processingProfiles.set(profiles ?? []),
       error: () => this.processingProfilesUnavailable.set(true),
-    });
-
-    effect(() => {
-      // Reloaded after every save: saving expected fields changes the data processor
-      const documentType = this.documentTypeApiStore.data();
-      const id = this.editDocumentTypeSignal().id;
-      const key = `${id}:${documentType?.modifiedAt ?? ''}:${this.editDocumentTypeSignal().expectedFields.length}`;
-      if (!id || key === this.dataProcessorLoadedFor) {
-        return;
-      }
-      this.dataProcessorLoadedFor = key;
-      this.documentTypeApi.dataProcessor(id).subscribe({
-        next: (processor) => {
-          this.dataProcessor.set(processor ?? null);
-          this.dataProcessorUnavailable.set(false);
-        },
-        error: () => this.dataProcessorUnavailable.set(true),
-      });
     });
 
     effect(() => {
@@ -287,18 +256,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     field.documentTypeId = this.editDocumentTypeSignal().id;
     field.documentType = this.editDocumentTypeSignal().name;
     return field;
-  }
-
-  /** Opens the expected field dialog for a field the data processor already has, to give it a matching rule here. */
-  expectedFieldsAddFromProcessor(processorField: DataProcessorField): void {
-    const field = this.createNewExpectedFields();
-    field.field = processorField.field;
-    field.fieldLabel = processorField.fieldLabel;
-    field.fieldType = processorField.fieldType;
-    field.format = processorField.format;
-    field.many = processorField.many;
-    field.mandatory = processorField.mandatory;
-    this.expectedFieldsAdd(field);
   }
 
   expectedFieldsAdd(preset?: ExpectedFieldDTO) {
@@ -606,7 +563,10 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       createdBy: documentType.createdBy,
       description: documentType.description,
       processingProfileCode: documentType.processingProfileCode ?? '',
-      dataProcessorId: documentType.dataProcessorId ?? '',
+      validationSystemPrompt: prompt(documentType.validationPrompts, 'system'),
+      validationUserPrompt: prompt(documentType.validationPrompts, 'user'),
+      textExtractionSystemPrompt: prompt(documentType.textExtractionPrompts, 'system'),
+      textExtractionUserPrompt: prompt(documentType.textExtractionPrompts, 'user'),
       expires: documentType.expires,
       expiryField: documentType.expiryField,
       expiresIn: documentType.expiresIn,
@@ -631,7 +591,8 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.createdBy = formData.createdBy;
     docType.description = formData.description;
     docType.processingProfileCode = formData.processingProfileCode?.trim() || null;
-    docType.dataProcessorId = formData.dataProcessorId?.trim() || null;
+    docType.validationPrompts = prompts(formData.validationSystemPrompt, formData.validationUserPrompt);
+    docType.textExtractionPrompts = prompts(formData.textExtractionSystemPrompt, formData.textExtractionUserPrompt);
     docType.expires = formData.expires;
     docType.expiryField = formData.expiryField;
     docType.expiryPeriod = formData.expiryPeriod;

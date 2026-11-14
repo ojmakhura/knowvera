@@ -5,7 +5,10 @@ logging:
       hibernate:  ${HIBERNATE_LOG_LEVEL:INFO}
     bw:
       co:
-        roguesystems: ${KYC_LOG_LEVEL:DEBUG}
+        knowvera: ${KYC_LOG_LEVEL:INFO}
+  pattern:
+    # The id of the processing job being run, when there is one
+    correlation: "[%X{jobId:-}] "
 server:
   port: ${PORT:8085}
   # Client address from X-Forwarded-For only when set by a trusted (internal) proxy such as Traefik
@@ -26,6 +29,24 @@ springdoc:
 spring:
   application:
     name: knowvera-webservice
+  ai:
+    # Spring AI's own retries are off: the pipeline tries a failed step again (app.processing.jobs.attempts)
+    retry:
+      max-attempts: 0
+    model:
+      chat: ${PROCESSING_MODEL_CHAT:${VERITAS_MODEL_CHAT:google-genai}}
+    google:
+      genai:
+        # Gemini on Vertex AI (Google Cloud credentials); the client is only created when a step uses
+        # Gemini, which app.processing.local-only forbids by default
+        vertex-ai: true
+        project-id: ${GEMINI_PROJECT_ID:central-kyc}
+        location: ${GEMINI_LOCATION:us-central1}
+        chat:
+          # A step's model and options override these
+          model: ${SPRING_AI_VERTEX_MODEL:gemini-2.5-flash}
+          # Extraction must give the same answer for the same document
+          temperature: 0
   threads:
     virtual:
       enabled: true
@@ -162,18 +183,66 @@ app:
     # Automated checks may mark documents VERIFIED on their own (type match and data score);
     # off: passing documents go to MANUAL_REVIEW for a KYC reviewer
     auto-verify: ${DOCUMENT_AUTO_VERIFY:false}
+  # Document processing: text extraction, cleanup, field extraction and classification of the uploaded
+  # documents, by profiles (processing.profile). Jobs go through RabbitMQ (x.veritas): every instance
+  # queues them and applies their results; the instances whose worker is enabled run them.
+  # The PROCESSING_* variables replace the VERITAS_* ones of the former veritas-processor service,
+  # which are still read as fallbacks.
   processing:
-    # Documents are processed by veritas-processor (jobs and results over RabbitMQ, x.veritas);
-    # VERITAS_LOCAL_ONLY there keeps them in the deployment (Data Protection Act 2024 ss.74-76).
-    # The profile for document types that name none:
+    # The profile for document types that name none
     default-profile: ${PROCESSING_DEFAULT_PROFILE:default}
-  veritas:
-    # veritas-processor's API: the data processors, which hold the definitions of the fields
-    # expected in the documents (this client's service account needs the veritas-processor role
-    # profiles-admin)
-    base-url: ${VERITAS_URL:http://localhost:8086}
-    # How long a data processor read from veritas-processor is reused
-    processor-cache: ${VERITAS_PROCESSOR_CACHE:60s}
+    worker:
+      # false: this instance does not run jobs (or their maintenance); another instance must
+      enabled: ${PROCESSING_WORKER:true}
+    # Never send documents out of the deployment (Gemini steps fall back to their next provider);
+    # Data Protection Act 2024 ss.74-76
+    local-only: ${PROCESSING_LOCAL_ONLY:${VERITAS_LOCAL_ONLY:true}}
+    storage:
+      bucket: ${storage.s3.bucket}
+    tesseract:
+      datapath: ${TESSDATA_PREFIX:/usr/share/tesseract-ocr/5/tessdata}
+      languages: ${TESSDATA_LANGS:eng}
+    # Models used when a step names none
+    lm-studio:
+      base-url: ${LMSTUDIO_BASE_URL:http://localhost:1234}
+      model: ${LLM_MODEL:gemma4}
+      # A model that has not answered by then fails the attempt; the step tries its next provider.
+      # LM Studio's client has this one timeout for a whole call, connecting included
+      read-timeout: ${LLM_READ_TIMEOUT:5m}
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      model: ${LLM_MODEL:${OLLAMA_MODEL:gemma4}}
+      connect-timeout: ${LLM_CONNECT_TIMEOUT:10s}
+      read-timeout: ${LLM_READ_TIMEOUT:5m}
+      # Context window in tokens (a step's numCtx option overrides it). Ollama cuts a longer prompt
+      # short without saying so; the provider refuses one instead
+      num-ctx: ${OLLAMA_NUM_CTX:8192}
+    jobs:
+      # Jobs run at once on a worker instance (min-max consumers)
+      concurrency: ${PROCESSING_JOB_CONCURRENCY:${VERITAS_JOB_CONCURRENCY:1-4}}
+      # A step whose providers were unreachable, timed out or failed is tried again (the delay doubles)
+      attempts: ${PROCESSING_JOB_ATTEMPTS:${VERITAS_JOB_ATTEMPTS:3}}
+      retry-delay: ${PROCESSING_JOB_RETRY_DELAY:${VERITAS_JOB_RETRY_DELAY:5s}}
+      # A job still running after this long was interrupted: it is failed and its document told
+      stale-after: ${PROCESSING_JOB_STALE_AFTER:${VERITAS_JOB_STALE_AFTER:2h}}
+      # How long the job history (document text and fields included) is kept, e.g. 90d; empty: forever
+      retention: ${PROCESSING_JOB_RETENTION:${VERITAS_JOB_RETENTION:}}
+      maintenance-interval: ${PROCESSING_JOB_MAINTENANCE_INTERVAL:10m}
+    limits:
+      max-file-size: ${PROCESSING_MAX_FILE_SIZE:${VERITAS_MAX_FILE_SIZE:25MB}}
+      # Pages of a PDF read or rendered for OCR
+      max-pages: ${PROCESSING_MAX_PAGES:${VERITAS_MAX_PAGES:50}}
+      # Fewer characters per page and a PDF's text layer is not its text (a scan with a stamp): OCR runs
+      min-text-chars-per-page: ${PROCESSING_MIN_TEXT_CHARS_PER_PAGE:50}
+    bootstrap:
+      # Creates the default profile at start-up when there is none
+      default-profile: ${PROCESSING_BOOTSTRAP_DEFAULT_PROFILE:true}
+    migration:
+      # The former veritas-processor database, read once to copy its profiles, its data processors'
+      # prompts and field definitions, and its job history (ProcessingDataMigration); empty: nothing to copy
+      source-url: ${PROCESSING_MIGRATION_SOURCE_URL:${VERITAS_DATABASE_URL:}}
+      username: ${PROCESSING_MIGRATION_USERNAME:${VERITAS_DB_USERNAME:${DB_USERNAME:}}}
+      password: ${PROCESSING_MIGRATION_PASSWORD:${VERITAS_DB_PASSWORD:${DB_PASSWORD:}}}
   retention:
     # Years a closed relationship's records are kept (Financial Intelligence Act 2022 s.32)
     years: ${RECORD_RETENTION_YEARS:20}
@@ -252,7 +321,7 @@ app:
     # Generated by keycloak/generate_authz.py
     enforcer-config: ${AUTHZ_ENFORCER_CONFIG:keycloak/policy-enforcer.json}
   rabbitmq:
-    # Queues of the stages after veritas-processor: information confirmation and verification
+    # Queues of the stages after document processing: information confirmation and verification
     informationConfirmationQueueExchange: ${INFORMATION_CONFIRMATION_QUEUE_EXCHANGE:x.information-confirmation-queue}
     informationConfirmationQueue: ${INFORMATION_CONFIRMATION_QUEUE:q.information-confirmation}
     informationConfirmationQueueRoutingKey: ${INFORMATION_CONFIRMATION_QUEUE_ROUTING_KEY:information-confirmation}

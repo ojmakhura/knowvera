@@ -7,52 +7,27 @@ API := knowvera-api
 MVN_API := mvn -f $(API)/pom.xml
 API_VERSION = $$($(MVN_API) help:evaluate -Dexpression=project.version -q -DforceStdout)
 
-build_common: build_veritas_common
+build_common:
 	$(MVN_API) -pl common install -DskipTests=true
 
-build_core: build_veritas_common
+build_core:
 	$(MVN_API) -pl core -am install -DskipTests=true
 
-build_api: build_veritas_common
+build_api:
 	. ./.env && $(MVN_API) install -DskipTests=true
 
-test_core: build_veritas_common
+test_core:
 	. ./.env && $(MVN_API) -pl core -am test
 
 test_webservice: build_core
 	. ./.env && $(MVN_API) -pl webservice test
 
-test_api: build_veritas_common
+test_api:
 	. ./.env && $(MVN_API) test
 
 clean_api:
 	$(MVN_API) clean
 
-###
-## veritas-processor: document AI processing (common <- core <- webservice); knowvera-api depends on its common module
-###
-VERITAS := veritas-processor
-MVN_VERITAS := mvn -f $(VERITAS)/pom.xml
-VERITAS_VERSION = $$($(MVN_VERITAS) help:evaluate -Dexpression=project.version -q -DforceStdout)
-
-build_veritas:
-	$(MVN_VERITAS) install -DskipTests=true
-
-test_veritas:
-	$(MVN_VERITAS) test
-
-clean_veritas:
-	$(MVN_VERITAS) clean
-
-run_veritas_local: build_veritas
-	. ./.env && $(MVN_VERITAS) -pl webservice spring-boot:run
-
-build_veritas_image: build_veritas
-	. ./.env && export VERITAS_IMAGE_VERSION=$(VERITAS_VERSION) && docker build -t $${VERITAS_IMAGE_NAME:-veritas-processor}:$${VERITAS_IMAGE_VERSION} $(VERITAS) && docker tag $${VERITAS_IMAGE_NAME:-veritas-processor}:$${VERITAS_IMAGE_VERSION} $${VERITAS_IMAGE_NAME:-veritas-processor}:latest
-
-push_veritas_image:
-	. ./.env && export VERITAS_IMAGE_VERSION=$(VERITAS_VERSION) && docker push $${VERITAS_IMAGE_NAME:-veritas-processor}:$${VERITAS_IMAGE_VERSION} && docker push $${VERITAS_IMAGE_NAME:-veritas-processor}:latest
-	
 build_portal_dist: 
 	. ./.env && cd portal && npm run build --configuration=production
 
@@ -65,15 +40,11 @@ build_native: clean_api build_core
 native_image: build_core
 	. ./.env && $(MVN_API) -Pnative -pl webservice spring-boot:build-image -DskipTests
 
-build_app: build_veritas build_api
-
-# The job/profile contracts knowvera-api compiles against
-build_veritas_common:
-	mvn -f veritas-processor/pom.xml -pl common install -DskipTests=true
+build_app: build_api
 
 clean_build: clean_all build_app
 
-clean_all: clean_api clean_veritas
+clean_all: clean_api
 
 clean_module:
 	mvn -f ${module} clean
@@ -112,7 +83,6 @@ check_version:
 
 versions:
 	@echo "api:          $(API_VERSION)"
-	@echo "veritas:      $(VERITAS_VERSION)"
 	@echo "portal:       $$(node -p "require('./portal/package.json').version")"
 	@echo "admin-portal: $$(node -p "require('./admin-portal/package.json').version")"
 

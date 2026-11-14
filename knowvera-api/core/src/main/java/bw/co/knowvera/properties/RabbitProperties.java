@@ -3,7 +3,7 @@ package bw.co.knowvera.properties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * RabbitMQ connection and the queues of the document stages that follow veritas-processor's
+ * RabbitMQ connection and the queues of the document stages that follow the processing
  * results: information confirmation, and the verification of KYC records, organisations and
  * individuals (prefix app.rabbitmq).
  */

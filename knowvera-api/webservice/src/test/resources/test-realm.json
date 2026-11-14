@@ -699,35 +699,6 @@
           "containerId": "e08bfc2b-8653-4f87-9b47-2a84ef5d8eac",
           "attributes": {}
         }
-      ],
-      "veritas-processor": [
-        {
-          "id": "d88c75c6-104b-50ef-9778-c3eddcbad011",
-          "name": "profiles-view",
-          "description": "Read the processing profiles",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "fa404778-5341-5390-99e9-fc0696892f14",
-          "attributes": {}
-        },
-        {
-          "id": "fecf5910-cff5-588c-aa12-bce3323868da",
-          "name": "profiles-admin",
-          "description": "Read and save the processing profiles",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "fa404778-5341-5390-99e9-fc0696892f14",
-          "attributes": {}
-        },
-        {
-          "id": "5d940d04-2423-54fc-9098-181592cb5e72",
-          "name": "jobs-submit",
-          "description": "Submit processing jobs over the API and read their results",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "fa404778-5341-5390-99e9-fc0696892f14",
-          "attributes": {}
-        }
       ]
     }
   },
@@ -808,9 +779,6 @@
           "manage-realm",
           "manage-users",
           "view-clients"
-        ],
-        "veritas-processor": [
-          "profiles-admin"
         ]
       }
     },
@@ -1657,12 +1625,10 @@
             "uris": [
               "/document-types",
               "/document-types/paged",
-              "/document-types/processing/data-processors",
               "/document-types/processing/profiles",
               "/document-types/search",
               "/document-types/search/paged",
               "/document-types/{id}",
-              "/document-types/{id}/data-processor",
               "/document-types/{id}/expected-field"
             ],
             "scopes": [
@@ -2326,6 +2292,30 @@
               },
               {
                 "name": "verify"
+              }
+            ]
+          },
+          {
+            "name": "processing-profiles",
+            "displayName": "Processing Profile",
+            "type": "urn:knowvera-api:resources:processing-profiles",
+            "ownerManagedAccess": false,
+            "attributes": {},
+            "uris": [
+              "/processing-profiles",
+              "/processing-profiles/{code}",
+              "/processing-profiles/{code}/versions",
+              "/processing-profiles/{code}/versions/{version}"
+            ],
+            "scopes": [
+              {
+                "name": "view"
+              },
+              {
+                "name": "list"
+              },
+              {
+                "name": "edit"
               }
             ]
           },
@@ -4546,6 +4536,42 @@
             }
           },
           {
+            "name": "processing-profiles-view-permission",
+            "description": "Read a single record (Processing Profile)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"processing-profiles\"]",
+              "scopes": "[\"view\"]",
+              "applyPolicies": "[\"staff-policy\", \"auditor-policy\", \"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "processing-profiles-list-permission",
+            "description": "List, page or search records (Processing Profile)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"processing-profiles\"]",
+              "scopes": "[\"list\"]",
+              "applyPolicies": "[\"staff-policy\", \"auditor-policy\", \"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "processing-profiles-edit-permission",
+            "description": "Create or update a record (save is an upsert) (Processing Profile)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"processing-profiles\"]",
+              "scopes": "[\"edit\"]",
+              "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
+            }
+          },
+          {
             "name": "screening-list-permission",
             "description": "List, page or search records (Screening)",
             "type": "scope",
@@ -5049,21 +5075,7 @@
           }
         ]
       },
-      "protocolMappers": [
-        {
-          "id": "64ca64ad-3c79-510a-b286-bb96a91014b2",
-          "name": "veritas-processor audience",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-audience-mapper",
-          "consentRequired": false,
-          "config": {
-            "included.client.audience": "veritas-processor",
-            "access.token.claim": "true",
-            "id.token.claim": "false",
-            "introspection.token.claim": "true"
-          }
-        }
-      ]
+      "protocolMappers": []
     },
     {
       "id": "b0edaf1e-2c2d-4d18-98c6-1ea824614cea",
@@ -5251,25 +5263,6 @@
         "organization",
         "microprofile-jwt"
       ]
-    },
-    {
-      "id": "fa404778-5341-5390-99e9-fc0696892f14",
-      "clientId": "veritas-processor",
-      "name": "veritas-processor",
-      "description": "Document processor API (processing profiles and jobs)",
-      "enabled": true,
-      "protocol": "openid-connect",
-      "publicClient": false,
-      "bearerOnly": false,
-      "clientAuthenticatorType": "client-secret",
-      "standardFlowEnabled": false,
-      "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": false,
-      "serviceAccountsEnabled": false,
-      "authorizationServicesEnabled": false,
-      "fullScopeAllowed": false,
-      "redirectUris": [],
-      "webOrigins": []
     }
   ],
   "clientScopes": [

@@ -47,7 +47,7 @@ export OTLP_URL=http://localhost:4318
 # --- Rate limiting ---
 export RATE_LIMIT=2000
 
-# --- Document storage (S3-compatible; shared with veritas-processor, see docs/storage.md) ---
+# --- Document storage (S3-compatible; see docs/storage.md) ---
 # The older MINIO_URL / MINIO_ACCESS_KEY / MINIO_SECRET_KEY / MINIO_BUCKET names still work as fallbacks
 export S3_ENDPOINT=http://minio:9000
 export S3_REGION=garage
@@ -86,36 +86,14 @@ export AUTHZ_PERMISSION_AUTHORITIES=true
 export API_CLIENT=knowvera-api
 export API_CLIENT_SECRET=secret
 
-# --- Document processing: knowvera-api -> veritas-processor ---
-export VERITAS_URL=http://veritas-processor:8086
+# --- Document processing (part of knowvera-api; jobs over RabbitMQ) ---
 # The profile of document types that name none
 export PROCESSING_DEFAULT_PROFILE=default
-
-# --- veritas-processor ---
-export VERITAS_IMAGE_NAME=veritas-processor
-export VERITAS_PORT=8086
-# Its own database (profiles and job history)
-export VERITAS_DATABASE_URL=jdbc:postgresql://postgres:5432/veritas
-export VERITAS_DB_USERNAME=veritas
-export VERITAS_DB_PASSWORD=veritas
-# Hibernate makes the tables; true also runs the Liquibase changelog, after Hibernate
-export VERITAS_LIQUIBASE=false
-# OpenTelemetry: traces, metrics and logs go to OTLP_URL; false turns the exports off
-export VERITAS_OTEL_EXPORT=true
-# The share of jobs and requests traced when the caller did not decide
-export VERITAS_TRACE_SAMPLING=1.0
-# The data processor services cache in Redis (REDIS_* above); false: no caching
-export VERITAS_CACHE=true
-export VERITAS_CACHE_TTL=30m
-# Keycloak client whose roles give access, and the audience its tokens must carry
-export VERITAS_CLIENT_ID=veritas-processor
-export VERITAS_JWT_AUDIENCES=veritas-processor
-# A read-only storage key for the processor (blank: the S3 key above)
-export VERITAS_S3_ACCESS_KEY=
-export VERITAS_S3_SECRET_KEY=
+# false: this instance queues jobs but does not run them (another instance with true must)
+export PROCESSING_WORKER=true
 # Keep documents in the deployment: never send them to Gemini
-export VERITAS_LOCAL_ONLY=false
-# Tesseract OCR (the path inside the veritas-processor image)
+export PROCESSING_LOCAL_ONLY=true
+# Tesseract OCR (the path inside the knowvera-api image)
 export TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
 export TESSDATA_LANGS=eng
 # Local models; LLM_MODEL is used when a step names no model
@@ -130,14 +108,14 @@ export LLM_READ_TIMEOUT=5m
 export GEMINI_PROJECT_ID=central-kyc
 export GEMINI_LOCATION=us-central1
 export SPRING_AI_VERTEX_MODEL=gemini-2.5-flash
-# Jobs processed at once (min-max consumers)
-export VERITAS_JOB_CONCURRENCY=1-4
+# Jobs run at once on a worker instance (min-max consumers)
+export PROCESSING_JOB_CONCURRENCY=1-4
 # How long the job history (document text and fields included) is kept, e.g. 90d; blank: forever
-export VERITAS_JOB_RETENTION=
-export VERITAS_MAX_FILE_SIZE=25MB
-export VERITAS_MAX_PAGES=50
-# The API documentation (Swagger) needs no sign-in: off unless asked for
-export VERITAS_API_DOCS=false
+export PROCESSING_JOB_RETENTION=
+export PROCESSING_MAX_FILE_SIZE=25MB
+export PROCESSING_MAX_PAGES=50
+# The former veritas-processor database, read once at start-up to copy its data (blank: nothing to copy)
+export PROCESSING_MIGRATION_SOURCE_URL=
 
 # --- RabbitMQ exchanges / queues / routing keys ---
 export INFORMATION_CONFIRMATION_QUEUE_EXCHANGE=x.information-confirmation-queue
@@ -175,4 +153,3 @@ export NOVU_NEW_KYC_RECORD_QUEUE_ROUTING_KEY=novu-new-kyc-record
 
 # --- Traefik routing ---
 export WEBSERVICE_HOST=knowvera.localhost
-export VERITAS_HOST=veritas.localhost
