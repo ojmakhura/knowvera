@@ -25,6 +25,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
@@ -716,7 +717,9 @@ public class Organisation
         return this.clientRequestsFiles.remove(elementToRemove);
     }
 
-    @OneToMany( fetch = FetchType.EAGER, orphanRemoval = true)
+    // Fields chosen from the shared library: several organisations can use one, and dropping
+    // it from an organisation must not delete it from the library
+    @ManyToMany( fetch = FetchType.EAGER)
     @JoinTable
     (
         name = "ORGANISATION2ORGANISATION_FIELDS",
@@ -766,7 +769,9 @@ public class Organisation
         return this.organisationFields.remove(elementToRemove);
     }
 
-    @OneToMany( fetch = FetchType.EAGER, orphanRemoval = true)
+    // Fields chosen from the shared library: several organisations can use one, and dropping
+    // it from an organisation must not delete it from the library
+    @ManyToMany( fetch = FetchType.EAGER)
     @JoinTable
     (
         name = "INDIVIDUAL_FIELDS2ORGANISATION",
