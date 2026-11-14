@@ -111,6 +111,9 @@ class ClientRequestNotificationTest {
 
         assertEquals("kyc@client.example", payload.get("email"));
         assertEquals("Client Co", payload.get("recipientName"));
+        // The register page asks an organisation for its registration number
+        assertEquals("https://portal.example/register/" + request.getId() + "?token=tok&target=ORGANISATION",
+                payload.get("kycPortalLink"));
         assertEquals("Knowvera", payload.get("platformName"), "default when there are no settings");
         assertEquals("our support team", payload.get("supportContact"));
     }

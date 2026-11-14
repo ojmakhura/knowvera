@@ -36,6 +36,10 @@ public class OrganisationServiceImpl
     private final OrganisationRepository organisationRepository;
     private final ClientRequestRepository clientRequestRepository;
     private final PasswordEncoder passwordEncoder;
+
+    /** How long the identity confirmation token stays valid; as for individuals. */
+    @org.springframework.beans.factory.annotation.Value("${app.request-token-session-ttl:24h}")
+    private java.time.Duration requestSessionTtl;
     private final OrganisationListQueries organisationListQueries;
     private final RecordRetention recordRetention;
 
@@ -159,13 +163,24 @@ public class OrganisationServiceImpl
 
         }
 
-        if (StringUtils.isNotBlank(criteria.getName())) {
+        // The same text as name and registration number is a quick search: either may match
+        boolean quickSearch = StringUtils.isNotBlank(criteria.getName())
+                && StringUtils.equals(criteria.getName(), criteria.getRegistrationNo());
+        if (quickSearch) {
+            String text = criteria.getName().trim();
+            Specification<Organisation> tmp = ((root, query, builder) -> builder.or(
+                    builder.like(builder.upper(root.get("name")), "%" + text.toUpperCase() + "%"),
+                    builder.equal(root.get("registrationNo"), text)));
+            spec = spec == null ? tmp : spec.and(tmp);
+        }
+
+        if (!quickSearch && StringUtils.isNotBlank(criteria.getName())) {
             Specification<Organisation> tmp = ((root, query, builder) -> builder.like(builder.upper(root.get("name")),
                     "%" + criteria.getName().toUpperCase() + "%"));
             spec = spec == null ? tmp : spec.and(tmp);
         }
 
-        if (StringUtils.isNotBlank(criteria.getRegistrationNo())) {
+        if (!quickSearch && StringUtils.isNotBlank(criteria.getRegistrationNo())) {
             Specification<Organisation> tmp = ((root, query, builder) -> builder.equal(root.get("registrationNo"),
                     criteria.getRegistrationNo()));
             spec = spec == null ? tmp : spec.and(tmp);
@@ -261,8 +276,36 @@ public class OrganisationServiceImpl
     @Override
     protected OrganisationDTO handleLoadRequestOrganisation(String requestId, String identityConfirmationToken,
             String registrationNo) throws Exception {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'handleLoadRequestOrganisation'");
+
+        bw.co.knowvera.organisation.client.ClientRequest clientRequest = clientRequestRepository
+                .findById(UUID.fromString(requestId))
+                .orElseThrow(() -> new OrganisationServiceException("ClientRequest not found"));
+
+        if (StringUtils.isBlank(identityConfirmationToken)) {
+            // The portal only has a token after confirm-token succeeded
+            throw new OrganisationServiceException(
+                    "No identity confirmation token: the registration link was not confirmed");
+        }
+
+        String token = clientRequest.getIdentityConfirmationToken();
+        boolean matches = token != null && passwordEncoder.matches(identityConfirmationToken, token);
+        if (!matches || bw.co.knowvera.utils.RequestTokens.isExpired(identityConfirmationToken, requestSessionTtl,
+                clientRequest.getCreatedAt())) {
+            throw new OrganisationServiceException("Invalid or expired confirmation token");
+        }
+
+        if (clientRequest.getTarget() != TargetEntity.ORGANISATION) {
+            throw new OrganisationServiceException("The client request is not for an organisation");
+        }
+
+        // The registration number is what the client proves they know: it must be the request's organisation
+        Organisation organisation = StringUtils.isBlank(registrationNo) ? null
+                : organisationRepository.findByRegistrationNo(registrationNo.trim()).orElse(null);
+        if (organisation == null || !organisation.getId().equals(UUID.fromString(clientRequest.getTargetId()))) {
+            throw new OrganisationServiceException("The registration number does not match this request");
+        }
+
+        return organisationMapper.toOrganisationDTO(organisation);
     }
 
     @Override

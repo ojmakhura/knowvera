@@ -217,7 +217,7 @@ public class OrganisationApiImpl implements OrganisationApi {
     public ResponseEntity<OrganisationDTO> loadRequestOrganisation(String requestId, String identityConfirmationToken,
             String registrationNo) throws Exception {
 
-        logger.debug("Loading request organisation with Request ID: {}, Identity Confirmation Token: {}, Registration No: {}", requestId, identityConfirmationToken, registrationNo);
+        logger.debug("Loading request organisation for request {}", requestId);
         OrganisationDTO organisation = organisationService.loadRequestOrganisation(requestId, identityConfirmationToken,
                 registrationNo);
         return ResponseEntity.ok(organisation);

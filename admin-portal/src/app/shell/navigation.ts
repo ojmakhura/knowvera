@@ -31,6 +31,13 @@ export const menuItems: ShellMenuItem[] = [
     label: 'KYC Records',
   },
   {
+    routerLink: '/kyc-reports',
+    titleKey: 'kyc.report.title',
+    icon: 'summarize',
+    permissions: ['kyc-records:list'],
+    label: 'KYC Reports',
+  },
+  {
     routerLink: '/compliance/screening',
     titleKey: 'screening.title',
     icon: 'policy',

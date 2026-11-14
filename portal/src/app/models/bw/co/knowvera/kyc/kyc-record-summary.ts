@@ -45,6 +45,9 @@ export class KycRecordSummary {
     approvedBy: string | any;
     approvedAt: Date | any;
 
+    /** The KYC record's id, to ask for its full summary. */
+    id: string | any;
+
     /** The client's report: one section per field group the asking organisation chose. */
     reportSections: Array<KycReportSectionDTO> | any;
 
@@ -82,6 +85,7 @@ export class KycRecordSummary {
         this.riskFactors = [];
         this.approvedBy = null;
         this.approvedAt = null;
+        this.id = null;
         this.reportSections = [];
         this.formSubmissions = [];
     }

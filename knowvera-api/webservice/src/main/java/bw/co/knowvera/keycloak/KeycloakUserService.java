@@ -1002,6 +1002,40 @@ public class KeycloakUserService {
     }
 
     /**
+     * Registers the account of an organisation client's contact person: the organisation's contact
+     * email, linked to the organisation as its administrator (ORG_ADMIN by default). No password:
+     * Keycloak's set-up email asks the person for one, and for their name.
+     */
+    public UserDTO registerOrganisationContact(OrganisationDTO organisation) {
+
+        if (organisation == null || StringUtils.isBlank(organisation.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The client organisation is unknown.");
+        }
+
+        String email = StringUtils.trimToNull(organisation.getContactEmailAddress());
+        if (email == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "The organisation needs a contact email address for its account.");
+        }
+
+        if (getUserByEmail(email) != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "A user with email " + email + " already exists. Contact support.");
+        }
+
+        UserDTO user = new UserDTO();
+        user.setEmail(email);
+        user.setUsername(email);
+        user.setEnabled(true);
+        user.setOrganisation(organisation.getName());
+        user.setOrganisationId(organisation.getId());
+        user.setOrganisationRegistrationNo(organisation.getRegistrationNo());
+        user.setRoles(Set.of(organisationManagerRole));
+
+        return createRegistrationUser(user);
+    }
+
+    /**
      * 
      * Register user for individual by id
      * 

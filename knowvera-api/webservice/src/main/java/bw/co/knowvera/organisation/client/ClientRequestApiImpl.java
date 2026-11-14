@@ -442,7 +442,9 @@ public class ClientRequestApiImpl implements ClientRequestApi {
                     break;
 
                 case ORGANISATION:
-                    throw new Exception("Organisation client request approval not yet implemented");
+                    // As for an individual, accepting here records the decision; the client's
+                    // account is made when they accept from the registration link
+                    break;
 
                 default:
                     throw new Exception(
@@ -480,7 +482,17 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
                 break;
             case ORGANISATION:
-                throw new Exception("Organisation client request confirmation not yet implemented");
+
+                OrganisationDTO organisation = organisationService.findById(request.getTargetId());
+                if (StringUtils.isBlank(organisation.getContactEmailAddress())) {
+                    throw new ClientRequestServiceException(
+                            "The organisation has no contact email address for its account.");
+                }
+                if (keycloakUserService.getUserByEmail(organisation.getContactEmailAddress()) != null) {
+                    throw new ClientRequestServiceException("The organisation's contact already has a user.");
+                }
+
+                break;
             default:
                 throw new Exception(
                         "Unsupported target entity for client request confirmation: " + request.getTarget());
@@ -546,7 +558,11 @@ public class ClientRequestApiImpl implements ClientRequestApi {
                 individualService.save(individual);
                 break;
             case ORGANISATION:
-                throw new Exception("Organisation client request confirmation not yet implemented");
+
+                // The organisation's contact person gets the account, as the organisation's administrator
+                AuditTracker.auditTrail(request, authentication);
+                keycloakUserService.registerOrganisationContact(organisationService.findById(request.getTargetId()));
+                break;
             default:
                 throw new Exception(
                         "Unsupported target entity for client request confirmation: " + request.getTarget());

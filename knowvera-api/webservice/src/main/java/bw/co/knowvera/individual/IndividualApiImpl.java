@@ -338,7 +338,7 @@ public class IndividualApiImpl implements IndividualApi {
     public ResponseEntity<IndividualDTO> loadRequestIndividual(String requestId, String identityConfirmationToken,
             String identityNo) throws Exception {
 
-        logger.debug("Loading request individual with requestId: {}, identityConfirmationToken: {}, identityNo: {}", requestId, identityConfirmationToken, identityNo);
+        logger.debug("Loading request individual for request {}", requestId);
         IndividualDTO individual = individualService.loadRequestIndividual(requestId, identityConfirmationToken,
                 identityNo);
 

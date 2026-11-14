@@ -176,6 +176,9 @@ public class KycRecordSummary
     @Nullable
     protected LocalDateTime approvedAt;
 
+    /** The KYC record's id, to ask for its full summary. */
+    protected String id;
+
     /** The client's report: one section per field group the asking organisation chose. */
     protected List<bw.co.knowvera.kyc.fields.KycReportSectionDTO> reportSections;
 
@@ -310,6 +313,7 @@ public class KycRecordSummary
         this.riskFactors = otherBean.getRiskFactors();
         this.approvedBy = otherBean.getApprovedBy();
         this.approvedAt = otherBean.getApprovedAt();
+        this.id = otherBean.getId();
         this.reportSections = otherBean.getReportSections();
         this.formSubmissions = otherBean.getFormSubmissions();
     }
@@ -352,6 +356,7 @@ public class KycRecordSummary
             this.setRiskFactors(otherBean.getRiskFactors());
             this.setApprovedBy(otherBean.getApprovedBy());
             this.setApprovedAt(otherBean.getApprovedAt());
+            this.setId(otherBean.getId());
             this.setReportSections(otherBean.getReportSections());
             this.setFormSubmissions(otherBean.getFormSubmissions());
         }
@@ -953,6 +958,16 @@ public class KycRecordSummary
     public void setApprovedAt(final LocalDateTime value)
     {
         this.approvedAt = value;
+    }
+
+    public String getId()
+    {
+        return this.id;
+    }
+
+    public void setId(final String value)
+    {
+        this.id = value;
     }
 
     public List<bw.co.knowvera.kyc.fields.KycReportSectionDTO> getReportSections()

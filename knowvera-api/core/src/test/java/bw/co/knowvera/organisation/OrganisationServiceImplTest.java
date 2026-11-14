@@ -78,6 +78,53 @@ class OrganisationServiceImplTest {
     }
 
     @Test
+    void loadRequestOrganisationReturnsTheRequestsOrganisationForItsRegistrationNumber() throws Exception {
+        UUID requestId = UUID.randomUUID();
+        Organisation client = Organisation.Factory.newInstance();
+        client.setId(UUID.randomUUID());
+        client.setRegistrationNo("BW00009999999");
+        bw.co.knowvera.organisation.client.ClientRequest request = organisationRequest(requestId, client.getId());
+        OrganisationDTO expected = new OrganisationDTO();
+        String token = bw.co.knowvera.utils.RequestTokens.issue(12);
+
+        when(clientRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
+        when(passwordEncoder.matches(token, "hashed")).thenReturn(true);
+        when(organisationRepository.findByRegistrationNo("BW00009999999")).thenReturn(Optional.of(client));
+        when(organisationMapper.toOrganisationDTO(client)).thenReturn(expected);
+
+        assertSame(expected, service.loadRequestOrganisation(requestId.toString(), token, " BW00009999999 "));
+    }
+
+    @Test
+    void loadRequestOrganisationRefusesAnotherOrganisationsRegistrationNumber() {
+        UUID requestId = UUID.randomUUID();
+        Organisation other = Organisation.Factory.newInstance();
+        other.setId(UUID.randomUUID());
+        bw.co.knowvera.organisation.client.ClientRequest request = organisationRequest(requestId, UUID.randomUUID());
+        String token = bw.co.knowvera.utils.RequestTokens.issue(12);
+
+        when(clientRequestRepository.findById(requestId)).thenReturn(Optional.of(request));
+        when(passwordEncoder.matches(token, "hashed")).thenReturn(true);
+        when(organisationRepository.findByRegistrationNo("BW1")).thenReturn(Optional.of(other));
+
+        assertThrows(Exception.class, () -> service.loadRequestOrganisation(requestId.toString(), token, "BW1"));
+        verify(organisationMapper, never()).toOrganisationDTO(any(Organisation.class));
+    }
+
+    private bw.co.knowvera.organisation.client.ClientRequest organisationRequest(UUID requestId, UUID organisationId) {
+        bw.co.knowvera.organisation.client.ClientRequest request = bw.co.knowvera.organisation.client.ClientRequest.Factory
+                .newInstance();
+        request.setId(requestId);
+        request.setTarget(bw.co.knowvera.TargetEntity.ORGANISATION);
+        request.setTargetId(organisationId.toString());
+        request.setIdentityConfirmationToken("hashed");
+        request.setCreatedAt(LocalDateTime.now());
+        org.springframework.test.util.ReflectionTestUtils.setField(service, "requestSessionTtl",
+                java.time.Duration.ofHours(24));
+        return request;
+    }
+
+    @Test
     void findByIdReloadsAndMapsOrganisation() throws Exception {
         UUID id = UUID.randomUUID();
         Organisation organisation = Organisation.Factory.newInstance();

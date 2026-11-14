@@ -192,7 +192,9 @@ public class ClientRequestNotification {
     putIfPresent(payload, "organisationName",
         StringUtils.isNotBlank(organisation) ? organisation
             : request.getOrganisation() != null ? request.getOrganisation().getName() : null);
-    payload.put("kycPortalLink", String.format("%s/%s?token=%s", registrationUrl, request.getId(), token));
+    // The register page asks an organisation for its registration number, an individual for an identity number
+    String target = request.getTarget() == TargetEntity.ORGANISATION ? "&target=ORGANISATION" : "";
+    payload.put("kycPortalLink", String.format("%s/%s?token=%s%s", registrationUrl, request.getId(), token, target));
     putIfPresent(payload, "reference", request.getRef());
     if (requestLinkTtl != null) {
       payload.put("linkExpiresAt", EXPIRY_FORMAT.format(issuedAt.plus(requestLinkTtl).atZone(ZoneId.systemDefault())));

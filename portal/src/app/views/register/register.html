@@ -12,16 +12,18 @@
       <ng-template matStepLabel>Enter identification</ng-template>
       <section class="kv-card">
         <header class="mb-6">
-          <h2 class="kv-card-title">Confirm identification number</h2>
-          <p class="kv-subtitle">Please enter your identification number to complete verification.</p>
+          <h2 class="kv-card-title">{{ isOrganisation() ? 'Confirm registration number' : 'Confirm identification number' }}</h2>
+          <p class="kv-subtitle">
+            {{ isOrganisation() ? 'Enter the organisation\'s company registration number to complete verification.' : 'Please enter your identification number to complete verification.' }}
+          </p>
         </header>
 
         <div>
 
           <mat-form-field appearance="outline" class="vault-field">
-            <mat-label>Identification Number</mat-label>
+            <mat-label>{{ isOrganisation() ? 'Registration Number' : 'Identification Number' }}</mat-label>
             <input matInput id="identificationNumber" [formField]="registerForm.identificationNumber"
-              placeholder="Enter identification number" />
+              [placeholder]="isOrganisation() ? 'Enter registration number' : 'Enter identification number'" />
           </mat-form-field>
         </div>
 
@@ -37,7 +39,7 @@
     <mat-step>
       <ng-template matStepLabel>Details Confirmation</ng-template>
       <section class="kv-card">
-          @if (individual().id) {
+          @if (clientLoaded()) {
         <header class="mb-6">
           <h2 class="kv-card-title">Confirm Your Details</h2>
           <p class="kv-subtitle">Please review and confirm the details below</p>
@@ -45,7 +47,34 @@
       }
 
         <div>
-          @if (individual().id) {
+          @if (isOrganisation()) {
+            @if (requestOrganisation(); as org) {
+            <h3 class="kv-card-title mb-4">Organisation Details</h3>
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div class="kv-field"><dt class="kv-label">Name</dt><dd class="kv-value">{{ org.name }}</dd></div>
+              <div class="kv-field"><dt class="kv-label">Registration Number</dt><dd class="kv-value">{{ org.registrationNo }}</dd></div>
+              @if (org.tradingName) {
+              <div class="kv-field"><dt class="kv-label">Trading Name</dt><dd class="kv-value">{{ org.tradingName }}</dd></div>
+              }
+              @if (org.contactEmailAddress) {
+              <div class="kv-field"><dt class="kv-label">Contact Email</dt><dd class="kv-value">{{ org.contactEmailAddress }}</dd></div>
+              }
+              @if (org.physicalAddress) {
+              <div class="kv-field"><dt class="kv-label">Physical Address</dt><dd class="kv-value">{{ org.physicalAddress }}</dd></div>
+              }
+              @if (org.postalAddress) {
+              <div class="kv-field"><dt class="kv-label">Postal Address</dt><dd class="kv-value">{{ org.postalAddress }}</dd></div>
+              }
+            </dl>
+            <p class="kv-panel text-sm mt-4">
+              Accepting creates an account for the organisation's contact, {{ org.contactEmailAddress }}, who can then complete the organisation's KYC.
+            </p>
+            } @else if (organisationLoadFailed()) {
+              <p class="kv-panel kv-tone-danger text-sm">The registration number does not match this request.</p>
+            } @else {
+              <p class="dp-empty-text">No details available to display.</p>
+            }
+          } @else if (individual().id) {
           <h3 class="kv-card-title mb-4">Individual Details</h3>
           <dl class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div class="kv-field">
@@ -153,7 +182,7 @@
 
         <div class="kv-actions justify-end mt-6">
           <button type="button" class="kv-btn-secondary" matStepperPrevious>Back</button>
-          @if (individual().id) {
+          @if (clientLoaded()) {
           <button type="button" class="kv-btn-primary" (click)="detailsConfirmed(stepper)">Confirm</button>
           }
         </div>
@@ -164,7 +193,7 @@
       <ng-template matStepLabel>Registration Confirmation</ng-template>
 
       <section class="kv-card">
-        @if(individualDetailsConfirmed() && individual().id){
+        @if(individualDetailsConfirmed() && clientLoaded()){
         <header class="mb-6">
           <h2 class="kv-card-title">Registration Status</h2>
           <p class="kv-subtitle">Select the status for this registration request</p>
@@ -201,7 +230,7 @@
 
         <div class="kv-actions justify-end mt-6">
           <button type="button" class="kv-btn-secondary" matStepperPrevious>Back</button>
-          @if(individualDetailsConfirmed() && individual().id) {
+          @if(individualDetailsConfirmed() && clientLoaded()) {
           <button type="button" class="kv-btn-primary" [disabled]="!registerSignal().registrationStatus" (click)="submitRegistration()">Submit</button>
           }
         </div>
