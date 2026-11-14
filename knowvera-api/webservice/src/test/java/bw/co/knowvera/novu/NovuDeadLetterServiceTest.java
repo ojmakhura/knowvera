@@ -51,7 +51,7 @@ class NovuDeadLetterServiceTest {
     void setUp() {
         service = new NovuDeadLetterService(rabbitTemplate, amqpAdmin, publisher,
                 "q.user", "x.user", "user", "q.org-user", "x.org-user", "org-user",
-                "q.request", "x.request", "request", "q.kyc", "x.kyc", "kyc");
+                "q.request", "x.request", "request", "q.kyc", "x.kyc", "kyc", "q.form", "x.form", "form");
     }
 
     @SuppressWarnings("unchecked")

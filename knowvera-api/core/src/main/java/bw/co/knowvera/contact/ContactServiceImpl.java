@@ -3,6 +3,8 @@ package bw.co.knowvera.contact;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -63,8 +65,13 @@ public class ContactServiceImpl
                 sequenceGenerator = new SequenceGenerator();
                 sequenceGenerator.setName(SEQUENCE_NAME);
                 sequenceGenerator.setTargetEntity(TargetEntity.CONTACT);
+            }
 
-                List<SequencePart> sequenceParts = new ArrayList<>();
+            // Liquibase seeds the generator (db/sequence/db.sequence.xml); its parts are added on first use
+            if (CollectionUtils.isEmpty(sequenceGenerator.getSequenceParts())) {
+
+                List<SequencePart> sequenceParts = sequenceGenerator.getSequenceParts() == null ? new ArrayList<>()
+                        : sequenceGenerator.getSequenceParts();
 
                 SequencePart counterPart = new SequencePart();
                 counterPart.setPosition(0);

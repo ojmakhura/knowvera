@@ -86,6 +86,13 @@ export const menuItems: ShellMenuItem[] = [
     permissions: ['sequences:list'],
     label: 'Sequences',
   },
+  {
+    routerLink: '/forms',
+    titleKey: 'form.title',
+    icon: 'dynamic_form',
+    permissions: ['forms:list'],
+    label: 'Forms',
+  },
 ];
 
 export const settingsMenuItems: ShellMenuItem[] = [

@@ -14,7 +14,7 @@ import bw.co.roguesystems.ai.profile.ProcessingProfileService;
 
 /** Switched on, Liquibase runs after Hibernate and marks what Hibernate made as run. */
 @SpringBootTest(properties = { "veritas.liquibase.enabled=true",
-        "spring.datasource.url=jdbc:h2:mem:veritas-after-hibernate;DB_CLOSE_DELAY=-1" })
+        "spring.datasource.url=jdbc:h2:mem:veritas-after-hibernate;DB_CLOSE_DELAY=-1;INIT=CREATE DOMAIN IF NOT EXISTS JSONB AS JSON" })
 @ActiveProfiles("test")
 class LiquibaseAfterHibernateTests {
 
@@ -28,7 +28,7 @@ class LiquibaseAfterHibernateTests {
     @Test
     void theChangeSetsForWhatHibernateMadeAreMarkedAsRun() {
         assertThat(context.getBeansOfType(LiquibaseAfterHibernate.class)).hasSize(1);
-        assertThat(jdbc.queryForList("SELECT exectype FROM databasechangelog", String.class)).hasSize(4)
+        assertThat(jdbc.queryForList("SELECT exectype FROM databasechangelog", String.class)).hasSize(5)
                 .containsOnly("MARK_RAN");
         assertThat(profiles.exists("default")).isTrue();
     }

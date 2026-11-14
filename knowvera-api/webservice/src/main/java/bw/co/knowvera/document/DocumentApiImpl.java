@@ -158,6 +158,13 @@ public class DocumentApiImpl implements DocumentApi {
             document.setExtractedInformation(stored != null ? stored.getExtractedInformation() : null);
             document.setDataVerifications(stored != null ? stored.getDataVerifications() : null);
             document.setDataComparisons(stored != null ? stored.getDataComparisons() : null);
+            // Nor may they decide the outcome: a new document starts unverified and unprocessed
+            document.setVerificationStatus(
+                    stored != null ? stored.getVerificationStatus() : DocumentVerificationStatus.UNVERIFIED);
+            document.setAnalyticsStatus(
+                    stored != null ? stored.getAnalyticsStatus() : DocumentAnalyticsStatus.INITIALISED);
+            document.setVerifiedBy(stored != null ? stored.getVerifiedBy() : null);
+            document.setVerifiedAt(stored != null ? stored.getVerifiedAt() : null);
         }
         return ResponseEntity.ok(documentService.save(document));
 

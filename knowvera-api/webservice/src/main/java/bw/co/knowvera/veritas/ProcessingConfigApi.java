@@ -14,14 +14,13 @@ import org.springframework.web.server.ResponseStatusException;
 import bw.co.knowvera.document.type.DocumentTypeDTO;
 import bw.co.knowvera.document.type.DocumentTypeService;
 import bw.co.roguesystems.ai.profile.ProfileSummary;
-import bw.co.roguesystems.ai.schema.ExtractionSchemaDTO;
+import bw.co.roguesystems.ai.processor.DataProcessorDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * What the document type screens show of veritas-processor's configuration: the processing
- * profiles a document type can use, and the schema that holds the fields extracted from its
- * documents.
+ * profiles a document type can use, and the data processor it is linked to.
  */
 @RestController
 @RequestMapping("/document-types")
@@ -47,23 +46,36 @@ public class ProcessingConfigApi {
         }
     }
 
-    @GetMapping("/{id}/extraction-schema")
-    @PreAuthorize("hasAuthority('SCOPE_document-types:view')")
-    @Operation(summary = "Extraction Schema", description = "The veritas-processor schema that holds the fields "
-            + "extracted from the document type's documents (no content when it has none yet)")
-    public ResponseEntity<ExtractionSchemaDTO> extractionSchema(@PathVariable(name = "id") String id) {
-        DocumentTypeDTO type = documentTypeService.findById(id);
-        String code = type == null ? null : VeritasJobFactory.schemaCode(type);
-        if (code == null) {
-            return ResponseEntity.notFound().build();
-        }
-        ExtractionSchemaDTO schema;
+    @GetMapping("/processing/data-processors")
+    @PreAuthorize("hasAuthority('SCOPE_document-types:list')")
+    @Operation(summary = "Data Processors", description = "The data processors of veritas-processor a document "
+            + "type can be linked to")
+    public ResponseEntity<List<DataProcessorDTO>> dataProcessors() {
         try {
-            schema = client.schema(code);
+            return ResponseEntity.ok(client.processors());
         } catch (RuntimeException e) {
             throw unavailable(e);
         }
-        return schema == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(schema);
+    }
+
+    @GetMapping("/{id}/data-processor")
+    @PreAuthorize("hasAuthority('SCOPE_document-types:view')")
+    @Operation(summary = "Data Processor", description = "The veritas-processor data processor the document type "
+            + "is linked to: what is done with its documents and the fields expected in them (no content when "
+            + "it does not exist yet)")
+    public ResponseEntity<DataProcessorDTO> dataProcessor(@PathVariable(name = "id") String id) {
+        DocumentTypeDTO type = documentTypeService.findById(id);
+        if (type == null) {
+            return ResponseEntity.notFound().build();
+        }
+        String processorId = VeritasJobFactory.processorId(type);
+        DataProcessorDTO processor;
+        try {
+            processor = processorId == null ? null : client.processor(processorId);
+        } catch (RuntimeException e) {
+            throw unavailable(e);
+        }
+        return processor == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(processor);
     }
 
     private static ResponseStatusException unavailable(RuntimeException e) {

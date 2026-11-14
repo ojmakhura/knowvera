@@ -18,14 +18,14 @@ import org.springframework.stereotype.Component;
 
 import bw.co.knowvera.document.type.field.ExpectedFieldType;
 import bw.co.knowvera.document.type.field.FieldDefinitionSource;
-import bw.co.roguesystems.ai.schema.ExtractionSchemaDTO;
-import bw.co.roguesystems.ai.schema.FieldSpec;
+import bw.co.roguesystems.ai.processor.DataProcessorDTO;
+import bw.co.roguesystems.ai.processor.field.ExpectedFieldDTO;
 
 /**
- * The definitions of the expected fields, read from the document types' schemas in
- * veritas-processor, where they are kept. A schema is read once and reused for a short while
- * (app.veritas.schema-cache); when veritas-processor cannot be reached the last schema read is
- * used, and without one the fields have no definition until it can.
+ * The definitions of the expected fields, read from the document types' data processors in
+ * veritas-processor, where they are kept. A data processor is read once and reused for a short
+ * while (app.veritas.processor-cache); when veritas-processor cannot be reached the last one read
+ * is used, and without one the fields have no definition until it can.
  */
 @Component
 public class VeritasFieldDefinitions implements FieldDefinitionSource {
@@ -41,7 +41,7 @@ public class VeritasFieldDefinitions implements FieldDefinitionSource {
     private final Map<UUID, Cached> cache = new ConcurrentHashMap<>();
 
     public VeritasFieldDefinitions(VeritasProfilesClient client, JdbcTemplate jdbc,
-            @Value("${app.veritas.schema-cache:60s}") Duration cacheFor) {
+            @Value("${app.veritas.processor-cache:60s}") Duration cacheFor) {
         this.client = client;
         this.jdbc = jdbc;
         this.cacheFor = cacheFor;
@@ -55,7 +55,7 @@ public class VeritasFieldDefinitions implements FieldDefinitionSource {
                 cached = new Cached(read(documentTypeId), Instant.now());
                 cache.put(documentTypeId, cached);
             } catch (RuntimeException e) {
-                log.warn("The schema of document type {} could not be read from veritas-processor{}: {}",
+                log.warn("The data processor of document type {} could not be read from veritas-processor{}: {}",
                         documentTypeId, cached == null ? "" : " (using the last one read)", e.getMessage());
                 if (cached == null) {
                     return null;
@@ -67,24 +67,33 @@ public class VeritasFieldDefinitions implements FieldDefinitionSource {
         return cached.definitions().get(key(field));
     }
 
-    /** Forget what was read: a schema has just been saved. */
+    /** Records the document type's link to its data processor (it was just made or found). */
+    public void link(String documentTypeId, String processorId) {
+        jdbc.update("UPDATE DOCUMENT_TYPE SET DATA_PROCESSOR_ID = ? WHERE ID = ?", processorId,
+                UUID.fromString(documentTypeId));
+        invalidate();
+    }
+
+    /** Forget what was read: a data processor has just been saved. */
     public void invalidate() {
         cache.clear();
     }
 
     private Map<String, Definition> read(UUID documentTypeId) {
         // Plain SQL: this runs while Hibernate loads an expected field
-        List<String> codes = jdbc.queryForList("SELECT CODE FROM DOCUMENT_TYPE WHERE ID = ?", String.class,
-                documentTypeId);
-        String code = VeritasJobFactory.schemaCode(codes.isEmpty() ? null : codes.getFirst(),
-                documentTypeId.toString());
-        ExtractionSchemaDTO schema = code == null ? null : client.schema(code);
+        List<String> links = jdbc.queryForList("SELECT DATA_PROCESSOR_ID FROM DOCUMENT_TYPE WHERE ID = ?",
+                String.class, documentTypeId);
+        String processorId = links.isEmpty() || links.getFirst() == null || links.getFirst().isBlank() ? null
+                : links.getFirst().trim();
+        DataProcessorDTO processor = processorId == null ? null : client.processor(processorId);
         Map<String, Definition> definitions = new HashMap<>();
-        if (schema != null && schema.fields() != null) {
-            for (FieldSpec field : schema.fields()) {
-                definitions.put(key(field.name()), new Definition(field.label(),
-                        ExpectedFieldType.valueOf(field.typeOrDefault().name()), field.format(), field.many(),
-                        field.mandatory()));
+        if (processor != null && processor.getExpectedFields() != null) {
+            for (ExpectedFieldDTO field : processor.getExpectedFields()) {
+                definitions.put(key(field.getField()), new Definition(field.getFieldLabel(),
+                        field.getFieldType() == null ? ExpectedFieldType.STRING
+                                : ExpectedFieldType.valueOf(field.getFieldType().name()),
+                        field.getFormat(), Boolean.TRUE.equals(field.getMany()),
+                        Boolean.TRUE.equals(field.getMandatory())));
             }
         }
         return definitions;

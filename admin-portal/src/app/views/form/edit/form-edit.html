@@ -1,0 +1,441 @@
+<div class="kv-page">
+  @let form = model();
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/forms">Forms</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">{{ form.id ? 'Edit' : 'Create' }}</span>
+    </nav>
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">{{ form.id ? form.name || 'Edit Form' : 'New Form' }}</h1>
+        <p class="kv-subtitle">
+          Design the sections and fields the organisation's clients fill. Once published, the form
+          is required from every client of that kind: it is added to the KYC records they already
+          have, and to the others when they start their KYC.
+        </p>
+      </div>
+      <div class="kv-actions">
+        @if (form.id) {
+          <a class="kv-btn-secondary" [routerLink]="['/forms', form.id, 'submissions']">
+            <mat-icon>assignment_turned_in</mat-icon> Submissions
+          </a>
+        }
+        <button type="button" class="kv-btn-secondary" (click)="discardChanges()">Cancel</button>
+        <button type="button" class="kv-btn-primary" [disabled]="saving()" (click)="save()">
+          <mat-icon>save</mat-icon> {{ saving() ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="kv-layout">
+    <div class="kv-col-main kv-stack">
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">dynamic_form</mat-icon>
+          <h2 class="kv-card-title">General Details</h2>
+        </div>
+        <div class="kv-form-grid">
+          <div class="kv-field md:col-span-2">
+            <label class="kv-label" for="formOrganisation">Organisation</label>
+            @if (form.id) {
+              <p class="kv-value">{{ form.organisation }}</p>
+            } @else {
+              <select
+                id="formOrganisation"
+                class="kv-input"
+                [value]="form.organisationId"
+                (change)="patch({ organisationId: $any($event.target).value })"
+              >
+                <option value="">Select the organisation the form belongs to</option>
+                @for (organisation of organisations(); track organisation.id) {
+                  <option [value]="organisation.id">{{ organisation.name }}</option>
+                }
+              </select>
+            }
+          </div>
+          <div class="kv-field">
+            <label class="kv-label" for="formCode">Code</label>
+            <input
+              id="formCode"
+              class="kv-input"
+              placeholder="e.g. SOF-01"
+              maxlength="50"
+              [value]="form.code"
+              (input)="patch({ code: $any($event.target).value })"
+            />
+          </div>
+          <div class="kv-field">
+            <label class="kv-label" for="formName">Name</label>
+            <input
+              id="formName"
+              class="kv-input"
+              placeholder="e.g. Source of funds declaration"
+              [value]="form.name"
+              (input)="patch({ name: $any($event.target).value })"
+            />
+          </div>
+          <div class="kv-field">
+            <label class="kv-label" for="formTargetType">For clients that are</label>
+            <select
+              id="formTargetType"
+              class="kv-input"
+              [value]="form.targetType"
+              (change)="patch({ targetType: $any($event.target).value })"
+            >
+              @for (targetType of targetTypes; track targetType) {
+                <option [value]="targetType" [selected]="targetType === form.targetType">
+                  {{ 'form.target.' + targetType | translate }}
+                </option>
+              }
+            </select>
+            <p class="text-sm text-on-surface-variant">
+              Only the organisation's {{ 'form.target.' + form.targetType | translate | lowercase }}
+              have to fill this form.
+            </p>
+          </div>
+          <div class="kv-field">
+            <label class="kv-label" for="formStatus">Status</label>
+            <select
+              id="formStatus"
+              class="kv-input"
+              [value]="form.status"
+              (change)="patch({ status: $any($event.target).value })"
+            >
+              @for (status of statuses; track status) {
+                <option [value]="status" [selected]="status === form.status">
+                  {{ 'form.status.' + status | translate }}
+                </option>
+              }
+            </select>
+          </div>
+          <div class="kv-field md:col-span-2">
+            <label class="kv-label" for="formDescription">Description</label>
+            <textarea
+              id="formDescription"
+              class="kv-input"
+              rows="3"
+              placeholder="Shown to the client above the form"
+              [value]="form.description"
+              (input)="patch({ description: $any($event.target).value })"
+            ></textarea>
+          </div>
+        </div>
+      </section>
+
+      @for (section of form.sections; track $index; let sectionIndex = $index) {
+        <section class="kv-card">
+          <div class="kv-card-header justify-between">
+            <div class="flex items-center gap-3">
+              <mat-icon class="kv-card-icon">view_agenda</mat-icon>
+              <h2 class="kv-card-title">{{ section.label || 'Section ' + (sectionIndex + 1) }}</h2>
+            </div>
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                class="kv-icon-btn"
+                matTooltip="Move section up"
+                aria-label="Move section up"
+                [disabled]="sectionIndex === 0"
+                (click)="moveSection(sectionIndex, -1)"
+              >
+                <mat-icon>arrow_upward</mat-icon>
+              </button>
+              <button
+                type="button"
+                class="kv-icon-btn"
+                matTooltip="Move section down"
+                aria-label="Move section down"
+                [disabled]="sectionIndex === form.sections.length - 1"
+                (click)="moveSection(sectionIndex, 1)"
+              >
+                <mat-icon>arrow_downward</mat-icon>
+              </button>
+              <button
+                type="button"
+                class="kv-icon-btn-danger"
+                matTooltip="Remove section"
+                aria-label="Remove section"
+                (click)="removeSection(sectionIndex)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="kv-form-grid">
+            <div class="kv-field">
+              <label class="kv-label" [for]="'sectionLabel' + sectionIndex">Section label</label>
+              <input
+                class="kv-input"
+                placeholder="e.g. Income"
+                [id]="'sectionLabel' + sectionIndex"
+                [value]="section.label"
+                (input)="patchSection(sectionIndex, { label: $any($event.target).value })"
+              />
+            </div>
+            <div class="kv-field">
+              <label class="kv-label" [for]="'sectionDescription' + sectionIndex">Description</label>
+              <input
+                class="kv-input"
+                placeholder="Optional guidance for the client"
+                [id]="'sectionDescription' + sectionIndex"
+                [value]="section.description"
+                (input)="patchSection(sectionIndex, { description: $any($event.target).value })"
+              />
+            </div>
+          </div>
+
+          <div class="kv-stack-sm mt-4">
+            @for (field of section.fields; track $index; let fieldIndex = $index) {
+              @let key = sectionIndex + '_' + fieldIndex;
+              <article class="kv-panel kv-stack-sm">
+                <div class="flex flex-wrap items-end gap-3">
+                  <div class="kv-field flex-1 min-w-48">
+                    <label class="kv-label" [for]="'fieldLabel' + key">Field label</label>
+                    <input
+                      class="kv-input"
+                      placeholder="The question the client answers"
+                      [id]="'fieldLabel' + key"
+                      [value]="field.label"
+                      (input)="patchField(sectionIndex, fieldIndex, { label: $any($event.target).value })"
+                    />
+                  </div>
+                  <div class="kv-field">
+                    <label class="kv-label" [for]="'fieldType' + key">Type</label>
+                    <select
+                      class="kv-input"
+                      [id]="'fieldType' + key"
+                      [value]="field.fieldType"
+                      (change)="patchField(sectionIndex, fieldIndex, { fieldType: $any($event.target).value })"
+                    >
+                      @for (fieldType of fieldTypes; track fieldType) {
+                        <option [value]="fieldType" [selected]="fieldType === field.fieldType">
+                          {{ 'form.field.type.' + fieldType | translate }}
+                        </option>
+                      }
+                    </select>
+                  </div>
+                  <label class="flex items-center gap-2 pb-2 text-sm">
+                    <input
+                      type="checkbox"
+                      [checked]="field.required"
+                      (change)="patchField(sectionIndex, fieldIndex, { required: $any($event.target).checked })"
+                    />
+                    Required
+                  </label>
+                  <div class="flex items-center gap-1 pb-1">
+                    <button
+                      type="button"
+                      class="kv-icon-btn"
+                      aria-label="Field settings"
+                      [matTooltip]="field.open ? 'Hide settings' : 'Settings'"
+                      (click)="patchField(sectionIndex, fieldIndex, { open: !field.open })"
+                    >
+                      <mat-icon>{{ field.open ? 'expand_less' : 'tune' }}</mat-icon>
+                    </button>
+                    <button
+                      type="button"
+                      class="kv-icon-btn"
+                      matTooltip="Move field up"
+                      aria-label="Move field up"
+                      [disabled]="fieldIndex === 0"
+                      (click)="moveField(sectionIndex, fieldIndex, -1)"
+                    >
+                      <mat-icon>arrow_upward</mat-icon>
+                    </button>
+                    <button
+                      type="button"
+                      class="kv-icon-btn"
+                      matTooltip="Move field down"
+                      aria-label="Move field down"
+                      [disabled]="fieldIndex === section.fields.length - 1"
+                      (click)="moveField(sectionIndex, fieldIndex, 1)"
+                    >
+                      <mat-icon>arrow_downward</mat-icon>
+                    </button>
+                    <button
+                      type="button"
+                      class="kv-icon-btn-danger"
+                      matTooltip="Remove field"
+                      aria-label="Remove field"
+                      (click)="removeField(sectionIndex, fieldIndex)"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                @if (hasOptions(field)) {
+                  <div class="kv-field">
+                    <label class="kv-label" [for]="'fieldOptions' + key">Options, one per line</label>
+                    <textarea
+                      class="kv-input"
+                      rows="4"
+                      placeholder="Salary&#10;Business income&#10;Gift"
+                      [id]="'fieldOptions' + key"
+                      [value]="field.optionsText"
+                      (input)="patchField(sectionIndex, fieldIndex, { optionsText: $any($event.target).value })"
+                    ></textarea>
+                  </div>
+                }
+
+                @if (field.open) {
+                  <div class="kv-form-grid">
+                    <div class="kv-field md:col-span-2">
+                      <label class="kv-label" [for]="'fieldDescription' + key">Help text</label>
+                      <input
+                        class="kv-input"
+                        placeholder="Shown under the field"
+                        [id]="'fieldDescription' + key"
+                        [value]="field.description"
+                        (input)="patchField(sectionIndex, fieldIndex, { description: $any($event.target).value })"
+                      />
+                    </div>
+                    @if (!hasOptions(field) && field.fieldType !== 'CHECKBOX') {
+                      <div class="kv-field">
+                        <label class="kv-label" [for]="'fieldPlaceholder' + key">Placeholder</label>
+                        <input
+                          class="kv-input"
+                          [id]="'fieldPlaceholder' + key"
+                          [value]="field.placeholder"
+                          (input)="patchField(sectionIndex, fieldIndex, { placeholder: $any($event.target).value })"
+                        />
+                      </div>
+                    }
+                    <div class="kv-field">
+                      <label class="kv-label" [for]="'fieldDefault' + key">Default value</label>
+                      <input
+                        class="kv-input"
+                        [id]="'fieldDefault' + key"
+                        [value]="field.defaultValue"
+                        (input)="patchField(sectionIndex, fieldIndex, { defaultValue: $any($event.target).value })"
+                      />
+                    </div>
+                    @if (isNumber(field)) {
+                      <div class="kv-field">
+                        <label class="kv-label" [for]="'fieldMin' + key">Minimum value</label>
+                        <input
+                          type="number"
+                          class="kv-input"
+                          [id]="'fieldMin' + key"
+                          [value]="field.minValue ?? ''"
+                          (input)="patchField(sectionIndex, fieldIndex, { minValue: numberOf($any($event.target).value) })"
+                        />
+                      </div>
+                      <div class="kv-field">
+                        <label class="kv-label" [for]="'fieldMax' + key">Maximum value</label>
+                        <input
+                          type="number"
+                          class="kv-input"
+                          [id]="'fieldMax' + key"
+                          [value]="field.maxValue ?? ''"
+                          (input)="patchField(sectionIndex, fieldIndex, { maxValue: numberOf($any($event.target).value) })"
+                        />
+                      </div>
+                    }
+                    @if (isText(field)) {
+                      <div class="kv-field">
+                        <label class="kv-label" [for]="'fieldMinLength' + key">Minimum length</label>
+                        <input
+                          type="number"
+                          min="0"
+                          class="kv-input"
+                          [id]="'fieldMinLength' + key"
+                          [value]="field.minLength ?? ''"
+                          (input)="patchField(sectionIndex, fieldIndex, { minLength: numberOf($any($event.target).value) })"
+                        />
+                      </div>
+                      <div class="kv-field">
+                        <label class="kv-label" [for]="'fieldMaxLength' + key">Maximum length</label>
+                        <input
+                          type="number"
+                          min="1"
+                          class="kv-input"
+                          [id]="'fieldMaxLength' + key"
+                          [value]="field.maxLength ?? ''"
+                          (input)="patchField(sectionIndex, fieldIndex, { maxLength: numberOf($any($event.target).value) })"
+                        />
+                      </div>
+                      <div class="kv-field md:col-span-2">
+                        <label class="kv-label" [for]="'fieldPattern' + key">
+                          Pattern (regular expression the answer must match)
+                        </label>
+                        <input
+                          class="kv-input"
+                          placeholder="e.g. [0-9]{9}"
+                          [id]="'fieldPattern' + key"
+                          [value]="field.pattern"
+                          (input)="patchField(sectionIndex, fieldIndex, { pattern: $any($event.target).value })"
+                        />
+                      </div>
+                    }
+                  </div>
+                }
+              </article>
+            } @empty {
+              <p class="text-sm text-on-surface-variant italic py-2">No fields in this section yet.</p>
+            }
+          </div>
+
+          <div class="mt-4">
+            <button type="button" class="kv-btn-subtle" (click)="addField(sectionIndex)">
+              <mat-icon>add</mat-icon> Add Field
+            </button>
+          </div>
+        </section>
+      }
+
+      <div>
+        <button type="button" class="kv-btn-secondary" (click)="addSection()">
+          <mat-icon>add</mat-icon> Add Section
+        </button>
+      </div>
+    </div>
+
+    <aside class="kv-col-side kv-stack">
+      @if (problems().length > 0) {
+        <section class="kv-card">
+          <div class="kv-card-header">
+            <mat-icon class="kv-card-icon">checklist</mat-icon>
+            <h2 class="kv-card-title">Before saving</h2>
+          </div>
+          <ul class="kv-stack-sm text-sm">
+            @for (problem of problems(); track problem) {
+              <li class="kv-error">{{ problem }}</li>
+            }
+          </ul>
+        </section>
+      }
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">history</mat-icon>
+          <h2 class="kv-card-title">Audit Trail</h2>
+        </div>
+        <dl class="kv-meta-list">
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Created At</dt>
+            <dd class="kv-meta-value">
+              {{ (form.createdAt | date: 'dd MMM yyyy, HH:mm') || 'Not available' }}
+            </dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Created By</dt>
+            <dd class="kv-meta-value">{{ form.createdBy || 'Not available' }}</dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Modified At</dt>
+            <dd class="kv-meta-value">
+              {{ (form.modifiedAt | date: 'dd MMM yyyy, HH:mm') || 'Not available' }}
+            </dd>
+          </div>
+          <div class="kv-meta-row">
+            <dt class="kv-meta-label">Modified By</dt>
+            <dd class="kv-meta-value">{{ form.modifiedBy || 'Not available' }}</dd>
+          </div>
+        </dl>
+      </section>
+    </aside>
+  </div>
+</div>

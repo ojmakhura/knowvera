@@ -3,7 +3,7 @@
   <header class="org-header">
     <div class="kv-stack-sm min-w-0">
       <nav class="kv-breadcrumb" aria-label="Breadcrumb">
-        <a routerLink="/organisation">Organisations</a>
+        <a routerLink="/organisations">Organisations</a>
         <mat-icon>chevron_right</mat-icon>
         <span class="kv-breadcrumb-current">{{ organisation().code || organisation().name || 'Details' }}</span>
       </nav>
@@ -47,7 +47,7 @@
         <mat-icon>file_download</mat-icon>
         Export Record
       </button>
-      <button type="button" class="dp-btn-outline is-primary-text" [routerLink]="['/organisation', organisation().id || id, 'edit']">
+      <button type="button" class="dp-btn-outline is-primary-text" [routerLink]="['/organisations', organisation().id || id, 'edit']">
         <mat-icon>edit</mat-icon>
         Edit Organisation
       </button>
@@ -166,7 +166,7 @@
         </ul>
       </div>
 
-      <button type="button" class="dp-dashed-btn" [routerLink]="['/organisation', organisation().id || id, 'edit']">
+      <button type="button" class="dp-dashed-btn" [routerLink]="['/organisations', organisation().id || id, 'edit']">
         <mat-icon>add</mat-icon>
         Add Domain
       </button>

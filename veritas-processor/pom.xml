@@ -32,11 +32,26 @@
         <spring-ai.version>2.0.2</spring-ai.version>
         <spring-cloud-aws.version>4.2.1</spring-cloud-aws.version>
         <springdoc.version>3.2.0</springdoc.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <!-- Pairs with the OpenTelemetry version managed by Spring Boot (opentelemetry.version) -->
+        <opentelemetry-instrumentation.version>2.28.1-alpha</opentelemetry-instrumentation.version>
         <jacoco.version>0.8.16</jacoco.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
+                <version>${opentelemetry-instrumentation.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>veritas-processor-common</artifactId>

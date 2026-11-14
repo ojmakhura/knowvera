@@ -919,7 +919,6 @@ export const ClientRequestApiStore = signalStore(
           return clientRequestApi.confirmToken(data.requestId, data.token).pipe(
             tapResponse({
               next: (response: string) => {
-                console.log('TOKEN CONFIRMED RESPONSE:', response);
 
                 let split = response.split('|');
 

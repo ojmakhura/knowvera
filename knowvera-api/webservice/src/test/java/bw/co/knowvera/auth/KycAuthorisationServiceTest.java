@@ -23,6 +23,10 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.document.DocumentService;
+import bw.co.knowvera.form.FormDTO;
+import bw.co.knowvera.form.FormService;
+import bw.co.knowvera.form.submission.FormSubmissionDTO;
+import bw.co.knowvera.form.submission.FormSubmissionService;
 import bw.co.knowvera.individual.IndividualDTO;
 import bw.co.knowvera.individual.IndividualService;
 import bw.co.knowvera.individual.employment.EmploymentRecordDTO;
@@ -81,6 +85,21 @@ class KycAuthorisationServiceTest {
             return "loaded " + userId;
         }
 
+        @RequiresOwnership(scope = "forms:view", target = "FORM", id = "#id")
+        public String loadForm(String id) {
+            return "loaded " + id;
+        }
+
+        @RequiresOwnership(scope = "form-submissions:edit", target = "FORM_SUBMISSION", id = "#id")
+        public String answer(String id) {
+            return "answered " + id;
+        }
+
+        @RequiresOwnership(scope = "form-submissions:review", target = "FORM_SUBMISSION_ISSUER", id = "#id")
+        public String review(String id) {
+            return "reviewed " + id;
+        }
+
         @RequiresOwnership(scope = "organisations:view", target = "NOT_A_KIND", id = "#id")
         public String loadUnknownKind(String id) {
             return "loaded " + id;
@@ -94,6 +113,8 @@ class KycAuthorisationServiceTest {
     private final BranchService branchService = mock(BranchService.class);
     private final EmploymentRecordService employmentRecordService = mock(EmploymentRecordService.class);
     private final OrganisationDocumentService organisationDocumentService = mock(OrganisationDocumentService.class);
+    private final FormService formService = mock(FormService.class);
+    private final FormSubmissionService formSubmissionService = mock(FormSubmissionService.class);
     private OrganisationController controller;
 
     @BeforeEach
@@ -102,7 +123,8 @@ class KycAuthorisationServiceTest {
                 keycloakUserService, individualService, organisationService,
                 mock(DocumentService.class), mock(ClientRequestService.class),
                 mock(KycInvoiceService.class), mock(KycSubscriptionService.class),
-                branchService, employmentRecordService, organisationDocumentService);
+                branchService, employmentRecordService, organisationDocumentService,
+                formService, formSubmissionService);
 
         AspectJProxyFactory factory = new AspectJProxyFactory(new OrganisationController());
         factory.setProxyTargetClass(true);
@@ -179,6 +201,53 @@ class KycAuthorisationServiceTest {
         assertThrows(AuthorizationDeniedException.class, () -> controller.save(record("missing", "org-1")));
         // New records only need the owner named in the body
         assertEquals("saved null", controller.save(record(null, "org-1")));
+    }
+
+    /** A submission of a form of the issuer, on the KYC record of the client organisation. */
+    private FormSubmissionDTO submission(String id, String issuer, String clientOrganisation) throws Exception {
+        String recordId = "record-of-" + clientOrganisation;
+        when(kycRecordService.findById(recordId)).thenReturn(record(recordId, clientOrganisation));
+        FormSubmissionDTO submission = new FormSubmissionDTO();
+        submission.setId(id);
+        submission.setOrganisationId(issuer);
+        submission.setKycRecordId(recordId);
+        return submission;
+    }
+
+    @Test
+    void aFormBelongsToTheMembersOfItsOrganisation() {
+        authenticate("ROLE_ORG_USER", "SCOPE_forms:view-own");
+        FormDTO mine = new FormDTO();
+        mine.setId("mine");
+        mine.setOrganisationId("org-1");
+        FormDTO theirs = new FormDTO();
+        theirs.setId("theirs");
+        theirs.setOrganisationId("org-2");
+        when(formService.findById("mine")).thenReturn(mine);
+        when(formService.findById("theirs")).thenReturn(theirs);
+
+        assertEquals("loaded mine", controller.loadForm("mine"));
+        assertThrows(AuthorizationDeniedException.class, () -> controller.loadForm("theirs"));
+        assertThrows(AuthorizationDeniedException.class, () -> controller.loadForm("missing"));
+    }
+
+    @Test
+    void aFormSubmissionBelongsToItsIssuerAndToTheOwnerOfItsKycRecord() throws Exception {
+        authenticate("ROLE_ORG_ADMIN", "SCOPE_form-submissions:edit-own", "SCOPE_form-submissions:review-own");
+        FormSubmissionDTO issued = submission("issued", "org-1", "org-2");
+        FormSubmissionDTO received = submission("received", "org-2", "org-1");
+        FormSubmissionDTO unrelated = submission("unrelated", "org-2", "org-3");
+        when(formSubmissionService.findById("issued")).thenReturn(issued);
+        when(formSubmissionService.findById("received")).thenReturn(received);
+        when(formSubmissionService.findById("unrelated")).thenReturn(unrelated);
+
+        assertEquals("answered issued", controller.answer("issued"));
+        assertEquals("answered received", controller.answer("received"));
+        assertThrows(AuthorizationDeniedException.class, () -> controller.answer("unrelated"));
+
+        // The client does not decide on its own answers
+        assertEquals("reviewed issued", controller.review("issued"));
+        assertThrows(AuthorizationDeniedException.class, () -> controller.review("received"));
     }
 
     @Test

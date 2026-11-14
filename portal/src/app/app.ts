@@ -31,14 +31,12 @@ export class App {
     effect(() => {
       const keycloakEvent = this.keycloakSignal();
 
-      console.log(this.keycloak.authenticated, keycloakEvent);
 
       if (keycloakEvent.type === KeycloakEventType.Ready) {
         if (this.keycloak.authenticated) {
           this.appEnvState.getEnv();
           this.appEnvState.setIsLoggedIn(typeEventArgs<ReadyArgs>(keycloakEvent.args));
           this.keycloak.loadUserProfile().then((profile) => {
-            console.log(profile);
             this.appEnvState.setProfile({
               firstName: profile.firstName || '',
               lastName: profile.lastName || '',
@@ -66,7 +64,6 @@ export class App {
           });
 
           this.keycloak.loadUserInfo().then((userInfo: KeycloakUserInfo) => {
-            console.log(userInfo);
           });
         }
       }

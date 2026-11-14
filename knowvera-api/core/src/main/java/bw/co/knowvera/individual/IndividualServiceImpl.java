@@ -298,14 +298,6 @@ public class IndividualServiceImpl
 
         boolean matches = token != null && passwordEncoder.matches(identityConfirmationToken, token);
 
-        System.out.println("*******************************************************************");
-        System.out.println(matches);
-        System.out.println(identityConfirmationToken);
-        System.out.println(requestSessionTtl);
-        System.out.println(clientRequest.getCreatedAt());
-        System.out.println(RequestTokens.isExpired(identityConfirmationToken, requestSessionTtl, clientRequest.getCreatedAt()));
-        System.out.println("*******************************************************************");
-
         if (!matches || RequestTokens.isExpired(identityConfirmationToken, requestSessionTtl, clientRequest.getCreatedAt())) {
             throw new IndividualServiceException("Invalid or expired confirmation token");
         }

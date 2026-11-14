@@ -187,6 +187,23 @@ public class DocumentType
         this.processingProfileCode = processingProfileCodeIn;
     }
 
+    /**
+     * The veritas-processor data processor that defines what is done with documents of this type
+     * (its id there).
+     */
+    @Column(name = "DATA_PROCESSOR_ID", unique = false, nullable = true, insertable = true, updatable = true, length = 100)
+    private String dataProcessorId;
+
+    public String getDataProcessorId()
+    {
+        return this.dataProcessorId;
+    }
+
+    public void setDataProcessorId(String dataProcessorIdIn)
+    {
+        this.dataProcessorId = dataProcessorIdIn;
+    }
+
     @Column(name = "EXPIRES_IN", unique = false, nullable = true, insertable = true, updatable = true)
     private Integer expiresIn;
 

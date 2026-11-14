@@ -144,8 +144,11 @@ class KycSubscriptionServiceImplTest {
         entity.setRef(null);
         KycSubscriptionDTO expected = new KycSubscriptionDTO();
 
+        SequenceGenerator configured = SequenceGenerator.Factory.newInstance();
+        configured.getSequenceParts().add(new bw.co.knowvera.sequence.SequencePart());
+
         when(kycSubscriptionMapper.kycSubscriptionDTOToEntity(input)).thenReturn(entity);
-        when(sequenceGeneratorRepository.findByName("KYC_SUBSCRIPTION_REF")).thenReturn(Optional.of(SequenceGenerator.Factory.newInstance()));
+        when(sequenceGeneratorRepository.findByName("KYC_SUBSCRIPTION_REF")).thenReturn(Optional.of(configured));
         when(sequenceGeneratorService.generateNextSequenceValue("KYC_SUBSCRIPTION_REF", true)).thenReturn("SUB-000222");
         when(kycSubscriptionRepository.save(entity)).thenReturn(entity);
         when(kycSubscriptionMapper.toKycSubscriptionDTO(entity)).thenReturn(expected);
@@ -155,6 +158,32 @@ class KycSubscriptionServiceImplTest {
         assertSame(expected, actual);
         assertEquals("SUB-000222", entity.getRef());
         verify(sequenceGeneratorRepository, never()).save(any(SequenceGenerator.class));
+    }
+
+    @Test
+    void saveAddsPartsToSeededSequenceGeneratorWithoutParts() throws Exception {
+        KycSubscriptionDTO input = new KycSubscriptionDTO();
+        input.setStartDate(new java.util.Date());
+        input.setPeriod(bw.co.knowvera.TimePeriod.MONTH);
+        input.setOrganisationCode("ORG");
+        input.setOrganisationName("Organisation");
+        input.setOrganisationRegistrationNo("REG-1");
+        KycSubscription entity = KycSubscription.Factory.newInstance();
+        entity.setRef(null);
+        // What the Liquibase seed leaves behind: the generator row and no parts
+        SequenceGenerator seeded = SequenceGenerator.Factory.newInstance();
+
+        when(kycSubscriptionMapper.kycSubscriptionDTOToEntity(input)).thenReturn(entity);
+        when(sequenceGeneratorRepository.findByName("KYC_SUBSCRIPTION_REF")).thenReturn(Optional.of(seeded));
+        when(sequenceGeneratorService.generateNextSequenceValue("KYC_SUBSCRIPTION_REF", true)).thenReturn("SUB-000001");
+        when(kycSubscriptionRepository.save(entity)).thenReturn(entity);
+
+        service.save(input);
+
+        assertEquals("SUB-000001", entity.getRef());
+        verify(sequenceGeneratorRepository).save(seeded);
+        assertEquals(2, seeded.getSequenceParts().size());
+        assertTrue(seeded.getSequenceParts().stream().allMatch(part -> part.getSequenceGenerator() == seeded));
     }
 
     @Test

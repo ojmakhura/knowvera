@@ -7,7 +7,7 @@ import { Page } from '@models/page.model';
 import { SearchObject } from '@models/search-object';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
 import { ProcessingProfile } from '@app/models/bw/co/knowvera/document/type/processing-profile';
-import { ExtractionSchema } from '@app/models/bw/co/knowvera/document/type/extraction-schema';
+import { DataProcessor } from '@app/models/bw/co/knowvera/document/type/data-processor';
 
 @Service()
 export class DocumentTypeApi {
@@ -62,9 +62,15 @@ export class DocumentTypeApi {
         return this.http.get<ProcessingProfile[]>(`${this.path}/processing/profiles`);
     }
 
-    /** The veritas-processor schema of the document type's fields (null when it has none yet). */
-    public extractionSchema(documentTypeId: string | any): Observable<ExtractionSchema | null> {
+    /** The data processors of veritas-processor a document type can be linked to. */
+    public dataProcessors(): Observable<DataProcessor[]> {
 
-        return this.http.get<ExtractionSchema | null>(`${this.path}/${documentTypeId}/extraction-schema`);
+        return this.http.get<DataProcessor[]>(`${this.path}/processing/data-processors`);
+    }
+
+    /** The veritas-processor data processor the document type is linked to (null when it does not exist yet). */
+    public dataProcessor(documentTypeId: string | any): Observable<DataProcessor | null> {
+
+        return this.http.get<DataProcessor | null>(`${this.path}/${documentTypeId}/data-processor`);
     }
 }

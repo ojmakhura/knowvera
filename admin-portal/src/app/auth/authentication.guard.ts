@@ -36,7 +36,8 @@ const isAccessAllowed = async (
     return hasAnyPermission(await permissions(), required) || router.parseUrl('/no-access');
   }
 
-  return router.parseUrl('/forbidden');
+  // Not signed in: the sign-in redirect above is under way, so stay where we are
+  return false;
 };
 
 export const AuthenticationGuard = createAuthGuard<CanActivateFn>(isAccessAllowed);

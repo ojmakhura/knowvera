@@ -611,8 +611,13 @@ public class KycRecordServiceImpl
                 sequenceGenerator = new SequenceGenerator();
                 sequenceGenerator.setName(SEQUENCE_NAME);
                 sequenceGenerator.setTargetEntity(TargetEntity.KYC_RECORD);
+            }
 
-                List<SequencePart> sequenceParts = new ArrayList<>();
+            // Liquibase seeds the generator (db/sequence/db.sequence.xml); its parts are added on first use
+            if (CollectionUtils.isEmpty(sequenceGenerator.getSequenceParts())) {
+
+                List<SequencePart> sequenceParts = sequenceGenerator.getSequenceParts() == null ? new ArrayList<>()
+                        : sequenceGenerator.getSequenceParts();
 
                 SequencePart counterPart = new SequencePart();
                 counterPart.setPosition(0);

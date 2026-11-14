@@ -93,11 +93,17 @@ export const provideKeycloakAndInterceptor = (env: any) => {
         realm: env.realm,
         clientId: env.clientId,
       },
-      initOptions: {
-        onLoad: 'check-sso',
-        checkLoginIframe: true,
-        silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html'
-      },
+      // env.json "authIframeChecks": false starts without Keycloak's hidden frames (the session
+      // check and the silent sign-in check), for browsers that do not load a cross-site frame:
+      // the sign-in state is then read with a full-page redirect. On unless turned off.
+      initOptions:
+        env.authIframeChecks === false
+          ? { onLoad: 'check-sso', checkLoginIframe: false }
+          : {
+              onLoad: 'check-sso',
+              checkLoginIframe: true,
+              silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+            },
       features: [
         withAutoRefreshToken({
           sessionTimeout: 300000,

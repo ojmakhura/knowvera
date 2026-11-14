@@ -50,6 +50,9 @@ public class NovuQueueProcessor {
   @Value("${app.novu.queue.newKycRecordNovuId}")
   private String novuNewKycRecordId;
 
+  @Value("${app.novu.queue.formRequiredNovuId}")
+  private String novuFormRequiredId;
+
   @RabbitListener(queues = "${app.novu.queue.newUserQueue}", containerFactory = NovuQueueConfig.CONTAINER_FACTORY)
   public void processNewUserQueue(Map<String, String> payload,
       @Header(name = AmqpHeaders.MESSAGE_ID, required = false) String messageId) {
@@ -73,6 +76,13 @@ public class NovuQueueProcessor {
   @RabbitListener(queues = "${app.novu.queue.newKycRecordQueue}", containerFactory = NovuQueueConfig.CONTAINER_FACTORY)
   public void processNewKycRecordQueue(Map<String, String> payload) {
     LOGGER.debug("Ignoring {} message: the workflow is not implemented yet", novuNewKycRecordId);
+  }
+
+  /** A client has a new form to fill on its KYC record (docs/novu/workflows/novu-form-required.json). */
+  @RabbitListener(queues = "${app.novu.queue.formRequiredQueue}", containerFactory = NovuQueueConfig.CONTAINER_FACTORY)
+  public void processFormRequiredQueue(Map<String, String> payload,
+      @Header(name = AmqpHeaders.MESSAGE_ID, required = false) String messageId) {
+    trigger(novuFormRequiredId, payload, messageId);
   }
 
   private void trigger(String workflowId, Map<String, String> payload, String messageId) {

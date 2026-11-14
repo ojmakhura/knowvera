@@ -1657,9 +1657,12 @@
             "uris": [
               "/document-types",
               "/document-types/paged",
+              "/document-types/processing/data-processors",
+              "/document-types/processing/profiles",
               "/document-types/search",
               "/document-types/search/paged",
               "/document-types/{id}",
+              "/document-types/{id}/data-processor",
               "/document-types/{id}/expected-field"
             ],
             "scopes": [
@@ -1816,6 +1819,104 @@
               },
               {
                 "name": "delete"
+              }
+            ]
+          },
+          {
+            "name": "form-submissions",
+            "displayName": "Form Submission",
+            "type": "urn:knowvera-api:resources:form-submissions",
+            "ownerManagedAccess": false,
+            "attributes": {},
+            "uris": [
+              "/form-submissions",
+              "/form-submissions/by-form/{formId}",
+              "/form-submissions/by-org/{organisationId}",
+              "/form-submissions/by-record/{kycRecordId}",
+              "/form-submissions/mine",
+              "/form-submissions/search",
+              "/form-submissions/{id}",
+              "/form-submissions/{id}/status",
+              "/form-submissions/{id}/submit",
+              "/form-submissions/{id}/values"
+            ],
+            "scopes": [
+              {
+                "name": "self"
+              },
+              {
+                "name": "view"
+              },
+              {
+                "name": "view-own"
+              },
+              {
+                "name": "list"
+              },
+              {
+                "name": "list-own"
+              },
+              {
+                "name": "edit"
+              },
+              {
+                "name": "edit-own"
+              },
+              {
+                "name": "delete"
+              },
+              {
+                "name": "delete-own"
+              },
+              {
+                "name": "submit"
+              },
+              {
+                "name": "submit-own"
+              },
+              {
+                "name": "review"
+              },
+              {
+                "name": "review-own"
+              }
+            ]
+          },
+          {
+            "name": "forms",
+            "displayName": "Form",
+            "type": "urn:knowvera-api:resources:forms",
+            "ownerManagedAccess": false,
+            "attributes": {},
+            "uris": [
+              "/forms",
+              "/forms/by-org/{organisationId}",
+              "/forms/{id}"
+            ],
+            "scopes": [
+              {
+                "name": "view"
+              },
+              {
+                "name": "view-own"
+              },
+              {
+                "name": "list"
+              },
+              {
+                "name": "list-own"
+              },
+              {
+                "name": "edit"
+              },
+              {
+                "name": "edit-own"
+              },
+              {
+                "name": "delete"
+              },
+              {
+                "name": "delete-own"
               }
             ]
           },
@@ -3362,6 +3463,258 @@
               "resources": "[\"expected-fields\"]",
               "scopes": "[\"delete\"]",
               "applyPolicies": "[\"compliance-officer-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "form-submissions-self-permission",
+            "description": "Read or change the caller's own data (my records, my profile) (Form Submission)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"form-submissions\"]",
+              "scopes": "[\"self\"]",
+              "applyPolicies": "[\"authenticated-policy\"]"
+            }
+          },
+          {
+            "name": "form-submissions-view-permission",
+            "description": "Read a single record (Form Submission)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"form-submissions\"]",
+              "scopes": "[\"view\"]",
+              "applyPolicies": "[\"kyc-analyst-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "form-submissions-view-own-permission",
+            "description": "Read a single record (own records only) (Form Submission)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"form-submissions\"]",
+              "scopes": "[\"view-own\"]",
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
+            }
+          },
+          {
+            "name": "form-submissions-list-permission",
+            "description": "List, page or search records (Form Submission)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"form-submissions\"]",
+              "scopes": "[\"list\"]",
+              "applyPolicies": "[\"kyc-analyst-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "form-submissions-list-own-permission",
+            "description": "List, page or search records (own records only) (Form Submission)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"form-submissions\"]",
+              "scopes": "[\"list-own\"]",
+              "applyPolicies": "[\"org-user-policy\"]"
+            }
+          },
+          {
+            "name": "form-submissions-edit-permission",
+            "description": "Create or update a record (save is an upsert) (Form Submission)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"form-submissions\"]",
+              "scopes": "[\"edit\"]",
+              "applyPolicies": "[\"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "form-submissions-edit-own-permission",
+            "description": "Create or update a record (save is an upsert) (own records only) (Form Submission)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"form-submissions\"]",
+              "scopes": "[\"edit-own\"]",
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
+            }
+          },
+          {
+            "name": "form-submissions-delete-permission",
+            "description": "Remove a record or one of its parts (Form Submission)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"form-submissions\"]",
+              "scopes": "[\"delete\"]",
+              "applyPolicies": "[\"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "form-submissions-delete-own-permission",
+            "description": "Remove a record or one of its parts (own records only) (Form Submission)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"form-submissions\"]",
+              "scopes": "[\"delete-own\"]",
+              "applyPolicies": "[\"org-admin-policy\"]"
+            }
+          },
+          {
+            "name": "form-submissions-submit-permission",
+            "description": "Start a KYC application or attach evidence to one (Form Submission)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"form-submissions\"]",
+              "scopes": "[\"submit\"]",
+              "applyPolicies": "[\"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "form-submissions-submit-own-permission",
+            "description": "Start a KYC application or attach evidence to one (own records only) (Form Submission)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"form-submissions\"]",
+              "scopes": "[\"submit-own\"]",
+              "applyPolicies": "[\"applicant-policy\", \"org-user-policy\"]"
+            }
+          },
+          {
+            "name": "form-submissions-review-permission",
+            "description": "Change the review/decision status of a case, document or request (Form Submission)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"form-submissions\"]",
+              "scopes": "[\"review\"]",
+              "applyPolicies": "[\"kyc-reviewer-policy\", \"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "form-submissions-review-own-permission",
+            "description": "Change the review/decision status of a case, document or request (own records only) (Form Submission)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"form-submissions\"]",
+              "scopes": "[\"review-own\"]",
+              "applyPolicies": "[\"org-user-policy\"]"
+            }
+          },
+          {
+            "name": "forms-view-permission",
+            "description": "Read a single record (Form)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"forms\"]",
+              "scopes": "[\"view\"]",
+              "applyPolicies": "[\"kyc-analyst-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "forms-view-own-permission",
+            "description": "Read a single record (own records only) (Form)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"forms\"]",
+              "scopes": "[\"view-own\"]",
+              "applyPolicies": "[\"org-user-policy\"]"
+            }
+          },
+          {
+            "name": "forms-list-permission",
+            "description": "List, page or search records (Form)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"forms\"]",
+              "scopes": "[\"list\"]",
+              "applyPolicies": "[\"kyc-analyst-policy\", \"auditor-policy\", \"platform-admin-policy\", \"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "forms-list-own-permission",
+            "description": "List, page or search records (own records only) (Form)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"forms\"]",
+              "scopes": "[\"list-own\"]",
+              "applyPolicies": "[\"org-user-policy\"]"
+            }
+          },
+          {
+            "name": "forms-edit-permission",
+            "description": "Create or update a record (save is an upsert) (Form)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"forms\"]",
+              "scopes": "[\"edit\"]",
+              "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "forms-edit-own-permission",
+            "description": "Create or update a record (save is an upsert) (own records only) (Form)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"forms\"]",
+              "scopes": "[\"edit-own\"]",
+              "applyPolicies": "[\"org-admin-policy\"]"
+            }
+          },
+          {
+            "name": "forms-delete-permission",
+            "description": "Remove a record or one of its parts (Form)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"forms\"]",
+              "scopes": "[\"delete\"]",
+              "applyPolicies": "[\"platform-admin-policy\", \"super-admin-policy\"]"
+            }
+          },
+          {
+            "name": "forms-delete-own-permission",
+            "description": "Remove a record or one of its parts (own records only) (Form)",
+            "type": "scope",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "resources": "[\"forms\"]",
+              "scopes": "[\"delete-own\"]",
+              "applyPolicies": "[\"org-admin-policy\"]"
             }
           },
           {

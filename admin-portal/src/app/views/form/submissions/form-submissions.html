@@ -1,0 +1,79 @@
+<div class="kv-page">
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/forms">Forms</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">{{ form()?.code }}</span>
+    </nav>
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">{{ form()?.name || 'Form' }}</h1>
+        <p class="kv-subtitle">
+          {{ form()?.organisation }} · for
+          {{ 'target.entity.' + form()?.targetType | translate | lowercase }} clients. Publishing
+          the form adds it to the KYC records these clients already have; the others get it when
+          they start their KYC.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <section class="vs-results">
+    <div class="vs-results-head">
+      <h2 class="vs-results-title">Submissions</h2>
+      <span class="vs-count">{{ submissions().length }}</span>
+    </div>
+    <div class="vs-table-wrap">
+      <table class="vs-table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>KYC record</th>
+            <th>Status</th>
+            <th>Asked</th>
+            <th>Submitted</th>
+            <th>Reviewed</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (submission of submissions(); track submission.id) {
+            <tr>
+              <td>
+                <a [routerLink]="['/forms/submissions', submission.id]">
+                  {{ submission.clientName || ('target.entity.' + submission.target | translate) }}
+                </a>
+              </td>
+              <td>
+                <a class="dp-mono" [routerLink]="['/records', submission.kycRecordId]">
+                  {{ submission.kycRecordRef }}
+                </a>
+              </td>
+              <td>
+                <span class="kv-chip" [class]="tone(submission.status)">
+                  {{ 'form.submission.status.' + submission.status | translate }}
+                </span>
+              </td>
+              <td>{{ submission.createdAt | date: 'mediumDate' }}</td>
+              <td>
+                {{ submission.submittedAt | date: 'medium' }}
+                @if (submission.submittedBy) {
+                  <span class="dp-list-sub">· {{ submission.submittedBy }}</span>
+                }
+              </td>
+              <td>
+                {{ submission.reviewedAt | date: 'medium' }}
+                @if (submission.reviewedBy) {
+                  <span class="dp-list-sub">· {{ submission.reviewedBy }}</span>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="dp-list-sub">No client has this form to fill yet.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -36,6 +36,7 @@ import { KycRecordDTO } from '@app/models/bw/co/knowvera/kyc/kyc-record-dto';
 import { KycRecordApi } from '@app/services/bw/co/knowvera/kyc/kyc-record-api';
 import { KycReportSectionDTO } from '@app/models/bw/co/knowvera/kyc/fields/kyc-report-section-dto';
 import { AppEnvStore } from '@app/store/app-env.state';
+import { RequiredForms } from '@app/views/form/required-forms';
 
 type QueuedDocumentUpload = {
   file: File;
@@ -99,7 +100,8 @@ const SOURCE_OPTIONS = [
     MatSelectModule,
     FormsModule,
     QuillModule,
-    TranslateModule
+    TranslateModule,
+    RequiredForms
   ],
   templateUrl: './edit-kyc-record.html',
   styleUrls: ['./edit-kyc-record.scss'],
@@ -177,7 +179,6 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
 
   protected readonly formModel = linkedSignal<EditKycRecordValue>(() => {
     const record = this.record();
-    console.log(record)
     return record ? {
       id: record.id,
       createdAt: record.createdAt,
@@ -225,8 +226,6 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
   availableDocumentTypes = computed(() => {
     const record = this.formModel();
     const allTypes = (record?.target === 'INDIVIDUAL' ? this.indKycDocuments() : this.orgKycDocuments()) ?? [];
-    console.log('All types', allTypes);
-    console.log(record?.target)
     const uploadedTypes = record?.documents?.map((d: DocumentDTO) => d.documentTypeId) || [];
     return allTypes.filter((type: DocumentTypeDTO) => !uploadedTypes.includes(type.id));
   });
@@ -261,7 +260,6 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
 
     effect(() => {
       let individual = this.individualApiStore.data();
-      console.log(individual)
 
       if (individual && this.selectedTarget === TargetEntity.INDIVIDUAL) {
 
@@ -567,10 +565,8 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
     } as DocumentDTO));
 
     record.documents = [...(record.documents || []), ...docs];
-    console.log(files, docs)
 
     if (!record.id) {
-      console.log('Creating new record with documents...', record, files);
       this.kycRecordApiStore.createNew({
         record: record,
         files: files
@@ -580,7 +576,6 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
       this.loading.set(true);
       this.kycRecordApi.save(record).subscribe({
         next: (savedRecord) => {
-          console.log('Record saved, now uploading documents...', savedRecord);
           if ((files || []).length > 0) {
             this.kycRecordApiStore.updateRecordFiles({
               id: record.id,

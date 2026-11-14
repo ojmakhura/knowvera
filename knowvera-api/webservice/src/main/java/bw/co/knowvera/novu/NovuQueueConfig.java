@@ -86,6 +86,15 @@ public class NovuQueueConfig {
     @Value("${app.novu.queue.newKycRecordQueueRoutingKey}")
     private String newKycRecordQueueRoutingKey;
 
+    @Value("${app.novu.queue.formRequiredQueueExchange}")
+    private String formRequiredQueueExchange;
+
+    @Value("${app.novu.queue.formRequiredQueue}")
+    private String formRequiredQueue;
+
+    @Value("${app.novu.queue.formRequiredQueueRoutingKey}")
+    private String formRequiredQueueRoutingKey;
+
     /**
      * Retries a failed trigger with back-off, then republishes it, with the exception in its
      * headers, to the dead-letter exchange under its original routing key. The main queues keep
@@ -125,6 +134,7 @@ public class NovuQueueConfig {
         Queue newOrgUserDlq = QueueBuilder.durable(newOrgUserQueue + DLQ_SUFFIX).build();
         Queue newOrgClientRequestDlq = QueueBuilder.durable(newOrgClientRequestQueue + DLQ_SUFFIX).build();
         Queue newKycRecordDlq = QueueBuilder.durable(newKycRecordQueue + DLQ_SUFFIX).build();
+        Queue formRequiredDlq = QueueBuilder.durable(formRequiredQueue + DLQ_SUFFIX).build();
 
         return new Declarables(
                 exchange,
@@ -132,10 +142,12 @@ public class NovuQueueConfig {
                 newOrgUserDlq,
                 newOrgClientRequestDlq,
                 newKycRecordDlq,
+                formRequiredDlq,
                 BindingBuilder.bind(newUserDlq).to(exchange).with(newUserQueueRoutingKey),
                 BindingBuilder.bind(newOrgUserDlq).to(exchange).with(newOrgUserQueueRoutingKey),
                 BindingBuilder.bind(newOrgClientRequestDlq).to(exchange).with(newOrgClientRequestQueueRoutingKey),
-                BindingBuilder.bind(newKycRecordDlq).to(exchange).with(newKycRecordQueueRoutingKey));
+                BindingBuilder.bind(newKycRecordDlq).to(exchange).with(newKycRecordQueueRoutingKey),
+                BindingBuilder.bind(formRequiredDlq).to(exchange).with(formRequiredQueueRoutingKey));
     }
 
     @Bean
@@ -179,5 +191,15 @@ public class NovuQueueConfig {
                 newKycRecordExchange,
                 newKycRecordQ,
                 BindingBuilder.bind(newKycRecordQ).to(newKycRecordExchange).with(newKycRecordQueueRoutingKey));
+    }
+
+    @Bean
+    public Declarables formRequiredQueueSchema() {
+        DirectExchange formRequiredExchange = new DirectExchange(formRequiredQueueExchange);
+        Queue formRequiredQ = QueueBuilder.durable(formRequiredQueue).build();
+        return new Declarables(
+                formRequiredExchange,
+                formRequiredQ,
+                BindingBuilder.bind(formRequiredQ).to(formRequiredExchange).with(formRequiredQueueRoutingKey));
     }
 }

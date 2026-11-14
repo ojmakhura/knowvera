@@ -381,6 +381,9 @@
       }
     </section>
 
+    <!-- Custom forms that are part of the record -->
+    <app-record-forms class="kv-col-full" [kycRecordId]="record()?.id" />
+
     <section class="kv-card dp-tabs kv-col-full">
       <mat-tab-group [selectedIndex]="selectedSectionTabIndex()" (selectedIndexChange)="setSectionTab($event)" animationDuration="150ms">
         <mat-tab label="Documents">

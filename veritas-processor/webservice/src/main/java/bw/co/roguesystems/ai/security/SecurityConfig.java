@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,12 +22,14 @@ import org.springframework.security.web.SecurityFilterChain;
  * Bearer tokens from Keycloak. Access comes from the roles of the processor's client
  * (resource_access.&lt;veritas.security.client-id&gt;.roles):
  * <ul>
- * <li>profiles-view: read profiles and schemas</li>
- * <li>profiles-admin: read and save profiles and schemas</li>
+ * <li>profiles-view: read profiles and data processors</li>
+ * <li>profiles-admin: read and save profiles and data processors</li>
  * <li>jobs-submit: submit jobs and read their results</li>
  * </ul>
  */
 @Configuration
+// The processor model's endpoints carry their rule on the method (@PreAuthorize, a token scope)
+@EnableMethodSecurity
 public class SecurityConfig {
 
     public static final String PROFILES_VIEW = "profiles-view";
@@ -46,12 +49,21 @@ public class SecurityConfig {
                                 "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/profiles/**").hasAnyRole(PROFILES_VIEW, PROFILES_ADMIN)
                         .requestMatchers("/profiles/**").hasRole(PROFILES_ADMIN)
-                        .requestMatchers(HttpMethod.GET, "/schemas/**").hasAnyRole(PROFILES_VIEW, PROFILES_ADMIN)
-                        .requestMatchers("/schemas/**").hasRole(PROFILES_ADMIN)
                         .requestMatchers("/jobs/**").hasRole(JOBS_SUBMIT)
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(resourceServer -> resourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(converter)));
         return http.build();
+    }
+
+    /** The resources of the data processor endpoints. */
+    private static final List<String> PROCESSOR_RESOURCES = List.of("data-processors", "expected-fields");
+
+    /** profiles-view reads the data processors, profiles-admin also saves and removes them. */
+    static List<String> processorScopes(String role) {
+        List<String> actions = PROFILES_ADMIN.equals(role) ? List.of("view", "list", "edit", "delete")
+                : PROFILES_VIEW.equals(role) ? List.of("view", "list") : List.of();
+        return PROCESSOR_RESOURCES.stream().flatMap(resource -> actions.stream().map(action -> resource + ":" + action))
+                .toList();
     }
 
     static Collection<GrantedAuthority> clientRoles(Jwt jwt, String clientId) {
@@ -60,6 +72,17 @@ public class SecurityConfig {
                 && access.get(clientId) instanceof Map<?, ?> client
                 && client.get("roles") instanceof Collection<?> roles) {
             roles.forEach(role -> authorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
+            // The data processor endpoints are ruled by scope: the two profile roles carry them
+            roles.forEach(role -> processorScopes(String.valueOf(role))
+                    .forEach(scope -> authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope))));
+        }
+        // The token's scopes, as the method rules name them: SCOPE_data-processors:view
+        if (jwt.getClaim("scope") instanceof String scopes) {
+            for (String scope : scopes.trim().split("\\s+")) {
+                if (!scope.isEmpty()) {
+                    authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
+                }
+            }
         }
         return authorities;
     }

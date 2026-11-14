@@ -627,6 +627,30 @@
     },
     {
       "name": "document-types",
+      "path": "/document-types/processing/data-processors",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "document-types",
+      "path": "/document-types/processing/profiles",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "document-types",
       "path": "/document-types/search",
       "methods": [
         {
@@ -659,6 +683,18 @@
             "delete"
           ]
         },
+        {
+          "method": "GET",
+          "scopes": [
+            "view"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "document-types",
+      "path": "/document-types/{id}/data-processor",
+      "methods": [
         {
           "method": "GET",
           "scopes": [
@@ -1086,6 +1122,210 @@
           "scopes": [
             "view"
           ]
+        }
+      ]
+    },
+    {
+      "name": "form-submissions",
+      "path": "/form-submissions",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        }
+      ]
+    },
+    {
+      "name": "form-submissions",
+      "path": "/form-submissions/by-form/{formId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        }
+      ]
+    },
+    {
+      "name": "form-submissions",
+      "path": "/form-submissions/by-org/{organisationId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        }
+      ]
+    },
+    {
+      "name": "form-submissions",
+      "path": "/form-submissions/by-record/{kycRecordId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        }
+      ]
+    },
+    {
+      "name": "form-submissions",
+      "path": "/form-submissions/mine",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "self"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "form-submissions",
+      "path": "/form-submissions/search",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        }
+      ]
+    },
+    {
+      "name": "form-submissions",
+      "path": "/form-submissions/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete",
+            "delete-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        }
+      ]
+    },
+    {
+      "name": "form-submissions",
+      "path": "/form-submissions/{id}/status",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "review",
+            "review-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        }
+      ]
+    },
+    {
+      "name": "form-submissions",
+      "path": "/form-submissions/{id}/submit",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "submit",
+            "submit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        }
+      ]
+    },
+    {
+      "name": "form-submissions",
+      "path": "/form-submissions/{id}/values",
+      "methods": [
+        {
+          "method": "POST",
+          "scopes": [
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        }
+      ]
+    },
+    {
+      "name": "forms",
+      "path": "/forms",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        },
+        {
+          "method": "POST",
+          "scopes": [
+            "edit",
+            "edit-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        }
+      ]
+    },
+    {
+      "name": "forms",
+      "path": "/forms/by-org/{organisationId}",
+      "methods": [
+        {
+          "method": "GET",
+          "scopes": [
+            "list",
+            "list-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        }
+      ]
+    },
+    {
+      "name": "forms",
+      "path": "/forms/{id}",
+      "methods": [
+        {
+          "method": "DELETE",
+          "scopes": [
+            "delete",
+            "delete-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
+        },
+        {
+          "method": "GET",
+          "scopes": [
+            "view",
+            "view-own"
+          ],
+          "scopes-enforcement-mode": "ANY"
         }
       ]
     },

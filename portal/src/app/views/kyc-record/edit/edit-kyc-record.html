@@ -10,7 +10,7 @@
       <div>
         <h1 class="kv-title">Edit KYC Record</h1>
         @if (recordReference(); as recordReferenceValue) {
-          <p class="kv-subtitle">{{ recordReferenceValue }} | Last updated: 2 hours ago</p>
+          <p class="kv-subtitle">{{ recordReferenceValue }}@if (formModel().modifiedAt; as modifiedAt) { | Last updated: {{ modifiedAt | date: 'medium' }} }</p>
         }
       </div>
       <div class="kv-actions">
@@ -31,10 +31,6 @@
           <mat-icon class="kv-card-icon">person</mat-icon>
           <h2 class="kv-card-title">Owner Details</h2>
         </div>
-        <span class="kv-chip kv-tone-success">
-          <mat-icon>check_circle</mat-icon>
-          Verified
-        </span>
       </div>
 
       <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -43,11 +39,11 @@
           <dd class="kv-value">{{ formModel().ownerDetails?.name || 'N/A' }}</dd>
         </div>
         <div class="kv-field">
-          <dt class="kv-label">Date of Birth</dt>
+          <dt class="kv-label">Postal Address</dt>
           <dd class="kv-value">{{ formModel().ownerDetails?.postalAddress || 'N/A' }}</dd>
         </div>
         <div class="kv-field">
-          <dt class="kv-label">Nationality</dt>
+          <dt class="kv-label">Identity Type</dt>
           <dd class="kv-value">{{ formModel().ownerDetails?.identityType || 'N/A' }}</dd>
         </div>
         <div class="kv-field">
@@ -73,7 +69,11 @@
           <div class="flex flex-col gap-4">
             <div class="kv-meta-row">
               <span class="kv-meta-label">Overall Risk</span>
-              <span class="kv-chip kv-tone-warning">Medium Risk</span>
+              @if (record()?.riskLevel; as riskLevel) {
+                <span class="kv-chip">{{ riskLevel }}</span>
+              } @else {
+                <span class="kv-chip">Not assessed</span>
+              }
             </div>
 
             <mat-form-field appearance="outline" class="vault-field">
@@ -165,6 +165,9 @@
             }
           </div>
         </section>
+
+        <!-- Custom forms the organisations onboarding this client require -->
+        <app-required-forms [kycRecordId]="formModel().id" [newTab]="true" />
 
         <!-- Related parties: beneficial owners, managers, signatories and agents (Regulations r.7 to r.10, FI Act s.20(2)) -->
         <section class="kv-card">

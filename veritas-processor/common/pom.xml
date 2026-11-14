@@ -12,6 +12,19 @@
     <name>Veritas Processor Common</name>
     <description>Contracts shared with the callers: job requests and results, profiles and the messaging topology.</description>
     <dependencies>
+        <!-- The value objects of the processor model -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
         <!-- Only for VeritasTopology; callers that use it bring their own spring-amqp -->
         <dependency>
             <groupId>org.springframework.amqp</groupId>

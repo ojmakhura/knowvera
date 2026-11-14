@@ -73,7 +73,10 @@ public class NovuDeadLetterService {
             @Value("${app.novu.queue.newOrgClientRequestQueueRoutingKey}") String newOrgClientRequestRoutingKey,
             @Value("${app.novu.queue.newKycRecordQueue}") String newKycRecordQueue,
             @Value("${app.novu.queue.newKycRecordQueueExchange}") String newKycRecordExchange,
-            @Value("${app.novu.queue.newKycRecordQueueRoutingKey}") String newKycRecordRoutingKey) {
+            @Value("${app.novu.queue.newKycRecordQueueRoutingKey}") String newKycRecordRoutingKey,
+            @Value("${app.novu.queue.formRequiredQueue}") String formRequiredQueue,
+            @Value("${app.novu.queue.formRequiredQueueExchange}") String formRequiredExchange,
+            @Value("${app.novu.queue.formRequiredQueueRoutingKey}") String formRequiredRoutingKey) {
 
         this.rabbitTemplate = rabbitTemplate;
         this.amqpAdmin = amqpAdmin;
@@ -82,7 +85,8 @@ public class NovuDeadLetterService {
                 new Route(newUserQueue, newUserExchange, newUserRoutingKey),
                 new Route(newOrgUserQueue, newOrgUserExchange, newOrgUserRoutingKey),
                 new Route(newOrgClientRequestQueue, newOrgClientRequestExchange, newOrgClientRequestRoutingKey),
-                new Route(newKycRecordQueue, newKycRecordExchange, newKycRecordRoutingKey))) {
+                new Route(newKycRecordQueue, newKycRecordExchange, newKycRecordRoutingKey),
+                new Route(formRequiredQueue, formRequiredExchange, formRequiredRoutingKey))) {
             routes.put(route.queue(), route);
         }
     }

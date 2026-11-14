@@ -1,0 +1,176 @@
+<div class="kv-page">
+  @if (submission(); as s) {
+    <header>
+      <div class="kv-page-header">
+        <div>
+          <h1 class="kv-title">{{ s.formName }}</h1>
+          <p class="kv-subtitle">
+            {{ s.organisation }}
+            @if (s.kycRecordRef) {
+              · part of KYC record {{ s.kycRecordRef }}
+            }
+            @if (s.dueDate) {
+              · due {{ s.dueDate | date: 'mediumDate' }}
+            }
+          </p>
+        </div>
+        <div class="kv-actions">
+          <span class="kv-chip" [class]="tone(s.status)">
+            {{ 'form.submission.status.' + s.status | translate }}
+          </span>
+          @if (editable()) {
+            <button type="button" class="kv-btn-secondary" [disabled]="busy()" (click)="saveDraft()">
+              <mat-icon>save</mat-icon> Save Draft
+            </button>
+            <button type="button" class="kv-btn-primary" [disabled]="busy()" (click)="submit()">
+              <mat-icon>send</mat-icon> Submit
+            </button>
+          }
+        </div>
+      </div>
+    </header>
+
+    @if (returned() && s.reviewNote) {
+      <section class="kv-card mb-6" role="alert">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">undo</mat-icon>
+          <h2 class="kv-card-title">Returned for correction</h2>
+        </div>
+        <p class="whitespace-pre-line">{{ s.reviewNote }}</p>
+      </section>
+    }
+
+    @if (s.form?.description) {
+      <p class="text-on-surface-variant mb-6 whitespace-pre-line">{{ s.form.description }}</p>
+    }
+
+    <form class="flex flex-col gap-6" novalidate (submit)="$event.preventDefault()">
+      @for (section of sections(); track section.id) {
+        <section class="kv-card">
+          <div class="kv-card-header">
+            <mat-icon class="kv-card-icon">view_agenda</mat-icon>
+            <h2 class="kv-card-title">{{ section.label }}</h2>
+          </div>
+          @if (section.description) {
+            <p class="text-sm text-on-surface-variant mb-4">{{ section.description }}</p>
+          }
+
+          <div class="flex flex-col gap-5">
+            @for (field of section.fields; track field.id) {
+              @let inputId = 'field_' + field.fieldId;
+              <div class="kv-field">
+                @if (field.fieldType === 'CHECKBOX') {
+                  <label class="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      [id]="inputId"
+                      [checked]="answer(field) === 'true'"
+                      [disabled]="!editable()"
+                      (change)="setAnswer(field, $any($event.target).checked ? 'true' : 'false')"
+                    />
+                    <span>
+                      {{ field.label }}
+                      @if (field.required) {
+                        <span aria-hidden="true">*</span>
+                      }
+                    </span>
+                  </label>
+                } @else {
+                  <label class="kv-label" [for]="inputId">
+                    {{ field.label }}
+                    @if (field.required) {
+                      <span aria-hidden="true">*</span>
+                    }
+                  </label>
+
+                  @if (inputType(field); as type) {
+                    <input
+                      class="kv-input"
+                      [type]="type"
+                      [id]="inputId"
+                      [placeholder]="field.placeholder || ''"
+                      [attr.min]="field.minValue"
+                      [attr.max]="field.maxValue"
+                      [attr.minlength]="field.minLength"
+                      [attr.maxlength]="field.maxLength"
+                      [attr.step]="type === 'number' ? 'any' : null"
+                      [required]="field.required"
+                      [disabled]="!editable()"
+                      [value]="answer(field)"
+                      (input)="setAnswer(field, $any($event.target).value)"
+                    />
+                  } @else if (field.fieldType === 'TEXTAREA') {
+                    <textarea
+                      class="kv-input"
+                      rows="4"
+                      [id]="inputId"
+                      [placeholder]="field.placeholder || ''"
+                      [attr.maxlength]="field.maxLength"
+                      [required]="field.required"
+                      [disabled]="!editable()"
+                      [value]="answer(field)"
+                      (input)="setAnswer(field, $any($event.target).value)"
+                    ></textarea>
+                  } @else if (field.fieldType === 'SELECT') {
+                    <select
+                      class="kv-input"
+                      [id]="inputId"
+                      [required]="field.required"
+                      [disabled]="!editable()"
+                      (change)="setAnswer(field, $any($event.target).value)"
+                    >
+                      <option value="" [selected]="!answer(field)">Select...</option>
+                      @for (option of field.options; track option) {
+                        <option [value]="option" [selected]="answer(field) === option">
+                          {{ option }}
+                        </option>
+                      }
+                    </select>
+                  } @else if (field.fieldType === 'RADIO') {
+                    <div class="flex flex-col gap-2" role="radiogroup" [attr.aria-label]="field.label">
+                      @for (option of field.options; track option) {
+                        <label class="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            [name]="inputId"
+                            [checked]="answer(field) === option"
+                            [disabled]="!editable()"
+                            (change)="setAnswer(field, option)"
+                          />
+                          {{ option }}
+                        </label>
+                      }
+                    </div>
+                  } @else if (field.fieldType === 'MULTI_SELECT') {
+                    <div class="flex flex-col gap-2" role="group" [attr.aria-label]="field.label">
+                      @for (option of field.options; track option) {
+                        <label class="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            [checked]="isChosen(field, option)"
+                            [disabled]="!editable()"
+                            (change)="toggleChoice(field, option, $any($event.target).checked)"
+                          />
+                          {{ option }}
+                        </label>
+                      }
+                    </div>
+                  }
+                }
+                @if (field.description) {
+                  <p class="text-sm text-on-surface-variant">{{ field.description }}</p>
+                }
+              </div>
+            }
+          </div>
+        </section>
+      } @empty {
+        <section class="kv-card">
+          <p class="text-sm text-on-surface-variant">This form has no questions.</p>
+        </section>
+      }
+    </form>
+  } @else {
+    <p class="text-sm text-on-surface-variant">Loading the form...</p>
+  }
+</div>

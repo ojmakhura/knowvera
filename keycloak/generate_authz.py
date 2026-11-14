@@ -68,6 +68,8 @@ RESOURCES = {
     "documents":                   "Uploaded documents and their verification",
     "employment-records":          "Individuals' employment history",
     "expected-fields":             "Reference: fields expected on a document type",
+    "form-submissions":            "Clients' answers to the custom forms of an organisation",
+    "forms":                       "Custom forms an organisation designs for its clients to fill",
     "individuals":                 "Individuals (KYC subjects)",
     "invoices":                    "Invoices",
     "keycloak":                    "Realm and client role names, and the caller's own permissions",
@@ -115,6 +117,15 @@ ENDPOINT_SCOPES = {
     "SuspicionCaseApi.recordReport": "review",
     "SuspicionCaseApi.close": "review",
     "SuspicionCaseApi.draftReport": "export",
+    # What veritas-processor offers a document type (its profiles and data processors), and the
+    # data processor of one type: read with the document types themselves
+    "ProcessingConfigApi.processingProfiles": "list",
+    "ProcessingConfigApi.dataProcessors": "list",
+    "ProcessingConfigApi.dataProcessor": "view",
+    # The client hands the answers to a custom form over to the organisation that issued it
+    "FormSubmissionApi.submit": "submit",
+    # The forms on one KYC record: its owner reads them with the record, without the right to list
+    "FormSubmissionApi.findByKycRecord": "view",
 }
 
 # --------------------------------------------------------------------------
@@ -272,6 +283,8 @@ GRANTS = {
         "documents": ("view", "edit", "delete", "submit", "export"),
         "organisations": ("view", "edit"),
         "client-requests": ("view",),
+        # Forms the applicant was asked to fill: read, answer and submit; the definition comes with them
+        "form-submissions": ("view", "edit", "submit"),
     },
     "ORG_USER": {
         "organisations": READ,
@@ -282,11 +295,17 @@ GRANTS = {
         "kyc-records": ("view", "list", "edit", "delete", "submit", "export"),
         "documents": ("view", "list", "edit", "submit", "export"),
         "contacts": ("view", "list", "edit"),
+        # Custom forms: give the organisation's forms to clients and decide on the answers;
+        # also answer the forms the organisation itself was asked to fill
+        "forms": READ,
+        "form-submissions": ("view", "list", "edit", "submit", "review"),
     },
     "ORG_ADMIN": {
         "organisations": ("edit",),
         "organisation-branches": ("edit", "delete"),
         "organisation-document-types": ("edit", "delete"),
+        "forms": ("edit", "delete"),  # designs the organisation's custom forms
+        "form-submissions": ("delete",),
         "users": ("view", "list", "edit", "manage"),
         "keycloak": ("list",),  # role names for assigning roles
         "client-requests": ("delete", "review"),
@@ -308,6 +327,7 @@ GRANTS = {
         "employment-records": ("view", "list", "edit"),
         "contacts": ("view", "list", "edit"),
         "client-requests": READ,
+        **grant(["forms", "form-submissions"], READ),
         "screening": ("list", "verify"),
         # Any analyst may raise a suspicion (and add to it) without seeing other cases
         "suspicion-cases": ("edit",),
@@ -315,6 +335,7 @@ GRANTS = {
     "KYC_REVIEWER": {
         "kyc-records": ("review",),
         "documents": ("review",),
+        "form-submissions": ("review",),  # accepts clients' answers to custom forms or returns them
     },
     # The approve / reject decision goes through the same status endpoint as a review; the
     # service distinguishes them, so the approver adds no API permission of its own.
@@ -371,6 +392,8 @@ GRANTS = {
         "novu": ("view", "edit"),  # dead-letter counts and re-drive
         "organisation-branches": ALL,
         "organisation-document-types": ALL,
+        "forms": ALL,
+        "form-submissions": READ,
         "audit-logs": READ,
         "screening": ("list", "edit"),  # refresh the sanctions lists
     },
@@ -830,7 +853,7 @@ VERITAS_ROLES = {
     "profiles-admin": "Read and save the processing profiles",
     "jobs-submit": "Submit processing jobs over the API and read their results",
 }
-# The API's service account saves the document schemas in veritas-processor (VeritasSchemaSync); its
+# The API's service account saves the data processors in veritas-processor (VeritasProcessorSync); its
 # jobs go over RabbitMQ and need no role
 API_VERITAS_ROLES = ["profiles-admin"]
 TEST_SECRET = "test-secret"

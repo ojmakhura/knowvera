@@ -14,7 +14,7 @@ import bw.co.roguesystems.ai.profile.ProcessingProfileService;
 
 /** With Hibernate's schema generation off, the changelog still makes the whole schema. */
 @SpringBootTest(properties = { "veritas.liquibase.enabled=true", "spring.jpa.hibernate.ddl-auto=none",
-        "spring.datasource.url=jdbc:h2:mem:veritas-liquibase-only;DB_CLOSE_DELAY=-1" })
+        "spring.datasource.url=jdbc:h2:mem:veritas-liquibase-only;DB_CLOSE_DELAY=-1;INIT=CREATE DOMAIN IF NOT EXISTS JSONB AS JSON" })
 @ActiveProfiles("test")
 class LiquibaseWithoutHibernateDdlTests {
 
@@ -28,9 +28,9 @@ class LiquibaseWithoutHibernateDdlTests {
     @Test
     void theChangelogMakesTheWholeSchema() {
         assertThat(context.getBeansOfType(LiquibaseAfterHibernate.class)).hasSize(1);
-        assertThat(jdbc.queryForList("SELECT exectype FROM databasechangelog", String.class)).hasSize(4)
+        assertThat(jdbc.queryForList("SELECT exectype FROM databasechangelog", String.class)).hasSize(5)
                 .containsOnly("EXECUTED");
         assertThat(profiles.exists("default")).isTrue();
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM veritas_schema", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM data_processor", Integer.class)).isZero();
     }
 }

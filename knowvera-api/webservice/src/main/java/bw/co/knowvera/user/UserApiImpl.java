@@ -147,7 +147,8 @@ public class UserApiImpl implements UserApi {
                     guard.checkCanAssign(changed, "users:manage");
                 }
             }
-            keycloakUserService.updateUser(savedUser);
+            keycloakUserService.updateUser(user);
+            savedUser = keycloakUserService.findUserById(user.getUserId());
         }
 
         // Never echo a password back

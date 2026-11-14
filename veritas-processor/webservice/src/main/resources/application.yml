@@ -22,13 +22,39 @@ spring:
   liquibase:
     # Not at startup, before Hibernate: see veritas.liquibase
     enabled: false
+  cache:
+    redis:
+      # How long a cached data processor, field or field group is kept (saving one clears its caches)
+      time-to-live: ${VERITAS_CACHE_TTL:30m}
+      cache-null-values: false
+  data:
+    redis:
+      # The cache of the data processor services (the same REDIS_* settings as knowvera-api; the
+      # keys start with "veritas:"). A cache that cannot be reached is logged and skipped.
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: ${REDIS_TIMEOUT:2000}
+      repositories:
+        enabled: false
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+          max-wait: 3s
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
+    template:
+      # The result of a job carries the job's trace on
+      observation-enabled: true
     listener:
       simple:
+        # A job continues the trace of the message that brought it
+        observation-enabled: true
         default-requeue-rejected: false
         # Jobs take minutes: a consumer holds one at a time, the rest stay queued for other consumers
         prefetch: 1
@@ -67,11 +93,11 @@ spring:
           # Extraction must give the same answer for the same document
           temperature: 0
 springdoc:
-  # The API documentation needs no sign-in: turn it off where the port is reachable from outside
+  # The API documentation needs no sign-in: off unless turned on (local development)
   api-docs:
-    enabled: ${VERITAS_API_DOCS:true}
+    enabled: ${VERITAS_API_DOCS:false}
   swagger-ui:
-    enabled: ${VERITAS_API_DOCS:true}
+    enabled: ${VERITAS_API_DOCS:false}
     path: /swagger-ui.html
 logging:
   pattern:
@@ -84,15 +110,50 @@ management:
   endpoints:
     web:
       exposure:
+        # Metrics are pushed over OTLP; health and info only, the rest is not reachable over HTTP
         include: ${ACTUATOR_EXPOSURE:health,info}
+  # OpenTelemetry: traces, metrics (veritas.step, veritas.jobs and the JVM, HTTP and queue ones) and
+  # logs go to the collector at OTLP_URL (its HTTP port, 4318). VERITAS_OTEL_EXPORT=false turns the
+  # three exports off, e.g. where there is no collector.
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      # The share of jobs and requests traced when the caller did not decide (a job from
+      # knowvera-api continues its trace)
+      probability: ${VERITAS_TRACE_SAMPLING:1.0}
+    export:
+      enabled: ${VERITAS_OTEL_EXPORT:true}
+  otlp:
+    metrics:
+      export:
+        enabled: ${VERITAS_OTEL_EXPORT:true}
+        url: ${OTLP_URL:http://localhost:4318}/v1/metrics
+  logging:
+    export:
+      otlp:
+        enabled: ${VERITAS_OTEL_EXPORT:true}
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTLP_URL:http://localhost:4318}/v1/traces
+    logging:
+      export:
+        otlp:
+          endpoint: ${OTLP_URL:http://localhost:4318}/v1/logs
 veritas:
+  cache:
+    # false: no caching (every call of the data processor services reads the database)
+    enabled: ${VERITAS_CACHE:true}
   liquibase:
     # Off by default. When on, the changelog runs once Hibernate has initialised: change sets for
     # what Hibernate already made are marked as run, the others are applied
     enabled: ${VERITAS_LIQUIBASE:false}
     change-log: classpath:db/changelog/veritas-changelog.xml
   # Never send documents out of the deployment (Gemini steps fall back to their next provider)
-  local-only: ${VERITAS_LOCAL_ONLY:${PROCESSING_LOCAL_ONLY:false}}
+  local-only: ${VERITAS_LOCAL_ONLY:${PROCESSING_LOCAL_ONLY:true}}
   storage:
     endpoint: ${S3_ENDPOINT:${MINIO_URL:}}
     bucket: ${S3_BUCKET:${MINIO_BUCKET:knowvera}}

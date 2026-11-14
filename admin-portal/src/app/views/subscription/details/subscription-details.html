@@ -2,7 +2,7 @@
   <!-- Header -->
   <header class="dp-header">
     <nav class="kv-breadcrumb" aria-label="Breadcrumb">
-      <a routerLink="/subscription">Subscriptions</a>
+      <a routerLink="/subscriptions">Subscriptions</a>
       <mat-icon>chevron_right</mat-icon>
       <span class="kv-breadcrumb-current">{{ subscription().ref || 'Details' }}</span>
     </nav>
@@ -165,7 +165,7 @@
           <p class="dp-head-sub">Invoices raised against this subscription</p>
         </div>
         <div class="dp-head-aside flex items-center gap-2">
-          <button type="button" class="kv-btn-secondary" [routerLink]="['/invoice']">View All</button>
+          <button type="button" class="kv-btn-secondary" [routerLink]="['/invoices']">View All</button>
           <button type="button" class="kv-btn-primary" (click)="addInvoice()">
             <mat-icon>add</mat-icon>
             {{ 'invoice.add' | translate }}

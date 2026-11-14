@@ -3,7 +3,7 @@
   <!-- Header -->
   <header>
     <nav class="kv-breadcrumb" aria-label="Breadcrumb">
-      <a routerLink="/subscription">Subscriptions</a>
+      <a routerLink="/subscriptions">Subscriptions</a>
       <mat-icon>chevron_right</mat-icon>
       @if (editSubscriptionSignal().ref) {
         <span>{{ editSubscriptionSignal().ref }}</span>
@@ -18,7 +18,7 @@
         <p class="kv-subtitle">Configure compliance parameters, organisational mapping, and financial terms.</p>
       </div>
       <div class="kv-actions">
-        <button type="button" class="kv-btn-secondary" [routerLink]="['/subscription']">Cancel</button>
+        <button type="button" class="kv-btn-secondary" [routerLink]="['/subscriptions']">Cancel</button>
         <button type="submit" form="subscription-edit-form" class="kv-btn-primary" [disabled]="editSubscriptionSignalForm().invalid()">
           <mat-icon>save</mat-icon>
           Save Changes

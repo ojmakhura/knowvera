@@ -43,6 +43,7 @@ import { ScreeningHitStatus } from '@app/models/bw/co/knowvera/screening/screeni
 import { SuspicionCaseApi } from '@app/services/bw/co/knowvera/suspicion/suspicion-case-api';
 import { SuspicionCaseDTO } from '@app/models/bw/co/knowvera/suspicion/suspicion-case-dto';
 import { SuspicionTrigger } from '@app/models/bw/co/knowvera/suspicion/suspicion-trigger';
+import { RecordForms } from './record-forms';
 
 @Component({
   selector: 'app-record-details',
@@ -51,6 +52,7 @@ import { SuspicionTrigger } from '@app/models/bw/co/knowvera/suspicion/suspicion
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [DatePipe],
   imports: [
+    RecordForms,
     MatProgressBarModule,
     RouterLink,
     CommonModule,

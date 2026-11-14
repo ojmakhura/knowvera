@@ -14,6 +14,7 @@ export class DocumentTypeDTO extends AuditableDTO {
     expectedFields: Array<ExpectedFieldDTO> | any;
     
     processingProfileCode: string | any;
+    dataProcessorId: string | any;
     
     verificationDataConfigs: Array<VerificationDataConfigDTO> | any;
     
@@ -36,6 +37,7 @@ export class DocumentTypeDTO extends AuditableDTO {
         this.description = null;
         this.expectedFields = [];
         this.processingProfileCode = null;
+        this.dataProcessorId = null;
         this.verificationDataConfigs = [];
         this.expires = false;
         this.expiryField = null;

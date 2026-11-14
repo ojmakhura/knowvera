@@ -54,21 +54,27 @@ stamp), so OCR runs.
 Saving a profile (`PUT /profiles/{code}`) adds a version; versions never change and every job
 records the version it ran with. The `default` profile is created on first start.
 
-## Schemas
+## Data processors
 
-A schema is a named set of fields to extract from text: a code, a name (a label) and its fields
-(`FieldSpec`: name, label, type, format, many, mandatory). A schema is not tied to what the text
-is: any job can name it, for a stored document or for text the job brings itself (`fromStep`
-`FIELD_EXTRACTION` with `text`), and several kinds of text can share one. Schemas are configured
-here, through `/schemas` (`GET /schemas`, `GET /schemas/{code}`, `GET /schemas/{code}/versions`,
-`PUT /schemas/{code}`; the `profiles-view` and `profiles-admin` roles). Saving a schema adds a
-version; a save that changes nothing keeps the version.
+A data processor defines what is to be done with a kind of data. It has a code, a name, and:
 
-A job names the schema to extract with in `schemaCode` (fields given in `fields` win). What the
-text is belongs to the job, not the schema: for classification the job gives the expected type's
+- its **expected fields**: the fields to extract (name, label, type, format, many, mandatory);
+- **prompts of its own**, when it needs them: validation prompts (a system and a user message)
+  replace the profile's classification prompts for its jobs, text extraction prompts those of the
+  text extraction step. The steps, providers, models and options stay the profile's.
+
+veritas-processor only reads documents. Matching the extracted values to a client's record, the
+verification configs and the expiry rules of a document type belong to knowvera-api.
+
+Data processors are managed through `/data-processors` and `/expected-fields`. Each operation needs
+its scope (`data-processors:view`, `:list`, `:edit`, `:delete`, and the same for `expected-fields`), from the
+token's `scope` claim; the roles `profiles-view` (view, list) and `profiles-admin` (all) carry them.
+
+A job names its data processor by id in `processorId`: the processor's expected fields are the fields
+to extract (fields given in `fields` win). For classification the job gives the expected type's
 name in `documentType` and the types to choose from in `candidateTypes`, each with its name and
-either its fields or the `schemaCode` that holds them. A job whose own schema does not exist
-fails; a candidate type whose schema does not exist stays a candidate, without fields.
+either its fields or the `processorId` of the data processor that holds them. A job whose own data processor does not
+exist fails; a candidate type whose processor does not exist stays a candidate, without fields.
 
 ## Jobs
 
@@ -100,7 +106,7 @@ Metrics (`/actuator/prometheus` when exposed): `veritas.step` (timer; step, prov
    - the client `veritas-processor` (no sign-in flows) with client roles `profiles-view`,
      `profiles-admin` and `jobs-submit`;
    - a `veritas-processor` audience mapper on `knowvera-api`, whose service account gets
-     `profiles-admin` (it saves its schemas).
+     `profiles-admin` (it saves the data processors).
 
    Keycloak imports the realm only when it does not exist yet (`--import-realm`); on a running
    Keycloak, import `knowvera-realm.json` through the admin console (Realm settings → Partial
@@ -118,18 +124,42 @@ confirmation through its own KYC rules (`DocumentConfirmationService`), after wh
 confirmation and verification continue in knowvera-api. A document type names its profile in
 `processingProfileCode` (blank: `PROCESSING_DEFAULT_PROFILE`).
 
-The fields to extract are configured in veritas-processor. knowvera-api keeps one schema per
-document type there, under the type's code (`VeritasJobFactory.schemaCode`): a job names that
-schema, and gives the document types classification chooses from by name, each with its schema.
-The extracted fields come back normalised to their type: every field of the schema present (null
+A document type is linked to a data processor here by its id (`dataProcessorId`), which defines what is done with its documents. A job names that
+processor, and gives the document types classification chooses from by name, each with its
+processor.
+The extracted fields come back normalised to their type: every expected field present (null
 when not found), numbers and booleans as JSON values, ISO dates, lists for `many` fields.
 
 knowvera-api keeps no processing settings of its own: the steps, models and prompts are profiles
-here, and the definition of every field to extract (label, type, format, many, mandatory) is in
-the document type's schema here and read from it (`VeritasFieldDefinitions`, cached for
-`VERITAS_SCHEMA_CACHE`). Its expected fields keep a field's name and what the value is matched
-against. Saving expected fields there saves their definitions to the schema first, so the save
-fails when veritas-processor cannot be reached.
+here, and the definition of every expected field (label, type, format, many, mandatory) is in the
+document type's data processor here and read from it (`VeritasFieldDefinitions`, cached for
+`VERITAS_PROCESSOR_CACHE`). Saving a document type or expected fields there saves the fields to
+the data processor first (`VeritasProcessorSync`), making the processor when it does not exist
+yet, so the save fails when veritas-processor cannot be reached.
+
+## Cache
+
+The data processor services cache what they read in Redis (`REDIS_HOST`, `REDIS_PORT`,
+`REDIS_PASSWORD`, the same server as knowvera-api; veritas-processor's keys start with `veritas:`).
+An entry is kept for `VERITAS_CACHE_TTL` (default `30m`), and saving or removing a data processor
+or one of its fields clears its caches. When Redis cannot be reached the
+failure is logged and the call reads the database. `VERITAS_CACHE=false` turns caching off. Jobs
+always read their data processor from the database.
+
+## Observability
+
+veritas-processor exports to an OpenTelemetry collector over OTLP (HTTP), at `OTLP_URL` (the
+collector's port 4318; the same setting as knowvera-api):
+
+- **traces**: every request and job. A job taken from the queue continues the trace of the message
+  that brought it, and its result carries the trace on, so a document can be followed from
+  knowvera-api through its processing and back. `VERITAS_TRACE_SAMPLING` (default `1.0`) is the
+  share traced when the caller did not decide;
+- **metrics**: `veritas.step` (timer; step, provider, status), `veritas.jobs` (counter; status) and
+  the JVM, HTTP, database and queue metrics, tagged `application=veritas-processor`;
+- **logs**: every log line, with the job id (`jobId`) and the trace it belongs to.
+
+`VERITAS_OTEL_EXPORT=false` turns the three exports off, for where there is no collector.
 
 ## Build
 

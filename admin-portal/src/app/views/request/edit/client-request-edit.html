@@ -3,7 +3,7 @@
   <!-- Header -->
   <header>
     <nav class="kv-breadcrumb" aria-label="Breadcrumb">
-      <a routerLink="/client-request">Client Requests</a>
+      <a routerLink="/client-requests">Client Requests</a>
       <mat-icon>chevron_right</mat-icon>
       <span class="kv-breadcrumb-current">{{ editClientRequestSignal().id ? 'Edit' : 'Create' }}</span>
     </nav>
@@ -62,7 +62,7 @@
                 <p class="kv-meta-value font-medium">{{ organisation?.name }}</p>
                 <p class="kv-meta-label">{{ organisation?.registrationNo }}</p>
               </div>
-              <a class="kv-btn-subtle" [routerLink]="['/organisation', organisation?.id]">
+              <a class="kv-btn-subtle" [routerLink]="['/organisations', organisation?.id]">
                 <mat-icon>open_in_new</mat-icon>
                 View
               </a>

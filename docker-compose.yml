@@ -146,6 +146,16 @@ services:
       VERITAS_DB_PASSWORD: ${VERITAS_DB_PASSWORD:-veritas}
       # Hibernate makes the tables; true also runs the Liquibase changelog, after Hibernate
       VERITAS_LIQUIBASE: ${VERITAS_LIQUIBASE:-false}
+      # --- Redis: the cache of the data processor services (shared server, keys start with veritas:) ---
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      VERITAS_CACHE: ${VERITAS_CACHE:-true}
+      VERITAS_CACHE_TTL: ${VERITAS_CACHE_TTL:-30m}
+      # --- Observability: traces, metrics and logs to the collector's OTLP HTTP port ---
+      OTLP_URL: ${OTLP_URL:-http://localhost:4318}
+      VERITAS_OTEL_EXPORT: ${VERITAS_OTEL_EXPORT:-true}
+      VERITAS_TRACE_SAMPLING: ${VERITAS_TRACE_SAMPLING:-1.0}
       # --- RabbitMQ (jobs and results: x.veritas) ---
       RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
       RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
@@ -163,7 +173,7 @@ services:
       S3_SECRET_KEY: ${VERITAS_S3_SECRET_KEY:-${S3_SECRET_KEY:-${MINIO_SECRET_KEY:-}}}
       S3_BUCKET: ${S3_BUCKET:-${MINIO_BUCKET:-knowvera}}
       # --- Providers ---
-      VERITAS_LOCAL_ONLY: ${VERITAS_LOCAL_ONLY:-${PROCESSING_LOCAL_ONLY:-false}}
+      VERITAS_LOCAL_ONLY: ${VERITAS_LOCAL_ONLY:-${PROCESSING_LOCAL_ONLY:-true}}
       TESSDATA_PREFIX: ${TESSDATA_PREFIX:-/usr/share/tesseract-ocr/5/tessdata}
       TESSDATA_LANGS: ${TESSDATA_LANGS:-eng}
       LLM_MODEL: ${LLM_MODEL:-gemma4}

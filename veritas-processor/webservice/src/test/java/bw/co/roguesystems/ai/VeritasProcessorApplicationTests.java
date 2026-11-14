@@ -139,35 +139,35 @@ class VeritasProcessorApplicationTests {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void savingASchemaAddsAVersionOnlyWhenItsFieldsChange() throws Exception {
-        String schema = """
-                {"name": "National ID", "fields": [{"name": "idNumber", "type": "STRING", "mandatory": true},
-                 {"name": "dateOfBirth", "type": "DATE", "format": "dd/MM/yyyy"}]}""";
-        mvc.perform(put("/schemas/NID").with(role("profiles-admin")).contentType(MediaType.APPLICATION_JSON)
-                .content(schema)).andExpect(status().isOk()).andExpect(jsonPath("$.version").value(1));
-        mvc.perform(put("/schemas/NID").with(role("profiles-admin")).contentType(MediaType.APPLICATION_JSON)
-                .content(schema)).andExpect(status().isOk()).andExpect(jsonPath("$.version").value(1));
-        mvc.perform(put("/schemas/NID").with(role("profiles-admin")).contentType(MediaType.APPLICATION_JSON)
-                .content(schema.replace("dateOfBirth", "birthDate")))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.version").value(2));
-
-        mvc.perform(get("/schemas/NID").with(role("profiles-view"))).andExpect(status().isOk())
-                .andExpect(jsonPath("$.fields[1].name").value("birthDate"))
-                .andExpect(jsonPath("$.fields[0].mandatory").value(true));
-        mvc.perform(get("/schemas/NID/versions/1").with(role("profiles-view")))
-                .andExpect(jsonPath("$.fields[1].name").value("dateOfBirth"));
-        mvc.perform(get("/schemas").with(role("profiles-view")))
-                .andExpect(jsonPath("$[?(@.code == 'NID')].version").value(2));
+    private static RequestPostProcessor scopes(String... scopes) {
+        return jwt().jwt(token -> token.claim("preferred_username", "admin"))
+                .authorities(java.util.Arrays.stream(scopes)
+                        .map(scope -> (org.springframework.security.core.GrantedAuthority) new SimpleGrantedAuthority(
+                                "SCOPE_" + scope))
+                        .toList());
     }
 
     @Test
-    void invalidSchemasAreBadRequestsAndOnlyAdminsSaveThem() throws Exception {
-        mvc.perform(put("/schemas/DUP").with(role("profiles-admin")).contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\": \"Dup\", \"fields\": [{\"name\": \"a\"}, {\"name\": \"A\"}]}"))
-                .andExpect(status().isBadRequest());
-        mvc.perform(put("/schemas/X").with(role("profiles-view")).contentType(MediaType.APPLICATION_JSON)
-                .content("{\"name\": \"X\"}")).andExpect(status().isForbidden());
-        mvc.perform(get("/schemas/missing").with(role("profiles-view"))).andExpect(status().isNotFound());
+    void aModelledDataProcessorIsSavedAndReadWithItsPrompts() throws Exception {
+        String processor = """
+                {"code": "PAYSLIP", "name": "Payslip",
+                 "validationPrompts": [{"role": "system", "content": "Check the payslip"}]}""";
+        String id = com.jayway.jsonpath.JsonPath.read(mvc.perform(post("/data-processors")
+                .with(scopes("data-processors:edit")).contentType(MediaType.APPLICATION_JSON).content(processor))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.code").value("PAYSLIP"))
+                .andReturn().getResponse().getContentAsString(), "$.id");
+
+        mvc.perform(get("/data-processors/" + id).with(scopes("data-processors:view")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.name").value("Payslip"))
+                .andExpect(jsonPath("$.validationPrompts[0].content").value("Check the payslip"));
+    }
+
+    @Test
+    void theModelledEndpointsNeedTheirScope() throws Exception {
+        mvc.perform(get("/data-processors")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/data-processors").with(role("profiles-admin"))).andExpect(status().isForbidden());
+        mvc.perform(get("/data-processors").with(scopes("data-processors:view"))).andExpect(status().isForbidden());
+        mvc.perform(get("/expected-fields/" + java.util.UUID.randomUUID()).with(role("jobs-submit")))
+                .andExpect(status().isForbidden());
     }
 }

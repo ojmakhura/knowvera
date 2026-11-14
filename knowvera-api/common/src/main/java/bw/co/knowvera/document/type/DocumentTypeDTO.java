@@ -85,6 +85,13 @@ public class DocumentTypeDTO
     @Nullable
     protected String processingProfileCode;
 
+    /**
+     * The veritas-processor data processor that defines what is done with documents of this type
+     * (its id there).
+     */
+    @Nullable
+    protected String dataProcessorId;
+
     /** Default Constructor with no properties */
     public DocumentTypeDTO()
     {
@@ -159,6 +166,7 @@ public class DocumentTypeDTO
         this.expectedFieldCount = otherBean.getExpectedFieldCount();
         this.verificationConfigCount = otherBean.getVerificationConfigCount();
         this.processingProfileCode = otherBean.getProcessingProfileCode();
+        this.dataProcessorId = otherBean.getDataProcessorId();
     }
 
     /**
@@ -182,6 +190,7 @@ public class DocumentTypeDTO
             this.setExpectedFieldCount(otherBean.getExpectedFieldCount());
             this.setVerificationConfigCount(otherBean.getVerificationConfigCount());
             this.setProcessingProfileCode(otherBean.getProcessingProfileCode());
+            this.setDataProcessorId(otherBean.getDataProcessorId());
         }
     }
 
@@ -388,6 +397,23 @@ public class DocumentTypeDTO
     }
 
     /**
+     * The veritas-processor data processor for documents of this type
+     * @return dataProcessorId String
+     */
+    public String getDataProcessorId()
+    {
+        return this.dataProcessorId;
+    }
+
+    /**
+     * @param value String
+     */
+    public void setDataProcessorId(final String value)
+    {
+        this.dataProcessorId = value;
+    }
+
+    /**
      * TODO: Model Documentation for DocumentTypeDTO.expectedFieldCount
      * Get the expectedFieldCount Attribute
      * @return expectedFieldCount Integer
@@ -459,6 +485,7 @@ public class DocumentTypeDTO
             .append(this.getExpectedFieldCount(), rhs.getExpectedFieldCount())
             .append(this.getVerificationConfigCount(), rhs.getVerificationConfigCount())
             .append(this.getProcessingProfileCode(), rhs.getProcessingProfileCode())
+            .append(this.getDataProcessorId(), rhs.getDataProcessorId())
             .isEquals();
     }
 
@@ -497,6 +524,7 @@ public class DocumentTypeDTO
             .append(this.getExpectedFieldCount(), myClass.getExpectedFieldCount())
             .append(this.getVerificationConfigCount(), myClass.getVerificationConfigCount())
             .append(this.getProcessingProfileCode(), myClass.getProcessingProfileCode())
+            .append(this.getDataProcessorId(), myClass.getDataProcessorId())
             .toComparison();
     }
 
@@ -521,6 +549,7 @@ public class DocumentTypeDTO
             .append(this.getExpectedFieldCount())
             .append(this.getVerificationConfigCount())
             .append(this.getProcessingProfileCode())
+            .append(this.getDataProcessorId())
             .toHashCode();
     }
 

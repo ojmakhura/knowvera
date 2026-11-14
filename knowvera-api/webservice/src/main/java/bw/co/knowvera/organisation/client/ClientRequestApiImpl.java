@@ -213,6 +213,10 @@ public class ClientRequestApiImpl implements ClientRequestApi {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuditTracker.auditTrail(clientRequest, stored, authentication);
 
+        // The client decides a request, through the link sent to them: saving one never changes its
+        // status, and a new request is pending
+        clientRequest.setStatus(stored != null ? stored.getStatus() : ClientRequestStatus.PENDING);
+
         ClientRequestDTO savedRequest = clientRequestService.save(clientRequest);
         return ResponseEntity.ok(savedRequest);
     }
@@ -495,63 +499,58 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (confirm) {
-            ClientRequestDTO request = clientRequestService.findById(id);
+        // The token is checked, and consumed, before anything is done for the request: without a
+        // valid registration token no account is created and nothing about the individual is revealed
+        boolean accepted = clientRequestService.confirmRegistration(id, confirm, registrationToken);
 
-            if (request.getStatus() == ClientRequestStatus.ACCEPTED
-                    || request.getStatus() == ClientRequestStatus.REJECTED) {
-
-                throw new ClientRequestServiceException("This client request has already been responded to.");
+        if (accepted) {
+            try {
+                createAccount(clientRequestService.findById(id), authentication);
+            } catch (Exception e) {
+                // The account could not be made: the request goes back to pending, so the link in the
+                // request email can be used again
+                clientRequestService.updateStatus(id, ClientRequestStatus.PENDING);
+                throw e;
             }
+        }
 
-            switch (request.getTarget()) {
-                case INDIVIDUAL:
+        return ResponseEntity.ok(accepted);
 
-                    IndividualDTO individual = individualService.findById(request.getTargetId());
-                    AuditTracker.auditTrail(request, authentication);
-                    individual.setHasUser(true);
+    }
 
-                    UserDTO existing = keycloakUserService.getUserByIdentityNo(individual.getIdentityNo());
-                    individual.setHasUser(true);
+    /** The account of the client of an accepted request (an individual who has one keeps it). */
+    private void createAccount(ClientRequestDTO request, Authentication authentication) throws Exception {
 
-                    if (existing != null) {
+        switch (request.getTarget()) {
+            case INDIVIDUAL:
 
-                        individual.setUserCreated(true);
+                IndividualDTO individual = individualService.findById(request.getTargetId());
+                AuditTracker.auditTrail(request, authentication);
+                individual.setHasUser(true);
 
-                        individualService.save(individual);
+                UserDTO existing = keycloakUserService.getUserByIdentityNo(individual.getIdentityNo());
 
-                        throw new ClientRequestServiceException("The individual already has a user.");
-                    } else {
-
-                        individual.setUserCreated(false);
-                    }
-
-                    // Activate individual account or send welcome email
+                if (existing != null) {
+                    individual.setUserCreated(true);
+                    individual.setUserId(existing.getUserId());
+                } else {
+                    // No password: Keycloak sends the set-up email
                     OrganisationDTO org = organisationService.findById(request.getOrganisationId());
                     UserDTO user = keycloakUserService.registerUser(individual, org);
 
+                    individual.setUserCreated(user != null);
                     if (user != null) {
-
-                        individual.setUserCreated(true);
                         individual.setUserId(user.getUserId());
-                    } else {
                     }
-                    individual = individualService.save(individual);
-
-                    break;
-                case ORGANISATION:
-                    throw new Exception("Organisation client request confirmation not yet implemented");
-                default:
-                    throw new Exception(
-                            "Unsupported target entity for client request confirmation: " + request.getTarget());
-            }
-
+                }
+                individualService.save(individual);
+                break;
+            case ORGANISATION:
+                throw new Exception("Organisation client request confirmation not yet implemented");
+            default:
+                throw new Exception(
+                        "Unsupported target entity for client request confirmation: " + request.getTarget());
         }
-
-        Boolean result = clientRequestService.confirmRegistration(id, confirm, registrationToken);
-
-        return ResponseEntity.ok(result);
-
     }
 
     @Override

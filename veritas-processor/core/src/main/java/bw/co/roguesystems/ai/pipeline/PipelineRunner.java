@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +22,13 @@ import bw.co.roguesystems.ai.job.StepStatus;
 import bw.co.roguesystems.ai.profile.DefaultPrompts;
 import bw.co.roguesystems.ai.profile.ProcessingProfile;
 import bw.co.roguesystems.ai.profile.ProcessingProfileService;
-import bw.co.roguesystems.ai.schema.ExtractionSchemaService;
 import bw.co.roguesystems.ai.schema.DocumentTypeSpec;
 import bw.co.roguesystems.ai.schema.FieldSpec;
-import bw.co.roguesystems.ai.schema.SchemaNotFoundException;
+import bw.co.roguesystems.ai.schema.FieldType;
+import bw.co.roguesystems.ai.llm.PromptMessage;
+import bw.co.roguesystems.ai.processor.DataProcessor;
+import bw.co.roguesystems.ai.processor.DataProcessorRepository;
+import bw.co.roguesystems.ai.processor.field.ExpectedField;
 import bw.co.roguesystems.ai.profile.ProcessingStep;
 import bw.co.roguesystems.ai.profile.ProviderType;
 import bw.co.roguesystems.ai.profile.StepType;
@@ -54,7 +59,7 @@ public class PipelineRunner {
     private static final Logger log = LoggerFactory.getLogger(PipelineRunner.class);
 
     private final ProcessingProfileService profiles;
-    private final ExtractionSchemaService schemas;
+    private final DataProcessorRepository processors;
     private final ProcessingJobService jobs;
     private final ProviderRegistry providers;
     private final DocumentStore documentStore;
@@ -62,12 +67,12 @@ public class PipelineRunner {
     private final JsonMapper jsonMapper;
     private final VeritasProperties.Jobs settings;
 
-    public PipelineRunner(ProcessingProfileService profiles, ExtractionSchemaService schemas, ProcessingJobService jobs,
+    public PipelineRunner(ProcessingProfileService profiles, DataProcessorRepository processors, ProcessingJobService jobs,
             ProviderRegistry providers, DocumentStore documentStore, PromptRenderer prompts, JsonMapper jsonMapper,
             VeritasProperties properties) {
         this.settings = properties.getJobs();
         this.profiles = profiles;
-        this.schemas = schemas;
+        this.processors = processors;
         this.jobs = jobs;
         this.providers = providers;
         this.documentStore = documentStore;
@@ -97,9 +102,12 @@ public class PipelineRunner {
 
         ProcessingProfile profile;
         ProcessingJobRequest request;
+        List<ProcessingStep> steps;
         try {
             profile = profiles.latest(submitted.profileCode());
-            request = withSchemas(submitted);
+            DataProcessor processor = processor(submitted.processorId());
+            request = withProcessors(submitted, processor);
+            steps = steps(profile, processor);
         } catch (RuntimeException e) {
             return finish(submitted, null, JobStatus.FAILED, new StepContext(submitted, () -> null), List.of(),
                     e.getMessage());
@@ -109,7 +117,7 @@ public class PipelineRunner {
         List<StepResult> results = new ArrayList<>();
         StepType fromStep = firstStep(request);
         boolean started = fromStep == null;
-        for (ProcessingStep step : profile.getSteps()) {
+        for (ProcessingStep step : steps) {
             if (!started && step.getType().ordinal() >= fromStep.ordinal()) {
                 started = true;
             }
@@ -127,36 +135,114 @@ public class PipelineRunner {
         return finish(request, profile, JobStatus.COMPLETED, context, results, null);
     }
 
-    /**
-     * The job with the fields its schemas hold: the fields to extract, when the job names a schema
-     * and gives none itself, and the fields of every candidate type that names a schema. A
-     * candidate whose schema does not exist is still a candidate, without fields.
-     */
-    private ProcessingJobRequest withSchemas(ProcessingJobRequest request) {
-        List<FieldSpec> fields = request.fields();
-        if (hasText(request.schemaCode()) && (fields == null || fields.isEmpty())) {
-            fields = schemas.latest(request.schemaCode()).fieldSpecs();
+    /** The data processor a job names by its id (null: it names none). */
+    private DataProcessor processor(String id) {
+        if (!hasText(id)) {
+            return null;
         }
-        List<DocumentTypeSpec> candidateTypes = request.candidateTypes();
-        if (candidateTypes != null && candidateTypes.stream().anyMatch(type -> hasText(type.schemaCode()))) {
-            candidateTypes = candidateTypes.stream().map(type -> withSchema(type, request.jobId())).toList();
-        }
-        return fields == request.fields() && candidateTypes == request.candidateTypes() ? request
-                : request.withSchemaFields(fields, candidateTypes);
+        return find(id).orElseThrow(() -> new IllegalArgumentException("No data processor with id '" + id + "'"));
     }
 
-    private DocumentTypeSpec withSchema(DocumentTypeSpec type, String jobId) {
-        if (!hasText(type.schemaCode()) || (type.fields() != null && !type.fields().isEmpty())) {
-            return type;
-        }
+    private Optional<DataProcessor> find(String id) {
         try {
-            return new DocumentTypeSpec(type.name(), schemas.latest(type.schemaCode()).fieldSpecs(), type.schemaCode());
-        } catch (SchemaNotFoundException e) {
-            // One unknown schema must not stop every job: classification still has the type's name
-            log.warn("Job {} names the schema '{}' for the candidate type {}, which does not exist", jobId,
-                    type.schemaCode(), type.name());
+            return processors.findById(UUID.fromString(id.trim()));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * The job with what its data processors hold: the expected fields of its own processor as the
+     * fields to extract (fields the job gives itself win), and those of every candidate type that
+     * names a processor. A candidate whose processor does not exist is still a candidate, without
+     * fields.
+     */
+    private ProcessingJobRequest withProcessors(ProcessingJobRequest request, DataProcessor processor) {
+        List<FieldSpec> fields = request.fields();
+        if (processor != null && (fields == null || fields.isEmpty())) {
+            fields = fields(processor);
+        }
+        List<DocumentTypeSpec> candidateTypes = request.candidateTypes();
+        if (candidateTypes != null && candidateTypes.stream().anyMatch(type -> hasText(type.processorId()))) {
+            candidateTypes = candidateTypes.stream().map(type -> withProcessor(type, request.jobId())).toList();
+        }
+        return fields == request.fields() && candidateTypes == request.candidateTypes() ? request
+                : request.withProcessorFields(fields, candidateTypes);
+    }
+
+    private DocumentTypeSpec withProcessor(DocumentTypeSpec type, String jobId) {
+        if (!hasText(type.processorId()) || (type.fields() != null && !type.fields().isEmpty())) {
             return type;
         }
+        return find(type.processorId())
+                .map(processor -> new DocumentTypeSpec(type.name(), fields(processor), type.processorId()))
+                .orElseGet(() -> {
+                    // One unknown processor must not stop every job: classification still has the name
+                    log.warn("Job {} names the data processor '{}' for the candidate type {}, which does not exist",
+                            jobId, type.processorId(), type.name());
+                    return type;
+                });
+    }
+
+    /** A data processor's expected fields, as the steps use them. */
+    static List<FieldSpec> fields(DataProcessor processor) {
+        List<FieldSpec> fields = new ArrayList<>();
+        for (ExpectedField field : processor.getExpectedFields()) {
+            fields.add(new FieldSpec(field.getField(), field.getFieldLabel(),
+                    field.getFieldType() == null ? FieldType.STRING : FieldType.valueOf(field.getFieldType().name()),
+                    field.getFormat(), field.getMany(), field.getMandatory()));
+        }
+        return fields;
+    }
+
+    /**
+     * The profile's steps for this job. A data processor's own prompts replace the profile's: its
+     * validation prompts (a system and a user message) those of the classification step, its text
+     * extraction prompts those of the text extraction step. The providers, model and options stay
+     * the profile's.
+     */
+    static List<ProcessingStep> steps(ProcessingProfile profile, DataProcessor processor) {
+        if (processor == null) {
+            return profile.getSteps();
+        }
+        String validationSystem = prompt(processor.getValidationPrompts(), "system");
+        String validationUser = prompt(processor.getValidationPrompts(), "user");
+        String extractionSystem = prompt(processor.getTextExtractionPrompts(), "system");
+        String extractionUser = prompt(processor.getTextExtractionPrompts(), "user");
+        List<ProcessingStep> steps = new ArrayList<>();
+        for (ProcessingStep step : profile.getSteps()) {
+            if (step.getType() == StepType.CLASSIFICATION && validationSystem != null && validationUser != null) {
+                steps.add(withPrompts(step, validationSystem, validationUser));
+            } else if (step.getType() == StepType.TEXT_EXTRACTION && (extractionSystem != null || extractionUser != null)) {
+                steps.add(withPrompts(step, extractionSystem == null ? step.getSystemPrompt() : extractionSystem,
+                        extractionUser == null ? step.getUserPrompt() : extractionUser));
+            } else {
+                steps.add(step);
+            }
+        }
+        return steps;
+    }
+
+    private static String prompt(List<PromptMessage> messages, String role) {
+        if (messages == null) {
+            return null;
+        }
+        return messages.stream()
+                .filter(message -> message != null && role.equalsIgnoreCase(message.getRole())
+                        && hasText(message.getContent()))
+                .map(PromptMessage::getContent).findFirst().orElse(null);
+    }
+
+    /** A copy of the step for this job only: the profile's step is not changed. */
+    private static ProcessingStep withPrompts(ProcessingStep step, String systemPrompt, String userPrompt) {
+        ProcessingStep copy = new ProcessingStep();
+        copy.setType(step.getType());
+        copy.setProviders(step.getProviders());
+        copy.setModel(step.getModel());
+        copy.setOptions(step.getOptions());
+        copy.setSystemPrompt(systemPrompt);
+        copy.setUserPrompt(userPrompt);
+        return copy;
     }
 
     private static boolean hasText(String value) {

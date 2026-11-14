@@ -11,6 +11,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,11 +39,12 @@ import bw.co.roguesystems.ai.provider.ProviderRegistry;
 import bw.co.roguesystems.ai.provider.TextExtractionProvider;
 import bw.co.roguesystems.ai.schema.DocumentRef;
 import bw.co.roguesystems.ai.schema.DocumentTypeSpec;
-import bw.co.roguesystems.ai.schema.ExtractionSchema;
-import bw.co.roguesystems.ai.schema.ExtractionSchemaService;
 import bw.co.roguesystems.ai.schema.FieldSpec;
-import bw.co.roguesystems.ai.schema.SchemaField;
-import bw.co.roguesystems.ai.schema.SchemaNotFoundException;
+import bw.co.roguesystems.ai.llm.PromptMessage;
+import bw.co.roguesystems.ai.processor.DataProcessor;
+import bw.co.roguesystems.ai.processor.DataProcessorRepository;
+import bw.co.roguesystems.ai.processor.field.ExpectedField;
+import bw.co.roguesystems.ai.processor.field.ExpectedFieldType;
 import bw.co.roguesystems.ai.schema.FieldType;
 import bw.co.roguesystems.ai.storage.DocumentStore;
 import tools.jackson.databind.json.JsonMapper;
@@ -49,7 +52,7 @@ import tools.jackson.databind.json.JsonMapper;
 class PipelineRunnerTest {
 
     private final ProcessingProfileService profiles = mock(ProcessingProfileService.class);
-    private final ExtractionSchemaService schemas = mock(ExtractionSchemaService.class);
+    private final DataProcessorRepository processors = mock(DataProcessorRepository.class);
     private final ProcessingJobService jobs = mock(ProcessingJobService.class);
     private final DocumentStore store = mock(DocumentStore.class);
     private final VeritasProperties properties = new VeritasProperties();
@@ -73,7 +76,7 @@ class PipelineRunnerTest {
         LlmProvider geminiLlm = new FakeLlm(ProviderType.GEMINI);
         ProviderRegistry registry = new ProviderRegistry(List.of(pdfText, tesseract), List.of(ollama, geminiLlm),
                 properties);
-        runner = new PipelineRunner(profiles, schemas, jobs, registry, store, new PromptRenderer(jsonMapper), jsonMapper, properties);
+        runner = new PipelineRunner(profiles, processors, jobs, registry, store, new PromptRenderer(jsonMapper), jsonMapper, properties);
         when(store.read(any())).thenReturn(new DocumentFile("%PDF-1.7".getBytes(), "application/pdf", "id.pdf"));
     }
 
@@ -123,30 +126,38 @@ class PipelineRunnerTest {
         verify(jobs).finish(result);
     }
 
-    private void schema(String code, String name, String... fieldNames) {
-        ExtractionSchema schema = new ExtractionSchema();
-        schema.setCode(code);
-        schema.setVersion(1);
-        schema.setName(name);
+    /** The id of the test data processor with this code. */
+    private static String id(String code) {
+        return UUID.nameUUIDFromBytes(code.getBytes()).toString();
+    }
+
+    private DataProcessor processor(String code, String name, String... fieldNames) {
+        DataProcessor processor = new DataProcessor();
+        processor.setCode(code);
+        processor.setName(name);
         for (String fieldName : fieldNames) {
-            schema.getFields().add(new SchemaField(FieldSpec.text(fieldName)));
+            ExpectedField field = new ExpectedField();
+            field.setField(fieldName);
+            field.setFieldType(ExpectedFieldType.STRING);
+            processor.getExpectedFields().add(field);
         }
-        when(schemas.latest(code)).thenReturn(schema);
+        processor.setId(UUID.nameUUIDFromBytes(code.getBytes()));
+        when(processors.findById(processor.getId())).thenReturn(Optional.of(processor));
+        return processor;
     }
 
     @Test
-    void aJobThatNamesASchemaExtractsTheSchemasFields() {
+    void aJobThatNamesADataProcessorExtractsItsExpectedFields() {
         profile(step(StepType.FIELD_EXTRACTION, ProviderType.OLLAMA), step(StepType.CLASSIFICATION, ProviderType.GEMINI));
-        schema("NID", "National ID", "idNumber", "surname");
-        schema("PSPT", "Any label", "passportNumber");
-        when(schemas.latest("MISSING")).thenThrow(new SchemaNotFoundException("MISSING"));
+        processor("NID", "Any name", "idNumber", "surname");
+        processor("PSPT", "Any label", "passportNumber");
         gemini = "{\"detectedType\":\"National ID\",\"signalScores\":{\"idNumber\":1,\"surname\":1}}";
 
         ProcessingJobResult result = runner.run(new ProcessingJobRequest("job-1", "doc-1", "default", null,
                 "National ID", null,
-                List.of(new DocumentTypeSpec("National ID", null, "NID"), new DocumentTypeSpec("Passport", null, "PSPT"),
-                        new DocumentTypeSpec("Permit", null, "MISSING")),
-                StepType.FIELD_EXTRACTION, "ID 123", Map.of(), "NID"));
+                List.of(new DocumentTypeSpec("National ID", null, id("NID")), new DocumentTypeSpec("Passport", null, id("PSPT")),
+                        new DocumentTypeSpec("Permit", null, id("MISSING"))),
+                StepType.FIELD_EXTRACTION, "ID 123", Map.of(), id("NID")));
 
         assertThat(result.status()).isEqualTo(JobStatus.COMPLETED);
         assertThat(result.fields()).containsOnlyKeys("idNumber", "surname");
@@ -157,15 +168,38 @@ class PipelineRunnerTest {
     }
 
     @Test
-    void aJobWhoseSchemaIsMissingFails() {
+    void aJobWhoseDataProcessorIsMissingFails() {
         profile(step(StepType.FIELD_EXTRACTION, ProviderType.OLLAMA));
-        when(schemas.latest("NOPE")).thenThrow(new SchemaNotFoundException("NOPE"));
 
         ProcessingJobResult result = runner.run(new ProcessingJobRequest("job-1", "doc-1", "default", null, null, null,
-                null, StepType.FIELD_EXTRACTION, "ID 123", Map.of(), "NOPE"));
+                null, StepType.FIELD_EXTRACTION, "ID 123", Map.of(), "not-an-id"));
 
         assertThat(result.status()).isEqualTo(JobStatus.FAILED);
-        assertThat(result.error()).contains("No schema with code 'NOPE'");
+        assertThat(result.error()).contains("No data processor with id 'not-an-id'");
+    }
+
+    @Test
+    void aDataProcessorsOwnPromptsReplaceTheProfilesForItsJobsOnly() {
+        ProcessingStep classification = step(StepType.CLASSIFICATION, ProviderType.GEMINI);
+        classification.setSystemPrompt("profile system");
+        classification.setUserPrompt("profile user");
+        ProcessingProfile profile = profile(step(StepType.FIELD_EXTRACTION, ProviderType.OLLAMA), classification);
+        DataProcessor processor = processor("NID", "National ID", "idNumber");
+        processor.setValidationPrompts(List.of(new PromptMessage("system", "Is this a {{documentType}}?"),
+                new PromptMessage("user", "Check: {{text}}")));
+        gemini = "{\"match\":true,\"signalScores\":{\"idNumber\":1}}";
+
+        runner.run(new ProcessingJobRequest("job-1", "doc-1", "default", null, "National ID", null, null,
+                StepType.FIELD_EXTRACTION, "ID 123", Map.of(), id("NID")));
+
+        assertThat(llmCalls.getLast().systemPrompt()).contains("Is this a National ID?");
+        assertThat(llmCalls.getLast().userPrompt()).contains("Check:").contains("ID 123");
+        assertThat(profile.getSteps().getLast().getSystemPrompt()).isEqualTo("profile system");
+
+        runner.run(new ProcessingJobRequest("job-2", "doc-2", "default", null, "National ID",
+                List.of(FieldSpec.text("idNumber")), null, StepType.FIELD_EXTRACTION, "ID 123", Map.of()));
+
+        assertThat(llmCalls.getLast().systemPrompt()).contains("profile system");
     }
 
     @Test

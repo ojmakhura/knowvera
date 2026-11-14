@@ -37,7 +37,7 @@ import { Loader } from '@app/@shared/loader/loader';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
 import { VerificationDataConfigDTO } from '@app/models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
-// import { ToastrService } from 'ngx-toastr';
+import { toast } from 'ngx-sonner';
 import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
@@ -54,7 +54,7 @@ import { TimePeriod } from '@app/models/bw/co/knowvera/time-period';
 import { LoaderState } from '@app/@shared/loader/loader.state';
 import { DocumentTypeApi } from '@app/services/bw/co/knowvera/document/type/document-type-api';
 import { ProcessingProfile } from '@app/models/bw/co/knowvera/document/type/processing-profile';
-import { ExtractionSchema, ExtractionSchemaField } from '@app/models/bw/co/knowvera/document/type/extraction-schema';
+import { DataProcessor, DataProcessorField } from '@app/models/bw/co/knowvera/document/type/data-processor';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -68,6 +68,7 @@ export class EditDocumentTypeVarsForm {
   name: string | any = '';
   description: string | any = null;
   processingProfileCode: string | any = '';
+  dataProcessorId: string | any = '';
   expires: boolean | any = false;
   expiryField: KeyField | any = null;
   expiryPeriod: TimePeriod | any;
@@ -149,16 +150,29 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
   loaderState = inject(LoaderState);
 
-  // Processing is veritas-processor's: its profiles say how a document is processed, and its schema
-  // holds the fields extracted from this type's documents. The expected fields here say what the
-  // extracted values are matched against.
+  // Processing is veritas-processor's: its profiles say how a document is processed, and the data
+  // processor this type is linked to holds the fields expected in its documents, with their
+  // definition. The expected fields here say what the extracted values are matched against.
   private readonly documentTypeApi = inject(DocumentTypeApi);
   protected readonly processingProfiles = signal<ProcessingProfile[]>([]);
   /** The profiles could not be read: the profile is typed in as a code instead of picked. */
   protected readonly processingProfilesUnavailable = signal(false);
-  protected readonly extractionSchema = signal<ExtractionSchema | null>(null);
-  protected readonly extractionSchemaUnavailable = signal(false);
-  private extractionSchemaLoadedFor = '';
+  protected readonly dataProcessor = signal<DataProcessor | null>(null);
+  protected readonly dataProcessorUnavailable = signal(false);
+  private dataProcessorLoadedFor = '';
+
+  /** The data processors a document type can be linked to. */
+  protected readonly dataProcessors = signal<DataProcessor[]>([]);
+  /** The data processors could not be read: the link is shown as it is and cannot be changed. */
+  protected readonly dataProcessorsUnavailable = signal(false);
+
+  /** The linked data processor's id when the list does not hold it (it was removed). */
+  protected readonly unknownDataProcessor = computed(() => {
+    const id = (this.editDocumentTypeSignal().dataProcessorId ?? '').trim();
+    return id && !this.dataProcessors().some((processor) => (processor.id ?? '').toLowerCase() === id.toLowerCase())
+      ? id
+      : '';
+  });
 
   /** The chosen profile when the list does not hold it (removed, or typed in earlier). */
   protected readonly unknownProcessingProfile = computed(() => {
@@ -166,37 +180,42 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     return code && !this.processingProfiles().some((profile) => profile.code === code) ? code : '';
   });
 
-  /** Fields veritas-processor extracts for this type that have no expected field (no matching rule) here. */
-  protected readonly unmatchedSchemaFields = computed<ExtractionSchemaField[]>(() => {
+  /** Fields of the data processor that have no expected field (no matching rule) here. */
+  protected readonly unmatchedProcessorFields = computed<DataProcessorField[]>(() => {
     const expected = new Set(
       this.editDocumentTypeSignal().expectedFields.map((field) => (field.field ?? '').trim().toLowerCase()),
     );
-    return (this.extractionSchema()?.fields ?? []).filter(
-      (field) => !expected.has((field.name ?? '').trim().toLowerCase()),
+    return (this.dataProcessor()?.expectedFields ?? []).filter(
+      (field) => !expected.has((field.field ?? '').trim().toLowerCase()),
     );
   });
 
   constructor() {
+    this.documentTypeApi.dataProcessors().subscribe({
+      next: (processors) => this.dataProcessors.set(processors ?? []),
+      error: () => this.dataProcessorsUnavailable.set(true),
+    });
+
     this.documentTypeApi.processingProfiles().subscribe({
       next: (profiles) => this.processingProfiles.set(profiles ?? []),
       error: () => this.processingProfilesUnavailable.set(true),
     });
 
     effect(() => {
-      // Reloaded after every save: saving expected fields changes the schema
+      // Reloaded after every save: saving expected fields changes the data processor
       const documentType = this.documentTypeApiStore.data();
       const id = this.editDocumentTypeSignal().id;
       const key = `${id}:${documentType?.modifiedAt ?? ''}:${this.editDocumentTypeSignal().expectedFields.length}`;
-      if (!id || key === this.extractionSchemaLoadedFor) {
+      if (!id || key === this.dataProcessorLoadedFor) {
         return;
       }
-      this.extractionSchemaLoadedFor = key;
-      this.documentTypeApi.extractionSchema(id).subscribe({
-        next: (schema) => {
-          this.extractionSchema.set(schema ?? null);
-          this.extractionSchemaUnavailable.set(false);
+      this.dataProcessorLoadedFor = key;
+      this.documentTypeApi.dataProcessor(id).subscribe({
+        next: (processor) => {
+          this.dataProcessor.set(processor ?? null);
+          this.dataProcessorUnavailable.set(false);
         },
-        error: () => this.extractionSchemaUnavailable.set(true),
+        error: () => this.dataProcessorUnavailable.set(true),
       });
     });
 
@@ -214,13 +233,9 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
     effect(() => {
       const error = this.error();
-      console.log('Error state changed:', error);
 
       if (error) {
-        console.log('Error messages:', this.messages());
-        // this.toastr.error(
-        //   this.messages()[0] || 'An error occurred while saving the document type.',
-        // );
+        toast.error(this.messages()[0] || 'An error occurred while saving the document type.');
       }
     });
 
@@ -228,7 +243,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       const success = this.success();
 
       if (success) {
-        // this.toastr.success(this.messages()[0] || 'Document type saved successfully.');
+        toast.success(this.messages()[0] || 'Document type saved successfully.');
       }
     });
   }
@@ -274,15 +289,15 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     return field;
   }
 
-  /** Opens the expected field dialog for a field veritas-processor already extracts, to give it a matching rule. */
-  expectedFieldsAddFromSchema(schemaField: ExtractionSchemaField): void {
+  /** Opens the expected field dialog for a field the data processor already has, to give it a matching rule here. */
+  expectedFieldsAddFromProcessor(processorField: DataProcessorField): void {
     const field = this.createNewExpectedFields();
-    field.field = schemaField.name;
-    field.fieldLabel = schemaField.label;
-    field.fieldType = schemaField.type;
-    field.format = schemaField.format;
-    field.many = schemaField.many;
-    field.mandatory = schemaField.mandatory;
+    field.field = processorField.field;
+    field.fieldLabel = processorField.fieldLabel;
+    field.fieldType = processorField.fieldType;
+    field.format = processorField.format;
+    field.many = processorField.many;
+    field.mandatory = processorField.mandatory;
     this.expectedFieldsAdd(field);
   }
 
@@ -457,13 +472,13 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
           next: (done: boolean) => {
             if (done) {
               this.saveDocumentType();
-              // this.toastr.success('Verification data config removed successfully.');
+              toast.success('Verification data config removed successfully.');
             }
 
             this.loading.set(false);
           },
           error: (error: any) => {
-            // this.toastr.error('Failed to remove verification data config.');
+            toast.error('Failed to remove verification data config.');
             this.loading.set(false);
           },
         });
@@ -591,6 +606,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       createdBy: documentType.createdBy,
       description: documentType.description,
       processingProfileCode: documentType.processingProfileCode ?? '',
+      dataProcessorId: documentType.dataProcessorId ?? '',
       expires: documentType.expires,
       expiryField: documentType.expiryField,
       expiresIn: documentType.expiresIn,
@@ -615,6 +631,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.createdBy = formData.createdBy;
     docType.description = formData.description;
     docType.processingProfileCode = formData.processingProfileCode?.trim() || null;
+    docType.dataProcessorId = formData.dataProcessorId?.trim() || null;
     docType.expires = formData.expires;
     docType.expiryField = formData.expiryField;
     docType.expiryPeriod = formData.expiryPeriod;

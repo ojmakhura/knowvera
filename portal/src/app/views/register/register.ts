@@ -108,14 +108,12 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
     effect(() => {
       if (this.identityConfirmationToken().length > 0) {
 
-        console.log('IDENTITY CONFIRMATION TOKEN:', this.identityConfirmationToken());
 
       }
     });
 
     effect(() => {
       if (this.individual()) {
-        console.log('LOADED INDIVIDUAL:', this.individual());
         this.registerSignal.update((data) => ({
           ...data,
           individual: this.individual()
@@ -129,7 +127,6 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
     effect(() => {
       if (this.organisationApiStore.data()) {
-        console.log('LOADED ORGANISATION:', this.organisationApiStore.data());
 
         this.registerSignal.update((data) => ({
           ...data,
@@ -172,7 +169,6 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     if (this.requestId && this.token) {
 
-      console.log('CONFIRMING TOKEN WITH REQUEST ID:', this.requestId, ' AND TOKEN:', this.token);
 
       this.clientRequestApiStore.confirmToken({ requestId: this.requestId, token: this.token });
     }
@@ -220,8 +216,12 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
           this.registerSignal().registrationStatus == ClientRequestStatus.ACCEPTED,
           this.registrationToken()
         ).subscribe({
-          next: () => {
-            this.toastr.success('Registration status confirmed successfully');
+          next: (accepted) => {
+            this.toastr.success(
+              accepted
+                ? 'Request accepted. Check your email for a link to set your password, then sign in.'
+                : 'Your response has been recorded.',
+            );
             this.router.navigate(['/']);
           },
           error: () => {

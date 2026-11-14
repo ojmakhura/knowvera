@@ -37,9 +37,7 @@ public class InformationConfirmationService {
     log.info("Processing extracted information for document ID: {}", queueObject.objectId());
     DocumentDTO document = documentService.verifyData(queueObject.objectId(), "AI-AGENT");
     if (document != null) {
-      // Example: Log the extracted information
-      log.info("Extracted Information for Document ID {}: {}", queueObject.objectId(),
-          document.getExtractedInformation());
+      log.info("Extracted information confirmed for document ID: {}", queueObject.objectId());
     } else {
       log.warn("Document not found for ID: {}", queueObject.objectId());
       return;

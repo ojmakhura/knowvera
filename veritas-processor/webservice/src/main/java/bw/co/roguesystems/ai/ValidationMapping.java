@@ -1,0 +1,16 @@
+package bw.co.roguesystems.ai;
+
+import org.springframework.http.HttpStatus;
+
+public record ValidationMapping(
+        String methodMarker,
+        String fieldMarker,
+        HttpStatus status,
+        String type,
+        String friendlyMessage) {
+
+    public boolean matches(String message) {
+        return message.contains(methodMarker)
+                && message.contains(fieldMarker);
+    }
+}

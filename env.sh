@@ -100,6 +100,13 @@ export VERITAS_DB_USERNAME=veritas
 export VERITAS_DB_PASSWORD=veritas
 # Hibernate makes the tables; true also runs the Liquibase changelog, after Hibernate
 export VERITAS_LIQUIBASE=false
+# OpenTelemetry: traces, metrics and logs go to OTLP_URL; false turns the exports off
+export VERITAS_OTEL_EXPORT=true
+# The share of jobs and requests traced when the caller did not decide
+export VERITAS_TRACE_SAMPLING=1.0
+# The data processor services cache in Redis (REDIS_* above); false: no caching
+export VERITAS_CACHE=true
+export VERITAS_CACHE_TTL=30m
 # Keycloak client whose roles give access, and the audience its tokens must carry
 export VERITAS_CLIENT_ID=veritas-processor
 export VERITAS_JWT_AUDIENCES=veritas-processor

@@ -31,6 +31,10 @@ import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.config.KeycloakPermissionConverter;
 import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.document.DocumentService;
+import bw.co.knowvera.form.FormDTO;
+import bw.co.knowvera.form.FormService;
+import bw.co.knowvera.form.submission.FormSubmissionDTO;
+import bw.co.knowvera.form.submission.FormSubmissionService;
 import bw.co.knowvera.individual.IndividualDTO;
 import bw.co.knowvera.individual.IndividualService;
 import bw.co.knowvera.individual.employment.EmploymentRecordDTO;
@@ -75,6 +79,12 @@ public class KycAuthorisationService implements Ordered {
     public static final String ORGANISATION_DOCUMENT = "ORGANISATION_DOCUMENT";
     /** A Keycloak user: owned by the members of its organisation. */
     public static final String USER = "USER";
+    /** A custom form: owned by the members of the organisation it belongs to. */
+    public static final String FORM = "FORM";
+    /** A client's answers to a form: owned by the organisation that issued the form and by the owner of the KYC record they are part of. */
+    public static final String FORM_SUBMISSION = "FORM_SUBMISSION";
+    /** A client's answers to a form, for what only the organisation that issued the form may do. */
+    public static final String FORM_SUBMISSION_ISSUER = "FORM_SUBMISSION_ISSUER";
 
     private final SpelExpressionParser parser = new SpelExpressionParser();
     private final ParameterNameDiscoverer parameterNames = new DefaultParameterNameDiscoverer();
@@ -90,13 +100,16 @@ public class KycAuthorisationService implements Ordered {
     private final BranchService branchService;
     private final EmploymentRecordService employmentRecordService;
     private final OrganisationDocumentService organisationDocumentService;
+    private final FormService formService;
+    private final FormSubmissionService formSubmissionService;
 
     public KycAuthorisationService(@Lazy KycRecordService kycRecordService, @Lazy KeycloakUserService keycloakUserService,
             @Lazy IndividualService individualService, @Lazy OrganisationService organisationService,
             @Lazy DocumentService documentService, @Lazy ClientRequestService clientRequestService,
             @Lazy KycInvoiceService invoiceService, @Lazy KycSubscriptionService subscriptionService,
             @Lazy BranchService branchService, @Lazy EmploymentRecordService employmentRecordService,
-            @Lazy OrganisationDocumentService organisationDocumentService) {
+            @Lazy OrganisationDocumentService organisationDocumentService,
+            @Lazy FormService formService, @Lazy FormSubmissionService formSubmissionService) {
         this.kycRecordService = kycRecordService;
         this.keycloakUserService = keycloakUserService;
         this.individualService = individualService;
@@ -108,6 +121,8 @@ public class KycAuthorisationService implements Ordered {
         this.branchService = branchService;
         this.employmentRecordService = employmentRecordService;
         this.organisationDocumentService = organisationDocumentService;
+        this.formService = formService;
+        this.formSubmissionService = formSubmissionService;
     }
 
     @Override
@@ -162,6 +177,9 @@ public class KycAuthorisationService implements Ordered {
                 case EMPLOYMENT_RECORD -> isEmploymentRecordOwnerMatch(recordId);
                 case ORGANISATION_DOCUMENT -> isOrganisationDocumentOwnerMatch(recordId);
                 case USER -> isUserOrganisationMatch(recordId);
+                case FORM -> isFormOwnerMatch(recordId);
+                case FORM_SUBMISSION -> isFormSubmissionOwnerMatch(recordId, true);
+                case FORM_SUBMISSION_ISSUER -> isFormSubmissionOwnerMatch(recordId, false);
                 default -> isTargetRecordOwner(TargetEntity.valueOf(record), recordId);
             };
         } catch (Exception e) {
@@ -392,6 +410,43 @@ public class KycAuthorisationService implements Ordered {
         }
 
         return isOrganisationUserMatch(organisationDocument.getOrganisationId());
+    }
+
+    private Boolean isFormOwnerMatch(String formId) {
+
+        if(StringUtils.isBlank(formId)) {
+            return false;
+        }
+
+        FormDTO form = formService.findById(formId);
+        if (form == null || StringUtils.isBlank(form.getId())) {
+            return false;
+        }
+
+        return isOrganisationUserMatch(form.getOrganisationId());
+    }
+
+    /**
+     * @param clientToo whether the client asked to fill the form owns the submission as well,
+     *                  or only the organisation that issued the form
+     */
+    private Boolean isFormSubmissionOwnerMatch(String formSubmissionId, boolean clientToo) {
+
+        if(StringUtils.isBlank(formSubmissionId)) {
+            return false;
+        }
+
+        FormSubmissionDTO submission = formSubmissionService.findById(formSubmissionId);
+        if (submission == null || StringUtils.isBlank(submission.getId())) {
+            return false;
+        }
+
+        if (isOrganisationUserMatch(submission.getOrganisationId())) {
+            return true;
+        }
+
+        // The client side: whoever owns the KYC record the answers are part of
+        return clientToo && isKycRecordOwnershipMatch(submission.getKycRecordId());
     }
 
     private Boolean isUserOrganisationMatch(String userId) {

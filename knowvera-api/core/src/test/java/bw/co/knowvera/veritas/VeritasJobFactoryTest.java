@@ -50,6 +50,7 @@ class VeritasJobFactoryTest {
         DocumentTypeDTO type = new DocumentTypeDTO();
         type.setId(name + "-id");
         type.setCode(name.toUpperCase());
+        type.setDataProcessorId("processor-" + name.toLowerCase());
         type.setName(name);
         type.setProcessingProfileCode(profile);
         type.setExpectedFields(List.of(fields));
@@ -81,9 +82,10 @@ class VeritasJobFactoryTest {
         assertEquals("Omang", job.documentType());
         assertEquals("KYC_RECORD/1/omang.pdf", job.document().objectKey());
         assertEquals("application/pdf", job.document().contentType());
-        assertNull(job.fields(), "the fields to extract are the schema's");
-        assertEquals("OMANG", job.schemaCode());
-        assertEquals(List.of(new DocumentTypeSpec("Omang", null, "OMANG"), new DocumentTypeSpec("Payslip", null, "PAYSLIP")),
+        assertNull(job.fields(), "the fields to extract are the data processor's");
+        assertEquals("processor-omang", job.processorId());
+        assertEquals(List.of(new DocumentTypeSpec("Omang", null, "processor-omang"),
+                new DocumentTypeSpec("Payslip", null, "processor-payslip")),
                 job.candidateTypes());
         assertNull(job.fromStep());
         assertNull(job.text(), "a job from the file does not carry the stored text");
@@ -106,12 +108,12 @@ class VeritasJobFactoryTest {
     }
 
     @Test
-    void aSchemaCodeHoldsOnlyWhatVeritasAccepts() {
+    void aDocumentTypeNamesTheDataProcessorItIsLinkedToById() {
         DocumentTypeDTO type = type("Delivery note", null);
-        type.setCode(" PR DEL/NT ");
-        assertEquals("PR_DEL_NT", VeritasJobFactory.schemaCode(type));
-        type.setCode(null);
-        assertEquals("Delivery_note-id", VeritasJobFactory.schemaCode(type));
+        type.setDataProcessorId(" 0199-abc ");
+        assertEquals("0199-abc", VeritasJobFactory.processorId(type));
+        type.setDataProcessorId(" ");
+        assertNull(VeritasJobFactory.processorId(type));
     }
 
     @Test
