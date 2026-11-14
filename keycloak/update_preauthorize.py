@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Rewrite the andromda_REST_pre_authorize tagged values in the UML model to check the
-Keycloak permission authorities (hasAuthority('SCOPE_<resource>:<scope>')) generated from
-the role matrix in generate_authz.py (GRANTS), so Spring Security and Keycloak agree.
+Rewrite the @PreAuthorize expressions of the REST endpoints to check the Keycloak permission
+authorities (hasAuthority('SCOPE_<resource>:<scope>')) generated from the role matrix in
+generate_authz.py (GRANTS), so Spring Security and Keycloak agree.
 
-Model files (both are updated, edits are textual so formatting is preserved):
-  - mda/src/main/uml/knowvera.xml   MagicDraw project
-  - mda/src/main/uml/knowvera.uml   EMF export read by AndroMDA
+Source files (edits are textual, so formatting is preserved):
+  - the *Api interfaces (or controllers) declaring the endpoints   @PreAuthorize
+  - the methods implementing them (*ApiImpl, or the controller)     @RequiresOwnership
 
 Usage:
   python3 keycloak/update_preauthorize.py            dry run, prints the changes
-  python3 keycloak/update_preauthorize.py --apply    writes both model files and the Impl annotations
+  python3 keycloak/update_preauthorize.py --apply    rewrites @PreAuthorize and @RequiresOwnership
   python3 keycloak/update_preauthorize.py --verify   fails if the code has an endpoint needing a
-                                                     permission without @PreAuthorize (run after the build)
+                                                     permission without @PreAuthorize
 
 Rules per operation (endpoint -> resource + scope via generate_authz). Authorities are the
 Keycloak permissions loaded by KeycloakPermissionConverter: SCOPE_<resource>:<scope>.
@@ -22,33 +22,28 @@ Keycloak permissions loaded by KeycloakPermissionConverter: SCOPE_<resource>:<sc
     roles hold it (GRANTS in generate_authz.py).
   - Owner-scoped roles (generate_authz.OWNER_SCOPED) hold "<scope>-own" permissions instead
     of "<scope>" (except on reference data), so no expression names a role:
-      * @RequiresOwnership on the operation -> hasAnyAuthority(<scope>, <scope>-own); the
-        KycAuthorisationService aspect requires "-own" holders to own the record;
+      * @RequiresOwnership on the implementing method -> hasAnyAuthority(<scope>, <scope>-own);
+        the KycAuthorisationService aspect requires "-own" holders to own the record;
       * operation in OWNER_BY_ROLE -> hasAnyAuthority(...) without an ownership check (reported);
       * otherwise -> hasAuthority(<scope>), which "-own" holders do not pass.
-  - Ownership checks live in the model as an andromda_additionalAnnotations value on the
-    operation: bw.co.knowvera.auth.RequiresOwnership(scope = "<resource>:<scope>", target = "...", id = "#..."), which the
-    SpringWSImpl template writes onto the generated Impl method. Impls are only generated
-    once, so --apply also adds a missing annotation to the existing Impl method.
-  - Migration: a @RequiresOwnership found only on the Impl method, or an
-    @kycAuthService.<check>(...) clause still in an expression, is copied into the model.
+  - Ownership checks are declared on the implementing method:
+    @RequiresOwnership(scope = "<resource>:<scope>", target = "...", id = "#..."); --apply keeps
+    its scope (and the stored record check of STORED_RECORD_CHECKS) in line with the endpoint.
+  - Migration: an @kycAuthService.<check>(...) clause still in an expression becomes a
+    @RequiresOwnership on the implementing method.
 """
 
 import re
 import sys
-import xml.etree.ElementTree as ET
 from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import generate_authz as g  # noqa: E402
 
-UML_DIR = g.ROOT / "mda/src/main/uml"
-MODEL_FILES = [UML_DIR / "knowvera.uml", UML_DIR / "knowvera.xml"]
-XMI_ID = "{http://www.omg.org/spec/XMI/20131001}id"
 # Operations without @RequiresOwnership that holders of the "-own" permission may still call.
 # They were unprotected before the role redesign; each needs an ownership check (add
-# @RequiresOwnership to the operation in the model), after which it can leave this list.
+# @RequiresOwnership to the implementing method), after which it can leave this list.
 OWNER_BY_ROLE = {
     "UserApi.addRole",
     "UserApi.removeRole",
@@ -56,8 +51,9 @@ OWNER_BY_ROLE = {
     "UserApi.updateUserName",
 }
 
-IMPL_DIR = g.ROOT / "webservice/src/main/java"
 OWNERSHIP_IMPORT = "import bw.co.knowvera.auth.RequiresOwnership;"
+PRE_AUTHORIZE_IMPORT = "import org.springframework.security.access.prepost.PreAuthorize;"
+PRE_AUTHORIZE = re.compile(r'@PreAuthorize\(\s*(value\s*=\s*)?"((?:[^"\\]|\\.)*)"\s*\)')
 OWNERSHIP = re.compile(r'RequiresOwnership\(([^)]*)\)')
 # OWNER_BY_ROLE operations whose "-own" holders are checked in code instead of by @RequiresOwnership
 CHECKED_IN_CODE = {
@@ -89,10 +85,6 @@ def ownership_attributes(ownership):
     return attrs
 
 
-def model_annotation(ownership):
-    return f"bw.co.knowvera.auth.RequiresOwnership({ownership_attributes(ownership)})"
-
-
 def impl_annotation(ownership):
     return f"@RequiresOwnership({ownership_attributes(ownership)})"
 
@@ -116,40 +108,28 @@ CHECK_TARGETS = {
 }
 
 
-def generated_endpoints():
-    """(ApiInterface, method) -> (resource, scope, path, Impl file) from the generated sources."""
-    endpoints = {}
-    # Every generated controller (an ...Api or ...Controller), as generate_authz.scan() finds them
-    for file in g.SOURCE_DIRS[0].rglob("*.java"):
-        text = file.read_text()
-        mapping = g.CLASS_MAPPING.search(text)
-        if not mapping:
-            continue
-        base = mapping.group(1)
-        for m in g.ENDPOINT.finditer(text):
-            http, args, _, ret, name = m.groups()
-            impl = IMPL_DIR / file.relative_to(g.SOURCE_DIRS[0]).with_name(file.stem + "Impl.java")
-            endpoints[(file.stem, name)] = (g.resource_name(base),
+def endpoints():
+    """(class, method) -> (resource, scope, path, declaring file, implementing file, current expression)."""
+    found = {}
+    # Every controller, as generate_authz.scan() finds them
+    for src in g.SOURCE_DIRS:
+        for file in sorted(src.rglob("*.java")):
+            text = file.read_text()
+            mapping = g.CLASS_MAPPING.search(text)
+            if not mapping:
+                continue
+            base = mapping.group(1)
+            impl = file.with_name(file.stem + "Impl.java")
+            if not (re.search(r"^public interface\b", text, re.M) and impl.exists()):
+                impl = file  # a controller class declares and implements its endpoints
+            for m in g.ENDPOINT.finditer(text):
+                http, args, annotations, ret, name = m.groups()
+                expression = PRE_AUTHORIZE.search(annotations or "")
+                current = expression.group(2).replace('\\"', '"').replace("\\\\", "\\") if expression else None
+                found[(file.stem, name)] = (g.resource_name(base),
                                             g.classify(f"{file.stem}.{name}", http.upper(), name, ret),
-                                            g.join_path(base, g.mapping_path(args)), impl)
-    return endpoints
-
-
-def model_operations(model):
-    """[(base_Operation id, class, operation, current expression, model @RequiresOwnership)] from the EMF export."""
-    root = ET.parse(model).getroot()
-    ids = {e.get(XMI_ID): e for e in root.iter() if e.get(XMI_ID)}
-    parent = {c: p for p in root.iter() for c in p}
-    ops = []
-    for e in root.iter():
-        if e.tag.endswith("}WebServiceOperation"):
-            op = ids[e.get("base_Operation")]
-            ownership = None
-            for annotation in e.iter("andromda_additionalAnnotations"):
-                ownership = parse_ownership(annotation.text) or ownership
-            ops.append((e.get("base_Operation"), parent[op].get("name"), op.get("name"),
-                        e.get("andromda_REST_pre_authorize"), ownership))
-    return ops
+                                            g.join_path(base, g.mapping_path(args)), file, impl, current)
+    return found
 
 
 def ownership_clause(expression):
@@ -231,23 +211,9 @@ def plan():
     granted = g.resolve_grants(resources, warnings)
     if warnings:
         raise SystemExit("generate_authz.py rules are incomplete:\n  - " + "\n  - ".join(warnings))
-    endpoints = generated_endpoints()
-    changes, annotations, model_annotations, notes = [], [], [], defaultdict(list)
+    changes, annotations, notes = [], [], defaultdict(list)
 
-    operations = model_operations(UML_DIR / "knowvera.uml")
-    managed = {(cls, name) for _, cls, name, _, _ in operations}
-    unmanaged = [f"{cls}.{name}" for (cls, name), (_, scope, _, _) in sorted(endpoints.items())
-                 if (cls, name) not in managed and scope not in ("public", "self")]
-    if unmanaged:
-        raise SystemExit("These endpoints need a permission but have no WebServiceOperation stereotype in the "
-                         "model, so their @PreAuthorize cannot be managed (apply the stereotype in MagicDraw):\n  - "
-                         + "\n  - ".join(unmanaged))
-
-    for op_id, cls, name, current, model_ownership in operations:
-        if (cls, name) not in endpoints:
-            notes["not generated, left unchanged"].append(f"{cls}.{name}")
-            continue
-        resource, scope, path, impl_path = endpoints[(cls, name)]
+    for (cls, name), (resource, scope, path, declaring, impl_path, current) in sorted(endpoints().items()):
         label = f"{cls}.{name}"
 
         if scope == "public":
@@ -255,23 +221,18 @@ def plan():
         elif scope == "self":
             new = None
         else:
-            # The model is the source of truth; Impl annotations and legacy expression
-            # clauses are migrated into it. Impls are generated once, so keep them in sync.
+            # @RequiresOwnership on the implementing method is the source of truth; legacy
+            # expression clauses are migrated onto it.
             impl = ImplMethod(impl_path, name)
             clause = ownership_clause(current)
-            existing = model_ownership or impl.ownership or (clause_to_ownership(clause) if clause else None)
+            existing = impl.ownership or (clause_to_ownership(clause) if clause else None)
             ownership = None
             if existing:
                 record, record_id = STORED_RECORD_CHECKS.get(label, (existing[3], existing[4]))
                 ownership = (f"{resource}:{scope}", existing[1], existing[2], record, record_id)
                 impl.check_params([x for x in ownership[1:] if x])
-                if model_ownership != ownership:
-                    model_annotations.append((op_id, label, ownership))
                 if impl.ownership != ownership:
                     annotations.append((impl_path, name, ownership))
-                if impl.ownership and impl.ownership[1:3] != existing[1:3]:
-                    notes["Impl @RequiresOwnership differed from the model (model wins)"].append(
-                        f"{label}: model {existing[1:3]}, Impl {impl.ownership[1:3]}")
 
             own_holders = [r for r in g.OWNER_SCOPED if r in granted[(resource, scope + g.OWN)]]
             check = authority(resource, scope)
@@ -297,8 +258,8 @@ def plan():
                         f"{label} [{resource}:{scope}]")
                 new = check
         if new != current:
-            changes.append((op_id, label, resource, scope, current, new))
-    return changes, annotations, model_annotations, notes, warnings
+            changes.append((declaring, name, label, resource, scope, current, new))
+    return changes, annotations, notes, warnings
 
 
 def annotate_impls(annotations):
@@ -328,64 +289,57 @@ def annotate_impls(annotations):
         print(f"Annotated {path.relative_to(g.ROOT)} ({len(items)})")
 
 
-def apply_to_file(path, changes):
-    text = path.read_text()
-    is_md = path.suffix == ".xml"  # MagicDraw: single quoted attributes, ' escaped as &#39;
-    for op_id, label, _, _, current, new in changes:
-        tag_rx = re.compile(r"<[\w:]*WebServiceOperation\b[^>]*\bbase_Operation=(['\"])" + re.escape(op_id) + r"\1[^>]*>")
-        matches = list(tag_rx.finditer(text))
-        if len(matches) != 1:
-            raise SystemExit(f"{path.name}: expected one stereotype for {label}, found {len(matches)}")
-        tag = matches[0].group(0)
-        quote = "'" if is_md else '"'
-        attr_rx = re.compile(r"\s+andromda_REST_pre_authorize=(['\"])(.*?)\1")
-        if new is None:
-            new_tag = attr_rx.sub("", tag)
-        else:
-            value = new.replace("&", "&amp;").replace("<", "&lt;")
-            value = value.replace("'", "&#39;") if quote == "'" else value.replace('"', "&quot;")
-            attr = f" andromda_REST_pre_authorize={quote}{value}{quote}"
-            if attr_rx.search(tag):
-                new_tag = attr_rx.sub(lambda _: attr, tag, count=1)
-            else:
-                new_tag = re.sub(r"\s*(/?>)$", lambda m: attr + m.group(1), tag)
-        text = text[:matches[0].start()] + new_tag + text[matches[0].end():]
-    path.write_text(text)
+def java_string(value):
+    return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
-def annotate_model(path, model_annotations):
-    """Add bw.co.knowvera.auth.RequiresOwnership(...) to the operation's andromda_additionalAnnotations."""
-    text = path.read_text()
-    for op_id, label, ownership in model_annotations:
-        tag_rx = re.compile(r"([ \t]*)<([\w:]*WebServiceOperation)\b[^>]*\bbase_Operation=(['\"])"
-                            + re.escape(op_id) + r"\3[^>]*?(/?)>", re.M)
-        m = tag_rx.search(text)
-        if not m:
-            raise SystemExit(f"{path.name}: stereotype for {label} not found")
-        indent, element, self_closing = m.group(1), m.group(2), m.group(4) == "/"
-        child_indent = indent + ("\t" if "\t" in indent else "  ")
-        value = model_annotation(ownership).replace("&", "&amp;").replace("<", "&lt;").replace('"', "&quot;")
-        child = f"\n{child_indent}<andromda_additionalAnnotations>{value}</andromda_additionalAnnotations>"
-        if not self_closing:
-            close = text.index(f"</{element}>", m.end())
-            current = re.search(r"<andromda_additionalAnnotations>[^<]*RequiresOwnership[^<]*</andromda_additionalAnnotations>",
-                                text[m.end():close])
-            if current:
-                start, end = m.end() + current.start(), m.end() + current.end()
-                text = text[:start] + f"<andromda_additionalAnnotations>{value}</andromda_additionalAnnotations>" + text[end:]
-                continue
-        if self_closing:
-            open_tag = re.sub(r"\s*/>$", ">", m.group(0))
-            text = text[:m.start()] + open_tag + child + f"\n{indent}</{element}>" + text[m.end():]
-        else:
-            close = text.index(f"</{element}>", m.end())
-            body_end = text.rindex("\n", m.end(), close)  # keep the closing tag's own indentation
-            text = text[:body_end] + child + text[body_end:]
-    path.write_text(text)
+def set_pre_authorize(changes):
+    """Replace, add or remove the @PreAuthorize above each changed endpoint declaration."""
+    by_file = defaultdict(list)
+    for declaring, name, _, _, _, _, new in changes:
+        by_file[declaring].append((name, new))
+    for path, items in by_file.items():
+        raw = open(path, newline="").read()
+        newline = "\r\n" if "\r\n" in raw else "\n"
+        lines = raw.replace("\r\n", "\n").split("\n")
+        for name, new in items:
+            signature = re.compile(r"^([ \t]*)public\s+[^;{(=]*?\b" + name + r"\s*\(")
+            index = next(i for i, l in enumerate(lines) if signature.match(l))
+            start = index  # annotations sit between the javadoc / previous member and the signature
+            while start > 0 and lines[start - 1].strip() and not lines[start - 1].strip().endswith(("*/", "}", ";", "{")):
+                start -= 1
+            existing = next((i for i in range(start, index) if PRE_AUTHORIZE.search(lines[i])), None)
+            if existing is not None:
+                if new is None:
+                    del lines[existing]
+                else:
+                    m = PRE_AUTHORIZE.search(lines[existing])
+                    lines[existing] = lines[existing][:m.start()] + \
+                        f"@PreAuthorize({m.group(1) or ''}{java_string(new)})" + lines[existing][m.end():]
+            elif new is not None:
+                # right after the (possibly multi-line) mapping annotation, in the style the file already uses
+                at = next(i for i in range(start, index) if re.match(r"\s*@(Get|Post|Put|Delete|Patch)Mapping\b", lines[i]))
+                depth = lines[at].count("(") - lines[at].count(")")
+                while depth > 0:
+                    at += 1
+                    depth += lines[at].count("(") - lines[at].count(")")
+                style = PRE_AUTHORIZE.search("\n".join(lines))
+                value = style.group(1) if style else "value = "
+                lines.insert(at + 1, signature.match(lines[index]).group(1) + f"@PreAuthorize({value or ''}{java_string(new)})")
+        text = "\n".join(lines)
+        uses = "@PreAuthorize(" in text
+        if uses and PRE_AUTHORIZE_IMPORT not in text:
+            imports = [i for i, l in enumerate(lines) if l.startswith("import ") and not l.startswith("import static ")]
+            position = next((i for i in imports if lines[i] > PRE_AUTHORIZE_IMPORT), imports[-1] + 1)
+            lines.insert(position, PRE_AUTHORIZE_IMPORT)
+        elif not uses and PRE_AUTHORIZE_IMPORT in lines:
+            lines.remove(PRE_AUTHORIZE_IMPORT)
+        open(path, "w", newline="").write("\n".join(lines).replace("\n", newline))
+        print(f"Updated {path.relative_to(g.ROOT)} ({len(items)})")
 
 
 def unprotected_endpoints():
-    """Endpoints in the generated and hand-written code that need a permission but have no @PreAuthorize."""
+    """Endpoints that need a permission but have no @PreAuthorize."""
     missing = []
     for src in g.SOURCE_DIRS:
         for file in sorted(src.rglob("*.java")):
@@ -405,15 +359,15 @@ def main():
     if "--verify" in sys.argv:
         missing = unprotected_endpoints()
         if missing:
-            raise SystemExit("Endpoints without @PreAuthorize (run --apply, then make build_mda):\n  - "
+            raise SystemExit("Endpoints without @PreAuthorize (run --apply):\n  - "
                              + "\n  - ".join(missing))
         print("All endpoints that need a permission have @PreAuthorize")
         return
 
-    changes, annotations, model_annotations, notes, warnings = plan()
+    changes, annotations, notes, warnings = plan()
     for w in warnings:
         print("WARNING:", w)
-    for _, label, resource, scope, current, new in changes:
+    for _, _, label, resource, scope, current, new in changes:
         print(f"{label}  [{resource}:{scope}]")
         print(f"   - {current}")
         print(f"   + {new}")
@@ -423,17 +377,10 @@ def main():
             print("   ", item)
     for path, name, ownership in annotations:
         print(f"{path.stem}.{name}: {impl_annotation(ownership)}")
-    for _, label, ownership in model_annotations:
-        print(f"{label}: model + {model_annotation(ownership)}")
-    print(f"\n{len(changes)} expressions to update, {len(model_annotations)} model operations "
-          f"and {len(annotations)} Impl methods to annotate")
+    print(f"\n{len(changes)} expressions to update and {len(annotations)} Impl methods to annotate")
 
-    if "--apply" in sys.argv and (changes or model_annotations):
-        for path in MODEL_FILES:
-            apply_to_file(path, changes)
-            annotate_model(path, model_annotations)
-            print(f"Updated {path.relative_to(g.ROOT)}")
     if "--apply" in sys.argv:
+        set_pre_authorize(changes)
         annotate_impls(annotations)
 
 

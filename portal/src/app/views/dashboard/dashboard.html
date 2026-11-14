@@ -7,6 +7,9 @@
     </div>
   </header>
 
+  <!-- Forms outstanding on the caller's KYC records -->
+  <app-forms-prompt />
+
   <!-- Metrics -->
   <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8" aria-label="Verification metrics">
     @for (metric of metrics(); track metric.label) {

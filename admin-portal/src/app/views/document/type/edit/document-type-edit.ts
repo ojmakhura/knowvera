@@ -26,8 +26,7 @@ import {
   linkedSignal,
   OnDestroy,
   OnInit,
-  signal,
-} from '@angular/core';
+  signal, untracked } from '@angular/core';
 import { form, required, applyEach, FormField, min, minLength, FormRoot } from '@angular/forms/signals';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { KeyField } from '@app/models/bw/co/knowvera/key-field';
@@ -37,8 +36,7 @@ import { Loader } from '@app/@shared/loader/loader';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
 import { VerificationDataConfigDTO } from '@app/models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
-// import { ToastrService } from 'ngx-toastr';
-import { PromptMessage } from '@app/models/bw/co/knowvera/llm/prompt-message';
+import { toast } from 'ngx-sonner';
 import { ExpectedFieldType } from '@app/models/bw/co/knowvera/document/type/field/expected-field-type';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { IndividualDTO } from '@app/models/bw/co/knowvera/individual/individual-dto';
@@ -53,6 +51,9 @@ import { VerificationDataConfigApiStore } from '@app/store/bw/co/knowvera/docume
 import { VerificationDataConfigApi } from '@app/services/bw/co/knowvera/document/type/verification/verification-data-config-api';
 import { TimePeriod } from '@app/models/bw/co/knowvera/time-period';
 import { LoaderState } from '@app/@shared/loader/loader.state';
+import { DocumentTypeApi } from '@app/services/bw/co/knowvera/document/type/document-type-api';
+import { ProcessingProfile } from '@app/models/bw/co/knowvera/document/type/processing-profile';
+import { PromptMessage } from '@app/models/bw/co/knowvera/llm/prompt-message';
 
 export class EditDocumentTypeVarsForm {
   id: string | any = null;
@@ -65,14 +66,33 @@ export class EditDocumentTypeVarsForm {
   code: string | any = '';
   name: string | any = '';
   description: string | any = null;
+  processingProfileCode: string | any = '';
+  // This type's own prompts, each replacing the profile's when given ('' = the profile's)
+  validationSystemPrompt: string = '';
+  validationUserPrompt: string = '';
+  textExtractionSystemPrompt: string = '';
+  textExtractionUserPrompt: string = '';
   expires: boolean | any = false;
   expiryField: KeyField | any = null;
   expiryPeriod: TimePeriod | any;
 expiresIn: number | any;
   expectedFields: Array<ExpectedFieldDTO> = [];
-  validationPrompts: Array<PromptMessage> = [];
-  textExtractionPrompts: Array<PromptMessage> = [];
   verificationDataConfigs: VerificationDataConfigDTO[] = [];
+}
+
+/** The content of the first prompt of this role ('' when there is none). */
+function prompt(messages: PromptMessage[] | null | undefined, role: string): string {
+  return messages?.find((message) => message?.role === role && message.content)?.content ?? '';
+}
+
+/** A system and a user prompt as messages, without the empty ones. */
+function prompts(system: string, user: string): PromptMessage[] {
+  return [
+    { role: 'system', content: system?.trim() ?? '' },
+    { role: 'user', content: user?.trim() ?? '' },
+  ]
+    .filter((message) => message.content)
+    .map((message) => Object.assign(new PromptMessage(), message));
 }
 
 @Component({
@@ -101,7 +121,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   @Input() id: string = '';
   protected readonly keyFieldOptions = Object.values(KeyField);
   protected readonly timePeriodOptions = Object.values(TimePeriod);
-  protected readonly promptRoleOptions = ['system', 'user', 'assistant'];
   // protected readonly verificationTagOptions = Object.values(VerificationTag);
   protected readonly expectedFieldIndex = signal(0);
   protected readonly verificationDataConfigIndex = signal(0);
@@ -149,7 +168,28 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
   loaderState = inject(LoaderState);
 
+  // The processing profiles say how a document is processed; a document type may replace the
+  // profile's classification and text extraction prompts with its own.
+  private readonly documentTypeApi = inject(DocumentTypeApi);
+  protected readonly processingProfiles = signal<ProcessingProfile[]>([]);
+  /** The profiles could not be read: the profile is typed in as a code instead of picked. */
+  protected readonly processingProfilesUnavailable = signal(false);
+
+  /** The chosen profile when the list does not hold it (removed, or typed in earlier). */
+  protected readonly unknownProcessingProfile = computed(() => {
+    const code = (this.editDocumentTypeSignal().processingProfileCode ?? '').trim();
+    return code && !this.processingProfiles().some((profile) => profile.code === code) ? code : '';
+  });
+
+  /** A save is under way: its success is announced (loading the type is not). */
+  private saving = false;
+
   constructor() {
+    this.documentTypeApi.processingProfiles().subscribe({
+      next: (profiles) => this.processingProfiles.set(profiles ?? []),
+      error: () => this.processingProfilesUnavailable.set(true),
+    });
+
     effect(() => {
       this.loaderState.isLoading.set(this.loading());
     });
@@ -159,28 +199,25 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
       if (docType) {
         this.editDocumentTypeSignal.set(this.updateDocumentTypeSignal(docType));
+        // The saved type comes back here; success alone does not change between a load and a save
+        if (untracked(() => this.saving && !this.error())) {
+          this.saving = false;
+          untracked(() => toast.success('Document type saved.'));
+        }
       }
     });
 
+    // The toasts are raised untracked: ngx-sonner reads its own toast list when it adds one, which
+    // would make the effect depend on that list and run again for every toast it adds.
     effect(() => {
       const error = this.error();
-      console.log('Error state changed:', error);
 
       if (error) {
-        console.log('Error messages:', this.messages());
-        // this.toastr.error(
-        //   this.messages()[0] || 'An error occurred while saving the document type.',
-        // );
+        this.saving = false;
+        untracked(() => toast.error(this.messages()[0] || 'An error occurred while saving the document type.'));
       }
     });
 
-    effect(() => {
-      const success = this.success();
-
-      if (success) {
-        // this.toastr.success(this.messages()[0] || 'Document type saved successfully.');
-      }
-    });
   }
 
   ngOnInit(): void {
@@ -224,13 +261,13 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     return field;
   }
 
-  expectedFieldsAdd() {
+  expectedFieldsAdd(preset?: ExpectedFieldDTO) {
     const dialogRef = this.dialog.open(ExpectedFieldDialogComponent, {
       width: '760px',
       maxWidth: '95vw',
       data: {
         title: 'Add Expected Field',
-        field: this.createNewExpectedFields(),
+        field: preset ?? this.createNewExpectedFields(),
       },
     });
 
@@ -343,54 +380,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     this.expectedFieldIndex.update((index) => Math.min(this.expectedFieldCount() - 1, index + 1));
   }
 
-  createNewValidationPrompts(): PromptMessage {
-    return new PromptMessage();
-  }
-
-  validationPromptsAdd() {
-    this.editDocumentTypeSignal.update((value) => ({
-      ...value,
-      validationPrompts: [...value.validationPrompts, this.createNewValidationPrompts()],
-    }));
-  }
-
-  validationPromptsRemove(i: number, selected: PromptMessage) {
-    swalFire({
-      title: 'Are you sure?',
-      text: `This will remove the prompt with role "${selected.role}" from the validation prompts list.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, remove it!',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.editDocumentTypeSignal.update((value) => {
-          const validationPrompts = value.validationPrompts.filter(
-            (_: any, index: number) => index !== i,
-          );
-
-          return {
-            ...value,
-            validationPrompts: validationPrompts,
-          };
-        });
-      }
-    });
-  }
-
-  createNewTextExtractionPrompts(): PromptMessage {
-    return new PromptMessage();
-  }
-
-  textExtractionPromptsAdd() {
-    this.editDocumentTypeSignal.update((value) => ({
-      ...value,
-      textExtractionPrompts: [
-        ...value.textExtractionPrompts,
-        this.createNewTextExtractionPrompts(),
-      ],
-    }));
-  }
-
   createNewVerificationDataConfig(): VerificationDataConfigDTO {
     const config = new VerificationDataConfigDTO();
     config.documentTypeId = this.editDocumentTypeSignal().id;
@@ -443,13 +432,13 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
           next: (done: boolean) => {
             if (done) {
               this.saveDocumentType();
-              // this.toastr.success('Verification data config removed successfully.');
+              toast.success('Verification data config removed successfully.');
             }
 
             this.loading.set(false);
           },
           error: (error: any) => {
-            // this.toastr.error('Failed to remove verification data config.');
+            toast.error('Failed to remove verification data config.');
             this.loading.set(false);
           },
         });
@@ -570,51 +559,17 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
   //   });
   // }
 
-  textExtractionPromptsRemove(i: number, selected: PromptMessage) {
-    swalFire({
-      title: 'Are you sure?',
-      text: `This will remove the prompt with role "${selected.role}" from the text extraction prompts list.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, remove it!',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.editDocumentTypeSignal.update((value) => {
-          const textExtractionPrompts = value.textExtractionPrompts.filter(
-            (_: any, index: number) => index !== i,
-          );
-
-          return {
-            ...value,
-            textExtractionPrompts: textExtractionPrompts,
-          };
-        });
-      }
-    });
-  }
-
-  updateTextExtractionPrompt(index: number, field: keyof PromptMessage, value: any): void {
-    this.editDocumentTypeSignal.update((state) => ({
-      ...state,
-      textExtractionPrompts: state.textExtractionPrompts.map((item, itemIndex) => {
-        if (itemIndex !== index) {
-          return item;
-        }
-
-        return {
-          ...item,
-          [field]: value,
-        };
-      }),
-    }));
-  }
-
   updateDocumentTypeSignal(documentType: DocumentTypeDTO): EditDocumentTypeVarsForm {
     return {
       code: documentType.code ?? '',
       createdAt: documentType.createdAt,
       createdBy: documentType.createdBy,
       description: documentType.description,
+      processingProfileCode: documentType.processingProfileCode ?? '',
+      validationSystemPrompt: prompt(documentType.validationPrompts, 'system'),
+      validationUserPrompt: prompt(documentType.validationPrompts, 'user'),
+      textExtractionSystemPrompt: prompt(documentType.textExtractionPrompts, 'system'),
+      textExtractionUserPrompt: prompt(documentType.textExtractionPrompts, 'user'),
       expires: documentType.expires,
       expiryField: documentType.expiryField,
       expiresIn: documentType.expiresIn,
@@ -624,8 +579,6 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
       modifiedBy: documentType.modifiedBy,
       name: documentType.name ?? '',
       expectedFields: documentType.expectedFields || [],
-      textExtractionPrompts: documentType.textExtractionPrompts || [],
-      validationPrompts: documentType.validationPrompts || [],
       verificationDataConfigs: (documentType.verificationDataConfigs || []).map((config: VerificationDataConfigDTO) => ({
         ...config,
         name: config.name ?? '',
@@ -640,6 +593,9 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.createdAt = formData.createdAt;
     docType.createdBy = formData.createdBy;
     docType.description = formData.description;
+    docType.processingProfileCode = formData.processingProfileCode?.trim() || null;
+    docType.validationPrompts = prompts(formData.validationSystemPrompt, formData.validationUserPrompt);
+    docType.textExtractionPrompts = prompts(formData.textExtractionSystemPrompt, formData.textExtractionUserPrompt);
     docType.expires = formData.expires;
     docType.expiryField = formData.expiryField;
     docType.expiryPeriod = formData.expiryPeriod;
@@ -649,14 +605,13 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     docType.modifiedBy = formData.modifiedBy;
     docType.name = formData.name || null;
     docType.expectedFields = formData.expectedFields || [];
-    docType.textExtractionPrompts = formData.textExtractionPrompts || [];
-    docType.validationPrompts = formData.validationPrompts || [];
     docType.verificationDataConfigs = (formData.verificationDataConfigs || []).map((config) => ({
       ...config,
       name: config.name || null,
     }));
 
     this.loaderState.message.set('Saving document type');
+    this.saving = true;
     this.documentTypeApiStore.save({
       documentType: docType,
     });
@@ -866,7 +821,14 @@ export class ExpectedFieldDialogComponent {
     return TARGET_ENTITY_MATCH_TO_FACTORIES[targetType]?.() ?? [];
   });
 
-  expectedFieldSignal = signal<ExpectedFieldDTO>(this.data.field);
+  // Text inputs bound with [formField] start as '' (see EditDocumentTypeVarsForm): signal forms
+  // treats a null model on <input type="text"> as numeric and marks any text invalid
+  expectedFieldSignal = signal<ExpectedFieldDTO>({
+    ...this.data.field,
+    field: this.data.field?.field ?? '',
+    fieldLabel: this.data.field?.fieldLabel ?? '',
+    format: this.data.field?.format ?? '',
+  });
   expectedFieldForm = form(this.expectedFieldSignal, (path) => {
     required(path.field);
   }, { submission: { action: async () => this.onSave() } });
@@ -896,6 +858,12 @@ export class ExpectedFieldDialogComponent {
       return;
     }
 
-    this.dialogRef.close(this.expectedFieldSignal());
+    const field = this.expectedFieldSignal();
+    this.dialogRef.close({
+      ...field,
+      field: field.field?.trim(),
+      fieldLabel: field.fieldLabel?.trim() || null,
+      format: field.format?.trim() || null,
+    });
   }
 }

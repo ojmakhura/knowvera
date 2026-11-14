@@ -1,0 +1,116 @@
+<div class="kv-page">
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/forms">Forms</a>
+    </nav>
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">Forms</h1>
+        <p class="kv-subtitle">
+          Custom forms an organisation has its individual or organisation clients fill as part of
+          their KYC. A published form is required from every such client the organisation onboards
+          and becomes part of the client's KYC record.
+        </p>
+      </div>
+      <div class="kv-actions">
+        @if (canEdit()) {
+          <a class="kv-btn-primary" routerLink="/forms/edit"><mat-icon>add</mat-icon> New Form</a>
+        }
+      </div>
+    </div>
+  </header>
+
+  <section class="kv-card mb-6">
+    <div class="kv-field">
+      <label class="kv-label" for="formCriteria">Code, name or organisation</label>
+      <input
+        id="formCriteria"
+        type="search"
+        class="kv-input"
+        placeholder="Filter the forms..."
+        [value]="criteria()"
+        (input)="criteria.set($any($event.target).value)"
+      />
+    </div>
+  </section>
+
+  <section class="vs-results">
+    <div class="vs-results-head">
+      <h2 class="vs-results-title">Forms</h2>
+      <span class="vs-count">{{ rows().length }}</span>
+    </div>
+    <div class="vs-table-wrap">
+      <table class="vs-table">
+        <thead>
+          <tr>
+            <th>Form</th>
+            <th>Organisation</th>
+            <th>For</th>
+            <th>Status</th>
+            <th class="align-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.id) {
+            <tr>
+              <td>
+                <div class="vs-file">
+                  <mat-icon class="vs-file-icon">dynamic_form</mat-icon>
+                  <div class="vs-file-copy">
+                    @if (canEdit()) {
+                      <a class="vs-file-name" [routerLink]="['/forms', row.id, 'edit']">{{ row.name }}</a>
+                    } @else {
+                      <span class="vs-file-name">{{ row.name }}</span>
+                    }
+                    <p class="vs-file-meta">
+                      {{ row.code }} · {{ row.sections?.length || 0 }} section(s),
+                      {{ fieldCount(row) }} field(s)
+                    </p>
+                  </div>
+                </div>
+              </td>
+              <td>{{ row.organisation || '—' }}</td>
+              <td>{{ 'form.target.' + row.targetType | translate }}</td>
+              <td>
+                <span class="kv-chip" [class]="statusTone(row.status)">
+                  {{ 'form.status.' + row.status | translate }}
+                </span>
+              </td>
+              <td>
+                <div class="vs-row-actions">
+                  @if (canSeeSubmissions()) {
+                    <a
+                      class="vs-action"
+                      matTooltip="Submissions"
+                      aria-label="Submissions"
+                      [routerLink]="['/forms', row.id, 'submissions']"
+                    >
+                      <mat-icon>assignment_turned_in</mat-icon>
+                    </a>
+                  }
+                  @if (canEdit()) {
+                    <a
+                      class="vs-action"
+                      matTooltip="Edit form"
+                      aria-label="Edit form"
+                      [routerLink]="['/forms', row.id, 'edit']"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </a>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr class="vs-empty">
+              <td colspan="5">
+                <mat-icon>dynamic_form</mat-icon>
+                <p>{{ loading() ? 'Loading the forms...' : 'No forms yet.' }}</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

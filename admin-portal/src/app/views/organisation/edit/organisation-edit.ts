@@ -1,3 +1,4 @@
+import { toast } from 'ngx-sonner';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { OrganisationApiStore } from './../../../store/bw/co/knowvera/organisation/organisation-api.store';
@@ -11,8 +12,7 @@ import {
   linkedSignal,
   OnDestroy,
   OnInit,
-  signal,
-} from '@angular/core';
+  signal, untracked } from '@angular/core';
 import { applyEach, email, form, FormField, required, FormRoot } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { GeneralStatus } from '@app/models/bw/co/knowvera/general-status';
@@ -161,11 +161,11 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
-        // this.toaster.success(messages[0]);
+        untracked(() => toast.success(messages[0]));
       }
 
       if (this.error() && !this.loading()) {
-        // this.toaster.error(messages[0]);
+        untracked(() => toast.error(messages[0]));
       }
     });
   }

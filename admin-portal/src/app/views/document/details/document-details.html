@@ -294,39 +294,38 @@
             </div>
             <textarea class="doc-file-content" [formField]="documentForm.fileContent"
               placeholder="No file content available..." spellcheck="false"></textarea>
-            @if (document().verificationStatus != 'REJECTED') {
-              <div class="kv-actions justify-end">
-                <button type="button" class="kv-btn-secondary" (click)="textExtraction()" [disabled]="loading() || !document().id">
-                  <mat-icon>text_snippet</mat-icon>
-                  Text Extraction
-                </button>
-                <button type="button" class="kv-btn-secondary" (click)="analyseDocument()" [disabled]="loading() || !document().id">
-                  <mat-icon>analytics</mat-icon>
-                  Analyse Document
-                </button>
-                <button type="submit" class="kv-btn-primary" [disabled]="loading()">
-                  <mat-icon>save</mat-icon>
-                  Update Document
-                </button>
-              </div>
+            @if (document().verificationStatus == 'REJECTED') {
+              <p class="dp-head-sub">This document was rejected. Analysing it again re-runs every check and replaces the rejection.</p>
             }
+            <div class="kv-actions justify-end">
+              <button type="button" class="kv-btn-secondary" (click)="textExtraction()" [disabled]="loading() || !document().id">
+                <mat-icon>text_snippet</mat-icon>
+                Text Extraction
+              </button>
+              <button type="button" class="kv-btn-secondary" (click)="analyseDocument()" [disabled]="loading() || !document().id">
+                <mat-icon>analytics</mat-icon>
+                Analyse Document
+              </button>
+              <button type="submit" class="kv-btn-primary" [disabled]="loading()">
+                <mat-icon>save</mat-icon>
+                Update Document
+              </button>
+            </div>
           </form>
         </mat-tab>
 
         <mat-tab label="Data Verification">
           <div class="dp-tab-pane">
-            @if (document().verificationStatus != 'REJECTED') {
-              <div class="kv-actions justify-end">
-                <button type="button" class="kv-btn-secondary" (click)="verifyData()" [disabled]="loading() || !document().id">
-                  <mat-icon>fact_check</mat-icon>
-                  Verify Data
-                </button>
-                <button type="button" class="kv-btn-primary" (click)="saveDocument()" [disabled]="loading()">
-                  <mat-icon>save</mat-icon>
-                  Update Document
-                </button>
-              </div>
-            }
+            <div class="kv-actions justify-end">
+              <button type="button" class="kv-btn-secondary" (click)="verifyData()" [disabled]="loading() || !document().id">
+                <mat-icon>fact_check</mat-icon>
+                Verify Data
+              </button>
+              <button type="button" class="kv-btn-primary" (click)="saveDocument()" [disabled]="loading()">
+                <mat-icon>save</mat-icon>
+                Update Document
+              </button>
+            </div>
 
             <div class="dp-table-wrap">
               <table class="dp-table">

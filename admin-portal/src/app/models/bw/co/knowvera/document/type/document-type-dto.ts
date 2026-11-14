@@ -2,8 +2,8 @@ import {AuditableDTO} from '@models/bw/co/knowvera/auditable-dto';
 
 import {ExpectedFieldDTO} from '@models/bw/co/knowvera/document/type/field/expected-field-dto';
 import {VerificationDataConfigDTO} from '@models/bw/co/knowvera/document/type/verification/verification-data-config-dto';
-import {PromptMessage} from '@models/bw/co/knowvera/llm/prompt-message';
 import {TimePeriod} from '@models/bw/co/knowvera/time-period';
+import {PromptMessage} from '@models/bw/co/knowvera/llm/prompt-message';
 
 export class DocumentTypeDTO extends AuditableDTO {
     code: string | any;
@@ -14,8 +14,12 @@ export class DocumentTypeDTO extends AuditableDTO {
     
     expectedFields: Array<ExpectedFieldDTO> | any;
     
+    processingProfileCode: string | any;
+
+    /** This type's own classification prompts (a system and a user message); empty: the profile's. */
     validationPrompts: Array<PromptMessage> | any;
-    
+
+    /** This type's own text extraction prompts; empty: the profile's. */
     textExtractionPrompts: Array<PromptMessage> | any;
     
     verificationDataConfigs: Array<VerificationDataConfigDTO> | any;
@@ -38,6 +42,7 @@ export class DocumentTypeDTO extends AuditableDTO {
         this.name = null;
         this.description = null;
         this.expectedFields = [];
+        this.processingProfileCode = null;
         this.validationPrompts = [];
         this.textExtractionPrompts = [];
         this.verificationDataConfigs = [];

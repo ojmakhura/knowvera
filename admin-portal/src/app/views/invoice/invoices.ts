@@ -16,8 +16,7 @@ import {
   inject,
   linkedSignal,
   OnInit,
-  signal,
-} from '@angular/core';
+  signal, untracked } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { InvoiceSearchCriteria } from '@app/models/bw/co/knowvera/invoice/invoice-search-criteria';
@@ -115,10 +114,10 @@ export class Invoices implements OnInit {
       this.searchInFlight = false;
 
       if (this.error()) {
-        this.toast.error(this.messages()[0] || 'Failed to search invoices.');
+        untracked(() => this.toast.error(this.messages()[0] || 'Failed to search invoices.'));
       } else if (this.notifyOnSuccess) {
         const total = this.kycInvoiceApiStore.dataPage()?.page?.totalElements || 0;
-        this.toast.success(`${total} invoice${total === 1 ? '' : 's'} found`);
+        untracked(() => this.toast.success(`${total} invoice${total === 1 ? '' : 's'} found`));
       }
     });
 

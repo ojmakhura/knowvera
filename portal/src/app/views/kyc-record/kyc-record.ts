@@ -15,10 +15,11 @@ import { DocumentVerificationStatus } from '@app/models/bw/co/knowvera/document/
 import { MatIconModule } from '@angular/material/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { toast } from '@app/@shared/toast';
+import { RequiredForms } from '@app/views/form/required-forms';
 
 @Component({
   selector: 'app-kyc-record',
-  imports: [CommonModule, Loader, MatIconModule, TranslateModule],
+  imports: [CommonModule, Loader, MatIconModule, TranslateModule, RequiredForms],
   templateUrl: './kyc-record.html',
   styleUrl: './kyc-record.scss',
   providers: [

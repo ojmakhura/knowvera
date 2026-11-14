@@ -5,16 +5,16 @@ Single source of truth for knowvera-api authorization. Run from the repository r
     python3 keycloak/generate_authz.py
 
 From ROLES, GRANTS, RESOURCES, PUBLIC_ENDPOINTS and the controllers of the webservice
-(webservice/target/src/main/java: AndroMDA generated *Api interfaces, webservice/src/main/java:
-hand written controllers) it regenerates:
+(knowvera-api/webservice/src/main/java: *Api interfaces and their *ApiImpl controllers) it regenerates:
 
   - keycloak/knowvera-api-authz.json                    Authorization tab import for knowvera-api
   - keycloak/ROLE_MATRIX.md                             role / resource / scope matrix for review
   - knowvera-realm.json                                 the realm export, generated parts updated in place
-  - webservice/src/test/resources/test-realm.json      the same realm for tests: test secrets, seed users
-  - webservice/src/main/resources/keycloak/policy-enforcer.json   policy enforcer paths
-  - webservice/.../config/PublicEndpoints.java          the permitAll matchers of SpringSecurityConfig
-  - webservice/.../auth/RoleAssignmentRules.java        who may assign which roles (UserAdministrationGuard)
+                                                        (and the former veritas-processor client removed)
+  - knowvera-api/webservice/src/test/resources/test-realm.json      the same realm for tests: test secrets, seed users
+  - knowvera-api/webservice/src/main/resources/keycloak/policy-enforcer.json   policy enforcer paths
+  - knowvera-api/webservice/.../config/PublicEndpoints.java         the permitAll matchers of SpringSecurityConfig
+  - knowvera-api/webservice/.../auth/RoleAssignmentRules.java       who may assign which roles (UserAdministrationGuard)
 
 It stops without writing anything when a rule is missing: an API not declared in RESOURCES
 (or declared but gone), an endpoint whose action no rule gives (add it to ENDPOINT_SCOPES), or
@@ -43,17 +43,16 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 SOURCE_DIRS = [
-    ROOT / "webservice/target/src/main/java",
-    ROOT / "webservice/src/main/java",
+    ROOT / "knowvera-api/webservice/src/main/java",
 ]
 REALM_FILE = ROOT / "knowvera-realm.json"
-ENFORCER_FILE = ROOT / "webservice/src/main/resources/keycloak/policy-enforcer.json"
+ENFORCER_FILE = ROOT / "knowvera-api/webservice/src/main/resources/keycloak/policy-enforcer.json"
 CLIENT_ID = "knowvera-api"
 REALM = "knowvera"
 AUTHENTICATED_ROLE = f"default-roles-{REALM}"
 AUTHENTICATED_POLICY = "authenticated-policy"
 
-PUBLIC_ENDPOINTS_FILE = ROOT / "webservice/src/main/java/bw/co/knowvera/config/PublicEndpoints.java"
+PUBLIC_ENDPOINTS_FILE = ROOT / "knowvera-api/webservice/src/main/java/bw/co/knowvera/config/PublicEndpoints.java"
 
 # --------------------------------------------------------------------------
 # Every API, by the resource name derived from its base path. The script stops on an API
@@ -69,6 +68,8 @@ RESOURCES = {
     "documents":                   "Uploaded documents and their verification",
     "employment-records":          "Individuals' employment history",
     "expected-fields":             "Reference: fields expected on a document type",
+    "form-submissions":            "Clients' answers to the custom forms of an organisation",
+    "forms":                       "Custom forms an organisation designs for its clients to fill",
     "individuals":                 "Individuals (KYC subjects)",
     "invoices":                    "Invoices",
     "keycloak":                    "Realm and client role names, and the caller's own permissions",
@@ -78,6 +79,7 @@ RESOURCES = {
     "novu":                        "Notification service configuration",
     "organisation-branches":       "Organisation branches",
     "organisation-document-types": "Documents an organisation requires",
+    "processing-profiles":         "Document processing profiles: steps, providers, models and prompts",
     "organisations":               "Organisations (KYC subjects and clients)",
     "screening":                   "Sanctions list screening of KYC subjects and review of potential matches",
     "sequences":                   "Reference number sequences",
@@ -116,6 +118,12 @@ ENDPOINT_SCOPES = {
     "SuspicionCaseApi.recordReport": "review",
     "SuspicionCaseApi.close": "review",
     "SuspicionCaseApi.draftReport": "export",
+    # The processing profiles a document type can use: read with the document types themselves
+    "ProcessingConfigApi.processingProfiles": "list",
+    # The client hands the answers to a custom form over to the organisation that issued it
+    "FormSubmissionApi.submit": "submit",
+    # The forms on one KYC record: its owner reads them with the record, without the right to list
+    "FormSubmissionApi.findByKycRecord": "view",
 }
 
 # --------------------------------------------------------------------------
@@ -219,7 +227,7 @@ def portal_roles_of(role):
 PRIVILEGED_ROLES = ["SUPER_ADMIN", "DEVELOPER"]
 PRIVILEGED_GRANTOR = "SUPER_ADMIN"
 ORGANISATION_ROLES = ["ORG_USER", "ORG_ADMIN"]
-ROLE_RULES_FILE = ROOT / "webservice/src/main/java/bw/co/knowvera/auth/RoleAssignmentRules.java"
+ROLE_RULES_FILE = ROOT / "knowvera-api/webservice/src/main/java/bw/co/knowvera/auth/RoleAssignmentRules.java"
 
 # Roles allowed to include both the STAFF and the CUSTOMER tree. They hold the full (staff)
 # permissions, so @RequiresOwnership does not limit them to their own records.
@@ -273,6 +281,8 @@ GRANTS = {
         "documents": ("view", "edit", "delete", "submit", "export"),
         "organisations": ("view", "edit"),
         "client-requests": ("view",),
+        # Forms the applicant was asked to fill: read, answer and submit; the definition comes with them
+        "form-submissions": ("view", "edit", "submit"),
     },
     "ORG_USER": {
         "organisations": READ,
@@ -283,11 +293,17 @@ GRANTS = {
         "kyc-records": ("view", "list", "edit", "delete", "submit", "export"),
         "documents": ("view", "list", "edit", "submit", "export"),
         "contacts": ("view", "list", "edit"),
+        # Custom forms: give the organisation's forms to clients and decide on the answers;
+        # also answer the forms the organisation itself was asked to fill
+        "forms": READ,
+        "form-submissions": ("view", "list", "edit", "submit", "review"),
     },
     "ORG_ADMIN": {
         "organisations": ("edit",),
         "organisation-branches": ("edit", "delete"),
         "organisation-document-types": ("edit", "delete"),
+        "forms": ("edit", "delete"),  # designs the organisation's custom forms
+        "form-submissions": ("delete",),
         "users": ("view", "list", "edit", "manage"),
         "keycloak": ("list",),  # role names for assigning roles
         "client-requests": ("delete", "review"),
@@ -299,6 +315,7 @@ GRANTS = {
     "STAFF": {
         **grant(REFERENCE, READ),
         "settings": ("view",),
+        "processing-profiles": READ,
     },
     "KYC_ANALYST": {
         "kyc-records": ("view", "list", "edit", "submit", "verify", "export"),
@@ -309,6 +326,7 @@ GRANTS = {
         "employment-records": ("view", "list", "edit"),
         "contacts": ("view", "list", "edit"),
         "client-requests": READ,
+        **grant(["forms", "form-submissions"], READ),
         "screening": ("list", "verify"),
         # Any analyst may raise a suspicion (and add to it) without seeing other cases
         "suspicion-cases": ("edit",),
@@ -316,6 +334,7 @@ GRANTS = {
     "KYC_REVIEWER": {
         "kyc-records": ("review",),
         "documents": ("review",),
+        "form-submissions": ("review",),  # accepts clients' answers to custom forms or returns them
     },
     # The approve / reject decision goes through the same status endpoint as a review; the
     # service distinguishes them, so the approver adds no API permission of its own.
@@ -372,6 +391,9 @@ GRANTS = {
         "novu": ("view", "edit"),  # dead-letter counts and re-drive
         "organisation-branches": ALL,
         "organisation-document-types": ALL,
+        "processing-profiles": ("edit",),  # profiles are versioned: a save adds a version, none is removed
+        "forms": ALL,
+        "form-submissions": READ,
         "audit-logs": READ,
         "screening": ("list", "edit"),  # refresh the sanctions lists
     },
@@ -816,13 +838,15 @@ public final class RoleAssignmentRules {{
 # Realm. knowvera-realm.json is a full Keycloak export (client scopes, flows, SMTP, ...);
 # the generator owns the parts below and leaves the rest as exported.
 # --------------------------------------------------------------------------
-TEST_REALM_FILE = ROOT / "webservice/src/test/resources/test-realm.json"
+TEST_REALM_FILE = ROOT / "knowvera-api/webservice/src/test/resources/test-realm.json"
 PORTAL_CLIENTS = list(PORTAL_ROLES)
 # Resolved from the environment when Keycloak imports the realm at start-up (--import-realm)
 CLIENT_SECRETS = {CLIENT_ID: "${API_CLIENT_SECRET}"}
 # The API service account creates users, resets passwords, maps roles and manages organizations.
 # view-clients: client lookups (client role names, client-role assignment, users by client role)
 API_SERVICE_ACCOUNT_ROLES = ["manage-users", "manage-realm", "view-clients"]
+# The client of the former veritas-processor service, now part of knowvera-api: removed from the realm
+VERITAS_CLIENT_ID = "veritas-processor"
 TEST_SECRET = "test-secret"
 TEST_PASSWORD = "Test-Passw0rd!"  # meets PASSWORD_POLICY
 SAMPLE_PASSWORD = "ChangeMe-2026!"  # temporary: Keycloak asks for a new one at first login
@@ -850,16 +874,28 @@ def sid(*parts):
     return str(uuid.uuid5(ID_NAMESPACE, "/".join(parts)))
 
 
-def audience_mapper(client_id):
+def audience_mapper(client_id, audience=CLIENT_ID):
+    """Adds {audience} to the access tokens of {client_id}."""
     return {
-        "id": sid("mapper", client_id, "knowvera-api-audience"),  # ids are realm-wide unique
-        "name": f"{CLIENT_ID} audience",
+        "id": sid("mapper", client_id, f"{audience}-audience"),  # ids are realm-wide unique
+        "name": f"{audience} audience",
         "protocol": "openid-connect",
         "protocolMapper": "oidc-audience-mapper",
         "consentRequired": False,
-        "config": {"included.client.audience": CLIENT_ID, "access.token.claim": "true",
+        "config": {"included.client.audience": audience, "access.token.claim": "true",
                    "id.token.claim": "false", "introspection.token.claim": "true"},
     }
+
+
+def remove_veritas_client(realm, clients, roles):
+    """Document processing is part of knowvera-api now: the veritas-processor client, its roles, the
+    audience mapper that let the API call it, and the API's roles on it go."""
+    realm["clients"] = [c for c in realm["clients"] if c.get("clientId") != VERITAS_CLIENT_ID]
+    clients.pop(VERITAS_CLIENT_ID, None)
+    roles.setdefault("client", {}).pop(VERITAS_CLIENT_ID, None)
+    api = clients[CLIENT_ID]
+    api["protocolMappers"] = [m for m in api.get("protocolMappers", [])
+                              if m.get("config", {}).get("included.client.audience") != VERITAS_CLIENT_ID]
 
 
 def seed_username(role):
@@ -906,6 +942,8 @@ def build_realm(realm, authz, test=False):
     for client_id, secret in CLIENT_SECRETS.items():
         clients[client_id]["secret"] = TEST_SECRET if test else secret
 
+    remove_veritas_client(realm, clients, roles)
+
     for client_id in PORTAL_CLIENTS:
         portal = clients[client_id]
         portal.setdefault("attributes", {})["pkce.code.challenge.method"] = "S256"
@@ -923,6 +961,7 @@ def build_realm(realm, authz, test=False):
     for user in users:
         if user.get("username") == f"service-account-{CLIENT_ID}":
             user.setdefault("clientRoles", {})[CLIENT_ID] = ["uma_protection"]
+            user["clientRoles"].pop(VERITAS_CLIENT_ID, None)
             realm_management_roles = user.setdefault("clientRoles", {}).setdefault("realm-management", [])
             user["clientRoles"]["realm-management"] = list(
                 dict.fromkeys([*realm_management_roles, *API_SERVICE_ACCOUNT_ROLES]))

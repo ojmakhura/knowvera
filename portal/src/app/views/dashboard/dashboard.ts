@@ -10,6 +10,7 @@ import { KycRecordApiStore } from '@app/store/bw/co/knowvera/kyc/kyc-record-api.
 
 import { SettingsApiStore } from './../../store/bw/co/knowvera/settings/settings-api.store';
 import { AppEnvStore } from '@app/store/app-env.state';
+import { FormsPrompt } from '@app/views/form/forms-prompt';
 
 type RegistryFilter = 'ALL' | 'CURRENT' | 'ATTENTION';
 
@@ -36,7 +37,7 @@ interface FeaturedRecordCard {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, MatIconModule],
+  imports: [RouterLink, MatIconModule, FormsPrompt],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,7 +1,7 @@
 # Novu notifications
 
 Knowvera sends user-facing notifications through [Novu](https://novu.co). This folder holds the
-drafts for the four Novu workflows and the JSON contracts between the API, RabbitMQ and Novu.
+drafts for the five Novu workflows and the JSON contracts between the API, RabbitMQ and Novu.
 
 ```
 publisher (API / core)                 RabbitMQ                          webservice                Novu
@@ -17,6 +17,7 @@ portals ── GET /novu/config ──► { subscriberId, subscriberHash } ─�
 | `novu-new-org-user` | `q.novu-new-org-user` | `KeycloakUserService.registerUser` (member of an organisation) | in-app, email | works once the template exists |
 | `novu-new-org-client-request` | `q.novu-new-org-client-request` | `ClientRequestNotification` (core), after a single client request is saved | email only | works once the template exists; bulk upload sends nothing yet |
 | `novu-new-kyc-record` | `q.novu-new-kyc-record` | nobody | in-app, email | proposed; listener ignores messages |
+| `novu-form-required` | `q.novu-form-required` | `FormRequiredNotification` (core), when a published form is added to KYC records that already exist | in-app, email | works once the template exists |
 
 Files:
 
@@ -34,12 +35,12 @@ Settings row exists.
 
 ## Setting up Novu
 
-1. In the Novu dashboard (one environment per Knowvera environment), create the four workflows
+1. In the Novu dashboard (one environment per Knowvera environment), create the five workflows
    with exactly the ids above, or point the API at the ids you have. Novu derives a workflow's id
    from its name when it is created ("New User" → `new-user`) and it cannot be renamed later, so
    it is usually easier to set the API's ids:
    `NOVU_NEW_USER_NOVU_ID`, `NOVU_NEW_ORG_USER_NOVU_ID`, `NOVU_NEW_ORG_CLIENT_REQUEST_NOVU_ID`,
-   `NOVU_NEW_KYC_RECORD_NOVU_ID`. They must exist in the environment `NOVU_API_KEY` belongs to.
+   `NOVU_NEW_KYC_RECORD_NOVU_ID`, `NOVU_FORM_REQUIRED_NOVU_ID`. They must exist in the environment `NOVU_API_KEY` belongs to.
 2. For each workflow, paste the payload schema from `workflows/<id>.json`, add the steps listed
    there, and paste `templates/<id>.email.html` as the email body. Mark `novu-new-user`,
    `novu-new-org-user` and `novu-new-org-client-request` *critical*, so subscriber preferences cannot
@@ -140,6 +141,24 @@ POST /individuals (new individual, hasUser = true, no existing user)  Individual
  └ KeycloakUserService.registerUser(individual, organisation of the individual's branch or organisation)
 ```
 
+**Form to complete (`novu-form-required`)**
+
+```
+POST /forms (status PUBLISHED)                          FormApiImpl.save
+ └ FormServiceImpl.handleSave → FormRequirements.requireFrom(form, user)
+    ├ the organisation's client requests (not rejected) for the form's kind of client
+    ├ per KYC record those clients already have: a FormSubmission (NEW), unless the record has the form
+    └ FormRequiredNotification.queue(new submission ids)
+       ├ after the caller's transaction commits: virtualThreadExecutor → read-only transaction → send(ids)
+       │   └ per id: formSubmissionRepository.findById → buildPayload → recipient = the individual's
+       │     emailAddress, or the organisation's contactEmailAddress (none → skipped with a warning)
+       └ ConfirmedPublisher.publish(x.novu-form-required-queue, …) → processFormRequiredQueue → trigger
+```
+
+A client that gets the form while doing its KYC (`FormRequirements.requireFor`, from
+`GET /form-submissions/by-record/{id}` or `/mine`) is not notified: it is looking at the form.
+The email's button needs `Settings.kycPortalLink`; without it the email says to sign in.
+
 **Not sending:** `novu-new-kyc-record` has no publisher, and `processNewKycRecordQueue` only logs.
 `KeycloakUserService.registerUser(String individualId)` has no callers.
 
@@ -157,6 +176,7 @@ A notification that fails every attempt waits in its dead-letter queue until it 
 | `q.novu-new-org-user` | `q.novu-new-org-user.dlq` |
 | `q.novu-new-org-client-request` | `q.novu-new-org-client-request.dlq` |
 | `q.novu-new-kyc-record` | `q.novu-new-kyc-record.dlq` |
+| `q.novu-form-required` | `q.novu-form-required.dlq` |
 
 **1. Find the cause.** The API log has one warning per attempt with Novu's reply:
 

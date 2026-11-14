@@ -1,0 +1,189 @@
+<div class="kv-page">
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/kyc-reports">KYC Reports</a>
+      <mat-icon>chevron_right</mat-icon>
+      <a routerLink="/kyc-reports" [queryParams]="{ organisation: organisationId() }">{{ organisationName() || 'Organisation' }}</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">{{ summary()?.name || 'Client' }}</span>
+    </nav>
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">{{ summary()?.name || 'KYC Report' }}</h1>
+        <p class="kv-subtitle">
+          KYC report for {{ organisationName() || 'the organisation' }}, with the fields and forms it configured.
+        </p>
+      </div>
+      <div class="kv-actions kyc-report-actions">
+        <button type="button" class="kv-btn-secondary" (click)="print()" [disabled]="!summary()">
+          <mat-icon>print</mat-icon>
+          Print
+        </button>
+      </div>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <p class="dp-empty-text">Loading the report…</p>
+  } @else if (failed() || !summary()) {
+    <p class="dp-empty-text">The report could not be loaded.</p>
+  } @else {
+    @let s = summary()!;
+    <div class="kv-stack">
+
+      <!-- Client and decision -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">{{ isIndividual() ? 'person' : 'corporate_fare' }}</mat-icon>
+          <h2 class="kv-card-title">Client</h2>
+          <span class="kv-chip" [class]="complianceTone(s.kycStatus)">{{ labelOf(s.kycStatus) }}</span>
+          <span class="kv-chip" [class]="riskTone(s.riskLevel)">{{ labelOf(s.riskLevel) }} risk</span>
+        </div>
+        <dl class="kv-detail-grid">
+          <div class="kv-field"><dt class="kv-label">Record</dt><dd class="kv-value">{{ s.ref || '—' }}</dd></div>
+          <div class="kv-field">
+            <dt class="kv-label">{{ isIndividual() ? 'Identity No.' : 'Registration No.' }}</dt>
+            <dd class="kv-value">{{ s.identityNo || '—' }}@if (s.identityType) { ({{ labelOf(s.identityType) }}) }</dd>
+          </div>
+          <div class="kv-field"><dt class="kv-label">Email</dt><dd class="kv-value">{{ s.emailAddress || '—' }}</dd></div>
+          <div class="kv-field"><dt class="kv-label">Phone</dt><dd class="kv-value">{{ phones() }}</dd></div>
+          <div class="kv-field"><dt class="kv-label">Physical Address</dt><dd class="kv-value">{{ s.physicalAddress || '—' }}</dd></div>
+          <div class="kv-field"><dt class="kv-label">Postal Address</dt><dd class="kv-value">{{ s.postalAddress || '—' }}</dd></div>
+          <div class="kv-field"><dt class="kv-label">Expires</dt><dd class="kv-value">{{ s.expiryDate ? (s.expiryDate | date: 'mediumDate') : '—' }}</dd></div>
+          <div class="kv-field">
+            <dt class="kv-label">Reviewed</dt>
+            <dd class="kv-value">{{ s.reviewedBy || '—' }}@if (s.reviewedAt) { · {{ s.reviewedAt | date: 'medium' }} }</dd>
+          </div>
+          <div class="kv-field">
+            <dt class="kv-label">Approved</dt>
+            <dd class="kv-value">{{ s.approvedBy || '—' }}@if (s.approvedAt) { · {{ s.approvedAt | date: 'medium' }} }</dd>
+          </div>
+          <div class="kv-field md:col-span-2"><dt class="kv-label">Risk Factors</dt><dd class="kv-value">{{ s.riskFactors?.length ? s.riskFactors.join('; ') : '—' }}</dd></div>
+        </dl>
+      </section>
+
+      <!-- Declarations -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">gavel</mat-icon>
+          <h2 class="kv-card-title">Declarations</h2>
+        </div>
+        <dl class="kv-detail-grid">
+          <div class="kv-field"><dt class="kv-label">PEP Status</dt><dd class="kv-value">{{ labelOf(s.pepStatus) }}</dd></div>
+          <div class="kv-field"><dt class="kv-label">PEP Details</dt><dd class="kv-value">{{ s.pepDetails || '—' }}</dd></div>
+          <div class="kv-field"><dt class="kv-label">Sanctions Match</dt><dd class="kv-value">{{ s.sanctionsMatch ? 'Yes' : 'No' }}</dd></div>
+          <div class="kv-field"><dt class="kv-label">Sanctions Details</dt><dd class="kv-value">{{ s.sanctionsDetails || '—' }}</dd></div>
+          <div class="kv-field"><dt class="kv-label">Source of Funds</dt><dd class="kv-value">{{ list(s.sourceOfFunds) }}</dd></div>
+          <div class="kv-field"><dt class="kv-label">Source of Funds Details</dt><dd class="kv-value">{{ s.sourceOfFundsDetails || '—' }}</dd></div>
+          <div class="kv-field"><dt class="kv-label">Source of Wealth</dt><dd class="kv-value">{{ list(s.wealthSources) }}</dd></div>
+          <div class="kv-field"><dt class="kv-label">Source of Wealth Details</dt><dd class="kv-value">{{ s.sourceOfWealthDetails || '—' }}</dd></div>
+        </dl>
+      </section>
+
+      <!-- Report sections the organisation chose -->
+      @for (section of sections(); track section.id || section.label) {
+        <section class="kv-card">
+          <div class="kv-card-header">
+            <mat-icon class="kv-card-icon">fact_check</mat-icon>
+            <h2 class="kv-card-title">{{ section.label || 'Section' }}</h2>
+            <span class="kv-tag">{{ (section.fieldValues || []).length }} field{{ (section.fieldValues || []).length === 1 ? '' : 's' }}</span>
+          </div>
+          <div class="dp-table-wrap">
+            <table class="dp-table">
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>On the document</th>
+                  <th>On the client's record</th>
+                  <th>Check</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (value of section.fieldValues || []; track value.id || value.fieldId || $index) {
+                  <tr>
+                    <td class="font-semibold">{{ value.fieldLabel || value.field || '—' }}</td>
+                    <td>{{ value.data?.extractedValue || '—' }}</td>
+                    <td>{{ value.data?.expectedValue || '—' }}</td>
+                    <td>
+                      @if (value.data?.success === true) {
+                        <span class="kv-chip kv-tone-success"><mat-icon>check</mat-icon> Passed</span>
+                      } @else if (value.data?.success === false) {
+                        <span class="kv-chip kv-tone-danger"><mat-icon>close</mat-icon> Failed</span>
+                      } @else {
+                        <span class="kv-chip kv-tone-neutral">Read only</span>
+                      }
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="4" class="dp-table-empty">No document has provided these fields yet.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      } @empty {
+        <section class="kv-card">
+          <p class="dp-empty-text">No report fields are configured for this kind of client.</p>
+        </section>
+      }
+
+      <!-- Answers to the organisation's forms -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">dynamic_form</mat-icon>
+          <h2 class="kv-card-title">Form Answers</h2>
+          <span class="kv-tag">{{ (s.formSubmissions || []).length }}</span>
+        </div>
+        <div class="kv-stack-md">
+          @for (submission of s.formSubmissions || []; track submission.id || $index) {
+            <div class="kv-panel">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <div>
+                  <div class="font-semibold">{{ submission.formName || submission.formCode || 'Form' }}</div>
+                  <div class="dp-muted text-xs">
+                    @if (submission.submittedAt) {
+                      Submitted {{ submission.submittedAt | date: 'medium' }}@if (submission.submittedBy) { by {{ submission.submittedBy }} }
+                    } @else if (submission.dueDate) {
+                      Due {{ submission.dueDate | date: 'mediumDate' }}
+                    }
+                  </div>
+                </div>
+                <span class="kv-chip" [class]="submission.status === 'ACCEPTED' ? 'kv-tone-success' : submission.status === 'RETURNED' ? 'kv-tone-danger' : 'kv-tone-neutral'">{{ labelOf(submission.status) }}</span>
+              </div>
+              <dl class="kv-detail-grid">
+                @for (value of submission.values || []; track value.id || value.fieldId || $index) {
+                  <div class="kv-field"><dt class="kv-label">{{ value.label || 'Answer' }}</dt><dd class="kv-value">{{ answer(value) }}</dd></div>
+                } @empty {
+                  <div class="kv-field"><dd class="dp-empty-text">No answers yet.</dd></div>
+                }
+              </dl>
+            </div>
+          } @empty {
+            <p class="dp-empty-text">The client has no answers to this organisation's forms.</p>
+          }
+        </div>
+      </section>
+
+      <!-- Documents on the record -->
+      <section class="kv-card">
+        <div class="kv-card-header">
+          <mat-icon class="kv-card-icon">folder</mat-icon>
+          <h2 class="kv-card-title">Documents</h2>
+          <span class="kv-tag">{{ (s.documents || []).length }}</span>
+        </div>
+        <div class="dp-table-wrap">
+          <table class="dp-table">
+            <thead><tr><th>File</th><th>Verification</th></tr></thead>
+            <tbody>
+              @for (document of s.documents || []; track $index) {
+                <tr><td>{{ document.key || '—' }}</td><td>{{ labelOf(document.value) }}</td></tr>
+              } @empty {
+                <tr><td colspan="2" class="dp-table-empty">No documents.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  }
+</div>

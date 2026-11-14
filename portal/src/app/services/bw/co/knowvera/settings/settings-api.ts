@@ -11,7 +11,6 @@ import { FinancialSettings } from '@app/models/bw/co/knowvera/settings/financial
 import { OperationalMetrics } from '@app/models/bw/co/knowvera/settings/operational-metrics';
 import { PlatformIdentity } from '@app/models/bw/co/knowvera/settings/platform-identity';
 import { SettingsFieldGroups } from '@app/models/bw/co/knowvera/settings/settings-field-groups';
-import { SettingsToolSelectors } from '@app/models/bw/co/knowvera/settings/settings-tool-selectors';
 import { TemplateMappings } from '@app/models/bw/co/knowvera/settings/template-mappings';
 import { SalaryRangeDTO } from '@app/models/bw/co/knowvera/settings/salary-range-dto';
 
@@ -107,9 +106,6 @@ export class SettingsApi {
     return this.http.get<SettingsFieldGroups>(`${this.path}/field-groups`);
   }
 
-  public getSettingsToolSelectors(): Observable<SettingsToolSelectors> {
-    return this.http.get<SettingsToolSelectors>(`${this.path}/tool-selectors`);
-  }
 
   public getTemplateMappings(): Observable<TemplateMappings> {
     return this.http.get<TemplateMappings>(`${this.path}/template-mappings`);
@@ -150,14 +146,6 @@ export class SettingsApi {
     return this.http.post<SettingsFieldGroups>(`${this.path}/field-groups`, settingsFieldGroups);
   }
 
-  public saveSettingsToolSelectors(
-    settingsToolSelectors: SettingsToolSelectors,
-  ): Observable<SettingsToolSelectors> {
-    return this.http.post<SettingsToolSelectors>(
-      `${this.path}/tool-selectors`,
-      settingsToolSelectors,
-    );
-  }
 
   public saveTemplateMappings(templateMappings: TemplateMappings): Observable<TemplateMappings> {
     return this.http.post<TemplateMappings>(`${this.path}/template-mappings`, templateMappings);

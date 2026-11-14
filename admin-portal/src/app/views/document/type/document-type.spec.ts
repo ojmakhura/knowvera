@@ -239,21 +239,15 @@ describe('DocumentTypeComponent', () => {
     expect(toastSuccessSpy).not.toHaveBeenCalled();
   });
 
-  it('should calculate field and prompt counts defensively', () => {
+  it('should calculate field counts defensively', () => {
     const documentType = new DocumentTypeDTO();
     documentType.expectedFields = [{}, {}];
-    documentType.validationPrompts = [{}];
-    documentType.textExtractionPrompts = [{}, {}, {}];
 
     expect(component.fieldCount(documentType)).toBe(2);
-    expect(component.promptCount(documentType)).toBe(4);
 
     documentType.expectedFields = null;
-    documentType.validationPrompts = null;
-    documentType.textExtractionPrompts = undefined;
 
     expect(component.fieldCount(documentType)).toBe(0);
-    expect(component.promptCount(documentType)).toBe(0);
   });
 
   it('should navigate to create and edit pages', () => {

@@ -31,6 +31,13 @@ export const menuItems: ShellMenuItem[] = [
     label: 'KYC Records',
   },
   {
+    routerLink: '/kyc-reports',
+    titleKey: 'kyc.report.title',
+    icon: 'summarize',
+    permissions: ['kyc-records:list'],
+    label: 'KYC Reports',
+  },
+  {
     routerLink: '/compliance/screening',
     titleKey: 'screening.title',
     icon: 'policy',
@@ -86,6 +93,13 @@ export const menuItems: ShellMenuItem[] = [
     permissions: ['sequences:list'],
     label: 'Sequences',
   },
+  {
+    routerLink: '/forms',
+    titleKey: 'form.title',
+    icon: 'dynamic_form',
+    permissions: ['forms:list'],
+    label: 'Forms',
+  },
 ];
 
 export const settingsMenuItems: ShellMenuItem[] = [
@@ -116,13 +130,6 @@ export const settingsMenuItems: ShellMenuItem[] = [
     icon: 'account_tree',
     permissions: ['kyc-field-groups:list'],
     label: 'FIend Groups',
-  },
-  {
-    routerLink: '/settings/tool-selectors',
-    titleKey: 'settings.toolSelectors.title',
-    icon: 'settings_input_component',
-    permissions: ['settings:list'],
-    label: 'Tool Selectors',
   },
   {
     routerLink: '/settings/templates',

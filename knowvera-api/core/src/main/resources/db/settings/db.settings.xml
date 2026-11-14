@@ -1,0 +1,70 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="
+                        http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!-- A KYC field group is for individuals or for organisations: only that side's settings link is
+         set. Hibernate made both columns NOT NULL from an earlier mapping, so no group could be saved. -->
+    <changeSet id="kyc-field-group-one-settings-link" author="knowvera">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="kyc_field_group"/></preConditions>
+        <dropNotNullConstraint tableName="kyc_field_group" columnName="individual_settings_fk" columnDataType="UUID"/>
+        <dropNotNullConstraint tableName="kyc_field_group" columnName="organisation_settings_fk" columnDataType="UUID"/>
+    </changeSet>
+
+    <!-- An expected field can be in several groups (one for individuals, one for organisations). The
+         earlier one-to-one mapping made Hibernate put a unique constraint on the column. -->
+    <changeSet id="group-field-expected-field-not-unique" author="knowvera">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="group_field"/></preConditions>
+        <sql splitStatements="false">
+            DO $$
+            DECLARE c record;
+            BEGIN
+                FOR c IN SELECT con.conname FROM pg_constraint con
+                         JOIN pg_attribute a ON a.attrelid = con.conrelid AND a.attnum = ANY (con.conkey)
+                         WHERE con.conrelid = 'group_field'::regclass AND con.contype = 'u'
+                           AND a.attname = 'expected_field_fk' AND array_length(con.conkey, 1) = 1
+                LOOP
+                    EXECUTE format('ALTER TABLE group_field DROP CONSTRAINT %I', c.conname);
+                END LOOP;
+            END $$;
+        </sql>
+    </changeSet>
+
+    <!-- An organisation picks its report fields from the shared library, so several organisations
+         can use one field. The earlier one-to-many mapping made Hibernate put a unique constraint on
+         the field column of both join tables. -->
+    <changeSet id="individual-fields2organisation-field-not-unique" author="knowvera">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="individual_fields2organisation"/></preConditions>
+        <sql splitStatements="false">
+            DO $$
+            DECLARE c record;
+            BEGIN
+                FOR c IN SELECT con.conname FROM pg_constraint con
+                         JOIN pg_attribute a ON a.attrelid = con.conrelid AND a.attnum = ANY (con.conkey)
+                         WHERE con.conrelid = 'individual_fields2organisation'::regclass AND con.contype = 'u'
+                           AND a.attname = 'individual_fields_fk' AND array_length(con.conkey, 1) = 1
+                LOOP
+                    EXECUTE format('ALTER TABLE individual_fields2organisation DROP CONSTRAINT %I', c.conname);
+                END LOOP;
+            END $$;
+        </sql>
+    </changeSet>
+    <changeSet id="organisation2organisation-fields-field-not-unique" author="knowvera">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="organisation2organisation_fields"/></preConditions>
+        <sql splitStatements="false">
+            DO $$
+            DECLARE c record;
+            BEGIN
+                FOR c IN SELECT con.conname FROM pg_constraint con
+                         JOIN pg_attribute a ON a.attrelid = con.conrelid AND a.attnum = ANY (con.conkey)
+                         WHERE con.conrelid = 'organisation2organisation_fields'::regclass AND con.contype = 'u'
+                           AND a.attname = 'organisation_fields_fk' AND array_length(con.conkey, 1) = 1
+                LOOP
+                    EXECUTE format('ALTER TABLE organisation2organisation_fields DROP CONSTRAINT %I', c.conname);
+                END LOOP;
+            END $$;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

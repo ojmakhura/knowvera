@@ -1,6 +1,6 @@
 services:
   # ---------------------------------------------------------------------------
-  # knowvera Web Service - the application (built from ./Dockerfile)
+  # knowvera Web Service - the application (built from ./knowvera-api/Dockerfile)
   # ---------------------------------------------------------------------------
   knowvera-webservice:
     image: knowvera-webservice:latest
@@ -68,10 +68,6 @@ services:
       ADMIN_WEB_URL: ${ADMIN_WEB_URL:-http://localhost:4200}
       MIN_PASSWORD_LENGTH: ${MIN_PASSWORD_LENGTH:-12}
 
-      # --- Tesseract OCR ---
-      TESSDATA_PREFIX: ${TESSDATA_PREFIX:-/usr/share/tesseract-ocr/4/tessdata}
-      TESSDATA_LANGS: ${TESSDATA_LANGS:-eng}
-
       # --- Communication service ---
       COMM_SERVICE_URL: ${COMM_SERVICE_URL:-}
       SEND_MESSAGE_URL: ${SEND_MESSAGE_URL:-}
@@ -82,45 +78,36 @@ services:
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost:4300}
       JWT_AUDIENCES: ${JWT_AUDIENCES:-knowvera-api}
       DOCUMENT_AUTO_VERIFY: ${DOCUMENT_AUTO_VERIFY:-false}
+
+      # --- Document processing (OCR and document models; jobs over RabbitMQ, x.veritas) ---
+      PROCESSING_DEFAULT_PROFILE: ${PROCESSING_DEFAULT_PROFILE:-default}
+      # false: this instance queues jobs but does not run them (another instance must)
+      PROCESSING_WORKER: ${PROCESSING_WORKER:-true}
+      PROCESSING_JOB_CONCURRENCY: ${PROCESSING_JOB_CONCURRENCY:-1-4}
+      # Never send documents out of the deployment (Data Protection Act 2024 ss.74-76)
+      PROCESSING_LOCAL_ONLY: ${PROCESSING_LOCAL_ONLY:-true}
+      # How long jobs (document text and fields included) are kept, e.g. 90d; empty: forever
+      PROCESSING_JOB_RETENTION: ${PROCESSING_JOB_RETENTION:-}
+      PROCESSING_MAX_FILE_SIZE: ${PROCESSING_MAX_FILE_SIZE:-25MB}
+      PROCESSING_MAX_PAGES: ${PROCESSING_MAX_PAGES:-50}
+      TESSDATA_PREFIX: ${TESSDATA_PREFIX:-/usr/share/tesseract-ocr/5/tessdata}
+      TESSDATA_LANGS: ${TESSDATA_LANGS:-eng}
+      LLM_MODEL: ${LLM_MODEL:-gemma4}
+      LMSTUDIO_BASE_URL: ${LMSTUDIO_BASE_URL:-http://localhost:1234}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://localhost:11434}
+      OLLAMA_NUM_CTX: ${OLLAMA_NUM_CTX:-8192}
+      LLM_READ_TIMEOUT: ${LLM_READ_TIMEOUT:-5m}
+      GEMINI_PROJECT_ID: ${GEMINI_PROJECT_ID:-central-kyc}
+      GEMINI_LOCATION: ${GEMINI_LOCATION:-us-central1}
+      SPRING_AI_VERTEX_MODEL: ${SPRING_AI_VERTEX_MODEL:-gemini-2.5-flash}
       AUTHZ_PERMISSION_AUTHORITIES: ${AUTHZ_PERMISSION_AUTHORITIES:-true}
       API_CLIENT: ${API_CLIENT:-knowvera-api}
       API_CLIENT_SECRET: ${API_CLIENT_SECRET:-secret}
 
-      # --- LLM / AI providers ---
-      LLM_ID: ${LLM_ID:-ollama}
-      LLM_MODEL: ${LLM_MODEL:-gemma4}
-      LMSTUDIO_BASE_URL: ${LMSTUDIO_BASE_URL:-http://localhost:1234}
-      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://localhost:11434}
-      OLLAMA_MODEL: ${OLLAMA_MODEL:-gemma4}
-      GEMINI_BASE_URL: ${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com}
-      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.0-flash}
-      GEMINI_PROJECT_ID: ${GEMINI_PROJECT_ID:-central-kyc}
-      GEMINI_LOCATION: ${GEMINI_LOCATION:-us-central1}
-      GCP_CREDENTIALS_FILE: ${GCP_CREDENTIALS_FILE:-/path/to/credentials.json}
-
       # --- RabbitMQ exchanges / queues / routing keys ---
-      DOCUMENT_HANDLER_DEAD_LETTER_EXCHANGE: ${DOCUMENT_HANDLER_DEAD_LETTER_EXCHANGE:-x.document-dispatch-failure}
-      DOCUMENT_HANDLER_DEAD_LETTER_QUEUE: ${DOCUMENT_HANDLER_DEAD_LETTER_QUEUE:-q.fall-back-document-dispatch}
-      DOCUMENT_HANDLER_DEAD_LETTER_ROUTING_KEY: ${DOCUMENT_HANDLER_DEAD_LETTER_ROUTING_KEY:-document-fall-back}
-      TEXT_EXTRACTION_QUEUE_EXCHANGE: ${TEXT_EXTRACTION_QUEUE_EXCHANGE:-x.text-extraction-queue}
-      TEXT_EXTRACTION_QUEUE: ${TEXT_EXTRACTION_QUEUE:-q.text-extraction}
-      TEXT_EXTRACTION_QUEUE_ROUTING_KEY: ${TEXT_EXTRACTION_QUEUE_ROUTING_KEY:-text-extraction}
-      GEMINI_TEXT_EXTRACTION_QUEUE_EXCHANGE: ${GEMINI_TEXT_EXTRACTION_QUEUE_EXCHANGE:-x.gemini-text-extraction-queue}
-      GEMINI_TEXT_EXTRACTION_QUEUE: ${GEMINI_TEXT_EXTRACTION_QUEUE:-q.gemini-text-extraction}
-      GEMINI_TEXT_EXTRACTION_QUEUE_ROUTING_KEY: ${GEMINI_TEXT_EXTRACTION_QUEUE_ROUTING_KEY:-gemini-text-extraction}
-      DOCUMENT_CONFIRMATION_QUEUE_EXCHANGE: ${DOCUMENT_CONFIRMATION_QUEUE_EXCHANGE:-x.document-confirmation-queue}
-      DOCUMENT_CONFIRMATION_QUEUE: ${DOCUMENT_CONFIRMATION_QUEUE:-q.document-confirmation}
-      DOCUMENT_CONFIRMATION_QUEUE_ROUTING_KEY: ${DOCUMENT_CONFIRMATION_QUEUE_ROUTING_KEY:-document-confirmation}
-      TEXT_PROCESSING_QUEUE_EXCHANGE: ${TEXT_PROCESSING_QUEUE_EXCHANGE:-x.text-processing-queue}
-      TEXT_PROCESSING_QUEUE: ${TEXT_PROCESSING_QUEUE:-q.text-processing}
-      TEXT_PROCESSING_QUEUE_ROUTING_KEY: ${TEXT_PROCESSING_QUEUE_ROUTING_KEY:-text-processing}
       INFORMATION_CONFIRMATION_QUEUE_EXCHANGE: ${INFORMATION_CONFIRMATION_QUEUE_EXCHANGE:-x.information-confirmation-queue}
       INFORMATION_CONFIRMATION_QUEUE: ${INFORMATION_CONFIRMATION_QUEUE:-q.information-confirmation}
       INFORMATION_CONFIRMATION_QUEUE_ROUTING_KEY: ${INFORMATION_CONFIRMATION_QUEUE_ROUTING_KEY:-information-confirmation}
-      TEXT_CLEANUP_QUEUE_EXCHANGE: ${TEXT_CLEANUP_QUEUE_EXCHANGE:-x.text-cleanup-queue}
-      TEXT_CLEANUP_QUEUE: ${TEXT_CLEANUP_QUEUE:-q.text-cleanup}
-      TEXT_CLEANUP_QUEUE_ROUTING_KEY: ${TEXT_CLEANUP_QUEUE_ROUTING_KEY:-text-cleanup}
       KYC_VERIFICATION_QUEUE_EXCHANGE: ${KYC_VERIFICATION_QUEUE_EXCHANGE:-x.kyc-verification-queue}
       KYC_VERIFICATION_QUEUE: ${KYC_VERIFICATION_QUEUE:-q.kyc-verification}
       KYC_VERIFICATION_QUEUE_ROUTING_KEY: ${KYC_VERIFICATION_QUEUE_ROUTING_KEY:-kyc-verification}
@@ -161,8 +148,6 @@ services:
       - "traefik.http.services.knowvera.loadbalancer.healthcheck.interval=30s"
     networks:
       - knowvera
-
-
 
 networks:
   knowvera:

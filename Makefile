@@ -1,28 +1,32 @@
 # include ./Makefile.dev
 
+###
+## knowvera-api: common <- core <- webservice (knowvera-api/pom.xml is the top-level build)
+###
+API := knowvera-api
+MVN_API := mvn -f $(API)/pom.xml
+API_VERSION = $$($(MVN_API) help:evaluate -Dexpression=project.version -q -DforceStdout)
+
 build_common:
-	mvn -rf common install -DskipTests=true
+	$(MVN_API) -pl common install -DskipTests=true
 
 build_core:
-	mvn -rf core install -DskipTests=true
+	$(MVN_API) -pl core -am install -DskipTests=true
 
-test_core: 
-	. ./.env && mvn -pl core test
-
-test_api: 
-	. ./.env && mvn -pl webservice test
-	
 build_api:
-	. ./.env && mvn -rf webservice install -DskipTests=true
-	
-build_mda:
-	. ./.env && mvn -rf mda install -DskipTests=true
+	. ./.env && $(MVN_API) install -DskipTests=true
 
-build_web: 
-	mvn -f angular install -DskipTests=true -o
+test_core:
+	. ./.env && $(MVN_API) -pl core -am test
 
-build_web_dist: build_web local_web_deps
-	. ./.env && cd angular/target/knowvera && npm run build --configuration=production
+test_webservice: build_core
+	. ./.env && $(MVN_API) -pl webservice test
+
+test_api:
+	. ./.env && $(MVN_API) test
+
+clean_api:
+	$(MVN_API) clean
 
 build_portal_dist: 
 	. ./.env && cd portal && npm run build --configuration=production
@@ -30,25 +34,23 @@ build_portal_dist:
 build_admin_portal_dist: 
 	. ./.env && cd admin-portal && npm run build --configuration=production
 
-build_native: 
-	. ./.env && mvn clean && mvn -pl webservice native:compile -Pnative -DskipTests
+build_native: clean_api build_core
+	. ./.env && $(MVN_API) -Pnative -pl webservice native:compile -DskipTests
 
-native_image: 
-	. ./.env && mvn -Pnative -pl webservice/ -am spring-boot:build-image
+native_image: build_core
+	. ./.env && $(MVN_API) -Pnative -pl webservice spring-boot:build-image -DskipTests
 
-build_app: 
-	mvn install -DskipTests=true
+build_app: build_api
 
 clean_build: clean_all build_app
 
-clean_all:
-	mvn clean
+clean_all: clean_api
 
 clean_module:
 	mvn -f ${module} clean
 	
 build_api_image: build_api
-	. ./.env && export API_IMAGE_VERSION=$$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout) && docker build -t $${API_IMAGE_NAME}:$${API_IMAGE_VERSION} . && docker tag $${API_IMAGE_NAME}:$${API_IMAGE_VERSION} $${API_IMAGE_NAME}:latest
+	. ./.env && export API_IMAGE_VERSION=$(API_VERSION) && docker build -t $${API_IMAGE_NAME}:$${API_IMAGE_VERSION} $(API) && docker tag $${API_IMAGE_NAME}:$${API_IMAGE_VERSION} $${API_IMAGE_NAME}:latest
 
 build_portal_image: build_portal_dist
 	. ./.env && export PORTAL_IMAGE_VERSION=$$(node -p "require('./portal/package.json').version") && docker build -t $${PORTAL_IMAGE_NAME}:$${PORTAL_IMAGE_VERSION} portal && docker tag $${PORTAL_IMAGE_NAME}:$${PORTAL_IMAGE_VERSION} $${PORTAL_IMAGE_NAME}:latest
@@ -65,13 +67,13 @@ push_admin_image:
 	. ./.env && export ADMIN_IMAGE_VERSION=$$(node -p "require('./admin-portal/package.json').version") && docker push $${ADMIN_IMAGE_NAME}:$${ADMIN_IMAGE_VERSION} && docker push $${ADMIN_IMAGE_NAME}:latest
 
 push_api_image: 
-	. ./.env && export API_IMAGE_VERSION=$$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout) && docker push $${API_IMAGE_NAME}:$${API_IMAGE_VERSION} && docker push $${API_IMAGE_NAME}:latest
+	. ./.env && export API_IMAGE_VERSION=$(API_VERSION) && docker push $${API_IMAGE_NAME}:$${API_IMAGE_VERSION} && docker push $${API_IMAGE_NAME}:latest
 
 
 ###
 ## Versions
 ## make versions                         -> show current versions
-## make set_api_version VERSION=1.2.0    -> backend (all maven modules)
+## make set_api_version VERSION=1.2.0    -> knowvera-api (all its maven modules)
 ## make set_portal_version VERSION=1.2.0
 ## make set_admin_version VERSION=1.2.0
 ## make set_versions VERSION=1.2.0       -> backend + both portals
@@ -80,12 +82,12 @@ check_version:
 	@test -n "$(VERSION)" || (echo "VERSION is required, e.g. make $(MAKECMDGOALS) VERSION=1.2.0" && exit 1)
 
 versions:
-	@echo "api:          $$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+	@echo "api:          $(API_VERSION)"
 	@echo "portal:       $$(node -p "require('./portal/package.json').version")"
 	@echo "admin-portal: $$(node -p "require('./admin-portal/package.json').version")"
 
 set_api_version: check_version
-	mvn versions:set -DnewVersion=$(VERSION) -DprocessAllModules=true -DgenerateBackupPoms=false
+	$(MVN_API) versions:set -DnewVersion=$(VERSION) -DprocessAllModules=true -DgenerateBackupPoms=false
 
 set_portal_version: check_version
 	cd portal && npm version $(VERSION) --no-git-tag-version --allow-same-version
@@ -101,35 +103,15 @@ set_versions: set_api_version set_portal_version set_admin_version
 run_module_local:
 	. ./.env && cd ${module} && mvn spring-boot:run
 	
-run_api_local: 
-	. ./.env && mvn -pl webservice/ -am spring-boot:run
+run_api_local: build_core
+	. ./.env && $(MVN_API) -pl webservice spring-boot:run
 
-local_web_deps: build_web
-	cd angular/target/knowvera && npm i
-
-local_web_deps_force:
-	cd angular/target/knowvera && npm i --force
-
-run_web_local: build_web
-	cd angular/target/knowvera && npm start
-
-run_portal_local: update_portal_deps
+run_portal_local:
 	cd portal && npm start
 
-run_admin_portal_local: update_admin_deps
+run_admin_portal_local:
 	cd admin-portal && npm start
 
-update_portal_deps:
-	cp -rf angular/target/src/app/models/* portal/src/app/models/
-	cp -rf angular/src/app/models/* portal/src/app/models/
-	cp -rf angular/src/app/services/* portal/src/app/services/
-	cp -rf angular/src/app/store/* portal/src/app/store/
-
-update_admin_deps:
-	cp -rf angular/target/src/app/models/* admin-portal/src/app/models/
-	cp -rf angular/src/app/models/* admin-portal/src/app/models/
-	cp -rf angular/src/app/services/* admin-portal/src/app/services/
-	cp -rf angular/src/app/store/* admin-portal/src/app/store/
 # --- JMeter (plans generated by scripts/generate_jmeter.py; see jmeter/README.md) ---
 # Override per run, e.g. make jmeter_authz JMETER_ARGS="-JkeycloakUrl=https://keycloak.local -Jhost=api.local -Jport=443 -Jprotocol=https"
 JMETER ?= /usr/local/apache-jmeter-5.6.3/bin/jmeter

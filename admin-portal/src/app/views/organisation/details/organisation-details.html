@@ -3,7 +3,7 @@
   <header class="org-header">
     <div class="kv-stack-sm min-w-0">
       <nav class="kv-breadcrumb" aria-label="Breadcrumb">
-        <a routerLink="/organisation">Organisations</a>
+        <a routerLink="/organisations">Organisations</a>
         <mat-icon>chevron_right</mat-icon>
         <span class="kv-breadcrumb-current">{{ organisation().code || organisation().name || 'Details' }}</span>
       </nav>
@@ -47,7 +47,7 @@
         <mat-icon>file_download</mat-icon>
         Export Record
       </button>
-      <button type="button" class="dp-btn-outline is-primary-text" [routerLink]="['/organisation', organisation().id || id, 'edit']">
+      <button type="button" class="dp-btn-outline is-primary-text" [routerLink]="['/organisations', organisation().id || id, 'edit']">
         <mat-icon>edit</mat-icon>
         Edit Organisation
       </button>
@@ -166,7 +166,7 @@
         </ul>
       </div>
 
-      <button type="button" class="dp-dashed-btn" [routerLink]="['/organisation', organisation().id || id, 'edit']">
+      <button type="button" class="dp-dashed-btn" [routerLink]="['/organisations', organisation().id || id, 'edit']">
         <mat-icon>add</mat-icon>
         Add Domain
       </button>
@@ -284,7 +284,7 @@
           <h2 class="org-card-title">KYC Document Requirements (Target Rules)</h2>
           <p class="dp-head-sub">Mandatory document types defined for organisation entities and individual members</p>
         </div>
-        <button type="button" class="dp-btn-soft" routerLink="/settings">
+        <button type="button" class="dp-btn-soft" (click)="openManageRequirements()">
           <mat-icon>tune</mat-icon>
           Manage Requirements
         </button>
@@ -400,6 +400,59 @@
           </div>
         }
       </div>
+    </section>
+
+    <!-- Forms the organisation asks its clients to complete -->
+    <section class="org-card kv-col-full">
+      <div class="org-card-head org-card-head--wrap">
+        <span class="dp-icon-tile"><mat-icon>dynamic_form</mat-icon></span>
+        <div class="dp-head-copy">
+          <div class="kv-row-sm">
+            <h2 class="org-card-title">Client Forms</h2>
+            <span class="dp-mini-badge dp-mini-badge--soft">{{ forms().length }} Form{{ forms().length === 1 ? '' : 's' }}</span>
+          </div>
+          <p class="dp-head-sub">Forms this organisation asks its clients to complete. Their submissions are included in the client KYC reports.</p>
+        </div>
+        <a class="dp-btn-navy is-sm" routerLink="/forms/edit">
+          <mat-icon>add</mat-icon>
+          New Form
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @for (set of [
+          { title: 'For Organisation Clients', icon: 'corporate_fare', forms: organisationClientForms(), empty: 'No forms for organisation clients.' },
+          { title: 'For Individual Clients', icon: 'supervised_user_circle', forms: individualClientForms(), empty: 'No forms for individual clients.' }
+        ]; track set.title) {
+          <div class="dp-group">
+            <div class="flex items-center justify-between gap-2">
+              <h3 class="dp-group-title"><mat-icon>{{ set.icon }}</mat-icon> {{ set.title }}</h3>
+              <span class="org-req-count">{{ set.forms.length }}</span>
+            </div>
+            <div class="flex flex-col gap-2">
+              @for (clientForm of set.forms; track clientForm.id) {
+                <div class="org-doc">
+                  <mat-icon>description</mat-icon>
+                  <div class="min-w-0 flex-1">
+                    <a class="org-doc-name" [routerLink]="['/forms', clientForm.id, 'edit']">{{ clientForm.name || '-' }}</a>
+                    <span class="dp-list-sub">{{ clientForm.code || '-' }} · {{ (clientForm.sections || []).length }} section{{ (clientForm.sections || []).length === 1 ? '' : 's' }}</span>
+                  </div>
+                  <span class="org-doc-tag">{{ clientForm.status || 'DRAFT' }}</span>
+                  <a class="dp-btn-mini" [routerLink]="['/forms', clientForm.id, 'submissions']">
+                    <mat-icon>inbox</mat-icon>
+                    Submissions
+                  </a>
+                </div>
+              } @empty {
+                <p class="empty-text">{{ set.empty }}</p>
+              }
+            </div>
+          </div>
+        }
+      </div>
+      @if (formsError()) {
+        <p class="empty-text">The forms could not be loaded.</p>
+      }
     </section>
   </div>
 
@@ -540,165 +593,6 @@
               </div>
             </mat-tab>
 
-            <mat-tab>
-              <ng-template mat-tab-label
-                ><mat-icon class="tab-icon">corporate_fare</mat-icon
-                ><span>Org KYC Report</span></ng-template
-              >
-              <div class="tab-content tab-kyc-report">
-                <div class="table-head">
-                  <h3>Organisation KYC Report Sections</h3>
-                  <div class="table-head-actions">
-                    @if (selectedOrganisationKycGroup().length) {
-                      <span class="live-chip">Filtered</span>
-                      <button mat-button type="button" (click)="clearOrganisationKycFieldGroupFilter()">
-                        Clear Filter
-                      </button>
-                    }
-                    <button mat-stroked-button type="button" (click)="openOrganisationKycFieldGroupDialog()">
-                      <mat-icon>filter_list</mat-icon>
-                      Select Field Group
-                    </button>
-                    <span class="branches-count"
-                      >{{ selectedOrganisationReportGroups().length }} Section{{
-                        selectedOrganisationReportGroups().length === 1 ? '' : 's'
-                      }}</span
-                    >
-                  </div>
-                </div>
-
-                @for (
-                  section of selectedOrganisationKycGroup();
-                  track section.id || section.label
-                ) {
-                  <div class="vault-card report-section-card">
-                    <div class="section-head">
-                      <mat-icon class="section-icon">fact_check</mat-icon>
-                      <h2>{{ section.label || 'Untitled Section' }}</h2>
-                      @if (section.label) {
-                        <span class="cell-sub">{{ section.label }}</span>
-                      }
-                    </div>
-
-                    <div class="table-responsive">
-                      <table class="simple-table">
-                        <thead>
-                          <tr>
-                            <th>Field</th>
-                            <th>Extracted Value</th>
-                            <th>Expected Value</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (
-                            fieldValue of section.groupFields;
-                            track fieldValue.id || fieldValue.fieldId
-                          ) {
-                            <tr>
-                              <td>{{ fieldValue.fieldLabel || fieldValue.field || 'Unknown Field' }}</td>
-                              <td>{{ fieldValue.data?.extractedValue || '-' }}</td>
-                              <td>{{ fieldValue.data?.expectedValue || '-' }}</td>
-                              <td>
-                                @if (fieldValue.data?.success) {
-                                  <span class="verify-ok"
-                                    ><mat-icon class="icon-fill">verified</mat-icon> Match</span
-                                  >
-                                } @else {
-                                  <span class="verify-rejected"
-                                    ><mat-icon>cancel</mat-icon> Mismatch</span
-                                  >
-                                }
-                              </td>
-                            </tr>
-                          } @empty {
-                            <tr>
-                              <td colspan="4" class="simple-table__empty">
-                                No fields captured for this section.
-                              </td>
-                            </tr>
-                          }
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                } @empty {
-                  <p class="empty-text">No organisation KYC report sections available.</p>
-                }
-              </div>
-            </mat-tab>
-
-            <mat-tab>
-              <ng-template mat-tab-label
-                ><mat-icon class="tab-icon">person</mat-icon><span>Ind KYC Report</span></ng-template
-              >
-              <div class="tab-content tab-kyc-report">
-                <div class="table-head">
-                  <h3>Individual KYC Report Sections</h3>
-                  <span class="branches-count"
-                    >{{ individualFieldGroups().length }} Section{{
-                      individualFieldGroups().length === 1 ? '' : 's'
-                    }}</span
-                  >
-                </div>
-
-                @for (section of individualFieldGroups(); track section.id || section.label) {
-                  <!-- <div class="vault-card report-section-card">
-                    <div class="section-head">
-                      <mat-icon class="section-icon">fact_check</mat-icon>
-                      <h2>{{ section.label || 'Untitled Section' }}</h2>
-                      @if (section.kycRecordRef) {
-                        <span class="cell-sub">{{ section.kycRecordRef }}</span>
-                      }
-                    </div>
-
-                    <div class="table-responsive">
-                      <table class="simple-table">
-                        <thead>
-                          <tr>
-                            <th>Field</th>
-                            <th>Extracted Value</th>
-                            <th>Expected Value</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          @for (
-                            fieldValue of section.fieldValues;
-                            track fieldValue.id || fieldValue.fieldId
-                          ) {
-                            <tr>
-                              <td>{{ fieldValue.fieldLabel || fieldValue.field || 'Unknown Field' }}</td>
-                              <td>{{ fieldValue.data?.extractedValue || '-' }}</td>
-                              <td>{{ fieldValue.data?.expectedValue || '-' }}</td>
-                              <td>
-                                @if (fieldValue.data?.success) {
-                                  <span class="verify-ok"
-                                    ><mat-icon class="icon-fill">verified</mat-icon> Match</span
-                                  >
-                                } @else {
-                                  <span class="verify-rejected"
-                                    ><mat-icon>cancel</mat-icon> Mismatch</span
-                                  >
-                                }
-                              </td>
-                            </tr>
-                          } @empty {
-                            <tr>
-                              <td colspan="4" class="simple-table__empty">
-                                No fields captured for this section.
-                              </td>
-                            </tr>
-                          }
-                        </tbody>
-                      </table>
-                    </div>
-                  </div> -->
-                } @empty {
-                  <p class="empty-text">No individual KYC report sections available.</p>
-                }
-              </div>
-            </mat-tab>
           </mat-tab-group>
         </div>
       </mat-tab>

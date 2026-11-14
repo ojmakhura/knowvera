@@ -1,0 +1,32 @@
+@if (available()) {
+  <section class="kv-card">
+    <div class="kv-card-header">
+      <mat-icon class="kv-card-icon">dynamic_form</mat-icon>
+      <h2 class="kv-card-title">Forms</h2>
+    </div>
+    <div class="flex flex-col gap-2">
+      @for (submission of submissions(); track submission.id) {
+        <div class="dp-list-item is-primary">
+          <span class="min-w-0">
+            <a class="block truncate font-medium" [routerLink]="['/forms/submissions', submission.id]">
+              {{ submission.formName }}
+            </a>
+            <span class="block truncate text-sm text-on-surface-variant">
+              {{ submission.organisation }}
+              @if (submission.submittedAt) {
+                · submitted {{ submission.submittedAt | date: 'mediumDate' }}
+              }
+            </span>
+          </span>
+          <span class="kv-chip shrink-0" [class]="tone(submission.status)">
+            {{ 'form.submission.status.' + submission.status | translate }}
+          </span>
+        </div>
+      } @empty {
+        <p class="text-sm text-on-surface-variant">
+          No organisation requires a form from this client.
+        </p>
+      }
+    </div>
+  </section>
+}

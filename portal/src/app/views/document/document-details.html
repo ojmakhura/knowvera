@@ -82,7 +82,7 @@
 					<span class="dp-icon-tile"><mat-icon>psychology</mat-icon></span>
 					<div class="dp-head-copy">
 						<h2 class="kv-card-title">AI Automated Validation</h2>
-						<p class="dp-head-sub">Neural OCR Engine v4.2 analysis complete.</p>
+						<p class="dp-head-sub" aria-live="polite">{{ analysisSummary() }}</p>
 					</div>
 					<div class="dp-head-aside text-right">
 						<p class="dp-metric">{{ confidenceScore().toFixed(2) }}%</p>
@@ -230,9 +230,9 @@
 
 		<aside class="lg:col-span-4 flex flex-col gap-6" aria-label="Document actions">
 			<section class="flex flex-col gap-3">
-				<button type="button" class="kv-btn-primary w-full" (click)="analyseDocument()">
-					<mat-icon>download</mat-icon>
-					Download Archive
+				<button type="button" class="kv-btn-primary w-full" [disabled]="analysisPending()" (click)="analyseDocument()">
+					<mat-icon>psychology</mat-icon>
+					{{ analysisPending() ? 'Analysing…' : 'Run Analysis' }}
 				</button>
 				<div class="grid grid-cols-2 gap-3">
 					<button type="button" class="kv-btn-secondary" (click)="openMetadataEdit()">Metadata</button>

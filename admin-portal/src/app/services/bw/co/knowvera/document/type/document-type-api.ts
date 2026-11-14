@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Page } from '@models/page.model';
 import { SearchObject } from '@models/search-object';
 import { ExpectedFieldDTO } from '@app/models/bw/co/knowvera/document/type/field/expected-field-dto';
+import { ProcessingProfile } from '@app/models/bw/co/knowvera/document/type/processing-profile';
 
 @Service()
 export class DocumentTypeApi {
@@ -53,4 +54,11 @@ export class DocumentTypeApi {
 
         return this.http.post<DocumentTypeDTO | any>(`${this.path}/${documentTypeId}/expected-field`, expectedFields);
     }
+
+    /** The processing profiles a document type can use. */
+    public processingProfiles(): Observable<ProcessingProfile[]> {
+
+        return this.http.get<ProcessingProfile[]>(`${this.path}/processing/profiles`);
+    }
+
 }

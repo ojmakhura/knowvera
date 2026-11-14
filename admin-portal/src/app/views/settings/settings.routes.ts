@@ -36,13 +36,6 @@ export const settingsRoutes: Routes = [
       import('./field-groups/field-groups').then((m) => m.FieldGroups),
   },
   {
-    path: 'tool-selectors',
-    canActivate: [AuthenticationGuard],
-    data: { permissions: ['settings:list'] },
-    loadComponent: () =>
-      import('./tool-selectors/tool-selectors').then((m) => m.ToolSelectors),
-  },
-  {
     path: 'templates',
     canActivate: [AuthenticationGuard],
     data: { permissions: ['document-types:list'] },

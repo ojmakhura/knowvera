@@ -1,0 +1,127 @@
+<div class="kv-page">
+  <header>
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/forms">Forms</a>
+      <mat-icon>chevron_right</mat-icon>
+      @if (submission(); as s) {
+        <a [routerLink]="['/forms', s.formId, 'submissions']">{{ s.formCode }}</a>
+        <mat-icon>chevron_right</mat-icon>
+      }
+      <span class="kv-breadcrumb-current">Submission</span>
+    </nav>
+    <div class="kv-page-header">
+      <div>
+        <h1 class="kv-title">{{ submission()?.formName || 'Form submission' }}</h1>
+        <p class="kv-subtitle">{{ submission()?.organisation }}</p>
+      </div>
+      <div class="kv-actions">
+        @if (canReview()) {
+          <button type="button" class="kv-btn-secondary" (click)="returnToClient()">
+            <mat-icon>undo</mat-icon> Return to client
+          </button>
+          <button type="button" class="kv-btn-primary" (click)="accept()">
+            <mat-icon>check</mat-icon> Accept
+          </button>
+        }
+      </div>
+    </div>
+  </header>
+
+  @if (submission(); as s) {
+    <div class="kv-layout">
+      <div class="kv-col-main kv-stack">
+        @for (section of sections(); track $index) {
+          <section class="kv-card">
+            <div class="kv-card-header">
+              <mat-icon class="kv-card-icon">view_agenda</mat-icon>
+              <h2 class="kv-card-title">{{ section.label }}</h2>
+            </div>
+            @if (section.description) {
+              <p class="text-sm text-on-surface-variant mb-4">{{ section.description }}</p>
+            }
+            <dl class="kv-stack-sm">
+              @for (field of section.fields; track $index) {
+                <div>
+                  <dt class="kv-label">
+                    {{ field.label }}
+                    @if (field.required) {
+                      <span aria-hidden="true">*</span>
+                    }
+                  </dt>
+                  <dd class="kv-value whitespace-pre-line">
+                    @if (field.answer) {
+                      {{ field.answer }}
+                    } @else {
+                      <span class="text-on-surface-variant italic">Not answered</span>
+                    }
+                  </dd>
+                </div>
+              }
+            </dl>
+          </section>
+        } @empty {
+          <section class="kv-card">
+            <p class="text-sm text-on-surface-variant">The form has no fields.</p>
+          </section>
+        }
+      </div>
+
+      <aside class="kv-col-side kv-stack">
+        <section class="kv-card">
+          <div class="kv-card-header">
+            <mat-icon class="kv-card-icon">assignment_turned_in</mat-icon>
+            <h2 class="kv-card-title">Submission</h2>
+          </div>
+          <dl class="kv-meta-list">
+            <div class="kv-meta-row">
+              <dt class="kv-meta-label">Status</dt>
+              <dd class="kv-meta-value">
+                <span class="kv-chip" [class]="tone(s.status)">
+                  {{ 'form.submission.status.' + s.status | translate }}
+                </span>
+              </dd>
+            </div>
+            <div class="kv-meta-row">
+              <dt class="kv-meta-label">Client</dt>
+              <dd class="kv-meta-value">
+                {{ s.clientName }} ({{ 'target.entity.' + s.target | translate }})
+              </dd>
+            </div>
+            <div class="kv-meta-row">
+              <dt class="kv-meta-label">KYC record</dt>
+              <dd class="kv-meta-value">
+                <a class="dp-mono" [routerLink]="['/records', s.kycRecordId]">{{ s.kycRecordRef }}</a>
+              </dd>
+            </div>
+            <div class="kv-meta-row">
+              <dt class="kv-meta-label">Asked</dt>
+              <dd class="kv-meta-value">{{ s.createdAt | date: 'medium' }}</dd>
+            </div>
+            @if (s.dueDate) {
+              <div class="kv-meta-row">
+                <dt class="kv-meta-label">Due</dt>
+                <dd class="kv-meta-value">{{ s.dueDate | date: 'mediumDate' }}</dd>
+              </div>
+            }
+            @if (s.submittedAt) {
+              <div class="kv-meta-row">
+                <dt class="kv-meta-label">Submitted</dt>
+                <dd class="kv-meta-value">{{ s.submittedAt | date: 'medium' }} · {{ s.submittedBy }}</dd>
+              </div>
+            }
+            @if (s.reviewedAt) {
+              <div class="kv-meta-row">
+                <dt class="kv-meta-label">Reviewed</dt>
+                <dd class="kv-meta-value">{{ s.reviewedAt | date: 'medium' }} · {{ s.reviewedBy }}</dd>
+              </div>
+            }
+          </dl>
+          @if (s.reviewNote) {
+            <p class="kv-label mt-4">Review note</p>
+            <p class="kv-value whitespace-pre-line">{{ s.reviewNote }}</p>
+          }
+        </section>
+      </aside>
+    </div>
+  }
+</div>

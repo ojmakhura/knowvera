@@ -16,8 +16,7 @@ import {
   linkedSignal,
   OnDestroy,
   OnInit,
-  signal,
-} from '@angular/core';
+  signal, untracked } from '@angular/core';
 import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -52,7 +51,7 @@ export class SearchDocumentTypesVarsForm {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocumentTypeComponent implements OnInit, OnDestroy {
-  displayedColumns: string[] = ['code', 'name', 'description', 'fields', 'prompts', 'actions'];
+  displayedColumns: string[] = ['code', 'name', 'description', 'fields', 'profile', 'actions'];
 
   searchDocumentTypesVarsForm: SearchDocumentTypesVarsForm = new SearchDocumentTypesVarsForm();
   searchDocumentTypesSignal = signal(this.searchDocumentTypesVarsForm);
@@ -108,10 +107,10 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
       this.searchInFlight = false;
 
       if (this.error()) {
-        this.toast.error(this.messages()[0] || 'Failed to search document types.');
+        untracked(() => this.toast.error(this.messages()[0] || 'Failed to search document types.'));
       } else if (this.notifyOnSuccess) {
         const total = this.documentTypeApiStore.dataPage()?.page?.totalElements || 0;
-        this.toast.success(`${total} document type${total === 1 ? '' : 's'} found`);
+        untracked(() => this.toast.success(`${total} document type${total === 1 ? '' : 's'} found`));
       }
     });
   }
@@ -174,10 +173,6 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
 
   fieldCount(documentType: DocumentTypeDTO): number {
     return documentType.expectedFields?.length || 0;
-  }
-
-  promptCount(documentType: DocumentTypeDTO): number {
-    return (documentType.validationPrompts?.length || 0) + (documentType.textExtractionPrompts?.length || 0);
   }
 
   openCreate(): void {

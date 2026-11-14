@@ -17,7 +17,7 @@ python3 scripts/generate_jmeter.py
 
 1. **JMeter 5.6 or later** (the plans were checked with 5.6.3) ([jmeter.apache.org](https://jmeter.apache.org/download_jmeter.cgi)). The Ubuntu
    `jmeter` package (2.13) cannot load any test plan (`ForbiddenClassException: ScriptWrapper`).
-2. **Keycloak with the test realm** (`webservice/src/test/resources/test-realm.json`): it has the
+2. **Keycloak with the test realm** (`knowvera-api/webservice/src/test/resources/test-realm.json`): it has the
    sample users below and allows the password grant the plans sign in with. The deployable realm
    (`knowvera-realm.json`) turns that grant off on the portals.
 3. **The API**, pointed at that Keycloak. For the load test, raise the per-user limit:

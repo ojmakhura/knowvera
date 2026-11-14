@@ -61,6 +61,8 @@ Owner-scoped roles (CUSTOMER, APPLICANT, ORG_USER, ORG_ADMIN) are granted `<scop
 | `documents` | – | own: view, edit, delete, submit, export | own: view, list, edit, submit, export | own: view, list, edit, delete, submit, export | – | view, list, edit, submit, verify, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, verify, review, export | view, list, verify | view, list | view, list, export | view, list, edit, submit, verify, review, export | view, list, edit, submit, verify, review, export | view, list, submit, export | – | – | **all** | **all**; own: view, list, edit, delete, submit, export |
 | `employment-records` | – | own: view, list, edit, delete | – | – | – | view, list, edit | view, list, edit | view, list, edit | view, list | view, list | view, list | view, list, edit | view, list, edit | view, list, edit | – | – | **all** | **all**; own: view, list, edit, delete |
 | `expected-fields` | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | **all** | **all** | view, list | view, list | **all** | **all** | **all** |
+| `form-submissions` | – | own: view, edit, submit | own: view, list, edit, submit, review | own: view, list, edit, delete, submit, review | – | view, list | view, list, review | view, list, review | – | – | view, list | view, list, review | view, list, review | – | – | view, list | **all** | **all**; own: view, list, edit, delete, submit, review |
+| `forms` | – | – | own: view, list | own: view, list, edit, delete | – | view, list | view, list | view, list | – | – | view, list | view, list | view, list | – | – | **all** | **all** | **all**; own: view, list, edit, delete |
 | `individuals` | – | own: view, edit | own: view, list | own: view, list | – | view, list, edit, verify | view, list, edit, verify | view, list, edit, verify | view, list, verify | view, list | view, list | view, list, edit, verify | view, list, edit, verify | view, list, edit | – | – | **all** | **all**; own: view, list, edit |
 | `invoices` | – | – | – | own: view, list, submit | – | – | – | – | – | – | view, list | view, list | view, list | – | **all** | – | **all** | **all**; own: view, list, submit |
 | `keycloak` | – | – | – | **all** | – | – | – | – | – | – | **all** | **all** | **all** | – | – | **all** | **all** | **all** |
@@ -71,6 +73,7 @@ Owner-scoped roles (CUSTOMER, APPLICANT, ORG_USER, ORG_ADMIN) are granted `<scop
 | `organisation-branches` | – | – | own: view, list | own: view, list, edit, delete | – | – | – | – | – | – | view, list | view, list | view, list | view, list | – | **all** | **all** | **all**; own: view, list, edit, delete |
 | `organisation-document-types` | – | – | own: view, list | own: view, list, edit, delete | – | – | – | – | – | – | view, list | view, list, edit | view, list, edit | – | – | **all** | **all** | **all**; own: view, list, edit, delete |
 | `organisations` | – | own: view, edit | own: view, list | own: view, list, edit | – | view, list, verify | view, list, verify | view, list, verify | view, list, verify | view, list | view, list | view, list, verify | view, list, verify | view, list, edit | view, list | – | **all** | **all**; own: view, list, edit |
+| `processing-profiles` | – | – | – | – | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | view, list | **all** | **all** | **all** |
 | `screening` | – | – | – | – | – | list, verify | list, verify | list, verify | **all** | – | list | **all** | **all** | – | – | list, edit | **all** | **all** |
 | `sequences` | – | – | – | – | – | – | – | – | – | – | view, list | view, list | view, list | – | – | **all** | **all** | **all** |
 | `settings` | view | view | view | view | view | view | view | view | view | view | view, list | view, list | view, list | view | view | **all** | **all** | **all** |
@@ -165,6 +168,7 @@ Reference: document types
 | `view` | `SCOPE_document-types:view` | `GET /document-types/{id}` | `findById` |
 | `list` | `SCOPE_document-types:list` | `GET /document-types` | `getAll` |
 | `list` | `SCOPE_document-types:list` | `GET /document-types/paged` | `getAllPaged` |
+| `list` | `SCOPE_document-types:list` | `GET /document-types/processing/profiles` | `processingProfiles` |
 | `list` | `SCOPE_document-types:list` | `GET /document-types/search` | `search` |
 | `list` | `SCOPE_document-types:list` | `GET /document-types/search/paged` | `pagedSearch` |
 | `edit` | `SCOPE_document-types:edit` | `POST /document-types` | `save` |
@@ -224,6 +228,36 @@ Reference: fields expected on a document type
 | `list` | `SCOPE_expected-fields:list` | `POST /expected-fields/document-types/page` | `findByDocumentTypePage` |
 | `edit` | `SCOPE_expected-fields:edit` | `POST /expected-fields` | `save` |
 | `delete` | `SCOPE_expected-fields:delete` | `DELETE /expected-fields/{id}` | `remove` |
+
+### `form-submissions`
+
+Clients' answers to the custom forms of an organisation
+
+| Scope | Authority | Endpoint | Method |
+|---|---|---|---|
+| `self` | – | `GET /form-submissions/mine` | `findMySubmissions` |
+| `view` | `SCOPE_form-submissions:view` / `SCOPE_form-submissions:view-own` | `GET /form-submissions/by-record/{kycRecordId}` | `findByKycRecord` |
+| `view` | `SCOPE_form-submissions:view` / `SCOPE_form-submissions:view-own` | `GET /form-submissions/{id}` | `findById` |
+| `list` | `SCOPE_form-submissions:list` / `SCOPE_form-submissions:list-own` | `GET /form-submissions/by-form/{formId}` | `findByForm` |
+| `list` | `SCOPE_form-submissions:list` / `SCOPE_form-submissions:list-own` | `GET /form-submissions/by-org/{organisationId}` | `findByOrganisation` |
+| `list` | `SCOPE_form-submissions:list` / `SCOPE_form-submissions:list-own` | `POST /form-submissions/search` | `search` |
+| `edit` | `SCOPE_form-submissions:edit` / `SCOPE_form-submissions:edit-own` | `POST /form-submissions` | `createSubmission` |
+| `edit` | `SCOPE_form-submissions:edit` / `SCOPE_form-submissions:edit-own` | `POST /form-submissions/{id}/values` | `saveValues` |
+| `delete` | `SCOPE_form-submissions:delete` / `SCOPE_form-submissions:delete-own` | `DELETE /form-submissions/{id}` | `remove` |
+| `submit` | `SCOPE_form-submissions:submit` / `SCOPE_form-submissions:submit-own` | `POST /form-submissions/{id}/submit` | `submit` |
+| `review` | `SCOPE_form-submissions:review` / `SCOPE_form-submissions:review-own` | `POST /form-submissions/{id}/status` | `updateStatus` |
+
+### `forms`
+
+Custom forms an organisation designs for its clients to fill
+
+| Scope | Authority | Endpoint | Method |
+|---|---|---|---|
+| `view` | `SCOPE_forms:view` / `SCOPE_forms:view-own` | `GET /forms/{id}` | `findById` |
+| `list` | `SCOPE_forms:list` / `SCOPE_forms:list-own` | `GET /forms` | `getAll` |
+| `list` | `SCOPE_forms:list` / `SCOPE_forms:list-own` | `GET /forms/by-org/{organisationId}` | `findByOrganisation` |
+| `edit` | `SCOPE_forms:edit` / `SCOPE_forms:edit-own` | `POST /forms` | `save` |
+| `delete` | `SCOPE_forms:delete` / `SCOPE_forms:delete-own` | `DELETE /forms/{id}` | `remove` |
 
 ### `individuals`
 
@@ -400,6 +434,18 @@ Organisations (KYC subjects and clients)
 | `delete` | `SCOPE_organisations:delete` | `DELETE /organisations/{id}` | `remove` |
 | `verify` | `SCOPE_organisations:verify` | `GET /organisations/{id}/verification` | `verifyOrganisation` |
 
+### `processing-profiles`
+
+Document processing profiles: steps, providers, models and prompts
+
+| Scope | Authority | Endpoint | Method |
+|---|---|---|---|
+| `view` | `SCOPE_processing-profiles:view` | `GET /processing-profiles/{code}` | `findLatest` |
+| `view` | `SCOPE_processing-profiles:view` | `GET /processing-profiles/{code}/versions/{version}` | `findVersion` |
+| `list` | `SCOPE_processing-profiles:list` | `GET /processing-profiles` | `findAll` |
+| `list` | `SCOPE_processing-profiles:list` | `GET /processing-profiles/{code}/versions` | `findVersions` |
+| `edit` | `SCOPE_processing-profiles:edit` | `PUT /processing-profiles/{code}` | `save` |
+
 ### `screening`
 
 Sanctions list screening of KYC subjects and review of potential matches
@@ -439,7 +485,6 @@ Platform settings
 | `view` | `SCOPE_settings:view` | `GET /settings/operational-metrics` | `getOperationalMetrics` |
 | `view` | `SCOPE_settings:view` | `GET /settings/platform-identity` | `getPlatformIdentity` |
 | `view` | `SCOPE_settings:view` | `GET /settings/template-mappings` | `getTemplateMappings` |
-| `view` | `SCOPE_settings:view` | `GET /settings/tool-selectors` | `getSettingsToolSelectors` |
 | `view` | `SCOPE_settings:view` | `GET /settings/{id}` | `findById` |
 | `list` | `SCOPE_settings:list` | `GET /settings` | `getAll` |
 | `list` | `SCOPE_settings:list` | `GET /settings/paged` | `getAllPaged` |
@@ -454,7 +499,6 @@ Platform settings
 | `edit` | `SCOPE_settings:edit` | `POST /settings/platform-identity` | `savePlatformIdentity` |
 | `edit` | `SCOPE_settings:edit` | `POST /settings/salary-ranges` | `saveSalaryRange` |
 | `edit` | `SCOPE_settings:edit` | `POST /settings/template-mappings` | `saveTemplateMappings` |
-| `edit` | `SCOPE_settings:edit` | `POST /settings/tool-selectors` | `saveSettingsToolSelectors` |
 | `delete` | `SCOPE_settings:delete` | `DELETE /settings/detach-document-type/{documentTypeId}` | `detachDocumentType` |
 | `delete` | `SCOPE_settings:delete` | `DELETE /settings/salary-ranges/{salaryRangeId}` | `removeSalaryRange` |
 | `delete` | `SCOPE_settings:delete` | `DELETE /settings/{id}` | `remove` |

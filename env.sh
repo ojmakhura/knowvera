@@ -14,7 +14,7 @@
 export PORT=8085
 export SPRING_LOG_LEVEL=INFO
 export HIBERNATE_LOG_LEVEL=INFO
-export KYC_LOG_LEVEL=DEBUG
+export KYC_LOG_LEVEL=INFO
 export SHOW_SQL=false
 
 # --- Datasource (core-application.properties) ---
@@ -47,11 +47,14 @@ export OTLP_URL=http://localhost:4318
 # --- Rate limiting ---
 export RATE_LIMIT=2000
 
-# --- MinIO ---
-export MINIO_URL=http://minio:9000
-export MINIO_ACCESS_KEY=minio
-export MINIO_SECRET_KEY=minio123
-export MINIO_BUCKET=knowvera
+# --- Document storage (S3-compatible; see docs/storage.md) ---
+# The older MINIO_URL / MINIO_ACCESS_KEY / MINIO_SECRET_KEY / MINIO_BUCKET names still work as fallbacks
+export S3_ENDPOINT=http://minio:9000
+export S3_REGION=garage
+export S3_ACCESS_KEY=minio
+export S3_SECRET_KEY=minio123
+export S3_BUCKET=knowvera
+export S3_CREATE_BUCKET=true
 
 # --- Application roles ---
 export REALM_USER_ROLE=APPLICANT
@@ -72,10 +75,6 @@ export JWT_AUDIENCES=knowvera-api
 export DOCUMENT_AUTO_VERIFY=false
 export MIN_PASSWORD_LENGTH=12
 
-# --- Tesseract OCR ---
-export TESSDATA_PREFIX=/usr/share/tesseract-ocr/4/tessdata
-export TESSDATA_LANGS=eng
-
 # --- Communication service ---
 export COMM_SERVICE_URL=
 export SEND_MESSAGE_URL=
@@ -87,41 +86,39 @@ export AUTHZ_PERMISSION_AUTHORITIES=true
 export API_CLIENT=knowvera-api
 export API_CLIENT_SECRET=secret
 
-# --- LLM / AI providers ---
-export LLM_ID=ollama
+# --- Document processing (part of knowvera-api; jobs over RabbitMQ) ---
+# The profile of document types that name none
+export PROCESSING_DEFAULT_PROFILE=default
+# false: this instance queues jobs but does not run them (another instance with true must)
+export PROCESSING_WORKER=true
+# Keep documents in the deployment: never send them to Gemini
+export PROCESSING_LOCAL_ONLY=true
+# Tesseract OCR (the path inside the knowvera-api image)
+export TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
+export TESSDATA_LANGS=eng
+# Local models; LLM_MODEL is used when a step names no model
 export LLM_MODEL=gemma4
 export LMSTUDIO_BASE_URL=http://localhost:1234
 export OLLAMA_BASE_URL=http://localhost:11434
 export OLLAMA_MODEL=gemma4
-export GEMINI_BASE_URL=https://generativelanguage.googleapis.com
-export GEMINI_API_KEY=
-export GEMINI_MODEL=gemini-2.0-flash
+# Ollama's context window in tokens: a prompt that does not fit fails instead of being cut short
+export OLLAMA_NUM_CTX=8192
+export LLM_READ_TIMEOUT=5m
+# Gemini on Vertex AI (Google Cloud application default credentials)
 export GEMINI_PROJECT_ID=central-kyc
 export GEMINI_LOCATION=us-central1
-export GCP_CREDENTIALS_FILE=/path/to/credentials.json
+export SPRING_AI_VERTEX_MODEL=gemini-2.5-flash
+# Jobs run at once on a worker instance (min-max consumers)
+export PROCESSING_JOB_CONCURRENCY=1-4
+# How long the job history (document text and fields included) is kept, e.g. 90d; blank: forever
+export PROCESSING_JOB_RETENTION=
+export PROCESSING_MAX_FILE_SIZE=25MB
+export PROCESSING_MAX_PAGES=50
 
 # --- RabbitMQ exchanges / queues / routing keys ---
-export DOCUMENT_HANDLER_DEAD_LETTER_EXCHANGE=x.document-dispatch-failure
-export DOCUMENT_HANDLER_DEAD_LETTER_QUEUE=q.fall-back-document-dispatch
-export DOCUMENT_HANDLER_DEAD_LETTER_ROUTING_KEY=document-fall-back
-export TEXT_EXTRACTION_QUEUE_EXCHANGE=x.text-extraction-queue
-export TEXT_EXTRACTION_QUEUE=q.text-extraction
-export TEXT_EXTRACTION_QUEUE_ROUTING_KEY=text-extraction
-export GEMINI_TEXT_EXTRACTION_QUEUE_EXCHANGE=x.gemini-text-extraction-queue
-export GEMINI_TEXT_EXTRACTION_QUEUE=q.gemini-text-extraction
-export GEMINI_TEXT_EXTRACTION_QUEUE_ROUTING_KEY=gemini-text-extraction
-export DOCUMENT_CONFIRMATION_QUEUE_EXCHANGE=x.document-confirmation-queue
-export DOCUMENT_CONFIRMATION_QUEUE=q.document-confirmation
-export DOCUMENT_CONFIRMATION_QUEUE_ROUTING_KEY=document-confirmation
-export TEXT_PROCESSING_QUEUE_EXCHANGE=x.text-processing-queue
-export TEXT_PROCESSING_QUEUE=q.text-processing
-export TEXT_PROCESSING_QUEUE_ROUTING_KEY=text-processing
 export INFORMATION_CONFIRMATION_QUEUE_EXCHANGE=x.information-confirmation-queue
 export INFORMATION_CONFIRMATION_QUEUE=q.information-confirmation
 export INFORMATION_CONFIRMATION_QUEUE_ROUTING_KEY=information-confirmation
-export TEXT_CLEANUP_QUEUE_EXCHANGE=x.text-cleanup-queue
-export TEXT_CLEANUP_QUEUE=q.text-cleanup
-export TEXT_CLEANUP_QUEUE_ROUTING_KEY=text-cleanup
 export KYC_VERIFICATION_QUEUE_EXCHANGE=x.kyc-verification-queue
 export KYC_VERIFICATION_QUEUE=q.kyc-verification
 export KYC_VERIFICATION_QUEUE_ROUTING_KEY=kyc-verification

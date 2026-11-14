@@ -59,6 +59,12 @@ export const routes: Routes = [
       import('./views/kyc-record/edit/edit-kyc-record').then((m) => m.EditKycRecord),
   },
   {
+    path: 'forms/:id',
+    data: { permissions: ['form-submissions:view'], title: 'Form' },
+    canActivate: [authGuard],
+    loadComponent: () => import('./views/form/fill-form').then((m) => m.FillForm),
+  },
+  {
     path: 'kyc-record/:id',
     data: { permissions: ['kyc-records:view'], title: 'KYC Record' },
     canActivate: [authGuard],

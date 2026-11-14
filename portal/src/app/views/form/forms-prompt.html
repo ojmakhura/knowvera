@@ -1,0 +1,35 @@
+@if (outstanding().length > 0) {
+  <section class="kv-card mb-8" role="status" aria-labelledby="forms-prompt-title">
+    <div class="kv-card-header">
+      <mat-icon class="kv-card-icon">dynamic_form</mat-icon>
+      <h2 id="forms-prompt-title" class="kv-card-title">
+        {{ outstanding().length === 1 ? 'You have a form to complete' : 'You have ' + outstanding().length + ' forms to complete' }}
+      </h2>
+    </div>
+    <p class="text-sm text-on-surface-variant mb-4">
+      The organisations onboarding you need these completed. Your answers become part of your KYC
+      record.
+    </p>
+    <div class="flex flex-col gap-2">
+      @for (submission of outstanding(); track submission.id) {
+        <div class="dp-list-item is-primary">
+          <span class="dp-inline-icon min-w-0">
+            <mat-icon class="dp-pending">pending_actions</mat-icon>
+            <span class="min-w-0">
+              <span class="block truncate font-medium">{{ submission.formName }}</span>
+              <span class="block truncate text-sm text-on-surface-variant">
+                {{ submission.organisation }} · KYC record {{ submission.kycRecordRef }}
+                @if (isReturned(submission)) {
+                  · returned for correction
+                } @else if (submission.dueDate) {
+                  · due {{ submission.dueDate | date: 'mediumDate' }}
+                }
+              </span>
+            </span>
+          </span>
+          <a class="kv-btn-subtle shrink-0" [routerLink]="['/forms', submission.id]">Fill in</a>
+        </div>
+      }
+    </div>
+  </section>
+}

@@ -128,7 +128,6 @@ mat-card.settings-panel,
 mat-card.doc-requirements,
 mat-card.template-mappings,
 mat-card.kyc-groups,
-mat-card.tool-selectors,
 mat-card.financial-settings {
   background-color: var(--ss-surface-lowest);
   border: 1px solid var(--ss-outline);
@@ -451,80 +450,6 @@ mat-button-toggle-group {
       justify-content: space-between;
       font-size: 0.75rem;
       padding: 0.25rem 0;
-    }
-  }
-}
-
-// -----------------------------------------------------------------------
-// Tool Selectors
-// -----------------------------------------------------------------------
-mat-card.tool-selectors {
-  padding: 0;
-  overflow: hidden;
-
-  .tool-selectors__header {
-    padding: 1.5rem;
-    background-color: var(--ss-primary);
-    color: var(--ss-on-primary);
-
-    h3 { color: var(--ss-on-primary); font-size: 1rem; font-weight: 700; }
-    p { font-size: 0.75rem; opacity: 0.7; margin: 0; }
-  }
-
-  .tool-tab {
-    padding: 1rem 1.5rem;
-
-    &__actions {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 1rem;
-    }
-  }
-
-  .tool-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .tool-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--ss-outline-variant);
-
-    &:hover {
-      background-color: var(--ss-surface-low);
-    }
-
-    &__actions {
-      display: flex;
-      gap: 0.25rem;
-    }
-  }
-
-  .tool-cell {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-
-    &__icon {
-      width: 2rem;
-      height: 2rem;
-      border-radius: 0.25rem;
-      background-color: rgba(10, 31, 68, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--ss-primary);
-    }
-
-    &__name {
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: var(--ss-primary);
-      margin: 0;
     }
   }
 }

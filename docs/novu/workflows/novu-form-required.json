@@ -1,0 +1,112 @@
+{
+  "workflowId": "novu-form-required",
+  "name": "Form to complete",
+  "description": "Tells a client that an organisation onboarding it has published a form the client has to fill, and that the form is now part of its KYC record. Sent only to clients whose KYC record already existed when the form was published; a client doing its KYC sees the form there. No answers or other KYC data are included.",
+  "config": "app.novu.queue.formRequiredNovuId (NOVU_FORM_REQUIRED_NOVU_ID)",
+  "queue": {
+    "exchange": "x.novu-form-required-queue",
+    "queue": "q.novu-form-required",
+    "routingKey": "novu-form-required"
+  },
+  "publishers": [
+    "FormRequiredNotification (core), after FormRequirements.requireFrom adds a published form to existing KYC records (FormServiceImpl.handleSave with status PUBLISHED)"
+  ],
+  "tags": [
+    "kyc",
+    "forms"
+  ],
+  "critical": false,
+  "payloadSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": true,
+    "required": [
+      "email",
+      "formName",
+      "organisationName",
+      "platformName",
+      "supportContact",
+      "currentYear"
+    ],
+    "properties": {
+      "email": {
+        "type": "string",
+        "format": "email",
+        "description": "Recipient: the individual's email address, or the organisation's contact email address; also the Novu subscriberId"
+      },
+      "recipientName": {
+        "type": "string",
+        "description": "The individual's full name, or the organisation's name"
+      },
+      "formName": {
+        "type": "string",
+        "description": "Name of the form to fill"
+      },
+      "organisationName": {
+        "type": "string",
+        "description": "Organisation that requires the form"
+      },
+      "reference": {
+        "type": "string",
+        "description": "Reference of the KYC record the form is part of"
+      },
+      "dueDate": {
+        "type": "string",
+        "description": "When the answers are expected, e.g. \"1 December 2026\"; only when a due date was set"
+      },
+      "formUrl": {
+        "type": "string",
+        "format": "uri",
+        "description": "<kycPortalLink>/forms/<submission id>; requires sign-in. Missing when no Settings row or portal link exists"
+      },
+      "platformUrl": {
+        "type": "string",
+        "format": "uri"
+      },
+      "platformName": {
+        "type": "string"
+      },
+      "supportContact": {
+        "type": "string"
+      },
+      "currentYear": {
+        "type": "string",
+        "pattern": "^[0-9]{4}$"
+      }
+    }
+  },
+  "steps": [
+    {
+      "type": "in_app",
+      "name": "form-required-in-app",
+      "subject": "{{payload.organisationName}} needs a form from you",
+      "body": "Please complete \"{{payload.formName}}\". Your answers become part of your KYC record.",
+      "primaryAction": {
+        "label": "Fill in the form",
+        "redirect": {
+          "url": "{{payload.formUrl}}",
+          "target": "_self"
+        }
+      }
+    },
+    {
+      "type": "email",
+      "name": "form-required-email",
+      "subject": "{{payload.organisationName}} needs you to complete a form",
+      "bodyTemplate": "../templates/novu-form-required.email.html"
+    }
+  ],
+  "examplePayload": {
+    "email": "ann.applicant@example.com",
+    "recipientName": "Ann Applicant",
+    "formName": "Source of funds declaration",
+    "organisationName": "Example Holdings (Pty) Ltd",
+    "reference": "KYC-2026-000123",
+    "dueDate": "1 December 2026",
+    "formUrl": "https://portal.knowvera.example/forms/0192f3c4-0000-7000-8000-000000000002",
+    "platformUrl": "https://portal.knowvera.example",
+    "platformName": "Knowvera",
+    "supportContact": "support@knowvera.example",
+    "currentYear": "2026"
+  }
+}

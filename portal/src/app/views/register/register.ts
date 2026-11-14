@@ -18,6 +18,7 @@ import { IndividualApiStore } from '@app/store/bw/co/knowvera/individual/individ
 import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { ClientRequestApiStore } from '@app/store/bw/co/knowvera/organisation/client/client-request-api.store';
 import { ClientRequestApi } from '@app/services/bw/co/knowvera/organisation/client/client-request-api';
+import { OrganisationApi } from '@app/services/bw/co/knowvera/organisation/organisation-api';
 import { toast } from '@app/@shared/toast';
 
 class RegisterParams {
@@ -59,6 +60,15 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
   individual = linkedSignal(() => this.individualApiStore.data());
 
   organisationApiStore = inject(OrganisationApiStore);
+  private readonly organisationApi = inject(OrganisationApi);
+
+  /** Who the request is for, from the link: an organisation proves its registration number. */
+  isOrganisation = signal(false);
+  /** The client organisation of the request, once its registration number is confirmed. */
+  requestOrganisation = signal<OrganisationDTO | null>(null);
+  organisationLoadFailed = signal(false);
+  /** The request's client is known: its details can be confirmed. */
+  clientLoaded = computed(() => this.isOrganisation() ? !!this.requestOrganisation()?.id : !!this.individual()?.id);
 
   clientRequestApi = inject(ClientRequestApi);
   clientRequestApiStore = inject(ClientRequestApiStore);
@@ -108,14 +118,12 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
     effect(() => {
       if (this.identityConfirmationToken().length > 0) {
 
-        console.log('IDENTITY CONFIRMATION TOKEN:', this.identityConfirmationToken());
 
       }
     });
 
     effect(() => {
       if (this.individual()) {
-        console.log('LOADED INDIVIDUAL:', this.individual());
         this.registerSignal.update((data) => ({
           ...data,
           individual: this.individual()
@@ -129,7 +137,6 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
 
     effect(() => {
       if (this.organisationApiStore.data()) {
-        console.log('LOADED ORGANISATION:', this.organisationApiStore.data());
 
         this.registerSignal.update((data) => ({
           ...data,
@@ -163,6 +170,7 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
     this.route.queryParams.subscribe(params => {
 
       this.token = params['token'];
+      this.isOrganisation.set(params['target'] === 'ORGANISATION');
     });
   }
 
@@ -172,7 +180,6 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     if (this.requestId && this.token) {
 
-      console.log('CONFIRMING TOKEN WITH REQUEST ID:', this.requestId, ' AND TOKEN:', this.token);
 
       this.clientRequestApiStore.confirmToken({ requestId: this.requestId, token: this.token });
     }
@@ -189,11 +196,30 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    this.individualApiStore.loadRequestIndividual({
-      requestId: this.requestId,
-      identityConfirmationToken: this.identityConfirmationToken(),
-      identityNo: this.registerSignal().identificationNumber || ''
-    });
+    const identificationNumber = (this.registerSignal().identificationNumber || '').trim();
+
+    if (this.isOrganisation()) {
+      this.organisationLoadFailed.set(false);
+      this.organisationApi
+        .loadRequestOrganisation(this.requestId, this.identityConfirmationToken(), encodeURIComponent(identificationNumber))
+        .subscribe({
+          next: (organisation) => {
+            this.requestOrganisation.set(organisation);
+            this.toastr.success('Organisation details loaded successfully');
+          },
+          error: () => {
+            this.requestOrganisation.set(null);
+            this.organisationLoadFailed.set(true);
+            this.toastr.error('The registration number does not match this request.');
+          },
+        });
+    } else {
+      this.individualApiStore.loadRequestIndividual({
+        requestId: this.requestId,
+        identityConfirmationToken: this.identityConfirmationToken(),
+        identityNo: identificationNumber
+      });
+    }
 
     stepper.next();
   }
@@ -220,8 +246,14 @@ export class Register implements OnInit, OnDestroy, AfterViewInit {
           this.registerSignal().registrationStatus == ClientRequestStatus.ACCEPTED,
           this.registrationToken()
         ).subscribe({
-          next: () => {
-            this.toastr.success('Registration status confirmed successfully');
+          next: (accepted) => {
+            this.toastr.success(
+              accepted
+                ? (this.isOrganisation()
+                  ? 'Request accepted. The organisation\'s contact will get an email to set a password, then can sign in.'
+                  : 'Request accepted. Check your email for a link to set your password, then sign in.')
+                : 'Your response has been recorded.',
+            );
             this.router.navigate(['/']);
           },
           error: () => {

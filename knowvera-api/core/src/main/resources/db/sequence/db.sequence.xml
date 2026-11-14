@@ -1,0 +1,73 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="
+                        http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!--
+        Seeds the reference sequences. The services used to create each one on first use, so an
+        existing database may already hold it: every sequence is its own change set, skipped when
+        the row is there. The services still add the sequence parts on first use.
+    -->
+    <changeSet id="kyc-record-ref-sequence" author="ojmakhura">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="sequence_generator"/>
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM SEQUENCE_GENERATOR WHERE NAME = 'KYC_RECORD_REF'
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            INSERT INTO SEQUENCE_GENERATOR (ID, NAME, TARGET_ENTITY)
+            VALUES ('01a1daf3-5908-75da-b86c-5328f6e61ff7', 'KYC_RECORD_REF', 'KYC_RECORD');
+        </sql>
+    </changeSet>
+    <changeSet id="contact-ref-sequence" author="ojmakhura">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="sequence_generator"/>
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM SEQUENCE_GENERATOR WHERE NAME = 'CONTACT_REF'
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            INSERT INTO SEQUENCE_GENERATOR (ID, NAME, TARGET_ENTITY)
+            VALUES ('01a1daf3-5908-75da-b86c-53291557c1c9', 'CONTACT_REF', 'CONTACT');
+        </sql>
+    </changeSet>
+    <changeSet id="client-request-ref-sequence" author="ojmakhura">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="sequence_generator"/>
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM SEQUENCE_GENERATOR WHERE NAME = 'CLIENT_REQUEST_REF'
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            INSERT INTO SEQUENCE_GENERATOR (ID, NAME, TARGET_ENTITY)
+            VALUES ('01a1daf3-5908-75da-b86c-532a12295c8b', 'CLIENT_REQUEST_REF', 'CLIENT_REQUEST');
+        </sql>
+    </changeSet>
+    <changeSet id="kyc-invoice-ref-sequence" author="ojmakhura">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="sequence_generator"/>
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM SEQUENCE_GENERATOR WHERE NAME = 'KYC_INVOICE_REF'
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            INSERT INTO SEQUENCE_GENERATOR (ID, NAME, TARGET_ENTITY)
+            VALUES ('01a1daf3-5908-75da-b86c-532bd97f6536', 'KYC_INVOICE_REF', 'INVOICE');
+        </sql>
+    </changeSet>
+    <changeSet id="kyc-subscription-ref-sequence" author="ojmakhura">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="sequence_generator"/>
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM SEQUENCE_GENERATOR WHERE NAME = 'KYC_SUBSCRIPTION_REF'
+            </sqlCheck>
+        </preConditions>
+        <sql>
+            INSERT INTO SEQUENCE_GENERATOR (ID, NAME, TARGET_ENTITY)
+            VALUES ('01a1daf3-5908-75da-b86c-532c0ff7c645', 'KYC_SUBSCRIPTION_REF', 'SUBSCRIPTION');
+        </sql>
+    </changeSet>
+</databaseChangeLog>

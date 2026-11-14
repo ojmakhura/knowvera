@@ -447,6 +447,9 @@
           }
         </section>
 
+        <!-- Custom forms that are part of the record -->
+        <app-required-forms [kycRecordId]="record()?.id" />
+
         <!-- Document repository -->
         <section class="kv-card">
           <div class="kv-card-header dp-head">

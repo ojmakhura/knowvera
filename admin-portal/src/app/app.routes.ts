@@ -46,10 +46,22 @@ export const routes: Routes = [
       import('./views/sequence/sequence.routes').then((module) => module.sequenceRoutes),
   },
   {
+    path: 'forms',
+    canActivate: [AuthenticationGuard],
+    loadChildren: () => import('./views/form/form.routes').then((module) => module.formRoutes),
+  },
+  {
     path: 'invoices',
     canActivate: [AuthenticationGuard],
     loadChildren: () =>
       import('./views/invoice/invoice.routes').then((module) => module.invoiceRoutes),
+  },
+  {
+    // A client's KYC report as the organisation asking for it configured it
+    path: 'kyc-reports',
+    canActivate: [AuthenticationGuard],
+    loadChildren: () =>
+      import('./views/kyc-report/kyc-report.routes').then((module) => module.kycReportRoutes),
   },
   {
     path: 'records',
@@ -90,5 +102,11 @@ export const routes: Routes = [
     path: 'no-access',
     data: { title: 'No access' },
     loadComponent: () => import('./views/no-access/no-access').then((m) => m.NoAccess),
+  },
+  {
+    path: '**',
+    canActivate: [AuthenticationGuard],
+    data: { title: 'Page not found' },
+    loadComponent: () => import('./views/not-found/not-found').then((m) => m.NotFound),
   },
 ];

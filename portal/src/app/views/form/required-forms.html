@@ -1,0 +1,71 @@
+<section class="kv-card">
+  <div class="kv-card-header justify-between">
+    <div class="flex items-center gap-3">
+      <mat-icon class="kv-card-icon">dynamic_form</mat-icon>
+      <h2 class="kv-card-title">Required Forms</h2>
+    </div>
+    <div class="flex items-center gap-2">
+      @if (submissions().length > 0) {
+        <span class="kv-chip" [class]="outstanding() > 0 ? 'kv-tone-warning' : 'kv-tone-success'">
+          {{ outstanding() > 0 ? outstanding() + ' to complete' : 'All completed' }}
+        </span>
+      }
+      @if (kycRecordId()) {
+        <button type="button" class="kv-icon-btn" aria-label="Refresh the forms" (click)="reload()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      }
+    </div>
+  </div>
+
+  <p class="text-sm text-on-surface-variant mb-4">
+    Forms the organisations onboarding you need completed. Your answers become part of this KYC
+    record.
+  </p>
+
+  <div class="flex flex-col gap-2">
+    @for (submission of submissions(); track submission.id) {
+      <div class="dp-list-item is-primary">
+        <span class="dp-inline-icon min-w-0">
+          <mat-icon [class]="isEditable(submission) ? 'dp-pending' : 'dp-ok'">
+            {{ isEditable(submission) ? 'pending_actions' : 'check_circle' }}
+          </mat-icon>
+          <span class="min-w-0">
+            <span class="block truncate font-medium">{{ submission.formName }}</span>
+            <span class="block truncate text-sm text-on-surface-variant">
+              {{ submission.organisation }}
+              @if (submission.dueDate && isEditable(submission)) {
+                · due {{ submission.dueDate | date: 'mediumDate' }}
+              }
+            </span>
+          </span>
+        </span>
+        <span class="flex items-center gap-2 shrink-0">
+          <span class="kv-chip" [class]="tone(submission.status)">
+            {{ 'form.submission.status.' + submission.status | translate }}
+          </span>
+          <a
+            class="kv-btn-subtle"
+            [attr.target]="newTab() ? '_blank' : null"
+            [attr.rel]="newTab() ? 'noopener' : null"
+            [routerLink]="['/forms', submission.id]"
+          >
+            {{ isEditable(submission) ? 'Fill in' : 'View' }}
+          </a>
+        </span>
+      </div>
+    } @empty {
+      <p class="text-sm text-on-surface-variant">
+        @if (!kycRecordId()) {
+          Save the record to see the forms it requires.
+        } @else if (!loaded()) {
+          Checking for required forms...
+        } @else if (failed()) {
+          The required forms could not be loaded.
+        } @else {
+          No forms are required.
+        }
+      </p>
+    }
+  </div>
+</section>
