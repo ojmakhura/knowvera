@@ -199,8 +199,9 @@ public class KycFieldGroup
         return this.groupFields.remove(elementToRemove);
     }
 
-    @ManyToOne(optional = false,  fetch = FetchType.LAZY)
-    @JoinColumn(name = "INDIVIDUAL_SETTINGS_FK")
+    // A group is for individuals or for organisations (targetType): only that side's link is set
+    @ManyToOne(optional = true,  fetch = FetchType.LAZY)
+    @JoinColumn(name = "INDIVIDUAL_SETTINGS_FK", nullable = true)
     private Settings individualSettings;
 
     /**
@@ -222,8 +223,8 @@ public class KycFieldGroup
         this.individualSettings = individualSettingsIn;
     }
 
-    @ManyToOne(optional = false,  fetch = FetchType.LAZY)
-    @JoinColumn(name = "ORGANISATION_SETTINGS_FK")
+    @ManyToOne(optional = true,  fetch = FetchType.LAZY)
+    @JoinColumn(name = "ORGANISATION_SETTINGS_FK", nullable = true)
     private Settings organisationSettings;
 
     /**

@@ -56,7 +56,10 @@ public class OrganisationApiImpl implements OrganisationApi {
         logger.debug("Finding organisation with ID: {}", id);
         OrganisationDTO organisation = organisationService.findById(id);
 
-        if (organisation.getIsClient() != null && organisation.getIsClient()) {
+        // The stored Keycloak id wins: a search by registration number may not find the Organization,
+        // and a blank id would make the next save try to create it again (409 from Keycloak)
+        if (organisation.getIsClient() != null && organisation.getIsClient()
+                && StringUtils.isBlank(organisation.getKeycloakId())) {
 
             OrganisationDTO keycloakOrg = orgService.findByRegistrationNo(organisation.getRegistrationNo());
 
@@ -153,7 +156,17 @@ public class OrganisationApiImpl implements OrganisationApi {
 
         if (organisation.getIsClient() != null && organisation.getIsClient()) {
 
-            OrganisationDTO existingOrg = orgService.findByRegistrationNo(organisation.getRegistrationNo());
+            // A caller that did not send the Keycloak id keeps the one already stored
+            if (StringUtils.isBlank(organisation.getKeycloakId()) && StringUtils.isNotBlank(organisation.getId())) {
+                try {
+                    organisation.setKeycloakId(organisationService.findById(organisation.getId()).getKeycloakId());
+                } catch (Exception e) {
+                    logger.debug("No stored organisation {} to take the Keycloak id from", organisation.getId());
+                }
+            }
+
+            OrganisationDTO existingOrg = StringUtils.isNotBlank(organisation.getKeycloakId()) ? null
+                    : orgService.findByRegistrationNo(organisation.getRegistrationNo());
             keycloakOrg = new OrganisationDTO();
 
             keycloakOrg.copy(organisation);

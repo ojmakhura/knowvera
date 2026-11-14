@@ -116,7 +116,10 @@ public class AuditAspect {
         log.setUsername(
                 ctx.getUsername());
 
-        log.setUserId(ctx.getUserId());
+        // Public endpoints (a client accepting a request from the link in its email) have no signed-in
+        // user: they are audited all the same, under the anonymous name, with their address and agent
+        log.setUserId(StringUtils.isNotBlank(ctx.getUserId()) ? ctx.getUserId()
+                : StringUtils.defaultIfBlank(ctx.getUsername(), "anonymousUser"));
 
         log.setIpAddress(
                 ctx.getIpAddress());

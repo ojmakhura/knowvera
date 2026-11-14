@@ -1,5 +1,6 @@
 package bw.co.knowvera.messaging;
 
+import bw.co.knowvera.utils.Urls;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -197,7 +198,7 @@ public class ClientRequestNotification {
       payload.put("linkExpiresAt", EXPIRY_FORMAT.format(issuedAt.plus(requestLinkTtl).atZone(ZoneId.systemDefault())));
     }
     if (settings != null) {
-      putIfPresent(payload, "platformUrl", settings.getKycPortalLink());
+      putIfPresent(payload, "platformUrl", Urls.withScheme(settings.getKycPortalLink()));
     }
     // The Novu template prints these without Liquid filters, so the defaults are sent from here.
     payload.put("platformName",

@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQuery;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -105,7 +104,9 @@ public class GroupField
         this.kycFieldGroup = kycFieldGroupIn;
     }
 
-    @OneToOne(optional = false)
+    // Many: one expected field can be in a group for individuals and in one for organisations
+    // (e.g. the account number of a bank confirmation letter)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "EXPECTED_FIELD_FK", unique = false)
     private ExpectedField expectedField;
 

@@ -668,6 +668,60 @@ class DocumentServiceImplTest {
     }
 
     @Test
+    void verifyDataOnlyChecksEmployerFieldsArePresentForAnIndividualsKycRecord() throws Exception {
+        UUID id = UUID.randomUUID();
+        Document document = individualKycRecordDocument(id);
+
+        ExpectedField employer = newExpectedField("organisationName", "name", TargetEntity.ORGANISATION, true, false);
+        ExpectedField address = newExpectedField("organisationPhysicalAddress", "physicalAddress",
+                TargetEntity.ORGANISATION, true, false);
+        VerificationDataConfig config = newVerificationConfig(document.getDocumentType(), employer, address);
+        document.getDocumentType().setExpectedFields(List.of(employer, address));
+
+        // An individual's record has no organisation, so nothing is expected for the employer
+        document.setExpectedInformation(Map.of());
+        document.setExtractedInformation(Map.of("organisationName", "QA HOLDINGS (PTY) LTD",
+                "organisationPhysicalAddress", "Plot 1234, Main Mall, Gaborone"));
+
+        when(documentRepository.findById(id)).thenReturn(Optional.of(document));
+        when(verificationDataConfigRepository.findByDocumentTypeId(document.getDocumentType().getId()))
+                .thenReturn(List.of(config));
+        when(documentRepository.save(document)).thenReturn(document);
+        when(documentMapper.toDocumentDTO(document)).thenReturn(new DocumentDTO());
+
+        service.verifyData(id.toString(), "tester");
+
+        DataVerification verification = document.getDataVerifications().iterator().next();
+        assertEquals(DataVerificationStatus.VERIFIED, verification.getVerificationStatus());
+        assertEquals(DocumentVerificationStatus.MANUAL_REVIEW, document.getVerificationStatus());
+    }
+
+    @Test
+    void verifyDataFailsAMandatoryEmployerFieldMissingFromAnIndividualsDocument() throws Exception {
+        UUID id = UUID.randomUUID();
+        Document document = individualKycRecordDocument(id);
+
+        ExpectedField employer = newExpectedField("organisationName", "name", TargetEntity.ORGANISATION, true, false);
+        VerificationDataConfig config = newVerificationConfig(document.getDocumentType(), employer);
+        document.getDocumentType().setExpectedFields(List.of(employer));
+
+        document.setExpectedInformation(Map.of());
+        document.setExtractedInformation(Map.of("employmentPosition", "Senior Analyst"));
+
+        when(documentRepository.findById(id)).thenReturn(Optional.of(document));
+        when(verificationDataConfigRepository.findByDocumentTypeId(document.getDocumentType().getId()))
+                .thenReturn(List.of(config));
+        when(documentRepository.save(document)).thenReturn(document);
+        when(documentMapper.toDocumentDTO(document)).thenReturn(new DocumentDTO());
+
+        service.verifyData(id.toString(), "tester");
+
+        DataVerification verification = document.getDataVerifications().iterator().next();
+        assertEquals(DataVerificationStatus.VERIFICATION_FAILED, verification.getVerificationStatus());
+        assertEquals(DocumentVerificationStatus.REJECTED, document.getVerificationStatus());
+    }
+
+    @Test
     void verifyDataLeavesOptionalFieldWithNothingOnRecordOutOfScoring() throws Exception {
         UUID id = UUID.randomUUID();
         Document document = verifyReadyDocument(id);
@@ -958,6 +1012,24 @@ class DocumentServiceImplTest {
         type.setId(UUID.randomUUID());
 
         Document document = newDocument(TargetEntity.SUBSCRIPTION, targetId, type);
+        document.setId(id);
+        return document;
+    }
+
+    /** A document filed on the KYC record of an individual. */
+    private Document individualKycRecordDocument(UUID id) {
+        UUID recordId = UUID.randomUUID();
+        KycRecord record = KycRecord.Factory.newInstance();
+        record.setId(recordId);
+        record.setTarget(TargetEntity.INDIVIDUAL);
+        UUID individualId = UUID.randomUUID();
+        record.setTargetId(individualId.toString());
+        when(kycRecordRepository.findById(recordId)).thenReturn(Optional.of(record));
+        when(individualRepository.findById(individualId)).thenReturn(Optional.of(Individual.Factory.newInstance()));
+
+        DocumentType type = newDocumentTypeWithExpectedFields();
+        when(documentTypeRepository.findById(type.getId())).thenReturn(Optional.of(type));
+        Document document = newDocument(TargetEntity.KYC_RECORD, recordId, type);
         document.setId(id);
         return document;
     }

@@ -643,9 +643,43 @@ public class DocumentServiceImpl
         }
     }
 
+    /**
+     * The kind of customer record a document is checked against: the individual or organisation it
+     * is filed on, or the one its KYC record is for. Null when that is not known.
+     */
+    private TargetEntity recordEntity(Document document) {
+        if (document.getTarget() == null) {
+            return null;
+        }
+        return switch (document.getTarget()) {
+            case INDIVIDUAL, ORGANISATION -> document.getTarget();
+            case KYC_RECORD -> {
+                try {
+                    yield kycRecordRepository.findById(UUID.fromString(document.getTargetId()))
+                            .map(KycRecord::getTarget)
+                            .orElse(null);
+                } catch (IllegalArgumentException | NullPointerException e) {
+                    yield null;
+                }
+            }
+            default -> null;
+        };
+    }
+
+    /**
+     * Whether a field is compared with the customer's record. A field matched to another kind of
+     * record than the one there is (an employer's details on an individual's employment letter)
+     * has nothing to be compared with, so it only has to be present on the document.
+     */
+    private static boolean comparedToRecord(ExpectedField expectedField, TargetEntity recordEntity) {
+        return StringUtils.isNotBlank(expectedField.getMatchTo())
+                && (recordEntity == null || expectedField.getTargetType() == null
+                        || expectedField.getTargetType() == recordEntity);
+    }
+
     private List<DataVerification> processVerificationFields(Collection<VerificationDataConfig> dataConfigs,
             Collection<ExpectedField> expectedFields, Map expectedInformation,
-            Map extractedInformation) {
+            Map extractedInformation, TargetEntity recordEntity) {
 
         Map<String, Boolean> mandatoryMap = expectedFields.stream()
                 .collect(Collectors.toMap(ExpectedField::getField, ExpectedField::getMandatory));
@@ -717,11 +751,12 @@ public class DocumentServiceImpl
                 }
 
                 boolean mandatory = Boolean.TRUE.equals(mandatoryMap.get(expectedField.getField()));
+                boolean compared = comparedToRecord(expectedField, recordEntity);
 
-                // A field matched to the customer's record needs a value there; any other field
+                // A field compared with the customer's record needs a value there; any other field
                 // needs a value on the document. Without one it cannot be verified: fail it when
                 // mandatory, otherwise leave it out of scoring
-                boolean nothingToVerify = StringUtils.isNotBlank(expectedField.getMatchTo())
+                boolean nothingToVerify = compared
                         ? StringUtils.isBlank(expected)
                         : StringUtils.isBlank(extracted);
 
@@ -729,14 +764,13 @@ public class DocumentServiceImpl
                     continue;
                 }
 
-                boolean continueProcessing = continueProcessing(expectedField,
+                boolean continueProcessing = continueProcessing(expectedField, compared,
                         expected,
                         extracted);
 
-                match.setExpectedValue(expected);
+                match.setExpectedValue(compared ? expected : null);
                 match.setExtractedValue(extracted);
-                if (continueProcessing && (StringUtils.isBlank(expectedField.getMatchTo())
-                        || usesExactMatch(expectedField))) {
+                if (continueProcessing && (!compared || usesExactMatch(expectedField))) {
                     // Present on the document, or identical once formatting is ignored
                     match.setSimilarity(1.0);
                 } else if (continueProcessing) {
@@ -855,7 +889,8 @@ public class DocumentServiceImpl
 
         List<DataVerification> verifications = processVerificationFields(configs,
                 docType.getExpectedFields(),
-                document.getExpectedInformation(), document.getExtractedInformation());
+                document.getExpectedInformation(), document.getExtractedInformation(),
+                recordEntity(document));
 
         DataVerification validityCheck = checkDocumentValidity(docType, document.getExtractedInformation(), LocalDate.now());
         if (validityCheck != null) {
@@ -1055,12 +1090,13 @@ public class DocumentServiceImpl
     /** Customer record attributes that identify a person or organisation and must match exactly. */
     private static final Set<String> IDENTIFIER_FIELDS = Set.of("identityno", "registrationno");
 
-    private boolean continueProcessing(ExpectedField expectedField, String expected, Object extracted) {
+    private boolean continueProcessing(ExpectedField expectedField, boolean compared, String expected,
+            Object extracted) {
 
         String extractedStr = extracted != null ? extracted.toString() : "";
 
-        // Fields not matched to the customer's record only have to be present on the document
-        if (StringUtils.isBlank(expectedField.getMatchTo())) {
+        // Fields not compared with the customer's record only have to be present on the document
+        if (!compared) {
             return StringUtils.isNotBlank(extractedStr);
         }
 

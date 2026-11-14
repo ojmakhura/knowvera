@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
@@ -115,10 +115,10 @@ export class Subscriptions implements OnInit {
       this.searchInFlight = false;
 
       if (this.error()) {
-        this.toast.error(this.messages()[0] || 'Failed to search subscriptions.');
+        untracked(() => this.toast.error(this.messages()[0] || 'Failed to search subscriptions.'));
       } else if (this.notifyOnSuccess) {
         const total = this.kycSubscriptionApiStore.dataPage()?.page?.totalElements || 0;
-        this.toast.success(`${total} subscription${total === 1 ? '' : 's'} found`);
+        untracked(() => this.toast.success(`${total} subscription${total === 1 ? '' : 's'} found`));
       }
     });
 

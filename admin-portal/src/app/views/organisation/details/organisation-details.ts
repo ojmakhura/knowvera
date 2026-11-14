@@ -12,7 +12,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDialog } from '@angular/material/dialog';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, ElementRef, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, ElementRef, effect, inject, Input, linkedSignal, OnDestroy, OnInit, signal, ViewChild, untracked } from '@angular/core';
 import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { TableComponent } from '@app/components/table/table';
@@ -46,6 +46,12 @@ import { swalFire } from '@app/@shared/swal';
 import { finalize } from 'rxjs';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
 import { CreateClientRequestDialogComponent } from './create-client-request-dialog';
+import {
+  ManageRequirementsDialogComponent,
+  ManageRequirementsDialogData,
+  ManageRequirementsDialogResult,
+} from './manage-requirements-dialog';
+import { DocumentTypeApi } from '@app/services/bw/co/knowvera/document/type/document-type-api';
 import { LoaderState } from '@app/@shared/loader/loader.state';
 import { KycFieldGroupDTO } from '@app/models/bw/co/knowvera/settings/kyc/kyc-field-group-dto';
 import { GroupFieldDTO } from '@app/models/bw/co/knowvera/settings/kyc/group-field-dto';
@@ -107,6 +113,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   datePipe = inject(DatePipe);
   currencyPipe = inject(CurrencyPipe);
   appEnvState = inject(AppEnvStore);
+  private readonly documentTypeApi = inject(DocumentTypeApi);
 
   error = linkedSignal(() => this.organisationApiStore.error());
   messages = linkedSignal(() => this.organisationApiStore.messages());
@@ -264,6 +271,43 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /** Opens the library picker and saves the chosen field groups onto the organisation. */
+  /** Chooses the documents this organisation requires of itself and of each individual client. */
+  openManageRequirements(): void {
+    const organisation = this.organisation();
+    if (!organisation?.id) {
+      return;
+    }
+    this.documentTypeApi.getAll().subscribe({
+      next: (documentTypes) => {
+        const data: ManageRequirementsDialogData = {
+          documentTypes: documentTypes || [],
+          organisationKycDocuments: this.organisationKycDocuments(),
+          individualKycDocuments: this.individualKycDocuments(),
+        };
+        this.dialog
+          .open<ManageRequirementsDialogComponent, ManageRequirementsDialogData, ManageRequirementsDialogResult>(
+            ManageRequirementsDialogComponent,
+            { data, width: '52rem', maxWidth: '95vw', panelClass: 'dp-dialog' },
+          )
+          .afterClosed()
+          .subscribe((result) => {
+            if (!result) {
+              return;
+            }
+            this.loaderState.message.set('Saving document requirements');
+            this.organisationApiStore.save({
+              organisation: {
+                ...this.organisation(),
+                organisationKycDocuments: result.organisationKycDocuments,
+                individualKycDocuments: result.individualKycDocuments,
+              },
+            });
+          });
+      },
+      error: () => toast.error('The document types could not be loaded.'),
+    });
+  }
+
   openAssignFieldGroups(filter: FieldGroupFilter = 'ALL', focusGroupId: string | null = null): void {
     const organisation = this.organisation();
     const data: AssignFieldGroupsDialogData = {
@@ -358,11 +402,11 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       let messages = this.messages();
 
       if (this.success() && !this.loading()) {
-        toast.success(messages[0]);
+        untracked(() => toast.success(messages[0]));
       }
 
       if (this.error() && !this.loading()) {
-        toast.error(messages[0]);
+        untracked(() => toast.error(messages[0]));
       }
     });
 

@@ -14,8 +14,7 @@ import {
   linkedSignal,
   OnInit,
   Signal,
-  signal,
-} from '@angular/core';
+  signal, untracked } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
@@ -124,10 +123,10 @@ export class Individuals implements OnInit {
       this.searchInFlight = false;
 
       if (this.error()) {
-        this.toast.error(this.messages()[0] || 'Failed to search individuals.');
+        untracked(() => this.toast.error(this.messages()[0] || 'Failed to search individuals.'));
       } else if (this.notifyOnSuccess) {
         const total = this.individualApiStore.dataPage()?.page?.totalElements || 0;
-        this.toast.success(`${total} individual${total === 1 ? '' : 's'} found`);
+        untracked(() => this.toast.success(`${total} individual${total === 1 ? '' : 's'} found`));
       }
     });
   }

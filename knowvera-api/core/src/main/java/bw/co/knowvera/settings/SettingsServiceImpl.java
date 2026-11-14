@@ -1,5 +1,6 @@
 package bw.co.knowvera.settings;
 
+import bw.co.knowvera.utils.Urls;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -419,8 +420,9 @@ public class SettingsServiceImpl
         }
 
         settings.setPlatformName(platformIdentity.getPlatformName());
-        settings.setKycPortalLink(platformIdentity.getKycPortalLink());
-        settings.setPlatformUrl(platformIdentity.getPlatformUrl());
+        // Kept with a scheme: the emails link to them
+        settings.setKycPortalLink(Urls.withScheme(platformIdentity.getKycPortalLink()));
+        settings.setPlatformUrl(Urls.withScheme(platformIdentity.getPlatformUrl()));
         settings.setSupportContact(platformIdentity.getSupportContact());
 
         settings = settingsRepository.saveAndFlush(settings);

@@ -16,8 +16,7 @@ import {
   OnDestroy,
   OnInit,
   Signal,
-  signal,
-} from '@angular/core';
+  signal, untracked } from '@angular/core';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
@@ -175,10 +174,10 @@ export class Organisations implements OnInit, OnDestroy {
       this.searchInFlight = false;
 
       if (this.error()) {
-        this.toast.error(this.messages()[0] || 'Failed to search organisations.');
+        untracked(() => this.toast.error(this.messages()[0] || 'Failed to search organisations.'));
       } else if (this.notifyOnSuccess) {
         const total = this.organisationApiStore.dataPage()?.page?.totalElements || 0;
-        this.toast.success(`${total} organisation${total === 1 ? '' : 's'} found`);
+        untracked(() => this.toast.success(`${total} organisation${total === 1 ? '' : 's'} found`));
       }
     });
 

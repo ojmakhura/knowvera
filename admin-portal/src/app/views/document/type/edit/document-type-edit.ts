@@ -26,8 +26,7 @@ import {
   linkedSignal,
   OnDestroy,
   OnInit,
-  signal,
-} from '@angular/core';
+  signal, untracked } from '@angular/core';
 import { form, required, applyEach, FormField, min, minLength, FormRoot } from '@angular/forms/signals';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
 import { KeyField } from '@app/models/bw/co/knowvera/key-field';
@@ -182,6 +181,9 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     return code && !this.processingProfiles().some((profile) => profile.code === code) ? code : '';
   });
 
+  /** A save is under way: its success is announced (loading the type is not). */
+  private saving = false;
+
   constructor() {
     this.documentTypeApi.processingProfiles().subscribe({
       next: (profiles) => this.processingProfiles.set(profiles ?? []),
@@ -197,24 +199,25 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
 
       if (docType) {
         this.editDocumentTypeSignal.set(this.updateDocumentTypeSignal(docType));
+        // The saved type comes back here; success alone does not change between a load and a save
+        if (untracked(() => this.saving && !this.error())) {
+          this.saving = false;
+          untracked(() => toast.success('Document type saved.'));
+        }
       }
     });
 
+    // The toasts are raised untracked: ngx-sonner reads its own toast list when it adds one, which
+    // would make the effect depend on that list and run again for every toast it adds.
     effect(() => {
       const error = this.error();
 
       if (error) {
-        toast.error(this.messages()[0] || 'An error occurred while saving the document type.');
+        this.saving = false;
+        untracked(() => toast.error(this.messages()[0] || 'An error occurred while saving the document type.'));
       }
     });
 
-    effect(() => {
-      const success = this.success();
-
-      if (success) {
-        toast.success(this.messages()[0] || 'Document type saved successfully.');
-      }
-    });
   }
 
   ngOnInit(): void {
@@ -608,6 +611,7 @@ export class DocumentTypeEdit implements OnInit, AfterViewInit, OnDestroy {
     }));
 
     this.loaderState.message.set('Saving document type');
+    this.saving = true;
     this.documentTypeApiStore.save({
       documentType: docType,
     });
@@ -817,7 +821,14 @@ export class ExpectedFieldDialogComponent {
     return TARGET_ENTITY_MATCH_TO_FACTORIES[targetType]?.() ?? [];
   });
 
-  expectedFieldSignal = signal<ExpectedFieldDTO>(this.data.field);
+  // Text inputs bound with [formField] start as '' (see EditDocumentTypeVarsForm): signal forms
+  // treats a null model on <input type="text"> as numeric and marks any text invalid
+  expectedFieldSignal = signal<ExpectedFieldDTO>({
+    ...this.data.field,
+    field: this.data.field?.field ?? '',
+    fieldLabel: this.data.field?.fieldLabel ?? '',
+    format: this.data.field?.format ?? '',
+  });
   expectedFieldForm = form(this.expectedFieldSignal, (path) => {
     required(path.field);
   }, { submission: { action: async () => this.onSave() } });
@@ -847,6 +858,12 @@ export class ExpectedFieldDialogComponent {
       return;
     }
 
-    this.dialogRef.close(this.expectedFieldSignal());
+    const field = this.expectedFieldSignal();
+    this.dialogRef.close({
+      ...field,
+      field: field.field?.trim(),
+      fieldLabel: field.fieldLabel?.trim() || null,
+      format: field.format?.trim() || null,
+    });
   }
 }

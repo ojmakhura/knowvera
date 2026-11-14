@@ -1,5 +1,6 @@
 package bw.co.knowvera.keycloak;
 
+import bw.co.knowvera.utils.Urls;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.web.server.ResponseStatusException;
@@ -363,7 +364,7 @@ public class KeycloakUserService {
         putIfPresent(payload, "middleName", StringUtils.trim(individual.getMiddleName()));
         putIfPresent(payload, "surname", StringUtils.trim(individual.getSurname()));
         if (settings != null) {
-            putIfPresent(payload, "loginUrl", settings.getKycPortalLink());
+            putIfPresent(payload, "loginUrl", Urls.withScheme(settings.getKycPortalLink()));
         }
         payload.put("platformName",
                 StringUtils.defaultIfBlank(settings != null ? settings.getPlatformName() : null, "Knowvera"));

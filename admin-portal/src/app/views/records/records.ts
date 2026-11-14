@@ -7,8 +7,7 @@ import {
   inject,
   linkedSignal,
   OnInit,
-  signal,
-} from '@angular/core';
+  signal, untracked } from '@angular/core';
 import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -137,10 +136,10 @@ export class Records implements OnInit {
       this.searchInFlight = false;
 
       if (this.error()) {
-        this.toast.error(this.messages()[0] || 'Failed to search KYC records.');
+        untracked(() => this.toast.error(this.messages()[0] || 'Failed to search KYC records.'));
       } else if (this.notifyOnSuccess) {
         const total = this.kycRecordApiStore.dataPage()?.page?.totalElements || 0;
-        this.toast.success(`${total} KYC record${total === 1 ? '' : 's'} found`);
+        untracked(() => this.toast.success(`${total} KYC record${total === 1 ? '' : 's'} found`));
       }
     });
 

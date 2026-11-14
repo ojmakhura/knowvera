@@ -74,7 +74,8 @@ class AuditAspectTest {
         assertEquals("load", log.getEvent());
         assertEquals("42", log.getEventLabel());
         assertEquals("anonymousUser", log.getUsername());
-        assertNull(log.getUserId());
+        // Saved all the same: the audit log needs a user id
+        assertEquals("anonymousUser", log.getUserId());
     }
 
     @Test

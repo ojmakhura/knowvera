@@ -16,8 +16,7 @@ import {
   linkedSignal,
   OnDestroy,
   OnInit,
-  signal,
-} from '@angular/core';
+  signal, untracked } from '@angular/core';
 import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -108,10 +107,10 @@ export class DocumentTypeComponent implements OnInit, OnDestroy {
       this.searchInFlight = false;
 
       if (this.error()) {
-        this.toast.error(this.messages()[0] || 'Failed to search document types.');
+        untracked(() => this.toast.error(this.messages()[0] || 'Failed to search document types.'));
       } else if (this.notifyOnSuccess) {
         const total = this.documentTypeApiStore.dataPage()?.page?.totalElements || 0;
-        this.toast.success(`${total} document type${total === 1 ? '' : 's'} found`);
+        untracked(() => this.toast.success(`${total} document type${total === 1 ? '' : 's'} found`));
       }
     });
   }

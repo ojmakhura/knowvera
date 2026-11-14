@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { form, FormRoot, FormField } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -117,10 +117,10 @@ export class ClientRequests implements OnInit {
       this.searchInFlight = false;
 
       if (this.error()) {
-        this.toast.error(this.messages()[0] || 'Failed to search client requests.');
+        untracked(() => this.toast.error(this.messages()[0] || 'Failed to search client requests.'));
       } else if (this.notifyOnSuccess) {
         const total = this.clientRequestApiStore.dataPage()?.page?.totalElements || 0;
-        this.toast.success(`${total} client request${total === 1 ? '' : 's'} found`);
+        untracked(() => this.toast.success(`${total} client request${total === 1 ? '' : 's'} found`));
       }
     });
 

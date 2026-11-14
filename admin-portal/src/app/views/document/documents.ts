@@ -7,8 +7,7 @@ import {
   inject,
   linkedSignal,
   OnInit,
-  signal,
-} from '@angular/core';
+  signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
@@ -122,10 +121,10 @@ export class Documents implements OnInit {
       this.searchInFlight = false;
 
       if (this.error()) {
-        this.toast.error(this.messages()[0] || 'Failed to search documents.');
+        untracked(() => this.toast.error(this.messages()[0] || 'Failed to search documents.'));
       } else if (this.notifyOnSuccess) {
         const total = this.documentApiStore.dataPage()?.page?.totalElements || 0;
-        this.toast.success(`${total} document${total === 1 ? '' : 's'} found`);
+        untracked(() => this.toast.success(`${total} document${total === 1 ? '' : 's'} found`));
       }
     });
 

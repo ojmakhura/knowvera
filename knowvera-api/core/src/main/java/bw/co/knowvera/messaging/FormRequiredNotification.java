@@ -1,5 +1,6 @@
 package bw.co.knowvera.messaging;
 
+import bw.co.knowvera.utils.Urls;
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.form.submission.FormSubmission;
 import bw.co.knowvera.form.submission.FormSubmissionRepository;
@@ -159,7 +160,7 @@ public class FormRequiredNotification {
     }
     // Without a portal link the message still tells the client to sign in; the template shows
     // the button only when there is a link
-    String portal = settings != null ? StringUtils.stripEnd(StringUtils.trimToNull(settings.getKycPortalLink()), "/") : null;
+    String portal = settings != null ? Urls.withScheme(settings.getKycPortalLink()) : null;
     if (portal != null) {
       payload.put("formUrl", portal + "/forms/" + submission.getId());
       payload.put("platformUrl", portal);
