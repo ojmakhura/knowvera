@@ -176,6 +176,12 @@ public class KycRecordSummary
     @Nullable
     protected LocalDateTime approvedAt;
 
+    /** The client's report: one section per field group the asking organisation chose. */
+    protected List<bw.co.knowvera.kyc.fields.KycReportSectionDTO> reportSections;
+
+    /** The client's answers to the asking organisation's forms. */
+    protected List<bw.co.knowvera.form.submission.FormSubmissionDTO> formSubmissions;
+
     /** Default Constructor with no properties */
     public KycRecordSummary()
     {
@@ -304,6 +310,8 @@ public class KycRecordSummary
         this.riskFactors = otherBean.getRiskFactors();
         this.approvedBy = otherBean.getApprovedBy();
         this.approvedAt = otherBean.getApprovedAt();
+        this.reportSections = otherBean.getReportSections();
+        this.formSubmissions = otherBean.getFormSubmissions();
     }
 
     /**
@@ -344,6 +352,8 @@ public class KycRecordSummary
             this.setRiskFactors(otherBean.getRiskFactors());
             this.setApprovedBy(otherBean.getApprovedBy());
             this.setApprovedAt(otherBean.getApprovedAt());
+            this.setReportSections(otherBean.getReportSections());
+            this.setFormSubmissions(otherBean.getFormSubmissions());
         }
     }
 
@@ -943,6 +953,34 @@ public class KycRecordSummary
     public void setApprovedAt(final LocalDateTime value)
     {
         this.approvedAt = value;
+    }
+
+    public List<bw.co.knowvera.kyc.fields.KycReportSectionDTO> getReportSections()
+    {
+        if (this.reportSections == null)
+        {
+            this.reportSections = new ArrayList<bw.co.knowvera.kyc.fields.KycReportSectionDTO>();
+        }
+        return this.reportSections;
+    }
+
+    public void setReportSections(final List<bw.co.knowvera.kyc.fields.KycReportSectionDTO> value)
+    {
+        this.reportSections = value;
+    }
+
+    public List<bw.co.knowvera.form.submission.FormSubmissionDTO> getFormSubmissions()
+    {
+        if (this.formSubmissions == null)
+        {
+            this.formSubmissions = new ArrayList<bw.co.knowvera.form.submission.FormSubmissionDTO>();
+        }
+        return this.formSubmissions;
+    }
+
+    public void setFormSubmissions(final List<bw.co.knowvera.form.submission.FormSubmissionDTO> value)
+    {
+        this.formSubmissions = value;
     }
 
     /**

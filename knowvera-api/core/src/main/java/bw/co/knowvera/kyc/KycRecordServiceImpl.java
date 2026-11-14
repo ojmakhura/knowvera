@@ -40,6 +40,13 @@ import bw.co.knowvera.kyc.fields.KycReportSection;
 import bw.co.knowvera.kyc.fields.KycReportSectionRepository;
 import bw.co.knowvera.kyc.fields.ValueData;
 import bw.co.knowvera.organisation.Organisation;
+import bw.co.knowvera.organisation.client.ClientRequest;
+import bw.co.knowvera.organisation.client.ClientRequestStatus;
+import bw.co.knowvera.form.Form;
+import bw.co.knowvera.form.submission.FormSubmission;
+import bw.co.knowvera.form.submission.FormSubmissionDTO;
+import bw.co.knowvera.form.submission.FormSubmissionMapper;
+import bw.co.knowvera.form.submission.FormSubmissionRepository;
 import bw.co.knowvera.organisation.OrganisationRepository;
 import bw.co.knowvera.retention.RecordRetention;
 import bw.co.knowvera.screening.ScreeningHit;
@@ -85,6 +92,8 @@ public class KycRecordServiceImpl
     private final RiskAssessor riskAssessor;
     private final ScreeningHitRepository screeningHitRepository;
     private final ScreeningService screeningService;
+    private final FormSubmissionRepository formSubmissionRepository;
+    private final FormSubmissionMapper formSubmissionMapper;
 
     public KycRecordServiceImpl(KycRecordRepository kycRecordRepository,
             KycRecordMapper kycRecordMapper,
@@ -98,9 +107,13 @@ public class KycRecordServiceImpl
             RecordRetention recordRetention,
             RiskAssessor riskAssessor,
             ScreeningHitRepository screeningHitRepository,
-            @Lazy ScreeningService screeningService) {
+            @Lazy ScreeningService screeningService,
+            FormSubmissionRepository formSubmissionRepository,
+            FormSubmissionMapper formSubmissionMapper) {
         super(kycRecordRepository, kycRecordMapper);
         // TODO Auto-generated constructor stub
+        this.formSubmissionRepository = formSubmissionRepository;
+        this.formSubmissionMapper = formSubmissionMapper;
         this.individualRepository = individualRepository;
         this.settingsRepository = settingsRepository;
         this.organisationRepository = organisationRepository;
@@ -776,6 +789,14 @@ public class KycRecordServiceImpl
     }
 
     private KycRecordSummary generateSummary(KycRecord kycRecord) {
+        return generateSummary(kycRecord, null);
+    }
+
+    /**
+     * The client's KYC summary. For an organisation asking about its client, the report holds the
+     * fields that organisation chose, and only the answers to that organisation's forms.
+     */
+    private KycRecordSummary generateSummary(KycRecord kycRecord, Organisation asking) {
 
         KycRecordSummary summary = kycRecordMapper.toKycRecordSummary(kycRecord);
 
@@ -818,6 +839,13 @@ public class KycRecordServiceImpl
         summary.setIdentityNo(identityNo);
         summary.setEmailAddress(emailAddress);
 
+        Settings settings = this.settingsRepository.findAll().stream().findFirst().orElse(null);
+        List<KycReportSection> sections = asking != null
+                ? organisationReportSections(kycRecord, asking, settings)
+                : buildReportSections(kycRecord, libraryGroups(kycRecord, settings), field -> true);
+        summary.setReportSections(this.kycRecordMapper.toKycReportSectionDTOs(sections));
+        summary.setFormSubmissions(formSubmissions(kycRecord, asking));
+
         return summary;
 
     }
@@ -828,7 +856,16 @@ public class KycRecordServiceImpl
         KycRecord kycRecord = this.kycRecordRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new KycRecordServiceException("KycRecord not found for id: " + id));
 
-        return generateSummary(kycRecord);
+        return generateSummary(kycRecord, askingOrganisation(organisationId));
+    }
+
+    /** The organisation asking for a client's summary; null when none is named. */
+    private Organisation askingOrganisation(String organisationId) {
+        if (StringUtils.isBlank(organisationId)) {
+            return null;
+        }
+        return this.organisationRepository.findById(UUID.fromString(organisationId))
+                .orElseThrow(() -> new KycRecordServiceException("Organisation not found for id: " + organisationId));
     }
 
     @Override
@@ -991,9 +1028,40 @@ public class KycRecordServiceImpl
                 ? settings.getIndividualKycFieldGroups()
                 : settings.getOrganisationKycFieldGroups();
 
-        // The report shows what the documents say, so every analysed document counts, including
-        // those still waiting for a person's decision: the report is what that person reviews.
-        // Of several documents of one type, the most recently changed one is used
+        for (KycReportSection section : buildReportSections(kycRecord, kycFieldGroups, field -> true)) {
+            section.setKycRecord(kycRecord);
+            kycRecord.getKycReportSections().add(section);
+        }
+
+        kycRecord.setModifiedAt(LocalDateTime.now());
+        kycRecord.setModifiedBy(user);
+
+        if (allDocsVerified) {
+            kycRecord.setKycStatus(passedStatus(kycRecord));
+        } else {
+
+            if (hasRejectedDocuments) {
+                kycRecord.setKycStatus(KycComplianceStatus.DOCUMENT_VERIFICATION_FAILED);
+            } else {
+                kycRecord.setKycStatus(KycComplianceStatus.INCOMPLETE);
+            }
+        }
+
+        kycRecord = this.kycRecordRepository.save(kycRecord);
+        updateOwnerStatus(kycRecord);
+
+        return this.kycRecordMapper.toKycRecordDTO(kycRecord);
+    }
+
+    /**
+     * One report section per field group, holding the value each chosen field has on the document
+     * it comes from. The report shows what the documents say, so every analysed document counts,
+     * including those still waiting for a person's decision: the report is what that person
+     * reviews. Of several documents of one type, the most recently changed one is used.
+     */
+    private List<KycReportSection> buildReportSections(KycRecord kycRecord, List<KycFieldGroup> groups,
+            java.util.function.Predicate<GroupField> chosen) {
+
         Map<UUID, Document> documentMap = new HashMap<>();
         if (kycRecord.getDocuments() != null) {
             for (Document doc : kycRecord.getDocuments()) {
@@ -1005,16 +1073,24 @@ public class KycRecordServiceImpl
             }
         }
 
-        // One section per field group, holding the value each field has on the document it comes from
-        for (KycFieldGroup group : kycFieldGroups) {
+        List<KycReportSection> sections = new ArrayList<>();
+        if (groups == null) {
+            return sections;
+        }
+
+        for (KycFieldGroup group : groups) {
 
             KycReportSection section = new KycReportSection();
             section.setLabel(group.getLabel());
             section.setPosition(group.getPosition());
-
             section.setGroupFieldValues(new ArrayList<>());
 
-            for (GroupField field : group.getGroupFields()) {
+            List<GroupField> fields = group.getGroupFields() == null ? List.of() : group.getGroupFields();
+            for (GroupField field : fields) {
+
+                if (!chosen.test(field)) {
+                    continue;
+                }
 
                 ExpectedField expectedField = field.getExpectedField();
                 if (expectedField == null || expectedField.getDocumentType() == null) {
@@ -1039,28 +1115,69 @@ public class KycRecordServiceImpl
                 section.getGroupFieldValues().add(fieldValue);
             }
 
-            section.setKycRecord(kycRecord);
-            kycRecord.getKycReportSections().add(section);
+            sections.add(section);
         }
 
-        kycRecord.setModifiedAt(LocalDateTime.now());
-        kycRecord.setModifiedBy(user);
+        return sections;
+    }
 
-        if (allDocsVerified) {
-            kycRecord.setKycStatus(passedStatus(kycRecord));
-        } else {
+    /**
+     * The report an organisation gets for one of its clients: the fields it chose for that kind of
+     * client, grouped as in the library; all the library's fields when it chose none.
+     */
+    private List<KycReportSection> organisationReportSections(KycRecord kycRecord, Organisation asking,
+            Settings settings) {
 
-            if (hasRejectedDocuments) {
-                kycRecord.setKycStatus(KycComplianceStatus.DOCUMENT_VERIFICATION_FAILED);
-            } else {
-                kycRecord.setKycStatus(KycComplianceStatus.INCOMPLETE);
+        List<GroupField> chosenFields = kycRecord.getTarget() == TargetEntity.ORGANISATION
+                ? asking.getOrganisationFields()
+                : asking.getIndividualFields();
+
+        if (CollectionUtils.isEmpty(chosenFields)) {
+            return buildReportSections(kycRecord, libraryGroups(kycRecord, settings), field -> true);
+        }
+
+        Set<UUID> chosenIds = new HashSet<>();
+        Map<UUID, KycFieldGroup> groups = new LinkedHashMap<>();
+        for (GroupField field : chosenFields) {
+            chosenIds.add(field.getId());
+            KycFieldGroup group = field.getKycFieldGroup();
+            if (group != null) {
+                groups.putIfAbsent(group.getId(), group);
             }
         }
 
-        kycRecord = this.kycRecordRepository.save(kycRecord);
-        updateOwnerStatus(kycRecord);
+        List<KycFieldGroup> ordered = new ArrayList<>(groups.values());
+        ordered.sort(Comparator.comparing(KycFieldGroup::getPosition, Comparator.nullsLast(Comparator.naturalOrder())));
+        return buildReportSections(kycRecord, ordered, field -> chosenIds.contains(field.getId()));
+    }
 
-        return this.kycRecordMapper.toKycRecordDTO(kycRecord);
+    private static List<KycFieldGroup> libraryGroups(KycRecord kycRecord, Settings settings) {
+        if (settings == null) {
+            return List.of();
+        }
+        return kycRecord.getTarget() == TargetEntity.INDIVIDUAL
+                ? settings.getIndividualKycFieldGroups()
+                : settings.getOrganisationKycFieldGroups();
+    }
+
+    /** The client's answers to forms: to the asking organisation's forms only, when one asks. */
+    private List<FormSubmissionDTO> formSubmissions(KycRecord kycRecord, Organisation asking) {
+        if (kycRecord.getId() == null) {
+            return new ArrayList<>();
+        }
+        List<FormSubmissionDTO> submissions = new ArrayList<>();
+        for (FormSubmission submission : formSubmissionRepository.findByKycRecordId(kycRecord.getId())) {
+            Form form = submission.getForm();
+            if (asking != null && (form == null || form.getOrganisation() == null
+                    || !asking.getId().equals(form.getOrganisation().getId()))) {
+                continue;
+            }
+            FormSubmissionDTO dto = formSubmissionMapper.toFormSubmissionDTO(submission);
+            // The answers carry their labels; the form's full layout is not needed in a report
+            dto.setForm(null);
+            submissions.add(dto);
+        }
+        return submissions;
     }
 
     /** Whether processing has read anything from the document. */
@@ -1163,17 +1280,25 @@ public class KycRecordServiceImpl
 
     }
 
+    /**
+     * The KYC records of an organisation's clients: the individuals or organisations whose client
+     * request to it was accepted.
+     */
     private Specification<KycRecord> getSummarySpecification(String organisationId, Boolean forIndividual) {
-        Specification<KycRecord> specification = (root, query, cb) -> cb.equal(root.get("targetId"), organisationId);
+        UUID organisation = UUID.fromString(organisationId);
+        Specification<KycRecord> specification = (root, query, cb) -> {
+            jakarta.persistence.criteria.Subquery<String> clients = query.subquery(String.class);
+            jakarta.persistence.criteria.Root<ClientRequest> request = clients.from(ClientRequest.class);
+            clients.select(request.get("targetId")).where(
+                    cb.equal(request.get("organisation").get("id"), organisation),
+                    cb.equal(request.get("status"), ClientRequestStatus.ACCEPTED),
+                    cb.equal(request.get("target"), root.get("target")));
+            return root.get("targetId").in(clients);
+        };
 
         if (forIndividual != null) {
-
-            if(forIndividual) {
-                specification = specification.and((root, query, cb) -> cb.equal(root.get("target"), "INDIVIDUAL"));
-            } else {
-                specification = specification.and((root, query, cb) -> cb.equal(root.get("target"), "ORGANISATION"));
-            }
-
+            TargetEntity target = forIndividual ? TargetEntity.INDIVIDUAL : TargetEntity.ORGANISATION;
+            specification = specification.and((root, query, cb) -> cb.equal(root.get("target"), target));
         }
 
         return specification;
@@ -1186,10 +1311,11 @@ public class KycRecordServiceImpl
         Specification<KycRecord> specification = getSummarySpecification(organisationId, forIndividual);
 
         Collection<KycRecord> kycRecords = this.kycRecordRepository.findAll(specification);
+        Organisation asking = askingOrganisation(organisationId);
 
         List<KycRecordSummary> summaries = new ArrayList<>();
         for (KycRecord kycRecord : kycRecords) {
-            summaries.add(generateSummary(kycRecord));
+            summaries.add(generateSummary(kycRecord, asking));
         }
 
         return summaries;
@@ -1204,8 +1330,9 @@ public class KycRecordServiceImpl
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<KycRecord> kycRecordsPage = this.kycRecordRepository.findAll(specification, pageable);
 
+        Organisation asking = askingOrganisation(organisationId);
         Page<KycRecordSummary> summaries = kycRecordsPage
-                .map(this::generateSummary);
+                .map(kycRecord -> generateSummary(kycRecord, asking));
 
         return summaries;
     }

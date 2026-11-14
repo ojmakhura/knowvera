@@ -11,6 +11,9 @@ public interface FormSubmissionRepository extends JpaRepository<FormSubmission, 
 
     boolean existsByFormId(UUID formId);
 
+    /** The forms asked for on a KYC record. */
+    java.util.List<FormSubmission> findByKycRecordId(UUID kycRecordId);
+
     /** Whether the form was ever asked for on this KYC record. */
     boolean existsByFormIdAndKycRecordId(UUID formId, UUID kycRecordId);
 

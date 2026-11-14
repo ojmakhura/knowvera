@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -93,6 +94,10 @@ class KycRecordServiceImplTest {
     @Mock
     private OrganisationRepository organisationRepository;
 
+    @Mock
+    private bw.co.knowvera.form.submission.FormSubmissionRepository formSubmissionRepository;
+    @Mock
+    private bw.co.knowvera.form.submission.FormSubmissionMapper formSubmissionMapper;
     private KycRecordServiceImpl service;
 
     @BeforeEach
@@ -109,7 +114,9 @@ class KycRecordServiceImplTest {
             new RecordRetention(20, kycRecordRepository),
             new RiskAssessor(),
             screeningHitRepository,
-            screeningService);
+            screeningService,
+            formSubmissionRepository,
+            formSubmissionMapper);
         
     }
 
@@ -754,6 +761,78 @@ class KycRecordServiceImplTest {
         when(settingsRepository.findAll()).thenReturn(List.of());
 
         assertThrows(KycRecordServiceException.class, () -> service.generateKycReport(id.toString(), "reporter"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void findSummaryForAnOrganisationHoldsItsChosenFieldsAndItsOwnFormAnswers() throws Exception {
+        UUID recordId = UUID.randomUUID();
+        UUID individualId = UUID.randomUUID();
+        KycRecord record = newKycRecord(TargetEntity.INDIVIDUAL, individualId);
+        record.setId(recordId);
+
+        bw.co.knowvera.document.type.DocumentType letter = bw.co.knowvera.document.type.DocumentType.Factory.newInstance();
+        letter.setId(UUID.randomUUID());
+        Document current = analysedDocument(letter, "Neo", "Senior Analyst", LocalDateTime.now());
+        record.getDocuments().add(current);
+
+        // The library group has two fields; the organisation chose only the position
+        bw.co.knowvera.settings.kyc.KycFieldGroup group = bw.co.knowvera.settings.kyc.KycFieldGroup.Factory.newInstance();
+        group.setId(UUID.randomUUID());
+        group.setLabel("Employment Information");
+        group.setPosition(1);
+        bw.co.knowvera.settings.kyc.GroupField firstName = groupField(expectedField(letter, "individualFirstName"), 1);
+        firstName.setId(UUID.randomUUID());
+        bw.co.knowvera.settings.kyc.GroupField position = groupField(expectedField(letter, "employmentPosition"), 2);
+        position.setId(UUID.randomUUID());
+        for (bw.co.knowvera.settings.kyc.GroupField field : List.of(firstName, position)) {
+            field.setKycFieldGroup(group);
+        }
+        group.setGroupFields(new ArrayList<>(List.of(firstName, position)));
+
+        Organisation asking = Organisation.Factory.newInstance();
+        asking.setId(UUID.randomUUID());
+        asking.setIndividualFields(new ArrayList<>(List.of(position)));
+        Organisation other = Organisation.Factory.newInstance();
+        other.setId(UUID.randomUUID());
+
+        bw.co.knowvera.form.submission.FormSubmission own = submissionTo(asking);
+        bw.co.knowvera.form.submission.FormSubmission foreign = submissionTo(other);
+        bw.co.knowvera.form.submission.FormSubmissionDTO ownDto = new bw.co.knowvera.form.submission.FormSubmissionDTO();
+
+        bw.co.knowvera.individual.Individual individual = bw.co.knowvera.individual.Individual.Factory.newInstance();
+        individual.setFirstName("Neo");
+        individual.setSurname("Testmogapi");
+
+        when(kycRecordRepository.findById(recordId)).thenReturn(Optional.of(record));
+        when(organisationRepository.findById(asking.getId())).thenReturn(Optional.of(asking));
+        when(individualRepository.findById(individualId)).thenReturn(Optional.of(individual));
+        when(kycRecordMapper.toKycRecordSummary(record)).thenReturn(new KycRecordSummary());
+        when(settingsRepository.findAll()).thenReturn(List.of(Settings.Factory.newInstance()));
+        when(formSubmissionRepository.findByKycRecordId(recordId)).thenReturn(List.of(own, foreign));
+        when(formSubmissionMapper.toFormSubmissionDTO(own)).thenReturn(ownDto);
+
+        KycRecordSummary summary = service.findSummaryById(recordId.toString(), asking.getId().toString());
+
+        ArgumentCaptor<Collection<bw.co.knowvera.kyc.fields.KycReportSection>> sections = ArgumentCaptor
+                .forClass(Collection.class);
+        verify(kycRecordMapper).toKycReportSectionDTOs(sections.capture());
+        bw.co.knowvera.kyc.fields.KycReportSection section = sections.getValue().iterator().next();
+        assertEquals("Employment Information", section.getLabel());
+        assertEquals(1, section.getGroupFieldValues().size());
+        assertEquals("Senior Analyst", section.getGroupFieldValues().get(0).getData().getExtractedValue());
+
+        assertEquals(List.of(ownDto), summary.getFormSubmissions());
+        verify(formSubmissionMapper, never()).toFormSubmissionDTO(foreign);
+    }
+
+    private static bw.co.knowvera.form.submission.FormSubmission submissionTo(Organisation organisation) {
+        bw.co.knowvera.form.Form form = bw.co.knowvera.form.Form.Factory.newInstance();
+        form.setOrganisation(organisation);
+        bw.co.knowvera.form.submission.FormSubmission submission = bw.co.knowvera.form.submission.FormSubmission.Factory
+                .newInstance();
+        submission.setForm(form);
+        return submission;
     }
 
     @Test

@@ -20,7 +20,6 @@ import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch
 import { ClientRequestDTO } from '@app/models/bw/co/knowvera/organisation/client/client-request-dto';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
 import { DocumentTypeDTO } from '@app/models/bw/co/knowvera/document/type/document-type-dto';
-import { KycReportSectionDTO } from '@app/models/bw/co/knowvera/kyc/fields/kyc-report-section-dto';
 import { GeneralStatus } from '@app/models/bw/co/knowvera/general-status';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
 import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
@@ -39,9 +38,6 @@ import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/org
 import { KycSubscriptionApiStore } from '@app/store/bw/co/knowvera/subscription/kyc-subscription-api.store';
 import { SettingsApiStore } from '@app/store/bw/co/knowvera/settings/settings-api.store';
 import { BranchFormDialogComponent } from './add-branch-dialog';
-import {
-  KycFieldGroupSelectorDialogComponent,
-} from './kyc-field-group-selector-dialog';
 import { swalFire } from '@app/@shared/swal';
 import { finalize } from 'rxjs';
 import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-api.store';
@@ -52,9 +48,10 @@ import {
   ManageRequirementsDialogResult,
 } from './manage-requirements-dialog';
 import { DocumentTypeApi } from '@app/services/bw/co/knowvera/document/type/document-type-api';
+import { FormApi } from '@app/services/bw/co/knowvera/form/form-api';
+import { FormDTO } from '@app/models/bw/co/knowvera/form/form-dto';
 import { LoaderState } from '@app/@shared/loader/loader.state';
 import { KycFieldGroupDTO } from '@app/models/bw/co/knowvera/settings/kyc/kyc-field-group-dto';
-import { GroupFieldDTO } from '@app/models/bw/co/knowvera/settings/kyc/group-field-dto';
 import {
   AssignFieldGroupsDialogComponent,
   AssignFieldGroupsDialogData,
@@ -114,6 +111,13 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   currencyPipe = inject(CurrencyPipe);
   appEnvState = inject(AppEnvStore);
   private readonly documentTypeApi = inject(DocumentTypeApi);
+  private readonly formApi = inject(FormApi);
+
+  // Forms the organisation asks its clients to complete
+  forms = signal<FormDTO[]>([]);
+  formsError = signal(false);
+  organisationClientForms = computed(() => this.forms().filter((f) => f.targetType === TargetEntity.ORGANISATION));
+  individualClientForms = computed(() => this.forms().filter((f) => f.targetType !== TargetEntity.ORGANISATION));
 
   error = linkedSignal(() => this.organisationApiStore.error());
   messages = linkedSignal(() => this.organisationApiStore.messages());
@@ -190,87 +194,9 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   organisationFieldGroups = computed<KycFieldGroupDTO[]>(() =>
     [...(this.organisation()?.organisationFieldGroups || [])].sort((a: KycFieldGroupDTO, b: KycFieldGroupDTO) => (a.position ?? 0) - (b.position ?? 0))
   );
-  selectedOrganisationReportGroups = computed<KycFieldGroupDTO[]>(() => {
-    const selectedGroup = this.selectedOrganisationKycGroup();
-    const selectedFields = this.selectedOrganisationKycFields();
-
-    if (!selectedGroup.length && !selectedFields.length) {
-      return this.organisationFieldGroups();
-    }
-
-    return this.organisationFieldGroups()
-      .map((section) => ({
-        ...section,
-        fieldValues: (section.groupFields || []).filter((fieldValue: any) => {
-          const matchesGroup = selectedGroup.length
-            ? selectedGroup.includes(fieldValue.fieldGroupId)
-            : true;
-          const matchesField = selectedFields.length
-            ? selectedFields.some((field) => field.id === fieldValue.fieldId)
-            : true;
-
-          return matchesGroup && matchesField;
-        }),
-      }))
-      .filter((section) => section.groupFields.length);
-  });
   verifiedDomainCount = computed(() => (this.organisation()?.domains || []).filter((domain: any) => domain?.verified).length);
   individualKycDocuments = computed<DocumentTypeDTO[]>(() => this.organisation()?.individualKycDocuments || []);
   organisationKycDocuments = computed<DocumentTypeDTO[]>(() => this.organisation()?.organisationKycDocuments || []);
-  organisationKycGroupSelectorOpen = signal(false);
-  selectedOrganisationKycGroup = signal<KycFieldGroupDTO[]>([]);
-  selectedOrganisationKycFields = signal<GroupFieldDTO[]>([]);
-
-  toggleOrganisationKycGroupSelector(): void {
-    this.organisationKycGroupSelectorOpen.update((open) => !open);
-  }
-
-  isOrganisationKycGroupSelected(groupId: string): boolean {
-    return this.selectedOrganisationKycGroup().some((group) => group.id === groupId);
-  }
-
-  toggleOrganisationKycGroup(groupId: string): void {
-    this.selectedOrganisationKycGroup.update((selectedGroups) =>
-      selectedGroups.some((group) => group.id === groupId)
-        ? selectedGroups.filter((group) => group.id !== groupId)
-        : [...selectedGroups, { id: groupId } as KycFieldGroupDTO]
-    );
-  }
-
-  selectAllOrganisationKycGroups(): void {
-    this.selectedOrganisationKycGroup.set(
-      (this.settings()?.organisationKycFieldGroups || []).map((group: any) => group)
-    );
-  }
-
-  clearOrganisationKycFieldGroupFilter(): void {
-    this.selectedOrganisationKycGroup.set([]);
-    this.selectedOrganisationKycFields.set([]);
-  }
-
-  openOrganisationKycFieldGroupDialog(): void {
-    const groups = this.settings()?.organisationKycFieldGroups || [];
-    const selectedGroupIds = this.selectedOrganisationKycGroup();
-
-    const ref = this.dialog.open(KycFieldGroupSelectorDialogComponent, {
-      data: {
-        groups,
-        selectedGroupId: selectedGroupIds[0] || null,
-        selectedFieldIds: this.selectedOrganisationKycFields().map((field) => field.id || field.fieldId),
-      },
-      width: '480px',
-    });
-
-    ref.afterClosed().subscribe((result: KycFieldGroupDTO | undefined) => {
-      if (!result) return;
-      
-      console.log(result);
-      this.selectedOrganisationKycGroup.set([result]);
-      this.selectedOrganisationKycFields.set(result.groupFields);
-    });
-  }
-
-  /** Opens the library picker and saves the chosen field groups onto the organisation. */
   /** Chooses the documents this organisation requires of itself and of each individual client. */
   openManageRequirements(): void {
     const organisation = this.organisation();
@@ -362,18 +288,6 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     URL.revokeObjectURL(url);
   }
 
-  organisationFieldValue(group: any, field: any): any {
-    const fieldValues = this.organisationFieldGroups().flatMap((section) => section.groupFields || []);
-
-    return fieldValues.find(
-      (fieldValue: any) =>
-        (fieldValue.fieldGroupId
-          ? fieldValue.fieldGroupId === group.id
-          : fieldValue.fieldId === (field.id || field.fieldId)) &&
-        fieldValue.fieldId === (field.id || field.fieldId)
-    );
-  }
-
   // toaster: ToastrService = inject(ToastrService);
 
   constructor() {
@@ -428,6 +342,15 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  /** The forms this organisation owns, for the Client Forms card. */
+  loadForms(): void {
+    this.formsError.set(false);
+    this.formApi.findByOrganisation(this.id).subscribe({
+      next: (forms) => this.forms.set([...(forms || [])].sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''))),
+      error: () => this.formsError.set(true),
+    });
+  }
+
   ngOnInit(): void {
 
     if (this.id && this.id !== '') {
@@ -436,6 +359,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
         id: this.id
       })
       this.settingsApiStore.getAll();
+      this.loadForms();
 
       // this.branchApiStore.findByOrganisation({
       //   organisationId: this.id

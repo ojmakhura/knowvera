@@ -88,7 +88,14 @@ public abstract class KycRecordMapper {
      * @return KycRecordSummary
      */
     @Mapping(target = "documents", expression = "java(mapDocumentsToKeyValueList(entity))")
+    @Mapping(target = "reportSections", ignore = true) // set by the service, for the asking organisation
+    @Mapping(target = "formSubmissions", ignore = true) // set by the service, for the asking organisation
     public abstract KycRecordSummary toKycRecordSummary(KycRecord entity);
+
+    /** Report sections built for a summary; they are not saved. Named, so automatic mappings keep using KycReportSectionMapper. */
+    @org.mapstruct.Named("summaryReportSections")
+    public abstract List<bw.co.knowvera.kyc.fields.KycReportSectionDTO> toKycReportSectionDTOs(
+            Collection<bw.co.knowvera.kyc.fields.KycReportSection> sections);
 
     protected List<KeyValue> mapDocumentsToKeyValueList(KycRecord entity) {
         if (entity == null || entity.getDocuments() == null) {

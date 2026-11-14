@@ -9,6 +9,8 @@ import {KycComplianceStatus} from '@models/bw/co/knowvera/kyc/kyc-compliance-sta
 import {PepStatus} from '@models/bw/co/knowvera/individual/pep-status';
 import {RelatedParty} from '@models/bw/co/knowvera/kyc/related-party';
 import {RiskLevel} from '@models/bw/co/knowvera/kyc/risk-level';
+import {KycReportSectionDTO} from '@models/bw/co/knowvera/kyc/fields/kyc-report-section-dto';
+import {FormSubmissionDTO} from '@models/bw/co/knowvera/form/submission/form-submission-dto';
 
 export class KycRecordSummary {
 
@@ -43,6 +45,12 @@ export class KycRecordSummary {
     approvedBy: string | any;
     approvedAt: Date | any;
 
+    /** The client's report: one section per field group the asking organisation chose. */
+    reportSections: Array<KycReportSectionDTO> | any;
+
+    /** The client's answers to the asking organisation's forms. */
+    formSubmissions: Array<FormSubmissionDTO> | any;
+
     constructor() {
         this.ref = null;
         this.identityNo = null;
@@ -74,5 +82,7 @@ export class KycRecordSummary {
         this.riskFactors = [];
         this.approvedBy = null;
         this.approvedAt = null;
+        this.reportSections = [];
+        this.formSubmissions = [];
     }
 }
