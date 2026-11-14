@@ -114,8 +114,6 @@ export PROCESSING_JOB_CONCURRENCY=1-4
 export PROCESSING_JOB_RETENTION=
 export PROCESSING_MAX_FILE_SIZE=25MB
 export PROCESSING_MAX_PAGES=50
-# The former veritas-processor database, read once at start-up to copy its data (blank: nothing to copy)
-export PROCESSING_MIGRATION_SOURCE_URL=
 
 # --- RabbitMQ exchanges / queues / routing keys ---
 export INFORMATION_CONFIRMATION_QUEUE_EXCHANGE=x.information-confirmation-queue

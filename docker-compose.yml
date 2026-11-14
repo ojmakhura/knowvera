@@ -100,8 +100,6 @@ services:
       GEMINI_PROJECT_ID: ${GEMINI_PROJECT_ID:-central-kyc}
       GEMINI_LOCATION: ${GEMINI_LOCATION:-us-central1}
       SPRING_AI_VERTEX_MODEL: ${SPRING_AI_VERTEX_MODEL:-gemini-2.5-flash}
-      # The former veritas-processor database, read once to copy its data (blank: nothing to copy)
-      PROCESSING_MIGRATION_SOURCE_URL: ${PROCESSING_MIGRATION_SOURCE_URL:-}
       AUTHZ_PERMISSION_AUTHORITIES: ${AUTHZ_PERMISSION_AUTHORITIES:-true}
       API_CLIENT: ${API_CLIENT:-knowvera-api}
       API_CLIENT_SECRET: ${API_CLIENT_SECRET:-secret}

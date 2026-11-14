@@ -6,10 +6,10 @@
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
     <!--
-        Document processing, merged in from the former veritas-processor service.
-        Hibernate (ddl-auto: update) normally makes these tables and columns before this runs, so the
-        change sets that create them are marked as run; they make the schema on a database Hibernate
-        has not touched. The data of the former service is copied by ProcessingDataMigration.
+        Document processing: profiles, job history, and the field definitions and prompts of the
+        document types. Hibernate (ddl-auto: update) normally makes these tables and columns before
+        this runs, so the change sets that create them are marked as run; they make the schema on a
+        database Hibernate has not touched.
     -->
     <changeSet id="processing-1-profiles" author="ojmakhura">
         <!-- Hibernate may have made this already (ddl-auto: update) -->

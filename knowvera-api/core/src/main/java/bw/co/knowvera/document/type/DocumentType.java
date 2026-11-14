@@ -188,22 +188,6 @@ public class DocumentType
         this.processingProfileCode = processingProfileCodeIn;
     }
 
-    /**
-     * The id of the data processor this type was linked to in the former veritas-processor database;
-     * read once by ProcessingDataMigration, then unused (to be dropped once the migration has run).
-     */
-    @Column(name = "DATA_PROCESSOR_ID", unique = false, nullable = true, insertable = true, updatable = true, length = 100)
-    private String dataProcessorId;
-
-    public String getDataProcessorId()
-    {
-        return this.dataProcessorId;
-    }
-
-    public void setDataProcessorId(String dataProcessorIdIn)
-    {
-        this.dataProcessorId = dataProcessorIdIn;
-    }
 
     /**
      * Prompts of this type's own that replace the profile's classification prompts for its documents

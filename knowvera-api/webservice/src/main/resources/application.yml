@@ -34,7 +34,7 @@ spring:
     retry:
       max-attempts: 0
     model:
-      chat: ${PROCESSING_MODEL_CHAT:${VERITAS_MODEL_CHAT:google-genai}}
+      chat: ${PROCESSING_MODEL_CHAT:google-genai}
     google:
       genai:
         # Gemini on Vertex AI (Google Cloud credentials); the client is only created when a step uses
@@ -186,8 +186,6 @@ app:
   # Document processing: text extraction, cleanup, field extraction and classification of the uploaded
   # documents, by profiles (processing.profile). Jobs go through RabbitMQ (x.veritas): every instance
   # queues them and applies their results; the instances whose worker is enabled run them.
-  # The PROCESSING_* variables replace the VERITAS_* ones of the former veritas-processor service,
-  # which are still read as fallbacks.
   processing:
     # The profile for document types that name none
     default-profile: ${PROCESSING_DEFAULT_PROFILE:default}
@@ -196,7 +194,7 @@ app:
       enabled: ${PROCESSING_WORKER:true}
     # Never send documents out of the deployment (Gemini steps fall back to their next provider);
     # Data Protection Act 2024 ss.74-76
-    local-only: ${PROCESSING_LOCAL_ONLY:${VERITAS_LOCAL_ONLY:true}}
+    local-only: ${PROCESSING_LOCAL_ONLY:true}
     storage:
       bucket: ${storage.s3.bucket}
     tesseract:
@@ -219,30 +217,24 @@ app:
       num-ctx: ${OLLAMA_NUM_CTX:8192}
     jobs:
       # Jobs run at once on a worker instance (min-max consumers)
-      concurrency: ${PROCESSING_JOB_CONCURRENCY:${VERITAS_JOB_CONCURRENCY:1-4}}
+      concurrency: ${PROCESSING_JOB_CONCURRENCY:1-4}
       # A step whose providers were unreachable, timed out or failed is tried again (the delay doubles)
-      attempts: ${PROCESSING_JOB_ATTEMPTS:${VERITAS_JOB_ATTEMPTS:3}}
-      retry-delay: ${PROCESSING_JOB_RETRY_DELAY:${VERITAS_JOB_RETRY_DELAY:5s}}
+      attempts: ${PROCESSING_JOB_ATTEMPTS:3}
+      retry-delay: ${PROCESSING_JOB_RETRY_DELAY:5s}
       # A job still running after this long was interrupted: it is failed and its document told
-      stale-after: ${PROCESSING_JOB_STALE_AFTER:${VERITAS_JOB_STALE_AFTER:2h}}
+      stale-after: ${PROCESSING_JOB_STALE_AFTER:2h}
       # How long the job history (document text and fields included) is kept, e.g. 90d; empty: forever
-      retention: ${PROCESSING_JOB_RETENTION:${VERITAS_JOB_RETENTION:}}
+      retention: ${PROCESSING_JOB_RETENTION:}
       maintenance-interval: ${PROCESSING_JOB_MAINTENANCE_INTERVAL:10m}
     limits:
-      max-file-size: ${PROCESSING_MAX_FILE_SIZE:${VERITAS_MAX_FILE_SIZE:25MB}}
+      max-file-size: ${PROCESSING_MAX_FILE_SIZE:25MB}
       # Pages of a PDF read or rendered for OCR
-      max-pages: ${PROCESSING_MAX_PAGES:${VERITAS_MAX_PAGES:50}}
+      max-pages: ${PROCESSING_MAX_PAGES:50}
       # Fewer characters per page and a PDF's text layer is not its text (a scan with a stamp): OCR runs
       min-text-chars-per-page: ${PROCESSING_MIN_TEXT_CHARS_PER_PAGE:50}
     bootstrap:
       # Creates the default profile at start-up when there is none
       default-profile: ${PROCESSING_BOOTSTRAP_DEFAULT_PROFILE:true}
-    migration:
-      # The former veritas-processor database, read once to copy its profiles, its data processors'
-      # prompts and field definitions, and its job history (ProcessingDataMigration); empty: nothing to copy
-      source-url: ${PROCESSING_MIGRATION_SOURCE_URL:${VERITAS_DATABASE_URL:}}
-      username: ${PROCESSING_MIGRATION_USERNAME:${VERITAS_DB_USERNAME:${DB_USERNAME:}}}
-      password: ${PROCESSING_MIGRATION_PASSWORD:${VERITAS_DB_PASSWORD:${DB_PASSWORD:}}}
   retention:
     # Years a closed relationship's records are kept (Financial Intelligence Act 2022 s.32)
     years: ${RECORD_RETENTION_YEARS:20}
