@@ -214,4 +214,23 @@
             </snapshots>
         </repository>
     </repositories>
+
+    <profiles>
+        <!--
+            Active only inside an IDE (Eclipse m2e / the VS Code Java language server set
+            m2e.version). The IDE then compiles into target-ide instead of target, so its
+            background builds cannot overwrite the classes a command-line Maven build is using.
+        -->
+        <profile>
+            <id>ide-build-directory</id>
+            <activation>
+                <property>
+                    <name>m2e.version</name>
+                </property>
+            </activation>
+            <build>
+                <directory>${project.basedir}/target-ide</directory>
+            </build>
+        </profile>
+    </profiles>
 </project>
