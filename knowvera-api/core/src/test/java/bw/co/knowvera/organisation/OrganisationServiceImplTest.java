@@ -259,6 +259,37 @@ class OrganisationServiceImplTest {
     }
 
     @Test
+    void savingAnOrganisationKeepsItsBranches() throws Exception {
+        UUID id = UUID.randomUUID();
+        OrganisationDTO input = new OrganisationDTO();
+        input.setId(id.toString());
+        input.setCode("ORG-1");
+        input.setName("Organisation");
+        input.setRegistrationNo("REG-1");
+        input.setStatus(GeneralStatus.ACTIVE);
+        input.setDomains(new java.util.ArrayList<>());
+        input.setKycStatus(KycComplianceStatus.CURRENT);
+        input.setCountryOfRegistration("BW");
+
+        // The mapper leaves branches out, so the entity built from the DTO has none
+        Organisation mapped = Organisation.Factory.newInstance();
+        mapped.setId(id);
+        Organisation stored = Organisation.Factory.newInstance();
+        stored.setId(id);
+        bw.co.knowvera.organisation.branch.Branch branch = new bw.co.knowvera.organisation.branch.Branch();
+        stored.setBranches(new java.util.ArrayList<>(List.of(branch)));
+
+        when(organisationMapper.organisationDTOToEntity(input)).thenReturn(mapped);
+        when(organisationRepository.findById(id)).thenReturn(Optional.of(stored));
+        when(organisationRepository.save(mapped)).thenReturn(mapped);
+        when(organisationMapper.toOrganisationDTO(mapped)).thenReturn(new OrganisationDTO());
+
+        service.save(input);
+
+        assertEquals(List.of(branch), mapped.getBranches());
+    }
+
+    @Test
     void searchDelegatesToRepositoryAndMapper() throws Exception {
         OrganisationSearchCriteria criteria = new OrganisationSearchCriteria();
         criteria.setName("Acme");

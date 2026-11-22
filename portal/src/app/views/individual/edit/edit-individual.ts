@@ -41,11 +41,13 @@ export class EditIndividualVarsForm {
     kycStatusFilter: KycComplianceStatus | any = null;
     identityType: IndividualIdentityType | any = null;
     identityTypeFilter: IndividualIdentityType | any = null;
-    identityNo: string | any = null;
+    // Signal forms reads a null model value on a text <input> as numeric and rejects letters,
+    // so the text fields are '' rather than null
+    identityNo: string | any = '';
     sex: Sex | any = null;
-    firstName: string | any = null;
-    middleName: string | any = null;
-    surname: string | any = null;
+    firstName: string | any = '';
+    middleName: string | any = '';
+    surname: string | any = '';
     phoneNumbers: Array<PhoneNumber> = [];
     nationality: string | any = null;
     postalAddress: string | any = null;
@@ -468,11 +470,11 @@ export class EditIndividual implements OnInit, AfterViewInit, OnDestroy {
             kycStatusFilter: individual.kycStatus,
             identityType: individual.identityType,
             identityTypeFilter: individual.identityType,
-            identityNo: individual.identityNo,
+            identityNo: individual.identityNo ?? '',
             sex: individual.sex,
-            firstName: individual.firstName,
-            middleName: individual.middleName,
-            surname: individual.surname,
+            firstName: individual.firstName ?? '',
+            middleName: individual.middleName ?? '',
+            surname: individual.surname ?? '',
             phoneNumbers: [...(individual.phoneNumbers || [])],
             nationality: individual.nationality,
             postalAddress: individual.postalAddress,

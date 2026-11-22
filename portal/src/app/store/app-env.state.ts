@@ -23,6 +23,8 @@ export type AppEnvState = {
     username: string;
   } | null;
   userOrganisation: any;
+  /** The user's organisation has been looked up (it stays null for a user without one). */
+  userOrganisationLoaded: boolean;
   individual: IndividualDTO | null;
   currency: string | null;
 };
@@ -49,6 +51,7 @@ const initialState: AppEnvState = {
   profile: null,
   currency: null,
   userOrganisation: null,
+  userOrganisationLoaded: false,
   individual: null,
 };
 
@@ -105,7 +108,7 @@ export const AppEnvStore = signalStore(
       ),
       setUserOrganisation: rxMethod<any>(
         switchMap((userOrganisation) => {
-          patchState(store, { userOrganisation });
+          patchState(store, { userOrganisation, userOrganisationLoaded: true });
           return of(store.userOrganisation);
         }),
       ),

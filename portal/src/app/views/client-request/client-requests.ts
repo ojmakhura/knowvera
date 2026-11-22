@@ -161,21 +161,6 @@ export class ClientRequests implements OnInit {
     this.router.navigate(['client-request', 'edit']);
   }
 
-  openDetails(id: string | null | undefined): void {
-    if (!id) {
-      return;
-    }
-
-    this.router.navigate(['client-request', 'details', id]);
-  }
-
-  openEdit(id: string | null | undefined): void {
-    if (!id) {
-      return;
-    }
-
-    this.router.navigate(['client-request', 'edit', id]);
-  }
 
   statusLabel(status: ClientRequestStatus | null | undefined): string {
     switch (status) {

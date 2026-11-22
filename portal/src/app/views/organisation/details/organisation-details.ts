@@ -8,8 +8,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
 import { CurrencyPipe, DatePipe, CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, inject, linkedSignal, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { BranchDTO } from '@app/models/bw/co/knowvera/organisation/branch/branch-dto';
 import { ClientRequestDTO } from '@app/models/bw/co/knowvera/organisation/client/client-request-dto';
 import { DocumentDTO } from '@app/models/bw/co/knowvera/document/document-dto';
@@ -39,6 +40,7 @@ import { DocumentApiStore } from '@app/store/bw/co/knowvera/document/document-ap
 import { BranchFormDialogComponent } from './add-branch-dialog';
 import { CreateClientRequestDialogComponent } from './create-client-request-dialog';
 import { toast } from '@app/@shared/toast';
+import { PermissionService, hasAnyPermission } from '@app/@core/services/permission.service';
 // import { CreateClientRequestDialogComponent } from './create-client-request-dialog';
 
 @Component({
@@ -84,6 +86,23 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
   datePipe = inject(DatePipe);
   currencyPipe = inject(CurrencyPipe);
   appEnvState = inject(AppEnvStore);
+
+  /** The signed-in user belongs to no organisation: there is nothing to show or manage. */
+  noOrganisation = computed(() => this.appEnvState.userOrganisationLoaded() && !this.appEnvState.userOrganisation()?.id);
+
+  /** Only those who may change the organisation (its administrators) are offered the edit page. */
+  private permissionService = inject(PermissionService);
+  private http = inject(HttpClient);
+  canEdit = computed(() => hasAnyPermission(this.permissionService.permissions(), ['organisations:edit']));
+
+  /** What the signed-in member may do here, as the API checks it (administrators manage, members read). */
+  canManageBranches = computed(() => hasAnyPermission(this.permissionService.permissions(), ['organisation-branches:edit']));
+  canRemoveBranches = computed(() => hasAnyPermission(this.permissionService.permissions(), ['organisation-branches:delete']));
+  /** Members onboard their clients in bulk from a spreadsheet; picking an existing person is staff's. */
+  canUploadDocuments = computed(() => hasAnyPermission(this.permissionService.permissions(), ['documents:submit']));
+  /** The document types an organisation files about itself. */
+  uploadDocumentTypes = computed(() => (this.settingsApiStore.documentRequirements()?.organisationDocuments || []) as any[]);
+  canImportRequests = computed(() => hasAnyPermission(this.permissionService.permissions(), ['client-requests:import']));
 
   error = linkedSignal(() => this.organisationApiStore.error());
   loaderMessage = linkedSignal(() => 'Loading...');
@@ -191,10 +210,6 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    effect(() => {
-
-      this.branches.set(this.organisationApiStore.data()?.branches || []);
-    });
 
     effect(() => {
       let userOrg = this.appEnvState.userOrganisation();
@@ -202,6 +217,8 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
       if (userOrg && userOrg.id) {
 
         this.organisationApiStore.findById({ id: userOrg.id });
+        this.loadBranches();
+        this.settingsApiStore.getDocumentRequirements();
         this.loadInvoices();
         this.loadSubscriptions();
         this.loadIndividualClientRequests();
@@ -562,6 +579,21 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
         + shown.map((row) => `<li>${escape(row)}</li>`).join('')
         + `</ul>${more}`,
       width: '48rem',
+    });
+  }
+
+  downloadClientRequestTemplate(): void {
+    // Asked for as a file: the generated service call reads the response as JSON
+    this.http.get('/client-requests/download-template', { responseType: 'blob' }).subscribe({
+      next: (blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'client-request-template.csv';
+        link.click();
+        URL.revokeObjectURL(url);
+      },
+      error: (error: any) => this.toaster.error(error?.error?.detail || 'The template could not be downloaded.'),
     });
   }
 

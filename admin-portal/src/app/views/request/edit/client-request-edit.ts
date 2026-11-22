@@ -332,8 +332,10 @@ export class ClientRequestEdit implements OnInit, AfterViewInit, OnDestroy {
         modifiedBy: clientRequest.modifiedBy,
         status: clientRequest.status,
         organisation: clientRequest.organisationId ? org : null,
-        documentId: clientRequest.documentId,
-        fileName: clientRequest.fileName,
+        // Native text inputs bound with [formField] must start as '' — signal forms treats a null
+        // model value on <input type="text"> as numeric and rejects non-numeric input.
+        documentId: clientRequest.documentId ?? '',
+        fileName: clientRequest.fileName ?? '',
         fileUrl: clientRequest.fileUrl,
         target: clientRequest.target || null,
         targetObject: null,

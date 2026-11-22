@@ -3,6 +3,11 @@ package bw.co.knowvera.kyc;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import bw.co.knowvera.auth.KycAuthorisationService;
+import bw.co.knowvera.organisation.client.ClientRequestService;
+import bw.co.knowvera.organisation.client.ClientRequestStatus;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import bw.co.knowvera.auth.CurrentCaller;
 import bw.co.knowvera.auth.Permissions;
 import bw.co.knowvera.auth.RequiresOwnership;
@@ -54,12 +59,18 @@ public class KycRecordApiImpl implements KycRecordApi {
 
     private final CurrentCaller currentCaller;
 
+    private final ClientRequestService clientRequestService;
+    private final KycAuthorisationService kycAuthorisationService;
+
     public KycRecordApiImpl(KycRecordService kycRecordService,
             KeycloakOrganisationService keycloakOrganisationService,
             KeycloakUserService keycloakUserService,
             IndividualService individualService,
-            DocumentApi documentApi, CurrentCaller currentCaller) {
+            DocumentApi documentApi, CurrentCaller currentCaller,
+            @Lazy ClientRequestService clientRequestService, @Lazy KycAuthorisationService kycAuthorisationService) {
         this.currentCaller = currentCaller;
+        this.clientRequestService = clientRequestService;
+        this.kycAuthorisationService = kycAuthorisationService;
 
         this.kycRecordService = kycRecordService;
         this.keycloakOrganisationService = keycloakOrganisationService;
@@ -115,6 +126,14 @@ public class KycRecordApiImpl implements KycRecordApi {
      * organisations, analysts) keep the stored values, and a new record starts INCOMPLETE.
      */
     private void protectReviewFields(KycRecordDTO record, KycRecordDTO stored) {
+
+        // A sanctions result comes from screening by staff; clients and organisations (who hold only
+        // kyc-records:edit-own) declare their PEP status but cannot clear themselves of sanctions
+        if (!Permissions.has("kyc-records:edit") && record.getDeclaration() != null) {
+            DeclarationDTO recorded = stored != null ? stored.getDeclaration() : null;
+            record.getDeclaration().setSanctionsMatch(recorded != null ? recorded.getSanctionsMatch() : Boolean.FALSE);
+            record.getDeclaration().setSanctionsDetails(recorded != null ? recorded.getSanctionsDetails() : null);
+        }
 
         if (Permissions.has("kyc-records:review")) {
             return;
@@ -645,14 +664,50 @@ public class KycRecordApiImpl implements KycRecordApi {
     @Override
     @Operation(summary = "Find KYC Record Summary by ID", description = "Find a summary of a KYC record by its ID")
     @Audit(entity = "KYC_RECORD", eventLabel = "#id", logData = false)
-    @RequiresOwnership(scope = "kyc-records:view", target = "KYC_RECORD", id = "#id")
     public ResponseEntity<KycRecordSummary> findSummaryById(String id, @Nullable String organisationId) throws Exception {
 
         logger.debug("Finding KYC record summary by ID: {}", id);
 
-        KycRecordSummary summary = kycRecordService.findSummaryById(id, organisationId);
+        // Staff: any record, as the organisation they name (or in full)
+        if (Permissions.has("kyc-records:view")) {
+            return ResponseEntity.ok(kycRecordService.findSummaryById(id, organisationId));
+        }
 
-        return ResponseEntity.ok(summary);
+        // The record's owner (the client, or a member of the organisation it is about)
+        if (Boolean.TRUE.equals(kycAuthorisationService.isKycRecordOwner(id))) {
+            kycAuthorisationService.requireSubscription("kyc-records:view");
+            return ResponseEntity.ok(kycRecordService.findSummaryById(id, organisationId));
+        }
+
+        // A member of an organisation the client accepted a request from: the report as that
+        // organisation configured it (its fields, its forms), whatever organisation was asked for
+        String callerOrganisation = currentCaller.organisationId().orElse(null);
+        if (callerOrganisation != null && isAcceptedClientOf(id, callerOrganisation)) {
+            kycAuthorisationService.requireSubscription("kyc-records:view");
+            return ResponseEntity.ok(kycRecordService.findSummaryById(id, callerOrganisation));
+        }
+
+        throw new AuthorizationDeniedException("Access denied: the record is neither the caller's nor a client's");
+    }
+
+    /**
+     * Whether the record's subject accepted a client request from the organisation. Accepting is
+     * the client's permission: a request still pending, or rejected, opens nothing of their KYC.
+     */
+    private boolean isAcceptedClientOf(String recordId, String organisationId) {
+
+        KycRecordDTO record = findStored(recordId);
+        if (record == null || record.getTarget() == null || StringUtils.isBlank(record.getTargetId())) {
+            return false;
+        }
+        try {
+            return clientRequestService
+                    .findByTargetAndOrganisation(record.getTarget(), record.getTargetId(), organisationId).stream()
+                    .anyMatch(request -> request.getStatus() == ClientRequestStatus.ACCEPTED);
+        } catch (Exception e) {
+            // Not proven to be a client
+            return false;
+        }
     }
 
     @Override

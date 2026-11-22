@@ -34,15 +34,17 @@ export class EditOrganisationVarsForm {
   isClient: boolean | any = null;
   status: GeneralStatus | any = null;
   kycStatus: KycComplianceStatus | any = null;
-  registrationNo: string | any = null;
-  code: string | any = null;
-  name: string | any = null;
+  // Signal forms reads a null model value on a text <input> as numeric and rejects letters,
+  // so the text fields start as '' and stay '' when the stored value is null
+  registrationNo: string | any = '';
+  code: string | any = '';
+  name: string | any = '';
   countryOfRegistration: string | any = null;
-  tradingName: string | any = null;
-  natureOfBusiness: string | any = null;
+  tradingName: string | any = '';
+  natureOfBusiness: string | any = '';
   legalForm: OrganisationLegalForm | any = null;
-  taxNumber: string | any = null;
-  vatNumber: string | any = null;
+  taxNumber: string | any = '';
+  vatNumber: string | any = '';
   description: string | any = null;
   phoneNumbers: Array<PhoneNumber> = [];
   contactEmailAddress: string | any = null;
@@ -136,7 +138,17 @@ export class EditOrganisation implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       const item = this.organisationApiStore.data();
       if (item && item.id) {
-        this.editOrganisationFormSignal.set(item as any);
+        this.editOrganisationFormSignal.set({
+          ...item,
+          registrationNo: item.registrationNo ?? '',
+          code: item.code ?? '',
+          name: item.name ?? '',
+          tradingName: item.tradingName ?? '',
+          natureOfBusiness: item.natureOfBusiness ?? '',
+          taxNumber: item.taxNumber ?? '',
+          vatNumber: item.vatNumber ?? '',
+          domains: (item.domains || []).map((domain: any) => ({ ...domain, name: domain.name ?? '' })),
+        } as any);
       }
     });
 

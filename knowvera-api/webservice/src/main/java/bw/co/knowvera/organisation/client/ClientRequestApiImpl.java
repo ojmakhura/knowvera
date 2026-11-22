@@ -650,6 +650,8 @@ public class ClientRequestApiImpl implements ClientRequestApi {
         if (organisationId.isEmpty()) {
             return ResponseEntity.ok(List.of());
         }
+        // Not an @RequiresOwnership endpoint, so the subscription rule is applied here
+        kycAuthorisationService.requireSubscription("client-requests:list");
         return ResponseEntity.ok(clientRequestService.findByOrganisation(organisationId.get()));
     }
 

@@ -27,16 +27,16 @@
           </span>
         </div>
 
-        @if (organisation()) {
-          <p class="kv-subtitle max-w-2xl">
-            {{ organisation()?.description || 'Leading organization specializing in advanced technological infrastructure and global compliance.' }}
-          </p>
+        @if (organisation()?.id) {
+          @if (organisation()?.description) {
+            <p class="kv-subtitle max-w-2xl">{{ organisation()?.description }}</p>
+          }
 
           <div class="flex flex-wrap items-center gap-2">
             @if (organisation()?.kycStatus) {
-              <span class="dp-pill is-success">
-                <mat-icon>verified</mat-icon>
-                {{ formatStatus(organisation()?.kycStatus) }}
+              <span class="dp-pill" [class.is-success]="organisation()?.kycStatus === 'CURRENT'" [class.is-warning]="organisation()?.kycStatus !== 'CURRENT'">
+                <mat-icon>{{ organisation()?.kycStatus === 'CURRENT' ? 'verified' : 'pending' }}</mat-icon>
+                KYC {{ formatStatus(organisation()?.kycStatus) }}
               </span>
             }
             @if (organisation()?.registrationNo) {
@@ -55,20 +55,31 @@
         }
       </div>
 
-      <div class="kv-actions">
-        <button type="button" class="kv-btn-secondary" (click)="openEditOrganisation()">
-          <mat-icon>edit</mat-icon>
-          Edit Profile
-        </button>
-        <button type="button" class="kv-btn-primary" (click)="openEditOrganisation()">
-          <mat-icon>cloud_upload</mat-icon>
-          Save/Upload
-        </button>
-      </div>
+      @if (canEdit() && organisation()?.id) {
+        <div class="kv-actions">
+          <button type="button" class="kv-btn-secondary" (click)="openEditOrganisation()">
+            <mat-icon>edit</mat-icon>
+            Edit Profile
+          </button>
+        </div>
+      }
     </div>
   </header>
 
-  @if (organisation()) {
+  @if (noOrganisation()) {
+    <section class="kv-card">
+      <div class="kv-card-header">
+        <mat-icon class="kv-card-icon">domain_disabled</mat-icon>
+        <h2 class="kv-card-title">No organisation</h2>
+      </div>
+      <p class="kv-subtitle">
+        Your account is not linked to an organisation, so there is nothing to manage here.
+        If you expected to see one, ask its administrator or our support team to add you.
+      </p>
+    </section>
+  }
+
+  @if (organisation()?.id) {
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
       <div class="xl:col-span-8 flex flex-col gap-6">
         <!-- Core Identity -->
@@ -133,7 +144,7 @@
                 <div class="dp-list-item" [class.is-primary]="domain.verified" [class.is-warning]="!domain.verified">
                   <span class="dp-inline-icon dp-strong text-sm">
                     <mat-icon>language</mat-icon>
-                    {{ domain.domain }}
+                    {{ domain.name }}
                   </span>
                   <span class="kv-chip" [class]="domain.verified ? 'kv-tone-success' : 'kv-tone-warning'">
                     {{ domain.verified ? 'Verified' : 'Pending' }}
@@ -172,6 +183,29 @@
 
           <!-- Compliance Archive -->
           @if (activeTab() === 0) {
+            @if (canUploadDocuments()) {
+              <div class="flex flex-wrap items-end gap-2 mb-4">
+                <div class="kv-field">
+                  <label class="kv-label" for="org-document-type">Document type</label>
+                  <select id="org-document-type" class="kv-input" [value]="documentTypeIdForUpload()"
+                    (change)="selectUploadDocumentType($any($event.target).value)">
+                    <option value="">Choose…</option>
+                    @for (documentType of uploadDocumentTypes(); track documentType.id) {
+                      <option [value]="documentType.id">{{ documentType.name || documentType.code }}</option>
+                    }
+                  </select>
+                </div>
+                <input type="file" #documentUploadInput hidden accept=".pdf,.jpg,.jpeg,.png" (change)="onDocumentFileSelected($event)" />
+                <button type="button" class="kv-btn-secondary" (click)="documentUploadInput.click()">
+                  <mat-icon>attach_file</mat-icon>
+                  {{ selectedDocumentFileName() }}
+                </button>
+                <button type="button" class="kv-btn-primary" [disabled]="!canUploadDocument()" (click)="uploadOrganisationDocument(documentUploadInput)">
+                  <mat-icon>cloud_upload</mat-icon>
+                  {{ isUploadingDocument() ? 'Uploading…' : 'Upload' }}
+                </button>
+              </div>
+            }
             @if (organisationDocuments() && organisationDocuments().length > 0) {
               <div class="dp-table-wrap">
                 <table class="dp-table">
@@ -246,6 +280,14 @@
 
           <!-- Branches -->
           @if (activeTab() === 2) {
+            @if (canManageBranches()) {
+              <div class="flex justify-end mb-4">
+                <button type="button" class="kv-btn-secondary" (click)="openAddBranchDialog()">
+                  <mat-icon>add_location</mat-icon>
+                  Add Branch
+                </button>
+              </div>
+            }
             @if (branches() && branches().length > 0) {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @for (branch of branches(); track branch.id; let i = $index) {
@@ -259,6 +301,20 @@
                         <mat-icon>location_on</mat-icon>
                         {{ branch.physicalAddress || '-' }}
                       </p>
+                      @if (canManageBranches() || canRemoveBranches()) {
+                        <div class="flex justify-end gap-1">
+                          @if (canManageBranches()) {
+                            <button type="button" mat-icon-button [attr.aria-label]="'Edit branch ' + (branch.name || branch.code)" (click)="openEditBranchDialog(branch)">
+                              <mat-icon>edit</mat-icon>
+                            </button>
+                          }
+                          @if (canRemoveBranches()) {
+                            <button type="button" mat-icon-button [attr.aria-label]="'Delete branch ' + (branch.name || branch.code)" (click)="deleteBranch(branch)">
+                              <mat-icon>delete</mat-icon>
+                            </button>
+                          }
+                        </div>
+                      }
                     </div>
                   }
                 }
@@ -270,7 +326,24 @@
 
           <!-- Individual KYC -->
           @if (activeTab() === 3) {
-            <p class="dp-head-sub mb-4">Displaying key personnel and UBOs.</p>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <p class="dp-head-sub">Displaying key personnel and UBOs.</p>
+              @if (canImportRequests()) {
+                <div class="flex flex-wrap items-center gap-2">
+                  <button type="button" class="kv-btn-secondary" (click)="downloadClientRequestTemplate()">
+                    <mat-icon>download</mat-icon>
+                    Template
+                  </button>
+                  <input type="file" #individualRequestsUploadInput hidden accept=".xlsx,.xls,.csv"
+                    (change)="onIndividualClientRequestFileSelected($event, individualRequestsUploadInput)" />
+                  <button type="button" class="kv-btn-secondary" [disabled]="isUploadingIndividualClientRequestFile()"
+                    (click)="individualRequestsUploadInput.click()">
+                    <mat-icon>upload_file</mat-icon>
+                    {{ isUploadingIndividualClientRequestFile() ? 'Uploading…' : 'Upload clients (Excel or CSV)' }}
+                  </button>
+                </div>
+              }
+            </div>
             @if (individualRequestsList() && individualRequestsList().length > 0) {
               <div class="dp-table-wrap">
                 <table class="dp-table">
@@ -363,7 +436,7 @@
               @if (i < 2) {
                 <div class="kv-field">
                   <dt class="kv-label">{{ phone.type || 'Phone' }}</dt>
-                  <dd class="kv-value">{{ phone.number || '-' }}</dd>
+                  <dd class="kv-value">{{ phone.phoneNumber || '-' }}</dd>
                 </div>
               }
             }

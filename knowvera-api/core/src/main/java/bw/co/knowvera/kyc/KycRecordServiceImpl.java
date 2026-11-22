@@ -595,20 +595,10 @@ public class KycRecordServiceImpl
     }
 
     @Override
-    protected KycRecordDTO handleFindLatestValidForOwner(String individualId, TargetEntity ownerType, LocalDate today)
+    protected KycRecordDTO handleFindLatestValidForOwner(String ownerId, TargetEntity ownerType, LocalDate today)
             throws Exception {
 
-        String ownerId = individualId;
-
-        if (ownerType == TargetEntity.ORGANISATION) {
-
-            Individual individual = individualRepository.getReferenceById(UUID.fromString(individualId));
-
-            if (individual.getOrganisation() != null && individual.getOrganisation().getId() != null) {
-
-                ownerId = individual.getOrganisation().getId().toString();
-            }
-        }
+        // ownerId is the subject itself: the individual's id, or the organisation's for an organisation record
 
         KycRecord record = kycRecordRepository.findLatestValidForOwner(ownerId, ownerType, today)
                 .orElse(null);
@@ -1282,7 +1272,8 @@ public class KycRecordServiceImpl
 
     /**
      * The KYC records of an organisation's clients: the individuals or organisations whose client
-     * request to it was accepted.
+     * request to it was accepted. Accepting is the client's permission; until then the
+     * organisation sees its request and nothing of the client's KYC.
      */
     private Specification<KycRecord> getSummarySpecification(String organisationId, Boolean forIndividual) {
         UUID organisation = UUID.fromString(organisationId);

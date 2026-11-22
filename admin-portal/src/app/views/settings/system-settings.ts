@@ -52,10 +52,12 @@ export class EditSettingsVarsForm {
   highRiskKycDuration: number | any = null;
   highRiskCountriesText: string = '';
   timeToAccountCreation: number | any = null;
-  platformName: string | any = null;
-  platformUrl: string | any = null;
-  kycPortalLink: string | any = null;
-  supportContact: string | any = null;
+  // Native text inputs bound with [formField] must start as '' — signal forms treats a null
+  // model value on <input type="text"> as numeric and rejects non-numeric input.
+  platformName: string | any = '';
+  platformUrl: string | any = '';
+  kycPortalLink: string | any = '';
+  supportContact: string | any = '';
   organisationAdminRole: string | any = null;
   normalUserRole: string | any = null;
   individualDocuments: Array<DocumentTypeDTO> = [];
@@ -430,10 +432,10 @@ export class SystemSettings {
       selectedKycIndDocumentFilter: '',
       salaryRanges: settings.salaryRanges || [],
       timeToAccountCreation: settings.timeToAccountCreation || 0,
-      platformName: settings.platformName,
-      platformUrl: settings.platformUrl,
-      supportContact: settings.supportContact,
-      kycPortalLink: settings.kycPortalLink,
+      platformName: settings.platformName ?? '',
+      platformUrl: settings.platformUrl ?? '',
+      supportContact: settings.supportContact ?? '',
+      kycPortalLink: settings.kycPortalLink ?? '',
       organisationAdminRole: settings.organisationAdminRole,
       normalUserRole: settings.normalUserRole,
       vat: settings.vat,
@@ -706,10 +708,10 @@ export class SystemSettings {
     settings.quotationTemplateType = value.quotationTemplateType;
     settings.quotationTemplate = value.quotationTemplate;
     settings.salaryRanges = value.salaryRanges || [];
-    settings.platformName = value.platformName;
-    settings.platformUrl = value.platformUrl;
-    settings.supportContact = value.supportContact;
-    settings.kycPortalLink = value.kycPortalLink;
+    settings.platformName = value.platformName || null;
+    settings.platformUrl = value.platformUrl || null;
+    settings.supportContact = value.supportContact || null;
+    settings.kycPortalLink = value.kycPortalLink || null;
     settings.organisationAdminRole = value.organisationAdminRole;
     settings.normalUserRole = value.normalUserRole;
     settings.timeToAccountCreation = value.timeToAccountCreation;

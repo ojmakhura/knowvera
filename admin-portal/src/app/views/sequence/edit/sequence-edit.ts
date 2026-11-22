@@ -25,7 +25,9 @@ import { LoaderState } from '@app/@shared/loader/loader.state';
 export class EditSequenceVarsForm {
   id: string | any = null;
   targetEntity: TargetEntity | any = null;
-  name: string | any = null;
+  // Native text inputs bound with [formField] must start as '' — signal forms treats a null
+  // model value on <input type="text"> as numeric and rejects non-numeric input.
+  name: string | any = '';
   sequenceParts: SequencePartDTO[] = [];
 }
 
@@ -111,7 +113,7 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
         ...value,
         id: sequence.id,
         targetEntity: sequence.targetEntity,
-        name: sequence.name,
+        name: sequence.name ?? '',
         sequenceParts: sequence.sequenceParts ?? []
       }));
     });
@@ -272,7 +274,7 @@ export class SequenceEdit implements OnInit, AfterViewInit, OnDestroy {
     const current = this.editSequenceSignal();
 
     payload.id = current.id;
-    payload.name = current.name;
+    payload.name = current.name || null;
     payload.targetEntity = current.targetEntity;
     payload.sequenceParts = current.sequenceParts.map((part, index) => ({
       ...part,

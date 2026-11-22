@@ -128,7 +128,6 @@
             <th>Reference</th>
             <th>Organisation</th>
             <th>Status</th>
-            <th class="align-end">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -138,9 +137,7 @@
                 <div class="vs-file">
                   <mat-icon class="vs-file-icon">{{ row.target === 'ORGANISATION' ? 'business' : 'person' }}</mat-icon>
                   <div class="vs-file-copy">
-                    <button type="button" class="vs-file-name" (click)="openDetails(row.id)">
-                      {{ row.name || 'Unnamed Request' }}
-                    </button>
+                    <span class="vs-file-name">{{ row.name || 'Unnamed Request' }}</span>
                     <p class="vs-file-meta">{{ targetLabel(row.target) }}@if (row.registration) { &bull; {{ row.registration }} }</p>
                   </div>
                 </div>
@@ -153,20 +150,10 @@
               <td>
                 <span class="vs-status" [class]="statusClass(row.status)">{{ statusLabel(row.status) }}</span>
               </td>
-              <td>
-                <div class="vs-row-actions">
-                  <button type="button" class="vs-action" matTooltip="View request" aria-label="View request" (click)="openDetails(row.id)">
-                    <mat-icon>visibility</mat-icon>
-                  </button>
-                  <button type="button" class="vs-action" matTooltip="Edit request" aria-label="Edit request" (click)="openEdit(row.id)">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                </div>
-              </td>
             </tr>
           } @empty {
             <tr class="vs-empty">
-              <td colspan="5">
+              <td colspan="4">
                 <mat-icon>search_off</mat-icon>
                 <p>No client requests matched the current search.</p>
               </td>

@@ -2,6 +2,15 @@ package bw.co.knowvera.settings;
 
 import bw.co.knowvera.AuditTracker;
 import bw.co.knowvera.TargetEntity;
+import bw.co.knowvera.auth.CurrentCaller;
+import bw.co.knowvera.auth.Permissions;
+import bw.co.knowvera.document.type.DocumentTypeDTO;
+import bw.co.knowvera.individual.IndividualDTO;
+import bw.co.knowvera.organisation.OrganisationDTO;
+import bw.co.knowvera.organisation.OrganisationService;
+import bw.co.knowvera.organisation.client.ClientRequestDTO;
+import bw.co.knowvera.organisation.client.ClientRequestService;
+import bw.co.knowvera.organisation.client.ClientRequestStatus;
 import bw.co.knowvera.document.DocumentApi;
 import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.logging.Audit;
@@ -9,12 +18,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.jspecify.annotations.Nullable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -31,10 +44,19 @@ public class SettingsApiImpl implements SettingsApi {
     private final DocumentApi documentApi;
     private final SettingsService settingsService;
 
-    public SettingsApiImpl(SettingsService settingsService, DocumentApi documentApi) {
+    private final Logger logger = LoggerFactory.getLogger(SettingsApiImpl.class);
+    private final CurrentCaller currentCaller;
+    private final ClientRequestService clientRequestService;
+    private final OrganisationService organisationService;
+
+    public SettingsApiImpl(SettingsService settingsService, DocumentApi documentApi, CurrentCaller currentCaller,
+            @Lazy ClientRequestService clientRequestService, @Lazy OrganisationService organisationService) {
 
         this.documentApi = documentApi;
         this.settingsService = settingsService;
+        this.currentCaller = currentCaller;
+        this.clientRequestService = clientRequestService;
+        this.organisationService = organisationService;
     }
 
     @Override
@@ -161,7 +183,58 @@ public class SettingsApiImpl implements SettingsApi {
     @Operation(summary = "Get Document Requirements", description = "Retrieve document requirements")
     public ResponseEntity<DocumentRequirements> getDocumentRequirements() throws Exception {
 
-        return ResponseEntity.ok(settingsService.getDocumentRequirements());
+        return ResponseEntity.ok(withRequestersDocuments(settingsService.getDocumentRequirements()));
+    }
+
+    /**
+     * The KYC documents asked of the caller: the platform's, plus those required by each
+     * organisation that asked for the caller's KYC (a client request for them as an individual, or
+     * for their organisation). Callers who maintain the platform's lists get those lists alone,
+     * since what they save back replaces them.
+     */
+    private DocumentRequirements withRequestersDocuments(DocumentRequirements platform) {
+
+        if (platform == null || Permissions.has("settings:edit")) {
+            return platform;
+        }
+
+        // A copy: the service's result may be shared (cached)
+        DocumentRequirements requirements = new DocumentRequirements(platform);
+        try {
+            requirements.setIndKycDocuments(withRequested(platform.getIndKycDocuments(), TargetEntity.INDIVIDUAL,
+                    currentCaller.individual().map(IndividualDTO::getId).orElse(null)));
+            requirements.setOrgKycDocuments(withRequested(platform.getOrgKycDocuments(), TargetEntity.ORGANISATION,
+                    currentCaller.organisationId().orElse(null)));
+        } catch (Exception e) {
+            logger.warn("Could not add the requesting organisations' document requirements", e);
+            return platform;
+        }
+        return requirements;
+    }
+
+    private List<DocumentTypeDTO> withRequested(List<DocumentTypeDTO> platform, TargetEntity target, String subjectId) {
+
+        Map<String, DocumentTypeDTO> types = new LinkedHashMap<>();
+        if (platform != null) {
+            platform.forEach(type -> types.put(type.getId(), type));
+        }
+        if (StringUtils.isBlank(subjectId)) {
+            return new ArrayList<>(types.values());
+        }
+
+        for (ClientRequestDTO request : clientRequestService.findByTarget(target, subjectId)) {
+            if (request.getStatus() == ClientRequestStatus.REJECTED || StringUtils.isBlank(request.getOrganisationId())) {
+                continue;
+            }
+            OrganisationDTO requester = organisationService.findById(request.getOrganisationId());
+            List<DocumentTypeDTO> required = requester == null ? null
+                    : target == TargetEntity.INDIVIDUAL ? requester.getIndividualKycDocuments()
+                            : requester.getOrganisationKycDocuments();
+            if (required != null) {
+                required.forEach(type -> types.putIfAbsent(type.getId(), type));
+            }
+        }
+        return new ArrayList<>(types.values());
     }
 
     @Override
