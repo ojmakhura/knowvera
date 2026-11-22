@@ -499,8 +499,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
           this.loadIndividualClientRequests(page.number || 0, page.size || 10);
         },
         error: (error: any) => {
-          const message = error?.error?.message || 'Failed to upload individual client requests.';
-          this.toaster.error(message);
+          this.showClientRequestUploadError(error, 'Failed to upload individual client requests.');
         }
       });
   }
@@ -532,10 +531,38 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
           this.loadOrganisationClientRequests(page.number || 0, page.size || 10);
         },
         error: (error: any) => {
-          const message = error?.error?.message || 'Failed to upload organisation client requests.';
-          this.toaster.error(message);
+          this.showClientRequestUploadError(error, 'Failed to upload organisation client requests.');
         }
       });
+  }
+
+  /**
+   * A refused import stores nothing and names each wrong row (problem detail `errors`): those
+   * are listed in a dialog, since a toast cannot hold them. Anything else is a toast.
+   */
+  private showClientRequestUploadError(error: any, fallback: string): void {
+    const problem = error?.error;
+    const detail: string = problem?.detail || problem?.message || fallback;
+    const rows: string[] = Array.isArray(problem?.errors) ? problem.errors : [];
+
+    if (rows.length === 0) {
+      this.toaster.error(detail);
+      return;
+    }
+
+    const escape = (text: string) => String(text).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+    const shown = rows.slice(0, 50);
+    const more = rows.length > shown.length ? `<p>and ${rows.length - shown.length} more rows.</p>` : '';
+
+    swalFire({
+      icon: 'error',
+      title: 'Nothing was imported',
+      html: `<p>${escape(detail)}</p>`
+        + `<ul style="text-align: left; max-height: 40vh; overflow-y: auto;">`
+        + shown.map((row) => `<li>${escape(row)}</li>`).join('')
+        + `</ul>${more}`,
+      width: '48rem',
+    });
   }
 
   private isSupportedClientRequestFile(fileName: string): boolean {

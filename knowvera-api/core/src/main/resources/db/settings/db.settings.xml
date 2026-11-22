@@ -67,4 +67,24 @@
             END $$;
         </sql>
     </changeSet>
+
+    <!-- A spreadsheet import gives every request of the file the same document. The earlier one-to-one
+         mapping made Hibernate put a unique constraint on the document column. (Here because
+         organisation/client_request/db.client_request.xml is not part of the master changelog.) -->
+    <changeSet id="client-request-document-not-unique" author="knowvera">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="client_request"/></preConditions>
+        <sql splitStatements="false">
+            DO $$
+            DECLARE c record;
+            BEGIN
+                FOR c IN SELECT con.conname FROM pg_constraint con
+                         JOIN pg_attribute a ON a.attrelid = con.conrelid AND a.attnum = ANY (con.conkey)
+                         WHERE con.conrelid = 'client_request'::regclass AND con.contype = 'u'
+                           AND a.attname = 'document_fk' AND array_length(con.conkey, 1) = 1
+                LOOP
+                    EXECUTE format('ALTER TABLE client_request DROP CONSTRAINT %I', c.conname);
+                END LOOP;
+            END $$;
+        </sql>
+    </changeSet>
 </databaseChangeLog>

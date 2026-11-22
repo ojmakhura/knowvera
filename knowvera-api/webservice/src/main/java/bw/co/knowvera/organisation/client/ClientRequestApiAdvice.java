@@ -344,6 +344,28 @@ public class ClientRequestApiAdvice {
 
 
     /**
+     * A client request spreadsheet that was refused: 400, with one entry in {@code errors} for
+     * each wrong row. Nothing was imported.
+     */
+    @ExceptionHandler(ClientRequestImportException.class)
+    public ResponseEntity<ProblemDetail> handleClientRequestImport(ClientRequestImportException ex, WebRequest request) {
+
+        LOGGER.warn("Client request import refused: {} ({} row errors)", ex.getMessage(), ex.getRowErrors().size());
+
+        ProblemDetail problemDetail = buildProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "client-request-import-rejected",
+                "Import Rejected",
+                ex.getMessage(),
+                request,
+                ex.getRowErrors());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .contentType(PROBLEM_JSON_MEDIA_TYPE)
+                .body(problemDetail);
+    }
+
+    /**
      * Handles {@link bw.co.knowvera.organisation.client.ClientRequestServiceException} thrown by referenced services (RFC 9457 Internal Server Error).
      */
     @ExceptionHandler(bw.co.knowvera.organisation.client.ClientRequestServiceException.class)

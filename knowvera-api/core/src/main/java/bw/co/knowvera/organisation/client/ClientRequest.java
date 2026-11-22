@@ -16,7 +16,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
@@ -288,7 +287,8 @@ public class ClientRequest
         this.organisation = organisationIn;
     }
 
-    @OneToOne( fetch = FetchType.LAZY)
+    // The spreadsheet a request was imported from: one file holds many clients, so many requests share it
+    @ManyToOne( fetch = FetchType.LAZY)
     @JoinColumn(name = "DOCUMENT_FK", nullable = true, unique = false)
     private Document document;
 

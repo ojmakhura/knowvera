@@ -103,7 +103,8 @@ class ClientRequestServiceImplTest {
                 documentMapper,
                 settingsRepository,
                 settingsMapper,
-                new RecordRetention(20, kycRecordRepository));
+                new RecordRetention(20, kycRecordRepository),
+                org.springframework.transaction.support.TransactionOperations.withoutTransaction());
     }
 
     @Test
