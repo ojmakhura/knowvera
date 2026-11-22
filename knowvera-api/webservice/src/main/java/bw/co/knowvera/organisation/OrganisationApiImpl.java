@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import bw.co.knowvera.auth.CurrentCaller;
+import bw.co.knowvera.auth.Permissions;
 import bw.co.knowvera.auth.RequiresOwnership;
 import java.util.Collection;
 import java.util.HashSet;
@@ -151,6 +152,16 @@ public class OrganisationApiImpl implements OrganisationApi {
         logger.debug("Saving organisation: {}", organisation);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AuditTracker.auditTrail(organisation, authentication);
+
+        // Callers with only organisations:edit-own edit their organisation's profile. Its status,
+        // KYC status, client flag and Keycloak Organization are decided by staff: keep what is stored
+        if (!Permissions.has("organisations:edit")) {
+            OrganisationDTO stored = organisationService.findById(organisation.getId());
+            organisation.setStatus(stored.getStatus());
+            organisation.setKycStatus(stored.getKycStatus());
+            organisation.setIsClient(stored.getIsClient());
+            organisation.setKeycloakId(stored.getKeycloakId());
+        }
 
         OrganisationDTO keycloakOrg = null;
 

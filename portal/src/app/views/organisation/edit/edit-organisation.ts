@@ -15,7 +15,6 @@ import { OrganisationDomain } from "@app/models/bw/co/knowvera/organisation/orga
 import { PhoneNumber } from "@app/models/bw/co/knowvera/phone-number";
 import { TranslateModule } from "@ngx-translate/core";
 import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { Loader } from "@app/@shared/loader/loader";
 import { applyEach, email, form, FormField, required } from "@angular/forms/signals";
 import { OrganisationApiStore } from "@app/store/bw/co/knowvera/organisation/organisation-api.store";
@@ -70,7 +69,6 @@ export class EditOrganisationVarsForm {
     MatListModule,
     MatDividerModule,
     MatCheckboxModule,
-    MatSlideToggleModule,
     Loader,
     FormField
   ],
@@ -79,8 +77,6 @@ export class EditOrganisation implements OnInit, AfterViewInit, OnDestroy {
 
   editOrganisationFormSignal = signal(new EditOrganisationVarsForm());
   editOrganisationFormSignalForm = form(this.editOrganisationFormSignal, (path) => {
-    required(path.status, { message: 'status.required' });
-    required(path.kycStatus, { message: 'kyc.status.required' });
     required(path.registrationNo, { message: 'registration.no.required' });
     required(path.code, { message: 'code.required' });
     required(path.name, { message: 'name.required' });
@@ -131,8 +127,6 @@ export class EditOrganisation implements OnInit, AfterViewInit, OnDestroy {
   loading = linkedSignal(() => this.organisationApiStore.loading());
   error = linkedSignal(() => this.organisationApiStore.error());
 
-  generalStatuses = Object.values(GeneralStatus);
-  kycComplianceStatuses = Object.values(KycComplianceStatus);
   phoneTypes = Object.values(PhoneType);
   legalForms = Object.values(OrganisationLegalForm);
 
@@ -181,16 +175,6 @@ export class EditOrganisation implements OnInit, AfterViewInit, OnDestroy {
 
   cancel(): void {
     this.router.navigate(['/organisation']);
-  }
-
-  toggleIsClient(event: any): void {
-    const checked = Boolean(event?.checked ?? event?.target?.checked);
-    this.editOrganisationFormSignal.update((val) => {
-      return {
-        ...val,
-        isClient: checked,
-      };
-    });
   }
 
   copyPhysicalAddress(): void {
