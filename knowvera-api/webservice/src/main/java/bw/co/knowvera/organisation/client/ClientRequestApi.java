@@ -168,7 +168,7 @@ public interface ClientRequestApi {
     @PostMapping(
         value = "/search/paged"
     )
-    @PreAuthorize(value = "hasAuthority('SCOPE_client-requests:list')")
+    @PreAuthorize(value = "hasAnyAuthority('SCOPE_client-requests:list', 'SCOPE_client-requests:list-own')")
     public @Nullable ResponseEntity<Page<ClientRequestDTO>> pagedSearch(@RequestBody(required = false) @Nullable @Valid SearchObject<ClientRequestSearchCriteria> criteria) throws Exception;
 
     @DeleteMapping(

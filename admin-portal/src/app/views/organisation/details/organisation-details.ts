@@ -315,7 +315,7 @@ export class OrganisationDetails implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       let messages = this.messages();
 
-      if (this.success() && !this.loading()) {
+      if (this.success() && !this.loading() && messages[0]) {
         untracked(() => toast.success(messages[0]));
       }
 

@@ -39,7 +39,7 @@ export const ExpectedFieldApiStore = signalStore(
           return expectedFieldApi.findByDocumentType(data.documentTypeIds, ).pipe(
             tapResponse({
               next: (response: ExpectedFieldDTO[]) => {
-                const message = 'Success!!';
+                const message = 'Expected fields loaded.';
                 
                 patchState(
                   store, 
@@ -75,7 +75,7 @@ export const ExpectedFieldApiStore = signalStore(
           return expectedFieldApi.findByDocumentTypePage(data.documentTypeIds, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<ExpectedFieldDTO>) => {
-                const message = 'Success!!';
+                const message = 'Expected fields loaded.';
                 
                 patchState(
                   store, 
@@ -111,7 +111,7 @@ export const ExpectedFieldApiStore = signalStore(
           return expectedFieldApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: ExpectedFieldDTO) => {
-                const message = 'Success!!';
+                const message = 'Expected field loaded.';
                 
                 patchState(
                   store, 
@@ -147,7 +147,7 @@ export const ExpectedFieldApiStore = signalStore(
           return expectedFieldApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean) => {
-                const message = 'Success!!';
+                const message = 'Expected field removed.';
                 
                 patchState(
                   store, 
@@ -183,7 +183,7 @@ export const ExpectedFieldApiStore = signalStore(
           return expectedFieldApi.save(data.documentType, ).pipe(
             tapResponse({
               next: (response: ExpectedFieldDTO) => {
-                const message = 'Success!!';
+                const message = 'Expected field saved.';
                 
                 patchState(
                   store, 

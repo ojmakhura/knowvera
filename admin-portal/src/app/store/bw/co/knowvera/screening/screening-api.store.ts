@@ -47,7 +47,7 @@ export const ScreeningApiStore = signalStore(
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Screening hits loaded.'],
                     error: false,
                   }
                 );
@@ -79,7 +79,7 @@ export const ScreeningApiStore = signalStore(
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Pending screening hits loaded.'],
                     error: false,
                   }
                 );
@@ -111,7 +111,7 @@ export const ScreeningApiStore = signalStore(
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Sanctions list status loaded.'],
                     error: false,
                   }
                 );
@@ -143,7 +143,7 @@ export const ScreeningApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Screening hit reviewed.'],
                     error: false,
                   }
                 );
@@ -175,7 +175,7 @@ export const ScreeningApiStore = signalStore(
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Record screened.'],
                     error: false,
                   }
                 );
@@ -207,7 +207,7 @@ export const ScreeningApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Sanctions list updated.'],
                     error: false,
                   }
                 );

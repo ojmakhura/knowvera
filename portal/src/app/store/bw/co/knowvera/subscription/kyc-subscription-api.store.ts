@@ -42,15 +42,13 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: KycSubscriptionDTO) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -78,15 +76,13 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.findByOrganisation(data.organisationId, ).pipe(
             tapResponse({
               next: (response: KycSubscriptionDTO[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -114,15 +110,13 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.getAll().pipe(
             tapResponse({
               next: (response: KycSubscriptionDTO[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -150,15 +144,13 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<KycSubscriptionDTO>) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -186,15 +178,13 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.pagedSearch(data.criteria, ).pipe(
             tapResponse({
               next: (response: Page<KycSubscriptionDTO>) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -222,7 +212,7 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean) => {
-                const message = `Success!!`;
+                const message = 'Subscription removed.';
                 toastr.success(message);
                 patchState(
                   store,
@@ -258,7 +248,7 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.save(data.subscription, ).pipe(
             tapResponse({
               next: (response: KycSubscriptionDTO) => {
-                const message = `Success!!`;
+                const message = 'Subscription saved.';
                 toastr.success(message);
                 patchState(
                   store,
@@ -294,15 +284,13 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: KycSubscriptionDTO[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );

@@ -46,7 +46,7 @@ export const DocumentApiStore = signalStore(
           return documentApi.downloadFile(data.id,).pipe(
             tapResponse({
               next: (response: any) => {
-                const message = `Success!!`;
+                const message = 'Document downloaded.';
                 
                 patchState(
                   store,
@@ -82,7 +82,7 @@ export const DocumentApiStore = signalStore(
           return documentApi.downloadFileByUrl(data.objectName,).pipe(
             tapResponse({
               next: (response: any) => {
-                const message = `Success!!`;
+                const message = 'Document downloaded.';
                 
                 patchState(
                   store,

@@ -39,7 +39,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
@@ -172,17 +171,9 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     public ResponseEntity<Page<ClientRequestDTO>> pagedSearch(SearchObject<ClientRequestSearchCriteria> criteria)
             throws Exception {
 
-        ClientRequestSearchCriteria requestCriteria = criteria.getCriteria();
-
-        if(StringUtils.isNotBlank(requestCriteria.getOrganisationId())) {
-
-            if(!kycAuthorisationService.isOrganisationUserMatch(requestCriteria.getOrganisationId())) {
-                // Implement the logic for when the organisation user matches
-
-                throw new AuthorizationDeniedException("User not authorised to access organisation resources.");
-            }
-        }
-
+    // Staff search every request, an organisation's members only their own organisation's (which
+    // the criteria must then name)
+    @RequiresOwnership(scope = "client-requests:list", target = "ORGANISATION", id = "#criteria?.criteria?.organisationId")
         Page<ClientRequestDTO> requests = clientRequestService.search(criteria);
         return ResponseEntity.ok(requests);
     }

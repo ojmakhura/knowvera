@@ -39,7 +39,7 @@ export const KycFieldGroupApiStore = signalStore(
           return kycFieldGroupApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: KycFieldGroupDTO) => {
-                const message = 'Success!!';
+                const message = 'KYC field group loaded.';
                 
                 patchState(
                   store, 
@@ -74,7 +74,7 @@ export const KycFieldGroupApiStore = signalStore(
           return kycFieldGroupApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean) => {
-                const message = 'Success!!';
+                const message = 'KYC field group removed.';
                 
                 patchState(
                   store, 
@@ -110,7 +110,7 @@ export const KycFieldGroupApiStore = signalStore(
           return kycFieldGroupApi.save(data.fieldGroup, ).pipe(
             tapResponse({
               next: (response: KycFieldGroupDTO) => {
-                const message = 'Success!!';
+                const message = 'KYC field group saved.';
                 
                 patchState(
                   store, 
@@ -146,7 +146,7 @@ export const KycFieldGroupApiStore = signalStore(
           return kycFieldGroupApi.removeField(data.id, data.fieldId).pipe(
             tapResponse({
               next: (response: KycFieldGroupDTO) => {
-                const message = 'Success!!';
+                const message = 'Field removed from the KYC field group.';
                 
                 patchState(
                   store, 

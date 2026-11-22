@@ -46,7 +46,6 @@ export const IndividualApiStore = signalStore(
           return individualApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: IndividualDTO | any) => {
-                const message = `Success!!`;
                 
                 patchState(
                   store,
@@ -54,7 +53,7 @@ export const IndividualApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -82,7 +81,6 @@ export const IndividualApiStore = signalStore(
           return individualApi.getAll().pipe(
             tapResponse({
               next: (response: IndividualListDTO[] | any[]) => {
-                const message = `Success!!`;
                 
                 patchState(
                   store,
@@ -90,7 +88,7 @@ export const IndividualApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -118,7 +116,6 @@ export const IndividualApiStore = signalStore(
           return individualApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<IndividualListDTO> | any) => {
-                const message = `Success!!`;
                 
                 patchState(
                   store,
@@ -126,7 +123,7 @@ export const IndividualApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -154,7 +151,6 @@ export const IndividualApiStore = signalStore(
           return individualApi.getOrganisationClients(data.organisationId, ).pipe(
             tapResponse({
               next: (response: IndividualListDTO[] | any[]) => {
-                const message = `Success!!`;
                 
                 patchState(
                   store,
@@ -162,7 +158,7 @@ export const IndividualApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -190,7 +186,6 @@ export const IndividualApiStore = signalStore(
           return individualApi.getOrganisationClientsPaged(data.organisationId, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<IndividualListDTO> | any) => {
-                const message = `Success!!`;
                 
                 patchState(
                   store,
@@ -198,7 +193,7 @@ export const IndividualApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -226,7 +221,6 @@ export const IndividualApiStore = signalStore(
           return individualApi.pagedSearch(data.criteria, ).pipe(
             tapResponse({
               next: (response: Page<IndividualListDTO> | any) => {
-                const message = `Success!!`;
                 
                 patchState(
                   store,
@@ -234,7 +228,7 @@ export const IndividualApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -262,7 +256,7 @@ export const IndividualApiStore = signalStore(
           return individualApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean | any) => {
-                const message = `Success!!`;
+                const message = 'Individual removed.';
                 
                 patchState(
                   store,
@@ -298,7 +292,7 @@ export const IndividualApiStore = signalStore(
           return individualApi.save(data.individual, ).pipe(
             tapResponse({
               next: (response: IndividualDTO) => {
-                const message = `Success!!`;
+                const message = 'Individual saved.';
                 
                 patchState(
                   store,
@@ -334,7 +328,6 @@ export const IndividualApiStore = signalStore(
           return individualApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: IndividualListDTO[] | any[]) => {
-                const message = `Success!!`;
                 
                 patchState(
                   store,
@@ -342,7 +335,7 @@ export const IndividualApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -370,7 +363,6 @@ export const IndividualApiStore = signalStore(
           return individualApi.loadRequestIndividual(data.requestId, data.identityConfirmationToken, data.identityNo).pipe(
             tapResponse({
               next: (response: IndividualDTO) => {
-                const message = 'Client request individual successfully loaded!!';
                 
                 patchState(
                   store,
@@ -378,7 +370,7 @@ export const IndividualApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                     registrationIndividualLoaded: true,
                   }
@@ -408,7 +400,6 @@ export const IndividualApiStore = signalStore(
           return individualApi.loadMe().pipe(
             tapResponse({
               next: (response: IndividualDTO) => {
-                const message = 'Client individual successfully loaded!!';
                 
                 patchState(
                   store,
@@ -416,7 +407,7 @@ export const IndividualApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );

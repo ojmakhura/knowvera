@@ -40,7 +40,7 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: KycSubscriptionDTO) => {
-                const message = `Success!!`;
+                const message = 'Subscription loaded.';
                 
                 patchState(
                   store,
@@ -76,7 +76,7 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.findByOrganisation(data.organisationId, ).pipe(
             tapResponse({
               next: (response: KycSubscriptionDTO[]) => {
-                const message = `Success!!`;
+                const message = 'Subscriptions loaded.';
                 
                 patchState(
                   store,
@@ -112,7 +112,7 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.getAll().pipe(
             tapResponse({
               next: (response: KycSubscriptionDTO[]) => {
-                const message = `Success!!`;
+                const message = 'Subscriptions loaded.';
                 
                 patchState(
                   store,
@@ -148,7 +148,7 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<KycSubscriptionDTO>) => {
-                const message = `Success!!`;
+                const message = 'Subscriptions loaded.';
                 
                 patchState(
                   store,
@@ -184,7 +184,7 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.pagedSearch(data.criteria, ).pipe(
             tapResponse({
               next: (response: Page<KycSubscriptionDTO>) => {
-                const message = `Success!!`;
+                const message = 'Subscriptions loaded.';
                 
                 patchState(
                   store,
@@ -220,7 +220,7 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean) => {
-                const message = `Success!!`;
+                const message = 'Subscription removed.';
                 
                 patchState(
                   store,
@@ -256,7 +256,7 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.save(data.subscription, ).pipe(
             tapResponse({
               next: (response: KycSubscriptionDTO) => {
-                const message = `Success!!`;
+                const message = 'Subscription saved.';
                 
                 patchState(
                   store,
@@ -292,7 +292,7 @@ export const KycSubscriptionApiStore = signalStore(
           return kycSubscriptionApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: KycSubscriptionDTO[]) => {
-                const message = `Success!!`;
+                const message = 'Subscriptions loaded.';
                 
                 patchState(
                   store,

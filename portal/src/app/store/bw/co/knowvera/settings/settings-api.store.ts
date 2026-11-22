@@ -63,15 +63,13 @@ export const SettingsApiStore = signalStore(
           return settingsApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: SettingsDTO) => {
-                const message = `Settings loaded.`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -107,15 +105,13 @@ export const SettingsApiStore = signalStore(
                     }
                   );
                 }
-                const message = `Settings loaded.`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -143,15 +139,13 @@ export const SettingsApiStore = signalStore(
           return settingsApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<SettingsDTO>) => {
-                const message = `Settings loaded successfully!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -179,15 +173,13 @@ export const SettingsApiStore = signalStore(
           return settingsApi.pagedSearch(data.criteria, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<SettingsDTO>) => {
-                const message = `Settings searched successfully!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -287,15 +279,13 @@ export const SettingsApiStore = signalStore(
           return settingsApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: SettingsDTO[]) => {
-                const message = `Settings searched successfully!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -419,15 +409,13 @@ export const SettingsApiStore = signalStore(
           return settingsApi.getDocumentRequirements().pipe(
             tapResponse({
               next: (response: DocumentRequirements) => {
-                const message = 'Document requirements loaded successfully!';
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     documentRequirements: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -455,15 +443,13 @@ export const SettingsApiStore = signalStore(
           return settingsApi.getFinancialSettings().pipe(
             tapResponse({
               next: (response: FinancialSettings) => {
-                const message = 'Financial Settings Loaded Successfully!!';
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     financialSettings: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -491,15 +477,13 @@ export const SettingsApiStore = signalStore(
           return settingsApi.getOperationalMetrics().pipe(
             tapResponse({
               next: (response: OperationalMetrics) => {
-                const message = 'Operational metrics loaded successfully!';
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     operationalMetrics: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -527,15 +511,13 @@ export const SettingsApiStore = signalStore(
           return settingsApi.getPlatformIdentity().pipe(
             tapResponse({
               next: (response: PlatformIdentity) => {
-                const message = 'Platform identity loaded successfully!';
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     platformIdentity: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -563,15 +545,13 @@ export const SettingsApiStore = signalStore(
           return settingsApi.getSettingsFieldGroups().pipe(
             tapResponse({
               next: (response: SettingsFieldGroups) => {
-                const message = 'Settings field groups loaded successfully!';
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     settingsFieldGroups: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -599,15 +579,13 @@ export const SettingsApiStore = signalStore(
           return settingsApi.getTemplateMappings().pipe(
             tapResponse({
               next: (response: TemplateMappings) => {
-                const message = 'Template mapping loaded successfully!!';
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     templateMappings: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -635,15 +613,13 @@ export const SettingsApiStore = signalStore(
           return settingsApi.loadSettings().pipe(
             tapResponse({
               next: (response: SettingsDTO) => {
-                const message = 'Settings loaded successfully!!';
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );

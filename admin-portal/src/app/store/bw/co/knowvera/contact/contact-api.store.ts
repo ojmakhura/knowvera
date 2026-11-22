@@ -40,7 +40,7 @@ export const ContactApiStore = signalStore(
           return contactApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: ContactDTO) => {
-                const message = `Success!!`;
+                const message = 'Contact loaded.';
                 
                 patchState(
                   store,
@@ -76,7 +76,7 @@ export const ContactApiStore = signalStore(
           return contactApi.findByType(data.type, ).pipe(
             tapResponse({
               next: (response: ContactDTO[]) => {
-                const message = `Success!!`;
+                const message = 'Contacts loaded.';
                 
                 patchState(
                   store,
@@ -112,7 +112,7 @@ export const ContactApiStore = signalStore(
           return contactApi.findByTypePaged(data.type, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<ContactDTO>) => {
-                const message = `Success!!`;
+                const message = 'Contacts loaded.';
                 
                 patchState(
                   store,
@@ -148,7 +148,7 @@ export const ContactApiStore = signalStore(
           return contactApi.getAll().pipe(
             tapResponse({
               next: (response: ContactDTO[]) => {
-                const message = `Success!!`;
+                const message = 'Contacts loaded.';
                 
                 patchState(
                   store,
@@ -184,7 +184,7 @@ export const ContactApiStore = signalStore(
           return contactApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<ContactDTO>) => {
-                const message = `Success!!`;
+                const message = 'Contacts loaded.';
                 
                 patchState(
                   store,
@@ -220,7 +220,7 @@ export const ContactApiStore = signalStore(
           return contactApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean) => {
-                const message = `Success!!`;
+                const message = 'Contact removed.';
                 
                 patchState(
                   store,
@@ -256,7 +256,7 @@ export const ContactApiStore = signalStore(
           return contactApi.save(data.document, ).pipe(
             tapResponse({
               next: (response: ContactDTO) => {
-                const message = `Success!!`;
+                const message = 'Contact saved.';
                 
                 patchState(
                   store,
@@ -292,7 +292,7 @@ export const ContactApiStore = signalStore(
           return contactApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: ContactDTO[]) => {
-                const message = `Success!!`;
+                const message = 'Contacts loaded.';
                 
                 patchState(
                   store,

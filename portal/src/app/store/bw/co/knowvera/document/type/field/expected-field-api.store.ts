@@ -41,15 +41,13 @@ export const ExpectedFieldApiStore = signalStore(
           return expectedFieldApi.findByDocumentType(data.documentTypeIds, ).pipe(
             tapResponse({
               next: (response: ExpectedFieldDTO[]) => {
-                const message = 'Success!!';
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -77,15 +75,13 @@ export const ExpectedFieldApiStore = signalStore(
           return expectedFieldApi.findByDocumentTypePage(data.documentTypeIds, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<ExpectedFieldDTO>) => {
-                const message = 'Success!!';
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -113,15 +109,13 @@ export const ExpectedFieldApiStore = signalStore(
           return expectedFieldApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: ExpectedFieldDTO) => {
-                const message = 'Success!!';
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -149,7 +143,7 @@ export const ExpectedFieldApiStore = signalStore(
           return expectedFieldApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean) => {
-                const message = 'Success!!';
+                const message = 'Expected field removed.';
                 toastr.success(message);
                 patchState(
                   store, 
@@ -185,7 +179,7 @@ export const ExpectedFieldApiStore = signalStore(
           return expectedFieldApi.save(data.documentType, ).pipe(
             tapResponse({
               next: (response: ExpectedFieldDTO) => {
-                const message = 'Success!!';
+                const message = 'Expected field saved.';
                 toastr.success(message);
                 patchState(
                   store, 

@@ -45,7 +45,7 @@ export const SuspicionCaseApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Note added to the suspicion case.'],
                     error: false,
                   }
                 );
@@ -77,7 +77,7 @@ export const SuspicionCaseApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Suspicion case closed.'],
                     error: false,
                   }
                 );
@@ -109,7 +109,7 @@ export const SuspicionCaseApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Suspicion report drafted.'],
                     error: false,
                   }
                 );
@@ -141,7 +141,7 @@ export const SuspicionCaseApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Suspicion case escalated.'],
                     error: false,
                   }
                 );
@@ -173,7 +173,7 @@ export const SuspicionCaseApiStore = signalStore(
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Active suspicion cases loaded.'],
                     error: false,
                   }
                 );
@@ -205,7 +205,7 @@ export const SuspicionCaseApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Suspicion case loaded.'],
                     error: false,
                   }
                 );
@@ -237,7 +237,7 @@ export const SuspicionCaseApiStore = signalStore(
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Suspicion cases loaded.'],
                     error: false,
                   }
                 );
@@ -269,7 +269,7 @@ export const SuspicionCaseApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Suspicion case raised.'],
                     error: false,
                   }
                 );
@@ -301,7 +301,7 @@ export const SuspicionCaseApiStore = signalStore(
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: ['Success!!'],
+                    messages: ['Suspicion report recorded.'],
                     error: false,
                   }
                 );

@@ -73,7 +73,7 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
     effect(() => {
 
       let success = this.success();
-      if(success) {
+      if(success && this.messages()[0]) {
         this.toaster.success(this.messages()[0]);
 
       }

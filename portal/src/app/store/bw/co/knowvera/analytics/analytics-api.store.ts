@@ -41,15 +41,13 @@ export const AnalyticsApiStore = signalStore(
           return analyticsApi.countAnalytics().pipe(
             tapResponse({
               next: (response: CountDTO) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -77,15 +75,13 @@ export const AnalyticsApiStore = signalStore(
           return analyticsApi.organisationCountAnalytics(data.organisationId, ).pipe(
             tapResponse({
               next: (response: CountDTO) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );

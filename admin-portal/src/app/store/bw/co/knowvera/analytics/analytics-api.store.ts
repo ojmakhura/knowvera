@@ -39,7 +39,7 @@ export const AnalyticsApiStore = signalStore(
           return analyticsApi.countAnalytics().pipe(
             tapResponse({
               next: (response: CountDTO) => {
-                const message = `Success!!`;
+                const message = 'Analytics loaded.';
                 
                 patchState(
                   store, 
@@ -75,7 +75,7 @@ export const AnalyticsApiStore = signalStore(
           return analyticsApi.organisationCountAnalytics(data.organisationId, ).pipe(
             tapResponse({
               next: (response: CountDTO) => {
-                const message = `Success!!`;
+                const message = 'Organisation analytics loaded.';
                 
                 patchState(
                   store, 

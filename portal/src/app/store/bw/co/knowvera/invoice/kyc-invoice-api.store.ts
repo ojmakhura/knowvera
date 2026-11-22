@@ -43,15 +43,13 @@ export const KycInvoiceApiStore = signalStore(
           return kycInvoiceApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: KycInvoiceDTO | any) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -79,15 +77,13 @@ export const KycInvoiceApiStore = signalStore(
           return kycInvoiceApi.findByOrganisation(data.organisationId, ).pipe(
             tapResponse({
               next: (response: KycInvoiceDTO[] | any[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -115,15 +111,13 @@ export const KycInvoiceApiStore = signalStore(
           return kycInvoiceApi.findByOrganisationPaged(data.organisationId, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<KycInvoiceDTO> | any) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -151,15 +145,13 @@ export const KycInvoiceApiStore = signalStore(
           return kycInvoiceApi.findBySubscription(data.subscriptionId, ).pipe(
             tapResponse({
               next: (response: KycInvoiceDTO[] | any[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -187,15 +179,13 @@ export const KycInvoiceApiStore = signalStore(
           return kycInvoiceApi.findBySubscriptionPaged(data.subscriptionId, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<KycInvoiceDTO> | any) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -223,7 +213,7 @@ export const KycInvoiceApiStore = signalStore(
           return kycInvoiceApi.generateInvoice(data.subscriptionId, ).pipe(
             tapResponse({
               next: (response: KycInvoiceDTO[] | any[]) => {
-                const message = `Success!!`;
+                const message = 'Invoice generated.';
                 toastr.success(message);
                 patchState(
                   store,
@@ -259,15 +249,13 @@ export const KycInvoiceApiStore = signalStore(
           return kycInvoiceApi.getAll().pipe(
             tapResponse({
               next: (response: KycInvoiceDTO[] | any[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -295,15 +283,13 @@ export const KycInvoiceApiStore = signalStore(
           return kycInvoiceApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<KycInvoiceDTO> | any) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -331,15 +317,13 @@ export const KycInvoiceApiStore = signalStore(
           return kycInvoiceApi.pagedSearch(data.criteria, ).pipe(
             tapResponse({
               next: (response: Page<KycInvoiceDTO> | any) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -367,7 +351,7 @@ export const KycInvoiceApiStore = signalStore(
           return kycInvoiceApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean | any) => {
-                const message = `Success!!`;
+                const message = 'Invoice removed.';
                 toastr.success(message);
                 patchState(
                   store,
@@ -403,7 +387,7 @@ export const KycInvoiceApiStore = signalStore(
           return kycInvoiceApi.save(data.invoice, ).pipe(
             tapResponse({
               next: (response: KycInvoiceDTO | any) => {
-                const message = `Success!!`;
+                const message = 'Invoice saved.';
                 toastr.success(message);
                 patchState(
                   store,
@@ -439,15 +423,13 @@ export const KycInvoiceApiStore = signalStore(
           return kycInvoiceApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: KycInvoiceDTO[] | any[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -475,7 +457,7 @@ export const KycInvoiceApiStore = signalStore(
           return kycInvoiceApi.upload(data.id, data.purpose, data.file, ).pipe(
             tapResponse({
               next: (response: KycInvoiceDTO | any) => {
-                const message = `Success!!`;
+                const message = 'Invoice document uploaded.';
                 toastr.success(message);
                 patchState(
                   store,
