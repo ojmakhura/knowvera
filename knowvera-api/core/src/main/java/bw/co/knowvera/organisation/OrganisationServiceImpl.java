@@ -134,11 +134,14 @@ public class OrganisationServiceImpl
 
         Organisation orgEntity = organisationMapper.organisationDTOToEntity(organisation);
 
-        // Closing is not editable through save: keep what is stored
+        // Closing is not editable through save: keep what is stored. Branches are saved on their
+        // own (BranchService) and are not part of the DTO mapping: without the stored list the
+        // organisation would be saved with none, and orphan removal would delete them all.
         if (orgEntity.getId() != null) {
             organisationRepository.findById(orgEntity.getId()).ifPresent(existing -> {
                 orgEntity.setClosedAt(existing.getClosedAt());
                 orgEntity.setRetainUntil(existing.getRetainUntil());
+                orgEntity.setBranches(existing.getBranches());
             });
         }
 

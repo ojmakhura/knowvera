@@ -9,7 +9,7 @@
       <div class="portal-title">Compliance Portal</div>
     </div>
 
-    <a mat-flat-button class="sidebar-action w-full mb-6" routerLink="/kyc-record/edit">
+    <a mat-flat-button class="sidebar-action w-full mb-6" routerLink="/kyc-record/edit" [queryParams]="{ target: 'INDIVIDUAL' }">
       <mat-icon class="me-1">add</mat-icon>
       New Verification
     </a>
@@ -29,10 +29,12 @@
     </nav>
 
     <div class="nav-footer">
-      <a class="nav-item" routerLink="/organisation">
-        <mat-icon>settings</mat-icon>
-        <span>Settings</span>
-      </a>
+      @if (hasOrganisation()) {
+        <a class="nav-item" routerLink="/organisation">
+          <mat-icon>settings</mat-icon>
+          <span>Settings</span>
+        </a>
+      }
       <a class="nav-item" href="#">
         <mat-icon>contact_support</mat-icon>
         <span>Support</span>
@@ -60,9 +62,11 @@
           <button mat-icon-button class="icon-btn max-md:hidden!" aria-label="Help">
             <mat-icon>help</mat-icon>
           </button>
-          <button mat-icon-button class="icon-btn max-md:hidden!" routerLink="/organisation" aria-label="Settings">
-            <mat-icon>settings</mat-icon>
-          </button>
+          @if (hasOrganisation()) {
+            <button mat-icon-button class="icon-btn max-md:hidden!" routerLink="/organisation" aria-label="Settings">
+              <mat-icon>settings</mat-icon>
+            </button>
+          }
           <button
             mat-icon-button
             class="profile-avatar ms-2"

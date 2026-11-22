@@ -413,6 +413,16 @@ export class EditKycRecord implements OnInit, OnDestroy, AfterViewInit {
     }));
   }
 
+  /** SALARY -> "Salary", BUSINESS_INCOME -> "Business income". */
+  protected sourceLabel(source: string): string {
+    const words = String(source || '').replace(/_/g, ' ').toLowerCase();
+    return words.charAt(0).toUpperCase() + words.slice(1);
+  }
+
+  protected setSourceDetails(details: string): void {
+    this.formModel.update((value) => ({ ...value, sourceOfFundsDetails: details || null }));
+  }
+
   protected addSource(source: string): void {
     this.formModel.update((value) => ({
       ...value,

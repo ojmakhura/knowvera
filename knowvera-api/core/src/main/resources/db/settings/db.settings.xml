@@ -67,4 +67,60 @@
             END $$;
         </sql>
     </changeSet>
+
+    <!-- An organisation picks the documents it requires from the shared document types, so several
+         organisations can require one type. The earlier one-to-many mapping made Hibernate put a
+         unique constraint on the document type column of both join tables. -->
+    <changeSet id="individual-kyc-documents2organisation-document-type-not-unique" author="knowvera">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="individual_kyc_documents2organisation"/></preConditions>
+        <sql splitStatements="false">
+            DO $$
+            DECLARE c record;
+            BEGIN
+                FOR c IN SELECT con.conname FROM pg_constraint con
+                         JOIN pg_attribute a ON a.attrelid = con.conrelid AND a.attnum = ANY (con.conkey)
+                         WHERE con.conrelid = 'individual_kyc_documents2organisation'::regclass AND con.contype = 'u'
+                           AND a.attname = 'individual_kyc_documents_fk' AND array_length(con.conkey, 1) = 1
+                LOOP
+                    EXECUTE format('ALTER TABLE individual_kyc_documents2organisation DROP CONSTRAINT %I', c.conname);
+                END LOOP;
+            END $$;
+        </sql>
+    </changeSet>
+    <changeSet id="organisation2organisation-kyc-documents-document-type-not-unique" author="knowvera">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="organisation2organisation_kyc_documents"/></preConditions>
+        <sql splitStatements="false">
+            DO $$
+            DECLARE c record;
+            BEGIN
+                FOR c IN SELECT con.conname FROM pg_constraint con
+                         JOIN pg_attribute a ON a.attrelid = con.conrelid AND a.attnum = ANY (con.conkey)
+                         WHERE con.conrelid = 'organisation2organisation_kyc_documents'::regclass AND con.contype = 'u'
+                           AND a.attname = 'organisation_kyc_documents_fk' AND array_length(con.conkey, 1) = 1
+                LOOP
+                    EXECUTE format('ALTER TABLE organisation2organisation_kyc_documents DROP CONSTRAINT %I', c.conname);
+                END LOOP;
+            END $$;
+        </sql>
+    </changeSet>
+
+    <!-- A spreadsheet import gives every request of the file the same document. The earlier one-to-one
+         mapping made Hibernate put a unique constraint on the document column. (Here because
+         organisation/client_request/db.client_request.xml is not part of the master changelog.) -->
+    <changeSet id="client-request-document-not-unique" author="knowvera">
+        <preConditions onFail="MARK_RAN"><tableExists tableName="client_request"/></preConditions>
+        <sql splitStatements="false">
+            DO $$
+            DECLARE c record;
+            BEGIN
+                FOR c IN SELECT con.conname FROM pg_constraint con
+                         JOIN pg_attribute a ON a.attrelid = con.conrelid AND a.attnum = ANY (con.conkey)
+                         WHERE con.conrelid = 'client_request'::regclass AND con.contype = 'u'
+                           AND a.attname = 'document_fk' AND array_length(con.conkey, 1) = 1
+                LOOP
+                    EXECUTE format('ALTER TABLE client_request DROP CONSTRAINT %I', c.conname);
+                END LOOP;
+            END $$;
+        </sql>
+    </changeSet>
 </databaseChangeLog>

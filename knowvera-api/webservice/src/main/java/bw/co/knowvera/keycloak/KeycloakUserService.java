@@ -142,10 +142,34 @@ public class KeycloakUserService {
         return cred;
     }
 
+    private static final java.util.regex.Pattern REJECTED_FIELD = java.util.regex.Pattern
+            .compile("\"field\"\\s*:\\s*\"([^\"]+)\"");
+    private static final java.util.regex.Pattern REJECTED_MESSAGE = java.util.regex.Pattern
+            .compile("\"(?:errorMessage|error_description)\"\\s*:\\s*\"([^\"]+)\"");
+
+    /** Keycloak's validation error ({"field":"lastName","errorMessage":"error-person-name-invalid-character"}) in words. */
+    static String rejection(String body) {
+
+        if (StringUtils.isBlank(body)) {
+            return "the details are not valid";
+        }
+        java.util.regex.Matcher field = REJECTED_FIELD.matcher(body);
+        java.util.regex.Matcher message = REJECTED_MESSAGE.matcher(body);
+        String reason = message.find() ? message.group(1).replaceFirst("^error-", "").replace('-', ' ')
+                : "the details are not valid";
+        return field.find() ? field.group(1) + ": " + reason : reason;
+    }
+
     private String getCreatedId(Response response) {
         try (response) {
             if (response.getStatus() == HttpStatus.CONFLICT.value()) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "A user with this username or email already exists");
+            }
+            if (response.getStatus() == HttpStatus.BAD_REQUEST.value()) {
+                // Keycloak's own validation of the account (names, email, username): the caller's to correct
+                response.bufferEntity();
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "The user account was not accepted: " + rejection(response.readEntity(String.class)));
             }
             if (response.getStatus() != HttpStatus.CREATED.value()) {
                 response.bufferEntity();

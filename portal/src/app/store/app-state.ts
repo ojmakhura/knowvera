@@ -17,7 +17,9 @@ export const getErrormessage = (error: any, customError?: string) => {
 
   let errorMessage = customError || 'An error occurred';
 
-  if (error.error?.message) {
+  if (error.error?.detail) {
+    errorMessage = error.error.detail;
+  } else if (error.error?.message) {
     errorMessage = error.error.message;
   } else if (error.status === 500) {
     errorMessage = 'A server error occurred while fetching documents.';

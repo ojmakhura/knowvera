@@ -41,15 +41,13 @@ export const VerificationDataConfigApiStore = signalStore(
           return verificationDataConfigApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: VerificationDataConfigDTO) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -77,7 +75,7 @@ export const VerificationDataConfigApiStore = signalStore(
           return verificationDataConfigApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean) => {
-                const message = `Success!!`;
+                const message = 'Verification data configuration removed.';
                 toastr.success(message);
                 patchState(
                   store, 
@@ -113,7 +111,7 @@ export const VerificationDataConfigApiStore = signalStore(
           return verificationDataConfigApi.save(data.documentType, ).pipe(
             tapResponse({
               next: (response: VerificationDataConfigDTO) => {
-                const message = `Success!!`;
+                const message = 'Verification data configuration saved.';
                 toastr.success(message);
                 patchState(
                   store, 

@@ -88,47 +88,17 @@
 						<mat-label>VAT Number</mat-label>
 						<input matInput [formField]="editForm.vatNumber" />
 					</mat-form-field>
-
-					<div class="md:col-span-2 flex items-center justify-between gap-3 bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant/50" aria-label="Client status">
-						<div>
-							<p class="text-sm font-medium text-on-surface">Client Status</p>
-							<p class="text-xs text-on-surface-variant">Mark this entity as an active client of the firm</p>
-						</div>
-						<mat-slide-toggle
-							[checked]="!!editOrganisationFormSignal().isClient"
-							(change)="toggleIsClient($event)"
-							aria-label="Client status toggle">
-						</mat-slide-toggle>
-					</div>
 				</div>
 			</section>
 
-			<!-- Operational Status -->
+			<!-- Description -->
 			<section class="kv-card">
 				<div class="kv-card-header">
-					<mat-icon class="kv-card-icon">shield</mat-icon>
-					<h2 class="kv-card-title">Operational Status</h2>
+					<mat-icon class="kv-card-icon">notes</mat-icon>
+					<h2 class="kv-card-title">Description</h2>
 				</div>
 
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<mat-form-field class="vault-field" appearance="outline">
-						<mat-label>General Status</mat-label>
-						<mat-select [formField]="editForm.status">
-							@for (status of generalStatuses; track status) {
-								<mat-option [value]="status">{{ status }}</mat-option>
-							}
-						</mat-select>
-					</mat-form-field>
-
-					<mat-form-field class="vault-field" appearance="outline">
-						<mat-label>KYC Compliance Status</mat-label>
-						<mat-select [formField]="editForm.kycStatus">
-							@for (status of kycComplianceStatuses; track status) {
-								<mat-option [value]="status">{{ status }}</mat-option>
-							}
-						</mat-select>
-					</mat-form-field>
-
 					<mat-form-field class="vault-field vault-textarea md:col-span-2" appearance="outline">
 						<mat-label>Description</mat-label>
 						<textarea matInput rows="4" [formField]="editForm.description"></textarea>

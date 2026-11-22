@@ -39,7 +39,7 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO | any) => {
-                const message = `Success!!`;
+                const message = 'Employment record loaded.';
                 
                 patchState(
                   store,
@@ -75,7 +75,7 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.findByIndividual(data.individualId, ).pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO[] | any[]) => {
-                const message = `Success!!`;
+                const message = 'Employment records loaded.';
                 
                 patchState(
                   store,
@@ -111,7 +111,7 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.getAll().pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO[] | any[]) => {
-                const message = `Success!!`;
+                const message = 'Employment records loaded.';
                 
                 patchState(
                   store,
@@ -147,7 +147,7 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<EmploymentRecordDTO> | any) => {
-                const message = `Success!!`;
+                const message = 'Employment records loaded.';
                 
                 patchState(
                   store,
@@ -183,7 +183,7 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.pagedSearch(data.criteria, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<EmploymentRecordDTO> | any) => {
-                const message = `Success!!`;
+                const message = 'Employment records loaded.';
                 
                 patchState(
                   store,
@@ -219,7 +219,7 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean | any) => {
-                const message = `Success!!`;
+                const message = 'Employment record removed.';
                 
                 patchState(
                   store,
@@ -255,7 +255,7 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.save(data.employmentRecord, ).pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO | any) => {
-                const message = `Success!!`;
+                const message = 'Employment record saved.';
                 
                 patchState(
                   store,
@@ -291,7 +291,7 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO[] | any[]) => {
-                const message = `Success!!`;
+                const message = 'Employment records loaded.';
                 
                 patchState(
                   store,

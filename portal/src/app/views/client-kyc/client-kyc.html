@@ -1,0 +1,133 @@
+<div class="kv-page">
+  <header class="dp-header">
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/client-kyc">Client KYC</a>
+      @if (organisation()?.name) {
+        <mat-icon>chevron_right</mat-icon>
+        <span class="kv-breadcrumb-current">{{ organisation()?.name }}</span>
+      }
+    </nav>
+
+    <div class="kv-page-header">
+      <div class="min-w-0 flex items-center gap-4">
+        <span class="grid place-items-center shrink-0 size-14 rounded-full bg-primary-container text-on-primary text-lg font-bold" aria-hidden="true">
+          {{ organisationInitials() }}
+        </span>
+        <div class="min-w-0 flex flex-col gap-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <h1 class="kv-title">Client KYC</h1>
+            <span class="dp-entity-pill">
+              <mat-icon>corporate_fare</mat-icon>
+              {{ organisation()?.name || 'Your organisation' }}
+            </span>
+          </div>
+          @if (selectedId()) {
+            <div class="flex flex-wrap items-center gap-2">
+              @for (k of kinds; track k.kind) {
+                <span class="dp-pill is-info">
+                  <mat-icon>{{ k.icon }}</mat-icon>
+                  {{ lists()[k.kind].total }} {{ lists()[k.kind].total === 1 ? k.kind.slice(0, -1) : k.kind }}
+                </span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    <p class="kv-subtitle">The clients who accepted {{ organisation()?.name || 'your organisation' }}'s request. Each report shows the fields and forms your organisation asked for. Clients who have not answered yet are listed under Client Requests only.</p>
+  </header>
+
+  @if (selectedId()) {
+    <section class="kv-card dp-tabs">
+      <mat-tab-group animationDuration="0ms">
+        @for (k of kinds; track k.kind) {
+          @let list = lists()[k.kind];
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <span class="dp-inline-icon">
+                <mat-icon>{{ k.icon }}</mat-icon>
+                {{ k.title }}
+                <span class="dp-field-count">{{ list.total }}</span>
+              </span>
+            </ng-template>
+
+            <div class="dp-tab-pane">
+              <div class="dp-table-wrap">
+                <table class="dp-table">
+                  <thead>
+                    <tr>
+                      <th>Client</th>
+                      <th>{{ k.identity }}</th>
+                      <th>Record</th>
+                      <th>KYC Status</th>
+                      <th>Risk</th>
+                      <th>Expires</th>
+                      <th class="align-end">Report</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (client of list.rows; track client.id || client.ref) {
+                      <tr>
+                        <td>
+                          <div class="flex items-center gap-3 min-w-0">
+                            <span class="dp-icon-tile rounded-full! text-xs font-bold" aria-hidden="true">{{ initials(client.name) }}</span>
+                            <div class="min-w-0">
+                              <p class="dp-strong">{{ client.name || '—' }}</p>
+                              <p class="dp-list-sub">{{ client.emailAddress || '' }}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="dp-mono">{{ client.identityNo || '—' }}</td>
+                        <td>
+                          @if (client.ref) {
+                            <span class="dp-code dp-code--sm whitespace-nowrap">{{ client.ref }}</span>
+                          } @else {
+                            —
+                          }
+                        </td>
+                        <td>
+                          <span class="dp-pill" [class]="pillTone(client.kycStatus)">
+                            <mat-icon>{{ pillIcon(client.kycStatus) }}</mat-icon>
+                            {{ labelOf(client.kycStatus) }}
+                          </span>
+                        </td>
+                        <td><span class="kv-chip" [class]="riskTone(client.riskLevel)">{{ labelOf(client.riskLevel) }}</span></td>
+                        <td class="whitespace-nowrap">{{ client.expiryDate ? (client.expiryDate | date: 'd MMM y') : '—' }}</td>
+                        <td class="align-end">
+                          <a class="kv-btn-secondary whitespace-nowrap" [routerLink]="['/client-kyc', client.id]"
+                            [class.pointer-events-none]="!client.id">
+                            <mat-icon>summarize</mat-icon>
+                            View report
+                          </a>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="7" class="dp-table-empty">
+                          @if (list.loading) {
+                            Loading clients…
+                          } @else if (list.failed) {
+                            The clients could not be loaded.
+                          } @else {
+                            {{ k.empty }}
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              @if (list.total > pageSize) {
+                <mat-paginator [length]="list.total" [pageSize]="pageSize" [pageIndex]="list.pageIndex"
+                  [hidePageSize]="true" (page)="page(k.kind, $event)" />
+              }
+            </div>
+          </mat-tab>
+        }
+      </mat-tab-group>
+    </section>
+  } @else {
+    <p class="dp-empty-text">{{ organisationLoaded() ? 'Your account is not linked to an organisation.' : 'Loading…' }}</p>
+  }
+</div>

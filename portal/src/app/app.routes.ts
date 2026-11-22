@@ -86,6 +86,18 @@ export const routes: Routes = [
       import('./views/organisation/edit/edit-organisation').then((m) => m.EditOrganisation),
   },
   {
+    path: 'client-kyc',
+    data: { permissions: ['kyc-records:list'], title: 'Client KYC' },
+    canActivate: [authGuard],
+    loadComponent: () => import('./views/client-kyc/client-kyc').then((m) => m.ClientKyc),
+  },
+  {
+    path: 'client-kyc/:recordId',
+    data: { permissions: ['kyc-records:view'], title: 'Client KYC Report' },
+    canActivate: [authGuard],
+    loadComponent: () => import('./views/client-kyc/client-kyc-report').then((m) => m.ClientKycReport),
+  },
+  {
     path: 'document/:id',
     data: { permissions: ['documents:view'], title: 'Document Details' },
     canActivate: [authGuard],

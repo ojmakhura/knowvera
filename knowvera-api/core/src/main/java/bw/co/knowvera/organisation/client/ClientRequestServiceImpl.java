@@ -13,7 +13,9 @@ import bw.co.knowvera.document.Document;
 import bw.co.knowvera.document.DocumentDTO;
 import bw.co.knowvera.document.DocumentMapper;
 import bw.co.knowvera.document.DocumentRepository;
+import bw.co.knowvera.individual.EmploymentStatus;
 import bw.co.knowvera.individual.Individual;
+import bw.co.knowvera.individual.MaritalStatus;
 import bw.co.knowvera.individual.IndividualIdentityType;
 import bw.co.knowvera.individual.IndividualMapper;
 import bw.co.knowvera.individual.IndividualRepository;
@@ -31,42 +33,39 @@ import bw.co.knowvera.settings.SettingsMapper;
 import bw.co.knowvera.settings.SettingsRepository;
 import io.micrometer.common.util.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * @see bw.co.knowvera.organisation.client.ClientRequestService
@@ -94,7 +93,10 @@ public class ClientRequestServiceImpl
     private final SequenceGeneratorService sequenceGeneratorService;
     private final OrganisationRepository organisationRepository;
     private final RecordRetention recordRetention;
+    private final TransactionOperations transaction;
 
+    /** The constructor Spring uses; the other one lets tests run without a transaction manager. */
+    @Autowired
     public ClientRequestServiceImpl(ClientRequestRepository clientRequestRepository,
             ClientRequestMapper clientRequestMapper,PasswordEncoder passwordEncoder,
             ClientRequestNotification clientRequestNotification, IndividualRepository individualRepository,
@@ -102,17 +104,31 @@ public class ClientRequestServiceImpl
             SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorService sequenceGeneratorService,
             DocumentRepository documentRepository, DocumentMapper documentMapper,
             SettingsRepository settingsRepository, SettingsMapper settingsMapper,
-            RecordRetention recordRetention) {
+            RecordRetention recordRetention, PlatformTransactionManager transactionManager) {
+        this(clientRequestRepository, clientRequestMapper, passwordEncoder, clientRequestNotification,
+                individualRepository, individualMapper, organisationRepository, sequenceGeneratorRepository,
+                sequenceGeneratorService, documentRepository, documentMapper, settingsRepository, settingsMapper,
+                recordRetention, new TransactionTemplate(transactionManager));
+    }
+
+    ClientRequestServiceImpl(ClientRequestRepository clientRequestRepository,
+            ClientRequestMapper clientRequestMapper,PasswordEncoder passwordEncoder,
+            ClientRequestNotification clientRequestNotification, IndividualRepository individualRepository,
+            IndividualMapper individualMapper, OrganisationRepository organisationRepository,
+            SequenceGeneratorRepository sequenceGeneratorRepository, SequenceGeneratorService sequenceGeneratorService,
+            DocumentRepository documentRepository, DocumentMapper documentMapper,
+            SettingsRepository settingsRepository, SettingsMapper settingsMapper,
+            RecordRetention recordRetention, TransactionOperations transaction) {
         super(clientRequestRepository, clientRequestMapper, individualRepository,
                 individualMapper, documentRepository, documentMapper, settingsRepository,
                 settingsMapper);
-        // TODO Auto-generated constructor stub
         this.passwordEncoder = passwordEncoder;
         this.clientRequestNotification = clientRequestNotification;
         this.sequenceGeneratorRepository = sequenceGeneratorRepository;
         this.sequenceGeneratorService = sequenceGeneratorService;
         this.organisationRepository = organisationRepository;
         this.recordRetention = recordRetention;
+        this.transaction = transaction;
     }
 
     /**
@@ -141,46 +157,7 @@ public class ClientRequestServiceImpl
 
         if (StringUtils.isBlank(clientRequestEntity.getRef())) {
 
-            StringBuilder sb = new StringBuilder(clientRequestEntity.getOrganisation().getCode());
-            sb.append('_').append(SEQUENCE_NAME);
-
-            SequenceGenerator sequenceGenerator = sequenceGeneratorRepository.findByName(sb.toString()).orElse(null);
-
-            if (sequenceGenerator == null) {
-
-                sequenceGenerator = new SequenceGenerator();
-                sequenceGenerator.setName(sb.toString());
-                sequenceGenerator.setTargetEntity(TargetEntity.CLIENT_REQUEST);
-            }
-
-            // Liquibase seeds the generator (db/sequence/db.sequence.xml); its parts are added on first use
-            if (CollectionUtils.isEmpty(sequenceGenerator.getSequenceParts())) {
-
-                List<SequencePart> sequenceParts = sequenceGenerator.getSequenceParts() == null ? new ArrayList<>()
-                        : sequenceGenerator.getSequenceParts();
-
-                SequencePart counterPart = new SequencePart();
-                counterPart.setPosition(0);
-                counterPart.setType(SequencePartType.STATIC);
-                counterPart.setInitialValue(clientRequestEntity.getOrganisation().getCode() + '_' + "KR-");
-                counterPart.setName(sb.toString() + "_PREFIX");
-                counterPart.setSequenceGenerator(sequenceGenerator);
-                sequenceParts.add(counterPart);
-
-                counterPart = new SequencePart();
-                counterPart.setPosition(1);
-                counterPart.setType(SequencePartType.COUNTER);
-                counterPart.setName(sb.toString() + "_COUNTER");
-                counterPart.setInitialValue("00000000");
-                counterPart.setSequenceGenerator(sequenceGenerator);
-                sequenceParts.add(counterPart);
-
-                sequenceGenerator.setSequenceParts(sequenceParts);
-                sequenceGenerator = sequenceGeneratorRepository.save(sequenceGenerator);
-            }
-
-            String nextRef = sequenceGeneratorService.generateNextSequenceValue(sb.toString(), true);
-            clientRequestEntity.setRef(nextRef);
+            clientRequestEntity.setRef(nextReference(clientRequestEntity.getOrganisation()));
         }
 
         boolean isNew = StringUtils.isBlank(clientRequest.getId());
@@ -213,6 +190,50 @@ public class ClientRequestServiceImpl
         ClientRequestDTO clientRequestDTO = clientRequestMapper.toClientRequestDTO(clientRequestEntity);
         this.updateClientName(Arrays.asList(clientRequestDTO));
         return clientRequestDTO;
+    }
+
+    /** The organisation's next client request reference (<CODE>_KR-00000001), creating its sequence on first use. */
+    private String nextReference(Organisation organisation) {
+
+        StringBuilder sb = new StringBuilder(organisation.getCode());
+        sb.append('_').append(SEQUENCE_NAME);
+
+        SequenceGenerator sequenceGenerator = sequenceGeneratorRepository.findByName(sb.toString()).orElse(null);
+
+        if (sequenceGenerator == null) {
+
+            sequenceGenerator = new SequenceGenerator();
+            sequenceGenerator.setName(sb.toString());
+            sequenceGenerator.setTargetEntity(TargetEntity.CLIENT_REQUEST);
+        }
+
+        // Liquibase seeds the generator (db/sequence/db.sequence.xml); its parts are added on first use
+        if (CollectionUtils.isEmpty(sequenceGenerator.getSequenceParts())) {
+
+            List<SequencePart> sequenceParts = sequenceGenerator.getSequenceParts() == null ? new ArrayList<>()
+                    : sequenceGenerator.getSequenceParts();
+
+            SequencePart counterPart = new SequencePart();
+            counterPart.setPosition(0);
+            counterPart.setType(SequencePartType.STATIC);
+            counterPart.setInitialValue(organisation.getCode() + '_' + "KR-");
+            counterPart.setName(sb.toString() + "_PREFIX");
+            counterPart.setSequenceGenerator(sequenceGenerator);
+            sequenceParts.add(counterPart);
+
+            counterPart = new SequencePart();
+            counterPart.setPosition(1);
+            counterPart.setType(SequencePartType.COUNTER);
+            counterPart.setName(sb.toString() + "_COUNTER");
+            counterPart.setInitialValue("00000000");
+            counterPart.setSequenceGenerator(sequenceGenerator);
+            sequenceParts.add(counterPart);
+
+            sequenceGenerator.setSequenceParts(sequenceParts);
+            sequenceGeneratorRepository.save(sequenceGenerator);
+        }
+
+        return sequenceGeneratorService.generateNextSequenceValue(sb.toString(), true);
     }
 
     /**
@@ -420,6 +441,20 @@ public class ClientRequestServiceImpl
     }
 
     /**
+     * Imports individual clients from a spreadsheet (.xlsx, .xls or .csv) laid out like
+     * templates/client-request-template.csv. Each row becomes one PENDING client request of the
+     * organisation, with a reference, a token and an invitation exactly as {@link #handleSave}
+     * gives a single request. The individual with the row's identity type and number is reused
+     * when one is stored (its stored details are kept); otherwise a new one is created from the row.
+     *
+     * <p>The import is all-or-nothing. Every row is checked first; if any is wrong a
+     * {@link ClientRequestImportException} naming each wrong row is thrown and nothing is stored.
+     * Storing happens in one transaction, and the invitations are queued after it commits.
+     *
+     * <p>Only {@code target=INDIVIDUAL} is supported: organisation clients need far more than a
+     * row can hold and are created one at a time.
+     *
+     * @param document the uploaded file's record, not saved yet; saved here with the requests
      * @see bw.co.knowvera.organisation.client.ClientRequestService#uploadRequests(InputStream)
      */
     @Override
@@ -427,409 +462,329 @@ public class ClientRequestServiceImpl
             String organisationId, DocumentDTO document, TargetEntity target, String organisation)
             throws Exception {
 
-        if (target != null && target != TargetEntity.INDIVIDUAL && target != TargetEntity.ORGANISATION) {
-
-            throw new ClientRequestServiceException("Only 'null', 'ORGANISATION' and 'INDIVIDUAL' are allowed.");
+        if (target != TargetEntity.INDIVIDUAL) {
+            throw new ClientRequestImportException(
+                    "Only individual clients can be imported from a spreadsheet. Create organisation client requests one at a time.");
         }
 
-        Map<String, String> tokenMap = new HashMap<>();
+        List<ClientRequestSpreadsheet.Row> rows = ClientRequestSpreadsheet.read(inputStream.readAllBytes());
+        if (rows.isEmpty()) {
+            throw new ClientRequestImportException("The file has no client rows below its header row.");
+        }
+        if (rows.size() > MAX_IMPORT_ROWS) {
+            throw new ClientRequestImportException("The file has " + rows.size() + " rows; at most "
+                    + MAX_IMPORT_ROWS + " clients can be imported at a time.");
+        }
+        List<String> missingColumns = IMPORT_MANDATORY_COLUMNS.entrySet().stream()
+                .filter(column -> rows.stream().noneMatch(row -> row.values().containsKey(column.getKey())))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+        if (!missingColumns.isEmpty()) {
+            throw new ClientRequestImportException("The file has no values for the mandatory column(s) "
+                    + String.join(", ", missingColumns) + ". Download the template for the expected layout.");
+        }
 
-        List<ClientRequest> clientRequests = new ArrayList<>();
+        return transaction.execute(status -> importIndividuals(rows, user, organisationId, document, organisation));
+    }
 
-        try {
-            // Try to detect if it's Excel or CSV by attempting to read as Excel first
-            inputStream.mark(Integer.MAX_VALUE); // Mark the stream so we can reset if needed
+    private static final int MAX_IMPORT_ROWS = 1000;
 
-            Document d = documentMapper.documentDTOToEntity(document);
+    /** Columns every row needs, with the names the template gives them. */
+    private static final Map<String, String> IMPORT_MANDATORY_COLUMNS = importColumns(
+            ClientRequestSpreadsheet.FIRST_NAME, "First Name",
+            ClientRequestSpreadsheet.SURNAME, "Surname",
+            ClientRequestSpreadsheet.IDENTITY_TYPE, "Identity Type",
+            ClientRequestSpreadsheet.IDENTITY_NO, "Identity No",
+            ClientRequestSpreadsheet.EMAIL, "Email Address");
 
-            try {
-                // Try reading as Excel (.xlsx)
-                Workbook workbook = new XSSFWorkbook(inputStream);
-                clientRequests = processIndividualExcelFile(workbook, user, organisationId, d, target);
+    /** Columns a row also needs when its individual is not stored yet: an individual cannot be saved without them. */
+    private static final Map<String, String> IMPORT_NEW_INDIVIDUAL_COLUMNS = importColumns(
+            ClientRequestSpreadsheet.DATE_OF_BIRTH, "Date of Birth",
+            ClientRequestSpreadsheet.NATIONALITY, "Nationality",
+            ClientRequestSpreadsheet.MARITAL_STATUS, "Marital Status",
+            ClientRequestSpreadsheet.EMPLOYMENT_STATUS, "Employment Status");
 
-                workbook.close();
-            } catch (Exception excelException) {
-                // Reset the stream and try as .xls
-                try {
-                    inputStream.reset();
-                    Workbook workbook = new HSSFWorkbook(inputStream);
-                    clientRequests = processIndividualExcelFile(workbook, user, organisationId, d, target);
-                    workbook.close();
-                } catch (Exception xlsException) {
-                    // Reset and try as CSV
-                    inputStream.reset();
-                    clientRequests = processIndividualCsvFile(inputStream, user, organisationId, d, target);
-                }
+    private static Map<String, String> importColumns(String... keysAndLabels) {
+        Map<String, String> columns = new LinkedHashMap<>();
+        for (int i = 0; i < keysAndLabels.length; i += 2) {
+            columns.put(keysAndLabels[i], keysAndLabels[i + 1]);
+        }
+        return columns;
+    }
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
+
+    private static final Map<String, IndividualIdentityType> IDENTITY_TYPES = Map.ofEntries(
+            Map.entry("OMANG", IndividualIdentityType.OMANG),
+            Map.entry("NATIONAL_ID", IndividualIdentityType.OMANG),
+            Map.entry("PASSPORT", IndividualIdentityType.PASSPORT),
+            Map.entry("RESIDENCE_PERMIT", IndividualIdentityType.RESIDENCE_PERMIT),
+            Map.entry("BIRTH_CERTIFICATE", IndividualIdentityType.BIRTH_CERTIFICATE),
+            Map.entry("REFUGEE_ID", IndividualIdentityType.REFUGEE_ID),
+            Map.entry("DRIVERS_LICENCE", IndividualIdentityType.DRIVERS_LICENCE),
+            Map.entry("DRIVERS_LICENSE", IndividualIdentityType.DRIVERS_LICENCE),
+            Map.entry("DRIVER_LICENCE", IndividualIdentityType.DRIVERS_LICENCE),
+            Map.entry("DRIVER_LICENSE", IndividualIdentityType.DRIVERS_LICENCE),
+            Map.entry("DRIVING_LICENCE", IndividualIdentityType.DRIVERS_LICENCE),
+            Map.entry("DRIVING_LICENSE", IndividualIdentityType.DRIVERS_LICENCE));
+
+    private static final Map<String, Sex> SEXES = Map.of(
+            "M", Sex.MALE, "MALE", Sex.MALE, "F", Sex.FEMALE, "FEMALE", Sex.FEMALE,
+            "OTHER", Sex.OTHER, "UNSPECIFIED", Sex.UNSPECIFIED);
+
+    private static final List<DateTimeFormatter> DATE_FORMATS = List.of(
+            DateTimeFormatter.ISO_LOCAL_DATE,
+            DateTimeFormatter.ofPattern("d/M/uuuu").withResolverStyle(ResolverStyle.STRICT),
+            DateTimeFormatter.ofPattern("d-M-uuuu").withResolverStyle(ResolverStyle.STRICT),
+            DateTimeFormatter.ofPattern("d MMM uuuu", Locale.ENGLISH).withResolverStyle(ResolverStyle.STRICT),
+            DateTimeFormatter.ofPattern("d MMMM uuuu", Locale.ENGLISH).withResolverStyle(ResolverStyle.STRICT));
+
+    /** A row that passed every check: the individual it is for (stored or new) and whether to save it. */
+    private record ImportedClient(Individual individual, boolean save, boolean reopened) {
+    }
+
+    /** Checks every row, then stores the file's record, the new individuals and the requests. */
+    private Page<ClientRequestDTO> importIndividuals(List<ClientRequestSpreadsheet.Row> rows, String user,
+            String organisationId, DocumentDTO document, String organisationName) {
+
+        Organisation organisation = organisationRepository.findById(UUID.fromString(organisationId))
+                .orElseThrow(() -> new ClientRequestImportException("The organisation could not be found."));
+
+        List<String> errors = new ArrayList<>();
+        List<ImportedClient> clients = new ArrayList<>();
+        Map<String, Integer> rowByIdentity = new HashMap<>();
+
+        for (ClientRequestSpreadsheet.Row row : rows) {
+            List<String> rowErrors = new ArrayList<>();
+            ImportedClient client = checkRow(row, organisation, rowByIdentity, user, rowErrors);
+            if (rowErrors.isEmpty()) {
+                clients.add(client);
+            } else {
+                errors.add("Row " + row.number() + ": " + String.join("; ", rowErrors));
             }
-        } catch (IOException e) {
-            throw new Exception("Error reading file: " + e.getMessage(), e);
         }
 
-        tokenMap.putAll(issueTokensForNewRequests(clientRequests, requestTokenLength, passwordEncoder));
-
-        clientRequests = clientRequestRepository.saveAll(clientRequests);
-
-        if (target == TargetEntity.INDIVIDUAL) {
-
-        } else if (target == TargetEntity.ORGANISATION) {
-
+        if (!errors.isEmpty()) {
+            throw new ClientRequestImportException(errors.size() + " of " + rows.size()
+                    + " rows could not be imported. Nothing was imported; correct the rows and upload the file again.",
+                    errors);
         }
 
-        clientRequestNotification.queueEmailNotificationsForRequests(clientRequests, tokenMap, organisation);
+        Document file = documentMapper.documentDTOToEntity(document);
+        file.setTarget(TargetEntity.CLIENT_REQUEST);
+        if (file.getCreatedAt() == null) {
+            file.setCreatedAt(LocalDateTime.now());
+            file.setCreatedBy(user);
+        }
+        file = documentRepository.save(file);
 
-        return findByTargetAndOrganisation(target, null, organisationId, 0, 10);
+        List<ClientRequest> requests = new ArrayList<>();
+        for (ImportedClient client : clients) {
+
+            Individual individual = client.save() ? individualRepository.save(client.individual())
+                    : client.individual();
+            if (client.reopened()) {
+                recordRetention.reopenKycRecords(TargetEntity.INDIVIDUAL, individual.getId().toString());
+            }
+
+            ClientRequest request = new ClientRequest();
+            request.setOrganisation(organisation);
+            request.setTarget(TargetEntity.INDIVIDUAL);
+            request.setTargetId(individual.getId().toString());
+            request.setStatus(ClientRequestStatus.PENDING);
+            request.setRef(nextReference(organisation));
+            request.setDocument(file);
+            request.setCreatedBy(user);
+            request.setCreatedAt(LocalDateTime.now());
+            requests.add(request);
+        }
+
+        Map<String, String> tokens = issueTokensForNewRequests(requests, requestTokenLength, passwordEncoder);
+        requests = clientRequestRepository.saveAll(requests);
+
+        // Sent once this transaction has committed
+        clientRequestNotification.queueEmailNotificationsForRequests(requests, tokens, organisationName);
+
+        List<ClientRequestDTO> dtos = clientRequestMapper.toClientRequestDTOCollection(requests);
+        this.updateClientName(dtos);
+        return new PageImpl<>(dtos);
     }
 
     /**
-     * Save individual entity and create client request
+     * Checks one row, adding what is wrong with it to {@code errors}. Returns the individual the
+     * row is for when nothing is wrong. Stores nothing.
      */
-    private ClientRequest saveIndividualAndRequest(Individual individual, String user, String organisationId,
-            Document document, TargetEntity target) {
-        // Save individual entity
+    private ImportedClient checkRow(ClientRequestSpreadsheet.Row row, Organisation organisation,
+            Map<String, Integer> rowByIdentity, String user, List<String> errors) {
 
-        Individual savedIndividual = individualRepository.findByIdentityNoAndIdentityType(
-                individual.getIdentityNo(), individual.getIdentityType())
-                .orElseThrow(() -> new ClientRequestServiceException("The individual could not be found."));
+        IMPORT_MANDATORY_COLUMNS.forEach((column, label) -> {
+            if (row.get(column) == null) {
+                errors.add(label + " is required");
+            }
+        });
 
-        if (savedIndividual == null) {
-            savedIndividual = individual;
-
-            savedIndividual.setCreatedAt(LocalDateTime.now());
-            savedIndividual.setCreatedBy(user);
-            individual.setKycStatus(KycComplianceStatus.ABSENT);
-        } else {
-            savedIndividual.setModifiedAt(LocalDateTime.now());
-            savedIndividual.setModifiedBy(user);
+        String email = row.get(ClientRequestSpreadsheet.EMAIL);
+        if (email != null && !EMAIL_PATTERN.matcher(email).matches()) {
+            errors.add("Email Address '" + email + "' is not a valid email address");
         }
 
-        // A returning customer starts a new relationship on their retained records
-        boolean reopened = savedIndividual.getClosedAt() != null;
-        if (reopened) {
-            savedIndividual.setClosedAt(null);
-            savedIndividual.setRetainUntil(null);
-        }
+        IndividualIdentityType identityType = lookUp(row, ClientRequestSpreadsheet.IDENTITY_TYPE, "Identity Type",
+                IDENTITY_TYPES, IndividualIdentityType.values(), errors);
+        Sex sex = lookUp(row, ClientRequestSpreadsheet.SEX, "Sex", SEXES, Sex.values(), errors);
+        MaritalStatus maritalStatus = lookUp(row, ClientRequestSpreadsheet.MARITAL_STATUS, "Marital Status",
+                Map.of(), MaritalStatus.values(), errors);
+        EmploymentStatus employmentStatus = lookUp(row, ClientRequestSpreadsheet.EMPLOYMENT_STATUS,
+                "Employment Status", Map.of(), EmploymentStatus.values(), errors);
+        LocalDate dateOfBirth = dateOfBirth(row, errors);
 
-        savedIndividual = individualRepository.save(savedIndividual);
-
-        if (reopened) {
-            recordRetention.reopenKycRecords(TargetEntity.INDIVIDUAL, savedIndividual.getId().toString());
-        }
-
-        // Create client request
-        ClientRequest clientRequest = new ClientRequest();
-        clientRequest.setTarget(target);
-        clientRequest.setTargetId(savedIndividual.getId().toString());
-
-        // Set organisation
-        // clientRequest.setOrganisationId(organisationId);
-
-        // Set status and audit fields
-        clientRequest.setStatus(ClientRequestStatus.PENDING);
-        clientRequest.setCreatedBy(user);
-        clientRequest.setCreatedAt(java.time.LocalDateTime.now());
-        clientRequest.setDocument(document);
-
-        return clientRequest;
-    }
-
-    /**
-     * Process Excel file and extract Individual entities
-     * Expected columns: First Name, Middle Name, Surname, Identity Type, Identity
-     * No,
-     * Email Address, Phone Numbers, Physical Address, Postal Address
-     */
-    private List<ClientRequest> processIndividualExcelFile(Workbook workbook, String user, String organisationId,
-            Document document, TargetEntity target) {
-        List<ClientRequest> clientRequests = new ArrayList<>();
-        Sheet sheet = workbook.getSheetAt(0); // Read first sheet
-        Iterator<Row> rowIterator = sheet.iterator();
-
-        // Skip header row if exists
-        if (rowIterator.hasNext()) {
-            rowIterator.next();
-        }
-
-        while (rowIterator.hasNext()) {
-            Row row = rowIterator.next();
-            Individual individual = extractIndividualFromRow(row);
-            if (individual != null) {
-                ClientRequest request = saveIndividualAndRequest(individual, user, organisationId, document, target);
-                clientRequests.add(request);
-            }
-        }
-
-        return clientRequests;
-    }
-
-    /**
-     * Process CSV file and extract Individual entities
-     * Expected columns: First Name, Middle Name, Surname, Identity Type, Identity
-     * No,
-     * Email Address, Phone Numbers, Physical Address, Postal Address
-     */
-    private List<ClientRequest> processIndividualCsvFile(InputStream inputStream, String user, String organisationId,
-            Document document, TargetEntity target)
-            throws IOException {
-        List<ClientRequest> clientRequests = new ArrayList<>();
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.builder()
-                        .setHeader()
-                        .setSkipHeaderRecord(true)
-                        .setIgnoreHeaderCase(true)
-                        .setTrim(true)
-                        .build())) {
-
-            for (CSVRecord csvRecord : csvParser) {
-                Individual individual = extractIndividualFromCsvRecord(csvRecord);
-                if (individual != null) {
-                    ClientRequest request = saveIndividualAndRequest(individual, user, organisationId, document,
-                            target);
-
-                    clientRequests.add(request);
-                }
-            }
-        }
-
-        return clientRequests;
-    }
-
-    /**
-     * Extract Individual entity from Excel row
-     * Expected columns: First Name, Middle Name, Surname, Identity Type, Identity
-     * No,
-     * Email Address, Phone Numbers, Physical Address, Postal Address
-     */
-    private Individual extractIndividualFromRow(Row row) {
-        try {
-            Individual individual = new Individual();
-
-            // Convenience helper for reading string values
-            Function<Integer, String> readString = col -> {
-                Cell cell = row.getCell(col);
-                return (cell != null && cell.getCellType() != CellType.BLANK)
-                        ? getCellValueAsString(cell)
-                        : null;
-            };
-
-            // Read simple fields
-            individual.setFirstName(readString.apply(0)); // Mandatory
-            individual.setMiddleName(readString.apply(1)); // Optional
-            individual.setSurname(readString.apply(2)); // Mandatory
-
-            // Identity Type (Mandatory)
-            String identityTypeStr = readString.apply(3);
-            if (identityTypeStr != null) {
-                individual.setIdentityType(parseIndividualIdentityType(identityTypeStr));
-            }
-
-            // Identity No (Mandatory)
-            individual.setIdentityNo(readString.apply(4));
-
-            // Email (Optional)
-            individual.setEmailAddress(readString.apply(5));
-
-            // Phone numbers (Optional, comma-separated)
-            String phoneNumbersStr = readString.apply(6);
-            if (phoneNumbersStr != null && !phoneNumbersStr.trim().isEmpty()) {
-
-                List<PhoneNumber> phoneList = Arrays.stream(phoneNumbersStr.split(","))
-                        .map(String::trim)
-                        .filter(s -> !s.isEmpty())
-                        .map(phone -> {
-                            PhoneNumber map = new PhoneNumber();
-                            map.setType(PhoneType.OTHER);
-                            map.setPhoneNumber(phone);
-                            return map;
-                        })
-                        .collect(Collectors.toList());
-
-                individual.setPhoneNumbers(phoneList);
-            }
-
-            // Physical & postal address
-            individual.setPhysicalAddress(readString.apply(7)); // Optional
-            individual.setPostalAddress(readString.apply(8)); // Optional
-
-            // Validate mandatory fields
-            if (individual.getFirstName() != null &&
-                    individual.getSurname() != null &&
-                    individual.getIdentityType() != null &&
-                    individual.getIdentityNo() != null) {
-
-                return individual;
-            }
-
-        } catch (Exception e) {
-            System.err.println("Error processing row: " + e.getMessage());
-        }
-
-        return null; // Row skipped
-    }
-
-    /**
-     * Extract Individual entity from CSV record
-     * Expected columns: First Name, Middle Name, Surname, Identity Type, Identity
-     * No,
-     * Email Address, Phone Numbers, Physical Address, Postal Address
-     */
-    private Individual extractIndividualFromCsvRecord(CSVRecord csvRecord) {
-        try {
-            Individual individual = new Individual();
-
-            // Column 0: First Name (Mandatory)
-            String firstName = csvRecord.isMapped("First Name") ? csvRecord.get("First Name")
-                    : (csvRecord.size() > 0 ? csvRecord.get(0) : null);
-            if (firstName != null && !firstName.trim().isEmpty()) {
-                individual.setFirstName(firstName.trim());
-            }
-
-            // Column 1: Middle Name (Optional)
-            String middleName = csvRecord.isMapped("Middle Name") ? csvRecord.get("Middle Name")
-                    : (csvRecord.size() > 1 ? csvRecord.get(1) : null);
-            if (middleName != null && !middleName.trim().isEmpty()) {
-                individual.setMiddleName(middleName.trim());
-            }
-
-            // Column 2: Surname (Mandatory)
-            String surname = csvRecord.isMapped("Surname") ? csvRecord.get("Surname")
-                    : (csvRecord.size() > 2 ? csvRecord.get(2) : null);
-            if (surname != null && !surname.trim().isEmpty()) {
-                individual.setSurname(surname.trim());
-            }
-
-            // Column 3: Identity Type (Mandatory)
-            String identityTypeStr = csvRecord.isMapped("Identity Type") ? csvRecord.get("Identity Type")
-                    : (csvRecord.size() > 3 ? csvRecord.get(3) : null);
-            if (identityTypeStr != null && !identityTypeStr.trim().isEmpty()) {
-                individual.setIdentityType(parseIndividualIdentityType(identityTypeStr));
-            }
-
-            // Column 4: Identity No (Mandatory)
-            String identityNo = csvRecord.isMapped("Identity No") ? csvRecord.get("Identity No")
-                    : (csvRecord.size() > 4 ? csvRecord.get(4) : null);
-            if (identityNo != null && !identityNo.trim().isEmpty()) {
-                individual.setIdentityNo(identityNo.trim());
-            }
-
-            // Column 5: Email Address (Optional)
-            String email = csvRecord.isMapped("Email Address") ? csvRecord.get("Email Address")
-                    : (csvRecord.size() > 5 ? csvRecord.get(5) : null);
-            if (email != null && !email.trim().isEmpty()) {
-                individual.setEmailAddress(email.trim());
-            }
-
-            // Column 6: Phone Numbers (Optional - comma-separated)
-            String phoneNumbers = csvRecord.isMapped("Phone Numbers") ? csvRecord.get("Phone Numbers")
-                    : (csvRecord.size() > 6 ? csvRecord.get(6) : null);
-            if (phoneNumbers != null && !phoneNumbers.trim().isEmpty()) {
-                @SuppressWarnings({ "rawtypes", "unchecked" })
-                List phoneList = new ArrayList<>();
-                String[] phones = phoneNumbers.split(",");
-                for (String phone : phones) {
-                    java.util.Map<String, String> phoneMap = new java.util.HashMap<>();
-                    phoneMap.put("number", phone.trim());
-                    phoneList.add(phoneMap);
-                }
-                individual.setPhoneNumbers(phoneList);
-            }
-
-            // Column 7: Physical Address (Optional)
-            String physicalAddress = csvRecord.isMapped("Physical Address") ? csvRecord.get("Physical Address")
-                    : (csvRecord.size() > 7 ? csvRecord.get(7) : null);
-            if (physicalAddress != null && !physicalAddress.trim().isEmpty()) {
-                individual.setPhysicalAddress(physicalAddress.trim());
-            }
-
-            // Column 8: Postal Address (Optional)
-            String postalAddress = csvRecord.isMapped("Postal Address") ? csvRecord.get("Postal Address")
-                    : (csvRecord.size() > 8 ? csvRecord.get(8) : null);
-            if (postalAddress != null && !postalAddress.trim().isEmpty()) {
-                individual.setPostalAddress(postalAddress.trim());
-            }
-
-            // Column 9: Sex (Mandatory)
-            String sex = csvRecord.isMapped("Sex") ? csvRecord.get("Sex")
-                    : (csvRecord.size() > 9 ? csvRecord.get(9) : null);
-            if (sex != null && !sex.trim().isEmpty()) {
-                individual.setSex(parseSex(sex));
-            }
-
-            // Validate mandatory fields
-            if (individual.getFirstName() != null && individual.getSurname() != null
-                    && individual.getIdentityNo() != null && individual.getIdentityType() != null) {
-                return individual;
-            }
-
-        } catch (Exception e) {
-            // Log and skip invalid records
-            System.err.println("Error processing CSV record: " + e.getMessage());
-        }
-
-        return null;
-    }
-
-    /**
-     * Get cell value as string regardless of cell type
-     */
-    private String getCellValueAsString(Cell cell) {
-        if (cell == null) {
+        String identityNo = row.get(ClientRequestSpreadsheet.IDENTITY_NO);
+        if (identityType == null || identityNo == null) {
             return null;
         }
 
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue();
-            case NUMERIC:
-                // Check if it's a date or number
-                if (org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(cell)) {
-                    return cell.getLocalDateTimeCellValue().toString();
-                } else {
-                    return String.valueOf((long) cell.getNumericCellValue());
-                }
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                return cell.getCellFormula();
-            default:
-                return null;
+        Integer earlierRow = rowByIdentity.putIfAbsent(identityNo.toLowerCase(Locale.ROOT), row.number());
+        if (earlierRow != null) {
+            errors.add("Identity No " + identityNo + " is already on row " + earlierRow);
+            return null;
         }
+
+        Individual stored = individualRepository.findByIdentityNoAndIdentityType(identityNo, identityType)
+                .orElse(null);
+
+        if (stored == null) {
+
+            // An identity number belongs to one individual, whatever its type
+            Individual sameNumber = individualRepository.findByIdentityNo(identityNo).orElse(null);
+            if (sameNumber != null) {
+                errors.add("Identity No " + identityNo + " is already registered with identity type "
+                        + sameNumber.getIdentityType());
+            }
+            IMPORT_NEW_INDIVIDUAL_COLUMNS.forEach((column, label) -> {
+                if (row.get(column) == null) {
+                    errors.add(label + " is required for a client who is not registered yet");
+                }
+            });
+            if (!errors.isEmpty()) {
+                return null;
+            }
+
+            Individual individual = new Individual();
+            individual.setFirstName(row.get(ClientRequestSpreadsheet.FIRST_NAME));
+            individual.setMiddleName(row.get(ClientRequestSpreadsheet.MIDDLE_NAME));
+            individual.setSurname(row.get(ClientRequestSpreadsheet.SURNAME));
+            individual.setIdentityType(identityType);
+            individual.setIdentityNo(identityNo);
+            individual.setEmailAddress(email);
+            individual.setPhoneNumbers(phoneNumbers(row.get(ClientRequestSpreadsheet.PHONES)));
+            individual.setPhysicalAddress(row.get(ClientRequestSpreadsheet.PHYSICAL_ADDRESS));
+            individual.setPostalAddress(row.get(ClientRequestSpreadsheet.POSTAL_ADDRESS));
+            individual.setSex(sex);
+            individual.setDateOfBirth(dateOfBirth);
+            individual.setNationality(row.get(ClientRequestSpreadsheet.NATIONALITY));
+            individual.setMaritalStatus(maritalStatus);
+            individual.setEmploymentStatus(employmentStatus);
+            individual.setKycStatus(KycComplianceStatus.ABSENT);
+            individual.setCreatedAt(LocalDateTime.now());
+            individual.setCreatedBy(user);
+            return new ImportedClient(individual, true, false);
+        }
+
+        Specification<ClientRequest> sameClient = (root, query, cb) -> cb.and(
+                cb.equal(root.get("organisation").get("id"), organisation.getId()),
+                cb.equal(root.get("target"), TargetEntity.INDIVIDUAL),
+                cb.equal(root.get("targetId"), stored.getId().toString()));
+        if (clientRequestRepository.count(sameClient) > 0) {
+            errors.add("there is already a client request for " + identityType + " " + identityNo
+                    + " from this organisation");
+        }
+        if (!errors.isEmpty()) {
+            return null;
+        }
+
+        // The stored individual's details are theirs: a row only supplies a missing email address
+        boolean changed = false;
+        if (StringUtils.isBlank(stored.getEmailAddress())) {
+            stored.setEmailAddress(email);
+            changed = true;
+        }
+
+        // A returning customer starts a new relationship on their retained records
+        boolean reopened = stored.getClosedAt() != null;
+        if (reopened) {
+            stored.setClosedAt(null);
+            stored.setRetainUntil(null);
+            changed = true;
+        }
+        if (changed) {
+            stored.setModifiedAt(LocalDateTime.now());
+            stored.setModifiedBy(user);
+        }
+        return new ImportedClient(stored, changed, reopened);
     }
 
     /**
-     * Parse identity type string to IndividualIdentityType enum
+     * The constant a cell names ("Driver's Licence", "self employed"), by alias or by constant
+     * name; null with an error for an unknown value, null alone for a blank cell.
      */
-    private IndividualIdentityType parseIndividualIdentityType(String identityTypeStr) {
-        if (identityTypeStr == null || identityTypeStr.trim().isEmpty()) {
-            return IndividualIdentityType.OMANG; // Default
-        }
+    private static <E extends Enum<E>> E lookUp(ClientRequestSpreadsheet.Row row, String column, String label,
+            Map<String, E> aliases, E[] constants, List<String> errors) {
 
-        try {
-            return IndividualIdentityType.fromString(identityTypeStr.trim().toUpperCase());
-        } catch (Exception e) {
-            return IndividualIdentityType.OMANG; // Default fallback
+        String value = row.get(column);
+        if (value == null) {
+            return null;
         }
+        String key = value.toUpperCase(Locale.ROOT).replaceAll("['’`]", "").replaceAll("[^A-Z0-9]+", "_")
+                .replaceAll("^_|_$", "");
+        E match = aliases.get(key);
+        for (E constant : constants) {
+            if (match == null && constant.name().equals(key)) {
+                match = constant;
+            }
+        }
+        if (match == null) {
+            errors.add(label + " '" + value + "' is not recognised (use one of "
+                    + Arrays.stream(constants).map(Enum::name).collect(Collectors.joining(", ")) + ")");
+        }
+        return match;
     }
 
-    private Sex parseSex(String sexStr) {
-        if (sexStr == null || sexStr.trim().isEmpty()) {
-            throw new ClientRequestServiceException("Sex must be specified");
+    private static LocalDate dateOfBirth(ClientRequestSpreadsheet.Row row, List<String> errors) {
+
+        String value = row.get(ClientRequestSpreadsheet.DATE_OF_BIRTH);
+        if (value == null) {
+            return null;
         }
-
-        try {
-
-            if ("M".equalsIgnoreCase(sexStr.trim())) {
-
-                return Sex.MALE;
-            } else if ("F".equalsIgnoreCase(sexStr.trim())) {
-
-                return Sex.FEMALE;
+        for (DateTimeFormatter format : DATE_FORMATS) {
+            try {
+                LocalDate date = LocalDate.parse(value, format);
+                if (date.isAfter(LocalDate.now())) {
+                    errors.add("Date of Birth " + value + " is in the future");
+                    return null;
+                }
+                return date;
+            } catch (DateTimeParseException e) {
+                // try the next format
             }
-
-            return Sex.fromString(sexStr.trim().toUpperCase());
-        } catch (Exception e) {
-            throw new ClientRequestServiceException("Invalid sex value: " + sexStr);
         }
+        errors.add("Date of Birth '" + value + "' is not a date (use YYYY-MM-DD or DD/MM/YYYY)");
+        return null;
+    }
+
+    /** Several numbers in one cell are separated by ';' or ','. */
+    private static List<PhoneNumber> phoneNumbers(String cell) {
+
+        List<PhoneNumber> phoneNumbers = new ArrayList<>();
+        if (cell != null) {
+            for (String number : cell.split("[;,]")) {
+                if (!number.isBlank()) {
+                    PhoneNumber phoneNumber = new PhoneNumber();
+                    phoneNumber.setType(PhoneType.OTHER);
+                    phoneNumber.setPhoneNumber(number.trim());
+                    phoneNumbers.add(phoneNumber);
+                }
+            }
+        }
+        return phoneNumbers;
     }
 
     /**

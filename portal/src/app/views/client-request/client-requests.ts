@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, OnInit, signal, untracked } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,13 +12,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { Loader } from '@app/@shared/loader/loader';
 import { KycComplianceStatus } from '@app/models/bw/co/knowvera/kyc/kyc-compliance-status';
-import { OrganisationListDTO } from '@app/models/bw/co/knowvera/organisation/organisation-list-dto';
 import { ClientRequestDTO } from '@app/models/bw/co/knowvera/organisation/client/client-request-dto';
 import { ClientRequestSearchCriteria } from '@app/models/bw/co/knowvera/organisation/client/client-request-search-criteria';
 import { ClientRequestStatus } from '@app/models/bw/co/knowvera/organisation/client/client-request-status';
 import { TargetEntity } from '@app/models/bw/co/knowvera/target-entity';
 import { SearchObject } from '@app/models/search-object';
-import { OrganisationApiStore } from '@app/store/bw/co/knowvera/organisation/organisation-api.store';
 import { ClientRequestApiStore } from '@app/store/bw/co/knowvera/organisation/client/client-request-api.store';
 import { PAGE_SIZE_OPTIONS, pageWindow, showingRecordsLabel } from '@app/@shared/pagination';
 import { AppEnvStore } from '@app/store/app-env.state';
@@ -62,7 +60,6 @@ const INITIAL_FILTERS: ClientRequestSearchForm = {
 })
 export class ClientRequests implements OnInit {
   private readonly router = inject(Router);
-  private readonly organisationApiStore = inject(OrganisationApiStore);
   private readonly clientRequestApiStore = inject(ClientRequestApiStore);
   appEnvState = inject(AppEnvStore);
 
@@ -70,7 +67,6 @@ export class ClientRequests implements OnInit {
 
   readonly displayedColumns = ['client', 'ref', 'status', 'organisation', 'actions'];
   readonly filters = signal<ClientRequestSearchForm>({ ...INITIAL_FILTERS });
-  readonly organisations = signal<OrganisationListDTO[]>([]);
   readonly rows = signal<ClientRequestDTO[]>([]);
   readonly dataSource = new MatTableDataSource<ClientRequestDTO>([]);
   readonly currentPage = signal(0);
@@ -111,14 +107,15 @@ export class ClientRequests implements OnInit {
       this.totalPages.set(page.page?.totalPages || page.totalPages || 0);
     });
 
+    // A member may only search their own organisation's requests, so the search waits for it
     effect(() => {
-      this.organisations.set(this.organisationApiStore.dataList() || []);
+      if (this.myOrg()?.id) {
+        untracked(() => this.search());
+      }
     });
   }
 
   ngOnInit(): void {
-    this.organisationApiStore.getAll();
-    this.search();
   }
 
   updateField<K extends keyof ClientRequestSearchForm>(field: K, value: ClientRequestSearchForm[K]): void {
@@ -164,21 +161,6 @@ export class ClientRequests implements OnInit {
     this.router.navigate(['client-request', 'edit']);
   }
 
-  openDetails(id: string | null | undefined): void {
-    if (!id) {
-      return;
-    }
-
-    this.router.navigate(['client-request', 'details', id]);
-  }
-
-  openEdit(id: string | null | undefined): void {
-    if (!id) {
-      return;
-    }
-
-    this.router.navigate(['client-request', 'edit', id]);
-  }
 
   statusLabel(status: ClientRequestStatus | null | undefined): string {
     switch (status) {
@@ -286,8 +268,6 @@ export class ClientRequests implements OnInit {
   }
 
   private buildCriteria(): ClientRequestSearchCriteria {
-
-    console.log(this.myOrg())
 
     const values = this.filters();
     const criteria = new ClientRequestSearchCriteria();

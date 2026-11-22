@@ -86,13 +86,13 @@
               </mat-select>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="vault-field">
-              <mat-label>Sanctions Check</mat-label>
-              <mat-select [formField]="editForm.declaration.sanctionsMatch">
-                <mat-option [value]="false">Cleared</mat-option>
-                <mat-option [value]="true">Possible Match</mat-option>
-              </mat-select>
-            </mat-form-field>
+            <!-- Recorded by staff from screening; the client does not choose it -->
+            <div class="kv-field">
+              <span class="kv-label">Sanctions Check</span>
+              <p class="kv-value">
+                {{ formModel().declaration?.sanctionsMatch ? 'Possible match' : (formModel().id ? 'No match recorded' : 'Carried out by our compliance team after you save') }}
+              </p>
+            </div>
           </div>
         </section>
 
@@ -259,23 +259,40 @@
             <mat-icon class="kv-card-icon">account_balance</mat-icon>
             <h2 class="kv-card-title">Source of Funds</h2>
           </div>
-          <button type="button" class="kv-btn-subtle">Add Source</button>
+          <button type="button" class="kv-btn-subtle" [disabled]="!availableSources().length" (click)="toggleSourcePicker()">
+            Add Source
+          </button>
         </div>
 
         <div class="flex flex-col gap-4">
-          <div class="kv-field">
-            <label class="kv-label" for="primary-source">Primary Source Category</label>
-            <select id="primary-source" class="kv-input">
-              <option>Salary / Employment</option>
-              <option selected>Corporate Dividends</option>
-              <option>Sale of Assets</option>
-              <option>Inheritance</option>
-            </select>
-          </div>
+          @if (formModel().sourceOfFunds.length) {
+            <ul class="flex flex-wrap gap-2" aria-label="Sources of funds">
+              @for (source of formModel().sourceOfFunds; track source) {
+                <li class="kv-chip">
+                  {{ sourceLabel(source) }}
+                  <button type="button" class="ms-1" [attr.aria-label]="'Remove ' + sourceLabel(source)" (click)="removeSource(source)">
+                    <mat-icon class="align-middle">close</mat-icon>
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="kv-subtitle">No source of funds added yet. Use Add Source to choose where the money comes from.</p>
+          }
+
+          @if (showSourcePicker()) {
+            <div class="flex flex-wrap gap-2" role="group" aria-label="Choose a source of funds">
+              @for (option of availableSources(); track option) {
+                <button type="button" class="kv-btn-subtle" (click)="addSource(option)">{{ sourceLabel(option) }}</button>
+              }
+            </div>
+          }
 
           <div class="kv-field">
             <label class="kv-label" for="source-notes">Description / Notes</label>
-            <textarea id="source-notes" class="kv-input resize-none" rows="2" placeholder="Describe the source"></textarea>
+            <textarea id="source-notes" class="kv-input resize-none" rows="2" placeholder="Describe the source"
+              [value]="formModel().sourceOfFundsDetails || ''"
+              (input)="setSourceDetails($any($event.target).value)"></textarea>
           </div>
         </div>
       </section>

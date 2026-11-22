@@ -42,15 +42,13 @@ export const ContactApiStore = signalStore(
           return contactApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: ContactDTO) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -78,15 +76,13 @@ export const ContactApiStore = signalStore(
           return contactApi.findByType(data.type, ).pipe(
             tapResponse({
               next: (response: ContactDTO[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -114,15 +110,13 @@ export const ContactApiStore = signalStore(
           return contactApi.findByTypePaged(data.type, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<ContactDTO>) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -150,15 +144,13 @@ export const ContactApiStore = signalStore(
           return contactApi.getAll().pipe(
             tapResponse({
               next: (response: ContactDTO[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -186,15 +178,13 @@ export const ContactApiStore = signalStore(
           return contactApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<ContactDTO>) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -222,7 +212,7 @@ export const ContactApiStore = signalStore(
           return contactApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean) => {
-                const message = `Success!!`;
+                const message = 'Contact removed.';
                 toastr.success(message);
                 patchState(
                   store,
@@ -258,7 +248,7 @@ export const ContactApiStore = signalStore(
           return contactApi.save(data.document, ).pipe(
             tapResponse({
               next: (response: ContactDTO) => {
-                const message = `Success!!`;
+                const message = 'Contact saved.';
                 toastr.success(message);
                 patchState(
                   store,
@@ -294,15 +284,13 @@ export const ContactApiStore = signalStore(
           return contactApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: ContactDTO[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );

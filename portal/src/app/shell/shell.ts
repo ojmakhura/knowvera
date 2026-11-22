@@ -30,6 +30,9 @@ export class Shell {
 
   protected readonly isLoggedIn = computed(() => this.appEnvState.isLoggedIn());
 
+  /** The signed-in user is linked to an organisation (known once it has been looked up). */
+  protected readonly hasOrganisation = computed(() => !!this.appEnvState.userOrganisation()?.id);
+
   /** The menus, limited to the pages the signed-in user's permissions open (as the route guard checks). */
   protected readonly menuItems = computed(() => this.visible(menuItems));
   protected readonly mobileMenuItems = computed(() => this.visible(mobileMenuItems));
@@ -52,7 +55,8 @@ export class Shell {
     }
     const loaded = this.permissionService.loaded();
     return items.filter((item) =>
-      item.permissions.length === 0 || (loaded && this.permissionService.has(item.permissions)));
+      (item.permissions.length === 0 || (loaded && this.permissionService.has(item.permissions)))
+      && (!item.needsOrganisation || this.hasOrganisation()));
   }
 
   protected readonly userDisplayName = computed(() => {

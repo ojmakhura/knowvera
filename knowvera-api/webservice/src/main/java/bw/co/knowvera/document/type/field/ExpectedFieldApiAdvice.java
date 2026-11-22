@@ -90,18 +90,19 @@ public class ExpectedFieldApiAdvice {
         String message = ex.getMessage() == null ? "" : ex.getMessage();
         bw.co.knowvera.ValidationMapping mapping = findMapping(message).orElse(null);
         String friendly = mapping == null
-                ? FALLBACK_MESSAGE
+                ? bw.co.knowvera.exception.ServiceErrors.message(ex)
                 : mapping.friendlyMessage();
 
         HttpStatus status = mapping == null
-                ? HttpStatus.INTERNAL_SERVER_ERROR
+                ? bw.co.knowvera.exception.ServiceErrors.status(ex)
                 : mapping.status();
 
         String type = mapping == null
                 ? "service-error"
                 : mapping.type();
 
-        List<String> errors = message.isBlank()
+        // The raw exception text is for the log, not the caller
+        List<String> errors = mapping == null || message.isBlank()
                 ? List.of()
                 : List.of(message);
 
@@ -132,17 +133,18 @@ public class ExpectedFieldApiAdvice {
         String message = ex.getMessage() == null ? "" : ex.getMessage();
         bw.co.knowvera.ValidationMapping mapping = findMapping(message).orElse(null);
         String friendly = mapping == null
-                ? FALLBACK_MESSAGE
+                ? bw.co.knowvera.exception.ServiceErrors.message(ex)
                 : mapping.friendlyMessage();
         HttpStatus status = mapping == null
-                ? HttpStatus.INTERNAL_SERVER_ERROR
+                ? bw.co.knowvera.exception.ServiceErrors.status(ex)
                 : mapping.status();
 
         String type = mapping == null
                 ? "service-error"
                 : mapping.type();
                 
-        List<String> errors = message.isBlank()
+        // The raw exception text is for the log, not the caller
+        List<String> errors = mapping == null || message.isBlank()
                 ? List.of()
                 : List.of(message);
         LOGGER.error("Referenced service error (ExpectedFieldService)", ex);

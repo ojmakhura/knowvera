@@ -29,12 +29,14 @@ import { LoaderState } from '@app/@shared/loader/loader.state';
 class EditDocumentForm {
   id: string | any = null;
   target: TargetEntity | any = null;
-  targetId: string | any = null;
+  // Native text inputs bound with [formField] must start as '' — signal forms treats a null
+  // model value on <input type="text"> as numeric and rejects non-numeric input.
+  targetId: string | any = '';
   documentType: DocumentTypeDTO | any = null;
   documentTypeFilter: DocumentTypeDTO | any = null;
-  fileName: string | any = null;
+  fileName: string | any = '';
   verificationStatus: DocumentVerificationStatus | any = DocumentVerificationStatus.UNVERIFIED;
-  url: string | any = null;
+  url: string | any = '';
   analyticsStatus: DocumentAnalyticsStatus | any = DocumentAnalyticsStatus.INITIALISED;
 
 }
@@ -311,11 +313,11 @@ export class DocumentEdit implements OnInit, AfterViewInit, OnDestroy {
     this.editDocumentSignal.set({
       id: document.id,
       target: document.target,
-      targetId: document.targetId,
+      targetId: document.targetId ?? '',
       documentType: selectedType,
-      fileName: document.fileName,
+      fileName: document.fileName ?? '',
       verificationStatus: document.verificationStatus || DocumentVerificationStatus.UNVERIFIED,
-      url: document.url,
+      url: document.url ?? '',
       documentTypeFilter: null,
       analyticsStatus: document.analyticsStatus || DocumentAnalyticsStatus.INITIALISED
     });

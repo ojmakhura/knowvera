@@ -48,7 +48,7 @@ export const DocumentTypeApiStore = signalStore(
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [`Document type "${response?.name || 'unknown'}" loaded successfully!!`],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -80,7 +80,7 @@ export const DocumentTypeApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`${response.length} document types loaded successfully!!`],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -112,7 +112,7 @@ export const DocumentTypeApiStore = signalStore(
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [`Page ${response.page.number + 1} of ${response.page.totalPages} document types loaded successfully!!`],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -138,15 +138,13 @@ export const DocumentTypeApiStore = signalStore(
           return documentTypeApi.pagedSearch(data.criteria, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<DocumentTypeDTO>) => {
-                const message = `Page ${response.page.number + 1} of ${response.page.totalPages} document types loaded successfully!!`;
-                toast.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -244,7 +242,7 @@ export const DocumentTypeApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: [],
                     error: false,
                   }
                 );

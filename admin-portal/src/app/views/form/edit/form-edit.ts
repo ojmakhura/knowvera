@@ -123,6 +123,8 @@ function emptyField(): EditFormField {
 })
 export class FormEdit implements OnInit {
   @Input() id: string = '';
+  /** Query parameter: the organisation a new form is started for. */
+  @Input() organisationId: string = '';
 
   private readonly api = inject(FormApi);
   private readonly organisationApi = inject(OrganisationApi);
@@ -180,6 +182,8 @@ export class FormEdit implements OnInit {
     });
     if (this.id) {
       this.load();
+    } else if (this.organisationId) {
+      this.model.update((form) => ({ ...form, organisationId: this.organisationId }));
     }
   }
 

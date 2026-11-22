@@ -20,6 +20,7 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.server.ResponseStatusException;
 
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.document.DocumentService;
@@ -42,6 +43,8 @@ import bw.co.knowvera.organisation.branch.BranchService;
 import bw.co.knowvera.organisation.client.ClientRequestService;
 import bw.co.knowvera.organisation.document.OrganisationDocumentDTO;
 import bw.co.knowvera.organisation.document.OrganisationDocumentService;
+import bw.co.knowvera.subscription.KycSubsciptionStatus;
+import bw.co.knowvera.subscription.KycSubscriptionDTO;
 import bw.co.knowvera.subscription.KycSubscriptionService;
 import bw.co.knowvera.user.UserDTO;
 
@@ -115,6 +118,7 @@ class KycAuthorisationServiceTest {
     private final OrganisationDocumentService organisationDocumentService = mock(OrganisationDocumentService.class);
     private final FormService formService = mock(FormService.class);
     private final FormSubmissionService formSubmissionService = mock(FormSubmissionService.class);
+    private final KycSubscriptionService subscriptionService = mock(KycSubscriptionService.class);
     private OrganisationController controller;
 
     @BeforeEach
@@ -122,7 +126,7 @@ class KycAuthorisationServiceTest {
         KycAuthorisationService aspect = new KycAuthorisationService(kycRecordService,
                 keycloakUserService, individualService, organisationService,
                 mock(DocumentService.class), mock(ClientRequestService.class),
-                mock(KycInvoiceService.class), mock(KycSubscriptionService.class),
+                mock(KycInvoiceService.class), subscriptionService,
                 branchService, employmentRecordService, organisationDocumentService,
                 formService, formSubmissionService);
 
@@ -135,6 +139,9 @@ class KycAuthorisationServiceTest {
         user.setUserId("user-1");
         user.setOrganisationId("org-1");
         when(keycloakUserService.findUserById("user-1")).thenReturn(user);
+
+        // The caller's organisation is subscribed unless a test says otherwise
+        when(subscriptionService.findByOrganisation(any(), any())).thenReturn(List.of(subscription(KycSubsciptionStatus.ACTIVE)));
 
         when(organisationService.findById(any())).thenAnswer(invocation -> {
             OrganisationDTO organisation = new OrganisationDTO();
@@ -171,6 +178,51 @@ class KycAuthorisationServiceTest {
         authenticate("ROLE_ORG_ADMIN", "SCOPE_organisations:view-own");
 
         assertEquals("loaded org-1", controller.load("org-1"));
+    }
+
+    private static KycSubscriptionDTO subscription(KycSubsciptionStatus status) {
+        KycSubscriptionDTO subscription = new KycSubscriptionDTO();
+        subscription.setStatus(status);
+        subscription.setStartDate(java.util.Date.from(Instant.now().minusSeconds(3600)));
+        subscription.setEndDate(java.util.Date.from(Instant.now().plusSeconds(3600)));
+        return subscription;
+    }
+
+    @Test
+    void withoutASubscriptionAnOrganisationMemberCanStillSeeTheOrganisation() {
+        when(subscriptionService.findByOrganisation(any(), any())).thenReturn(List.of());
+        authenticate("ROLE_ORG_ADMIN", "SCOPE_organisations:view-own");
+
+        assertEquals("loaded org-1", controller.load("org-1"));
+    }
+
+    @Test
+    void withoutASubscriptionAnOrganisationMemberCannotWorkOnItsRecords() {
+        when(subscriptionService.findByOrganisation(any(), any()))
+                .thenReturn(List.of(subscription(KycSubsciptionStatus.CANCELLED)));
+        authenticate("ROLE_ORG_ADMIN", "SCOPE_documents:list-own");
+
+        ResponseStatusException denied = assertThrows(ResponseStatusException.class,
+                () -> controller.loadTarget(TargetEntity.ORGANISATION, "org-1"));
+        assertEquals(403, denied.getStatusCode().value());
+    }
+
+    @Test
+    void anExpiredSubscriptionDoesNotCount() {
+        KycSubscriptionDTO expired = subscription(KycSubsciptionStatus.ACTIVE);
+        expired.setEndDate(java.util.Date.from(Instant.now().minusSeconds(60)));
+        when(subscriptionService.findByOrganisation(any(), any())).thenReturn(List.of(expired));
+        authenticate("ROLE_ORG_ADMIN", "SCOPE_documents:list-own");
+
+        assertThrows(ResponseStatusException.class, () -> controller.loadTarget(TargetEntity.ORGANISATION, "org-1"));
+    }
+
+    @Test
+    void staffAreNotHeldToASubscription() {
+        when(subscriptionService.findByOrganisation(any(), any())).thenReturn(List.of());
+        authenticate("ROLE_KYC_ANALYST", "SCOPE_documents:list");
+
+        assertEquals("loaded org-2", controller.loadTarget(TargetEntity.ORGANISATION, "org-2"));
     }
 
     @Test

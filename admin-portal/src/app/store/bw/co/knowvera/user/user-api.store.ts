@@ -39,7 +39,7 @@ export const UserApiStore = signalStore(
           return userApi.addRole(data.userId, data.role, ).pipe(
             tapResponse({
               next: (response: boolean | any) => {
-                const message = 'Success!';
+                const message = 'Role added to the user.';
                 
                 patchState(
                   store,
@@ -74,7 +74,7 @@ export const UserApiStore = signalStore(
           return userApi.changePassword(data.userId, data.newPassword, ).pipe(
             tapResponse({
               next: (response: string | any) => {
-                const message = `Success!!`;
+                const message = 'Password changed.';
                 
                 patchState(
                   store,
@@ -110,7 +110,7 @@ export const UserApiStore = signalStore(
           return userApi.findByBranchId(data.branchId, ).pipe(
             tapResponse({
               next: (response: UserDTO[] | any[]) => {
-                const message = `Success!!`;
+                const message = 'Users loaded.';
                 
                 patchState(
                   store,
@@ -146,7 +146,7 @@ export const UserApiStore = signalStore(
           return userApi.findByBranchName(data.branch, ).pipe(
             tapResponse({
               next: (response: UserDTO[] | any[]) => {
-                const message = `Success!!`;
+                const message = 'Users loaded.';
                 
                 patchState(
                   store,
@@ -182,7 +182,7 @@ export const UserApiStore = signalStore(
           return userApi.findByClientRoles(data.roles, data.clientId, ).pipe(
             tapResponse({
               next: (response: UserDTO[] | any[]) => {
-                const message = `Success!!`;
+                const message = 'Users loaded.';
                 
                 patchState(
                   store,
@@ -218,7 +218,7 @@ export const UserApiStore = signalStore(
           return userApi.findByIdentityNo(data.identityNo, ).pipe(
             tapResponse({
               next: (response: UserDTO | any) => {
-                const message = `Success!!`;
+                const message = 'Users loaded.';
                 
                 patchState(
                   store,
@@ -254,7 +254,7 @@ export const UserApiStore = signalStore(
           return userApi.findByOrganisationId(data.organisationId, ).pipe(
             tapResponse({
               next: (response: UserDTO[] | any[]) => {
-                const message = `Success!!`;
+                const message = 'Users loaded.';
                 
                 patchState(
                   store,
@@ -290,7 +290,7 @@ export const UserApiStore = signalStore(
           return userApi.findByOrganisationName(data.organisation, ).pipe(
             tapResponse({
               next: (response: UserDTO[] | any[]) => {
-                const message = `Success!!`;
+                const message = 'Users loaded.';
                 
                 patchState(
                   store,
@@ -326,7 +326,7 @@ export const UserApiStore = signalStore(
           return userApi.findByRealmRoles(data.roles, ).pipe(
             tapResponse({
               next: (response: UserDTO[] | any[]) => {
-                const message = `Success!!`;
+                const message = 'Users loaded.';
                 
                 patchState(
                   store,
@@ -362,7 +362,7 @@ export const UserApiStore = signalStore(
           return userApi.findUserById(data.userId, ).pipe(
             tapResponse({
               next: (response: UserDTO | any) => {
-                const message = `Success!!`;
+                const message = 'User loaded.';
                 
                 patchState(
                   store,
@@ -398,7 +398,7 @@ export const UserApiStore = signalStore(
           return userApi.loadUsers().pipe(
             tapResponse({
               next: (response: UserDTO[] | any[]) => {
-                const message = `Success!!`;
+                const message = 'Users loaded.';
                 
                 patchState(
                   store,
@@ -434,7 +434,7 @@ export const UserApiStore = signalStore(
           return userApi.removeRole(data.userId, data.role, ).pipe(
             tapResponse({
               next: (response: boolean | any) => {
-                const message = `Success!!`;
+                const message = 'Role removed from the user.';
                 
                 patchState(
                   store,
@@ -470,7 +470,7 @@ export const UserApiStore = signalStore(
           return userApi.saveUser(data.user, ).pipe(
             tapResponse({
               next: (response: UserDTO | any) => {
-                const message = `Success!!`;
+                const message = 'User saved.';
                 
                 patchState(
                   store,
@@ -506,7 +506,7 @@ export const UserApiStore = signalStore(
           return userApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: UserDTO[] | any[]) => {
-                const message = `Success!!`;
+                const message = 'Users loaded.';
                 
                 patchState(
                   store,
@@ -542,7 +542,7 @@ export const UserApiStore = signalStore(
           return userApi.updateUserName(data.userId, data.username, ).pipe(
             tapResponse({
               next: (response: boolean | any) => {
-                const message = `Success!!`;
+                const message = 'Username updated.';
                 
                 patchState(
                   store,

@@ -1,6 +1,7 @@
 package bw.co.knowvera.auth;
 
 import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.UUID;
@@ -19,6 +20,7 @@ import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.Ordered;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.method.AuthorizationInterceptorsOrder;
 import org.springframework.security.core.Authentication;
@@ -26,6 +28,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 import bw.co.knowvera.TargetEntity;
 import bw.co.knowvera.config.KeycloakPermissionConverter;
@@ -52,6 +55,7 @@ import bw.co.knowvera.organisation.client.ClientRequestDTO;
 import bw.co.knowvera.organisation.document.OrganisationDocumentDTO;
 import bw.co.knowvera.organisation.document.OrganisationDocumentService;
 import bw.co.knowvera.organisation.client.ClientRequestService;
+import bw.co.knowvera.subscription.KycSubsciptionStatus;
 import bw.co.knowvera.subscription.KycSubscriptionDTO;
 import bw.co.knowvera.subscription.KycSubscriptionService;
 import bw.co.knowvera.user.UserDTO;
@@ -85,6 +89,13 @@ public class KycAuthorisationService implements Ordered {
     public static final String FORM_SUBMISSION = "FORM_SUBMISSION";
     /** A client's answers to a form, for what only the organisation that issued the form may do. */
     public static final String FORM_SUBMISSION_ISSUER = "FORM_SUBMISSION_ISSUER";
+
+    /**
+     * What the members of an organisation without a current subscription may still do: see their
+     * organisation, its subscriptions and its invoices, and send proof of payment.
+     */
+    static final Set<String> WITHOUT_SUBSCRIPTION = Set.of("organisations:view", "subscriptions:view",
+            "subscriptions:list", "invoices:view", "invoices:list", "invoices:submit");
 
     private final SpelExpressionParser parser = new SpelExpressionParser();
     private final ParameterNameDiscoverer parameterNames = new DefaultParameterNameDiscoverer();
@@ -158,6 +169,8 @@ public class KycAuthorisationService implements Ordered {
                     + (target != null ? target : "requested") + " record");
         }
 
+        requireSubscription(requiresOwnership.scope());
+
         // An update must also be of a record the caller already owns (the body names the new owner)
         if (StringUtils.isNotBlank(requiresOwnership.recordId())) {
             Object recordId = parser.parseExpression(requiresOwnership.recordId()).getValue(context);
@@ -169,6 +182,46 @@ public class KycAuthorisationService implements Ordered {
         }
 
         return joinPoint.proceed();
+    }
+
+    /**
+     * Members of an organisation work on its records only while it has a current subscription;
+     * before that they can register and see what is listed in {@link #WITHOUT_SUBSCRIPTION}.
+     * Callers who belong to no organisation (individual clients) hold no subscription and pass.
+     */
+    public void requireSubscription(String scope) {
+
+        if (WITHOUT_SUBSCRIPTION.contains(scope)) {
+            return;
+        }
+
+        UserDTO user = getCurrentUser();
+        if (user == null || StringUtils.isBlank(user.getOrganisationId())) {
+            return;
+        }
+
+        Date now = new Date();
+        boolean subscribed;
+        try {
+            subscribed = subscriptionService.findByOrganisation(user.getOrganisationId(), user.getUserId()).stream()
+                    .anyMatch(subscription -> isCurrent(subscription, now));
+        } catch (Exception e) {
+            // Not proven to be subscribed
+            subscribed = false;
+        }
+
+        if (!subscribed) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Your organisation has no active subscription. Until it has one you can only view the "
+                            + "organisation, its subscriptions and its invoices.");
+        }
+    }
+
+    static boolean isCurrent(KycSubscriptionDTO subscription, Date now) {
+
+        return subscription != null && subscription.getStatus() == KycSubsciptionStatus.ACTIVE
+                && (subscription.getStartDate() == null || !subscription.getStartDate().after(now))
+                && (subscription.getEndDate() == null || !subscription.getEndDate().before(now));
     }
 
     private boolean ownsStoredRecord(String record, String recordId) {

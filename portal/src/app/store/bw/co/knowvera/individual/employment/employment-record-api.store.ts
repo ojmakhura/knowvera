@@ -41,15 +41,13 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO | any) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -77,15 +75,13 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.findByIndividual(data.individualId, ).pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO[] | any[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -113,15 +109,13 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.getAll().pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO[] | any[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -149,15 +143,13 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<EmploymentRecordDTO> | any) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -185,15 +177,13 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.pagedSearch(data.criteria, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<EmploymentRecordDTO> | any) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -221,7 +211,7 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean | any) => {
-                const message = `Success!!`;
+                const message = 'Employment record removed.';
                 toastr.success(message);
                 patchState(
                   store,
@@ -257,7 +247,7 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.save(data.employmentRecord, ).pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO | any) => {
-                const message = `Success!!`;
+                const message = 'Employment record saved.';
                 toastr.success(message);
                 patchState(
                   store,
@@ -293,15 +283,13 @@ export const EmploymentRecordApiStore = signalStore(
           return employmentRecordApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: EmploymentRecordDTO[] | any[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );

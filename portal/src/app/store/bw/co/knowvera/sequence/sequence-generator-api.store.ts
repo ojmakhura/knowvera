@@ -41,15 +41,13 @@ export const SequenceGeneratorApiStore = signalStore(
           return sequenceGeneratorApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: SequenceGeneratorDTO) => {
-                const message = `${response.name} loaded successfully!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -77,15 +75,13 @@ export const SequenceGeneratorApiStore = signalStore(
           return sequenceGeneratorApi.findByName(data.name, ).pipe(
             tapResponse({
               next: (response: SequenceGeneratorDTO) => {
-                const message = `${response.name} loaded successfully!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -113,15 +109,13 @@ export const SequenceGeneratorApiStore = signalStore(
           return sequenceGeneratorApi.getAll().pipe(
             tapResponse({
               next: (response: SequenceGeneratorDTO[]) => {
-                const message = `${response.length} sequence generators loaded successfully!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -221,15 +215,13 @@ export const SequenceGeneratorApiStore = signalStore(
           return sequenceGeneratorApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: SequenceGeneratorDTO[]) => {
-                const message = `${response.length} sequence generators loaded successfully!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );

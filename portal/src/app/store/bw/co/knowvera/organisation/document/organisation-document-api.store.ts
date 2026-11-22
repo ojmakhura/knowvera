@@ -43,15 +43,13 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: OrganisationDocumentDTO | any) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     data: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -79,15 +77,13 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.findByOrganisation(data.organisationId, ).pipe(
             tapResponse({
               next: (response: OrganisationDocumentDTO[] | any[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -115,15 +111,13 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.findByOrganisationPaged(data.organisationId, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<OrganisationDocumentDTO> | any) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataPage: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -151,15 +145,13 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.findByStatus(data.status, ).pipe(
             tapResponse({
               next: (response: OrganisationDocumentDTO[] | any[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -187,15 +179,13 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.findByStatusPaged(data.status, data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<OrganisationDocumentDTO> | any) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataPage: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -223,15 +213,13 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.getAll().pipe(
             tapResponse({
               next: (response: OrganisationDocumentDTO[] | any[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -259,15 +247,13 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<OrganisationDocumentDTO> | any) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataPage: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -295,15 +281,13 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.pagedSearch(data.criteria, ).pipe(
             tapResponse({
               next: (response: Page<OrganisationDocumentDTO> | any) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataPage: response,
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -331,7 +315,7 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.remove(data.id, ).pipe(
             tapResponse({
               next: (response: boolean | any) => {
-                const message = `Success!!`;
+                const message = 'Organisation document removed.';
                 toastr.success(message);
                 patchState(
                   store, 
@@ -367,7 +351,7 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.save(data.clientRequest, ).pipe(
             tapResponse({
               next: (response: OrganisationDocumentDTO | any) => {
-                const message = `Success!!`;
+                const message = 'Organisation document saved.';
                 toastr.success(message);
                 patchState(
                   store, 
@@ -403,15 +387,13 @@ export const OrganisationDocumentApiStore = signalStore(
           return organisationDocumentApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: OrganisationDocumentDTO[] | any[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store, 
                   {
                     dataList: response, 
                     loading: false, 
                     success: true, 
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );

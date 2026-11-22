@@ -413,7 +413,7 @@
           </div>
           <p class="dp-head-sub">Forms this organisation asks its clients to complete. Their submissions are included in the client KYC reports.</p>
         </div>
-        <a class="dp-btn-navy is-sm" routerLink="/forms/edit">
+        <a class="dp-btn-navy is-sm" routerLink="/forms/edit" [queryParams]="{ organisationId: id }">
           <mat-icon>add</mat-icon>
           New Form
         </a>

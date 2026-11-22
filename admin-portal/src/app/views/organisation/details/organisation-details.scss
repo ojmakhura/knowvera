@@ -753,6 +753,12 @@
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
+	// Narrow columns: the tag and actions drop below the name instead of squeezing it to a word a line
+	flex-wrap: wrap;
+
+	> .min-w-0 {
+		flex-basis: 9rem;
+	}
 	padding: 0.625rem;
 	border-left: 4px solid var(--primary);
 	border-radius: ui.$radius-card;

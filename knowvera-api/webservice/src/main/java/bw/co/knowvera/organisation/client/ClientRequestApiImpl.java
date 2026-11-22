@@ -26,6 +26,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.oauth2.jwt.Jwt;
+import bw.co.knowvera.storage.ObjectStorageService;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +48,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,7 +57,10 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "Client Requests", description = "Operations related to client requests.")
 public class ClientRequestApiImpl implements ClientRequestApi {
 
+    private static final Logger logger = LoggerFactory.getLogger(ClientRequestApiImpl.class);
+
     private final SettingsService settingsService;
+    private final ObjectStorageService storageService;
     private final DocumentApi documentApi;
     private final ClientRequestService clientRequestService;
     private final KeycloakUserService keycloakUserService;
@@ -68,8 +79,10 @@ public class ClientRequestApiImpl implements ClientRequestApi {
             IndividualService individualService,
             OrganisationService organisationService,
             ClientRequestNotification clientRequestNotification,
-            KycAuthorisationService kycAuthorisationService, CurrentCaller currentCaller) {
+            KycAuthorisationService kycAuthorisationService, CurrentCaller currentCaller,
+            ObjectStorageService storageService) {
         this.currentCaller = currentCaller;
+        this.storageService = storageService;
 
         this.settingsService = settingsService;
         this.documentApi = documentApi;
@@ -169,19 +182,11 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     @Override
     @Operation(summary = "Paged Search Client Requests", description = "Search client requests with pagination")
     @Audit(entity = "CLIENT_REQUEST", logData = false)
+    // Staff search every request, an organisation's members only their own organisation's (which
+    // the criteria must then name)
+    @RequiresOwnership(scope = "client-requests:list", target = "ORGANISATION", id = "#criteria?.criteria?.organisationId")
     public ResponseEntity<Page<ClientRequestDTO>> pagedSearch(SearchObject<ClientRequestSearchCriteria> criteria)
             throws Exception {
-
-        ClientRequestSearchCriteria requestCriteria = criteria.getCriteria();
-
-        if(StringUtils.isNotBlank(requestCriteria.getOrganisationId())) {
-
-            if(!kycAuthorisationService.isOrganisationUserMatch(requestCriteria.getOrganisationId())) {
-                // Implement the logic for when the organisation user matches
-
-                throw new AuthorizationDeniedException("User not authorised to access organisation resources.");
-            }
-        }
 
         Page<ClientRequestDTO> requests = clientRequestService.search(criteria);
         return ResponseEntity.ok(requests);
@@ -270,7 +275,7 @@ public class ClientRequestApiImpl implements ClientRequestApi {
     }
 
     @Override
-    @Operation(summary = "Upload Client Requests", description = "Upload client requests from a file")
+    @Operation(summary = "Upload Client Requests", description = "Import individual clients from a spreadsheet (.xlsx, .xls, .csv) laid out like the client request template: one pending client request per row. All-or-nothing: if any row is wrong nothing is imported and the 400 response lists each wrong row in its errors member. Only target=INDIVIDUAL is supported.")
     @Audit(entity = "CLIENT_REQUEST", eventLabel = "#file.getOriginalFilename()", logData = false)
     @RequiresOwnership(scope = "client-requests:import", target = "ORGANISATION", id = "#organisationId")
     public ResponseEntity<Page<ClientRequestDTO>> uploadRequests(MultipartFile file, String organisationId,
@@ -278,31 +283,67 @@ public class ClientRequestApiImpl implements ClientRequestApi {
 
         UploadValidator.validate(file, UploadValidator.SPREADSHEET_TYPES);
 
+        if (target != null && target != TargetEntity.INDIVIDUAL) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Only individual clients can be imported from a spreadsheet (target=INDIVIDUAL). "
+                            + "Create organisation client requests one at a time.");
+        }
+
+        OrganisationDTO organisation = organisationService.findById(organisationId);
+        String fileName = UploadValidator.safeName(file.getOriginalFilename());
+
+        // The file's record is saved by the import, with the requests, and never goes to document
+        // processing: a spreadsheet has no text to extract.
+        DocumentDTO document = new DocumentDTO();
+        document.setTarget(TargetEntity.CLIENT_REQUEST);
+        document.setTargetId(organisationId);
+        document.setFileName(fileName);
+        document.setCreatedAt(LocalDateTime.now());
+        document.setCreatedBy(currentUsername());
+        document.setMetadata(Map.of(
+                "fileSize", file.getSize(),
+                "fileType", String.valueOf(file.getContentType()),
+                "contentType", String.valueOf(file.getContentType())));
+        settingsService.getAll().stream().findFirst()
+                .map(SettingsDTO::getClientRequestFileType)
+                .ifPresent(type -> document.setDocumentTypeId(type.getId()));
+
+        String objectName = TargetEntity.CLIENT_REQUEST + "/" + organisationId + "/requests/"
+                + UUID.randomUUID() + "-" + fileName;
+        try (InputStream inputStream = file.getInputStream()) {
+            document.setUrl(storageService.uploadFile(objectName, inputStream, file.getSize(), file.getContentType()));
+        }
+
         try (InputStream inputStream = file.getInputStream()) {
 
-            SettingsDTO settings = settingsService.getAll().stream().findFirst()
-                    .orElseThrow(() -> new Exception("Settings not found"));
+            Page<ClientRequestDTO> requests = clientRequestService.uploadRequests(inputStream, currentUsername(),
+                    organisationId, document, TargetEntity.INDIVIDUAL, organisation.getName());
+            return ResponseEntity.ok(requests);
 
-            DocumentDTO doc = documentApi
-                    .upload(
-                            TargetEntity.CLIENT_REQUEST,
-                            organisationId,
-                            settings.getClientRequestFileType().getId(),
-                            "requests",
-                            file)
-                    .getBody();
-
-            // OrganisationDTO org = keycloakOrganisationService.findById(organisationId);
-            // Page<ClientRequestDTO> requests =
-            // clientRequestService.uploadRequests(inputStream, organisationId,
-            // organisationId, doc, target, org.getName());
-            // updateOrganisationsDetails(requests.getContent());
-
-            throw new UnsupportedOperationException("Not implemented yet");
         } catch (Exception e) {
-            e.printStackTrace();
+
+            // Nothing was imported, so the stored copy of the file has no record pointing at it
+            try {
+                storageService.deleteFile(document.getUrl());
+            } catch (Exception deleteFailure) {
+                logger.warn("Could not remove the rejected client request file {}", document.getUrl(), deleteFailure);
+            }
+
+            // The service wraps what it throws; a refused file is the caller's to correct (400)
+            if (e.getCause() instanceof ClientRequestImportException refused) {
+                throw refused;
+            }
             throw e;
         }
+    }
+
+    private static String currentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getPrincipal() instanceof Jwt jwt
+                && StringUtils.isNotBlank(jwt.getClaimAsString("preferred_username"))) {
+            return jwt.getClaimAsString("preferred_username");
+        }
+        return authentication.getName();
     }
 
     @Override
@@ -609,6 +650,8 @@ public class ClientRequestApiImpl implements ClientRequestApi {
         if (organisationId.isEmpty()) {
             return ResponseEntity.ok(List.of());
         }
+        // Not an @RequiresOwnership endpoint, so the subscription rule is applied here
+        kycAuthorisationService.requireSubscription("client-requests:list");
         return ResponseEntity.ok(clientRequestService.findByOrganisation(organisationId.get()));
     }
 

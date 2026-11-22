@@ -1,0 +1,346 @@
+<div class="kv-page">
+  <header class="dp-header">
+    <nav class="kv-breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/client-kyc">Client KYC</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="kv-breadcrumb-current">{{ summary()?.name || 'Client' }}</span>
+    </nav>
+
+    <div class="kv-page-header">
+      <div class="min-w-0 flex items-center gap-4">
+        <span class="grid place-items-center shrink-0 size-14 rounded-full bg-primary-container text-on-primary text-lg font-bold" aria-hidden="true">
+          {{ clientInitials() }}
+        </span>
+        <div class="min-w-0 flex flex-col gap-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <h1 class="kv-title">{{ summary()?.name || 'KYC Report' }}</h1>
+            @if (summary(); as s) {
+              @if (s.ref) {
+                <span class="dp-code">{{ s.ref }}</span>
+              }
+              <span class="dp-entity-pill">
+                <mat-icon>{{ isIndividual() ? 'person' : 'corporate_fare' }}</mat-icon>
+                {{ isIndividual() ? 'Natural Person' : 'Legal Entity' }}
+              </span>
+            }
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            @if (summary(); as s) {
+              <span class="dp-pill" [class]="pillTone(s.kycStatus)">
+                <mat-icon>{{ pillIcon(s.kycStatus) }}</mat-icon>
+                {{ labelOf(s.kycStatus) }}
+              </span>
+            }
+            @if (organisationName()) {
+              <span class="dp-pill is-info">
+                <mat-icon>corporate_fare</mat-icon>
+                Report for {{ organisationName() }}
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="kv-actions kyc-report-actions">
+        <button type="button" class="kv-btn-secondary" (click)="print()" [disabled]="!summary()">
+          <mat-icon>print</mat-icon>
+          Print
+        </button>
+      </div>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="kv-panel flex items-center gap-3 mb-6">
+      <mat-icon class="text-primary">hourglass_top</mat-icon>
+      <div>
+        <p class="text-sm font-semibold text-primary">Loading the report</p>
+        <p class="text-xs text-on-surface-variant">Fetching the client's record, forms and documents.</p>
+      </div>
+    </div>
+  } @else if (failed() || !summary()) {
+    <div class="kv-panel kv-tone-danger flex items-center gap-3 mb-6">
+      <mat-icon>error_outline</mat-icon>
+      <p class="text-sm font-semibold">The report could not be loaded.</p>
+    </div>
+  } @else {
+    @let s = summary()!;
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div class="lg:col-span-8 flex flex-col gap-6 min-w-0">
+
+        <!-- Client identity -->
+        <section class="kv-card">
+          <div class="kv-card-header dp-head">
+            <span class="dp-icon-tile"><mat-icon>badge</mat-icon></span>
+            <div class="dp-head-copy">
+              <h2 class="kv-card-title">Client Identity</h2>
+              <p class="dp-head-sub">{{ isIndividual() ? 'Personal' : 'Registration' }} particulars on the KYC record</p>
+            </div>
+          </div>
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="kv-field">
+              <dt class="kv-label">{{ isIndividual() ? 'Full Legal Name' : 'Registered Name' }}</dt>
+              <dd class="kv-value dp-strong">{{ s.name || '—' }}</dd>
+            </div>
+            <div class="kv-field">
+              <dt class="kv-label">Record</dt>
+              <dd class="kv-value dp-mono">{{ s.ref || '—' }}</dd>
+            </div>
+            <div class="kv-field">
+              <dt class="kv-label">{{ isIndividual() ? 'Identity No.' : 'Registration No.' }}</dt>
+              <dd class="kv-value dp-mono">{{ s.identityNo || '—' }}</dd>
+            </div>
+            <div class="kv-field">
+              <dt class="kv-label">Document Type</dt>
+              <dd>
+                @if (s.identityType) {
+                  <span class="kv-tag">{{ labelOf(s.identityType) }}</span>
+                } @else {
+                  <span class="kv-value">—</span>
+                }
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- Declarations -->
+        <section class="kv-card">
+          <div class="kv-card-header dp-head">
+            <span class="dp-icon-tile"><mat-icon>gavel</mat-icon></span>
+            <div class="dp-head-copy">
+              <h2 class="kv-card-title">Declarations</h2>
+              <p class="dp-head-sub">Political exposure, sanctions and the origin of funds</p>
+            </div>
+            @if (s.sanctionsMatch) {
+              <span class="dp-pill is-danger dp-head-aside">
+                <mat-icon>error</mat-icon>
+                Sanctions match
+              </span>
+            }
+          </div>
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="kv-field"><dt class="kv-label">PEP Status</dt><dd class="kv-value dp-strong">{{ labelOf(s.pepStatus) }}</dd></div>
+            <div class="kv-field"><dt class="kv-label">PEP Details</dt><dd class="kv-value">{{ s.pepDetails || '—' }}</dd></div>
+            <div class="kv-field"><dt class="kv-label">Sanctions Match</dt><dd class="kv-value dp-strong">{{ s.sanctionsMatch ? 'Yes' : 'No' }}</dd></div>
+            <div class="kv-field"><dt class="kv-label">Sanctions Details</dt><dd class="kv-value">{{ s.sanctionsDetails || '—' }}</dd></div>
+            <div class="kv-field"><dt class="kv-label">Source of Funds</dt><dd class="kv-value">{{ list(s.sourceOfFunds) }}</dd></div>
+            <div class="kv-field"><dt class="kv-label">Source of Funds Details</dt><dd class="kv-value">{{ s.sourceOfFundsDetails || '—' }}</dd></div>
+            <div class="kv-field"><dt class="kv-label">Source of Wealth</dt><dd class="kv-value">{{ list(s.wealthSources) }}</dd></div>
+            <div class="kv-field"><dt class="kv-label">Source of Wealth Details</dt><dd class="kv-value">{{ s.sourceOfWealthDetails || '—' }}</dd></div>
+          </dl>
+        </section>
+
+        <!-- Report sections the organisation chose -->
+        @for (section of sections(); track section.id || section.label) {
+          <section class="kv-card">
+            <div class="kv-card-header dp-head">
+              <span class="dp-icon-tile"><mat-icon>fact_check</mat-icon></span>
+              <div class="dp-head-copy">
+                <h2 class="kv-card-title">{{ section.label || 'Section' }}</h2>
+                <p class="dp-head-sub">Values read from the client's documents, checked against the record</p>
+              </div>
+              <span class="kv-tag dp-head-aside">{{ (section.fieldValues || []).length }} field{{ (section.fieldValues || []).length === 1 ? '' : 's' }}</span>
+            </div>
+            <div class="dp-table-wrap">
+              <table class="dp-table">
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>On the document</th>
+                    <th>On the client's record</th>
+                    <th>Check</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (value of section.fieldValues || []; track value.id || value.fieldId || $index) {
+                    <tr>
+                      <td class="dp-strong">{{ value.fieldLabel || value.field || '—' }}</td>
+                      <td>{{ value.data?.extractedValue || '—' }}</td>
+                      <td>{{ value.data?.expectedValue || '—' }}</td>
+                      <td>
+                        @if (value.data?.success === true) {
+                          <span class="dp-pill is-success"><mat-icon>check_circle</mat-icon> Passed</span>
+                        } @else if (value.data?.success === false) {
+                          <span class="dp-pill is-danger"><mat-icon>error</mat-icon> Failed</span>
+                        } @else {
+                          <span class="dp-pill">Read only</span>
+                        }
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr><td colspan="4" class="dp-table-empty">No document has provided these fields yet.</td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+        } @empty {
+          <section class="kv-card">
+            <p class="dp-empty-text">No report fields are configured for this kind of client.</p>
+          </section>
+        }
+
+        <!-- Answers to the organisation's forms -->
+        <section class="kv-card">
+          <div class="kv-card-header dp-head">
+            <span class="dp-icon-tile"><mat-icon>dynamic_form</mat-icon></span>
+            <div class="dp-head-copy">
+              <h2 class="kv-card-title">Form Answers</h2>
+              <p class="dp-head-sub">The client's answers to {{ organisationName() || 'the organisation' }}'s forms</p>
+            </div>
+            <span class="kv-tag dp-head-aside">{{ (s.formSubmissions || []).length }}</span>
+          </div>
+          <div class="flex flex-col gap-3">
+            @for (submission of s.formSubmissions || []; track submission.id || $index) {
+              <div class="dp-group">
+                <div class="dp-group-head">
+                  <div class="min-w-0">
+                    <h3 class="dp-group-title">
+                      <mat-icon>description</mat-icon>
+                      {{ submission.formName || submission.formCode || 'Form' }}
+                    </h3>
+                    <p class="dp-list-sub">
+                      @if (submission.submittedAt) {
+                        Submitted {{ submission.submittedAt | date: 'medium' }}@if (submission.submittedBy) { by {{ submission.submittedBy }} }
+                      } @else if (submission.dueDate) {
+                        Due {{ submission.dueDate | date: 'mediumDate' }}
+                      }
+                    </p>
+                  </div>
+                  <span class="dp-pill" [class]="submission.status === 'ACCEPTED' ? 'is-success' : submission.status === 'RETURNED' ? 'is-danger' : ''">{{ labelOf(submission.status) }}</span>
+                </div>
+                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  @for (value of submission.values || []; track value.id || value.fieldId || $index) {
+                    <div class="kv-field"><dt class="kv-label">{{ value.label || 'Answer' }}</dt><dd class="kv-value">{{ answer(value) }}</dd></div>
+                  } @empty {
+                    <div class="kv-field"><dd class="dp-empty-text">No answers yet.</dd></div>
+                  }
+                </dl>
+              </div>
+            } @empty {
+              <p class="dp-empty-text">The client has no answers to this organisation's forms.</p>
+            }
+          </div>
+        </section>
+      </div>
+
+      <aside class="lg:col-span-4 flex flex-col gap-6 min-w-0">
+        <!-- Contact -->
+        <section class="kv-card">
+          <div class="kv-card-header dp-head">
+            <span class="dp-icon-tile"><mat-icon>contact_mail</mat-icon></span>
+            <div class="dp-head-copy">
+              <h2 class="kv-card-title">Contact</h2>
+            </div>
+          </div>
+          <ul class="flex flex-col gap-4">
+            <li class="flex items-start gap-3">
+              <mat-icon class="text-primary shrink-0">mail</mat-icon>
+              <div class="min-w-0">
+                <p class="kv-value break-words">{{ s.emailAddress || '—' }}</p>
+                <span class="kv-meta-label">Email</span>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <mat-icon class="text-primary shrink-0">phone</mat-icon>
+              <div class="min-w-0">
+                <p class="kv-value">{{ phones() }}</p>
+                <span class="kv-meta-label">Phone</span>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <mat-icon class="text-primary shrink-0">home</mat-icon>
+              <div class="min-w-0">
+                <p class="kv-value">{{ s.physicalAddress || '—' }}</p>
+                <span class="kv-meta-label">Physical Address</span>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <mat-icon class="text-primary shrink-0">markunread_mailbox</mat-icon>
+              <div class="min-w-0">
+                <p class="kv-value">{{ s.postalAddress || '—' }}</p>
+                <span class="kv-meta-label">Postal Address</span>
+              </div>
+            </li>
+          </ul>
+        </section>
+
+        <!-- Decision -->
+        <section class="kv-card">
+          <div class="kv-card-header dp-head">
+            <span class="dp-icon-tile"><mat-icon>verified_user</mat-icon></span>
+            <div class="dp-head-copy">
+              <h2 class="kv-card-title">Decision</h2>
+            </div>
+          </div>
+          <dl class="flex flex-col gap-3">
+            <div class="kv-meta-row">
+              <dt class="kv-meta-label">Risk Level</dt>
+              <dd><span class="kv-chip" [class]="riskTone(s.riskLevel)">{{ labelOf(s.riskLevel) }}</span></dd>
+            </div>
+            <div class="kv-meta-row">
+              <dt class="kv-meta-label">Expires</dt>
+              <dd class="kv-meta-value">{{ s.expiryDate ? (s.expiryDate | date: 'd MMM y') : '—' }}</dd>
+            </div>
+            <div class="kv-meta-row">
+              <dt class="kv-meta-label">Reviewed By</dt>
+              <dd class="kv-meta-value">{{ s.reviewedBy || '—' }}</dd>
+            </div>
+            @if (s.reviewedAt) {
+              <div class="kv-meta-row">
+                <dt class="kv-meta-label">Reviewed On</dt>
+                <dd class="kv-meta-value">{{ s.reviewedAt | date: 'd MMM y, HH:mm' }}</dd>
+              </div>
+            }
+            <div class="kv-meta-row">
+              <dt class="kv-meta-label">Approved By</dt>
+              <dd class="kv-meta-value">{{ s.approvedBy || '—' }}</dd>
+            </div>
+            @if (s.approvedAt) {
+              <div class="kv-meta-row">
+                <dt class="kv-meta-label">Approved On</dt>
+                <dd class="kv-meta-value">{{ s.approvedAt | date: 'd MMM y, HH:mm' }}</dd>
+              </div>
+            }
+          </dl>
+          @if (s.riskFactors?.length) {
+            <div class="dp-divider mt-4">
+              <p class="kv-label">Risk Factors</p>
+              <ul class="flex flex-col gap-1 mt-2">
+                @for (factor of s.riskFactors; track $index) {
+                  <li class="dp-list-sub dp-inline-icon"><mat-icon>flag</mat-icon>{{ factor }}</li>
+                }
+              </ul>
+            </div>
+          }
+        </section>
+
+        <!-- Documents on the record -->
+        <section class="kv-card">
+          <div class="kv-card-header dp-head">
+            <span class="dp-icon-tile"><mat-icon>folder_open</mat-icon></span>
+            <div class="dp-head-copy">
+              <h2 class="kv-card-title">Documents</h2>
+            </div>
+            <span class="kv-tag dp-head-aside">{{ (s.documents || []).length }}</span>
+          </div>
+          <ul class="flex flex-col gap-2">
+            @for (document of s.documents || []; track $index) {
+              <li class="dp-list-item">
+                <div class="flex items-center gap-3 min-w-0">
+                  <mat-icon class="text-primary shrink-0">description</mat-icon>
+                  <div class="min-w-0">
+                    <p class="dp-strong truncate">{{ document.key || 'Untitled document' }}</p>
+                    <p class="dp-list-sub">{{ labelOf(document.value) }}</p>
+                  </div>
+                </div>
+              </li>
+            } @empty {
+              <p class="dp-empty-text">No documents.</p>
+            }
+          </ul>
+        </section>
+      </aside>
+    </div>
+  }
+</div>

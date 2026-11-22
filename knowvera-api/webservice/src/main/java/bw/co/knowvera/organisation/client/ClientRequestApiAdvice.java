@@ -310,18 +310,19 @@ public class ClientRequestApiAdvice {
         String message = ex.getMessage() == null ? "" : ex.getMessage();
         bw.co.knowvera.ValidationMapping mapping = findMapping(message).orElse(null);
         String friendly = mapping == null
-                ? FALLBACK_MESSAGE
+                ? bw.co.knowvera.exception.ServiceErrors.message(ex)
                 : mapping.friendlyMessage();
 
         HttpStatus status = mapping == null
-                ? HttpStatus.INTERNAL_SERVER_ERROR
+                ? bw.co.knowvera.exception.ServiceErrors.status(ex)
                 : mapping.status();
 
         String type = mapping == null
                 ? "service-error"
                 : mapping.type();
 
-        List<String> errors = message.isBlank()
+        // The raw exception text is for the log, not the caller
+        List<String> errors = mapping == null || message.isBlank()
                 ? List.of()
                 : List.of(message);
 
@@ -344,6 +345,28 @@ public class ClientRequestApiAdvice {
 
 
     /**
+     * A client request spreadsheet that was refused: 400, with one entry in {@code errors} for
+     * each wrong row. Nothing was imported.
+     */
+    @ExceptionHandler(ClientRequestImportException.class)
+    public ResponseEntity<ProblemDetail> handleClientRequestImport(ClientRequestImportException ex, WebRequest request) {
+
+        LOGGER.warn("Client request import refused: {} ({} row errors)", ex.getMessage(), ex.getRowErrors().size());
+
+        ProblemDetail problemDetail = buildProblemDetail(
+                HttpStatus.BAD_REQUEST,
+                "client-request-import-rejected",
+                "Import Rejected",
+                ex.getMessage(),
+                request,
+                ex.getRowErrors());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .contentType(PROBLEM_JSON_MEDIA_TYPE)
+                .body(problemDetail);
+    }
+
+    /**
      * Handles {@link bw.co.knowvera.organisation.client.ClientRequestServiceException} thrown by referenced services (RFC 9457 Internal Server Error).
      */
     @ExceptionHandler(bw.co.knowvera.organisation.client.ClientRequestServiceException.class)
@@ -352,17 +375,18 @@ public class ClientRequestApiAdvice {
         String message = ex.getMessage() == null ? "" : ex.getMessage();
         bw.co.knowvera.ValidationMapping mapping = findMapping(message).orElse(null);
         String friendly = mapping == null
-                ? FALLBACK_MESSAGE
+                ? bw.co.knowvera.exception.ServiceErrors.message(ex)
                 : mapping.friendlyMessage();
         HttpStatus status = mapping == null
-                ? HttpStatus.INTERNAL_SERVER_ERROR
+                ? bw.co.knowvera.exception.ServiceErrors.status(ex)
                 : mapping.status();
 
         String type = mapping == null
                 ? "service-error"
                 : mapping.type();
                 
-        List<String> errors = message.isBlank()
+        // The raw exception text is for the log, not the caller
+        List<String> errors = mapping == null || message.isBlank()
                 ? List.of()
                 : List.of(message);
         LOGGER.error("Referenced service error (ClientRequestService)", ex);

@@ -59,6 +59,7 @@ export class App {
               },
               error: (error) => {
                 console.error('Failed to load organisation data', error);
+                this.appEnvState.setUserOrganisation(null);
               }
             });
           });

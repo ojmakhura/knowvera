@@ -87,7 +87,13 @@ export class BranchFormDialogComponent {
   private dialogRef = inject(MatDialogRef<BranchFormDialogComponent>);
   data: BranchDTO = inject(MAT_DIALOG_DATA);
 
-  branchSignal = signal<BranchDTO>(this.data ?? new BranchDTO());
+  // Signal forms reads a null model value on a text <input> as numeric and rejects letters,
+  // so the text fields start as ''
+  branchSignal = signal<BranchDTO>({
+    ...(this.data ?? new BranchDTO()),
+    code: this.data?.code ?? '',
+    name: this.data?.name ?? '',
+  });
   branchForm = form(this.branchSignal, (path) => {
     required(path.code);
     required(path.name);

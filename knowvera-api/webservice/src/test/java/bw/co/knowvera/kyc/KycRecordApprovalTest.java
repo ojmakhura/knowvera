@@ -31,7 +31,9 @@ class KycRecordApprovalTest {
     @BeforeEach
     void setUp() throws Exception {
         api = new KycRecordApiImpl(service, mock(KeycloakOrganisationService.class), mock(KeycloakUserService.class),
-                mock(IndividualService.class), mock(DocumentApi.class), mock(CurrentCaller.class));
+                mock(IndividualService.class), mock(DocumentApi.class), mock(CurrentCaller.class),
+                mock(bw.co.knowvera.organisation.client.ClientRequestService.class),
+                mock(bw.co.knowvera.auth.KycAuthorisationService.class));
 
         KycRecordDTO highRisk = new KycRecordDTO();
         highRisk.setRiskLevel(RiskLevel.HIGH);

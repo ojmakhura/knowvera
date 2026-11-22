@@ -35,8 +35,9 @@ export class EditOrganisationVarsForm {
   modifiedAt: Date | any = null;
   modifiedBy: string | any = null;
   isClient: boolean | any = null;
-  status: GeneralStatus | any = null;
-  kycStatus: KycComplianceStatus | any = null;
+  // A new organisation starts active with no KYC on file; both are required to save
+  status: GeneralStatus | any = GeneralStatus.ACTIVE;
+  kycStatus: KycComplianceStatus | any = KycComplianceStatus.ABSENT;
   // Native text inputs bound with [formField] must start as '' — signal forms treats a null
   // model value on <input type="text"> as numeric and rejects non-numeric input.
   registrationNo: string | any = '';
@@ -160,7 +161,7 @@ export class OrganisationEdit implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       let messages = this.messages();
 
-      if (this.success() && !this.loading()) {
+      if (this.success() && !this.loading() && messages[0]) {
         untracked(() => toast.success(messages[0]));
       }
 

@@ -46,15 +46,13 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.findById(data.id, ).pipe(
             tapResponse({
               next: (response: OrganisationDTO) => {
-                const message = `Organisation ${response.name} loaded successfully!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -82,15 +80,13 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.getAll().pipe(
             tapResponse({
               next: (response: OrganisationListDTO[]) => {
-                const message = `${response.length} organisations loaded successfully!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -118,15 +114,13 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.getAllPaged(data.pageNumber, data.pageSize, ).pipe(
             tapResponse({
               next: (response: Page<OrganisationListDTO> ) => {
-                const message = `Loaded ${response.page.size} organisations on page ${response.page.number + 1} successfully!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -154,15 +148,13 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.pagedSearch(data.criteria, ).pipe(
             tapResponse({
               next: (response: Page<OrganisationListDTO>) => {
-                const message = `Loaded ${response.page.size} organisations on page ${response.page.number + 1} successfully!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataPage: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -262,15 +254,13 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.search(data.criteria, ).pipe(
             tapResponse({
               next: (response: OrganisationListDTO[]) => {
-                const message = `Success!!`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                   }
                 );
@@ -298,15 +288,13 @@ export const OrganisationApiStore = signalStore(
           return organisationApi.loadMyOrganisation().pipe(
             tapResponse({
               next: (response: OrganisationDTO) => {
-                const message = `Loaded my organisation successfully`;
-                toastr.success(message);
                 patchState(
                   store,
                   {
                     data: response,
                     loading: false,
                     success: true,
-                    messages: [message],
+                    messages: [],
                     error: false,
                     registrationOrganisationLoaded: true,
                   }

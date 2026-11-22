@@ -240,7 +240,7 @@ export const DocumentTypeApiStore = signalStore(
                     dataList: response,
                     loading: false,
                     success: true,
-                    messages: [`Success!!`],
+                    messages: ['Document types loaded.'],
                     error: false,
                   }
                 );

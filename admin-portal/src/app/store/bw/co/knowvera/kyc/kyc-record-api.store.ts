@@ -60,7 +60,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.createIndividualRecord(data.individualId).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
-                const message = `Success!!`;
+                const message = 'Individual KYC record created.';
                 
                 patchState(store, {
                   data: response,
@@ -91,7 +91,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.createOrganisationRecord(data.organisationId).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
-                const message = `Success!!`;
+                const message = 'Organisation KYC record created.';
                 
                 patchState(store, {
                   data: response,
@@ -122,7 +122,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findById(data.id).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
-                const message = `Success!!`;
+                const message = 'KYC record loaded.';
                 
                 patchState(store, {
                   data: response,
@@ -153,7 +153,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findByIdentityNo(data.identityNo).pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
-                const message = `Success!!`;
+                const message = 'KYC records loaded.';
                 
                 patchState(store, {
                   dataList: response,
@@ -186,7 +186,7 @@ export const KycRecordApiStore = signalStore(
             .pipe(
               tapResponse({
                 next: (response: Page<KycRecordListDTO>) => {
-                  const message = `Success!!`;
+                  const message = 'KYC records loaded.';
                   
                   patchState(store, {
                     dataPage: response,
@@ -217,7 +217,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findByIndividual(data.individualId).pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
-                const message = `Success!!`;
+                const message = 'KYC records loaded.';
                 
                 patchState(store, {
                   dataList: response,
@@ -254,7 +254,7 @@ export const KycRecordApiStore = signalStore(
             .pipe(
               tapResponse({
                 next: (response: Page<KycRecordListDTO>) => {
-                  const message = `Success!!`;
+                  const message = 'KYC records loaded.';
                   
                   patchState(store, {
                     dataPage: response,
@@ -285,7 +285,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findByOrganisation(data.organisationId).pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
-                const message = `Success!!`;
+                const message = 'KYC records loaded.';
                 
                 patchState(store, {
                   dataList: response,
@@ -316,7 +316,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findByOrganisationRegistration(data.registrationNo).pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
-                const message = `Success!!`;
+                const message = 'KYC records loaded.';
                 
                 patchState(store, {
                   dataList: response,
@@ -357,7 +357,7 @@ export const KycRecordApiStore = signalStore(
             .pipe(
               tapResponse({
                 next: (response: Page<KycRecordListDTO>) => {
-                  const message = `Success!!`;
+                  const message = 'KYC records loaded.';
                   
                   patchState(store, {
                     dataPage: response,
@@ -388,7 +388,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.getAll().pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
-                const message = `Success!!`;
+                const message = 'KYC records loaded.';
                 
                 patchState(store, {
                   dataList: response,
@@ -419,7 +419,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.getAllPaged(data.pageNumber, data.pageSize).pipe(
             tapResponse({
               next: (response: Page<KycRecordListDTO>) => {
-                const message = `Success!!`;
+                const message = 'KYC records loaded.';
                 
                 patchState(store, {
                   dataPage: response,
@@ -450,7 +450,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.pagedSearch(data.criteria).pipe(
             tapResponse({
               next: (response: Page<KycRecordListDTO>) => {
-                const message = `Success!!`;
+                const message = 'KYC records loaded.';
                 
                 patchState(store, {
                   dataPage: response,
@@ -481,7 +481,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.remove(data.id).pipe(
             tapResponse({
               next: (response: boolean) => {
-                const message = `Success!!`;
+                const message = 'KYC record removed.';
                 
                 patchState(store, {
                   data: response,
@@ -512,7 +512,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.save(data.kycRecord).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
-                const message = `Success!!`;
+                const message = 'KYC record saved.';
                 
                 patchState(store, {
                   data: response,
@@ -543,7 +543,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.search(data.criteria).pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
-                const message = `Success!!`;
+                const message = 'KYC records loaded.';
                 
                 patchState(store, {
                   dataList: response,
@@ -574,7 +574,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findMyCurrentRecord(TargetEntity.ORGANISATION).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
-                const message = `Success!!`;
+                const message = 'KYC record loaded.';
                 
                 patchState(store, {
                   currentOrganisationRecord: response,
@@ -605,7 +605,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findMyCurrentRecord(TargetEntity.INDIVIDUAL).pipe(
             tapResponse({
               next: (response: KycRecordDTO) => {
-                const message = `Success!!`;
+                const message = 'KYC record loaded.';
                 
                 patchState(store, {
                   currentIndividualRecord: response,
@@ -636,7 +636,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findMyRecords().pipe(
             tapResponse({
               next: (response: KycRecordListDTO[]) => {
-                const message = `Success!!`;
+                const message = 'KYC records loaded.';
                 
                 patchState(store, {
                   dataList: response,
@@ -668,7 +668,7 @@ export const KycRecordApiStore = signalStore(
             tapResponse({
               next: (response: KycRecordDTO) => {
                 console.log('Create new record response:', response);
-                const message = `Success!!`;
+                const message = 'KYC record created.';
                 
                 patchState(store, {
                   data: response,
@@ -700,7 +700,7 @@ export const KycRecordApiStore = signalStore(
           return kycRecordApi.findMyRecordsPaged(data.pageNumber, data.pageSize).pipe(
             tapResponse({
               next: (response: Page<KycRecordListDTO>) => {
-                const message = `Success!!`;
+                const message = 'KYC records loaded.';
                 
                 patchState(store, {
                   dataPage: response,

@@ -573,7 +573,8 @@ public class Organisation
     }
 
     // Generate 11 associations
-    @OneToMany( fetch = FetchType.EAGER)
+    // Document types are shared reference data: several organisations can require the same one
+    @ManyToMany( fetch = FetchType.EAGER)
     @JoinTable
     (
         name = "INDIVIDUAL_KYC_DOCUMENTS2ORGANISATION",
@@ -821,7 +822,8 @@ public class Organisation
         return this.individualFields.remove(elementToRemove);
     }
 
-    @OneToMany( fetch = FetchType.EAGER)
+    // Document types are shared reference data: several organisations can require the same one
+    @ManyToMany( fetch = FetchType.EAGER)
     @JoinTable
     (
         name = "ORGANISATION2ORGANISATION_KYC_DOCUMENTS",

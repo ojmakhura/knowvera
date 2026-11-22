@@ -73,7 +73,7 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
     effect(() => {
 
       let success = this.success();
-      if(success) {
+      if(success && this.messages()[0]) {
         this.toaster.success(this.messages()[0]);
 
       }
@@ -104,6 +104,15 @@ export class KycRecord implements OnInit, OnDestroy, AfterViewInit {
       const recordId = params['id'];
       if (recordId) {
         this.kycRecordApiStore.findById({id: recordId});
+      } else {
+        // The menu link carries no record: open the user's own, or send them to start one
+        this.kycRecordApi.findMyRecords().subscribe({
+          next: (records) => {
+            const first = (records || [])[0];
+            this.router.navigate(first?.id ? ['/kyc-record', first.id] : ['/dashboard'], { replaceUrl: true });
+          },
+          error: () => this.router.navigate(['/dashboard'], { replaceUrl: true }),
+        });
       }
     });
   }
